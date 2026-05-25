@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}CYS Ltda{% endblock %}</title>
+
+    <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="{% static 'css/cuerpo/base.css' %}">
+    {% block extra_css %}{% endblock %}
+
+    <script>
+        (function () {
+            const cfg = JSON.parse(localStorage.getItem('cys_config') || '{}');
+            const root = document.documentElement;
+            const temas = {
+                oscuro: { '--fondo':'#011936', '--fondo-card':'#0a2240', '--texto':'#e2e8f0', '--azul-claro':'#4DA8DA' },
+                claro: { '--fondo':'#f0f4f8', '--fondo-card':'#ffffff', '--texto':'#1a2a3a', '--azul-claro':'#B22A1A' }
+            };
+            const tema = temas[cfg.tema] || temas.oscuro;
+            Object.entries(tema).forEach(([k,v]) => root.style.setProperty(k, v));
+        })();
+    </script>
+</head>
+
+<body>
+    {% include 'partials/header.html' %}
+
+    <nav class="cys-subnav">
+        <span class="cys-subnav__page">{% block page_title %}Tablero{% endblock %}</span>
+        <button class="cys-menu-btn" id="menuBtn">
+            <i class="bi bi-list"></i> Menú
+        </button>
+    </nav>
+
+    {% include 'partials/aside.html' %}
+
+    <main class="cys-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/reloj.js' %}"></script>
+    <script src="{% static 'js/principal.js' %}"></script>
+
+    <script>
+        const sidebarEl = document.getElementById('sidebarRight');
+        if (sidebarEl) {
+            const bsSidebar = new bootstrap.Offcanvas(sidebarEl);
+            const menuBtn = document.getElementById('menuBtn');
+            
+            menuBtn?.addEventListener('click', () => bsSidebar.toggle());
+            
+            sidebarEl.addEventListener('show.bs.offcanvas', () => {
+                document.body.classList.add('sidebar-open');
+                localStorage.setItem('sidebarOpen', 'true');
+            });
+            sidebarEl.addEventListener('hidden.bs.offcanvas', () => {
+                document.body.classList.remove('sidebar-open');
+                localStorage.setItem('sidebarOpen', 'false');
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

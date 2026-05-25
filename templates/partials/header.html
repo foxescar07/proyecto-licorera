@@ -1,0 +1,18 @@
+{% load static %}
+<header class="cys-header">
+    <div class="cys-header__brand">
+        <img src="{% static 'img/logo.jpeg' %}" alt="Logo CYS" class="cys-header__logo">
+        <div>
+            <div class="cys-header__title">Tablero de Control</div>
+            <div class="cys-header__sub">
+                <span>Licorera C Y S</span>
+                <span class="cys-dot"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="cys-header__clock">
+        <div id="reloj" class="cys-header__clock-time">00:00</div>
+        <div id="fecha" class="cys-header__clock-date">Cargando fecha...</div>
+    </div>
+</header>

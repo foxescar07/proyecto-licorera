@@ -1,0 +1,291 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'cuerpo/aside.css' %}">
+
+
+
+<div class="offcanvas offcanvas-end"
+     tabindex="-1"
+     id="sidebarRight"
+     data-bs-backdrop="false"
+     data-bs-scroll="true">
+
+  <!-- HEADER -->
+  <div class="cys-sb-header">
+
+    <div class="cys-sb-brand">
+      <img src="{% static 'img/logo.jpeg' %}"
+           class="cys-sb-logo"
+           alt="Logo">
+
+      <div>
+        <div class="cys-sb-brand-name">CYS Ltda</div>
+        <div class="cys-sb-brand-sub">Distribución</div>
+      </div>
+    </div>
+
+    <button class="cys-sb-close"
+            data-bs-dismiss="offcanvas">
+
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- BODY -->
+  <div class="cys-sb-body">
+
+    <!-- USUARIO -->
+    <div id="userHoverWrapper">
+
+      <div class="cys-sb-user"
+           onclick="abrirModalPerfil()"
+           style="cursor:pointer; user-select:none;"
+           title="Ver perfil">
+
+        <div class="cys-sb-avatar"
+             style="
+                font-family:'Rajdhani',sans-serif;
+                font-weight:700;
+                font-size:.9rem;
+                color:var(--azul-claro);">
+
+          {{ request.session.usuario_user|slice:":1"|upper }}
+        </div>
+
+        <div style="flex:1; min-width:0;">
+
+          <div class="cys-sb-user-name">
+            @{{ request.session.usuario_user|default:"usuario" }}
+          </div>
+
+          <div class="cys-sb-user-role">
+
+            {% if request.session.usuario_rol == 'admin' %}
+              Administrador
+
+            {% elif request.session.usuario_rol == 'cajero' %}
+              Cajero
+
+            {% elif request.session.usuario_rol == 'empleado' %}
+              Empleado
+
+            {% else %}
+              —
+            {% endif %}
+          </div>
+        </div>
+
+        <i class="bi bi-person-circle"
+           style="
+              font-size:1rem;
+              color:var(--azul-claro);
+              opacity:.6;
+              flex-shrink:0;"></i>
+      </div>
+
+      {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' %}
+      <div id="userDropdown">
+
+        <div>
+          <i class="bi bi-people-fill"></i>
+          Usuarios
+        </div>
+
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- NAV -->
+    <div style="margin-top:.75rem;">
+
+      <div class="cys-sb-label">
+        Navegación
+      </div>
+
+      <nav class="cys-sb-nav">
+
+        <!-- TABLERO -->
+        <a href="{% url 'principal' %}"
+           class="cys-sb-link {% block nav_tablero %}{% endblock %}">
+
+          <i class="bi bi-grid-1x2-fill"></i>
+          Tablero
+        </a>
+
+        <!-- VENTAS -->
+        <button class="cys-sb-link w-100 text-start border-0 bg-transparent"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#submenuVentas"
+                aria-expanded="true">
+
+          <span>
+            <i class="bi bi-receipt"></i>
+            Ventas
+          </span>
+
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </button>
+
+        <div class="collapse show cys-sb-submenu"
+             id="submenuVentas">
+
+          <div class="cys-sb-sublink disabled-link">
+            <i class="bi bi-bar-chart-fill"></i>
+            Reportes
+          </div>
+
+          <div class="cys-sb-sublink disabled-link">
+            <i class="bi bi-arrow-return-left"></i>
+            Devoluciones
+          </div>
+
+        </div>
+
+        <!-- PRODUCTOS -->
+        <div class="cys-sb-link disabled-link">
+          <i class="bi bi-box-seam-fill"></i>
+          Productos
+        </div>
+
+        <!-- INVENTARIO -->
+        <div class="cys-sb-link disabled-link">
+          <i class="bi bi-clipboard-data-fill"></i>
+          Inventario
+        </div>
+
+        <!-- PROVEEDORES -->
+        <button class="cys-sb-link w-100 text-start border-0 bg-transparent"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#submenuProveedores"
+                aria-expanded="true">
+
+          <span>
+            <i class="bi bi-truck"></i>
+            Proveedores
+          </span>
+
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </button>
+
+        <div class="collapse show cys-sb-submenu"
+             id="submenuProveedores">
+
+          <div class="cys-sb-sublink disabled-link">
+            <i class="bi bi-cart-plus-fill"></i>
+            Compras
+          </div>
+
+        </div>
+
+      </nav>
+    </div>
+
+    <hr class="cys-sb-divider">
+
+    <!-- RESUMEN -->
+    <div>
+
+      <div class="cys-sb-label">
+        Resumen
+      </div>
+
+      <div class="d-flex flex-column gap-2">
+
+        <div class="cys-sb-stat">
+
+          <div>
+            <div class="cys-sb-stat-label">
+              Total productos
+            </div>
+
+            <div class="cys-sb-stat-val">
+              {{ sb_total_stock }}
+            </div>
+
+            <div class="cys-sb-stat-sub">
+              unidades en stock
+            </div>
+          </div>
+
+          <span class="cys-sb-dot bg-success"></span>
+        </div>
+
+        <div class="cys-sb-stat">
+
+          <div>
+            <div class="cys-sb-stat-label">
+              Stock crítico
+            </div>
+
+            <div class="cys-sb-stat-val">
+              {{ sb_stock_criticos }}
+            </div>
+
+            <div class="cys-sb-stat-sub">
+              producto{{ sb_stock_criticos|pluralize }} por reponer
+            </div>
+          </div>
+
+          <span class="cys-sb-dot bg-danger"></span>
+        </div>
+
+        <div class="cys-sb-stat">
+
+          <div>
+            <div class="cys-sb-stat-label">
+              Categorías
+            </div>
+
+            <div class="cys-sb-stat-val">
+              {{ sb_total_cats }}
+            </div>
+
+            <div class="cys-sb-stat-sub">
+              activas
+            </div>
+          </div>
+
+          <span class="cys-sb-dot bg-warning"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="cys-sb-divider">
+
+    <!-- CONFIG -->
+    <div class="cys-sb-link disabled-link"
+         style="
+            color:var(--azul-claro);
+            border-color:rgba(77,168,218,.2);
+            margin-bottom:.4rem;">
+
+      <i class="bi bi-sliders"></i>
+      Configuración
+    </div>
+
+    <!-- LOGOUT -->
+    <div class="cys-sb-link disabled-link"
+         style="
+            color:#e87070;
+            border-color:rgba(192,57,43,.3);">
+
+      <i class="bi bi-box-arrow-right"></i>
+      Cerrar Sesión
+    </div>
+
+    <!-- FOOTER -->
+    <div class="cys-sb-footer">
+      CYS Ltda &copy; {% now "Y" %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function abrirModalPerfil() {
+    console.log('Abrir perfil');
+  }
+</script>
