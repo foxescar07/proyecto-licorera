@@ -2,8 +2,6 @@
 
 <link rel="stylesheet" href="{% static 'cuerpo/aside.css' %}">
 
-
-
 <div class="offcanvas offcanvas-end"
      tabindex="-1"
      id="sidebarRight"
@@ -86,10 +84,18 @@
       {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' %}
       <div id="userDropdown">
 
-        <div>
+        <!-- 👇 CAMBIO REALIZADO -->
+        <a href="{% url 'usuario' %}"
+           style="
+              text-decoration:none;
+              color:inherit;
+              display:flex;
+              align-items:center;
+              gap:.5rem;">
+
           <i class="bi bi-people-fill"></i>
           Usuarios
-        </div>
+        </a>
 
       </div>
       {% endif %}
