@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYS — Acceso al Sistema</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+  <style>
+    :root {
+      --azul-oscuro: #011936;
+      --azul-claro:  #4DA8DA;
+      --azul-borde:  rgba(77,168,218,.35);
+      --azul-glow:   rgba(77,168,218,.15);
+      --fondo-card:  #0D1B2E;
+      --fondo-card2: #111f33;
+      --texto:       #E8EDF2;
+      --texto-muted: rgba(232,237,242,.45);
+      --radius:      12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--texto);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("{% static 'img/collage_licores.jpg' %}");
+      background-size: cover; background-position: center;
+      opacity: 0.22; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(8,15,26,0.92) 0%, rgba(10,40,100,0.85) 50%, rgba(5,20,60,0.95) 100%
+      );
+      z-index: 1; pointer-events: none;
+    }
+    .cys-card {
+      position: relative; z-index: 2;
+      background: var(--fondo-card);
+      border: 1px solid var(--azul-borde);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 20px var(--azul-glow);
+      width: 100%; max-width: 420px; padding: 2.5rem;
+    }
+    .cys-logo {
+      width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--azul-claro);
+      box-shadow: 0 0 0 4px var(--azul-glow), 0 0 20px var(--azul-glow);
+      display: block; margin: 0 auto 1.5rem;
+    }
+    .cys-title {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.3rem;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--texto); text-align: center; margin-bottom: 1.5rem;
+    }
+    .cys-label {
+      font-size: .68rem; font-weight: 600; color: var(--texto-muted);
+      letter-spacing: .1em; text-transform: uppercase;
+      display: block; margin-bottom: .35rem;
+    }
+    .cys-input {
+      background: var(--fondo-card2) !important;
+      border: 1px solid var(--azul-borde) !important;
+      color: var(--texto) !important;
+      border-radius: var(--radius) !important;
+      padding: .75rem 1rem !important; font-size: .88rem !important;
+      width: 100%; transition: border-color .22s ease, box-shadow .22s ease;
+    }
+    .cys-input:focus {
+      border-color: var(--azul-claro) !important;
+      box-shadow: 0 0 0 3px var(--azul-glow) !important; outline: none !important;
+    }
+    .cys-input::placeholder { color: var(--texto-muted) !important; }
+    .cys-btn-primary {
+      background: var(--azul-claro); color: var(--azul-oscuro);
+      border: none; border-radius: var(--radius); padding: .75rem;
+      width: 100%; font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: .95rem; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background .22s ease, transform .22s ease;
+      box-shadow: 0 4px 14px rgba(77,168,218,.4);
+    }
+    .cys-btn-primary:hover { background: #6dc0e8; transform: translateY(-2px); }
+
+    /* Mensajes de error Django */
+    .alert-cys {
+      border-radius: 8px; padding: .65rem .9rem;
+      font-size: .8rem; margin-bottom: 1rem;
+      background: rgba(192,57,43,.1);
+      border: 1px solid rgba(192,57,43,.35);
+      color: #e87070;
+    }
+    .invalid-feedback-cys {
+      font-size: .75rem; color: #e87070; margin-top: .3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="cys-card">
+    <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+    <div class="cys-title">Acceso al Sistema</div>
+
+    {# Mensajes de error generales de Django #}
+    {% if form.non_field_errors %}
+      <div class="alert-cys">
+        {% for error in form.non_field_errors %}
+          <div>{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="cys-label" for="{{ form.username.id_for_label }}">
+          Número de Identificación
+        </label>
+        <input
+          type="text"
+          id="{{ form.username.id_for_label }}"
+          name="{{ form.username.html_name }}"
+          class="cys-input"
+          placeholder="Tu número de identificación"
+          autocomplete="off"
+          value="{{ form.username.value|default:'' }}"
+          required
+        >
+        {% if form.username.errors %}
+          <div class="invalid-feedback-cys">{{ form.username.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-4">
+        <label class="cys-label" for="{{ form.password.id_for_label }}">
+          Contraseña
+        </label>
+        <input
+          type="password"
+          id="{{ form.password.id_for_label }}"
+          name="{{ form.password.html_name }}"
+          class="cys-input"
+          placeholder="Tu contraseña"
+          required
+        >
+        {% if form.password.errors %}
+          <div class="invalid-feedback-cys">{{ form.password.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="cys-btn-primary">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+      </button>
+
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
