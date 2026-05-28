@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     # apps
     'principal',
     'proveedores',
+     'usuarios',
 ]
 
 

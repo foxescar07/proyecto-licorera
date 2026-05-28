@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Usuario — CYS Ltda{% endblock %}
+{% block page_title %}Editar Usuario{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  <div style="max-width:520px; margin:0 auto;">
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-dismissible fade show mb-3"
+             style="background:var(--fondo-card); border:1px solid {% if message.tags == 'error' %}rgba(192,57,43,.4){% else %}rgba(77,168,218,.3){% endif %}; color:var(--texto); border-radius:var(--radius);"
+             role="alert">
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div style="background:#0D1B2E; border:1px solid rgba(77,168,218,.35); border-radius:18px; padding:2rem;">
+
+      <!-- Cabecera -->
+      <div style="display:flex; align-items:center; gap:.7rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(77,168,218,.15);">
+        <div style="width:44px; height:44px; border-radius:50%; flex-shrink:0;
+          background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
+          display:flex; align-items:center; justify-content:center;
+          font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; color:#4DA8DA;">
+          {{ perfil.nombre|slice:":1"|upper }}
+        </div>
+        <div>
+          <div style="font-size:.95rem; font-weight:600; color:#E8EDF2;">{{ perfil.nombre_completo }}</div>
+          <div style="font-size:.75rem; color:#4DA8DA;">@{{ perfil.usuario }}</div>
+        </div>
+      </div>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- Nombres y Apellidos -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem;">
+          <div>
+            <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.4);
+              letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+              Nombres
+            </label>
+            <input type="text" name="nombre" value="{{ perfil.nombre }}"
+              style="background:#111f33; border:1px solid rgba(77,168,218,.3); color:#E8EDF2;
+              border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%; outline:none;"
+              required>
+          </div>
+          <div>
+            <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.4);
+              letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+              Apellidos
+            </label>
+            <input type="text" name="apellidos" value="{{ perfil.apellidos }}"
+              style="background:#111f33; border:1px solid rgba(77,168,218,.3); color:#E8EDF2;
+              border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%; outline:none;"
+              required>
+          </div>
+        </div>
+
+        <!-- Correo y Rol -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem;">
+          <div>
+            <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.4);
+              letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+              Correo
+            </label>
+            <input type="email" name="email" value="{{ perfil.email|default:'' }}"
+              style="background:#111f33; border:1px solid rgba(77,168,218,.3); color:#E8EDF2;
+              border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%; outline:none;">
+          </div>
+          <div>
+            <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.4);
+              letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+              Rol
+            </label>
+            <select name="rol"
+              style="background:#111f33; border:1px solid rgba(77,168,218,.3); color:#E8EDF2;
+              border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%; outline:none; cursor:pointer;">
+              <option value="admin"    {% if perfil.rol == 'admin'    %}selected{% endif %}>Administrador</option>
+              <option value="cajero"   {% if perfil.rol == 'cajero'   %}selected{% endif %}>Cajero</option>
+              <option value="empleado" {% if perfil.rol == 'empleado' %}selected{% endif %}>Empleado</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Separador contraseña -->
+        <div style="height:1px; background:rgba(77,168,218,.12); margin:1rem 0 .85rem;"></div>
+        <div style="font-size:.68rem; color:rgba(232,237,242,.3); text-transform:uppercase;
+          letter-spacing:.08em; margin-bottom:.85rem;">
+          Nueva contraseña (opcional)
+        </div>
+
+        <div style="margin-bottom:1.25rem;">
+          <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.4);
+            letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+            Nueva Contraseña
+          </label>
+          <input type="password" name="clave_nueva" placeholder="Mín. 6 car., 2 núm., 1 may."
+            style="background:#111f33; border:1px solid rgba(77,168,218,.3); color:#E8EDF2;
+            border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%; outline:none;">
+        </div>
+
+        <!-- Botones -->
+        <div style="display:flex; gap:.75rem;">
+          <a href="{% url 'usuario' %}" style="
+            flex:1; background:rgba(77,168,218,.08); border:1px solid rgba(77,168,218,.25);
+            color:#4DA8DA; border-radius:10px; padding:.75rem;
+            font-size:.85rem; text-align:center; text-decoration:none;">
+            <i class="bi bi-arrow-left me-1"></i> Cancelar
+          </a>
+          <button type="submit" style="
+            flex:2; background:#4DA8DA; color:#011936; border:none; border-radius:10px;
+            padding:.75rem; font-family:'Rajdhani',sans-serif; font-weight:700;
+            font-size:.95rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+            box-shadow:0 4px 14px rgba(77,168,218,.3);">
+            <i class="bi bi-check-lg me-1"></i> Guardar Cambios
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
