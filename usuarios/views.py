@@ -79,7 +79,7 @@ def login_view(request):
         except Perfil.DoesNotExist:
             messages.error(request, 'Número de identificación o contraseña incorrectos.')
 
-    return render(request, 'usuarios/usuario.html', {'form': form})
+    return render(request, 'usuario.html', {'form': form})
 
 
 def logout_view(request):
@@ -97,7 +97,7 @@ def lista_usuarios(request):
         return redirect('login')
     list(messages.get_messages(request))
     usuarios = Perfil.objects.select_related('user').order_by('-user__date_joined')
-    return render(request, 'usuarios/usuarios_lista.html', {'usuarios': usuarios})
+    return render(request, 'usuarios_lista.html', {'usuarios': usuarios})
 
 
 def crear_usuario(request):
@@ -106,7 +106,7 @@ def crear_usuario(request):
         form = UsuarioForm(request.POST)
         if form.is_valid():
             perfil = form.save()
-            return render(request, 'usuarios/crear_usuario.html', {
+            return render(request, 'crear_usuario.html', {
                 'form': form,
                 'usuario_creado': True,
                 'nuevo_usuario': perfil.usuario,
@@ -115,7 +115,7 @@ def crear_usuario(request):
             for campo, errores in form.errors.items():
                 for error in errores:
                     messages.error(request, error)
-    return render(request, 'usuarios/crear_usuario.html', {'form': form})
+    return render(request, 'crear_usuario.html', {'form': form})
 
 
 def editar_usuario(request, pk):
@@ -169,7 +169,7 @@ def editar_usuario(request, pk):
                 messages.success(request, f'Usuario {perfil.usuario} actualizado correctamente.')
                 return redirect('usuario')
 
-    return render(request, 'usuarios/editar_usuario.html', {'perfil': perfil})
+    return render(request, 'editar_usuario.html', {'perfil': perfil})
 
 
 def toggle_activo(request, pk):
@@ -292,23 +292,23 @@ def restablecer_clave(request, token):
     try:
         perfil = Perfil.objects.select_related('user').get(reset_token=token, activo=True)
     except Perfil.DoesNotExist:
-        return render(request, 'usuarios/restablecer_clave.html', {'error': 'El enlace no es válido o ya fue utilizado.'})
+        return render(request, 'restablecer_clave.html', {'error': 'El enlace no es válido o ya fue utilizado.'})
 
     if timezone.now() > perfil.reset_token_expira:
         Perfil.objects.filter(pk=perfil.pk).update(reset_token=None, reset_token_expira=None)
-        return render(request, 'usuarios/restablecer_clave.html', {'error': 'El enlace expiró. Solicita uno nuevo.'})
+        return render(request, 'restablecer_clave.html', {'error': 'El enlace expiró. Solicita uno nuevo.'})
 
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
         confirmar = request.POST.get('confirmar', '')
         error     = _validar_clave_segura(nueva)
         if error:
-            return render(request, 'usuarios/restablecer_clave.html', {'token': token, 'error': error})
+            return render(request, 'restablecer_clave.html', {'token': token, 'error': error})
         if nueva != confirmar:
-            return render(request, 'usuarios/restablecer_clave.html', {'token': token, 'error': 'Las contraseñas no coinciden.'})
+            return render(request, 'restablecer_clave.html', {'token': token, 'error': 'Las contraseñas no coinciden.'})
         perfil.user.set_password(nueva)
         perfil.user.save(update_fields=['password'])
         Perfil.objects.filter(pk=perfil.pk).update(reset_token=None, reset_token_expira=None)
-        return render(request, 'usuarios/restablecer_clave.html', {'exito': True})
+        return render(request, 'restablecer_clave.html', {'exito': True})
 
-    return render(request, 'usuarios/restablecer_clave.html', {'token': token})
+    return render(request, 'restablecer_clave.html', {'token': token})
