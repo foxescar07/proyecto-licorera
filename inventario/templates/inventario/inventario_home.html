@@ -351,13 +351,13 @@
                     <th>Conteo Físico</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {% for c in conteos %}
-                  <tr>
-                    <td class="fw-semibold small">{{ c.presentacion.producto.nombre }}</td>
-                    <td class="small">{{ c.presentacion.producto.nombre }}</td>
-                    <td class="fw-bold small">{{ c.cantidad_contada }}</td>
-                  </tr>
+              <tbody>
+             {% for c in conteos %}
+            <tr>
+          <td class="fw-semibold small">{{ c.presentacion.producto.nombre }}</td>
+          <td class="small">{{ c.presentacion.stock_total }}</td>  {# ← corregida #}
+          <td class="fw-bold small">{{ c.cantidad_contada }}</td>
+          </tr>
                   {% empty %}
                   <tr>
                     <td colspan="3" class="text-center py-3 text-muted small">Aún no has contado ningún producto.</td>
