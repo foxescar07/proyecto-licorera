@@ -58,10 +58,11 @@ class ProductoForm(forms.ModelForm):
 class PresentacionForm(forms.ModelForm):
     class Meta:
         model  = PresentacionProducto
-        fields = ['nombre', 'unidades', 'precio']
+        fields = ['nombre', 'unidades', 'cantidad', 'precio']
         widgets = {
             'nombre':   forms.TextInput(attrs={'class': 'gp-input', 'placeholder': 'Ej: Six-pack'}),
             'unidades': forms.NumberInput(attrs={'class': 'gp-input', 'min': '1'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'gp-input', 'min': '0'}),
             'precio':   forms.NumberInput(attrs={'class': 'gp-input', 'min': '0', 'step': '0.01'}),
         }
 
