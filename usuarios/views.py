@@ -55,8 +55,6 @@ def _set_session(request, perfil):
     request.session['usuario_user']   = perfil.usuario
 
 
-# ── LOGIN / LOGOUT ─────────────────────────────────────────────
-
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -94,8 +92,6 @@ def logout_view(request):
     return response
 
 
-# ── LISTA / CREAR ──────────────────────────────────────────────
-
 def lista_usuarios(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -121,8 +117,6 @@ def crear_usuario(request):
                     messages.error(request, error)
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
 
-
-# ── EDITAR ─────────────────────────────────────────────────────
 
 def editar_usuario(request, pk):
     if not request.user.is_authenticated:
@@ -178,8 +172,6 @@ def editar_usuario(request, pk):
     return render(request, 'usuarios/editar_usuario.html', {'perfil': perfil})
 
 
-# ── TOGGLE / ELIMINAR ──────────────────────────────────────────
-
 def toggle_activo(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -216,8 +208,6 @@ def eliminar_usuario(request, pk):
     messages.success(request, 'Usuario eliminado correctamente.')
     return redirect('usuario')
 
-
-# ── PERFIL ─────────────────────────────────────────────────────
 
 def perfil_view(request):
     if not request.user.is_authenticated:
@@ -266,8 +256,6 @@ def perfil_view(request):
     return render(request, 'usuarios/perfil.html', {'perfil': perfil})
 
 
-# ── RECUPERACIÓN DE CONTRASEÑA ─────────────────────────────────
-
 def solicitar_recuperacion(request):
     if request.method == 'POST':
         correo = request.POST.get('correo', '').strip().lower()
@@ -312,3 +300,15 @@ def restablecer_clave(request, token):
 
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
+        confirmar = request.POST.get('confirmar', '')
+        error     = _validar_clave_segura(nueva)
+        if error:
+            return render(request, 'usuarios/restablecer_clave.html', {'token': token, 'error': error})
+        if nueva != confirmar:
+            return render(request, 'usuarios/restablecer_clave.html', {'token': token, 'error': 'Las contraseñas no coinciden.'})
+        perfil.user.set_password(nueva)
+        perfil.user.save(update_fields=['password'])
+        Perfil.objects.filter(pk=perfil.pk).update(reset_token=None, reset_token_expira=None)
+        return render(request, 'usuarios/restablecer_clave.html', {'exito': True})
+
+    return render(request, 'usuarios/restablecer_clave.html', {'token': token})
