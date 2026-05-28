@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYS — Restablecer Contraseña</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+  <style>
+    :root {
+      --azul-oscuro: #011936; --azul-claro: #4DA8DA;
+      --azul-borde: rgba(77,168,218,.35); --azul-glow: rgba(77,168,218,.15);
+      --fondo-card: #0D1B2E; --fondo-card2: #111f33;
+      --texto: #E8EDF2; --texto-muted: rgba(232,237,242,.55); --radius: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif; color: var(--texto);
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 2rem 1rem;
+      position: relative; overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("{% static 'img/collage_licores.jpg' %}");
+      background-size: cover; background-position: center;
+      opacity: 0.22; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(8,15,26,0.92) 0%, rgba(10,40,100,0.85) 50%, rgba(5,20,60,0.95) 100%
+      );
+      z-index: 1; pointer-events: none;
+    }
+    .cys-card {
+      position: relative; z-index: 2;
+      background: var(--fondo-card); border: 1px solid var(--azul-borde);
+      border-radius: 18px; box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 20px var(--azul-glow);
+      width: 100%; max-width: 420px; padding: 2.5rem;
+    }
+    .cys-logo {
+      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--azul-claro); box-shadow: 0 0 0 4px var(--azul-glow);
+      display: block; margin: 0 auto 1.5rem;
+    }
+    .cys-title {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.2rem;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--texto); text-align: center; margin-bottom: 1.25rem;
+    }
+    .cys-label {
+      font-size: .68rem; font-weight: 600; color: var(--texto-muted);
+      letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem;
+    }
+    .cys-input {
+      background: var(--fondo-card2) !important; border: 1px solid var(--azul-borde) !important;
+      color: var(--texto) !important; border-radius: var(--radius) !important;
+      padding: .75rem 1rem !important; font-size: .88rem !important; width: 100%;
+    }
+    .cys-input:focus {
+      border-color: var(--azul-claro) !important;
+      box-shadow: 0 0 0 3px var(--azul-glow) !important; outline: none !important;
+    }
+    .cys-input::placeholder { color: var(--texto-muted) !important; }
+    .cys-btn {
+      background: var(--azul-claro); color: var(--azul-oscuro);
+      border: none; border-radius: var(--radius); padding: .75rem; width: 100%;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .95rem;
+      letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(77,168,218,.4);
+    }
+    .cys-btn:hover { background: #6dc0e8; }
+    .cys-msg-ok {
+      background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.35);
+      color: #5edb97; border-radius: 8px; padding: .75rem 1rem;
+      font-size: .85rem; margin-bottom: 1.25rem; text-align: center;
+    }
+    .cys-msg-err {
+      background: rgba(192,57,43,.1); border: 1px solid rgba(192,57,43,.35);
+      color: #e87070; border-radius: 8px; padding: .75rem 1rem;
+      font-size: .85rem; margin-bottom: 1.25rem; text-align: center;
+    }
+    .cys-hint { font-size: .72rem; color: var(--texto-muted); margin-top: .4rem; line-height: 1.5; }
+    .cys-link {
+      color: var(--azul-claro); font-size: .78rem;
+      text-decoration: none; display: block; text-align: center; margin-top: 1rem;
+    }
+    .cys-link:hover { opacity: .75; }
+    .cys-divider { height: 1px; background: var(--azul-borde); margin: 1.25rem 0; }
+  </style>
+</head>
+<body>
+  <div class="cys-card">
+    <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+
+    {% if exito %}
+      <div class="cys-title" style="color:#5edb97;">¡Listo!</div>
+      <div class="cys-msg-ok">Tu contraseña fue actualizada correctamente.</div>
+      <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Ir al Inicio de Sesión
+      </a>
+
+    {% elif error %}
+      <div class="cys-title">Enlace Inválido</div>
+      <div class="cys-msg-err">{{ error }}</div>
+      <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
+        <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
+      </a>
+
+    {% else %}
+      <div class="cys-title">Nueva Contraseña</div>
+      <p style="font-size:.78rem; color:var(--texto-muted); text-align:center; margin-bottom:1.5rem; line-height:1.6;">
+        Crea una contraseña segura para tu cuenta.
+      </p>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="cys-label">Nueva Contraseña</label>
+          <input type="password" name="nueva_clave" class="cys-input"
+                 placeholder="Tu nueva contraseña" required minlength="6">
+          <div class="cys-hint">
+            <i class="bi bi-info-circle me-1"></i>Mínimo 6 caracteres, 2 números y 1 mayúscula.
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="cys-label">Confirmar Contraseña</label>
+          <input type="password" name="confirmar" class="cys-input"
+                 placeholder="Repite la contraseña" required minlength="6">
+        </div>
+        <button type="submit" class="cys-btn">
+          <i class="bi bi-shield-check me-1"></i> Guardar Nueva Contraseña
+        </button>
+      </form>
+      <div class="cys-divider"></div>
+      <a href="{% url 'login' %}" class="cys-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+      </a>
+    {% endif %}
+  </div>
+</body>
+</html>
