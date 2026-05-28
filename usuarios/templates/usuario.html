@@ -9,72 +9,208 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
- 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/usuario/usuario.css' %}">
-{% endblock %}
-
+  <style>
+    :root {
+      --azul-oscuro: #011936; --azul-claro: #4DA8DA;
+      --azul-borde: rgba(77,168,218,.35); --azul-glow: rgba(77,168,218,.15);
+      --fondo-card: #0D1B2E; --fondo-card2: #111f33;
+      --texto: #E8EDF2; --texto-muted: rgba(232,237,242,.45); --radius: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif; color: var(--texto);
+      min-height: 100vh; position: relative; overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("{% static 'img/collage_licores.jpg' %}");
+      background-size: cover; background-position: center; opacity: 0.22; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      background: linear-gradient(135deg, rgba(8,15,26,0.92) 0%, rgba(10,40,100,0.85) 50%, rgba(5,20,60,0.95) 100%);
+      z-index: 1; pointer-events: none;
+    }
+    .cys-wrap {
+      position: relative; z-index: 2; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;
+    }
+    .cys-card {
+      background: var(--fondo-card); border: 1px solid var(--azul-borde);
+      border-radius: 18px; box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 20px var(--azul-glow);
+      width: 100%; max-width: 420px; padding: 2.5rem;
+    }
+    .cys-logo {
+      width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--azul-claro);
+      box-shadow: 0 0 0 4px var(--azul-glow), 0 0 20px var(--azul-glow);
+      display: block; margin: 0 auto 1.5rem;
+    }
+    .cys-title {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.3rem;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--texto); text-align: center; margin-bottom: 1.5rem;
+    }
+    .cys-label {
+      font-size: .68rem; font-weight: 600; color: var(--texto-muted);
+      letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem;
+    }
+    .cys-input {
+      background: var(--fondo-card2) !important; border: 1px solid var(--azul-borde) !important;
+      color: var(--texto) !important; border-radius: var(--radius) !important;
+      padding: .75rem 1rem !important; font-size: .88rem !important; width: 100%; transition: all .22s ease;
+    }
+    .cys-input:focus {
+      border-color: var(--azul-claro) !important;
+      box-shadow: 0 0 0 3px var(--azul-glow) !important; outline: none !important;
+    }
+    .cys-input::placeholder { color: var(--texto-muted) !important; }
+    .cys-btn-primary {
+      background: var(--azul-claro); color: var(--azul-oscuro); border: none;
+      border-radius: var(--radius); padding: .75rem; width: 100%;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .95rem;
+      letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+      transition: all .22s ease; box-shadow: 0 4px 14px rgba(77,168,218,.4);
+    }
+    .cys-btn-primary:hover { background: #6dc0e8; transform: translateY(-2px); }
+    .cys-divider { height: 1px; background: var(--azul-borde); margin: 1.25rem 0; }
+    .cys-btn-link {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: transparent; border: 1px solid var(--azul-borde);
+      border-radius: 8px; color: var(--azul-claro); font-size: .75rem; font-weight: 500;
+      padding: .45rem .85rem; cursor: pointer; text-decoration: none; transition: all .2s ease;
+    }
+    .cys-btn-link:hover { background: var(--azul-glow); border-color: var(--azul-claro); color: var(--azul-claro); }
+    .cys-msg { border-radius: 8px; padding: .65rem .9rem; font-size: .8rem; margin-bottom: 1rem; display: none; }
+    .cys-msg--ok  { background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.35); color: #5edb97; }
+    .cys-msg--err { background: rgba(192,57,43,.1);  border: 1px solid rgba(192,57,43,.35);  color: #e87070; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }  60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    .shake { animation: shake .4s ease; }
+  </style>
 </head>
 <body>
-  <div class="cys-card">
-    <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
-    <div class="cys-title">Acceso al Sistema</div>
+  <div class="cys-wrap">
+    <div class="cys-card" id="tarjeta">
+      <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+      <div id="msgGlobal" class="cys-msg" role="alert"></div>
 
-    {# Mensajes de error generales de Django #}
-    {% if form.non_field_errors %}
-      <div class="alert-cys">
-        {% for error in form.non_field_errors %}
-          <div>{{ error }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    <form method="post" action="{% url 'login' %}">
-      {% csrf_token %}
-
-      <div class="mb-3">
-        <label class="cys-label" for="{{ form.username.id_for_label }}">
-          Número de Identificación
-        </label>
-        <input
-          type="text"
-          id="{{ form.username.id_for_label }}"
-          name="{{ form.username.html_name }}"
-          class="cys-input"
-          placeholder="Tu número de identificación"
-          autocomplete="off"
-          value="{{ form.username.value|default:'' }}"
-          required
-        >
-        {% if form.username.errors %}
-          <div class="invalid-feedback-cys">{{ form.username.errors|join:", " }}</div>
-        {% endif %}
+      <!-- LOGIN -->
+      <div id="secLogin">
+        <div class="cys-title">Acceso al Sistema</div>
+        <div class="mb-3">
+          <label class="cys-label" for="loginUser">Usuario</label>
+          <input type="text" id="loginUser" class="cys-input" placeholder="Tu número de identificación" autocomplete="off">
+        </div>
+        <div class="mb-4">
+          <label class="cys-label" for="loginPass">Contraseña</label>
+          <input type="password" id="loginPass" class="cys-input" placeholder="Tu contraseña">
+        </div>
+        <button class="cys-btn-primary" onclick="hacerLogin()">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+        </button>
+        <div class="cys-divider"></div>
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <button class="cys-btn-link" onclick="mostrar('secRecuperar')">
+            <i class="bi bi-key" style="font-size:.75rem;"></i> Olvidé mi contraseña
+          </button>
+          <a href="{% url 'crear_usuario' %}" class="cys-btn-link">
+            <i class="bi bi-person-plus" style="font-size:.75rem;"></i> Crear usuario
+          </a>
+        </div>
       </div>
 
-      <div class="mb-4">
-        <label class="cys-label" for="{{ form.password.id_for_label }}">
-          Contraseña
-        </label>
-        <input
-          type="password"
-          id="{{ form.password.id_for_label }}"
-          name="{{ form.password.html_name }}"
-          class="cys-input"
-          placeholder="Tu contraseña"
-          required
-        >
-        {% if form.password.errors %}
-          <div class="invalid-feedback-cys">{{ form.password.errors|join:", " }}</div>
-        {% endif %}
+      <!-- RECUPERAR -->
+      <div id="secRecuperar" style="display:none;">
+        <div class="cys-title">Recuperar Acceso</div>
+        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Ingresa tu correo registrado y te enviaremos un enlace para crear una nueva contraseña.
+        </p>
+        <div class="mb-4">
+          <label class="cys-label" for="recCorreo">Correo Electrónico</label>
+          <input type="email" id="recCorreo" class="cys-input" placeholder="correo@ejemplo.com" autocomplete="off">
+        </div>
+        <button class="cys-btn-primary mb-3" onclick="hacerRecuperar()">
+          <i class="bi bi-send me-1"></i> Enviar Enlace
+        </button>
+        <div class="text-center">
+          <button class="cys-btn-link mx-auto" onclick="mostrar('secLogin')">
+            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver al inicio
+          </button>
+        </div>
       </div>
 
-      <button type="submit" class="cys-btn-primary">
-        <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
-      </button>
-
-    </form>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function mostrar(id) {
+      ['secLogin','secRecuperar'].forEach(s => document.getElementById(s).style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      limpiarMsg();
+    }
+    function mostrarMsg(texto, tipo) {
+      const el = document.getElementById('msgGlobal');
+      el.textContent = texto; el.className = `cys-msg cys-msg--${tipo}`; el.style.display = 'block';
+    }
+    function limpiarMsg() {
+      const el = document.getElementById('msgGlobal'); el.style.display = 'none'; el.textContent = '';
+    }
+    function sacudir() {
+      const t = document.getElementById('tarjeta');
+      t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake');
+    }
+    function getCookie(name) {
+      let v = null;
+      document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+      });
+      return v;
+    }
+    function hacerLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (!user || !pass) { mostrarMsg('Completa usuario y contraseña.', 'err'); sacudir(); return; }
+      const fd = new FormData();
+      fd.append('usuario_input', user); fd.append('clave_input', pass);
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+      fetch("{% url 'login' %}", { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            mostrarMsg('✅ Acceso correcto. Redirigiendo...', 'ok');
+            setTimeout(() => window.location.href = data.redirect, 1000);
+          } else {
+            mostrarMsg(data.error, 'err'); sacudir();
+            document.getElementById('loginPass').value = '';
+          }
+        })
+        .catch(() => { mostrarMsg('Error de conexión. Intenta de nuevo.', 'err'); sacudir(); });
+    }
+    function hacerRecuperar() {
+      const correo = document.getElementById('recCorreo').value.trim();
+      if (!correo) { mostrarMsg('Ingresa tu correo electrónico.', 'err'); sacudir(); return; }
+      const fd = new FormData();
+      fd.append('correo', correo); fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+      fetch("{% url 'recuperar_clave' %}", { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) { mostrarMsg('✅ ' + data.mensaje, 'ok'); document.getElementById('recCorreo').value = ''; }
+          else { mostrarMsg(data.error, 'err'); sacudir(); document.getElementById('recCorreo').value = ''; }
+        })
+        .catch(() => { mostrarMsg('Error de conexión. Intenta de nuevo.', 'err'); sacudir(); });
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        if (document.getElementById('secLogin').style.display !== 'none') hacerLogin();
+        else if (document.getElementById('secRecuperar').style.display !== 'none') hacerRecuperar();
+      }
+    });
+  </script>
 </body>
 </html>

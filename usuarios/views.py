@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.utils import timezone
 from datetime import timedelta
+from django.http import JsonResponse
 from .models import Perfil
 from .forms import UsuarioForm
 import ssl, smtplib, re
@@ -55,16 +56,16 @@ def _set_session(request, perfil):
     request.session['usuario_user']   = perfil.usuario
 
 
+# ── LOGIN ────────────────────────────────────────────────────────────────────
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
-
-    from django.contrib.auth.forms import AuthenticationForm
-    form = AuthenticationForm(request, data=request.POST or None)
+        return redirect('principal')
 
     if request.method == 'POST':
-        identificacion = request.POST.get('username', '').strip()
-        clave          = request.POST.get('password', '')
+        identificacion = request.POST.get('usuario_input', '').strip()
+        clave          = request.POST.get('clave_input', '')
+        es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
         try:
             perfil = Perfil.objects.select_related('user').get(
                 identificacion=identificacion, activo=True
@@ -73,15 +74,22 @@ def login_view(request):
             if user:
                 login(request, user)
                 _set_session(request, perfil)
-                return redirect('home')
+                if es_ajax:
+                    return JsonResponse({'ok': True, 'redirect': '/'})
+                return redirect('principal')
             else:
+                if es_ajax:
+                    return JsonResponse({'ok': False, 'error': 'Número de identificación o contraseña incorrectos.'})
                 messages.error(request, 'Número de identificación o contraseña incorrectos.')
         except Perfil.DoesNotExist:
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': 'Número de identificación o contraseña incorrectos.'})
             messages.error(request, 'Número de identificación o contraseña incorrectos.')
 
-    return render(request, 'usuario.html', {'form': form})
+    return render(request, 'usuario.html')
 
 
+# ── LOGOUT ───────────────────────────────────────────────────────────────────
 def logout_view(request):
     logout(request)
     request.session.flush()
@@ -92,6 +100,7 @@ def logout_view(request):
     return response
 
 
+# ── LISTA USUARIOS ───────────────────────────────────────────────────────────
 def lista_usuarios(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -100,6 +109,7 @@ def lista_usuarios(request):
     return render(request, 'usuarios_lista.html', {'usuarios': usuarios})
 
 
+# ── CREAR USUARIO ────────────────────────────────────────────────────────────
 def crear_usuario(request):
     form = UsuarioForm()
     if request.method == 'POST':
@@ -118,20 +128,34 @@ def crear_usuario(request):
     return render(request, 'crear_usuario.html', {'form': form})
 
 
+# ── EDITAR USUARIO ───────────────────────────────────────────────────────────
 def editar_usuario(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
     if not _solo_admin(request):
-        messages.error(request, 'Sin permisos.')
-        return redirect('usuario')
+        return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
 
     perfil = get_object_or_404(Perfil, pk=pk)
 
+    if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'ok':            True,
+            'pk':            perfil.pk,
+            'nombre':        perfil.nombre,
+            'apellidos':     perfil.apellidos,
+            'email':         perfil.email or '',
+            'usuario':       perfil.usuario,
+            'rol':           perfil.rol,
+            'activo':        perfil.activo,
+            'fecha_registro': perfil.fecha_registro.strftime('%d/%m/%Y'),
+        })
+
     if request.method == 'POST':
-        nombre      = request.POST.get('nombre', '').strip()
-        apellidos   = request.POST.get('apellidos', '').strip()
-        email       = request.POST.get('email', '').strip().lower()
-        rol         = request.POST.get('rol', '').strip()
+        es_ajax   = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        nombre    = request.POST.get('nombre', '').strip()
+        apellidos = request.POST.get('apellidos', '').strip()
+        email     = request.POST.get('email', '').strip().lower()
+        rol       = request.POST.get('rol', '').strip()
         clave_nueva = request.POST.get('clave_nueva', '').strip()
 
         error = None
@@ -147,123 +171,161 @@ def editar_usuario(request, pk):
             if User.objects.filter(email__iexact=email).exclude(pk=perfil.user.pk).exists():
                 error = 'Este correo ya está en uso.'
 
+        if clave_nueva and not error:
+            error = _validar_clave_segura(clave_nueva)
+
         if error:
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': error})
             messages.error(request, error)
-        else:
-            perfil.user.first_name = nombre
-            perfil.user.last_name  = apellidos
-            perfil.user.email      = email or ''
-            perfil.user.save(update_fields=['first_name', 'last_name', 'email'])
-            perfil.rol = rol
-            perfil.save(update_fields=['rol'])
+            return render(request, 'editar_usuario.html', {'perfil': perfil})
 
-            if clave_nueva:
-                err = _validar_clave_segura(clave_nueva)
-                if err:
-                    messages.error(request, err)
-                else:
-                    perfil.user.set_password(clave_nueva)
-                    perfil.user.save(update_fields=['password'])
+        perfil.user.first_name = nombre
+        perfil.user.last_name  = apellidos
+        perfil.user.email      = email or ''
+        perfil.user.save(update_fields=['first_name', 'last_name', 'email'])
+        perfil.rol = rol
+        perfil.save(update_fields=['rol'])
 
-            if not messages.get_messages(request):
-                messages.success(request, f'Usuario {perfil.usuario} actualizado correctamente.')
-                return redirect('usuario')
+        if clave_nueva:
+            perfil.user.set_password(clave_nueva)
+            perfil.user.save(update_fields=['password'])
+
+        if es_ajax:
+            return JsonResponse({
+                'ok':             True,
+                'mensaje':        f'Usuario {perfil.usuario} actualizado.',
+                'nombre_completo': perfil.nombre_completo,
+                'rol_label':      perfil.get_rol_display(),
+            })
+        messages.success(request, f'Usuario {perfil.usuario} actualizado correctamente.')
+        return redirect('usuario')
 
     return render(request, 'editar_usuario.html', {'perfil': perfil})
 
 
+# ── TOGGLE ACTIVO ────────────────────────────────────────────────────────────
 def toggle_activo(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
     if not _solo_admin(request) or request.method != 'POST':
-        return redirect('usuario')
+        return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
 
     perfil = get_object_or_404(Perfil, pk=pk)
 
     if perfil.pk == request.session.get('usuario_id'):
-        messages.error(request, 'No puedes desactivar tu propia cuenta.')
-        return redirect('usuario')
+        return JsonResponse({'ok': False, 'error': 'No puedes desactivar tu propia cuenta.'})
 
     perfil.activo         = not perfil.activo
     perfil.user.is_active = perfil.activo
     perfil.save(update_fields=['activo'])
     perfil.user.save(update_fields=['is_active'])
-    return redirect('usuario')
+
+    return JsonResponse({
+        'ok':     True,
+        'activo': perfil.activo,
+        'mensaje': f'Usuario {"activado" if perfil.activo else "desactivado"} correctamente.',
+    })
 
 
+# ── ELIMINAR USUARIO ─────────────────────────────────────────────────────────
 def eliminar_usuario(request, pk):
     if not _solo_admin(request) or request.method != 'POST':
-        return redirect('usuario')
+        return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
 
     perfil = get_object_or_404(Perfil, pk=pk)
 
     if perfil.activo:
-        messages.error(request, 'Solo se pueden eliminar usuarios inactivos.')
-        return redirect('usuario')
+        return JsonResponse({'ok': False, 'error': 'Solo se pueden eliminar usuarios inactivos.'})
     if perfil.pk == request.session.get('usuario_id'):
-        messages.error(request, 'No puedes eliminarte a ti mismo.')
-        return redirect('usuario')
+        return JsonResponse({'ok': False, 'error': 'No puedes eliminarte a ti mismo.'})
 
     perfil.user.delete()
-    messages.success(request, 'Usuario eliminado correctamente.')
-    return redirect('usuario')
+    return JsonResponse({'ok': True})
 
 
-def perfil_view(request):
+# ── PERFIL (datos) ───────────────────────────────────────────────────────────
+def perfil_datos(request):
     if not request.user.is_authenticated:
-        return redirect('login')
-
+        return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
     perfil = request.user.perfil
-
-    if request.method == 'POST':
-        nombre       = request.POST.get('nombre', '').strip()
-        apellidos    = request.POST.get('apellidos', '').strip()
-        email        = request.POST.get('email', '').strip().lower()
-        clave_nueva  = request.POST.get('clave_nueva', '').strip()
-        clave_actual = request.POST.get('clave_actual', '').strip()
-
-        error = None
-        if not nombre or not apellidos:
-            error = 'Nombre y apellidos son obligatorios.'
-        elif any(c.isdigit() for c in nombre):
-            error = 'El nombre no debe contener números.'
-        elif any(c.isdigit() for c in apellidos):
-            error = 'Los apellidos no deben contener números.'
-        elif clave_nueva and not clave_actual:
-            error = 'Ingresa tu contraseña actual para cambiarla.'
-        elif clave_nueva and not request.user.check_password(clave_actual):
-            error = 'La contraseña actual es incorrecta.'
-        elif clave_nueva:
-            error = _validar_clave_segura(clave_nueva)
-
-        if error:
-            messages.error(request, error)
-        else:
-            perfil.user.first_name = nombre
-            perfil.user.last_name  = apellidos
-            perfil.user.email      = email or ''
-            perfil.user.save(update_fields=['first_name', 'last_name', 'email'])
-
-            if clave_nueva:
-                perfil.user.set_password(clave_nueva)
-                perfil.user.save(update_fields=['password'])
-                update_session_auth_hash(request, perfil.user)
-
-            request.session['usuario_nombre'] = perfil.nombre_completo
-            messages.success(request, 'Perfil actualizado correctamente.')
-            return redirect('perfil')
-
-    return render(request, 'usuarios/perfil.html', {'perfil': perfil})
+    return JsonResponse({
+        'ok':            True,
+        'nombre':        perfil.nombre,
+        'apellidos':     perfil.apellidos,
+        'usuario':       perfil.usuario,
+        'email':         perfil.email or '',
+        'tipo_id':       perfil.tipo_id,
+        'tipo_id_label': perfil.get_tipo_id_display(),
+        'identificacion': perfil.identificacion,
+        'rol':           perfil.rol,
+        'rol_label':     perfil.get_rol_display(),
+        'fecha_registro': perfil.fecha_registro.strftime('%d/%m/%Y'),
+    })
 
 
+# ── PERFIL (editar) ──────────────────────────────────────────────────────────
+def perfil_editar(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
+    perfil       = request.user.perfil
+    nombre       = request.POST.get('nombre', '').strip()
+    apellidos    = request.POST.get('apellidos', '').strip()
+    email        = request.POST.get('email', '').strip().lower()
+    clave_nueva  = request.POST.get('clave_nueva', '').strip()
+    clave_actual = request.POST.get('clave_actual', '').strip()
+
+    if not nombre or not apellidos:
+        return JsonResponse({'ok': False, 'error': 'Nombre y apellidos son obligatorios.'})
+    if any(c.isdigit() for c in nombre):
+        return JsonResponse({'ok': False, 'error': 'El nombre no debe contener números.'})
+    if any(c.isdigit() for c in apellidos):
+        return JsonResponse({'ok': False, 'error': 'Los apellidos no deben contener números.'})
+    if email and email != (perfil.email or '').lower():
+        if User.objects.filter(email__iexact=email).exclude(pk=perfil.user.pk).exists():
+            return JsonResponse({'ok': False, 'error': 'Este correo ya está en uso.'})
+    if clave_nueva:
+        if not clave_actual:
+            return JsonResponse({'ok': False, 'error': 'Ingresa tu contraseña actual para cambiarla.'})
+        if not perfil.user.check_password(clave_actual):
+            return JsonResponse({'ok': False, 'error': 'La contraseña actual es incorrecta.'})
+        err = _validar_clave_segura(clave_nueva)
+        if err:
+            return JsonResponse({'ok': False, 'error': err})
+
+    perfil.user.first_name = nombre
+    perfil.user.last_name  = apellidos
+    perfil.user.email      = email or ''
+    perfil.user.save(update_fields=['first_name', 'last_name', 'email'])
+
+    if clave_nueva:
+        perfil.user.set_password(clave_nueva)
+        perfil.user.save(update_fields=['password'])
+        update_session_auth_hash(request, perfil.user)
+
+    request.session['usuario_nombre'] = perfil.nombre_completo
+    return JsonResponse({
+        'ok':             True,
+        'mensaje':        'Perfil actualizado correctamente.',
+        'nombre_completo': perfil.nombre_completo,
+    })
+
+
+# ── RECUPERAR CLAVE ──────────────────────────────────────────────────────────
 def solicitar_recuperacion(request):
     if request.method == 'POST':
-        correo = request.POST.get('correo', '').strip().lower()
+        es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        correo  = request.POST.get('correo', '').strip().lower()
         try:
             perfil = Perfil.objects.select_related('user').get(
                 user__email__iexact=correo, activo=True
             )
         except Perfil.DoesNotExist:
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con ese correo.'})
             messages.error(request, 'No existe una cuenta activa con ese correo.')
             return redirect('login')
 
@@ -281,13 +343,18 @@ def solicitar_recuperacion(request):
         )
         try:
             _enviar_correo(perfil.email, 'Recuperación de contraseña — CYS Ltda', cuerpo)
-            messages.success(request, f'Enviamos un enlace a {perfil.email}. Válido por 15 minutos.')
+            if es_ajax:
+                return JsonResponse({'ok': True, 'mensaje': f'Enviamos un enlace a {perfil.email}. Válido por 15 minutos.'})
+            messages.success(request, f'Enviamos un enlace a {perfil.email}.')
         except Exception as e:
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': f'Error al enviar el correo: {e}'})
             messages.error(request, f'Error al enviar el correo: {e}')
 
     return redirect('login')
 
 
+# ── RESTABLECER CLAVE ────────────────────────────────────────────────────────
 def restablecer_clave(request, token):
     try:
         perfil = Perfil.objects.select_related('user').get(reset_token=token, activo=True)

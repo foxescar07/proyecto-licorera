@@ -9,17 +9,21 @@
 
   {% if messages %}
     {% for message in messages %}
-      <div class="alert alert-dismissible fade show mb-3"
-           style="background:var(--fondo-card); border:1px solid {% if message.tags == 'error' %}rgba(192,57,43,.4){% else %}rgba(77,168,218,.3){% endif %}; color:var(--texto); border-radius:var(--radius);"
-           role="alert">
-        {{ message }}
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-      </div>
+      {% if message.tags == 'error' %}
+        <div class="alert alert-dismissible fade show mb-3"
+             style="background:var(--fondo-card); border:1px solid rgba(192,57,43,.4); color:var(--texto); border-radius:var(--radius);"
+             role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
     {% endfor %}
   {% endif %}
 
+  <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div style="font-size:.78rem; color:var(--texto-muted);">
+      <i class="bi bi-people me-1"></i>
       {{ usuarios|length }} usuario{{ usuarios|length|pluralize:"s" }} registrado{{ usuarios|length|pluralize:"s" }}
     </div>
     {% if request.session.usuario_rol == 'admin' %}
@@ -30,132 +34,344 @@
   </div>
 
   {% if usuarios %}
-  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1rem;">
+  <div class="row g-3">
     {% for u in usuarios %}
-    <div style="background:#0D1B2E; border:1px solid rgba(77,168,218,.18); border-radius:14px; padding:1.1rem 1.2rem;">
+    <div class="col-12 col-md-6 col-xl-4">
+      <div id="fila-{{ u.pk }}" class="h-100" style="
+        background:#0D1B2E; border:1px solid rgba(77,168,218,.18);
+        border-radius:14px; padding:1.1rem 1.2rem;
+        transition:border-color .2s, box-shadow .2s;"
+        onmouseover="this.style.borderColor='rgba(77,168,218,.4)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,.3)'"
+        onmouseout="this.style.borderColor='rgba(77,168,218,.18)'; this.style.boxShadow='none'">
 
-      <!-- Cabecera -->
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem;">
-        <div style="display:flex; align-items:center; gap:.7rem;">
-          <div style="width:40px; height:40px; border-radius:50%; flex-shrink:0;
-            background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
-            display:flex; align-items:center; justify-content:center;
-            font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem; color:#4DA8DA;">
-            {{ u.nombre|slice:":1"|upper }}
-          </div>
-          <div>
-            <div style="font-size:.88rem; font-weight:600; color:#E8EDF2; line-height:1.2;">
-              {{ u.nombre_completo }}
+        <!-- Cabecera -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <div style="
+              width:40px; height:40px; border-radius:50%; flex-shrink:0;
+              background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
+              display:flex; align-items:center; justify-content:center;
+              font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem; color:#4DA8DA;">
+              {{ u.nombre|slice:":1"|upper }}
             </div>
-            <div style="font-size:.72rem; color:#4DA8DA; margin-top:.1rem;">
-              @{{ u.usuario }}
+            <div>
+              <div style="font-size:.88rem; font-weight:600; color:#E8EDF2; line-height:1.2;">{{ u.nombre_completo }}</div>
+              <div style="font-size:.72rem; color:#4DA8DA; margin-top:.1rem;">@{{ u.usuario }}</div>
             </div>
           </div>
-        </div>
-
-        <span style="font-size:.62rem; padding:.2rem .6rem; border-radius:999px;
-          font-weight:600; text-transform:uppercase; letter-spacing:.06em; flex-shrink:0;
-          {% if u.rol == 'admin' %}
-            background:rgba(192,57,43,.18); color:#e87070; border:1px solid rgba(192,57,43,.35);
-          {% elif u.rol == 'cajero' %}
-            background:rgba(77,168,218,.15); color:#4DA8DA; border:1px solid rgba(77,168,218,.35);
-          {% else %}
-            background:rgba(77,218,140,.12); color:#5edb97; border:1px solid rgba(77,218,140,.3);
-          {% endif %}">
-          {{ u.get_rol_display }}
-        </span>
-      </div>
-
-      <!-- Separador -->
-      <div style="height:1px; background:rgba(77,168,218,.1); margin-bottom:.85rem;"></div>
-
-      <!-- Datos -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.55rem .9rem; font-size:.78rem; margin-bottom:.9rem;">
-        <div>
-          <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Identificación</div>
-          <div style="color:#E8EDF2;">{{ u.identificacion }}</div>
-          <div style="color:rgba(77,168,218,.7); font-size:.65rem; margin-top:.1rem;">{{ u.get_tipo_id_display }}</div>
-        </div>
-        <div>
-          <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Correo</div>
-          <div style="color:rgba(232,237,242,.65); word-break:break-all; font-size:.76rem;">{{ u.email|default:"—" }}</div>
-        </div>
-        <div>
-          <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Miembro desde</div>
-          <div style="color:rgba(232,237,242,.6);">{{ u.fecha_registro|date:"d/m/Y" }}</div>
-        </div>
-        <div>
-          <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Estado</div>
-          <span style="display:inline-flex; align-items:center; gap:.35rem; font-size:.76rem;
-            color:{% if u.activo %}#5edb97{% else %}rgba(232,237,242,.3){% endif %};">
-            <span style="width:7px; height:7px; border-radius:50%; display:inline-block;
-              background:{% if u.activo %}#5edb97{% else %}rgba(232,237,242,.2){% endif %};"></span>
-            {% if u.activo %}Activo{% else %}Inactivo{% endif %}
+          <span id="rol-badge-{{ u.pk }}" class="badge" style="
+            font-size:.62rem; padding:.2rem .6rem; border-radius:999px;
+            font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+            {% if u.rol == 'admin' %}
+              background:rgba(192,57,43,.18); color:#e87070; border:1px solid rgba(192,57,43,.35);
+            {% elif u.rol == 'cajero' %}
+              background:rgba(77,168,218,.15); color:#4DA8DA; border:1px solid rgba(77,168,218,.35);
+            {% else %}
+              background:rgba(77,218,140,.12); color:#5edb97; border:1px solid rgba(77,218,140,.3);
+            {% endif %}">
+            {{ u.get_rol_display }}
           </span>
         </div>
-      </div>
 
-      <!-- Acciones solo admin -->
-      {% if request.session.usuario_rol == 'admin' %}
-      <div style="display:flex; gap:.5rem; margin-top:.25rem;">
+        <hr style="border-color:rgba(77,168,218,.1); margin:.5rem 0 .85rem;">
 
-        <a href="{% url 'editar_usuario' u.pk %}" style="
-          flex:1; background:rgba(77,168,218,.08); border:1px solid rgba(77,168,218,.25);
-          color:#4DA8DA; border-radius:8px; padding:.5rem;
-          font-size:.78rem; font-family:'Inter',sans-serif;
-          display:flex; align-items:center; justify-content:center; gap:.35rem;
-          text-decoration:none;">
-          <i class="bi bi-pencil"></i> Editar
-        </a>
+        <!-- Datos -->
+        <div class="row g-2 mb-3" style="font-size:.78rem;">
+          <div class="col-6">
+            <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Identificación</div>
+            <div style="color:#E8EDF2;">{{ u.identificacion }}</div>
+            <div style="color:rgba(77,168,218,.7); font-size:.65rem; margin-top:.1rem;">{{ u.get_tipo_id_display }}</div>
+          </div>
+          <div class="col-6">
+            <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Correo</div>
+            <div style="color:rgba(232,237,242,.65); word-break:break-all; font-size:.76rem;">{{ u.email|default:"—" }}</div>
+          </div>
+          <div class="col-6">
+            <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Miembro desde</div>
+            <div style="color:rgba(232,237,242,.6);">{{ u.fecha_registro|date:"d/m/Y" }}</div>
+          </div>
+          <div class="col-6">
+            <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem;">Estado</div>
+            <span id="estado-badge-{{ u.pk }}" style="display:inline-flex; align-items:center; gap:.35rem; font-size:.76rem; color:{% if u.activo %}#5edb97{% else %}rgba(232,237,242,.3){% endif %};">
+              <span style="width:7px; height:7px; border-radius:50%; display:inline-block; background:{% if u.activo %}#5edb97{% else %}rgba(232,237,242,.2){% endif %};"></span>
+              {% if u.activo %}Activo{% else %}Inactivo{% endif %}
+            </span>
+          </div>
+        </div>
 
-        {% if u.pk != request.session.usuario_id %}
-        <div style="flex:1; display:flex; flex-direction:column; gap:.35rem;">
+        <!-- Acciones admin -->
+        {% if request.session.usuario_rol == 'admin' %}
+        <div class="d-flex gap-2">
+          <button onclick="abrirEditar({{ u.pk }})" class="btn btn-sm flex-fill" style="
+            background:rgba(77,168,218,.08); border:1px solid rgba(77,168,218,.25);
+            color:#4DA8DA; border-radius:8px; font-size:.78rem; font-family:'Inter',sans-serif;
+            transition:background .2s;"
+            onmouseover="this.style.background='rgba(77,168,218,.2)'"
+            onmouseout="this.style.background='rgba(77,168,218,.08)'">
+            <i class="bi bi-pencil me-1"></i>Editar
+          </button>
 
-          <form method="POST" action="{% url 'toggle_activo' u.pk %}">
-            {% csrf_token %}
-            <button type="submit" style="
-              width:100%; border-radius:8px; padding:.5rem;
-              cursor:pointer; font-size:.78rem; font-family:'Inter',sans-serif;
-              display:flex; align-items:center; justify-content:center; gap:.35rem;
+          {% if u.pk != request.session.usuario_id %}
+          <div id="wrap-toggle-{{ u.pk }}" class="flex-fill d-flex flex-column gap-1">
+            <button id="btn-toggle-{{ u.pk }}"
+              onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
+              class="btn btn-sm w-100" style="
+              border-radius:8px; font-size:.78rem; font-family:'Inter',sans-serif; transition:all .2s;
               {% if u.activo %}
                 background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25); color:#e87070;
               {% else %}
                 background:rgba(77,218,140,.08); border:1px solid rgba(77,218,140,.25); color:#5edb97;
               {% endif %}">
-              <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %}"></i>
+              <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %} me-1"></i>
               {% if u.activo %}Desactivar{% else %}Activar{% endif %}
             </button>
-          </form>
-
-          {% if not u.activo %}
-          <form method="POST" action="{% url 'eliminar_usuario' u.pk %}">
-            {% csrf_token %}
-            <button type="submit" style="
-              width:100%; border-radius:8px; padding:.4rem;
-              cursor:pointer; font-size:.73rem; font-family:'Inter',sans-serif;
-              display:flex; align-items:center; justify-content:center; gap:.35rem;
-              background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25); color:#e87070;">
-              <i class="bi bi-trash3"></i> Eliminar usuario
+            <button id="btn-eliminar-{{ u.pk }}"
+              onclick="eliminarUsuario({{ u.pk }})"
+              class="btn btn-sm w-100" style="
+              border-radius:8px; font-size:.73rem; font-family:'Inter',sans-serif;
+              {% if not u.activo %}display:flex;{% else %}display:none;{% endif %}
+              align-items:center; justify-content:center; gap:.35rem;
+              background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25); color:#e87070;
+              transition:all .2s;"
+              onmouseover="this.style.background='rgba(192,57,43,1)'; this.style.color='#fff'"
+              onmouseout="this.style.background='rgba(192,57,43,.08)'; this.style.color='#e87070'">
+              <i class="bi bi-trash3 me-1"></i>Eliminar
             </button>
-          </form>
+          </div>
           {% endif %}
-
         </div>
         {% endif %}
 
       </div>
-      {% endif %}
-
     </div>
     {% endfor %}
   </div>
 
   {% else %}
-  <div style="text-align:center; padding:4rem 1rem; color:rgba(232,237,242,.25);">
+  <div class="text-center py-5" style="color:rgba(232,237,242,.25);">
     <i class="bi bi-people" style="font-size:3rem; display:block; margin-bottom:1rem; color:rgba(77,168,218,.15);"></i>
     <div style="font-size:.9rem;">No hay usuarios registrados.</div>
   </div>
   {% endif %}
 
 </div>
+
+
+<!-- MODAL EDITAR USUARIO -->
+{% if request.session.usuario_rol == 'admin' %}
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:500px;">
+    <div class="modal-content" style="
+      background:#0D1B2E; border:1px solid rgba(77,168,218,.35);
+      border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,.8); font-family:'Inter',sans-serif;">
+
+      <!-- Header -->
+      <div class="modal-header" style="border-bottom:1px solid rgba(77,168,218,.2); padding:1.1rem 1.4rem;">
+        <div>
+          <span style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                       letter-spacing:.12em; text-transform:uppercase; color:#E8EDF2;">
+            Editar Usuario
+          </span>
+          <span id="euNombreHeader" style="font-size:.78rem; color:rgba(232,237,242,.4); margin-left:.6rem;"></span>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <!-- Mensaje -->
+      <div id="euMsg" style="display:none; margin:1rem 1.4rem 0; border-radius:8px; padding:.6rem .9rem; font-size:.8rem;"></div>
+
+      <!-- Body -->
+      <div class="modal-body" style="padding:1.25rem 1.4rem 1.4rem;">
+        <input type="hidden" id="euPk">
+
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="eu-label">Nombres</label>
+            <input type="text" id="euNombre" class="eu-input">
+          </div>
+          <div class="col-6">
+            <label class="eu-label">Apellidos</label>
+            <input type="text" id="euApellidos" class="eu-input">
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="eu-label">Correo</label>
+            <input type="email" id="euEmail" class="eu-input">
+          </div>
+          <div class="col-6">
+            <label class="eu-label">Rol</label>
+            <select id="euRol" class="eu-input">
+              <option value="admin">Administrador</option>
+              <option value="cajero">Cajero</option>
+              <option value="empleado">Empleado</option>
+            </select>
+          </div>
+        </div>
+
+        <hr style="border-color:rgba(77,168,218,.12); margin:1rem 0 .85rem;">
+        <div style="font-size:.68rem; color:rgba(232,237,242,.3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.85rem;">
+          Nueva contraseña (opcional)
+        </div>
+
+        <div class="mb-4">
+          <label class="eu-label">Nueva Contraseña</label>
+          <input type="password" id="euClaveNueva" class="eu-input" placeholder="Mín. 6 car., 2 núm., 1 may.">
+        </div>
+
+        <button onclick="guardarEditar()" id="euBtnGuardar" class="btn w-100" style="
+          background:#4DA8DA; color:#011936; border:none; border-radius:10px; padding:.75rem;
+          font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+          letter-spacing:.1em; text-transform:uppercase; transition:background .2s;
+          box-shadow:0 4px 14px rgba(77,168,218,.3);"
+          onmouseover="this.style.background='#6dc0e8'"
+          onmouseout="this.style.background='#4DA8DA'">
+          <i class="bi bi-check-lg me-1"></i> Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .eu-label {
+    font-size:.62rem; font-weight:600; color:rgba(232,237,242,.4);
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;
+  }
+  .eu-input {
+    background:#111f33; border:1px solid rgba(77,168,218,.3); color:#E8EDF2;
+    border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+    outline:none; font-family:'Inter',sans-serif; transition:border-color .2s;
+  }
+  .eu-input:focus { border-color:#4DA8DA; }
+  .eu-input option { background:#111f33; }
+</style>
+{% endif %}
+
+
+<script>
+  function getCookie(name) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+    });
+    return v;
+  }
+
+  function euMostrarMsg(texto, tipo) {
+    const el = document.getElementById('euMsg');
+    el.textContent = texto; el.style.display = 'block';
+    if (tipo === 'ok') {
+      el.style.background = 'rgba(46,204,113,.1)'; el.style.border = '1px solid rgba(46,204,113,.35)'; el.style.color = '#5edb97';
+    } else {
+      el.style.background = 'rgba(192,57,43,.1)'; el.style.border = '1px solid rgba(192,57,43,.35)'; el.style.color = '#e87070';
+    }
+  }
+
+  function abrirEditar(pk) {
+    fetch(`/usuarios/editar/${pk}/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.ok) return;
+        document.getElementById('euPk').value         = d.pk;
+        document.getElementById('euNombre').value     = d.nombre;
+        document.getElementById('euApellidos').value  = d.apellidos;
+        document.getElementById('euEmail').value      = d.email;
+        document.getElementById('euRol').value        = d.rol;
+        document.getElementById('euClaveNueva').value = '';
+        document.getElementById('euNombreHeader').textContent = '@' + d.usuario;
+        document.getElementById('euMsg').style.display = 'none';
+        new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+      });
+  }
+
+  function guardarEditar() {
+    const pk  = document.getElementById('euPk').value;
+    const btn = document.getElementById('euBtnGuardar');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fd.append('nombre',      document.getElementById('euNombre').value.trim());
+    fd.append('apellidos',   document.getElementById('euApellidos').value.trim());
+    fd.append('email',       document.getElementById('euEmail').value.trim());
+    fd.append('rol',         document.getElementById('euRol').value);
+    fd.append('clave_nueva', document.getElementById('euClaveNueva').value);
+    fetch(`/usuarios/editar/${pk}/`, {
+      method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
+      if (d.ok) {
+        euMostrarMsg('✅ ' + d.mensaje, 'ok');
+        setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario')).hide(); location.reload(); }, 1200);
+      } else { euMostrarMsg(d.error, 'err'); }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
+      euMostrarMsg('Error de conexión.', 'err');
+    });
+  }
+
+  function toggleActivo(pk, activo) {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fetch(`/usuarios/toggle/${pk}/`, {
+      method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) { alert(d.error); return; }
+      const badge = document.getElementById(`estado-badge-${pk}`);
+      if (badge) {
+        const dot = d.activo ? '#5edb97' : 'rgba(232,237,242,.25)';
+        badge.style.color = d.activo ? '#5edb97' : 'rgba(232,237,242,.35)';
+        badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;display:inline-block;background:${dot};"></span> ${d.activo ? 'Activo' : 'Inactivo'}`;
+      }
+      const btn = document.getElementById(`btn-toggle-${pk}`);
+      if (btn) {
+        if (d.activo) {
+          btn.style.background = 'rgba(192,57,43,.08)'; btn.style.border = '1px solid rgba(192,57,43,.25)'; btn.style.color = '#e87070';
+          btn.innerHTML = '<i class="bi bi-person-dash me-1"></i>Desactivar';
+          btn.setAttribute('onclick', `toggleActivo(${pk}, true)`);
+        } else {
+          btn.style.background = 'rgba(77,218,140,.08)'; btn.style.border = '1px solid rgba(77,218,140,.25)'; btn.style.color = '#5edb97';
+          btn.innerHTML = '<i class="bi bi-person-check me-1"></i>Activar';
+          btn.setAttribute('onclick', `toggleActivo(${pk}, false)`);
+        }
+      }
+      const btnEliminar = document.getElementById(`btn-eliminar-${pk}`);
+      if (btnEliminar) {
+        if (!d.activo) { btnEliminar.style.display = 'flex'; btnEliminar.style.opacity = '1'; }
+        else { btnEliminar.style.opacity = '0'; setTimeout(() => { btnEliminar.style.display = 'none'; }, 250); }
+      }
+    })
+    .catch(() => alert('Error de conexión.'));
+  }
+
+  function eliminarUsuario(pk) {
+    if (!confirm('¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer.')) return;
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fetch(`/usuarios/eliminar/${pk}/`, {
+      method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        const card = document.getElementById(`fila-${pk}`).closest('.col-12');
+        if (card) {
+          card.style.transition = 'opacity .4s ease, transform .4s ease';
+          card.style.opacity = '0'; card.style.transform = 'scale(.96)';
+          setTimeout(() => card.remove(), 400);
+        }
+      } else { alert(d.error || 'No se pudo eliminar el usuario.'); }
+    })
+    .catch(() => alert('Error de conexión.'));
+  }
+</script>
 {% endblock %}
