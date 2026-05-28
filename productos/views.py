@@ -22,23 +22,22 @@ def lista_productos(request):
     categorias = Categoria.objects.filter(padre__isnull=True).prefetch_related(
         Prefetch(
             'productos',
-            queryset=Producto.objects.prefetch_related('presentaciones').select_related('categoria')
+            queryset=Producto.objects.prefetch_related('presentaciones__lotes').select_related('categoria')
         ),
         Prefetch(
             'subcategorias',
             queryset=Categoria.objects.prefetch_related(
                 Prefetch(
                     'productos',
-                    queryset=Producto.objects.prefetch_related('presentaciones').select_related('categoria')
+                    queryset=Producto.objects.prefetch_related('presentaciones__lotes').select_related('categoria')
                 )
             )
         ),
     )
 
-    # Resumen para las stat cards (conteo incluyendo subcategorías)
     resumen_categorias = []
     for cat in Categoria.objects.filter(padre__isnull=True):
-        total = Producto.objects.filter(categoria=cat).count()
+        total  = Producto.objects.filter(categoria=cat).count()
         total += Producto.objects.filter(categoria__padre=cat).count()
         resumen_categorias.append({'pk': cat.pk, 'nombre': cat.nombre, 'total': total})
 
@@ -105,7 +104,10 @@ def crear_producto(request):
 def producto_detalle(request, pk):
     producto    = get_object_or_404(Producto, pk=pk)
     movimientos = Inventario.objects.filter(presentacion__producto=producto).order_by('-fecha_actualizada')
-    return render(request, 'producto_detalle.html', {'producto': producto, 'movimientos': movimientos})
+    return render(request, 'productos/producto_detalle.html', {
+        'producto':    producto,
+        'movimientos': movimientos,
+    })
 
 
 # ===============================
@@ -153,8 +155,8 @@ def producto_editar(request, pk):
             if key.startswith('pres_nombre_'):
                 pres_id = key.replace('pres_nombre_', '')
                 try:
-                    pres           = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
-                    nuevo_nombre   = valor.strip()
+                    pres            = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
+                    nuevo_nombre    = valor.strip()
                     nuevas_unidades = request.POST.get(f'pres_unidades_{pres_id}', '').strip()
 
                     if nuevo_nombre and nuevo_nombre != pres.nombre:
@@ -224,9 +226,9 @@ def presentaciones_guardar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
 
     if request.method == 'POST':
-        nombres   = request.POST.getlist('nombre[]')
-        unidades  = request.POST.getlist('unidades_base[]')
-        precios   = request.POST.getlist('precio[]')
+        nombres  = request.POST.getlist('nombre[]')
+        unidades = request.POST.getlist('unidades_base[]')
+        precios  = request.POST.getlist('precio[]')
 
         producto.presentaciones.all().delete()
 
@@ -256,8 +258,7 @@ def presentaciones_guardar(request, pk):
                 PresentacionProducto.objects.bulk_create(nuevas)
 
         messages.success(request, 'Presentaciones guardadas correctamente.')
-        next_url = request.GET.get('next', 'producto:lista_productos')
-        return redirect(next_url)
+        return redirect(request.GET.get('next', 'producto:lista_productos'))
 
     return redirect('producto:lista_productos')
 
@@ -270,7 +271,7 @@ def presentaciones_json(request, pk):
 
 
 # ===============================
-# REGISTRO PRODUCTO (form clásico)
+# REGISTRO PRODUCTO
 # ===============================
 @login_required
 def producto_registro(request):
@@ -278,11 +279,10 @@ def producto_registro(request):
     if request.method == 'POST':
         form = ProductoRegistroForm(request.POST)
         if form.is_valid():
-            producto = form.save(commit=False)
-            producto.save()
+            form.save()
             messages.success(request, '✅ Producto registrado correctamente.')
             return redirect('producto:producto_registro')
-    return render(request, 'producto/registro.html', {'form': form})
+    return render(request, 'productos/registro.html', {'form': form})
 
 
 # ===============================
@@ -295,7 +295,6 @@ def stock_status(request):
 
     for p in productos:
         stock_total = p.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
-
         if stock_total == 0:
             criticos.append({'nombre': p.nombre, 'cantidad': stock_total})
         elif stock_total <= 10:
@@ -324,8 +323,7 @@ def producto_salida(request):
     if request.method != 'POST':
         return redirect('producto:lista_productos')
 
-    producto_id     = request.POST.get('producto_id')
-    presentacion_id = request.POST.get('presentacion_id')
+    presentacion_id = request.POST.get('presentacion_id') or request.POST.get('presentacion')
     cantidad_raw    = request.POST.get('cantidad', 0)
     motivo          = request.POST.get('motivo', 'Salida manual')
 
@@ -337,43 +335,41 @@ def producto_salida(request):
         messages.error(request, '⚠️ Cantidad inválida.')
         return redirect('producto:lista_productos')
 
-    producto = get_object_or_404(Producto, pk=producto_id)
-
     if not presentacion_id:
-        messages.error(request, '⚠️ Debes seleccionar una presentación para registrar la salida.')
+        messages.error(request, '⚠️ Debes seleccionar una presentación.')
         return redirect('producto:lista_productos')
 
-    presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id, producto=producto)
+    presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
     stock_actual = presentacion.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
 
     if cantidad > stock_actual:
         messages.error(
             request,
-            f"⚠️ Stock insuficiente: solo hay {stock_actual} "
-            f"unidades de '{presentacion.nombre}' de {producto.nombre}."
+            f"⚠️ Stock insuficiente: solo hay {stock_actual} unidades de '{presentacion.nombre}'."
         )
         return redirect('producto:lista_productos')
 
-    # Descuento FEFO simplificado
+    # Descuento FEFO
     restante = cantidad
     for lote in presentacion.lotes.filter(stock_actual__gt=0).order_by('fecha_vencimiento'):
         if restante <= 0:
             break
-        descuento = min(lote.stock_actual, restante)
+        descuento         = min(lote.stock_actual, restante)
         lote.stock_actual -= descuento
         lote.save()
-        restante -= descuento
+        restante          -= descuento
 
     Inventario.objects.create(
         presentacion=presentacion,
+        lote=presentacion.lotes.order_by('fecha_vencimiento').first(),
         tipo='salida',
-        cantidad=cantidad_raw,
+        cantidad=cantidad,
         motivo=motivo,
-        ubicacion='Salida manual',
+        registrado_por=request.user,
     )
     messages.success(
         request,
-        f"✅ Salida registrada: {cantidad} × '{presentacion.nombre}' de {producto.nombre}. Motivo: {motivo}."
+        f"✅ Salida registrada: {cantidad} × '{presentacion.nombre}'. Motivo: {motivo}."
     )
     return redirect('producto:lista_productos')
 
@@ -395,20 +391,19 @@ def buscar_producto(request):
     if not producto:
         return JsonResponse({'encontrado': False, 'mensaje': f'No se encontró "{q}".'})
 
-    stock_presentaciones = producto.presentaciones.aggregate(
+    stock_total = producto.presentaciones.aggregate(
         total=Sum('lotes__stock_actual')
     )['total'] or 0
 
     return JsonResponse({
         'encontrado': True,
         'producto': {
-            'pk':                   producto.pk,
-            'nombre':               producto.nombre,
-            'codigo':               producto.codigo or '—',
-            'categoria':            producto.categoria.nombre if producto.categoria else '—',
-            'stock_presentaciones': stock_presentaciones,
-            'stock_total':          stock_presentaciones,
-            'descripcion':          producto.descripcion or '',
+            'pk':           producto.pk,
+            'nombre':       producto.nombre,
+            'codigo':       producto.codigo or '—',
+            'categoria':    producto.categoria.nombre if producto.categoria else '—',
+            'stock_total':  stock_total,
+            'descripcion':  producto.descripcion or '',
             'presentaciones': list(
                 producto.presentaciones.values('id', 'nombre', 'unidades', 'precio')
             ),
@@ -432,20 +427,17 @@ def rotacion_json(request):
     )
 
     ids_con_movimiento = {r['presentacion__producto__pk'] for r in rotacion_qs}
-
-    sin_movimiento = list(
-        Producto.objects
-        .exclude(pk__in=ids_con_movimiento)
-        .values('pk', 'nombre')
+    sin_movimiento     = list(
+        Producto.objects.exclude(pk__in=ids_con_movimiento).values('pk', 'nombre')
     )
 
-    estrella_nombre         = None
-    estrella_categoria      = None
-    estrella_vendido        = 0
-    estrella_stock          = 0
-    estrella_stock_critico  = False
-    estrella_presentacion   = None
-    estrella_ingresos       = 0
+    estrella_nombre        = None
+    estrella_categoria     = None
+    estrella_vendido       = 0
+    estrella_stock         = 0
+    estrella_stock_critico = False
+    estrella_presentacion  = None
+    estrella_ingresos      = 0
 
     if rotacion_qs:
         top = rotacion_qs[0]
@@ -456,8 +448,8 @@ def rotacion_json(request):
             estrella_nombre        = prod.nombre
             estrella_categoria     = prod.categoria.nombre if prod.categoria else ''
             estrella_vendido       = top['total_vendido']
-            estrella_stock         = prod.stock_total if hasattr(prod, 'stock_total') else 0
-            estrella_stock_critico = prod.stock_critico if hasattr(prod, 'stock_critico') else (estrella_stock < 10)
+            estrella_stock         = prod.stock_total
+            estrella_stock_critico = prod.stock_critico
 
             pres_top = (
                 Inventario.objects
@@ -479,10 +471,7 @@ def rotacion_json(request):
             pass
 
     return JsonResponse({
-        'rotacion': [
-            {'nombre': r['presentacion__producto__nombre'], 'cantidad': r['total_vendido']}
-            for r in rotacion_qs
-        ],
+        'rotacion':               [{'nombre': r['presentacion__producto__nombre'], 'cantidad': r['total_vendido']} for r in rotacion_qs],
         'sin_movimiento':         [{'nombre': p['nombre'], 'cantidad': 0} for p in sin_movimiento],
         'estrella_nombre':        estrella_nombre,
         'estrella_categoria':     estrella_categoria,
@@ -494,15 +483,16 @@ def rotacion_json(request):
     })
 
 
-# ══════════════════════════════════════════════════════
+# ===============================
 # GESTIÓN DE CATEGORÍAS
-# ══════════════════════════════════════════════════════
-
+# ===============================
 @login_required
 def categorias_lista(request):
-    categorias = Categoria.objects.prefetch_related('productos', 'subcategorias__productos').filter(padre__isnull=True)
+    categorias = Categoria.objects.prefetch_related(
+        'productos', 'subcategorias__productos'
+    ).filter(padre__isnull=True)
     todas_cats = Categoria.objects.all()
-    return render(request, 'producto/categorias.html', {
+    return render(request, 'productos/categorias.html', {
         'categorias': categorias,
         'todas_cats': todas_cats,
     })
@@ -577,8 +567,8 @@ def categoria_eliminar(request, pk):
 # ===============================
 @login_required
 def agenda_lista(request):
-    agendas = AgendaInventario.objects.select_related('producto').order_by('-fecha_creacion')
-    return render(request, 'producto/agenda.html', {'agendas': agendas})
+    agendas = AgendaInventario.objects.all().order_by('fecha_programada')
+    return render(request, 'productos/agenda.html', {'agendas': agendas})
 
 
 @login_required
