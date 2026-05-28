@@ -1,0 +1,314 @@
+/* ============================================================
+   reportes.css — CYS Ltda
+   Bootstrap 5 compatible — variables propias del tema oscuro
+   ============================================================ */
+
+/* ── Variables ── */
+:root {
+  --azul-borde:   rgba(77, 168, 218, 0.15);
+  --texto-muted:  #8FA3B1;
+  --azul-acento:  #4DA8DA;
+  --verde-acento: #5DCAA5;
+  --morado-acento:#AFA9EC;
+  --naranja-acento:#F0A870;
+  --amarillo-acento:#F0C040;
+  --rojo-acento:  #E24B4A;
+  --dorado-acento:#BA7517;
+}
+
+/* ────────────────────────────────────
+   PAGINACIÓN
+──────────────────────────────────── */
+.cys-pag-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--azul-borde);
+  flex-wrap: wrap;
+}
+
+.cys-pag-info {
+  font-size: .78rem;
+  color: var(--texto-muted);
+  margin-right: auto;
+}
+
+/* ────────────────────────────────────
+   LABELS DE FILTRO
+──────────────────────────────────── */
+.cys-filter-label {
+  font-size: .75rem;
+  color: var(--texto-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+
+/* ────────────────────────────────────
+   ESTADO VACÍO
+──────────────────────────────────── */
+.cys-empty-box {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--texto-muted);
+  font-size: .85rem;
+}
+
+.cys-empty-box i {
+  display: block;
+  font-size: 2.2rem;
+  color: rgba(77, 168, 218, 0.3);
+  margin-bottom: .5rem;
+}
+
+/* ────────────────────────────────────
+   TARJETAS DE REPORTE — icono
+──────────────────────────────────── */
+.cys-report-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: .75rem;
+}
+
+.cys-report-card-icon--inv      { background: rgba(77,168,218,.15);  color: var(--azul-acento); }
+.cys-report-card-icon--prov     { background: rgba(29,158,117,.15);  color: var(--verde-acento); }
+.cys-report-card-icon--diario   { background: rgba(127,119,221,.15); color: var(--morado-acento); }
+.cys-report-card-icon--analisis { background: rgba(232,131,74,.15);  color: var(--naranja-acento); }
+.cys-report-card-icon--proxima  { background: rgba(186,117,23,.12);  color: var(--dorado-acento); }
+
+/* ── Tarjeta — textos ── */
+.cys-report-card__title {
+  font-weight: 700;
+  font-size: .97rem;
+  margin-bottom: .3rem;
+}
+
+.cys-report-card__desc {
+  font-size: .8rem;
+  color: var(--texto-muted);
+  margin-bottom: .75rem;
+}
+
+.cys-report-card__link-text--inv      { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--prov     { color: var(--verde-acento);   font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--diario   { color: var(--morado-acento);  font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--analisis { color: var(--naranja-acento); font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--proxima  { color: var(--dorado-acento);  font-size: .8rem; font-weight: 600; }
+
+/* ────────────────────────────────────
+   TABLA INVENTARIO / GENÉRICA
+──────────────────────────────────── */
+.cys-inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .84rem;
+}
+
+.cys-inv-table thead tr {
+  border-bottom: 1px solid var(--azul-borde);
+}
+
+.cys-inv-table th {
+  padding: 10px 14px;
+  color: var(--texto-muted);
+  font-weight: 600;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.cys-inv-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(77,168,218,.1);
+  vertical-align: middle;
+}
+
+.cys-inv-table tbody tr:last-child td { border-bottom: none; }
+.cys-inv-table tbody tr:hover         { background: rgba(77,168,218,.04); }
+
+/* ── Modificadores de celda ── */
+.cys-td--muted { color: var(--texto-muted); }
+.cys-td--bold  { font-weight: 600; }
+.cys-td--green { color: var(--verde-acento); }
+
+/* ── Estado de cantidad ── */
+.cys-qty--ok  { color: var(--verde-acento);    font-weight: 700; }
+.cys-qty--low { color: var(--amarillo-acento); font-weight: 700; }
+.cys-qty--out { color: var(--rojo-acento);     font-weight: 700; }
+
+/* ────────────────────────────────────
+   BADGES
+──────────────────────────────────── */
+.cys-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: .73rem;
+  font-weight: 600;
+}
+
+.cys-badge--verde    { background: rgba(29,158,117,.15);  color: var(--verde-acento); }
+.cys-badge--amarillo { background: rgba(240,192,64,.15);  color: var(--amarillo-acento); }
+.cys-badge--rojo     { background: rgba(226,75,74,.15);   color: var(--rojo-acento); }
+
+/* ────────────────────────────────────
+   STATS MINI (modales)
+──────────────────────────────────── */
+.cys-modal__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.cys-stat-mini {
+  background: rgba(77,168,218,.07);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  border: 1px solid rgba(77,168,218,.18);
+}
+
+.cys-stat-mini--verde    { background: rgba(29,158,117,.1);  border-color: rgba(29,158,117,.25); }
+.cys-stat-mini--amarillo { background: rgba(240,192,64,.08); border-color: rgba(240,192,64,.25); }
+.cys-stat-mini--rojo     { background: rgba(226,75,74,.08);  border-color: rgba(226,75,74,.25); }
+
+.cys-stat-mini__val { font-size: 1.5rem; font-weight: 800; line-height: 1; color: var(--azul-acento); }
+.cys-stat-mini--verde    .cys-stat-mini__val { color: var(--verde-acento); }
+.cys-stat-mini--amarillo .cys-stat-mini__val { color: var(--amarillo-acento); }
+.cys-stat-mini--rojo     .cys-stat-mini__val { color: var(--rojo-acento); }
+
+.cys-stat-mini__label {
+  font-size: .68rem;
+  color: var(--texto-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* ────────────────────────────────────
+   SECCIÓN ENTRADAS / SALIDAS (encabezados)
+──────────────────────────────────── */
+.cys-inv-section-header { padding: 14px 16px 6px; }
+
+.cys-inv-section-title {
+  font-size: .8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--texto-muted);
+}
+
+.cys-inv-section-dot              { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cys-inv-section-dot--entradas    { background: var(--verde-acento); }
+.cys-inv-section-dot--salidas     { background: var(--rojo-acento); }
+
+/* ────────────────────────────────────
+   TAG PROVEEDOR
+──────────────────────────────────── */
+.cys-tag {
+  display: inline-block;
+  background: rgba(77,168,218,.1);
+  color: var(--azul-acento);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+/* ────────────────────────────────────
+   META INFO MODAL
+──────────────────────────────────── */
+.cys-modal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 20px;
+  font-size: .78rem;
+  border-bottom: 1px solid rgba(77,168,218,.12);
+}
+
+.cys-modal-meta__item            { color: var(--texto-muted); }
+.cys-modal-meta__accent--inv     { color: var(--azul-acento);   font-weight: 600; }
+.cys-modal-meta__accent--prov    { color: var(--verde-acento);  font-weight: 600; }
+
+/* ────────────────────────────────────
+   RESUMEN DIARIO — STATS
+──────────────────────────────────── */
+.cys-rd-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.cys-rd-stat {
+  text-align: center;
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
+  padding: 14px 8px;
+  border: 1px solid rgba(77,168,218,.15);
+}
+
+.cys-rd-stat__val            { font-size: 1.55rem; font-weight: 800; line-height: 1; }
+.cys-rd-stat__val--verde     { color: var(--verde-acento); }
+.cys-rd-stat__val--azul      { color: var(--azul-acento); }
+.cys-rd-stat__val--amarillo  { color: var(--amarillo-acento); }
+.cys-rd-stat__val--rojo      { color: var(--rojo-acento); }
+
+.cys-rd-stat__label {
+  font-size: .65rem;
+  color: var(--texto-muted);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ────────────────────────────────────
+   ANÁLISIS DE VENTAS — tabla card
+──────────────────────────────────── */
+.cys-av-table-card {
+  background: rgba(255,255,255,.03);
+  border-radius: 10px;
+  border: 1px solid rgba(77,168,218,.12);
+  margin: 16px;
+  overflow: hidden;
+}
+
+.cys-av-table-title {
+  padding: 12px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(77,168,218,.1);
+  color: var(--texto-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* ────────────────────────────────────
+   BÚSQUEDA ACTIVA (indicador de filtros)
+──────────────────────────────────── */
+.cys-busqueda-activa {
+  padding: 8px 16px 0;
+  font-size: .8rem;
+  color: var(--azul-acento);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
