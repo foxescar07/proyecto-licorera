@@ -10,4 +10,8 @@ urlpatterns = [
 
     # App usuarios
     path('usuarios/', include('usuarios.urls')),
+    
+    #App productos e inventario
+    path('productos/', include('productos.urls', namespace='producto')),
+    path('inventario/', include('inventario.urls', namespace='inventario')),
 ]   
