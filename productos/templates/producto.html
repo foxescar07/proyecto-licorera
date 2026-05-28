@@ -172,19 +172,19 @@
               <input type="text" name="codigo" id="crear-codigo" class="form-control prod-input"
                      placeholder="Ej: CRV-001" maxlength="50">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-12">
               <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
               <select name="categoria" id="crear-categoria" class="form-select prod-input">
                 <option value="">— Seleccionar —</option>
-                {% for cat in resumen_categorias %}
-                  <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
+                {% for main_cat in categorias_arbol %}
+                  <optgroup label="{{ main_cat.nombre }}">
+                    <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
+                    {% for sub_cat in main_cat.subcategorias.all %}
+                      <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
+                    {% endfor %}
+                  </optgroup>
                 {% endfor %}
               </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label prod-label">Cantidad inicial en stock</label>
-              <input type="number" name="cantidad_disponible" id="crear-cantidad"
-                     class="form-control prod-input" placeholder="Ej: 100" min="0" value="0">
             </div>
             <div class="col-12">
               <label class="form-label prod-label">Descripción (opcional)</label>
@@ -228,6 +228,7 @@
         <div class="modal-body p-4">
           <p class="text-muted small mb-3">
             La primera fila es la <strong class="text-info">presentación base</strong>.
+            Al guardar podrás agregar stock desde <strong>Compras</strong>.
           </p>
           <!-- Fila base -->
           <div class="row g-2 align-items-end mb-3 p-2 rounded prod-pres-base">
@@ -240,11 +241,6 @@
               <label class="form-label prod-label">Unidades</label>
               <input type="number" name="unidades_base[]" id="pres-unidades-unidad" value="1"
                      class="form-control prod-input" min="1">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label prod-label">Cantidad</label>
-              <input type="number" name="cantidad[]" id="pres-cantidad-unidad"
-                     class="form-control prod-input" placeholder="Ej: 50" min="0" value="0">
             </div>
             <div class="col-md-3">
               <label class="form-label prod-label">Precio (COP)</label>
@@ -297,7 +293,7 @@
             <div id="det-categoria"></div>
           </div>
           <div class="col-6">
-            <div class="prod-label">Stock</div>
+            <div class="prod-label">Stock Total</div>
             <div id="det-cantidad" class="text-info fw-bold"></div>
           </div>
           <div class="col-12">
@@ -335,9 +331,8 @@
               <tr>
                 <th>#</th>
                 <th>Nombre</th>
-                <th>Stock</th>
+                <th>Stock Total</th>
                 <th>Presentaciones</th>
-                <th>Últ. Entrada</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -366,6 +361,8 @@ const PRES_URL     = "{% url 'producto:presentaciones_guardar' 0 %}";
 const CSRF_TOKEN   = "{{ csrf_token }}";
 const ROTACION_URL = "{% url 'producto:rotacion_json' %}";
 
+// stock_total viene de la property del modelo (suma lotes__stock_actual)
+// pres.stock_actual viene del JSON que retorna la view
 const todoProductos = [
   {% for producto in productos %}
   {
@@ -374,14 +371,18 @@ const todoProductos = [
     codigo: "{{ producto.codigo|escapejs }}",
     categoria_pk: {{ producto.categoria.pk }},
     categoria_nombre: "{{ producto.categoria.nombre|escapejs }}",
-    cantidad: {{ producto.cantidad_disponible }},
-    descripcion: "{{ producto.descripcion|default:''|escapejs }}",
-    ultima_entrada: "{% with ultimo=producto.movimientos.first %}{% if ultimo %}{{ ultimo.fecha_actualizada|date:'d/m/Y' }}{% else %}—{% endif %}{% endwith %}",
+    stock_total: {{ producto.stock_total }},
     stock_critico: {% if producto.stock_critico %}true{% else %}false{% endif %},
+    descripcion: "{{ producto.descripcion|default:''|escapejs }}",
     presentaciones: [
       {% for pres in producto.presentaciones.all %}
-      { id:{{ pres.pk }}, nombre:"{{ pres.nombre|escapejs }}", unidades:{{ pres.unidades }},
-        precio:"{{ pres.precio }}", cantidad:{{ pres.cantidad }} }{% if not forloop.last %},{% endif %}
+      {
+        id: {{ pres.pk }},
+        nombre: "{{ pres.nombre|escapejs }}",
+        unidades: {{ pres.unidades }},
+        precio: "{{ pres.precio }}",
+        stock_actual: {% with s=pres.lotes.all %}{{ s|length }}{% endwith %}
+      }{% if not forloop.last %},{% endif %}
       {% endfor %}
     ]
   }{% if not forloop.last %},{% endif %}
@@ -400,7 +401,7 @@ document.getElementById('modalProductosCategoria').addEventListener('show.bs.mod
   const tbody     = document.getElementById('cuerpo-categoria');
 
   if (!filtrados.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">
       <i class="bi bi-box-seam d-block mb-2 fs-3"></i>No hay productos en esta categoría.</td></tr>`;
     return;
   }
@@ -409,19 +410,18 @@ document.getElementById('modalProductosCategoria').addEventListener('show.bs.mod
     const pres = p.presentaciones.length
       ? p.presentaciones.map(pr =>
           `<span class="badge prod-badge-pres me-1">
-            ${pr.nombre} (${pr.unidades}) — ${pr.cantidad} — $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+            ${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.stock_actual} — $${parseInt(pr.precio||0).toLocaleString('es-CO')}
           </span>`).join('')
       : `<span class="text-muted small">Sin definir</span>`;
 
     return `<tr ${p.stock_critico ? 'class="table-danger"' : ''}>
       <td class="text-muted small">${i+1}</td>
       <td class="fw-semibold small">${p.nombre}</td>
-      <td><span class="fw-bold ${p.stock_critico ? 'text-danger' : 'text-info'}">${p.cantidad} uds</span></td>
+      <td><span class="fw-bold ${p.stock_critico ? 'text-danger' : 'text-info'}">${p.stock_total} uds</span></td>
       <td>${pres}</td>
-      <td class="text-muted small">${p.ultima_entrada}</td>
       <td>
         <button class="btn btn-sm prod-btn-info" title="Ver detalle"
-                onclick="abrirDetalle(${p.pk},'${p.nombre}','${p.codigo}','${p.categoria_nombre}',${p.cantidad},'${p.descripcion}')">
+                onclick="abrirDetalle(${p.pk},'${p.nombre}','${p.codigo}','${p.categoria_nombre}',${p.stock_total},'${p.descripcion}')">
           <i class="bi bi-eye"></i>
         </button>
       </td>
@@ -430,19 +430,19 @@ document.getElementById('modalProductosCategoria').addEventListener('show.bs.mod
 });
 
 // ── MODAL DETALLE ─────────────────────────────────────────────────────────────
-function abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
+function abrirDetalle(pk, nombre, codigo, categoria, stock_total, descripcion) {
   document.getElementById('det-nombre').textContent      = nombre;
   document.getElementById('det-codigo').textContent      = codigo;
   document.getElementById('det-categoria').textContent   = categoria;
-  document.getElementById('det-cantidad').textContent    = cantidad + ' uds';
+  document.getElementById('det-cantidad').textContent    = stock_total + ' uds';
   document.getElementById('det-descripcion').textContent = descripcion || 'Sin descripción';
 
-  const p = todoProductos.find(x => x.pk == pk);
+  const p  = todoProductos.find(x => x.pk == pk);
   const el = document.getElementById('det-presentaciones');
   el.innerHTML = p && p.presentaciones.length
     ? p.presentaciones.map(pr => `
         <div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
-          <span>${pr.nombre} <span class="text-muted">(${pr.unidades} uds) — Stock: ${pr.cantidad}</span></span>
+          <span>${pr.nombre} <span class="text-muted">(${pr.unidades} uds) — Stock: ${pr.stock_actual}</span></span>
           <span class="text-info fw-semibold">$${parseInt(pr.precio||0).toLocaleString('es-CO')}</span>
         </div>`).join('')
     : '<span class="text-muted small">Sin presentaciones.</span>';
@@ -476,7 +476,10 @@ async function enviarCrearProducto() {
     const data = await resp.json();
     if (resp.ok && data.ok) {
       mostrarFeedback('ok', `✓ Producto <strong>${data.nombre}</strong> creado.`);
-      setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('modalCrearProducto')).hide(); location.reload(); }, 1200);
+      setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearProducto')).hide();
+        location.reload();
+      }, 1200);
     } else {
       mostrarFeedback('error', data.errores ? Object.values(data.errores).flat().join(' ') : (data.error || 'Error al crear.'));
     }
@@ -523,7 +526,6 @@ function abrirModalPresentaciones(pk, nombre) {
   document.getElementById('pres-nombre-unidad').value         = 'Unidad';
   document.getElementById('pres-unidades-unidad').value       = '1';
   document.getElementById('pres-precio-unidad').value         = '';
-  document.getElementById('pres-cantidad-unidad').value       = '0';
   document.getElementById('form-presentaciones-modal').action =
     PRES_URL.replace('/0/', '/' + pk + '/') + '?next={{ request.path }}';
   document.getElementById('contenedor-presentaciones-modal').innerHTML = '';
@@ -547,10 +549,6 @@ function agregarPresentacionModal() {
     <div class="col-md-2">
       <label class="form-label prod-label">Unidades</label>
       <input type="number" name="unidades_base[]" class="form-control prod-input" min="1" required>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label prod-label">Cantidad</label>
-      <input type="number" name="cantidad[]" class="form-control prod-input" min="0" value="0">
     </div>
     <div class="col-md-3">
       <label class="form-label prod-label">Precio (COP)</label>
@@ -579,6 +577,13 @@ function guardarPresentacionesModal() {
     return '$' + v.toLocaleString('es-CO');
   }
 
+  function calcRotacion(uds) {
+    if (uds >= 100) return '<span class="text-success fw-bold">Alta</span> — reposición cada 3 días';
+    if (uds >= 30)  return '<span class="text-warning fw-bold">Media</span> — reposición cada semana';
+    if (uds > 0)    return '<span class="text-danger fw-bold">Baja</span> — poca salida';
+    return '<span class="text-danger fw-bold">Sin movimiento</span>';
+  }
+
   function itemFila(nombre, cantidad, sinMov) {
     const color = sinMov ? '#e74c3c' : (cantidad >= 50 ? '#27ae60' : '#f39c12');
     return `<div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
@@ -597,11 +602,12 @@ function guardarPresentacionesModal() {
         const ahora = new Date();
         document.getElementById('estrella-mes-label').textContent =
           MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
-        document.getElementById('estrella-nombre').textContent      = data.estrella_nombre;
-        document.getElementById('estrella-categoria').textContent   = 'Categoría: ' + (data.estrella_categoria || '—');
-        document.getElementById('estrella-vendido').textContent     = data.estrella_vendido;
-        document.getElementById('estrella-ingresos').textContent    = data.estrella_ingresos > 0 ? fmtCOP(data.estrella_ingresos) : '—';
+        document.getElementById('estrella-nombre').textContent       = data.estrella_nombre;
+        document.getElementById('estrella-categoria').textContent    = 'Categoría: ' + (data.estrella_categoria || '—');
+        document.getElementById('estrella-vendido').textContent      = data.estrella_vendido;
+        document.getElementById('estrella-ingresos').textContent     = data.estrella_ingresos > 0 ? fmtCOP(data.estrella_ingresos) : '—';
         document.getElementById('estrella-presentacion').textContent = data.estrella_presentacion || '—';
+        document.getElementById('estrella-rotacion').innerHTML       = calcRotacion(data.estrella_vendido || 0);
         const critico = data.estrella_stock_critico;
         document.getElementById('estrella-stock').innerHTML =
           `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
@@ -625,7 +631,7 @@ function guardarPresentacionesModal() {
             labels: todos.map(p => p.nombre),
             datasets: [{
               label: 'Unidades vendidas',
-              data: todos.map(p => p.cantidad),
+              data:  todos.map(p => p.cantidad),
               backgroundColor: todos.map((_, i) => i < rotacion.length ? '#4DA8DA' : '#e74c3c'),
               borderRadius: 5,
               borderSkipped: false,
@@ -645,8 +651,9 @@ function guardarPresentacionesModal() {
         const alta = rotacion.filter(p => p.cantidad >= 50);
         const baja = rotacion.filter(p => p.cantidad > 0 && p.cantidad < 50);
         document.getElementById('lista-alta-rotacion').innerHTML =
-          alta.length ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
-                      : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
+          alta.length
+            ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
+            : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
         document.getElementById('lista-baja-rotacion').innerHTML =
           [...baja, ...sinMovimiento].length
             ? [...baja.map(p => itemFila(p.nombre, p.cantidad, false)),
