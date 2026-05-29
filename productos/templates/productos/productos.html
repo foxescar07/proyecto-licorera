@@ -1,0 +1,675 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Productos{% endblock %}
+{% block title %}Productos — CYS Ltda{% endblock %}
+{% block nav_productos %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/productos/productos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-dismissible fade show mb-2
+        {% if message.tags == 'error' %}alert-danger
+        {% elif message.tags == 'warning' %}alert-warning
+        {% elif message.tags == 'info' %}alert-info
+        {% else %}alert-success{% endif %}" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+{% include 'productos/stock_widget.html' %}
+{% include 'productos/busqueda_producto.html' %}
+
+  <!-- INVENTARIO POR CATEGORÍA -->
+  <div class="card prod-card mb-4">
+    <div class="card-header prod-card-header d-flex justify-content-between align-items-center">
+      <span class="fw-semibold">
+        <i class="bi bi-box-seam me-2 text-info"></i>Inventario por Categoría
+      </span>
+      <button class="btn prod-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        {% for cat in resumen_categorias %}
+          <div class="col-md-4">
+            <div class="prod-stat-card text-center"
+                 data-bs-toggle="modal" data-bs-target="#modalProductosCategoria"
+                 data-cat-pk="{{ cat.pk }}" data-cat-nombre="{{ cat.nombre }}"
+                 role="button" style="cursor:pointer;">
+              <div class="text-muted small">{{ cat.nombre }}</div>
+              <div class="fw-bold fs-4 text-info">{{ cat.total }}</div>
+              <div class="text-muted" style="font-size:.7rem;">productos</div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-4 text-muted small">
+            No hay categorías registradas.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALÍTICA: ROTACIÓN -->
+  <div class="card prod-card mb-4" id="seccion-analitica" style="display:none;">
+    <div class="card-header prod-card-header">
+      <i class="bi bi-arrow-left-right me-2 text-info"></i>
+      <span class="fw-semibold">Rotación de Productos — Últimos 30 días</span>
+    </div>
+    <div class="card-body">
+      <!-- PRODUCTO ESTRELLA -->
+      <div id="bloque-estrella" class="mb-4" style="display:none;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-trophy-fill text-warning"></i>
+          <span class="fw-semibold small text-uppercase text-muted">Producto Estrella del Mes</span>
+          <span class="badge prod-badge-mes ms-auto" id="estrella-mes-label"></span>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="prod-stat-card">
+              <div class="text-muted small mb-1">Producto</div>
+              <div class="fw-bold" id="estrella-nombre"></div>
+              <div class="text-muted small" id="estrella-categoria"></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="prod-stat-card text-center">
+              <div class="text-muted small mb-1">Unidades vendidas</div>
+              <div class="fw-bold fs-3 text-info" id="estrella-vendido"></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="prod-stat-card text-center">
+              <div class="text-muted small mb-1">Ingresos generados</div>
+              <div class="fw-bold fs-3 text-success" id="estrella-ingresos"></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="prod-stat-card">
+              <div class="text-muted small mb-1">Presentación más vendida</div>
+              <div class="fw-semibold small" id="estrella-presentacion">—</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="prod-stat-card">
+              <div class="text-muted small mb-1">Índice de rotación</div>
+              <div class="fw-semibold small" id="estrella-rotacion">—</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="prod-stat-card">
+              <div class="text-muted small mb-1">Stock actual</div>
+              <div class="fw-semibold small" id="estrella-stock"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRÁFICA -->
+      <div id="rotacion-loading" class="text-center py-4 text-muted small">
+        <span class="spinner-border spinner-border-sm me-2"></span> Cargando datos…
+      </div>
+      <div style="position:relative; width:100%; min-height:300px;">
+        <canvas id="chartRotacion" style="display:none;"></canvas>
+      </div>
+
+      <!-- TABLAS ALTA / BAJA -->
+      <div class="row g-3 mt-2" id="tablas-rotacion" style="display:none;">
+        <div class="col-md-6">
+          <div class="prod-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-graph-up-arrow text-success"></i>
+              <span class="fw-bold small text-success text-uppercase">Alta Rotación</span>
+            </div>
+            <div id="lista-alta-rotacion"></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="prod-stat-card">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-graph-down-arrow text-danger"></i>
+              <span class="fw-bold small text-danger text-uppercase">Baja Rotación</span>
+            </div>
+            <div id="lista-baja-rotacion"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════ MODAL: CREAR PRODUCTO ═══════ -->
+<div class="modal fade" id="modalCrearProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title"><i class="bi bi-plus-circle me-2 text-info"></i>Nuevo Producto</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div id="crear-feedback" class="mb-3" style="display:none;"></div>
+        <form id="form-nuevo-producto-modal">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label prod-label">Nombre <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" id="crear-nombre" class="form-control prod-input"
+                     placeholder="Ej: Cerveza Club Colombia">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label prod-label">Código</label>
+              <input type="text" name="codigo" id="crear-codigo" class="form-control prod-input"
+                     placeholder="Ej: CRV-001" maxlength="50">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
+              <select name="categoria" id="crear-categoria" class="form-select prod-input">
+                <option value="">— Seleccionar —</option>
+                {% for main_cat in categorias_arbol %}
+                  <optgroup label="{{ main_cat.nombre }}">
+                    <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
+                    {% for sub_cat in main_cat.subcategorias.all %}
+                      <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label prod-label">Descripción (opcional)</label>
+              <textarea name="descripcion" id="crear-descripcion" class="form-control prod-input"
+                        rows="2" placeholder="Descripción breve…"></textarea>
+            </div>
+            <div class="col-12 text-center">
+              <button type="button" class="btn prod-btn-outline" id="btn-guardar-presentaciones"
+                      onclick="crearProductoYPresentaciones()">
+                <i class="bi bi-layers me-1"></i> Definir Presentaciones
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer prod-modal-footer justify-content-between">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn prod-btn-primary" id="btn-crear-solo"
+                onclick="enviarCrearProducto()">
+          <i class="bi bi-check-lg me-1"></i> Guardar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: PRESENTACIONES ═══════ -->
+<div class="modal fade" id="modalPresentacionesProducto" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content prod-modal" style="max-height:90vh; overflow-y:auto;">
+      <div class="modal-header prod-modal-header sticky-top">
+        <h6 class="modal-title">
+          <i class="bi bi-layers me-2 text-info"></i>
+          Presentaciones — <span id="pres-nombre-producto"></span>
+        </h6>
+        <button type="button" class="btn-close btn-close-white"
+                onclick="cerrarModalPresentaciones()"></button>
+      </div>
+      <form id="form-presentaciones-modal" method="POST" action="">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <p class="text-muted small mb-3">
+            La primera fila es la <strong class="text-info">presentación base</strong>.
+            Al guardar podrás agregar stock desde <strong>Compras</strong>.
+          </p>
+          <!-- Fila base -->
+          <div class="row g-2 align-items-end mb-3 p-2 rounded prod-pres-base">
+            <div class="col-md-3">
+              <label class="form-label prod-label">Presentación</label>
+              <input type="text" name="nombre[]" id="pres-nombre-unidad" value="Unidad"
+                     class="form-control prod-input" placeholder="Ej: Lata, Botella…">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label prod-label">Unidades</label>
+              <input type="number" name="unidades_base[]" id="pres-unidades-unidad" value="1"
+                     class="form-control prod-input" min="1">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label prod-label">Precio (COP)</label>
+              <input type="number" name="precio[]" id="pres-precio-unidad"
+                     class="form-control prod-input" placeholder="Ej: 2500" min="0" required>
+            </div>
+            <div class="col-md-1 text-center">
+              <span class="text-info small">Base</span>
+            </div>
+          </div>
+          <div id="contenedor-presentaciones-modal"></div>
+          <button type="button" class="btn prod-btn-outline w-100 mt-2"
+                  onclick="agregarPresentacionModal()">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
+          </button>
+        </div>
+        <div class="modal-footer prod-modal-footer justify-content-between">
+          <button type="button" class="btn prod-btn-outline"
+                  onclick="cerrarModalPresentaciones()">Cancelar</button>
+          <button type="button" class="btn prod-btn-primary"
+                  onclick="guardarPresentacionesModal()">
+            <i class="bi bi-save me-1"></i> Guardar Presentaciones
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: DETALLE PRODUCTO ═══════ -->
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title"><i class="bi bi-eye me-2 text-info"></i>Detalle Producto</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="prod-label">Nombre</div>
+            <div id="det-nombre" class="fw-semibold"></div>
+          </div>
+          <div class="col-6">
+            <div class="prod-label">Código</div>
+            <div id="det-codigo" class="text-info fw-semibold" style="font-family:monospace;"></div>
+          </div>
+          <div class="col-6">
+            <div class="prod-label">Categoría</div>
+            <div id="det-categoria"></div>
+          </div>
+          <div class="col-6">
+            <div class="prod-label">Stock Total</div>
+            <div id="det-cantidad" class="text-info fw-bold"></div>
+          </div>
+          <div class="col-12">
+            <div class="prod-label mb-1">Presentaciones</div>
+            <div id="det-presentaciones"></div>
+          </div>
+          <div class="col-12">
+            <div class="prod-label">Descripción</div>
+            <div id="det-descripcion" class="text-muted small"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer prod-modal-footer">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: PRODUCTOS POR CATEGORÍA ═══════ -->
+<div class="modal fade" id="modalProductosCategoria" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title">
+          <i class="bi bi-box-seam me-2 text-info"></i>
+          Productos — <span id="titulo-categoria"></span>
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 prod-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Stock Total</th>
+                <th>Presentaciones</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-categoria"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer prod-modal-footer justify-content-between">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+        <a href="{% url 'inventario:gestion_productos' %}" class="btn prod-btn-primary">
+          <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const GESTION_URL  = "{% url 'inventario:gestion_productos' %}";
+const CREAR_URL    = "{% url 'producto:crear_producto' %}";
+const PRES_URL     = "{% url 'producto:presentaciones_guardar' 0 %}";
+const CSRF_TOKEN   = "{{ csrf_token }}";
+const ROTACION_URL = "{% url 'producto:rotacion_json' %}";
+
+// stock_total viene de la property del modelo (suma lotes__stock_actual)
+// pres.stock_actual viene del JSON que retorna la view
+const todoProductos = [
+  {% for producto in productos %}
+  {
+    pk: {{ producto.pk }},
+    nombre: "{{ producto.nombre|escapejs }}",
+    codigo: "{{ producto.codigo|escapejs }}",
+    categoria_pk: {{ producto.categoria.pk }},
+    categoria_nombre: "{{ producto.categoria.nombre|escapejs }}",
+    stock_total: {{ producto.stock_total }},
+    stock_critico: {% if producto.stock_critico %}true{% else %}false{% endif %},
+    descripcion: "{{ producto.descripcion|default:''|escapejs }}",
+    presentaciones: [
+      {% for pres in producto.presentaciones.all %}
+      {
+        id: {{ pres.pk }},
+        nombre: "{{ pres.nombre|escapejs }}",
+        unidades: {{ pres.unidades }},
+        precio: "{{ pres.precio }}",
+        stock_actual: {% with s=pres.lotes.all %}{{ s|length }}{% endwith %}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+
+// ── MODAL CATEGORÍA ───────────────────────────────────────────────────────────
+document.getElementById('modalProductosCategoria').addEventListener('show.bs.modal', function(e) {
+  const btn = e.relatedTarget;
+  if (!btn) return;
+  const pk     = btn.dataset.catPk;
+  const nombre = btn.dataset.catNombre;
+  document.getElementById('titulo-categoria').textContent = nombre;
+
+  const filtrados = todoProductos.filter(p => p.categoria_pk == pk);
+  const tbody     = document.getElementById('cuerpo-categoria');
+
+  if (!filtrados.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">
+      <i class="bi bi-box-seam d-block mb-2 fs-3"></i>No hay productos en esta categoría.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map((p, i) => {
+    const pres = p.presentaciones.length
+      ? p.presentaciones.map(pr =>
+          `<span class="badge prod-badge-pres me-1">
+            ${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.stock_actual} — $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+          </span>`).join('')
+      : `<span class="text-muted small">Sin definir</span>`;
+
+    return `<tr ${p.stock_critico ? 'class="table-danger"' : ''}>
+      <td class="text-muted small">${i+1}</td>
+      <td class="fw-semibold small">${p.nombre}</td>
+      <td><span class="fw-bold ${p.stock_critico ? 'text-danger' : 'text-info'}">${p.stock_total} uds</span></td>
+      <td>${pres}</td>
+      <td>
+        <button class="btn btn-sm prod-btn-info" title="Ver detalle"
+                onclick="abrirDetalle(${p.pk},'${p.nombre}','${p.codigo}','${p.categoria_nombre}',${p.stock_total},'${p.descripcion}')">
+          <i class="bi bi-eye"></i>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+});
+
+// ── MODAL DETALLE ─────────────────────────────────────────────────────────────
+function abrirDetalle(pk, nombre, codigo, categoria, stock_total, descripcion) {
+  document.getElementById('det-nombre').textContent      = nombre;
+  document.getElementById('det-codigo').textContent      = codigo;
+  document.getElementById('det-categoria').textContent   = categoria;
+  document.getElementById('det-cantidad').textContent    = stock_total + ' uds';
+  document.getElementById('det-descripcion').textContent = descripcion || 'Sin descripción';
+
+  const p  = todoProductos.find(x => x.pk == pk);
+  const el = document.getElementById('det-presentaciones');
+  el.innerHTML = p && p.presentaciones.length
+    ? p.presentaciones.map(pr => `
+        <div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
+          <span>${pr.nombre} <span class="text-muted">(${pr.unidades} uds) — Stock: ${pr.stock_actual}</span></span>
+          <span class="text-info fw-semibold">$${parseInt(pr.precio||0).toLocaleString('es-CO')}</span>
+        </div>`).join('')
+    : '<span class="text-muted small">Sin presentaciones.</span>';
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetalleProducto')).show();
+}
+
+// ── CREAR PRODUCTO ────────────────────────────────────────────────────────────
+function mostrarFeedback(tipo, msg) {
+  const fb = document.getElementById('crear-feedback');
+  fb.innerHTML = `<div class="alert ${tipo === 'ok' ? 'alert-success' : 'alert-danger'} py-2 small">${msg}</div>`;
+  fb.style.display = 'block';
+}
+
+async function enviarCrearProducto() {
+  const nombre    = document.getElementById('crear-nombre').value.trim();
+  const categoria = document.getElementById('crear-categoria').value;
+  if (!nombre)    { mostrarFeedback('error', 'El nombre es obligatorio.'); return; }
+  if (!categoria) { mostrarFeedback('error', 'Selecciona una categoría.'); return; }
+
+  const btn = document.getElementById('btn-crear-solo');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+
+  try {
+    const resp = await fetch(CREAR_URL, {
+      method: 'POST',
+      body: new FormData(document.getElementById('form-nuevo-producto-modal')),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await resp.json();
+    if (resp.ok && data.ok) {
+      mostrarFeedback('ok', `✓ Producto <strong>${data.nombre}</strong> creado.`);
+      setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearProducto')).hide();
+        location.reload();
+      }, 1200);
+    } else {
+      mostrarFeedback('error', data.errores ? Object.values(data.errores).flat().join(' ') : (data.error || 'Error al crear.'));
+    }
+  } catch { mostrarFeedback('error', 'Error de conexión.'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Producto';
+  }
+}
+
+async function crearProductoYPresentaciones() {
+  const nombre    = document.getElementById('crear-nombre').value.trim();
+  const categoria = document.getElementById('crear-categoria').value;
+  if (!nombre)    { mostrarFeedback('error', 'El nombre es obligatorio.'); return; }
+  if (!categoria) { mostrarFeedback('error', 'Selecciona una categoría.'); return; }
+
+  const btn = document.getElementById('btn-guardar-presentaciones');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+
+  try {
+    const resp = await fetch(CREAR_URL, {
+      method: 'POST',
+      body: new FormData(document.getElementById('form-nuevo-producto-modal')),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await resp.json();
+    if (resp.ok && data.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('modalCrearProducto')).hide();
+      setTimeout(() => abrirModalPresentaciones(data.pk, data.nombre), 400);
+    } else {
+      mostrarFeedback('error', data.errores ? Object.values(data.errores).flat().join(' ') : (data.error || 'Error.'));
+    }
+  } catch { mostrarFeedback('error', 'Error de conexión.'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Definir Presentaciones';
+  }
+}
+
+// ── PRESENTACIONES ────────────────────────────────────────────────────────────
+function abrirModalPresentaciones(pk, nombre) {
+  document.getElementById('pres-nombre-producto').textContent = nombre;
+  document.getElementById('pres-nombre-unidad').value         = 'Unidad';
+  document.getElementById('pres-unidades-unidad').value       = '1';
+  document.getElementById('pres-precio-unidad').value         = '';
+  document.getElementById('form-presentaciones-modal').action =
+    PRES_URL.replace('/0/', '/' + pk + '/') + '?next={{ request.path }}';
+  document.getElementById('contenedor-presentaciones-modal').innerHTML = '';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPresentacionesProducto')).show();
+}
+
+function cerrarModalPresentaciones() {
+  bootstrap.Modal.getInstance(document.getElementById('modalPresentacionesProducto')).hide();
+  location.reload();
+}
+
+function agregarPresentacionModal() {
+  const cont = document.getElementById('contenedor-presentaciones-modal');
+  const div  = document.createElement('div');
+  div.className = 'row g-2 align-items-end mb-2 p-2 rounded border prod-pres-row';
+  div.innerHTML = `
+    <div class="col-md-3">
+      <label class="form-label prod-label">Presentación</label>
+      <input type="text" name="nombre[]" class="form-control prod-input" placeholder="Ej: Six-pack" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label prod-label">Unidades</label>
+      <input type="number" name="unidades_base[]" class="form-control prod-input" min="1" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label prod-label">Precio (COP)</label>
+      <input type="number" name="precio[]" class="form-control prod-input" min="0" required>
+    </div>
+    <div class="col-md-1 text-center">
+      <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.prod-pres-row').remove()">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>`;
+  cont.appendChild(div);
+}
+
+function guardarPresentacionesModal() {
+  document.getElementById('form-presentaciones-modal').submit();
+}
+
+// ── ANALÍTICA / ROTACIÓN ──────────────────────────────────────────────────────
+(function () {
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  function fmtCOP(v) {
+    if (v >= 1000000) return '$' + (v/1000000).toFixed(1).replace('.0','') + 'M';
+    if (v >= 1000)    return '$' + Math.round(v/1000) + 'k';
+    return '$' + v.toLocaleString('es-CO');
+  }
+
+  function calcRotacion(uds) {
+    if (uds >= 100) return '<span class="text-success fw-bold">Alta</span> — reposición cada 3 días';
+    if (uds >= 30)  return '<span class="text-warning fw-bold">Media</span> — reposición cada semana';
+    if (uds > 0)    return '<span class="text-danger fw-bold">Baja</span> — poca salida';
+    return '<span class="text-danger fw-bold">Sin movimiento</span>';
+  }
+
+  function itemFila(nombre, cantidad, sinMov) {
+    const color = sinMov ? '#e74c3c' : (cantidad >= 50 ? '#27ae60' : '#f39c12');
+    return `<div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
+      <span>${nombre}</span>
+      <span class="fw-bold" style="color:${color};">${cantidad} uds</span>
+    </div>`;
+  }
+
+  fetch(ROTACION_URL)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('seccion-analitica').style.display = 'block';
+
+      // Estrella
+      if (data.estrella_nombre) {
+        const ahora = new Date();
+        document.getElementById('estrella-mes-label').textContent =
+          MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
+        document.getElementById('estrella-nombre').textContent       = data.estrella_nombre;
+        document.getElementById('estrella-categoria').textContent    = 'Categoría: ' + (data.estrella_categoria || '—');
+        document.getElementById('estrella-vendido').textContent      = data.estrella_vendido;
+        document.getElementById('estrella-ingresos').textContent     = data.estrella_ingresos > 0 ? fmtCOP(data.estrella_ingresos) : '—';
+        document.getElementById('estrella-presentacion').textContent = data.estrella_presentacion || '—';
+        document.getElementById('estrella-rotacion').innerHTML       = calcRotacion(data.estrella_vendido || 0);
+        const critico = data.estrella_stock_critico;
+        document.getElementById('estrella-stock').innerHTML =
+          `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
+        document.getElementById('bloque-estrella').style.display = 'block';
+      }
+
+      // Gráfica
+      const rotacion      = data.rotacion || [];
+      const sinMovimiento = data.sin_movimiento || [];
+      const todos         = [...rotacion, ...sinMovimiento];
+
+      if (todos.length) {
+        document.getElementById('rotacion-loading').style.display = 'none';
+        const canvas = document.getElementById('chartRotacion');
+        canvas.style.display = 'block';
+        canvas.parentElement.style.height = Math.max(300, todos.length * 40) + 'px';
+
+        new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: todos.map(p => p.nombre),
+            datasets: [{
+              label: 'Unidades vendidas',
+              data:  todos.map(p => p.cantidad),
+              backgroundColor: todos.map((_, i) => i < rotacion.length ? '#4DA8DA' : '#e74c3c'),
+              borderRadius: 5,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#8899aa' } },
+              y: { grid: { display: false }, ticks: { color: '#c8d6e5', autoSkip: false } }
+            }
+          }
+        });
+
+        // Tablas
+        const alta = rotacion.filter(p => p.cantidad >= 50);
+        const baja = rotacion.filter(p => p.cantidad > 0 && p.cantidad < 50);
+        document.getElementById('lista-alta-rotacion').innerHTML =
+          alta.length
+            ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
+            : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
+        document.getElementById('lista-baja-rotacion').innerHTML =
+          [...baja, ...sinMovimiento].length
+            ? [...baja.map(p => itemFila(p.nombre, p.cantidad, false)),
+               ...sinMovimiento.map(p => itemFila(p.nombre, 0, true))].join('')
+            : '<p class="text-muted small text-center py-2">Todos tienen movimiento.</p>';
+        document.getElementById('tablas-rotacion').style.display = 'flex';
+      } else {
+        document.getElementById('rotacion-loading').innerHTML =
+          '<p class="text-muted small text-center py-3">No hay datos de ventas en los últimos 30 días.</p>';
+      }
+    })
+    .catch(() => {
+      document.getElementById('seccion-analitica').style.display = 'block';
+      document.getElementById('rotacion-loading').innerHTML =
+        '<p class="text-muted small">Error al cargar datos.</p>';
+    });
+})();
+</script>
+{% endblock %}

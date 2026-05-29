@@ -30,19 +30,18 @@
   {% endif %}
 
   <!-- ACCIONES RÁPIDAS -->
-  <div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
-    {% if request.session.usuario_rol == 'admin' %}
-    <a href="{% url 'registrar_compra' %}" class="cys-btn cys-btn--primary">
-      <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
-    </a>
-    {% endif %}
-    {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' or request.session.usuario_rol == 'empleado' %}
-    <a href="{% url 'ventas:nueva_venta' %}" class="cys-btn cys-btn--danger">
-      <i class="bi bi-receipt"></i> Registrar Venta
-    </a>
-    {% endif %}
+<div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
+  {% if request.session.usuario_rol == 'admin' %}
+  <a href="#" class="cys-btn cys-btn--primary">
+    <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
+  </a>
+  {% endif %}
+  {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' or request.session.usuario_rol == 'empleado' %}
+  <a href="#" class="cys-btn cys-btn--danger">
+    <i class="bi bi-receipt"></i> Registrar Venta
+  </a>
+  {% endif %}
   </div>
-
   <!-- ══════════════════════════════════
        INVENTARIO POR CATEGORÍA
   ══════════════════════════════════ -->
@@ -128,7 +127,7 @@
       </div>
     </div>
 
-    <!-- MÉTRICAS SEMANA — formateadas por Django, sin JS -->
+    <!-- MÉTRICAS SEMANA — formateadas por Django -->
     <div class="row gx-3 gy-2 mb-4">
       <div class="col-4">
         <div class="cys-stat-card text-center">

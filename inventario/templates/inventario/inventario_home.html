@@ -1,0 +1,635 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inventario — CYS Ltda{% endblock %}
+{% block page_title %}Inventario{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ACCESO RÁPIDO -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button">
+        <i class="bi bi-calendar-plus"></i>
+        <div>
+          <div class="inv-quick-card__title">Agendar Inventario</div>
+          <div class="inv-quick-card__sub">Programar fecha y hora del conteo</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button">
+        <i class="bi bi-clipboard2-check"></i>
+        <div>
+          <div class="inv-quick-card__title">Iniciar Conteo</div>
+          <div class="inv-quick-card__sub">Ingresar cantidades físicas</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button">
+        <i class="bi bi-upc-scan"></i>
+        <div>
+          <div class="inv-quick-card__title">Registrar Códigos</div>
+          <div class="inv-quick-card__sub">Asignar códigos de barras</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button">
+        <i class="bi bi-arrow-left-right"></i>
+        <div>
+          <div class="inv-quick-card__title">Comparar Inventario</div>
+          <div class="inv-quick-card__sub">Ver discrepancias físico vs sistema</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENLACE GESTIÓN DE PRODUCTOS -->
+  <div class="mb-4">
+    <a href="{% url 'inventario:gestion_productos' %}" class="inv-gestion-link text-decoration-none d-flex align-items-center justify-content-between gap-3 flex-wrap">
+      <div class="d-flex align-items-center gap-3">
+        <div class="inv-gestion-link__icon">
+          <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <div>
+          <div class="inv-gestion-link__title">Gestión de Productos</div>
+          <div class="inv-gestion-link__sub">Productos, salidas, categorías y subcategorías</div>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="badge inv-badge-salida"><i class="bi bi-box-arrow-up me-1"></i>Registrar salida</span>
+        <span class="badge inv-badge-cat"><i class="bi bi-tags me-1"></i>Categorías</span>
+        <i class="bi bi-arrow-right-circle-fill inv-arrow-icon"></i>
+      </div>
+    </a>
+  </div>
+
+  <!-- INVENTARIOS PROGRAMADOS -->
+  <div class="card inv-card mb-4">
+    <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
+         data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
+      <span class="fw-semibold">
+        <i class="bi bi-calendar2-week me-2 text-info"></i>
+        Inventarios Programados
+        {% if agendas %}
+          <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
+        {% endif %}
+      </span>
+      <i class="bi bi-chevron-down"></i>
+    </div>
+    <div class="collapse" id="agendaBody">
+      <div class="card-body">
+        {% for agenda in agendas %}
+        <div class="inv-agenda-item mb-3 p-3 rounded">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <div>
+              <div class="fw-semibold">{{ agenda.titulo }}</div>
+              <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}</div>
+              {% if agenda.descripcion %}
+                <div class="text-muted small mt-1">{{ agenda.descripcion }}</div>
+              {% endif %}
+            </div>
+            <span class="badge inv-estado-{{ agenda.estado }}">{{ agenda.get_estado_display }}</span>
+          </div>
+          <!-- Tracker de estado -->
+          <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
+            {% for estado_val, estado_label in agenda.ESTADO_CHOICES %}
+            <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}" class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="estado" value="{{ estado_val }}">
+              <button type="submit"
+                class="btn btn-sm {% if agenda.estado == estado_val %}inv-tracker-active{% else %}inv-tracker-inactive{% endif %}">
+                {{ estado_label }}
+              </button>
+            </form>
+            {% if not forloop.last %}
+              <i class="bi bi-arrow-right text-muted small"></i>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-3 text-muted">
+          <i class="bi bi-calendar-x d-block mb-1 fs-4"></i>
+          No hay inventarios programados.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVIMIENTOS DE INVENTARIO -->
+  <div class="card inv-card">
+    <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <span class="fw-semibold">
+        <i class="bi bi-clock-history me-2 text-info"></i>
+        Movimientos de Inventario
+        {% if fecha_filtro == hoy %}
+          <span class="badge inv-badge-hoy ms-2">HOY</span>
+        {% endif %}
+      </span>
+      <div class="d-flex gap-2 flex-wrap">
+        <select class="form-select form-select-sm inv-select"
+                onchange="window.location.href='?fecha_mov='+this.value">
+          {% for dia in dias_con_movimientos %}
+            <option value="{{ dia|date:'Y-m-d' }}"
+              {% if dia|date:'Y-m-d' == fecha_filtro|date:'Y-m-d' %}selected{% endif %}>
+              {% if dia|date:'Y-m-d' == hoy|date:'Y-m-d' %}Hoy — {{ dia|date:"d/m/Y" }}
+              {% else %}{{ dia|date:"l d/m/Y" }}{% endif %}
+            </option>
+          {% empty %}
+            <option value="">Sin movimientos</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom inv-meta">
+        <span class="small text-muted">
+          <i class="bi bi-list-ul me-1"></i>
+          <strong>{{ movimientos|length }}</strong> movimiento{{ movimientos|length|pluralize:"s" }}
+        </span>
+        <div class="d-flex gap-3 small text-muted">
+          <span><i class="bi bi-arrow-up-short text-success fs-6"></i> Entrada</span>
+          <span><i class="bi bi-arrow-down-short text-danger fs-6"></i> Salida</span>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 inv-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Hora</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th class="text-center">Stock</th>
+              <th class="text-center">Tipo</th>
+              <th class="text-center">Cantidad</th>
+              <th>Motivo</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for mov in movimientos %}
+            <tr class="inv-row-{% if mov.tipo == 'entrada' %}entrada{% else %}salida{% endif %}">
+              <td class="text-muted small">{{ forloop.counter }}</td>
+              <td>
+                <div class="fw-semibold small">{{ mov.fecha_actualizada|date:"H:i" }}</div>
+                <div class="text-muted" style="font-size:.7rem;">{{ mov.fecha_actualizada|timesince }} atrás</div>
+              </td>
+              <td>
+                {% if mov.lote.presentacion.producto.lotes.first.stock_actual <= 5 %}
+                  <i class="bi bi-exclamation-triangle-fill text-danger me-1" style="font-size:.7rem;" title="Stock crítico"></i>
+                {% endif %}
+                <div class="fw-semibold small">{{ mov.lote.presentacion.producto.nombre }}</div>
+                <div class="text-info" style="font-size:.7rem; font-family:monospace;">{{ mov.lote.presentacion.producto.codigo|default:"Sin código" }}</div>
+              </td>
+              <td class="text-muted small">{{ mov.lote.presentacion.producto.categoria.nombre }}</td>
+              <td class="text-center">
+                <span class="badge {% if mov.lote.stock_actual <= 5 %}bg-danger{% else %}inv-badge-stock{% endif %}">
+                  {{ mov.lote.stock_actual }}
+                </span>
+              </td>
+              <td class="text-center">
+                {% if mov.tipo == 'entrada' %}
+                  <span class="badge inv-badge-entrada"><i class="bi bi-arrow-up-short"></i> Entrada</span>
+                {% else %}
+                  <span class="badge inv-badge-salida-tbl"><i class="bi bi-arrow-down-short"></i> Salida</span>
+                {% endif %}
+              </td>
+              <td class="text-center fw-bold {% if mov.tipo == 'entrada' %}text-success{% else %}text-danger{% endif %}">
+                {% if mov.tipo == 'entrada' %}+{% else %}−{% endif %}{{ mov.cantidad }}
+              </td>
+              <td class="text-muted small">{{ mov.motivo|default:"—" }}</td>
+              <td class="text-center">
+                <button class="btn btn-sm inv-btn-edit"
+                        data-bs-toggle="modal" data-bs-target="#modalEditarMovimiento"
+                        data-pk="{{ mov.pk }}"
+                        data-nombre="{{ mov.lote.presentacion.producto.nombre }}"
+                        data-tipo="{{ mov.tipo }}"
+                        data-cantidad="{{ mov.cantidad }}"
+                        data-motivo="{{ mov.motivo|default:'' }}"
+                        title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">
+                <i class="bi bi-inbox d-block mb-1 fs-3"></i>
+                No hay movimientos para
+                {% if fecha_filtro == hoy %}hoy.{% else %}el {{ fecha_filtro|date:"d/m/Y" }}.{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MODALES ═══════════════ -->
+
+  <!-- MODAL AGENDAR -->
+  <div class="modal fade" id="modalAgendar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content inv-modal">
+        <div class="modal-header inv-modal-header">
+          <h6 class="modal-title"><i class="bi bi-calendar-plus me-2 text-info"></i>Agendar Inventario</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'inventario:inventario_home' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label inv-label">Título</label>
+              <input type="text" name="titulo" class="form-control inv-input"
+                     placeholder="Ej: Inventario mensual Junio" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label inv-label">Fecha y hora</label>
+              <input type="datetime-local" name="fecha_programada" class="form-control inv-input" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label inv-label">Descripción (opcional)</label>
+              <textarea name="descripcion" class="form-control inv-input" rows="3" placeholder="Notas adicionales..."></textarea>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn inv-btn-primary">
+                <i class="bi bi-calendar-check me-1"></i>Agendar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONTEO -->
+  <div class="modal fade" id="modalConteo" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content inv-modal">
+        <div class="modal-header inv-modal-header">
+          <h6 class="modal-title"><i class="bi bi-clipboard2-check me-2 text-info"></i>Conteo de Inventario</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              {% if sesion %}
+                <div class="text-muted small">Sesión activa desde</div>
+                <div class="fw-bold text-info">{{ sesion.fecha_inicio|date:"d/m/Y H:i" }}</div>
+                {% if sesion.responsable %}
+                  <div class="text-muted small mt-1">
+                    <i class="bi bi-person-fill me-1 text-info"></i>
+                    Responsable: <strong>{{ sesion.responsable.get_full_name|default:sesion.responsable.username }}</strong>
+                  </div>
+                {% endif %}
+              {% else %}
+                <div class="text-muted small">No hay sesión activa</div>
+              {% endif %}
+            </div>
+            <form method="POST" action="{% url 'inventario:conteo_inventario' %}">
+              {% csrf_token %}
+              <button type="submit" name="iniciar_sesion" class="btn inv-btn-primary btn-sm">
+                <i class="bi bi-play-fill me-1"></i>
+                {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
+              </button>
+            </form>
+          </div>
+
+          {% if sesion %}
+            <form method="POST" action="{% url 'inventario:guardar_conteo' %}">
+              {% csrf_token %}
+              <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
+              <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-7">
+                  <label class="form-label inv-label">Producto</label>
+                  <select name="producto_id" class="form-select inv-input" required>
+                    <option value="">— Seleccionar producto —</option>
+                    {% for p in productos %}
+                      <option value="{{ p.pk }}">{{ p.nombre }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label inv-label">Cantidad física</label>
+                  <input type="number" name="cantidad_contada" class="form-control inv-input" min="0" placeholder="0" required>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn inv-btn-primary w-100">
+                    <i class="bi bi-save"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle inv-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Stock Sistema</th>
+                    <th>Conteo Físico</th>
+                  </tr>
+                </thead>
+              <tbody>
+             {% for c in conteos %}
+            <tr>
+          <td class="fw-semibold small">{{ c.presentacion.producto.nombre }}</td>
+          <td class="small">{{ c.presentacion.stock_total }}</td>  {# ← corregida #}
+          <td class="fw-bold small">{{ c.cantidad_contada }}</td>
+          </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center py-3 text-muted small">Aún no has contado ningún producto.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-3 text-muted">
+              <i class="bi bi-play-circle d-block mb-2 fs-2"></i>
+              Primero inicia una sesión de conteo.
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer inv-modal-footer">
+          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL COMPARAR -->
+  <div class="modal fade" id="modalComparar" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content inv-modal">
+        <div class="modal-header inv-modal-header">
+          <h6 class="modal-title"><i class="bi bi-arrow-left-right me-2 text-info"></i>Comparar Inventario</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          {% if not sesion %}
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-clipboard-x d-block mb-2 fs-3"></i>
+              No hay sesión activa. Primero inicia un conteo.
+            </div>
+          {% elif not discrepancias %}
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-inbox d-block mb-2 fs-3"></i>
+              No hay productos contados en esta sesión.
+            </div>
+          {% else %}
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <div class="inv-stat-card text-center">
+                  <div class="text-muted small">Total Comparados</div>
+                  <div class="fw-bold fs-4 text-info">{{ discrepancias|length }}</div>
+                  <div class="text-muted" style="font-size:.7rem;">productos</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="inv-stat-card text-center">
+                  <div class="text-muted small">Con Diferencia</div>
+                  <div class="fw-bold fs-4 text-danger">{{ discrepancias|length }}</div>
+                  <div class="text-muted" style="font-size:.7rem;">revisión necesaria</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="inv-stat-card text-center">
+                  <div class="text-muted small">Sesión Activa</div>
+                  <div class="fw-bold text-info mt-1">{{ sesion.fecha_inicio|date:"d/m/Y" }}</div>
+                  <div class="text-muted" style="font-size:.7rem;">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle inv-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th class="text-center">Sistema</th>
+                    <th class="text-center">Físico</th>
+                    <th class="text-center">Diferencia</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Ajustar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for d in discrepancias %}
+                  <tr>
+                    <td>
+                      <div class="fw-semibold small">{{ d.presentacion.producto.nombre }}</div>
+                      <div class="text-info" style="font-size:.7rem; font-family:monospace;">{{ d.presentacion.producto.codigo }}</div>
+                    </td>
+                    <td class="text-muted small">{{ d.presentacion.producto.categoria.nombre }}</td>
+                    <td class="text-center fw-bold text-info">{{ d.en_sistema }}</td>
+                    <td class="text-center fw-bold">{{ d.fisico }}</td>
+                    <td class="text-center fw-bold">
+                      {% if d.diferencia == 0 %}<span class="text-success">0</span>
+                      {% elif d.diferencia > 0 %}<span class="text-warning">+{{ d.diferencia }}</span>
+                      {% else %}<span class="text-danger">{{ d.diferencia }}</span>{% endif %}
+                    </td>
+                    <td class="text-center">
+                      <span class="badge inv-estado-{{ d.estado }}">
+                        {% if d.estado == 'ok' %}OK
+                        {% elif d.estado == 'sobrante' %}Sobrante
+                        {% else %}Faltante{% endif %}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      {% if d.estado != 'ok' %}
+                        <form method="POST" action="{% url 'inventario:ajustar_stock' d.presentacion.pk %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
+                          <button type="submit" class="btn btn-sm inv-btn-primary"
+                                  onclick="return confirm('¿Ajustar stock de {{ d.presentacion.producto.nombre }}?')">
+                            <i class="bi bi-arrow-repeat"></i>
+                          </button>
+                        </form>
+                      {% else %}
+                        <span class="text-muted">—</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer inv-modal-footer">
+          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REGISTRAR CÓDIGOS -->
+  <div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content inv-modal">
+        <div class="modal-header inv-modal-header">
+          <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <div class="inv-stat-card text-center">
+                <div class="text-muted small">Total Productos</div>
+                <div class="fw-bold fs-4 text-info">{{ productos|length }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="inv-stat-card text-center">
+                <div class="text-muted small">Con Código</div>
+                <div class="fw-bold fs-4 text-success">{{ con_codigo }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="inv-stat-card text-center">
+                <div class="text-muted small">Sin Código</div>
+                <div class="fw-bold fs-4 text-danger">{{ sin_codigo }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle inv-table mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Estado</th>
+                  <th>Código actual</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in productos %}
+                <tr>
+                  <td class="text-muted small">{{ forloop.counter }}</td>
+                  <td class="fw-semibold small">{{ p.nombre }}</td>
+                  <td class="text-muted small">{{ p.categoria.nombre }}</td>
+                  <td>
+                    {% if p.codigo %}
+                      <span class="badge bg-success">Registrado</span>
+                    {% else %}
+                      <span class="badge bg-danger">Sin código</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span style="font-family:monospace; font-size:.82rem;"
+                          class="{% if p.codigo %}text-info{% else %}text-muted{% endif %}">
+                      {{ p.codigo|default:"—" }}
+                    </span>
+                  </td>
+                  <td>
+                    <form method="POST" action="{% url 'inventario:guardar_codigo' p.pk %}">
+                      {% csrf_token %}
+                      <div class="input-group input-group-sm">
+                        <input type="text" name="codigo" class="form-control inv-input"
+                               value="{{ p.codigo|default:'' }}" placeholder="Escanear..." style="max-width:150px;">
+                        <button type="submit" class="btn inv-btn-primary btn-sm">
+                          <i class="bi bi-save"></i>
+                        </button>
+                      </div>
+                    </form>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4 text-muted">No hay productos registrados.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer inv-modal-footer">
+          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR MOVIMIENTO -->
+  <div class="modal fade" id="modalEditarMovimiento" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content inv-modal">
+        <div class="modal-header inv-modal-header">
+          <h6 class="modal-title"><i class="bi bi-pencil me-2 text-info"></i>Editar Movimiento</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="fw-semibold mb-3" id="em-producto-nombre"></p>
+          <form id="form-editar-movimiento" method="POST" action="">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label inv-label">Tipo</label>
+              <select name="tipo" id="em-tipo" class="form-select inv-input">
+                <option value="entrada">Entrada</option>
+                <option value="salida">Salida</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label inv-label">Cantidad</label>
+              <input type="number" name="cantidad" id="em-cantidad" class="form-control inv-input" min="1" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label inv-label">Motivo</label>
+              <input type="text" name="motivo" id="em-motivo" class="form-control inv-input" placeholder="Ej: Venta, Merma, Ajuste…">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer inv-modal-footer">
+          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn inv-btn-warning"
+                  onclick="document.getElementById('form-editar-movimiento').submit()">
+            <i class="bi bi-save me-1"></i>Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Solo llenado del modal editar movimiento con datos del botón
+document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
+  const btn = e.relatedTarget;
+  if (!btn) return;
+  document.getElementById('em-producto-nombre').textContent = btn.dataset.nombre;
+  document.getElementById('em-tipo').value     = btn.dataset.tipo;
+  document.getElementById('em-cantidad').value = btn.dataset.cantidad;
+  document.getElementById('em-motivo').value   = btn.dataset.motivo;
+  document.getElementById('form-editar-movimiento').action =
+    '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
+});
+</script>
+{% endblock %}

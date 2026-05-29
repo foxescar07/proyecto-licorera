@@ -1,0 +1,177 @@
+/* ══════════════════════════════════════════
+   productos.css — CYS Ltda
+   Paleta + clases mínimas Bootstrap 5
+   ══════════════════════════════════════════ */
+
+:root {
+  --prod-azul:       #4DA8DA;
+  --prod-azul-dim:   rgba(77, 168, 218, 0.15);
+  --prod-azul-borde: rgba(77, 168, 218, 0.25);
+  --prod-fondo:      #0D1B2E;
+  --prod-card:       #112240;
+  --prod-card2:      #0f1e38;
+  --prod-texto:      #e2e8f0;
+  --prod-muted:      rgba(226, 232, 240, 0.5);
+  --prod-rojo:       #e74c3c;
+  --prod-verde:      #27ae60;
+  --prod-amarillo:   #f39c12;
+  --prod-radius:     10px;
+}
+
+/* ── CARDS ── */
+.prod-card {
+  background: var(--prod-card);
+  border: 1px solid var(--prod-azul-borde);
+  border-radius: var(--prod-radius);
+  color: var(--prod-texto);
+}
+
+.prod-card-header {
+  background: var(--prod-card2);
+  border-bottom: 1px solid var(--prod-azul-borde);
+  color: var(--prod-texto);
+  padding: .85rem 1.25rem;
+}
+
+/* ── STAT CARD (categorías + analítica) ── */
+.prod-stat-card {
+  background: var(--prod-card2);
+  border: 1px solid var(--prod-azul-borde);
+  border-radius: 8px;
+  padding: 1.5rem 1rem;
+  color: var(--prod-texto);
+  transition: border-color .2s, transform .2s;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.prod-stat-card:hover {
+  border-color: var(--prod-azul);
+  transform: translateY(-2px);
+}
+
+/* ── TABLA ── */
+.prod-table thead th {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--prod-muted);
+  border-bottom: 2px solid var(--prod-azul-borde);
+  background: var(--prod-card2);
+  padding: .6rem .75rem;
+}
+.prod-table tbody tr {
+  color: var(--prod-texto);
+  background: transparent;
+  border-bottom: 1px solid rgba(77,168,218,.08);
+}
+.prod-table tbody tr:hover {
+  background: var(--prod-azul-dim);
+}
+
+/* ── INPUTS ── */
+.prod-input,
+.np-input {
+  background: var(--prod-card2) !important;
+  color: var(--prod-texto) !important;
+  border: 1px solid var(--prod-azul-borde) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: .85rem;
+}
+.prod-input:focus,
+.np-input:focus {
+  background: var(--prod-card2) !important;
+  color: var(--prod-texto) !important;
+  border-color: var(--prod-azul) !important;
+  box-shadow: 0 0 0 2px rgba(77,168,218,.2) !important;
+  outline: none;
+}
+.prod-input::placeholder,
+.np-input::placeholder { color: var(--prod-muted) !important; }
+.prod-input option,
+.np-input option        { background: var(--prod-fondo); }
+
+.prod-label,
+.np-label {
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--prod-muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  display: block;
+  margin-bottom: .3rem;
+}
+
+/* ── BOTONES ── */
+.prod-btn-primary {
+  background: var(--prod-azul);
+  color: #fff;
+  border: none;
+}
+.prod-btn-primary:hover { background: #3a93c4; color: #fff; }
+
+.prod-btn-outline {
+  background: transparent;
+  color: var(--prod-texto);
+  border: 1px solid var(--prod-azul-borde);
+}
+.prod-btn-outline:hover {
+  background: var(--prod-azul-dim);
+  color: var(--prod-texto);
+}
+
+.prod-btn-info {
+  background: var(--prod-azul-dim);
+  color: var(--prod-azul);
+  border: 1px solid var(--prod-azul-borde);
+  font-size: .75rem;
+  padding: .2rem .5rem;
+}
+.prod-btn-info:hover { background: var(--prod-azul); color: #fff; }
+
+/* ── MODALES ── */
+.prod-modal {
+  background: var(--prod-card);
+  border: 1px solid var(--prod-azul-borde);
+  border-radius: var(--prod-radius);
+  color: var(--prod-texto);
+}
+.prod-modal-header {
+  background: var(--prod-card2);
+  border-bottom: 1px solid var(--prod-azul-borde);
+  border-radius: calc(var(--prod-radius) - 1px) calc(var(--prod-radius) - 1px) 0 0;
+  padding: 1rem 1.25rem;
+}
+.prod-modal-footer {
+  border-top: 1px solid var(--prod-azul-borde);
+  background: var(--prod-card2);
+}
+
+/* ── BADGES ── */
+.prod-badge-pres {
+  background: var(--prod-azul-dim);
+  color: var(--prod-azul);
+  border: 1px solid var(--prod-azul-borde);
+  font-size: .65rem;
+}
+.prod-badge-mes {
+  background: rgba(239,159,39,.15);
+  color: #EF9F27;
+  border: 1px solid rgba(239,159,39,.35);
+}
+
+/* ── PRESENTACIONES (filas del modal) ── */
+.prod-pres-base {
+  background: var(--prod-azul-dim);
+  border: 1px solid var(--prod-azul-borde) !important;
+}
+.prod-pres-row,
+.pres-row {
+  background: var(--prod-card2);
+  border: 1px solid var(--prod-azul-borde) !important;
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  margin-bottom: .5rem;
+}
