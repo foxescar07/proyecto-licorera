@@ -1,19 +1,96 @@
 /* ============================================================
    reportes.css — CYS Ltda
-   Bootstrap 5 compatible — variables propias del tema oscuro
+   Bootstrap 5 compatible — Paleta: #011936 / #912F40 / #AF8D86 / #EFF8E2
    ============================================================ */
 
 /* ── Variables ── */
 :root {
-  --azul-borde:   rgba(77, 168, 218, 0.15);
-  --texto-muted:  #8FA3B1;
-  --azul-acento:  #4DA8DA;
-  --verde-acento: #5DCAA5;
-  --morado-acento:#AFA9EC;
-  --naranja-acento:#F0A870;
-  --amarillo-acento:#F0C040;
-  --rojo-acento:  #E24B4A;
-  --dorado-acento:#BA7517;
+  /* Paleta principal */
+  --color-bg:         #011936;
+  --color-bg-card:    #02224a;
+  --color-bg-hover:   #032d60;
+  --color-surface:    #031e3e;
+  --color-carmesi:    #912F40;
+  --color-mauve:      #AF8D86;
+  --color-menta:      #EFF8E2;
+  --color-blanco:     #FDFFFC;
+
+  /* Acentos semánticos (mapeados a la paleta) */
+  --azul-borde:        rgba(239, 248, 226, 0.1);
+  --texto-muted:       #AF8D86;
+  --azul-acento:       #EFF8E2;
+  --verde-acento:      #c8e6a0;
+  --morado-acento:     #c9b8f0;
+  --naranja-acento:    #e8a87c;
+  --amarillo-acento:   #f0d080;
+  --rojo-acento:       #912F40;
+  --dorado-acento:     #c99040;
+}
+
+/* ────────────────────────────────────
+   MODAL BASE (fondo oscuro navy)
+──────────────────────────────────── */
+.cys-modal {
+  background-color: var(--color-bg) !important;
+  color: var(--color-blanco);
+  border: 1px solid rgba(239,248,226,0.12);
+}
+
+.cys-modal__header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid rgba(239,248,226,0.1);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cys-modal__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(239,248,226,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--color-menta);
+}
+
+.cys-modal__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-blanco);
+}
+
+.cys-modal__subtitle {
+  font-size: .75rem;
+  color: var(--texto-muted);
+}
+
+.cys-modal__close {
+  background: rgba(145,47,64,0.15);
+  border: 1px solid rgba(145,47,64,0.3);
+  color: var(--color-carmesi);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s;
+}
+
+.cys-modal__close:hover {
+  background: rgba(145,47,64,0.3);
+}
+
+.cys-modal__footer {
+  background-color: var(--color-surface);
+  border-top: 1px solid rgba(239,248,226,0.1);
+  padding: 12px 20px;
 }
 
 /* ────────────────────────────────────
@@ -60,7 +137,7 @@
 .cys-empty-box i {
   display: block;
   font-size: 2.2rem;
-  color: rgba(77, 168, 218, 0.3);
+  color: rgba(239,248,226,0.2);
   margin-bottom: .5rem;
 }
 
@@ -78,11 +155,11 @@
   margin-bottom: .75rem;
 }
 
-.cys-report-card-icon--inv      { background: rgba(77,168,218,.15);  color: var(--azul-acento); }
-.cys-report-card-icon--prov     { background: rgba(29,158,117,.15);  color: var(--verde-acento); }
-.cys-report-card-icon--diario   { background: rgba(127,119,221,.15); color: var(--morado-acento); }
-.cys-report-card-icon--analisis { background: rgba(232,131,74,.15);  color: var(--naranja-acento); }
-.cys-report-card-icon--proxima  { background: rgba(186,117,23,.12);  color: var(--dorado-acento); }
+.cys-report-card-icon--inv      { background: rgba(239,248,226,.12); color: var(--azul-acento); }
+.cys-report-card-icon--prov     { background: rgba(200,230,160,.12); color: var(--verde-acento); }
+.cys-report-card-icon--diario   { background: rgba(201,184,240,.12); color: var(--morado-acento); }
+.cys-report-card-icon--analisis { background: rgba(232,168,124,.12); color: var(--naranja-acento); }
+.cys-report-card-icon--proxima  { background: rgba(201,144,64,.1);   color: var(--dorado-acento); }
 
 /* ── Tarjeta — textos ── */
 .cys-report-card__title {
@@ -114,6 +191,7 @@
 
 .cys-inv-table thead tr {
   border-bottom: 1px solid var(--azul-borde);
+  background-color: rgba(239,248,226,0.03);
 }
 
 .cys-inv-table th {
@@ -128,16 +206,17 @@
 
 .cys-inv-table td {
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(77,168,218,.1);
+  border-bottom: 1px solid rgba(239,248,226,.07);
   vertical-align: middle;
+  color: var(--color-blanco);
 }
 
 .cys-inv-table tbody tr:last-child td { border-bottom: none; }
-.cys-inv-table tbody tr:hover         { background: rgba(77,168,218,.04); }
+.cys-inv-table tbody tr:hover         { background: rgba(239,248,226,.04); }
 
 /* ── Modificadores de celda ── */
 .cys-td--muted { color: var(--texto-muted); }
-.cys-td--bold  { font-weight: 600; }
+.cys-td--bold  { font-weight: 600; color: var(--color-blanco); }
 .cys-td--green { color: var(--verde-acento); }
 
 /* ── Estado de cantidad ── */
@@ -156,9 +235,9 @@
   font-weight: 600;
 }
 
-.cys-badge--verde    { background: rgba(29,158,117,.15);  color: var(--verde-acento); }
-.cys-badge--amarillo { background: rgba(240,192,64,.15);  color: var(--amarillo-acento); }
-.cys-badge--rojo     { background: rgba(226,75,74,.15);   color: var(--rojo-acento); }
+.cys-badge--verde    { background: rgba(200,230,160,.15);  color: var(--verde-acento); }
+.cys-badge--amarillo { background: rgba(240,208,128,.15);  color: var(--amarillo-acento); }
+.cys-badge--rojo     { background: rgba(145,47,64,.2);     color: #e87a8a; }
 
 /* ────────────────────────────────────
    STATS MINI (modales)
@@ -168,24 +247,25 @@
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 12px;
   padding: 16px;
+  background-color: var(--color-bg);
 }
 
 .cys-stat-mini {
-  background: rgba(77,168,218,.07);
+  background: rgba(239,248,226,.06);
   border-radius: 10px;
   padding: 12px 10px;
   text-align: center;
-  border: 1px solid rgba(77,168,218,.18);
+  border: 1px solid rgba(239,248,226,.12);
 }
 
-.cys-stat-mini--verde    { background: rgba(29,158,117,.1);  border-color: rgba(29,158,117,.25); }
-.cys-stat-mini--amarillo { background: rgba(240,192,64,.08); border-color: rgba(240,192,64,.25); }
-.cys-stat-mini--rojo     { background: rgba(226,75,74,.08);  border-color: rgba(226,75,74,.25); }
+.cys-stat-mini--verde    { background: rgba(200,230,160,.08);  border-color: rgba(200,230,160,.2); }
+.cys-stat-mini--amarillo { background: rgba(240,208,128,.07);  border-color: rgba(240,208,128,.2); }
+.cys-stat-mini--rojo     { background: rgba(145,47,64,.12);    border-color: rgba(145,47,64,.3); }
 
 .cys-stat-mini__val { font-size: 1.5rem; font-weight: 800; line-height: 1; color: var(--azul-acento); }
 .cys-stat-mini--verde    .cys-stat-mini__val { color: var(--verde-acento); }
 .cys-stat-mini--amarillo .cys-stat-mini__val { color: var(--amarillo-acento); }
-.cys-stat-mini--rojo     .cys-stat-mini__val { color: var(--rojo-acento); }
+.cys-stat-mini--rojo     .cys-stat-mini__val { color: #e87a8a; }
 
 .cys-stat-mini__label {
   font-size: .68rem;
@@ -198,7 +278,10 @@
 /* ────────────────────────────────────
    SECCIÓN ENTRADAS / SALIDAS (encabezados)
 ──────────────────────────────────── */
-.cys-inv-section-header { padding: 14px 16px 6px; }
+.cys-inv-section-header {
+  padding: 14px 16px 6px;
+  background-color: var(--color-bg);
+}
 
 .cys-inv-section-title {
   font-size: .8rem;
@@ -220,12 +303,13 @@
 ──────────────────────────────────── */
 .cys-tag {
   display: inline-block;
-  background: rgba(77,168,218,.1);
+  background: rgba(239,248,226,.08);
   color: var(--azul-acento);
   border-radius: 6px;
   padding: 2px 10px;
   font-size: .78rem;
   font-weight: 600;
+  border: 1px solid rgba(239,248,226,.12);
 }
 
 /* ────────────────────────────────────
@@ -237,7 +321,8 @@
   gap: 16px;
   padding: 10px 20px;
   font-size: .78rem;
-  border-bottom: 1px solid rgba(77,168,218,.12);
+  border-bottom: 1px solid rgba(239,248,226,.1);
+  background-color: var(--color-surface);
 }
 
 .cys-modal-meta__item            { color: var(--texto-muted); }
@@ -252,21 +337,22 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
   padding: 16px;
+  background-color: var(--color-bg);
 }
 
 .cys-rd-stat {
   text-align: center;
-  background: rgba(255,255,255,.04);
+  background: rgba(239,248,226,.05);
   border-radius: 10px;
   padding: 14px 8px;
-  border: 1px solid rgba(77,168,218,.15);
+  border: 1px solid rgba(239,248,226,.1);
 }
 
 .cys-rd-stat__val            { font-size: 1.55rem; font-weight: 800; line-height: 1; }
 .cys-rd-stat__val--verde     { color: var(--verde-acento); }
 .cys-rd-stat__val--azul      { color: var(--azul-acento); }
 .cys-rd-stat__val--amarillo  { color: var(--amarillo-acento); }
-.cys-rd-stat__val--rojo      { color: var(--rojo-acento); }
+.cys-rd-stat__val--rojo      { color: #e87a8a; }
 
 .cys-rd-stat__label {
   font-size: .65rem;
@@ -280,9 +366,9 @@
    ANÁLISIS DE VENTAS — tabla card
 ──────────────────────────────────── */
 .cys-av-table-card {
-  background: rgba(255,255,255,.03);
+  background: rgba(239,248,226,.03);
   border-radius: 10px;
-  border: 1px solid rgba(77,168,218,.12);
+  border: 1px solid rgba(239,248,226,.1);
   margin: 16px;
   overflow: hidden;
 }
@@ -294,10 +380,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid rgba(77,168,218,.1);
+  border-bottom: 1px solid rgba(239,248,226,.08);
   color: var(--texto-muted);
   text-transform: uppercase;
   letter-spacing: .04em;
+  background-color: rgba(239,248,226,.03);
 }
 
 /* ────────────────────────────────────
@@ -311,4 +398,67 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+/* ────────────────────────────────────
+   TABS (nav-tabs dentro de modales)
+──────────────────────────────────── */
+.cys-modal .nav-tabs {
+  border-bottom: 1px solid rgba(239,248,226,.12);
+  background-color: var(--color-bg);
+}
+
+.cys-modal .nav-tabs .nav-link {
+  color: var(--texto-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 16px;
+  font-size: .84rem;
+  font-weight: 600;
+  background: transparent;
+  transition: color .2s;
+}
+
+.cys-modal .nav-tabs .nav-link:hover {
+  color: var(--color-blanco);
+  border-bottom-color: rgba(239,248,226,.3);
+}
+
+.cys-modal .nav-tabs .nav-link.active {
+  color: var(--azul-acento);
+  border-bottom-color: var(--azul-acento);
+  background: transparent;
+}
+
+.cys-modal .tab-content {
+  background-color: var(--color-bg);
+}
+
+/* ────────────────────────────────────
+   MODAL BODY
+──────────────────────────────────── */
+.cys-modal .modal-body {
+  background-color: var(--color-bg);
+}
+
+/* ────────────────────────────────────
+   TARJETAS RESUMEN — altura uniforme y estilo
+──────────────────────────────────── */
+.cys-reporte-label {
+  font-size: .72rem;
+  color: #7ECFEF;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .5rem;
+}
+
+.cys-reporte-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #4DC8F0;
+  min-height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
