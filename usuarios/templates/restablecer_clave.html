@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYS — Restablecer Contraseña</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+  {% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/usuario/restablecer_clave.css' %}">
+  {% endblock %}
+</head>
+<body>
+  <div class="cys-wrap">
+    <div class="cys-card">
+      <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+
+      {% if exito %}
+        <div class="cys-title" style="color:#5edb97;">¡Listo!</div>
+        <div class="cys-msg-ok">Tu contraseña fue actualizada correctamente.</div>
+        <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Ir al Inicio de Sesión
+        </a>
+
+      {% elif error %}
+        <div class="cys-title">Enlace Inválido</div>
+        <div class="cys-msg-err">{{ error }}</div>
+        <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
+          <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
+        </a>
+
+      {% else %}
+        <div class="cys-title">Nueva Contraseña</div>
+        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Crea una contraseña segura para tu cuenta.
+        </p>
+        <form method="POST" id="formReset">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="cys-label" for="nuevaClave">Nueva Contraseña</label>
+            <input type="password" name="nueva_clave" id="nuevaClave"
+                   class="cys-input" placeholder="Tu nueva contraseña" required>
+            <div class="cys-hint">
+              <i class="bi bi-info-circle me-1"></i> Mínimo 6 caracteres, 2 números y 1 mayúscula.
+            </div>
+            <div id="errClave" class="cys-err-inline"></div>
+          </div>
+          <div class="mb-4">
+            <label class="cys-label" for="confirmarClave">Confirmar Contraseña</label>
+            <input type="password" name="confirmar" id="confirmarClave"
+                   class="cys-input" placeholder="Repite la contraseña" required>
+            <div id="errConfirmar" class="cys-err-inline"></div>
+          </div>
+          <button type="submit" class="cys-btn">
+            <i class="bi bi-shield-check me-1"></i> Guardar Nueva Contraseña
+          </button>
+        </form>
+        <div class="cys-divider"></div>
+        <a href="{% url 'login' %}" class="cys-link">
+          <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+        </a>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const form = document.getElementById('formReset');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        const clave     = document.getElementById('nuevaClave').value;
+        const confirmar = document.getElementById('confirmarClave').value;
+        const errClave     = document.getElementById('errClave');
+        const errConfirmar = document.getElementById('errConfirmar');
+        let ok = true;
+        errClave.style.display = 'none'; errConfirmar.style.display = 'none';
+        if (clave.length < 6) {
+          errClave.textContent = 'Mínimo 6 caracteres.'; errClave.style.display = 'block'; ok = false;
+        } else if ((clave.match(/\d/g) || []).length < 2) {
+          errClave.textContent = 'Debe contener al menos 2 números.'; errClave.style.display = 'block'; ok = false;
+        } else if (!/[A-Z]/.test(clave)) {
+          errClave.textContent = 'Debe contener al menos 1 mayúscula.'; errClave.style.display = 'block'; ok = false;
+        }
+        if (clave !== confirmar) {
+          errConfirmar.textContent = 'Las contraseñas no coinciden.'; errConfirmar.style.display = 'block'; ok = false;
+        }
+        if (!ok) e.preventDefault();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>CYS — Acceso al Sistema</title>
+
+  <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  {% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/usuario/usuario.css' %}">
+  {% endblock %}
+</head>
+
+<body>
+
+  <div class="cys-wrap">
+    <div class="cys-card" id="tarjeta">
+
+      <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+
+      <div id="msgGlobal" class="cys-msg" role="alert"></div>
+
+      <!-- LOGIN -->
+      <div id="secLogin">
+
+        <div class="cys-title">
+          Acceso al Sistema
+        </div>
+
+        <div class="mb-3">
+          <label class="cys-label" for="loginUser">
+            Usuario
+          </label>
+
+          <input
+            type="text"
+            id="loginUser"
+            class="cys-input"
+            placeholder="Tu número de identificación"
+            autocomplete="off">
+        </div>
+
+        <div class="mb-4">
+          <label class="cys-label" for="loginPass">
+            Contraseña
+          </label>
+
+          <input
+            type="password"
+            id="loginPass"
+            class="cys-input"
+            placeholder="Tu contraseña">
+        </div>
+
+        <button class="cys-btn-primary" onclick="hacerLogin()">
+          <i class="bi bi-box-arrow-in-right me-1"></i>
+          Iniciar Sesión
+        </button>
+
+        <div class="cys-divider"></div>
+
+        <div class="d-flex justify-content-between align-items-center gap-2">
+
+          <button class="cys-btn-link" onclick="mostrar('secRecuperar')">
+            <i class="bi bi-key" style="font-size:.75rem;"></i>
+            Olvidé mi contraseña
+          </button>
+
+          <a href="{% url 'crear_usuario' %}" class="cys-btn-link">
+            <i class="bi bi-person-plus" style="font-size:.75rem;"></i>
+            Crear usuario
+          </a>
+
+        </div>
+      </div>
+
+      <!-- RECUPERAR -->
+      <div id="secRecuperar" style="display:none;">
+
+        <div class="cys-title">
+          Recuperar Acceso
+        </div>
+
+        <p class="text-center mb-4"
+           style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+
+          Ingresa tu correo registrado y te enviaremos un enlace
+          para crear una nueva contraseña.
+
+        </p>
+
+        <div class="mb-4">
+          <label class="cys-label" for="recCorreo">
+            Correo Electrónico
+          </label>
+
+          <input
+            type="email"
+            id="recCorreo"
+            class="cys-input"
+            placeholder="correo@ejemplo.com"
+            autocomplete="off">
+        </div>
+
+        <button class="cys-btn-primary mb-3" onclick="hacerRecuperar()">
+          <i class="bi bi-send me-1"></i>
+          Enviar Enlace
+        </button>
+
+        <div class="text-center">
+          <button class="cys-btn-link mx-auto" onclick="mostrar('secLogin')">
+            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i>
+            Volver al inicio
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+
+    function mostrar(id) {
+
+      ['secLogin','secRecuperar'].forEach(s => {
+        document.getElementById(s).style.display = 'none';
+      });
+
+      document.getElementById(id).style.display = 'block';
+
+      limpiarMsg();
+    }
+
+    function mostrarMsg(texto, tipo) {
+
+      const el = document.getElementById('msgGlobal');
+
+      el.textContent = texto;
+      el.className   = `cys-msg cys-msg--${tipo}`;
+      el.style.display = 'block';
+    }
+
+    function limpiarMsg() {
+
+      const el = document.getElementById('msgGlobal');
+
+      el.style.display = 'none';
+      el.textContent   = '';
+    }
+
+    function sacudir() {
+
+      const t = document.getElementById('tarjeta');
+
+      t.classList.remove('shake');
+
+      void t.offsetWidth;
+
+      t.classList.add('shake');
+    }
+
+    function getCookie(name) {
+
+      let v = null;
+
+      document.cookie.split(';').forEach(c => {
+
+        c = c.trim();
+
+        if (c.startsWith(name + '=')) {
+          v = decodeURIComponent(c.slice(name.length + 1));
+        }
+      });
+
+      return v;
+    }
+
+    function hacerLogin() {
+
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+
+      if (!user || !pass) {
+
+        mostrarMsg('Completa usuario y contraseña.', 'err');
+        sacudir();
+
+        return;
+      }
+
+      const fd = new FormData();
+
+      fd.append('usuario_input', user);
+      fd.append('clave_input', pass);
+
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+      fetch("{% url 'login' %}", {
+        method : 'POST',
+        body   : fd,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+
+      .then(r => r.json())
+
+      .then(data => {
+
+        if (data.ok) {
+
+          mostrarMsg('✅ Acceso correcto. Redirigiendo...', 'ok');
+
+          setTimeout(() => {
+            window.location.href = data.redirect;
+          }, 1000);
+
+        } else {
+
+          mostrarMsg(data.error, 'err');
+
+          sacudir();
+
+          document.getElementById('loginPass').value = '';
+        }
+      })
+
+      .catch(() => {
+
+        mostrarMsg('Error de conexión. Intenta de nuevo.', 'err');
+
+        sacudir();
+      });
+    }
+
+    function hacerRecuperar() {
+
+      const correo = document.getElementById('recCorreo').value.trim();
+
+      if (!correo) {
+
+        mostrarMsg('Ingresa tu correo electrónico.', 'err');
+
+        sacudir();
+
+        return;
+      }
+
+      const fd = new FormData();
+
+      fd.append('correo', correo);
+
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+      fetch("{% url 'recuperar_clave' %}", {
+        method : 'POST',
+        body   : fd,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+
+      .then(r => r.json())
+
+      .then(data => {
+
+        if (data.ok) {
+
+          mostrarMsg('✅ ' + data.mensaje, 'ok');
+
+          document.getElementById('recCorreo').value = '';
+
+        } else {
+
+          mostrarMsg(data.error, 'err');
+
+          sacudir();
+
+          document.getElementById('recCorreo').value = '';
+        }
+      })
+
+      .catch(() => {
+
+        mostrarMsg('Error de conexión. Intenta de nuevo.', 'err');
+
+        sacudir();
+      });
+    }
+
+    document.addEventListener('keydown', e => {
+
+      if (e.key === 'Enter') {
+
+        if (document.getElementById('secLogin').style.display !== 'none') {
+
+          hacerLogin();
+
+        } else if (document.getElementById('secRecuperar').style.display !== 'none') {
+
+          hacerRecuperar();
+        }
+      }
+    });
+
+  </script>
+
+</body>
+</html>
