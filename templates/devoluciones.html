@@ -92,6 +92,7 @@
         </span>
       </div>
 
+      <!-- MOSTRAR PRODUCTOS DE LA VENTA SELECCIONADA SI EXISTEN -->
       {% if detalles_venta %}
         <div class="table-responsive card card-dev-inner">
           <table class="table table-sm mb-0">
@@ -449,6 +450,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
+        <!-- PASOS DEL PROCESO -->
         {% for step in "12345" %}
         <div class="d-flex gap-3 mb-4 {% if not forloop.last %}pb-4{% endif %}" style="{% if not forloop.last %}border-bottom:1px solid var(--border);{% endif %}">
           <div class="step-badge flex-shrink-0">
@@ -475,6 +477,7 @@
         </div>
         {% endfor %}
 
+        <!-- POLÍTICA DE DEVOLUCIONES -->
         <div class="mt-4 pt-4" style="border-top:1px solid var(--border);">
           <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.12em;color:var(--cyan);">
             <i class="bi bi-shield-check me-2"></i>Política de devoluciones
@@ -519,6 +522,7 @@
   </div>
 
   <div class="offcanvas-body p-3">
+    <!-- ESTADÍSTICAS -->
     <div class="row g-2 mb-4 pb-4 border-bottom border-1" style="border-color:var(--border);">
       <div class="col-4">
         <div class="card card-dev-inner p-3 text-center rounded-3">
@@ -540,10 +544,12 @@
       </div>
     </div>
 
+    <!-- BÚSQUEDA -->
     <div class="mb-4">
       <input type="text" class="form-control form-control-sm" id="buscarDevolucion" placeholder="Buscar por nombre o radicado…">
     </div>
 
+    <!-- LISTA DE DEVOLUCIONES -->
     <div id="listaDevolucionesContainer">
       {% if devoluciones %}
         {% for dev in devoluciones %}
