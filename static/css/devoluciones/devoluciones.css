@@ -1,0 +1,347 @@
+/* ══════════════════════════════════════════
+   devoluciones.css — CYS Ltda
+   Bootstrap 5 + Paleta de colores
+   ══════════════════════════════════════════ */
+
+/* ── PALETA ── */
+:root {
+  --dev-primary:       #e07060;
+  --dev-primary-light: #f09080;
+  --dev-success:       #60d090;
+  --dev-azul:          #4DA8DA;
+  --dev-azul-dim:      rgba(77, 168, 218, 0.15);
+  --dev-azul-borde:    rgba(77, 168, 218, 0.25);
+  --dev-fondo:         #0D1B2E;
+  --dev-card:          #112240;
+  --dev-card2:         #0f1e38;
+  --dev-texto:         #e2e8f0;
+  --dev-muted:         rgba(226, 232, 240, 0.5);
+  --dev-rojo:          #e74c3c;
+  --dev-verde:         #27ae60;
+  --dev-amarillo:      #f39c12;
+  --dev-radius:        12px;
+}
+
+/* ── OVERRIDE VARIABLES GLOBALES ── */
+:root {
+  --border:           var(--dev-azul-borde);
+  --fondo-card:       var(--dev-card);
+  --fondo-card2:      var(--dev-card2);
+  --texto:            var(--dev-texto);
+  --text-hi:          #ffffff;
+  --text-md:          rgba(226, 232, 240, 0.7);
+  --text-lo:          rgba(226, 232, 240, 0.5);
+  --cyan:             var(--dev-azul);
+  --blue:             #3a93c4;
+  --green:            var(--dev-verde);
+  --red:              var(--dev-rojo);
+  --red-dim:          rgba(231, 76, 60, 0.1);
+  --yellow:           var(--dev-amarillo);
+  --blue-dim:         var(--dev-azul-dim);
+  --border-active:    var(--dev-azul);
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--dev-card);
+  border: 1px solid var(--dev-azul-borde);
+  border-radius: var(--dev-radius);
+  color: var(--dev-texto);
+}
+
+.card-dev {
+  background: var(--dev-card);
+  border: 1px solid var(--dev-azul-borde);
+  border-radius: var(--dev-radius);
+  color: var(--dev-texto);
+}
+
+.card-dev-inner {
+  background: var(--dev-card2);
+  border: 1px solid var(--dev-azul-borde);
+  border-radius: 10px;
+  color: var(--dev-texto);
+}
+
+/* ── STEP BADGE ── */
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--dev-card2);
+  border: 2px solid var(--dev-azul-borde);
+  font-weight: 700;
+  color: var(--dev-azul);
+  font-size: 0.85rem;
+}
+
+/* ── FORM CONTROLS ── */
+.form-control,
+.form-select,
+textarea {
+  background: var(--dev-card2) !important;
+  border: 1px solid var(--dev-azul-borde) !important;
+  color: var(--dev-texto) !important;
+  font-size: 0.88rem;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  background: var(--dev-card2) !important;
+  border-color: var(--dev-azul) !important;
+  color: var(--dev-texto) !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 168, 218, 0.25) !important;
+}
+
+.form-control::placeholder {
+  color: var(--dev-muted) !important;
+}
+
+.form-control option {
+  background: var(--dev-fondo);
+  color: var(--dev-texto);
+}
+
+.form-label {
+  color: var(--dev-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── BUTTONS ── */
+.btn-cyan {
+  background: var(--dev-azul);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-cyan:hover {
+  background: #3a93c4;
+  color: #fff;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--dev-primary);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--dev-primary-light);
+  color: #fff;
+  border: none;
+}
+
+.btn-link {
+  color: var(--dev-azul);
+}
+
+.btn-link:hover {
+  color: #3a93c4;
+  text-decoration: none;
+}
+
+/* ── BADGES ── */
+.badge {
+  font-size: 0.7rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+}
+
+.badge-cyan {
+  background: var(--dev-azul-dim);
+  color: var(--dev-azul);
+  border: 1px solid var(--dev-azul-borde);
+}
+
+.badge-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge-approved {
+  background: rgba(96, 208, 144, 0.15);
+  color: var(--dev-success);
+  border: 1px solid rgba(96, 208, 144, 0.3);
+}
+
+.badge-danger {
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--dev-rojo);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.badge-warning {
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--dev-amarillo);
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.badge-success {
+  background: rgba(96, 208, 144, 0.15);
+  color: var(--dev-verde);
+  border: 1px solid rgba(96, 208, 144, 0.3);
+}
+
+/* ── ALERTS ── */
+.alert {
+  border-radius: 10px;
+  border-width: 1px;
+  font-size: 0.85rem;
+}
+
+.alert-danger-dev {
+  background: rgba(231, 76, 60, 0.12);
+  border-color: var(--dev-rojo);
+  color: #ff9999;
+}
+
+.alert-warning-dev {
+  background: rgba(243, 156, 18, 0.12);
+  border-color: var(--dev-amarillo);
+  color: #ffc266;
+}
+
+.alert-info-dev {
+  background: rgba(77, 168, 218, 0.12);
+  border-color: var(--dev-azul);
+  color: var(--dev-azul);
+}
+
+.alert-success-dev {
+  background: rgba(96, 208, 144, 0.12);
+  border-color: var(--dev-success);
+  color: var(--dev-success);
+}
+
+/* ── MOTIVO ITEMS ── */
+.motivo-item {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--dev-azul-borde);
+  background: var(--dev-card2);
+}
+
+.motivo-item:hover {
+  border-color: var(--dev-azul);
+  background: var(--dev-azul-dim);
+}
+
+input[type="radio"]:checked + .motivo-item,
+input[type="radio"]:checked + label.motivo-item {
+  border-color: var(--dev-primary);
+  background: rgba(224, 112, 96, 0.12);
+}
+
+/* ── TABLA ── */
+.table {
+  border-color: var(--dev-azul-borde);
+  color: var(--dev-texto);
+}
+
+.table thead {
+  background: var(--dev-card2);
+  border-color: var(--dev-azul-borde);
+}
+
+.table thead th {
+  border: none;
+  color: var(--dev-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.table tbody tr {
+  border-color: var(--dev-azul-borde);
+}
+
+.table tbody tr:hover {
+  background: var(--dev-azul-dim);
+}
+
+.table tbody td {
+  border-color: var(--dev-azul-borde);
+  color: var(--dev-texto);
+  vertical-align: middle;
+}
+
+/* ── MODAL ── */
+.modal-content {
+  background: var(--dev-card);
+  border: 1px solid var(--dev-azul-borde);
+  border-radius: var(--dev-radius);
+  color: var(--dev-texto);
+}
+
+.modal-header {
+  border-color: var(--dev-azul-borde);
+  background: var(--dev-card2);
+  color: var(--dev-texto);
+}
+
+.modal-footer {
+  border-color: var(--dev-azul-borde);
+  background: var(--dev-card2);
+}
+
+.modal-title {
+  color: var(--dev-texto);
+  font-weight: 700;
+}
+
+.btn-close-white {
+  filter: brightness(0.8) invert(1);
+}
+
+/* ── OFFCANVAS ── */
+.offcanvas {
+  background: var(--dev-card);
+  border: 1px solid var(--dev-azul-borde);
+  color: var(--dev-texto);
+}
+
+.offcanvas-header {
+  border-color: var(--dev-azul-borde);
+  background: var(--dev-card2);
+}
+
+.offcanvas-title {
+  color: var(--dev-texto);
+  font-weight: 700;
+}
+
+/* ── CURSOR ── */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* ── BORDER DASHED ── */
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .step-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+  }
+  
+  .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}

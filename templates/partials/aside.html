@@ -72,14 +72,25 @@
           <span class="flex-grow-1">Ventas</span>
           <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
-        <div class="cys-sb-submenu" id="submenuVentas">
-          <a href="#" class="cys-sb-sublink">
-            <i class="bi bi-bar-chart-fill"></i> Reportes
-          </a>
-          <a href="#" class="cys-sb-sublink">
-            <i class="bi bi-arrow-return-left"></i> Devoluciones
-          </a>
+
+        <div class="collapse ps-3" id="submenuVentas">
+          <div class="d-flex flex-column gap-1">
+
+            <a href="#"
+               class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+              <i class="bi bi-bar-chart-fill"></i>
+              Reportes
+            </a>
+
+            <a href="#"
+               class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+              <i class="bi bi-arrow-return-left"></i>
+              Devoluciones
+            </a>
+
+          </div>
         </div>
+
 
         <a href="#" class="cys-sb-link">
           <i class="bi bi-box-seam-fill"></i>
@@ -93,6 +104,56 @@
 
         <button class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuProveedores')">
+
+        <!-- PRODUCTOS -->
+       <a href="{% url 'producto:lista_productos' %}"
+   class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none px-2 py-2 rounded">
+  <i class="bi bi-box-seam-fill"></i>
+  Productos
+</a>
+
+        <!-- INVENTARIO -->
+<div class="d-flex align-items-center gap-2">
+ <a href="{% url 'inventario:inventario_home' %}"
+   class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none flex-grow-1 px-2 py-2 rounded">
+  <i class="bi bi-clipboard-data-fill"></i>
+  <span class="flex-grow-1">Inventario</span>
+</a>
+  <button type="button"
+          class="cys-sb-link px-2 py-2 rounded border-0 bg-transparent"
+          data-bs-toggle="collapse"
+          data-bs-target="#submenuInventario"
+          aria-expanded="false"
+          aria-controls="submenuInventario">
+    <i class="bi bi-chevron-down cys-sb-chevron"></i>
+  </button>
+</div>
+
+<div class="collapse ps-3" id="submenuInventario">
+  <div class="d-flex flex-column gap-1">
+
+    <a href="{% url 'inventario:gestion_productos' %}"
+       class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+      <i class="bi bi-boxes"></i>
+      Gestión de Inventario
+    </a>
+
+    <a href="{% url 'producto:categorias_lista' %}"
+       class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+      <i class="bi bi-tags-fill"></i>
+      Categorías
+    </a>
+
+  </div>
+</div>
+        <!-- PROVEEDORES -->
+        <button type="button"
+                class="cys-sb-link d-flex align-items-center gap-2 px-2 py-2 rounded border-0 bg-transparent w-100 text-start"
+                data-bs-toggle="collapse"
+                data-bs-target="#submenuProveedores"
+                aria-expanded="false"
+                aria-controls="submenuProveedores">
+
           <i class="bi bi-truck"></i>
           <span class="flex-grow-1">Proveedores</span>
           <i class="bi bi-chevron-down cys-chevron"></i>

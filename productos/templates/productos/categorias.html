@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}               
+{% block title %}Gestión de Categorías | Licorera{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4 page-header pb-3">
+    <h2 class="fw-bold m-0" style="color: var(--texto);">
+      <i class="bi bi-tags me-2" style="color: var(--azul-claro);"></i>Gestión de Categorías
+    </h2>
+    <a href="{% url 'producto:lista_productos' %}"   class="btn rounded-pill fw-bold px-4"
+    style="background: var(--azul-claro); color: var(--fondo); border: none;">
+      <i class="bi bi-arrow-left me-1"></i> Productos
+    </a>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Formulario Crear -->
+    <div class="col-lg-4">
+      <div class="card cat-card border-0 rounded-4 shadow-sm position-sticky" style="top: 2rem;">
+        <div class="card-body p-4">
+          <h5 class="card-title fw-bold mb-4">
+            <i class="bi bi-plus-circle me-2"></i> Nueva Categoría
+          </h5>
+          <form method="POST" action="{% url 'producto:categoria_crear' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+                Nombre <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="nombre" class="form-control" placeholder="Ej: Vinos" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+                Código <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="codigo" class="form-control font-monospace text-uppercase" placeholder="Ej: VIN" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+                Descripción
+              </label>
+              <textarea name="descripcion" class="form-control" rows="2" placeholder="Opcional..."></textarea>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+                Categoría Padre
+              </label>
+              <select name="padre" class="form-select">
+                <option value="">— Es categoría principal —</option>
+                {% for main_cat in categorias %}
+                  <option value="{{ main_cat.pk }}">{{ main_cat.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn w-100 rounded-pill fw-bold py-2"
+              style="background: var(--azul-claro); color: var(--fondo); border: none;">
+              <i class="bi bi-check-circle me-1"></i> Crear Categoría
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Árbol de categorías -->
+    <div class="col-lg-8">
+      <div class="card cat-card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-4">
+          <h5 class="card-title fw-bold mb-4">
+            <i class="bi bi-diagram-3 me-2"></i> Árbol de Categorías
+          </h5>
+
+          <ul class="list-group list-group-flush">
+            {% for cat in categorias %}
+            <li class="list-group-item py-3 px-0">
+              <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-tag-fill fs-4" style="color: var(--azul-claro);"></i>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 fw-bold">
+                    {{ cat.nombre }}
+                    <span class="badge badge-codigo font-monospace fw-normal ms-2">{{ cat.codigo }}</span>
+                  </h6>
+                  <small style="color: rgba(226,232,240,0.45);">
+                    <i class="bi bi-box me-1"></i>{{ cat.productos.count }} productos directos
+                  </small>
+                </div>
+                <div class="d-flex gap-2 ms-auto">
+                  <button class="btn btn-sm rounded-pill px-3"
+                    style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); color: #ffc107;"
+                    data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ cat.pk }}">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <form method="POST" action="{% url 'producto:categoria_eliminar' cat.pk %}" class="d-inline"
+                    onsubmit="return confirm('¿Eliminar definitivamente «{{ cat.nombre }}»?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm rounded-pill px-3"
+                      style="background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.3); color: #dc3545;">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              {% if cat.subcategorias.all %}
+              <ul class="list-group mt-3 ms-2 ps-3 subcat-list" style="border-left-style: solid;">
+                {% for sub in cat.subcategorias.all %}
+                <li class="list-group-item border-0 py-2 px-0 d-flex align-items-center gap-3" style="background: transparent;">
+                  <i class="bi bi-arrow-return-right" style="color: rgba(226,232,240,0.3);"></i>
+                  <div class="flex-grow-1">
+                    <span class="fw-semibold">{{ sub.nombre }}</span>
+                    <span class="badge badge-codigo font-monospace fw-normal ms-2">{{ sub.codigo }}</span>
+                    <small class="ms-2" style="color: rgba(226,232,240,0.4);">({{ sub.productos.count }} prod.)</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                      style="width:32px;height:32px;background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);color:#ffc107;"
+                      data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}">
+                      <i class="bi bi-pencil" style="font-size:12px;"></i>
+                    </button>
+                    <form method="POST" action="{% url 'producto:categoria_eliminar' sub.pk %}" class="d-inline"
+                      onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                        style="width:32px;height:32px;background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#dc3545;">
+                        <i class="bi bi-trash" style="font-size:12px;"></i>
+                      </button>
+                    </form>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </li>
+            {% empty %}
+            <li class="list-group-item border-0 text-center py-5" style="background: transparent; color: rgba(226,232,240,0.35);">
+              <i class="bi bi-tags fs-1 d-block mb-3"></i>
+              No hay categorías creadas aún.
+            </li>
+            {% endfor %}
+          </ul>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modales Editar -->
+{% for cat in todas_cats %}
+<div class="modal fade" id="modalEditarCat{{ cat.pk }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header rounded-top-4" style="border-bottom: 1px solid rgba(128,128,128,0.15);">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-tag me-2" style="color:#ffc107;"></i>Editar Categoría
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'producto:categoria_editar' cat.pk %}">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Nombre</label>
+            <input type="text" name="nombre" class="form-control" value="{{ cat.nombre }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Código</label>
+            <input type="text" name="codigo" class="form-control font-monospace" value="{{ cat.codigo }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Categoría Padre</label>
+            <select name="padre" class="form-select">
+              <option value="">— Es categoría principal —</option>
+              {% for main_cat in categorias %}
+                {% if main_cat.pk != cat.pk %}
+                <option value="{{ main_cat.pk }}"
+                  {% if cat.padre and cat.padre.pk == main_cat.pk %}selected{% endif %}>
+                  {{ main_cat.nombre }}
+                </option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Descripción</label>
+            <textarea name="descripcion" class="form-control" rows="2">{{ cat.descripcion }}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid rgba(128,128,128,0.15);">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4"
+            style="background:#ffc107;color:#1a1a1a;border:none;">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
