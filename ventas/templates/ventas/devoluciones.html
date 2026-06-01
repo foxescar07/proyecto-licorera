@@ -66,22 +66,103 @@
     </div>
 
     <!-- PASO 1: DATOS DEL PEDIDO -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center justify-content-between gap-3">
+ <!-- MODAL — DATOS DEL PEDIDO (MEJORADO) -->
+<div class="modal fade" id="modalDatosPedido" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content dev-modal-premium">
+      <div class="modal-header dev-modal-header-premium">
         <div class="d-flex align-items-center gap-3">
-          <span class="step-badge">1</span>
+          <div class="dev-modal-icon">
+            <i class="bi bi-receipt"></i>
+          </div>
           <div>
-            <div class="fw-bold">
-              <i class="bi bi-receipt me-2" style="color:var(--cyan);"></i>Datos del pedido
-            </div>
-            <div id="resumenPedido" class="small" style="color:var(--text-md);">Sin completar</div>
+            <h5 class="modal-title fw-bold mb-0">Seleccionar Venta</h5>
+            <p class="dev-modal-subtitle mb-0">Busca la venta del cliente para procesar la devolución</p>
           </div>
         </div>
-        <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="modal" data-bs-target="#modalDatosPedido">
-          <i class="bi bi-pencil me-1"></i>Editar
-        </button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
+      
+      <form method="get" action="{% url 'ventas:lista_devoluciones' %}" id="formSeleccionarVenta">
+        <div class="modal-body p-0">
+          
+          <!-- SECCIÓN BÚSQUEDA -->
+          <div class="dev-modal-search-section p-4">
+            <div class="mb-4">
+              <label class="form-label dev-form-label">
+                <i class="bi bi-search me-2"></i>Buscar por cliente o número
+              </label>
+              <div class="dev-search-wrapper">
+                <i class="bi bi-search dev-search-icon"></i>
+                <input type="text" class="form-control dev-search-input" id="busquedaVenta" 
+                  placeholder="Ej: Vanessa, VTA-0042..." required>
+              </div>
+              <small class="text-muted d-block mt-2">
+                <i class="bi bi-info-circle me-1"></i>Escribe el nombre del cliente o número de venta
+              </small>
+            </div>
+          </div>
+
+          <!-- RESULTADOS DE BÚSQUEDA -->
+          <div class="dev-modal-results p-4 border-top" id="devSearchResults" style="display:none;">
+            <div class="mb-3">
+              <label class="dev-form-label">
+                <i class="bi bi-check-circle me-2" style="color:var(--dev-verde);"></i>Ventas encontradas
+              </label>
+              <div id="devResultsList" class="dev-results-list"></div>
+            </div>
+          </div>
+
+          <!-- SELECCIÓN VENTA -->
+          <div class="dev-modal-select p-4 border-top">
+            <label class="dev-form-label">
+              <i class="bi bi-hand-index me-2"></i>Confirmar selección
+            </label>
+            <select id="ventaSeleccionadaModal" name="venta_id" class="form-select dev-select-premium" required>
+              <option value="">-- Selecciona una venta --</option>
+            </select>
+          </div>
+
+          <!-- PREVIEW VENTA SELECCIONADA -->
+          <div id="ventaPreview" class="dev-venta-preview mx-4 mb-4 p-4 rounded-3 d-none">
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <div class="dev-preview-badge">
+                <i class="bi bi-check-circle"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="dev-preview-title mb-2">Venta seleccionada</div>
+                <div class="row g-3 text-sm">
+                  <div class="col-md-6">
+                    <div class="dev-preview-label">Cliente</div>
+                    <div class="dev-preview-value" id="previewCliente">—</div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="dev-preview-label">Fecha</div>
+                    <div class="dev-preview-value" id="previewFecha">—</div>
+                  </div>
+                  <div class="col-12">
+                    <div class="dev-preview-label">Total</div>
+                    <div class="dev-preview-total" id="previewTotal">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer dev-modal-footer-premium">
+          <button type="button" class="btn btn-outline-secondary dev-btn-cancel" data-bs-dismiss="modal">
+            <i class="bi bi-x me-2"></i>Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary dev-btn-confirm fw-bold">
+            <i class="bi bi-check2 me-2"></i>Cargar venta
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
+</div>
 
     <!-- PASO 2: PRODUCTOS -->
     <div class="card card-dev p-4 mb-4">
