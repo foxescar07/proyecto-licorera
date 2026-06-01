@@ -309,3 +309,6 @@
   background: var(--inv-azul);
   color: #fff;
 }
+.text-muted {
+  color: rgba(226, 232, 240, 0.55) !important;
+}
