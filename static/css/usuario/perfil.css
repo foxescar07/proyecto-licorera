@@ -1,0 +1,250 @@
+/* ══════════════════════════════════════════════
+   PERFIL — BREADCRUMB
+══════════════════════════════════════════════ */
+.cys-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .78rem;
+}
+
+
+.cys-breadcrumb__link:hover { opacity: 1; color: var(--azul-claro); }
+.cys-breadcrumb__sep { color: var(--texto-muted); font-size: .65rem; }
+.cys-breadcrumb__current { color: var(--texto-muted); }
+
+/* ══════════════════════════════════════════════
+   PERFIL — HERO CARD
+══════════════════════════════════════════════ */
+.cys-perfil-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem !important;
+}
+
+/* Avatar — misma animación que el aside */
+.cys-perfil-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a3a5c, #2a5080);
+  border: 2px solid rgba(77,168,218,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .25s, transform .3s cubic-bezier(.25,.8,.25,1);
+  cursor: default;
+}
+.cys-perfil-avatar:hover {
+  border-color: rgba(77,168,218,.8);
+}
+.cys-perfil-avatar:hover .cys-perfil-avatar__icon {
+  transform: rotate(12deg) scale(1.08);
+}
+.cys-perfil-avatar__icon {
+  font-size: 2rem;
+  color: var(--azul-claro);
+  transition: transform .3s cubic-bezier(.25,.8,.25,1);
+}
+
+.cys-perfil-nombre {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--texto);
+  text-align: center;
+}
+.cys-perfil-user {
+  font-size: .78rem;
+  color: var(--azul-claro);
+  margin-top: .15rem;
+}
+
+/* Badges de rol */
+.cys-rol-badge {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: .2rem .75rem;
+  border-radius: 999px;
+  border: 1px solid;
+}
+.cys-rol-badge--admin    { background:rgba(192,57,43,.18); color:#e87070; border-color:rgba(192,57,43,.4); }
+.cys-rol-badge--cajero   { background:rgba(77,168,218,.15); color:#4DA8DA; border-color:rgba(77,168,218,.4); }
+.cys-rol-badge--empleado { background:rgba(46,204,113,.12); color:#2ecc71; border-color:rgba(46,204,113,.3); }
+
+/* Meta items */
+.cys-perfil-meta { width: 100%; }
+.cys-perfil-meta__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .45rem 0;
+  border-bottom: 1px solid rgba(77,168,218,.07);
+  font-size: .82rem;
+}
+.cys-perfil-meta__item:last-child { border-bottom: none; }
+.cys-perfil-meta__label { color: var(--texto-muted); font-size: .72rem; }
+.cys-perfil-meta__val   { color: var(--texto); font-weight: 500; }
+
+/* ══════════════════════════════════════════════
+   PERFIL — CAMPOS INFO
+══════════════════════════════════════════════ */
+.cys-perfil-field {
+  background: rgba(77,168,218,.04);
+  border: 1px solid rgba(77,168,218,.12);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  transition: border-color .2s;
+}
+.cys-perfil-field:hover { border-color: rgba(77,168,218,.25); }
+.cys-perfil-field__label {
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--texto-muted);
+}
+.cys-perfil-field__val {
+  font-size: .88rem;
+  color: var(--texto);
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════
+   PERFIL — SEGURIDAD
+══════════════════════════════════════════════ */
+.cys-perfil-security { display: flex; flex-direction: column; gap: .75rem; }
+.cys-perfil-security__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .85rem 1rem;
+  background: rgba(77,168,218,.04);
+  border: 1px solid rgba(77,168,218,.12);
+  border-radius: 10px;
+  transition: border-color .2s;
+}
+.cys-perfil-security__item:hover { border-color: rgba(77,168,218,.25); }
+.cys-perfil-security__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(77,168,218,.1);
+  border: 1px solid rgba(77,168,218,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--azul-claro);
+  font-size: .95rem;
+  flex-shrink: 0;
+}
+.cys-perfil-security__body { flex: 1; }
+.cys-perfil-security__title { font-size: .85rem; font-weight: 600; color: var(--texto); }
+.cys-perfil-security__sub   { font-size: .7rem; color: var(--texto-muted); margin-top: .1rem; }
+.cys-btn-sm-text {
+  font-size: .78rem;
+  padding: .35rem .9rem;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════
+   MODAL EDITAR PERFIL — con avatar, sin ID
+══════════════════════════════════════════════ */
+.cys-modal-content {
+  background: #0a1e35;
+  border: 1px solid rgba(77,168,218,.3);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7);
+}
+.cys-modal-header {
+  border-bottom: 1px solid rgba(77,168,218,.15);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+.cys-modal-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--texto);
+  margin: 0;
+}
+.cys-modal-subtitle { font-size: .75rem; color: var(--azul-claro); margin-top: .1rem; }
+
+/* Avatar en el modal — misma animación */
+.cys-modal-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a3a5c, #2a5080);
+  border: 2px solid rgba(77,168,218,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color .25s;
+}
+.cys-modal-header:hover .cys-modal-avatar {
+  border-color: rgba(77,168,218,.8);
+}
+.cys-modal-avatar__icon {
+  font-size: 1.2rem;
+  color: var(--azul-claro);
+  transition: transform .3s cubic-bezier(.25,.8,.25,1);
+}
+.cys-modal-header:hover .cys-modal-avatar__icon {
+  transform: rotate(12deg) scale(1.06);
+}
+
+.cys-modal-body   { padding: 1.25rem; background: #0a1e35; }
+.cys-modal-footer {
+  padding: .85rem 1.25rem;
+  border-top: 1px solid rgba(77,168,218,.12);
+  background: #0a1e35;
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  border-radius: 0 0 16px 16px;
+}
+/* ══════════════════════════════════════════════
+   ALINEACIÓN DE TARJETAS
+══════════════════════════════════════════════ */
+
+/* Hace que ambas columnas tengan la misma altura */
+.row.gx-4.gy-4 {
+  align-items: stretch;
+}
+
+/* Las tarjetas ocupan toda la altura disponible */
+.cys-card {
+  height: 100%;
+}
+
+/* Tarjeta izquierda */
+.cys-perfil-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem !important;
+  height: 100%;
+}
+
+/* El contenido central ocupa el espacio libre */
+.cys-perfil-meta {
+  width: 100%;
+  flex-grow: 1;
+}
+
+/* Botón siempre abajo */
+.cys-perfil-hero .cys-btn {
+  margin-top: auto !important;
+}
