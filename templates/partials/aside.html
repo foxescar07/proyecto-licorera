@@ -101,6 +101,44 @@
         </div>
 
 
+  <!-- PRODUCTOS -->
+    <div class="d-flex align-items-center">
+      <a href="{% url 'producto:lista_productos' %}"
+         class="cys-sb-link flex-grow-1">
+        <i class="bi bi-box-seam-fill"></i>
+        <span class="flex-grow-1">Productos</span>
+      </a>
+      <button type="button"
+              class="cys-sb-link px-2 py-2 rounded border-0 bg-transparent"
+              data-bs-toggle="collapse"
+              data-bs-target="#submenuProductos"
+              aria-expanded="false">
+        <i class="bi bi-chevron-down cys-chevron"></i>
+      </button>
+    </div>
+    <div class="collapse ps-3" id="submenuProductos">
+      <div class="d-flex flex-column gap-1">
+        <a href="{% url 'inventario:gestion_productos' %}"
+           class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+          <i class="bi bi-box-seam"></i>
+          Gestión de Productos
+        </a>
+        <a href="{% url 'producto:categorias_lista' %}"
+           class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+          <i class="bi bi-tags-fill"></i>
+          Categorías
+        </a>
+      </div>
+    </div>
+
+    <!-- INVENTARIO -->
+<div class="d-flex align-items-center">
+  <a href="{% url 'inventario:inventario_home' %}"
+     class="cys-sb-link flex-grow-1">
+    <i class="bi bi-clipboard-data-fill"></i>
+    <span class="flex-grow-1">Inventario</span>
+  </a>
+
         <a href="#" class="cys-sb-link">
           <i class="bi bi-box-seam-fill"></i>
           <span>Productos</span>
@@ -121,13 +159,14 @@
   Productos
 </a>
 
-    <!-- INVENTARIO -->
-<div class="d-flex align-items-center">
-  <a href="{% url 'inventario:inventario_home' %}"
-     class="cys-sb-link flex-grow-1">
-    <i class="bi bi-clipboard-data-fill"></i>
-    <span class="flex-grow-1">Inventario</span>
-  </a>
+        <!-- INVENTARIO -->
+<div class="d-flex align-items-center gap-2">
+ <a href="{% url 'inventario:inventario_home' %}"
+   class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none flex-grow-1 px-2 py-2 rounded">
+  <i class="bi bi-clipboard-data-fill"></i>
+  <span class="flex-grow-1">Inventario</span>
+</a>
+
   <button type="button"
           class="cys-sb-link px-2 py-2 rounded border-0 bg-transparent"
           data-bs-toggle="collapse"
