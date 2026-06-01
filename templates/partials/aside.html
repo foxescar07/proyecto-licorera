@@ -8,7 +8,7 @@
      data-bs-backdrop="false"
      data-bs-scroll="true">
 
-  <!-- HEADER DEL ASIDE -->
+  <!-- HEADER -->
   <div class="cys-sb-header">
     <div class="cys-sb-brand">
       <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo">
@@ -22,16 +22,15 @@
     </button>
   </div>
 
-  <!-- BODY DEL ASIDE -->
+  <!-- BODY -->
   <div class="cys-sb-body">
 
-    <!-- ── USUARIO ── -->
+    <!-- USUARIO -->
     <div class="cys-sb-user-wrap" id="userHoverWrapper">
-
       <div class="cys-sb-user-row">
-        <button class="cys-sb-user-info-btn" onclick="abrirModalPerfil()">
+        <a href="{% url 'perfil_pagina' %}" class="cys-sb-user-info-btn">
           <div class="cys-sb-avatar">
-            <i class="bi bi-person-fill cys-sb-avatar__icon" id="userAvatarIcon"></i>
+            <i class="bi bi-person-fill cys-sb-avatar__icon"></i>
           </div>
           <div class="cys-sb-user-info">
             <div class="cys-sb-user-name">
@@ -44,7 +43,7 @@
               {% else %}—{% endif %}
             </div>
           </div>
-        </button>
+        </a>
       </div>
 
       {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' %}
@@ -54,21 +53,20 @@
         </a>
       </div>
       {% endif %}
-
     </div>
 
-    <!-- ── NAV ── -->
+    <!-- NAV -->
     <div class="cys-sb-section">
       <div class="cys-sb-label">Navegación</div>
       <nav class="cys-sb-nav">
 
-        <a href="#" class="cys-sb-link {% block nav_tablero %}{% endblock %}">
+        <a href="{% url 'principal' %}"
+           class="cys-sb-link {% block nav_tablero %}{% endblock %}">
           <i class="bi bi-grid-1x2-fill"></i>
           <span>Tablero</span>
         </a>
 
         <button class="cys-sb-link cys-sb-link--parent"
-                id="btnVentas"
                 onclick="toggleSubmenu(event, this, 'submenuVentas')">
           <i class="bi bi-receipt"></i>
           <span class="flex-grow-1">Ventas</span>
@@ -83,18 +81,17 @@
           </a>
         </div>
 
-        <a href="#" class="cys-sb-link {% block nav_productos %}{% endblock %}">
+        <a href="#" class="cys-sb-link">
           <i class="bi bi-box-seam-fill"></i>
           <span>Productos</span>
         </a>
 
-        <a href="#" class="cys-sb-link {% block nav_inventario %}{% endblock %}">
+        <a href="#" class="cys-sb-link">
           <i class="bi bi-clipboard-data-fill"></i>
           <span>Inventario</span>
         </a>
 
         <button class="cys-sb-link cys-sb-link--parent"
-                id="btnProveedores"
                 onclick="toggleSubmenu(event, this, 'submenuProveedores')">
           <i class="bi bi-truck"></i>
           <span class="flex-grow-1">Proveedores</span>
@@ -111,7 +108,7 @@
 
     <hr class="cys-sb-divider">
 
-    <!-- ── ESTADÍSTICAS ── -->
+    <!-- ESTADÍSTICAS -->
     <div class="cys-sb-section">
       <div class="cys-sb-label">Resumen</div>
       <div class="cys-sb-stats">
@@ -165,236 +162,36 @@
   </div>
 </div>
 
-
-<!-- ══════════════════════════════
-     MODAL — MI PERFIL
-══════════════════════════════ -->
-<div id="modalPerfil"
-     class="cys-overlay"
-     style="display:none;"
-     onclick="if(event.target===this)cerrarModalPerfil()">
-  <div class="cys-mp">
-    <div class="cys-mp__header">
-      <span class="cys-mp__title">Mi Perfil</span>
-      <button class="cys-mp__close" onclick="cerrarModalPerfil()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <div class="cys-mp__hero">
-      <div class="cys-mp__avatar" id="mpAvatar">?</div>
-      <div class="cys-mp__nombre"   id="mpNombre">—</div>
-      <div class="cys-mp__username" id="mpUsuario">—</div>
-      <div id="mpRolBadge"></div>
-    </div>
-    <div class="cys-mp__body">
-      <div class="cys-mp__grid">
-        <div class="cys-mp__field">
-          <span class="cys-mp__field-label">Identificación</span>
-          <span class="cys-mp__field-val" id="mpId">—</span>
-        </div>
-        <div class="cys-mp__field">
-          <span class="cys-mp__field-label">Correo</span>
-          <span class="cys-mp__field-val" id="mpEmail">—</span>
-        </div>
-        <div class="cys-mp__field">
-          <span class="cys-mp__field-label">Tipo ID</span>
-          <span class="cys-mp__field-val" id="mpTipoId">—</span>
-        </div>
-        <div class="cys-mp__field">
-          <span class="cys-mp__field-label">Miembro desde</span>
-          <span class="cys-mp__field-val" id="mpFecha">—</span>
-        </div>
-      </div>
-    </div>
-    <div class="cys-mp__footer">
-      <button class="cys-mp__btn cys-mp__btn--edit"
-              onclick="cerrarModalPerfil(); abrirModalEditar()">
-        <i class="bi bi-pencil-square"></i> Editar Perfil
-      </button>
-      <a href="{% url 'cerrar_sesion' %}" class="cys-mp__btn cys-mp__btn--logout">
-        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-      </a>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════
-     MODAL — EDITAR PERFIL
-══════════════════════════════ -->
-<div id="modalEditar"
-     class="cys-overlay"
-     style="display:none;"
-     onclick="if(event.target===this)cerrarModalEditar()">
-  <div class="cys-mp cys-mp--editar">
-    <div class="cys-mp__header">
-      <span class="cys-mp__title">Editar Perfil</span>
-      <button class="cys-mp__close" onclick="cerrarModalEditar()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <div id="editMsg" class="cys-mp__msg" style="display:none;"></div>
-    <div class="cys-mp__body">
-      <div class="cys-mp__row">
-        <div class="cys-mp__field-edit">
-          <label class="cys-mp__label">Nombres</label>
-          <input type="text" id="editNombre" class="cys-mp__input">
-        </div>
-        <div class="cys-mp__field-edit">
-          <label class="cys-mp__label">Apellidos</label>
-          <input type="text" id="editApellidos" class="cys-mp__input">
-        </div>
-      </div>
-      <div class="cys-mp__field-edit">
-        <label class="cys-mp__label">Correo Electrónico</label>
-        <input type="email" id="editEmail" class="cys-mp__input">
-      </div>
-      <div class="cys-mp__sep">
-        Cambiar contraseña <em>(opcional)</em>
-      </div>
-      <div class="cys-mp__field-edit">
-        <label class="cys-mp__label">Contraseña Actual</label>
-        <input type="password" id="editClaveActual" class="cys-mp__input"
-               placeholder="Solo si deseas cambiar la contraseña">
-      </div>
-      <div class="cys-mp__row">
-        <div class="cys-mp__field-edit">
-          <label class="cys-mp__label">Nueva Contraseña</label>
-          <input type="password" id="editClaveNueva" class="cys-mp__input"
-                 placeholder="Mín. 6 car., 2 núm., 1 may.">
-        </div>
-        <div class="cys-mp__field-edit">
-          <label class="cys-mp__label">Confirmar</label>
-          <input type="password" id="editClaveConfirmar" class="cys-mp__input"
-                 placeholder="Repite la contraseña">
-        </div>
-      </div>
-      <button id="btnGuardar"
-              class="cys-mp__btn cys-mp__btn--save w-100 mt-2"
-              onclick="guardarPerfil()">
-        <i class="bi bi-check-lg"></i> Guardar Cambios
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════
-     JS
-══════════════════════════════ -->
 <script>
 (function () {
-  const PERFIL_URL = "{% url 'perfil_datos' %}";
-  const EDITAR_URL = "{% url 'perfil_editar' %}";
 
-  function getCookie(n) {
-    let v = null;
-    document.cookie.split(';').forEach(c => {
-      c = c.trim();
-      if (c.startsWith(n + '=')) v = decodeURIComponent(c.slice(n.length + 1));
+  window.toggleSubmenu = function (e, btn, id) {
+    e.stopPropagation();
+    const sub    = document.getElementById(id);
+    const isOpen = sub.classList.contains('abierto');
+    document.querySelectorAll('.cys-sb-submenu.abierto').forEach(s => {
+      s.classList.remove('abierto');
+      s.previousElementSibling?.classList.remove('abierto');
     });
-    return v;
-  }
-
-  function mostrar(id) { document.getElementById(id).style.display = 'flex'; }
-  function ocultar(id) { document.getElementById(id).style.display = 'none'; }
-
-  function msgEditar(texto, tipo) {
-    const el = document.getElementById('editMsg');
-    el.textContent   = texto;
-    el.className     = 'cys-mp__msg cys-mp__msg--' + tipo;
-    el.style.display = 'block';
-  }
-
-  window.abrirModalPerfil = function () {
-    fetch(PERFIL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(r => r.json())
-      .then(d => {
-        if (!d.ok) return;
-        document.getElementById('mpAvatar').textContent  = d.usuario.charAt(0).toUpperCase();
-        document.getElementById('mpNombre').textContent  = d.nombre + ' ' + d.apellidos;
-        document.getElementById('mpUsuario').textContent = '@' + d.usuario;
-        document.getElementById('mpId').textContent      = d.identificacion;
-        document.getElementById('mpEmail').textContent   = d.email || '—';
-        document.getElementById('mpTipoId').textContent  = d.tipo_id_label;
-        document.getElementById('mpFecha').textContent   = d.fecha_registro;
-        const colores = {
-          admin:    { bg:'rgba(192,57,43,.2)',   color:'#e87070', borde:'rgba(192,57,43,.4)'   },
-          cajero:   { bg:'rgba(77,168,218,.15)', color:'#4DA8DA', borde:'rgba(77,168,218,.4)'  },
-          empleado: { bg:'rgba(46,204,113,.12)', color:'#2ecc71', borde:'rgba(46,204,113,.3)'  },
-        };
-        const c = colores[d.rol] || colores.empleado;
-        document.getElementById('mpRolBadge').innerHTML =
-          `<span class="cys-mp__rol-badge"
-                 style="background:${c.bg};color:${c.color};border-color:${c.borde};">
-             ${d.rol_label}
-           </span>`;
-        mostrar('modalPerfil');
-      });
-  };
-
-  window.cerrarModalPerfil = function () { ocultar('modalPerfil'); };
-
-  window.abrirModalEditar = function () {
-    fetch(PERFIL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-      .then(r => r.json())
-      .then(d => {
-        if (!d.ok) return;
-        document.getElementById('editNombre').value         = d.nombre;
-        document.getElementById('editApellidos').value      = d.apellidos;
-        document.getElementById('editEmail').value          = d.email || '';
-        document.getElementById('editClaveActual').value    = '';
-        document.getElementById('editClaveNueva').value     = '';
-        document.getElementById('editClaveConfirmar').value = '';
-        ocultar('editMsg');
-        mostrar('modalEditar');
-      });
-  };
-
-  window.cerrarModalEditar = function () { ocultar('modalEditar'); };
-
-  window.guardarPerfil = function () {
-    const claveNueva     = document.getElementById('editClaveNueva').value;
-    const claveConfirmar = document.getElementById('editClaveConfirmar').value;
-    if (claveNueva && claveNueva !== claveConfirmar) {
-      msgEditar('Las contraseñas no coinciden.', 'err');
-      return;
+    if (!isOpen) {
+      sub.classList.add('abierto');
+      btn.classList.add('abierto');
     }
-    const btn = document.getElementById('btnGuardar');
-    btn.disabled    = true;
-    btn.textContent = 'Guardando…';
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-    fd.append('nombre',       document.getElementById('editNombre').value.trim());
-    fd.append('apellidos',    document.getElementById('editApellidos').value.trim());
-    fd.append('email',        document.getElementById('editEmail').value.trim());
-    fd.append('clave_actual', document.getElementById('editClaveActual').value);
-    fd.append('clave_nueva',  claveNueva);
-    fetch(EDITAR_URL, {
-      method: 'POST', body: fd,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
-      btn.disabled  = false;
-      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
-      if (d.ok) {
-        msgEditar('✅ ' + d.mensaje, 'ok');
-        setTimeout(cerrarModalEditar, 1500);
-      } else {
-        msgEditar(d.error, 'err');
-      }
-    })
-    .catch(() => {
-      btn.disabled  = false;
-      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
-      msgEditar('Error de conexión.', 'err');
-    });
   };
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { cerrarModalPerfil(); cerrarModalEditar(); }
+  const sidebar = document.getElementById('sidebarRight');
+  if (!sidebar) return;
+
+  sidebar.addEventListener('show.bs.offcanvas', () => {
+    document.body.classList.add('sidebar-open');
   });
+  sidebar.addEventListener('hide.bs.offcanvas', () => {
+    document.body.classList.remove('sidebar-open');
+  });
+
+  if (sidebar.classList.contains('show')) {
+    document.body.classList.add('sidebar-open');
+  }
 
 })();
 </script>
