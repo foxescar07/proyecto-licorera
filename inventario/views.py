@@ -49,6 +49,61 @@ def inventario_home(request):
                 'estado':       'ok' if diff == 0 else ('sobrante' if diff > 0 else 'faltante'),
             })
 
+    # =========================================================================
+    # LÓGICA DE DATOS REALES PARA KPIs Y GRÁFICOS (LICORERA)
+    # =========================================================================
+    
+    # 1. Ingresos Hoy: Suma de stock_actual (o inicial) de lotes creados hoy
+    ingresos_hoy = Lote.objects.filter(fecha_creacion__date=hoy).aggregate(
+        total=Sum('stock_actual')
+    )['total'] or 0
+
+    # 2. Órdenes del Mes (Lotes totales registrados en el mes actual)
+    mes_actual = timezone.now().month
+    anio_actual = timezone.now().year
+    ordenes_mes = Lote.objects.filter(
+        fecha_creacion__month=mes_actual, 
+        fecha_creacion__year=anio_actual
+    ).count()
+
+    # 3. Gráfico de Dona: Motivos de Salida (Venta, Merma, Daño, Vencido)
+    # Filtramos por tipo='salida' en el modelo Inventario
+    salidas_por_motivo = Inventario.objects.filter(tipo='salida').values('motivo').annotate(total=Sum('cantidad'))
+    
+    # Convertimos los datos de la consulta a un diccionario para mapearlos fácilmente
+    motivos_dict = {item['motivo'].lower(): item['total'] for item in salidas_por_motivo}
+    
+    # Armamos la lista ordenada exactamente igual a las etiquetas de tu frontend
+    # labels: ['Venta', 'Merma', 'Daño', 'Vencido']
+    chart_motivos_data = [
+        motivos_dict.get('venta', 0),
+        motivos_dict.get('merma', 0),
+        motivos_dict.get('daño', 0),
+        motivos_dict.get('vencido', 0)
+    ]
+
+    # 4. Gráfico de Barras Horizontales: Top Productos con más Lotes (Simulando proveedores/marcas con más stock)
+    # Como tu modelo Lote se asocia a PresentacionProducto, agrupamos las unidades por Producto
+    top_productos = Lote.objects.values('presentacion__producto__nombre').annotate(
+        total_uds=Sum('stock_actual')
+    ).order_by('-total_uds')[:5]
+
+    # Separamos en dos listas para Chart.js (Etiquetas y Datos)
+    proveedores_labels = [item['presentacion__producto__nombre'] for item in top_productos]
+    proveedores_data = [item['total_uds'] for item in top_productos]
+
+    # Si la base de datos está vacía, rellenamos con valores por defecto para que no se rompa el diseño
+    if not proveedores_labels:
+        proveedores_labels = ['Sin datos', '-', '-', '-', '-']
+        proveedores_data = [0, 0, 0, 0, 0]
+    else:
+        # Si hay menos de 5 productos, rellenamos el resto para mantener la simetría visual
+        while len(proveedores_labels) < 5:
+            proveedores_labels.append('-')
+            proveedores_data.append(0)
+
+    # =========================================================================
+
     context = {
         'movimientos':          movimientos,
         'dias_con_movimientos': dias_con_movimientos,
@@ -61,6 +116,13 @@ def inventario_home(request):
         'discrepancias':        discrepancias,
         'con_codigo':           Producto.objects.exclude(codigo='').exclude(codigo=None).count(),
         'sin_codigo':           Producto.objects.filter(codigo=None).count() + Producto.objects.filter(codigo='').count(),
+        
+        # Nuevas variables enviadas al HTML:
+        'ingresos_hoy':         ingresos_hoy,
+        'ordenes_mes':          ordenes_mes,
+        'chart_motivos_data':   chart_motivos_data,
+        'proveedores_labels':   proveedores_labels,
+        'proveedores_data':     proveedores_data,
     }
     return render(request, 'inventario/inventario_home.html', context)
 
@@ -151,7 +213,7 @@ def gestion_productos(request):
         'lotes':          [],
         'total_criticos': total_criticos,
     }
-    return render(request, 'inventario/gestion_productos.html', context)
+    return render(request, 'productos/gestion_productos.html', context)
 
 
 @login_required

@@ -312,3 +312,15 @@
 .text-muted {
   color: rgba(226, 232, 240, 0.55) !important;
 }
+  #invTabs .nav-link:not(.active) { background: var(--inv-card) !important; color: var(--inv-texto) !important; border: 1px solid var(--inv-azul-borde) !important; }
+  #invTabs .nav-link:not(.active):hover { border-color: var(--inv-azul) !important; background: var(--inv-azul-dim) !important; }
+  #invTabs .nav-link.active { background: var(--inv-azul) !important; color: #fff !important; border: 1px solid var(--inv-azul) !important; }
+
+  .inv-form-card .form-control,
+  .inv-form-card .form-select { background: var(--inv-card2) !important; color: var(--inv-texto) !important; border: 1px solid var(--inv-azul-borde) !important; border-radius: 8px !important; }
+  .inv-form-card .form-control:focus,
+  .inv-form-card .form-select:focus { border-color: var(--inv-azul) !important; box-shadow: 0 0 0 2px rgba(77,168,218,.2) !important; }
+  .inv-form-card .form-control::placeholder { color: var(--inv-muted) !important; }
+  .inv-form-card .form-select option { background: var(--inv-fondo); color: var(--inv-texto); }
+  .inv-form-card .form-label { font-size:.75rem; font-weight:600; color:var(--inv-muted); text-transform:uppercase; letter-spacing:.06em; }
+  .inv-form-card .form-text { font-size:.72rem; color:var(--inv-muted); }
