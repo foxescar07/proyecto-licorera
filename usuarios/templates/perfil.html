@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil — CYS Ltda{% endblock %}
+{% block page_title %}Mi Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/usuario/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- BREADCRUMB — solo Tablero > Mi Perfil, sin enlace a Usuarios -->
+  <nav class="cys-breadcrumb mb-4">
+    <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
+      <i class="bi bi-grid-1x2-fill"></i> Tablero
+    </a>
+    <span class="cys-breadcrumb__sep"><i class="bi bi-chevron-right"></i></span>
+    <span class="cys-breadcrumb__current">Mi Perfil</span>
+  </nav>
+
+  <div class="row gx-4 gy-4">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="col-lg-4 d-flex">
+        <div class="cys-card cys-perfil-hero text-center w-100">
+        <div class="cys-perfil-avatar" id="perfilAvatarWrap">
+          <i class="bi bi-person-fill cys-perfil-avatar__icon"></i>
+        </div>
+
+        <div class="cys-perfil-nombre mt-3">{{ nombre }} {{ apellidos }}</div>
+        <div class="cys-perfil-user">@{{ usuario }}</div>
+
+        <div class="mt-2">
+          {% if rol == 'admin' %}
+            <span class="cys-rol-badge cys-rol-badge--admin">Administrador</span>
+          {% elif rol == 'cajero' %}
+            <span class="cys-rol-badge cys-rol-badge--cajero">Cajero</span>
+          {% else %}
+            <span class="cys-rol-badge cys-rol-badge--empleado">Empleado</span>
+          {% endif %}
+        </div>
+
+        <hr class="cys-sb-divider mt-3 mb-3">
+
+        <div class="cys-perfil-meta">
+          <div class="cys-perfil-meta__item">
+            <span class="cys-perfil-meta__label">Miembro desde</span>
+            <span class="cys-perfil-meta__val">{{ fecha_registro }}</span>
+          </div>
+          <div class="cys-perfil-meta__item">
+            <span class="cys-perfil-meta__label">Identificación</span>
+            <span class="cys-perfil-meta__val">{{ identificacion }}</span>
+          </div>
+          <div class="cys-perfil-meta__item">
+            <span class="cys-perfil-meta__label">Tipo ID</span>
+            <span class="cys-perfil-meta__val">{{ tipo_id_label }}</span>
+          </div>
+          <div class="cys-perfil-meta__item">
+            <span class="cys-perfil-meta__label">Teléfono</span>
+            <span class="cys-perfil-meta__val">{{ telefono }}</span>
+          </div>
+        </div>
+
+        <button class="cys-btn cys-btn--primary w-100 mt-3"
+                data-bs-toggle="modal" data-bs-target="#modalEditarPerfil">
+          <i class="bi bi-pencil-square"></i> Editar Perfil
+        </button>
+
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA -->
+    <div class="col-lg-8 d-flex flex-column">
+      <div class="cys-card mb-4">
+        <div class="cys-card__title">
+          <i class="bi bi-info-circle-fill text-azul me-2"></i>
+          Información Personal
+        </div>
+
+        <div class="row gx-3 gy-3">
+          <div class="col-sm-6">
+            <div class="cys-perfil-field">
+              <span class="cys-perfil-field__label">Correo electrónico</span>
+              <span class="cys-perfil-field__val">
+                <i class="bi bi-envelope-fill me-1" style="color:var(--azul-claro);font-size:.8rem;"></i>
+                {{ email|default:"—" }}
+              </span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="cys-perfil-field">
+              <span class="cys-perfil-field__label">Rol en el sistema</span>
+              <span class="cys-perfil-field__val">{{ rol_label }}</span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="cys-perfil-field">
+              <span class="cys-perfil-field__label">Estado</span>
+              <span class="cys-perfil-field__val" style="color:#2ecc71;">
+                <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle;"></i>
+                Activo
+              </span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="cys-perfil-field">
+              <span class="cys-perfil-field__label">Usuario</span>
+              <span class="cys-perfil-field__val">@{{ usuario }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seguridad -->
+      <div class="cys-card">
+        <div class="cys-card__title">
+          <i class="bi bi-shield-lock-fill text-azul me-2"></i>
+          Seguridad
+        </div>
+        <div class="cys-perfil-security">
+          <div class="cys-perfil-security__item">
+            <div class="cys-perfil-security__icon">
+              <i class="bi bi-key-fill"></i>
+            </div>
+            <div class="cys-perfil-security__body">
+              <div class="cys-perfil-security__title">Contraseña</div>
+              <div class="cys-perfil-security__sub">Última actualización desconocida</div>
+            </div>
+            <button class="cys-btn cys-btn--outline cys-btn-sm-text"
+                    data-bs-toggle="modal" data-bs-target="#modalEditarPerfil">
+              Cambiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL EDITAR PERFIL -->
+<div class="modal fade" id="modalEditarPerfil" tabindex="-1"
+     aria-labelledby="modalEditarPerfilLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content cys-modal-content">
+
+      <div class="modal-header cys-modal-header">
+        <div class="cys-modal-avatar" id="modalAvatarWrap">
+          <i class="bi bi-person-fill cys-modal-avatar__icon"></i>
+        </div>
+        <div>
+          <h5 class="modal-title cys-modal-title" id="modalEditarPerfilLabel">
+            Editar Perfil
+          </h5>
+          <div class="cys-modal-subtitle">@{{ usuario }}</div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-auto"
+                data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body cys-modal-body">
+
+        <div id="editPerfilMsg" style="display:none;" class="mb-3"></div>
+
+        <div class="row gx-3">
+          <div class="col-sm-6 mb-3">
+            <label class="cys-form-label">Nombres</label>
+            <input type="text" id="epNombre" class="form-control cys-input"
+                   value="{{ nombre }}">
+          </div>
+          <div class="col-sm-6 mb-3">
+            <label class="cys-form-label">Apellidos</label>
+            <input type="text" id="epApellidos" class="form-control cys-input"
+                   value="{{ apellidos }}">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="cys-form-label">Correo Electrónico</label>
+          <input type="email" id="epEmail" class="form-control cys-input"
+                 value="{{ email }}">
+        </div>
+
+        <hr style="border-color:rgba(77,168,218,.12); margin:1rem 0;">
+        <div class="cys-form-label mb-2" style="opacity:.5;">
+          Cambiar contraseña <em style="font-style:normal;">(opcional)</em>
+        </div>
+
+        <div class="mb-3">
+          <label class="cys-form-label">Contraseña Actual</label>
+          <input type="password" id="epClaveActual" class="form-control cys-input"
+                 placeholder="Solo si deseas cambiarla">
+        </div>
+        <div class="row gx-3">
+          <div class="col-sm-6 mb-3">
+            <label class="cys-form-label">Nueva Contraseña</label>
+            <input type="password" id="epClaveNueva" class="form-control cys-input"
+                   placeholder="Mín. 6 car., 2 núm., 1 may.">
+          </div>
+          <div class="col-sm-6 mb-3">
+            <label class="cys-form-label">Confirmar</label>
+            <input type="password" id="epClaveConfirmar" class="form-control cys-input"
+                   placeholder="Repite la contraseña">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer cys-modal-footer">
+        <button type="button" class="cys-btn cys-btn--outline"
+                data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="cys-btn cys-btn--primary"
+                id="btnGuardarPerfil" onclick="guardarPerfilPagina()">
+          <i class="bi bi-check-lg"></i> Guardar Cambios
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const EDITAR_URL = "{% url 'perfil_editar' %}";
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n + '=')) v = decodeURIComponent(c.slice(n.length + 1));
+    });
+    return v;
+  }
+
+  function msgPerfil(texto, tipo) {
+    const el = document.getElementById('editPerfilMsg');
+    el.className = tipo === 'ok'
+      ? 'alert alert-success py-2 px-3 rounded-3'
+      : 'alert alert-danger py-2 px-3 rounded-3';
+    el.style.cssText = tipo === 'ok'
+      ? 'display:block;background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.35);color:#2ecc71;font-size:.82rem;'
+      : 'display:block;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.35);color:#e87070;font-size:.82rem;';
+    el.textContent = texto;
+  }
+
+  window.guardarPerfilPagina = function () {
+    const nueva     = document.getElementById('epClaveNueva').value;
+    const confirmar = document.getElementById('epClaveConfirmar').value;
+    if (nueva && nueva !== confirmar) {
+      msgPerfil('Las contraseñas no coinciden.', 'err');
+      return;
+    }
+    const btn = document.getElementById('btnGuardarPerfil');
+    btn.disabled    = true;
+    btn.textContent = 'Guardando…';
+
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fd.append('nombre',       document.getElementById('epNombre').value.trim());
+    fd.append('apellidos',    document.getElementById('epApellidos').value.trim());
+    fd.append('email',        document.getElementById('epEmail').value.trim());
+    fd.append('clave_actual', document.getElementById('epClaveActual').value);
+    fd.append('clave_nueva',  nueva);
+
+    fetch(EDITAR_URL, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
+      if (d.ok) {
+        msgPerfil('✅ ' + d.mensaje, 'ok');
+        setTimeout(() => { location.reload(); }, 1500);
+      } else {
+        msgPerfil(d.error, 'err');
+      }
+    })
+    .catch(() => {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
+      msgPerfil('Error de conexión.', 'err');
+    });
+  };
+})();
+</script>
+{% endblock %}

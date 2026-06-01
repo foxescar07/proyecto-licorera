@@ -117,8 +117,8 @@ body.sidebar-open {
 
 @keyframes pulse-dot {
   0%   { box-shadow: 0 0 0 0   rgba(46,204,113,.7); }
-  70%  { box-shadow: 0 0 0 8px rgba(46,204,113,0); }
-  100% { box-shadow: 0 0 0 0   rgba(46,204,113,0); }
+  70%  { box-shadow: 0 0 0 8px rgba(46,204,113,0);  }
+  100% { box-shadow: 0 0 0 0   rgba(46,204,113,0);  }
 }
 
 .cys-header__clock { text-align: right; }
@@ -216,8 +216,6 @@ body.sidebar-open {
   box-shadow: -8px 0 32px rgba(0,0,0,.6) !important;
 }
 
-#sidebarRight.show { transform: none !important; }
-
 .offcanvas {
   transition: transform .15s ease !important;
 }
@@ -298,8 +296,9 @@ body.sidebar-open .cys-subnav {
 
 body.sidebar-open .cys-main {
   margin-right: 290px;
-  max-width: calc(100% - 290px);
+  max-width: 100%;
   margin-left: 0;
+  padding-right: 1rem;
 }
 
 /* ============================================================
@@ -579,7 +578,7 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   MODALES PRODUCTO
+   MODALES — INPUTS Y SELECTS
    ============================================================ */
 .cys-form-label {
   font-size: .72rem;
@@ -620,6 +619,9 @@ body.sidebar-open .cys-main {
 
 .modal-backdrop { background: rgba(0,0,0,.7) !important; }
 
+/* ============================================================
+   CONTAINER FLUID DENTRO DEL MAIN
+   ============================================================ */
 .cys-main .container-fluid {
   max-width: 1200px;
   margin: 0 auto;
@@ -637,7 +639,6 @@ body.sidebar-open .cys-main .container-fluid {
 .cys-sb-link--parent {
   cursor: pointer;
   user-select: none;
-  position: relative;
 }
 
 .cys-chevron {
@@ -646,7 +647,6 @@ body.sidebar-open .cys-main .container-fluid {
   margin-left: auto;
 }
 
-.cys-chevron.abierto,
 .cys-sb-link.abierto .cys-chevron {
   transform: rotate(180deg);
 }
@@ -685,10 +685,10 @@ body.sidebar-open .cys-main .container-fluid {
     padding-bottom: .5rem;
   }
 
-  .cys-header__logo   { height: 38px; width: 38px; }
-  .cys-header__title  { font-size: 1rem; }
-  .cys-header__clock-time { font-size: 1.4rem; }
-  .cys-header__clock-date { font-size: .6rem; }
+  .cys-header__logo        { height: 38px; width: 38px; }
+  .cys-header__title       { font-size: 1rem; }
+  .cys-header__clock-time  { font-size: 1.4rem; }
+  .cys-header__clock-date  { font-size: .6rem; }
 
   .cys-subnav { padding: 0 1rem; }
 
@@ -699,11 +699,12 @@ body.sidebar-open .cys-main .container-fluid {
   body.sidebar-open .cys-main {
     margin-right: 0 !important;
     max-width: 100% !important;
+    padding-right: 0 !important;
   }
 
   .cys-card { padding: 1rem; }
 
-  .cys-stat-card { min-height: 100px; padding: 1rem; }
+  .cys-stat-card     { min-height: 100px; padding: 1rem; }
   .cys-stat-card__val { font-size: 1.5rem; }
 
   .modal-footer { flex-direction: column; gap: .5rem; }
