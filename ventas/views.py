@@ -1,44 +1,3 @@
-from django.db import models
-from productos.models import Producto, Presentacion
-
-
-class Venta(models.Model):
-    cliente = models.CharField(max_length=200, default='Cliente general')
-    fecha = models.DateTimeField(auto_now_add=True)
-    descuento_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
-    @property
-    def total_venta(self):
-        subtotal = sum(det.subtotal() for det in self.detalles.all())
-        descuento = subtotal * (self.descuento_porcentaje / 100)
-        return subtotal - descuento
-
-    def __str__(self):
-        return f"Venta #{self.pk} - {self.cliente} - {self.fecha.strftime('%Y-%m-%d')}"
-
-    class Meta:
-        verbose_name = 'Venta'
-        verbose_name_plural = 'Ventas'
-        ordering = ['-fecha']
-
-
-class DetalleVenta(models.Model):
-    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
-    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
-    presentacion = models.ForeignKey(Presentacion, on_delete=models.PROTECT, null=True, blank=True)
-    cantidad = models.PositiveIntegerField(default=1)
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def subtotal(self):
-        return self.cantidad * self.precio_unitario
-
-    def __str__(self):
-        return f"{self.producto.nombre} x{self.cantidad}"
-
-    class Meta:
-        verbose_name = 'Detalle de venta'
-        verbose_name_plural = 'Detalles de venta'
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse, FileResponse
@@ -54,6 +13,7 @@ from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.enums import TA_CENTER
 from .models import Devolucion, DetalleDevolucion, Venta, DetalleVenta
+from productos.models import Producto, PresentacionProducto
 
 
 # ════════════════════════════════════════
@@ -112,44 +72,19 @@ def detalle_venta_devolucion(request, venta_id):
 
     return JsonResponse({
         'venta_id': venta.pk,
-
-        'cliente': venta.cliente,
-
-        'fecha': venta.fecha.strftime(
-            '%d/%m/%Y %H:%M'
-        ),
-
-        'total': float(
-            venta.total_venta
-        ),
-
+        'cliente':  venta.cliente,
+        'fecha':    venta.fecha.strftime('%d/%m/%Y %H:%M'),
+        'total':    float(venta.total_venta),
         'detalles': [
             {
-                'detalle_id': d.pk,
-
-                'producto': (
-                    d.presentacion.producto.nombre
-                    if d.presentacion else ''
-                ),
-
-                'presentacion': (
-                    d.presentacion.nombre
-                    if d.presentacion else ''
-                ),
-
-                'cantidad': d.cantidad,
-
-                'precio': float(
-                    d.precio_unitario
-                ),
-
-                'subtotal': float(
-                    d.subtotal()
-                ),
+                'detalle_id':   d.pk,
+                'producto':     (d.presentacion.producto.nombre if d.presentacion else ''),
+                'presentacion': (d.presentacion.nombre if d.presentacion else ''),
+                'cantidad':     d.cantidad,
+                'precio':       float(d.precio_unitario),
+                'subtotal':     float(d.subtotal()),
             }
-            for d in venta.detalles.select_related(
-                'presentacion__producto'
-            ).all()
+            for d in venta.detalles.select_related('presentacion__producto').all()
         ],
     })
 
@@ -158,54 +93,27 @@ def detalle_venta_devolucion(request, venta_id):
 @transaction.atomic
 def registrar_devolucion(request):
     if request.method != 'POST':
-        return redirect('devoluciones:lista_devoluciones')
+        return redirect('ventas:lista_devoluciones')
 
-    venta_id = request.POST.get('venta_id')
-
-    motivo = request.POST.get(
-        'motivo',
-        ''
-    )
-
-    tipo_reembolso = request.POST.get(
-        'tipo_reembolso',
-        'efectivo'
-    )
-
-    detalle_ids = request.POST.getlist(
-        'detalle_id[]'
-    )
-
-    cantidades = request.POST.getlist(
-        'cantidad[]'
-    )
-
-    estados = request.POST.getlist(
-        'estado_producto[]'
-    )
-
-    observaciones = request.POST.getlist(
-        'observacion[]'
-    )
+    venta_id       = request.POST.get('venta_id')
+    motivo         = request.POST.get('motivo', '')
+    tipo_reembolso = request.POST.get('tipo_reembolso', 'efectivo')
+    detalle_ids    = request.POST.getlist('detalle_id[]')
+    cantidades     = request.POST.getlist('cantidad[]')
+    estados        = request.POST.getlist('estado_producto[]')
+    observaciones  = request.POST.getlist('observacion[]')
 
     venta = get_object_or_404(Venta, pk=venta_id)
 
     if not detalle_ids:
-        messages.error(
-            request,
-            'Debes seleccionar al menos un producto para devolver.'
-        )
-        return redirect('devoluciones:lista_devoluciones')
+        messages.error(request, 'Debes seleccionar al menos un producto para devolver.')
+        return redirect('ventas:lista_devoluciones')
 
     total_devuelto   = Decimal('0')
     detalles_a_crear = []
 
     for i in range(len(detalle_ids)):
-        detalle = get_object_or_404(
-            DetalleVenta,
-            pk=detalle_ids[i],
-        )
-
+        detalle     = get_object_or_404(DetalleVenta, pk=detalle_ids[i])
         cantidad    = int(cantidades[i])
         estado      = estados[i]
         observacion = observaciones[i]
@@ -243,31 +151,21 @@ def registrar_devolucion(request):
             detalle.presentacion.cantidad += cantidad
             detalle.presentacion.save()
 
-    messages.success(
-        request,
-        f'Devolución {devolucion.numero} registrada correctamente.'
-    )
-
-    return redirect('devoluciones:lista_devoluciones')
+    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
+    return redirect('ventas:lista_devoluciones')
 
 
 @login_required
 def comprobante_devolucion(request, pk):
     devolucion = get_object_or_404(
-        Devolucion.objects.select_related(
-            'venta'
-        ).prefetch_related(
+        Devolucion.objects.select_related('venta').prefetch_related(
             'detalles__detalle_venta__presentacion__producto'
         ),
         pk=pk,
     )
 
-    messages.success(
-        request,
-        f'Devolución {devolucion.numero} registrada correctamente.'
-    )
-
-    return redirect('devoluciones:lista_devoluciones')
+    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
+    return redirect('ventas:lista_devoluciones')
 
 
 # ════════════════════════════════════════
@@ -276,7 +174,6 @@ def comprobante_devolucion(request, pk):
 
 @login_required
 def descargar_comprobante_pdf(request, pk):
-    """Genera un PDF del comprobante de devolución."""
     devolucion = get_object_or_404(
         Devolucion.objects.select_related('venta').prefetch_related(
             'detalles__detalle_venta__presentacion__producto'
@@ -315,13 +212,12 @@ def descargar_comprobante_pdf(request, pk):
     elements.append(Paragraph("COMPROBANTE DE DEVOLUCIÓN", title_style))
     elements.append(Spacer(1, 0.15*inch))
 
-    # ── Información general ──────────────────────────────────────
     info_data = [
-        ['Número:',   devolucion.numero,
-         'Fecha:',    devolucion.fecha.strftime('%d/%m/%Y %H:%M')],
-        ['Cliente:',  devolucion.venta.cliente,
-         'Venta:',    f'VTA-{devolucion.venta.pk:04d}'],
-        ['Motivo:',   devolucion.get_motivo_display(),
+        ['Número:',  devolucion.numero,
+         'Fecha:',   devolucion.fecha.strftime('%d/%m/%Y %H:%M')],
+        ['Cliente:', devolucion.venta.cliente,
+         'Venta:',   f'VTA-{devolucion.venta.pk:04d}'],
+        ['Motivo:',  devolucion.get_motivo_display(),
          'Reembolso:', devolucion.get_tipo_reembolso_display()],
     ]
 
@@ -338,7 +234,6 @@ def descargar_comprobante_pdf(request, pk):
     elements.append(info_table)
     elements.append(Spacer(1, 0.2*inch))
 
-    # ── Tabla de productos ───────────────────────────────────────
     elements.append(Paragraph("Productos Devueltos", heading_style))
 
     productos_data = [['Producto', 'Presentación', 'Cantidad', 'P. Unitario', 'Subtotal']]
@@ -373,7 +268,6 @@ def descargar_comprobante_pdf(request, pk):
     elements.append(productos_table)
     elements.append(Spacer(1, 0.2*inch))
 
-    # ── Total ────────────────────────────────────────────────────
     total_data = [[
         '', '', '',
         'Total Devuelto:',
@@ -394,7 +288,6 @@ def descargar_comprobante_pdf(request, pk):
     elements.append(total_table)
     elements.append(Spacer(1, 0.3*inch))
 
-    # ── Pie de página ────────────────────────────────────────────
     footer_style = ParagraphStyle(
         'Footer',
         parent=styles['Normal'],
@@ -460,4 +353,3 @@ def detalle_devolucion(request, pk):
     return render(request, 'ventas/devoluciones.html', {
         'devolucion': devolucion,
     })
-
