@@ -11,6 +11,17 @@
 {% block content %}
 <div class="container-fluid p-0">
 
+  <!-- BREADCRUMB -->
+  <nav class="cys-breadcrumb mb-4">
+    <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
+      <i class="bi bi-grid-1x2-fill"></i> Tablero
+    </a>
+    <span class="cys-breadcrumb__sep"><i class="bi bi-chevron-right"></i></span>
+    <span class="cys-breadcrumb__current">
+      <i class="bi bi-people-fill"></i> Usuarios
+    </span>
+  </nav>
+
   {% if messages %}
     {% for message in messages %}
       {% if message.tags == 'error' %}
@@ -41,143 +52,89 @@
 
     {% for u in usuarios %}
     <div class="col-12 col-md-6 col-xl-4">
-
-      <div id="fila-{{ u.pk }}"
-           class="usuario-card h-100">
+      <div id="fila-{{ u.pk }}" class="usuario-card h-100">
 
         <!-- CABECERA -->
         <div class="d-flex align-items-center justify-content-between mb-3">
-
           <div class="d-flex align-items-center gap-2">
-
             <div class="usuario-avatar">
               {{ u.nombre|slice:":1"|upper }}
             </div>
-
             <div>
-              <div class="usuario-nombre">
-                {{ u.nombre_completo }}
-              </div>
-
-              <div class="usuario-user">
-                @{{ u.usuario }}
-              </div>
+              <div class="usuario-nombre">{{ u.nombre_completo }}</div>
+              <div class="usuario-user">@{{ u.usuario }}</div>
             </div>
-
           </div>
 
           <span id="rol-badge-{{ u.pk }}"
                 class="badge usuario-rol
-                {% if u.rol == 'admin' %}
-                  usuario-rol--admin
-                {% elif u.rol == 'cajero' %}
-                  usuario-rol--cajero
-                {% else %}
-                  usuario-rol--empleado
-                {% endif %}">
+                {% if u.rol == 'admin' %}usuario-rol--admin
+                {% elif u.rol == 'cajero' %}usuario-rol--cajero
+                {% else %}usuario-rol--empleado{% endif %}">
             {{ u.get_rol_display }}
           </span>
-
         </div>
 
         <hr class="usuario-divider">
 
         <!-- DATOS -->
         <div class="row g-2 mb-3 usuario-datos">
-
           <div class="col-6">
             <div class="usuario-label">Identificación</div>
             <div class="usuario-value">{{ u.identificacion }}</div>
             <div class="usuario-sub">{{ u.get_tipo_id_display }}</div>
           </div>
-
           <div class="col-6">
             <div class="usuario-label">Correo</div>
-            <div class="usuario-email">
-              {{ u.email|default:"—" }}
-            </div>
+            <div class="usuario-email">{{ u.email|default:"—" }}</div>
           </div>
-
           <div class="col-6">
             <div class="usuario-label">Miembro desde</div>
-            <div class="usuario-muted">
-              {{ u.fecha_registro|date:"d/m/Y" }}
-            </div>
+            <div class="usuario-muted">{{ u.fecha_registro|date:"d/m/Y" }}</div>
           </div>
-
           <div class="col-6">
             <div class="usuario-label">Estado</div>
-
             <span id="estado-badge-{{ u.pk }}"
                   class="usuario-estado
-                  {% if u.activo %}
-                    usuario-estado--activo
-                  {% else %}
-                    usuario-estado--inactivo
-                  {% endif %}">
-
+                  {% if u.activo %}usuario-estado--activo
+                  {% else %}usuario-estado--inactivo{% endif %}">
               <span class="usuario-dot"></span>
-
-              {% if u.activo %}
-                Activo
-              {% else %}
-                Inactivo
-              {% endif %}
+              {% if u.activo %}Activo{% else %}Inactivo{% endif %}
             </span>
           </div>
-
         </div>
 
-        <!-- ACCIONES -->
+        <!-- ACCIONES — solo admin -->
         {% if request.session.usuario_rol == 'admin' %}
         <div class="d-flex gap-2">
-
           <button onclick="abrirEditar({{ u.pk }})"
                   class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
-            <i class="bi bi-pencil me-1"></i>
-            Editar
+            <i class="bi bi-pencil me-1"></i> Editar
           </button>
 
           {% if u.pk != request.session.usuario_id %}
-          <div id="wrap-toggle-{{ u.pk }}"
-               class="flex-fill d-flex flex-column gap-1">
-
+          <div id="wrap-toggle-{{ u.pk }}" class="flex-fill d-flex flex-column gap-1">
             <button id="btn-toggle-{{ u.pk }}"
                     onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
                     class="btn btn-sm w-100 usuario-btn
-                    {% if u.activo %}
-                      usuario-btn-desactivar
-                    {% else %}
-                      usuario-btn-activar
-                    {% endif %}">
-
+                    {% if u.activo %}usuario-btn-desactivar
+                    {% else %}usuario-btn-activar{% endif %}">
               <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %} me-1"></i>
-
-              {% if u.activo %}
-                Desactivar
-              {% else %}
-                Activar
-              {% endif %}
+              {% if u.activo %}Desactivar{% else %}Activar{% endif %}
             </button>
 
             <button id="btn-eliminar-{{ u.pk }}"
                     onclick="eliminarUsuario({{ u.pk }})"
                     class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
                     {% if u.activo %}style="display:none;"{% endif %}>
-
-              <i class="bi bi-trash3 me-1"></i>
-              Eliminar
-
+              <i class="bi bi-trash3 me-1"></i> Eliminar
             </button>
-
           </div>
           {% endif %}
-
         </div>
         {% endif %}
 
       </div>
-
     </div>
     {% endfor %}
 
@@ -186,125 +143,78 @@
   {% else %}
   <div class="usuarios-vacio text-center py-5">
     <i class="bi bi-people usuarios-vacio-icon"></i>
-
-    <div class="usuarios-vacio-text">
-      No hay usuarios registrados.
-    </div>
+    <div class="usuarios-vacio-text">No hay usuarios registrados.</div>
   </div>
   {% endif %}
 
 </div>
 
-
-<!-- MODAL -->
+<!-- MODAL EDITAR — solo admin -->
 {% if request.session.usuario_rol == 'admin' %}
-<div class="modal fade"
-     id="modalEditarUsuario"
-     tabindex="-1"
-     aria-hidden="true"
-     data-bs-backdrop="static"
-     data-bs-keyboard="true">
-
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-editar">
-
     <div class="modal-content modal-editar-content">
 
-      <!-- HEADER -->
       <div class="modal-header modal-editar-header">
-
         <div>
-          <span class="modal-editar-title">
-            Editar Usuario
-          </span>
-
-          <span id="euNombreHeader"
-                class="modal-editar-user">
-          </span>
+          <span class="modal-editar-title">Editar Usuario</span>
+          <span id="euNombreHeader" class="modal-editar-user"></span>
         </div>
-
-        <button type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Cerrar">
-        </button>
-
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <!-- MENSAJE -->
       <div id="euMsg" class="eu-msg"></div>
 
-      <!-- BODY -->
       <div class="modal-body modal-editar-body">
-
         <input type="hidden" id="euPk">
 
         <div class="row g-3 mb-3">
-
           <div class="col-6">
             <label class="eu-label">Nombres</label>
             <input type="text" id="euNombre" class="eu-input">
           </div>
-
           <div class="col-6">
             <label class="eu-label">Apellidos</label>
             <input type="text" id="euApellidos" class="eu-input">
           </div>
-
         </div>
 
         <div class="row g-3 mb-3">
-
           <div class="col-6">
             <label class="eu-label">Correo</label>
             <input type="email" id="euEmail" class="eu-input">
           </div>
-
           <div class="col-6">
             <label class="eu-label">Rol</label>
-
             <select id="euRol" class="eu-input">
               <option value="admin">Administrador</option>
               <option value="cajero">Cajero</option>
               <option value="empleado">Empleado</option>
             </select>
-
           </div>
-
         </div>
 
         <hr class="modal-divider">
-
-        <div class="modal-pass-title">
-          Nueva contraseña (opcional)
-        </div>
+        <div class="modal-pass-title">Nueva contraseña (opcional)</div>
 
         <div class="mb-4">
           <label class="eu-label">Nueva Contraseña</label>
-
-          <input type="password"
-                 id="euClaveNueva"
-                 class="eu-input"
+          <input type="password" id="euClaveNueva" class="eu-input"
                  placeholder="Mín. 6 car., 2 núm., 1 may.">
         </div>
 
-        <button onclick="guardarEditar()"
-                id="euBtnGuardar"
+        <button onclick="guardarEditar()" id="euBtnGuardar"
                 class="btn w-100 modal-btn-guardar">
-
-          <i class="bi bi-check-lg me-1"></i>
-          Guardar Cambios
-
+          <i class="bi bi-check-lg me-1"></i> Guardar Cambios
         </button>
-
       </div>
 
     </div>
-
   </div>
-
 </div>
 {% endif %}
-
 
 <script>
   function getCookie(name) {
@@ -318,15 +228,9 @@
 
   function euMostrarMsg(texto, tipo) {
     const el = document.getElementById('euMsg');
-
-    el.textContent = texto;
+    el.textContent  = texto;
     el.style.display = 'block';
-
-    if (tipo === 'ok') {
-      el.className = 'eu-msg eu-msg-ok';
-    } else {
-      el.className = 'eu-msg eu-msg-error';
-    }
+    el.className    = tipo === 'ok' ? 'eu-msg eu-msg-ok' : 'eu-msg eu-msg-error';
   }
 
   function abrirEditar(pk) {
@@ -335,24 +239,100 @@
     })
     .then(r => r.json())
     .then(d => {
-
       if (!d.ok) return;
-
       document.getElementById('euPk').value         = d.pk;
       document.getElementById('euNombre').value     = d.nombre;
       document.getElementById('euApellidos').value  = d.apellidos;
       document.getElementById('euEmail').value      = d.email;
       document.getElementById('euRol').value        = d.rol;
       document.getElementById('euClaveNueva').value = '';
-
       document.getElementById('euNombreHeader').textContent = '@' + d.usuario;
-
       document.getElementById('euMsg').style.display = 'none';
+      new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+    });
+  }
 
-      new bootstrap.Modal(
-        document.getElementById('modalEditarUsuario')
-      ).show();
+  function guardarEditar() {
+    const pk  = document.getElementById('euPk').value;
+    const btn = document.getElementById('euBtnGuardar');
+    btn.disabled    = true;
+    btn.textContent = 'Guardando…';
 
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fd.append('nombre',      document.getElementById('euNombre').value.trim());
+    fd.append('apellidos',   document.getElementById('euApellidos').value.trim());
+    fd.append('email',       document.getElementById('euEmail').value.trim());
+    fd.append('rol',         document.getElementById('euRol').value);
+    fd.append('clave_nueva', document.getElementById('euClaveNueva').value);
+
+    fetch(`/usuarios/editar/${pk}/`, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
+      if (d.ok) {
+        euMostrarMsg('✅ ' + d.mensaje, 'ok');
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        euMostrarMsg(d.error, 'err');
+      }
+    })
+    .catch(() => {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
+      euMostrarMsg('Error de conexión.', 'err');
+    });
+  }
+
+  function toggleActivo(pk, activo) {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fetch(`/usuarios/toggle/${pk}/`, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return;
+      const badge  = document.getElementById(`estado-badge-${pk}`);
+      const btnT   = document.getElementById(`btn-toggle-${pk}`);
+      const btnE   = document.getElementById(`btn-eliminar-${pk}`);
+      if (d.activo) {
+        badge.className  = 'usuario-estado usuario-estado--activo';
+        badge.innerHTML  = '<span class="usuario-dot"></span> Activo';
+        btnT.className   = btnT.className.replace('usuario-btn-activar','usuario-btn-desactivar');
+        btnT.innerHTML   = '<i class="bi bi-person-dash me-1"></i> Desactivar';
+        btnT.onclick     = () => toggleActivo(pk, true);
+        btnE.style.display = 'none';
+      } else {
+        badge.className  = 'usuario-estado usuario-estado--inactivo';
+        badge.innerHTML  = '<span class="usuario-dot"></span> Inactivo';
+        btnT.className   = btnT.className.replace('usuario-btn-desactivar','usuario-btn-activar');
+        btnT.innerHTML   = '<i class="bi bi-person-check me-1"></i> Activar';
+        btnT.onclick     = () => toggleActivo(pk, false);
+        btnE.style.display = 'block';
+      }
+    });
+  }
+
+  function eliminarUsuario(pk) {
+    if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fetch(`/usuarios/eliminar/${pk}/`, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        const card = document.getElementById(`fila-${pk}`);
+        card?.closest('.col-12')?.remove();
+      }
     });
   }
 </script>
