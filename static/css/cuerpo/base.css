@@ -49,7 +49,7 @@ body.sidebar-open {
 ::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 99px; }
 
 /* ============================================================
-   BASE.HTML — HEADER
+   HEADER
    ============================================================ */
 .cys-header {
   position: sticky;
@@ -145,7 +145,7 @@ body.sidebar-open {
 }
 
 /* ============================================================
-   BASE.HTML — SUBNAV
+   SUBNAV
    ============================================================ */
 .cys-subnav {
   height: var(--nav-h);
@@ -207,7 +207,7 @@ body.sidebar-open {
 }
 
 /* ============================================================
-   BASE.HTML — SIDEBAR OFFCANVAS
+   SIDEBAR OFFCANVAS
    ============================================================ */
 #sidebarRight {
   width: 290px !important;
@@ -282,152 +282,15 @@ body.sidebar-open {
   overflow-y: auto;
 }
 
-.cys-sb-user {
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-  padding: .75rem;
-  background: var(--azul-glow);
-  border: 1px solid var(--azul-borde);
-  border-radius: var(--radius);
-}
-
-.cys-sb-avatar {
-  width: 38px;
-  height: 38px;
-  background: rgba(77,168,218,.12);
-  border: 1px solid var(--azul-borde);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--azul-claro);
-  font-size: .95rem;
-  flex-shrink: 0;
-}
-
-.cys-sb-user-name {
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--blanco);
-  line-height: 1.1;
-}
-
-.cys-sb-user-role {
-  font-size: .62rem;
-  color: var(--texto-muted);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
-.cys-sb-label {
-  font-size: .58rem;
-  font-weight: 700;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--texto-muted);
-  margin-bottom: .4rem;
-}
-
-.cys-sb-nav { display: flex; flex-direction: column; gap: .25rem; }
-
-.cys-sb-link {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .6rem 1rem;
-  border-radius: 8px;
-  font-size: .82rem;
-  font-weight: 500;
-  color: var(--texto-muted);
-  text-decoration: none;
-  transition: var(--trans);
-  border: 1px solid transparent;
-  font-family: 'Inter', sans-serif;
-}
-
-.cys-sb-link i { font-size: .9rem; width: 16px; text-align: center; }
-
-.cys-sb-link:hover {
-  background: var(--azul-glow);
-  color: var(--blanco);
-  border-color: var(--azul-borde);
-}
-
-.cys-sb-link.active {
-  background: rgba(192,57,43,.15);
-  color: var(--blanco);
-  border-color: rgba(192,57,43,.4);
-  font-weight: 600;
-  box-shadow: 0 0 12px var(--rojo-glow), inset 0 0 12px rgba(192,57,43,.05);
-}
-
-.cys-sb-divider {
-  height: 1px;
-  background: var(--azul-borde);
-  border: none;
-  margin: 0;
-}
-
-.cys-sb-stat {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: .75rem;
-  background: var(--fondo-card);
-  border: 1px solid var(--azul-borde);
-  border-radius: var(--radius);
-  transition: var(--trans);
-  box-shadow: 0 0 10px rgba(0,0,0,.2);
-}
-
-.cys-sb-stat:hover {
-  border-color: rgba(192,57,43,.5);
-  box-shadow: 0 0 14px var(--rojo-glow);
-}
-
-.cys-sb-stat-label {
-  font-size: .6rem;
-  color: var(--texto-muted);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  margin-bottom: 1px;
-}
-
-.cys-sb-stat-val {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--blanco);
-  line-height: 1;
-}
-
-.cys-sb-stat-sub {
-  font-size: .6rem;
-  color: var(--texto-muted);
-  margin-top: 1px;
-}
-
-.cys-sb-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.cys-sb-footer {
-  margin-top: auto;
-  text-align: center;
-  font-size: .6rem;
-  color: var(--texto-muted);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  padding-top: .5rem;
-}
-
 /* ============================================================
-   BASE.HTML — SIDEBAR EMPUJA CONTENIDO
+   SIDEBAR EMPUJA CONTENIDO
    ============================================================ */
+.cys-header,
+.cys-subnav,
+.cys-main {
+  transition: margin-right .3s ease;
+}
+
 body.sidebar-open .cys-header,
 body.sidebar-open .cys-subnav {
   margin-right: 290px;
@@ -435,12 +298,12 @@ body.sidebar-open .cys-subnav {
 
 body.sidebar-open .cys-main {
   margin-right: 290px;
-  max-width: 100%;
+  max-width: calc(100% - 290px);
   margin-left: 0;
 }
 
 /* ============================================================
-   BASE.HTML — MAIN CONTENIDO
+   MAIN CONTENIDO
    ============================================================ */
 .cys-main {
   padding: 1.5rem 2rem;
@@ -450,7 +313,7 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   COMPONENTES GLOBALES — CARDS
+   CARDS
    ============================================================ */
 .cys-card {
   background: var(--fondo-card);
@@ -493,7 +356,7 @@ body.sidebar-open .cys-main {
 .cys-card__title.mb-0 { margin-bottom: 0 !important; }
 
 /* ============================================================
-   COMPONENTES GLOBALES — BOTONES
+   BOTONES
    ============================================================ */
 .cys-btn {
   display: inline-flex;
@@ -518,7 +381,6 @@ body.sidebar-open .cys-main {
   border-color: var(--azul-claro);
   box-shadow: 0 4px 14px rgba(77,168,218,.4);
 }
-
 .cys-btn--primary:hover {
   background: #6dc0e8;
   color: var(--azul-oscuro);
@@ -532,7 +394,6 @@ body.sidebar-open .cys-main {
   border-color: var(--rojo);
   box-shadow: 0 4px 14px rgba(192,57,43,.4);
 }
-
 .cys-btn--danger:hover {
   background: var(--rojo-hover);
   color: var(--blanco);
@@ -545,7 +406,6 @@ body.sidebar-open .cys-main {
   color: var(--texto-muted);
   border-color: var(--azul-borde);
 }
-
 .cys-btn--outline:hover {
   background: var(--azul-glow);
   color: var(--blanco);
@@ -553,7 +413,7 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   COMPONENTES GLOBALES — BOTONES PEQUEÑOS TABLA
+   BOTONES PEQUEÑOS
    ============================================================ */
 .cys-btn-sm {
   width: 30px;
@@ -575,7 +435,6 @@ body.sidebar-open .cys-main {
   border-color: var(--azul-borde);
   color: var(--azul-claro);
 }
-
 .cys-btn-sm--primary:hover {
   background: var(--azul-claro);
   color: var(--azul-oscuro);
@@ -587,7 +446,6 @@ body.sidebar-open .cys-main {
   border-color: rgba(201,168,76,.3);
   color: #C9A84C;
 }
-
 .cys-btn-sm--warning:hover {
   background: #C9A84C;
   color: #111;
@@ -598,14 +456,13 @@ body.sidebar-open .cys-main {
   border-color: rgba(192,57,43,.3);
   color: var(--rojo);
 }
-
 .cys-btn-sm--danger:hover {
   background: var(--rojo);
   color: var(--blanco);
 }
 
 /* ============================================================
-   COMPONENTES GLOBALES — TABLA
+   TABLA
    ============================================================ */
 .table { color: var(--texto) !important; }
 
@@ -624,7 +481,7 @@ body.sidebar-open .cys-main {
 .table td { border-color: rgba(77,168,218,.08) !important; }
 
 /* ============================================================
-   COMPONENTES GLOBALES — INPUTS
+   INPUTS GLOBALES
    ============================================================ */
 .cys-input {
   background: var(--fondo-card2) !important;
@@ -648,7 +505,7 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   COMPONENTES GLOBALES — UTILIDADES
+   UTILIDADES
    ============================================================ */
 .text-azul  { color: var(--azul-claro) !important; }
 .text-rojo  { color: var(--rojo) !important; }
@@ -656,7 +513,7 @@ body.sidebar-open .cys-main {
 .glow-rojo  { box-shadow: 0 0 16px var(--rojo-glow); }
 
 /* ============================================================
-   HOME.HTML — CARRUSEL CATEGORÍAS
+   CARRUSEL CATEGORÍAS
    ============================================================ */
 .cys-carousel-btn {
   width: 32px;
@@ -673,7 +530,6 @@ body.sidebar-open .cys-main {
   transition: var(--trans);
   flex-shrink: 0;
 }
-
 .cys-carousel-btn:hover {
   background: var(--azul-claro);
   color: var(--azul-oscuro);
@@ -682,7 +538,7 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   HOME.HTML + PRODUCTO.HTML — STAT CARDS CATEGORÍAS
+   STAT CARDS
    ============================================================ */
 .cys-stat-card {
   background: var(--fondo-card2);
@@ -698,7 +554,6 @@ body.sidebar-open .cys-main {
   flex-direction: column;
   justify-content: center;
 }
-
 .cys-stat-card:hover {
   transform: translateY(-3px);
   border-color: rgba(192,57,43,.5);
@@ -724,7 +579,7 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   PRODUCTO.HTML — MODALES
+   MODALES PRODUCTO
    ============================================================ */
 .cys-form-label {
   font-size: .72rem;
@@ -760,20 +615,11 @@ body.sidebar-open .cys-main {
   color: var(--texto) !important;
 }
 
-.modal .form-control::placeholder {
-  color: var(--texto-muted) !important;
-}
+.modal .form-control::placeholder { color: var(--texto-muted) !important; }
+.modal .form-select option { background: var(--fondo-card2); color: var(--texto); }
 
-.modal .form-select option {
-  background: var(--fondo-card2);
-  color: var(--texto);
-}
+.modal-backdrop { background: rgba(0,0,0,.7) !important; }
 
-.modal-backdrop {
-  background: rgba(0,0,0,.7) !important;
-}
-
-/* LIMITAR ANCHO CONTENIDO */
 .cys-main .container-fluid {
   max-width: 1200px;
   margin: 0 auto;
@@ -786,7 +632,7 @@ body.sidebar-open .cys-main .container-fluid {
 }
 
 /* ============================================================
-   SIDEBAR — SUBMENÚ VENTAS
+   SIDEBAR — SUBMENÚS Y CHEVRON
    ============================================================ */
 .cys-sb-link--parent {
   cursor: pointer;
@@ -796,189 +642,20 @@ body.sidebar-open .cys-main .container-fluid {
 
 .cys-chevron {
   font-size: .7rem;
-  transition: transform .2s ease;
+  transition: transform .25s ease;
+  margin-left: auto;
 }
 
-.no-anim .cys-chevron {
-  transition: none !important;
-}
-
-.cys-chevron.open {
-  transform: rotate(180deg);
-}
-
-.cys-sb-submenu {
-  display: flex;
-  flex-direction: column;
-  gap: .2rem;
-  max-height: 0;
-  overflow: hidden;
-  padding-left: 1.2rem;
-  margin-top: .1rem;
-  opacity: 0;
-  transform: translateY(-5px);
-  transition:
-    max-height .25s ease,
-    opacity .2s ease,
-    transform .2s ease;
-  position: relative;
-}
-
-.cys-sb-submenu::before {
-  content: "";
-  position: absolute;
-  left: 12px;
-  top: 5px;
-  bottom: 5px;
-  width: 1px;
-  background: var(--azul-borde);
-  opacity: .3;
-}
-
-.cys-sb-submenu.open {
-  max-height: 200px;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.cys-sb-sublink {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .45rem 1rem .45rem 1.2rem;
-  border-radius: 8px;
-  font-size: .78rem;
-  font-weight: 500;
-  color: var(--texto-muted);
-  text-decoration: none;
-  transition: var(--trans);
-  border: 1px solid transparent;
-}
-
-.cys-sb-sublink:hover {
-  background: var(--azul-glow);
-  color: var(--blanco);
-  border-color: var(--azul-borde);
-  transform: translateX(3px);
-}
-
-.cys-sb-sublink i {
-  font-size: .8rem;
-  width: 14px;
-  text-align: center;
-}
-
-.cys-sb-sublink.active {
-  color: var(--blanco);
-  background: rgba(192,57,43,.1);
-  border-color: rgba(192,57,43,.3);
-}
-
-
-.cys-chevron {
-  transition: transform 0.3s;
-}
-
-.cys-chevron.abierto {
+.cys-chevron.abierto,
+.cys-sb-link.abierto .cys-chevron {
   transform: rotate(180deg);
 }
 
 /* ============================================================
-   RESPONSIVE MÓVIL
+   TABLA REGISTRAR CÓDIGOS
    ============================================================ */
-@media (max-width: 768px) {
-
-  /* Header más compacto */
-  .cys-header {
-    padding: 0 1rem;
-    height: auto;
-    min-height: 60px;
-    flex-wrap: wrap;
-    gap: .5rem;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-  }
-
-  .cys-header__logo {
-    height: 38px;
-    width: 38px;
-  }
-
-  .cys-header__title {
-    font-size: 1rem;
-  }
-
-  .cys-header__clock-time {
-    font-size: 1.4rem;
-  }
-
-  .cys-header__clock-date {
-    font-size: .6rem;
-  }
-
-  /* Subnav */
-  .cys-subnav {
-    padding: 0 1rem;
-  }
-
-  /* Main — sin padding lateral exagerado */
-  .cys-main {
-    padding: 1rem;
-  }
-
-  /* Sidebar NO empuja en móvil, se superpone */
-  body.sidebar-open .cys-header,
-  body.sidebar-open .cys-subnav,
-  body.sidebar-open .cys-main {
-    margin-right: 0 !important;
-  }
-
-  /* Cards */
-  .cys-card {
-    padding: 1rem;
-  }
-
-  /* Stat cards — 1 columna */
-  .cys-stat-card {
-    min-height: 100px;
-    padding: 1rem;
-  }
-
-  .cys-stat-card__val {
-    font-size: 1.5rem;
-  }
-
-  /* Botones full width en modales */
-  .modal-footer {
-    flex-direction: column;
-    gap: .5rem;
-  }
-
-  .modal-footer .cys-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* Modales ocupan toda la pantalla */
-  .modal-dialog {
-    margin: .5rem !important;
-    max-width: calc(100vw - 1rem) !important;
-  }
-
-  .modal-body {
-    padding: 1rem !important;
-  }
-
-  /* Tablas con scroll horizontal */
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-/* ── TABLA REGISTRAR CÓDIGOS ─────────────────────── */
 .modal #tbody-codigos td {
-  color:  #0A2A52 !important;
+  color: #0A2A52 !important;
   font-size: .85rem;
 }
 
@@ -991,4 +668,56 @@ body.sidebar-open .cys-main .container-fluid {
   gap: 4px;
   width: auto !important;
   height: auto !important;
+}
+
+/* ============================================================
+   RESPONSIVE MÓVIL
+   ============================================================ */
+@media (max-width: 768px) {
+
+  .cys-header {
+    padding: 0 1rem;
+    height: auto;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+  }
+
+  .cys-header__logo   { height: 38px; width: 38px; }
+  .cys-header__title  { font-size: 1rem; }
+  .cys-header__clock-time { font-size: 1.4rem; }
+  .cys-header__clock-date { font-size: .6rem; }
+
+  .cys-subnav { padding: 0 1rem; }
+
+  .cys-main { padding: 1rem; }
+
+  body.sidebar-open .cys-header,
+  body.sidebar-open .cys-subnav,
+  body.sidebar-open .cys-main {
+    margin-right: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .cys-card { padding: 1rem; }
+
+  .cys-stat-card { min-height: 100px; padding: 1rem; }
+  .cys-stat-card__val { font-size: 1.5rem; }
+
+  .modal-footer { flex-direction: column; gap: .5rem; }
+  .modal-footer .cys-btn { width: 100%; justify-content: center; }
+
+  .modal-dialog {
+    margin: .5rem !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+
+  .modal-body { padding: 1rem !important; }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
