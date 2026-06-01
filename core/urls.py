@@ -17,4 +17,7 @@ urlpatterns = [
     
     # App reportes
     path('reportes/', include('reportes.urls', namespace='reportes')),
+    path('ventas/', include('ventas.urls', namespace='ventas')),
+    path('proveedores/', include('proveedores.urls', namespace='proveedores')),
+    
 ]
