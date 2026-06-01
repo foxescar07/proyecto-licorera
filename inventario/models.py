@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 from productos.models import PresentacionProducto
 
@@ -14,7 +15,7 @@ class Lote(models.Model):
     stock_actual      = models.PositiveIntegerField(default=0)
     costo_unitario    = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_vencimiento = models.DateField(null=True, blank=True)
-    fecha_registro    = models.DateTimeField(auto_now_add=True)
+    fecha_registro    = models.DateTimeField(default=timezone.now, editable=False)
     registrado_por    = models.ForeignKey(
         User,
         on_delete=models.PROTECT,

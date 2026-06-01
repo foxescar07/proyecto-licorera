@@ -6,7 +6,7 @@
 {% block nav_productos %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/productos/productos.css' %}">
+<link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -174,17 +174,17 @@
             </div>
             <div class="col-md-12">
               <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
-              <select name="categoria" id="crear-categoria" class="form-select prod-input">
-                <option value="">— Seleccionar —</option>
-                {% for main_cat in categorias_arbol %}
-                  <optgroup label="{{ main_cat.nombre }}">
-                    <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
-                    {% for sub_cat in main_cat.subcategorias.all %}
-                      <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
-                    {% endfor %}
-                  </optgroup>
-                {% endfor %}
-              </select>
+             <select name="categoria" id="crear-categoria" class="form-select prod-input">
+  <option value="">— Seleccionar —</option>
+  {% for main_cat in categorias %}   {# ← cambia categorias_arbol por categorias #}
+    <optgroup label="{{ main_cat.nombre }}">
+      <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
+      {% for sub_cat in main_cat.subcategorias.all %}
+        <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
+      {% endfor %}
+    </optgroup>
+  {% endfor %}
+</select>
             </div>
             <div class="col-12">
               <label class="form-label prod-label">Descripción (opcional)</label>

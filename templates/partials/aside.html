@@ -1,6 +1,6 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'cuerpo/aside.css' %}">
+<link rel="stylesheet" href="{% static 'css/cuerpo/aside.css' %}">
 
 <div class="offcanvas offcanvas-end"
      tabindex="-1"
@@ -8,104 +8,71 @@
      data-bs-backdrop="false"
      data-bs-scroll="true">
 
-  <!-- HEADER -->
-  <div class="offcanvas-header cys-sb-header">
-    <div class="d-flex align-items-center gap-2">
+  <!-- HEADER DEL ASIDE -->
+  <div class="cys-sb-header">
+    <div class="cys-sb-brand">
       <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo">
       <div>
         <div class="cys-sb-brand-name">CYS Ltda</div>
         <div class="cys-sb-brand-sub">Distribución</div>
       </div>
     </div>
-    <button type="button"
-            class="btn-close btn-close-white"
-            data-bs-dismiss="offcanvas"
-            aria-label="Cerrar">
+    <button class="cys-sb-close" data-bs-dismiss="offcanvas">
+      <i class="bi bi-x-lg"></i>
     </button>
   </div>
 
-  <!-- BODY -->
-  <div class="offcanvas-body cys-sb-body d-flex flex-column gap-3 p-3">
+  <!-- BODY DEL ASIDE -->
+  <div class="cys-sb-body">
 
-    <!-- USUARIO -->
-    <div>
-      <a href="#"
-         class="cys-sb-user d-flex align-items-center gap-2 p-2 rounded text-decoration-none"
-         data-bs-toggle="collapse"
-         data-bs-target="#userDropdown"
-         aria-expanded="false"
-         aria-controls="userDropdown">
+    <!-- ── USUARIO ── -->
+    <div class="cys-sb-user-wrap" id="userHoverWrapper">
 
-        <div class="cys-sb-avatar d-flex align-items-center justify-content-center rounded-circle">
-          {{ request.session.usuario_user|slice:":1"|upper }}
-        </div>
-
-        <div class="flex-grow-1 overflow-hidden">
-          <div class="cys-sb-user-name text-truncate">
-            @{{ request.session.usuario_user|default:"usuario" }}
+      <div class="cys-sb-user-row">
+        <button class="cys-sb-user-info-btn" onclick="abrirModalPerfil()">
+          <div class="cys-sb-avatar">
+            <i class="bi bi-person-fill cys-sb-avatar__icon" id="userAvatarIcon"></i>
           </div>
-          <div class="cys-sb-user-role">
-            {% if request.session.usuario_rol == 'admin' %}
-              Administrador
-            {% elif request.session.usuario_rol == 'cajero' %}
-              Cajero
-            {% elif request.session.usuario_rol == 'empleado' %}
-              Empleado
-            {% else %}
-              —
-            {% endif %}
+          <div class="cys-sb-user-info">
+            <div class="cys-sb-user-name">
+              @{{ request.session.usuario_user|default:"usuario" }}
+            </div>
+            <div class="cys-sb-user-role">
+              {% if request.session.usuario_rol == 'admin' %}Administrador
+              {% elif request.session.usuario_rol == 'cajero' %}Cajero
+              {% elif request.session.usuario_rol == 'empleado' %}Empleado
+              {% else %}—{% endif %}
+            </div>
           </div>
-        </div>
-
-        <i class="bi bi-chevron-down cys-sb-chevron"></i>
-      </a>
+        </button>
+      </div>
 
       {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' %}
-      <div class="collapse" id="userDropdown">
-        <div class="d-flex flex-column gap-1 mt-1 ps-2">
-
-          <a href="#"
-             class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
-            <i class="bi bi-person-fill"></i>
-            Mi Perfil
-          </a>
-
-          <a href="#"
-             class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
-            <i class="bi bi-people-fill"></i>
-            Usuarios
-          </a>
-
-        </div>
+      <div class="cys-sb-user-drop" id="userDrop">
+        <a href="{% url 'usuario' %}" class="cys-sb-user-drop-link">
+          <i class="bi bi-people-fill"></i> Lista de Usuarios
+        </a>
       </div>
       {% endif %}
+
     </div>
 
-    <hr class="cys-sb-divider m-0">
+    <!-- ── NAV ── -->
+    <div class="cys-sb-section">
+      <div class="cys-sb-label">Navegación</div>
+      <nav class="cys-sb-nav">
 
-    <!-- NAV -->
-    <div>
-      <div class="cys-sb-label mb-2">Navegación</div>
-
-      <nav class="d-flex flex-column gap-1">
-
-        <!-- TABLERO -->
-        <a href="#"
-           class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none px-2 py-2 rounded {% block nav_tablero %}{% endblock %}">
+        <a href="#" class="cys-sb-link {% block nav_tablero %}{% endblock %}">
           <i class="bi bi-grid-1x2-fill"></i>
-          Tablero
+          <span>Tablero</span>
         </a>
 
-        <!-- VENTAS -->
-        <button type="button"
-                class="cys-sb-link d-flex align-items-center gap-2 px-2 py-2 rounded border-0 bg-transparent w-100 text-start"
-                data-bs-toggle="collapse"
-                data-bs-target="#submenuVentas"
-                aria-expanded="false"
-                aria-controls="submenuVentas">
+        <button class="cys-sb-link cys-sb-link--parent"
+                id="btnVentas"
+                onclick="toggleSubmenu(event, this, 'submenuVentas')">
           <i class="bi bi-receipt"></i>
           <span class="flex-grow-1">Ventas</span>
-          <i class="bi bi-chevron-down cys-sb-chevron"></i>
+          <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
 
         <div class="collapse ps-3" id="submenuVentas">
@@ -117,28 +84,56 @@
               Reportes
             </a>
 
-           <a href="{% url 'ventas:lista_devoluciones' %}"
-   class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
-  <i class="bi bi-arrow-return-left"></i>
-  Devoluciones
-</a>
+            <a href="#"
+               class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+              <i class="bi bi-arrow-return-left"></i>
+              Devoluciones
+            </a>
+
           </div>
         </div>
 
         <!-- PRODUCTOS -->
-        <a href="#"
-           class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none px-2 py-2 rounded">
-          <i class="bi bi-box-seam-fill"></i>
-          Productos
-        </a>
+       <a href="{% url 'producto:lista_productos' %}"
+   class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none px-2 py-2 rounded">
+  <i class="bi bi-box-seam-fill"></i>
+  Productos
+</a>
 
         <!-- INVENTARIO -->
-        <a href="#"
-           class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none px-2 py-2 rounded">
-          <i class="bi bi-clipboard-data-fill"></i>
-          Inventario
-        </a>
+<div class="d-flex align-items-center gap-2">
+ <a href="{% url 'inventario:inventario_home' %}"
+   class="cys-sb-link d-flex align-items-center gap-2 text-decoration-none flex-grow-1 px-2 py-2 rounded">
+  <i class="bi bi-clipboard-data-fill"></i>
+  <span class="flex-grow-1">Inventario</span>
+</a>
+  <button type="button"
+          class="cys-sb-link px-2 py-2 rounded border-0 bg-transparent"
+          data-bs-toggle="collapse"
+          data-bs-target="#submenuInventario"
+          aria-expanded="false"
+          aria-controls="submenuInventario">
+    <i class="bi bi-chevron-down cys-sb-chevron"></i>
+  </button>
+</div>
 
+<div class="collapse ps-3" id="submenuInventario">
+  <div class="d-flex flex-column gap-1">
+
+    <a href="{% url 'inventario:gestion_productos' %}"
+       class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+      <i class="bi bi-boxes"></i>
+      Gestión de Inventario
+    </a>
+
+    <a href="{% url 'producto:categorias_lista' %}"
+       class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
+      <i class="bi bi-tags-fill"></i>
+      Categorías
+    </a>
+
+  </div>
+</div>
         <!-- PROVEEDORES -->
         <button type="button"
                 class="cys-sb-link d-flex align-items-center gap-2 px-2 py-2 rounded border-0 bg-transparent w-100 text-start"
@@ -148,99 +143,303 @@
                 aria-controls="submenuProveedores">
           <i class="bi bi-truck"></i>
           <span class="flex-grow-1">Proveedores</span>
-          <i class="bi bi-chevron-down cys-sb-chevron"></i>
+          <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
-
-        <div class="collapse ps-3" id="submenuProveedores">
-          <div class="d-flex flex-column gap-1">
-
-            <a href="#"
-               class="cys-sb-sublink d-flex align-items-center gap-2 text-decoration-none px-2 py-1 rounded">
-              <i class="bi bi-cart-plus-fill"></i>
-              Compras
-            </a>
-
-          </div>
+        <div class="cys-sb-submenu" id="submenuProveedores">
+          <a href="#" class="cys-sb-sublink">
+            <i class="bi bi-cart-plus-fill"></i> Compras
+          </a>
         </div>
 
       </nav>
     </div>
 
-    <hr class="cys-sb-divider m-0">
+    <hr class="cys-sb-divider">
 
-    <!-- RESUMEN -->
-    <div>
-      <div class="cys-sb-label mb-2">Resumen</div>
+    <!-- ── ESTADÍSTICAS ── -->
+    <div class="cys-sb-section">
+      <div class="cys-sb-label">Resumen</div>
+      <div class="cys-sb-stats">
 
-      <div class="d-flex flex-column gap-2">
-
-        <div class="cys-sb-stat d-flex align-items-center justify-content-between p-2 rounded">
-          <div>
-            <div class="cys-sb-stat-label">Total productos</div>
-            <div class="cys-sb-stat-val">{{ sb_total_stock }}</div>
-            <div class="cys-sb-stat-sub">unidades en stock</div>
+        <div class="cys-sb-stat">
+          <div class="cys-sb-stat__dot cys-sb-stat__dot--verde"></div>
+          <div class="cys-sb-stat__body">
+            <div class="cys-sb-stat__label">Total en stock</div>
+            <div class="cys-sb-stat__val">{{ sb_total_stock|default:"0" }}</div>
+            <div class="cys-sb-stat__sub">unidades disponibles</div>
           </div>
-          <span class="cys-sb-dot bg-success rounded-circle"></span>
         </div>
 
-        <div class="cys-sb-stat d-flex align-items-center justify-content-between p-2 rounded">
-          <div>
-            <div class="cys-sb-stat-label">Stock crítico</div>
-            <div class="cys-sb-stat-val">{{ sb_stock_criticos }}</div>
-            <div class="cys-sb-stat-sub">producto{{ sb_stock_criticos|pluralize }} por reponer</div>
+        <div class="cys-sb-stat">
+          <div class="cys-sb-stat__dot cys-sb-stat__dot--rojo"></div>
+          <div class="cys-sb-stat__body">
+            <div class="cys-sb-stat__label">Stock crítico</div>
+            <div class="cys-sb-stat__val">{{ sb_stock_criticos|default:"0" }}</div>
+            <div class="cys-sb-stat__sub">
+              producto{{ sb_stock_criticos|pluralize }} por reponer
+            </div>
           </div>
-          <span class="cys-sb-dot bg-danger rounded-circle"></span>
         </div>
 
-        <div class="cys-sb-stat d-flex align-items-center justify-content-between p-2 rounded">
-          <div>
-            <div class="cys-sb-stat-label">Categorías</div>
-            <div class="cys-sb-stat-val">{{ sb_total_cats }}</div>
-            <div class="cys-sb-stat-sub">activas</div>
+        <div class="cys-sb-stat">
+          <div class="cys-sb-stat__dot cys-sb-stat__dot--amarillo"></div>
+          <div class="cys-sb-stat__body">
+            <div class="cys-sb-stat__label">Categorías</div>
+            <div class="cys-sb-stat__val">{{ sb_total_cats|default:"0" }}</div>
+            <div class="cys-sb-stat__sub">activas</div>
           </div>
-          <span class="cys-sb-dot bg-warning rounded-circle"></span>
         </div>
 
       </div>
     </div>
 
-    <!-- SPACER -->
-    <div class="flex-grow-1"></div>
+    <hr class="cys-sb-divider">
 
-    <hr class="cys-sb-divider m-0">
-
-    <!-- CONFIG -->
-    <a href="#"
-       class="d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none fw-semibold"
-       style="
-         color: #4da8da;
-         border: 1px solid rgba(77,168,218,0.45);
-         background: rgba(77,168,218,0.07);
-         transition: background .2s, border-color .2s;"
-       onmouseover="this.style.background='rgba(77,168,218,0.15)'; this.style.borderColor='rgba(77,168,218,0.7)'"
-       onmouseout="this.style.background='rgba(77,168,218,0.07)'; this.style.borderColor='rgba(77,168,218,0.45)'">
-      <i class="bi bi-sliders fs-5"></i>
-      Configuración
+    <a href="#" class="cys-sb-link cys-sb-link--config">
+      <i class="bi bi-sliders"></i>
+      <span>Configuración</span>
     </a>
 
-    <!-- LOGOUT -->
-    <a href="{% url 'cerrar_sesion' %}"
-       class="d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none fw-semibold"
-       style="
-         color: #e87070;
-         border: 1px solid rgba(232,112,112,0.45);
-         background: rgba(232,112,112,0.07);
-         transition: background .2s, border-color .2s;"
-       onmouseover="this.style.background='rgba(232,112,112,0.15)'; this.style.borderColor='rgba(232,112,112,0.7)'"
-       onmouseout="this.style.background='rgba(232,112,112,0.07)'; this.style.borderColor='rgba(232,112,112,0.45)'">
-      <i class="bi bi-box-arrow-right fs-5"></i>
-      Cerrar Sesión
+    <a href="{% url 'cerrar_sesion' %}" class="cys-sb-link cys-sb-link--logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Cerrar Sesión</span>
     </a>
 
-    <!-- FOOTER -->
-    <div class="cys-sb-footer text-center">
-      CYS Ltda &copy; {% now "Y" %}
-    </div>
+    <div class="cys-sb-footer">CYS Ltda &copy; {% now "Y" %}</div>
 
   </div>
 </div>
+
+
+<!-- ══════════════════════════════
+     MODAL — MI PERFIL
+══════════════════════════════ -->
+<div id="modalPerfil"
+     class="cys-overlay"
+     style="display:none;"
+     onclick="if(event.target===this)cerrarModalPerfil()">
+  <div class="cys-mp">
+    <div class="cys-mp__header">
+      <span class="cys-mp__title">Mi Perfil</span>
+      <button class="cys-mp__close" onclick="cerrarModalPerfil()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="cys-mp__hero">
+      <div class="cys-mp__avatar" id="mpAvatar">?</div>
+      <div class="cys-mp__nombre"   id="mpNombre">—</div>
+      <div class="cys-mp__username" id="mpUsuario">—</div>
+      <div id="mpRolBadge"></div>
+    </div>
+    <div class="cys-mp__body">
+      <div class="cys-mp__grid">
+        <div class="cys-mp__field">
+          <span class="cys-mp__field-label">Identificación</span>
+          <span class="cys-mp__field-val" id="mpId">—</span>
+        </div>
+        <div class="cys-mp__field">
+          <span class="cys-mp__field-label">Correo</span>
+          <span class="cys-mp__field-val" id="mpEmail">—</span>
+        </div>
+        <div class="cys-mp__field">
+          <span class="cys-mp__field-label">Tipo ID</span>
+          <span class="cys-mp__field-val" id="mpTipoId">—</span>
+        </div>
+        <div class="cys-mp__field">
+          <span class="cys-mp__field-label">Miembro desde</span>
+          <span class="cys-mp__field-val" id="mpFecha">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="cys-mp__footer">
+      <button class="cys-mp__btn cys-mp__btn--edit"
+              onclick="cerrarModalPerfil(); abrirModalEditar()">
+        <i class="bi bi-pencil-square"></i> Editar Perfil
+      </button>
+      <a href="{% url 'cerrar_sesion' %}" class="cys-mp__btn cys-mp__btn--logout">
+        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL — EDITAR PERFIL
+══════════════════════════════ -->
+<div id="modalEditar"
+     class="cys-overlay"
+     style="display:none;"
+     onclick="if(event.target===this)cerrarModalEditar()">
+  <div class="cys-mp cys-mp--editar">
+    <div class="cys-mp__header">
+      <span class="cys-mp__title">Editar Perfil</span>
+      <button class="cys-mp__close" onclick="cerrarModalEditar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div id="editMsg" class="cys-mp__msg" style="display:none;"></div>
+    <div class="cys-mp__body">
+      <div class="cys-mp__row">
+        <div class="cys-mp__field-edit">
+          <label class="cys-mp__label">Nombres</label>
+          <input type="text" id="editNombre" class="cys-mp__input">
+        </div>
+        <div class="cys-mp__field-edit">
+          <label class="cys-mp__label">Apellidos</label>
+          <input type="text" id="editApellidos" class="cys-mp__input">
+        </div>
+      </div>
+      <div class="cys-mp__field-edit">
+        <label class="cys-mp__label">Correo Electrónico</label>
+        <input type="email" id="editEmail" class="cys-mp__input">
+      </div>
+      <div class="cys-mp__sep">
+        Cambiar contraseña <em>(opcional)</em>
+      </div>
+      <div class="cys-mp__field-edit">
+        <label class="cys-mp__label">Contraseña Actual</label>
+        <input type="password" id="editClaveActual" class="cys-mp__input"
+               placeholder="Solo si deseas cambiar la contraseña">
+      </div>
+      <div class="cys-mp__row">
+        <div class="cys-mp__field-edit">
+          <label class="cys-mp__label">Nueva Contraseña</label>
+          <input type="password" id="editClaveNueva" class="cys-mp__input"
+                 placeholder="Mín. 6 car., 2 núm., 1 may.">
+        </div>
+        <div class="cys-mp__field-edit">
+          <label class="cys-mp__label">Confirmar</label>
+          <input type="password" id="editClaveConfirmar" class="cys-mp__input"
+                 placeholder="Repite la contraseña">
+        </div>
+      </div>
+      <button id="btnGuardar"
+              class="cys-mp__btn cys-mp__btn--save w-100 mt-2"
+              onclick="guardarPerfil()">
+        <i class="bi bi-check-lg"></i> Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     JS
+══════════════════════════════ -->
+<script>
+(function () {
+  const PERFIL_URL = "{% url 'perfil_datos' %}";
+  const EDITAR_URL = "{% url 'perfil_editar' %}";
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n + '=')) v = decodeURIComponent(c.slice(n.length + 1));
+    });
+    return v;
+  }
+
+  function mostrar(id) { document.getElementById(id).style.display = 'flex'; }
+  function ocultar(id) { document.getElementById(id).style.display = 'none'; }
+
+  function msgEditar(texto, tipo) {
+    const el = document.getElementById('editMsg');
+    el.textContent   = texto;
+    el.className     = 'cys-mp__msg cys-mp__msg--' + tipo;
+    el.style.display = 'block';
+  }
+
+  window.abrirModalPerfil = function () {
+    fetch(PERFIL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.ok) return;
+        document.getElementById('mpAvatar').textContent  = d.usuario.charAt(0).toUpperCase();
+        document.getElementById('mpNombre').textContent  = d.nombre + ' ' + d.apellidos;
+        document.getElementById('mpUsuario').textContent = '@' + d.usuario;
+        document.getElementById('mpId').textContent      = d.identificacion;
+        document.getElementById('mpEmail').textContent   = d.email || '—';
+        document.getElementById('mpTipoId').textContent  = d.tipo_id_label;
+        document.getElementById('mpFecha').textContent   = d.fecha_registro;
+        const colores = {
+          admin:    { bg:'rgba(192,57,43,.2)',   color:'#e87070', borde:'rgba(192,57,43,.4)'   },
+          cajero:   { bg:'rgba(77,168,218,.15)', color:'#4DA8DA', borde:'rgba(77,168,218,.4)'  },
+          empleado: { bg:'rgba(46,204,113,.12)', color:'#2ecc71', borde:'rgba(46,204,113,.3)'  },
+        };
+        const c = colores[d.rol] || colores.empleado;
+        document.getElementById('mpRolBadge').innerHTML =
+          `<span class="cys-mp__rol-badge"
+                 style="background:${c.bg};color:${c.color};border-color:${c.borde};">
+             ${d.rol_label}
+           </span>`;
+        mostrar('modalPerfil');
+      });
+  };
+
+  window.cerrarModalPerfil = function () { ocultar('modalPerfil'); };
+
+  window.abrirModalEditar = function () {
+    fetch(PERFIL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.ok) return;
+        document.getElementById('editNombre').value         = d.nombre;
+        document.getElementById('editApellidos').value      = d.apellidos;
+        document.getElementById('editEmail').value          = d.email || '';
+        document.getElementById('editClaveActual').value    = '';
+        document.getElementById('editClaveNueva').value     = '';
+        document.getElementById('editClaveConfirmar').value = '';
+        ocultar('editMsg');
+        mostrar('modalEditar');
+      });
+  };
+
+  window.cerrarModalEditar = function () { ocultar('modalEditar'); };
+
+  window.guardarPerfil = function () {
+    const claveNueva     = document.getElementById('editClaveNueva').value;
+    const claveConfirmar = document.getElementById('editClaveConfirmar').value;
+    if (claveNueva && claveNueva !== claveConfirmar) {
+      msgEditar('Las contraseñas no coinciden.', 'err');
+      return;
+    }
+    const btn = document.getElementById('btnGuardar');
+    btn.disabled    = true;
+    btn.textContent = 'Guardando…';
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fd.append('nombre',       document.getElementById('editNombre').value.trim());
+    fd.append('apellidos',    document.getElementById('editApellidos').value.trim());
+    fd.append('email',        document.getElementById('editEmail').value.trim());
+    fd.append('clave_actual', document.getElementById('editClaveActual').value);
+    fd.append('clave_nueva',  claveNueva);
+    fetch(EDITAR_URL, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
+      if (d.ok) {
+        msgEditar('✅ ' + d.mensaje, 'ok');
+        setTimeout(cerrarModalEditar, 1500);
+      } else {
+        msgEditar(d.error, 'err');
+      }
+    })
+    .catch(() => {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
+      msgEditar('Error de conexión.', 'err');
+    });
+  };
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { cerrarModalPerfil(); cerrarModalEditar(); }
+  });
+
+})();
+</script>
