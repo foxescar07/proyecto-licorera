@@ -1,5 +1,27 @@
+// Función de búsqueda personalizada para rango de fechas en DataTables
+$.fn.dataTable.ext.search.push(
+    function(settings, data, dataIndex) {
+        var minVal = $('#filtro-fecha-inicio').val();
+        var maxVal = $('#filtro-fecha-fin').val();
+        
+        // La columna de fecha es la 6 (0-indexed: #, Cliente, Producto, Cantidad, Precio Unit, Total, Fecha)
+        var dateVal = data[6] || ""; 
+        
+        if (minVal === "" && maxVal === "") {
+            return true;
+        }
+        if (minVal !== "" && dateVal < minVal) {
+            return false;
+        }
+        if (maxVal !== "" && dateVal > maxVal) {
+            return false;
+        }
+        return true;
+    }
+);
+
 $(document).ready(function() {
-    $('#reportes-table').DataTable({
+    var table = $('#reportes-table').DataTable({
         responsive: true,
         dom: '<"row mb-3 align-items-center"<"col-md-6"B><"col-md-6"f>>t<"row mt-3 align-items-center"<"col-md-6"i><"col-md-6"p>>',
         buttons: [
@@ -32,8 +54,13 @@ $(document).ready(function() {
         language: {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
         },
-        order: [[6, 'desc']], // Ordenar por Fecha (columna 6, indexada desde 0) descendente
+        order: [[6, 'desc']], // Ordenar por Fecha (columna 6) descendente
         pageLength: 10,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
+    });
+
+    // Escuchar los cambios en los inputs de fechas para redibujar la tabla instantáneamente
+    $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', function() {
+        table.draw();
     });
 });
