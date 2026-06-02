@@ -462,3 +462,72 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ────────────────────────────────────
+   TARJETAS DE REPORTE INTERACTIVAS
+   ──────────────────────────────────── */
+.cys-card--interactive {
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-top-width 0.2s ease !important;
+}
+
+.cys-card--interactive:hover {
+  transform: translateY(-5px);
+  border-top-width: 4px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(77, 168, 218, 0.1) !important;
+}
+
+.cys-card--disabled {
+  cursor: default !important;
+  opacity: 0.55;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Modificadores de color para bordes de reportes */
+.cys-card--inv { border-top: 2px solid #4DA8DA !important; }
+.cys-card--prov { border-top: 2px solid #1D9E75 !important; }
+.cys-card--proxima { border-top: 2px solid #BA7517 !important; }
+.cys-card--diario { border-top: 2px solid #7F77DD !important; }
+.cys-card--analisis { border-top: 2px solid #E8834A !important; }
+
+/* ── Stats Grid dentro de la tarjeta ── */
+.cys-report-card__stats-grid {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cys-report-card__stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cys-report-card__stat-item:last-child {
+  border-right: none;
+}
+
+.cys-report-card__stat-num {
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.cys-report-card__stat-label {
+  font-size: 0.6rem;
+  color: var(--texto-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
