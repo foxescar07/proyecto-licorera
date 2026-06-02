@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from django.db import models as db_models
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Sum
 
 from .models import Inventario, AgendaInventario, SesionConteo, ConteoProducto, Lote
 from productos.models import Producto, PresentacionProducto, Categoria
@@ -54,7 +54,7 @@ def inventario_home(request):
     # =========================================================================
     
     # 1. Ingresos Hoy: Suma de stock_actual (o inicial) de lotes creados hoy
-    ingresos_hoy = Lote.objects.filter(fecha_creacion__date=hoy).aggregate(
+    ingresos_hoy = Lote.objects.filter(fecha_registro__date=hoy).aggregate(
         total=Sum('stock_actual')
     )['total'] or 0
 
@@ -62,8 +62,8 @@ def inventario_home(request):
     mes_actual = timezone.now().month
     anio_actual = timezone.now().year
     ordenes_mes = Lote.objects.filter(
-        fecha_creacion__month=mes_actual, 
-        fecha_creacion__year=anio_actual
+        fecha_registro__month=mes_actual, 
+        fecha_registro__year=anio_actual
     ).count()
 
     # 3. Gráfico de Dona: Motivos de Salida (Venta, Merma, Daño, Vencido)
