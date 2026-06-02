@@ -45,29 +45,35 @@
     <div class="col-md-4">
       <div class="cys-card cys-card--interactive cys-card--inv h-100"
            data-bs-toggle="modal" data-bs-target="#modalInventario">
-        <div class="cys-report-card-icon cys-report-card-icon--inv">
-          <i class="bi bi-box-seam"></i>
-        </div>
-        <div class="cys-report-card__title">Inventario</div>
-        <div class="cys-report-card__desc">Stock, niveles y productos agotados</div>
-        
-        <!-- Grid de métricas en tiempo real -->
-        <div class="cys-report-card__stats-grid">
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-success">{{ total_en_stock }}</span>
-            <span class="cys-report-card__stat-label">En Stock</span>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--inv">
+            <i class="bi bi-box-seam"></i>
           </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-warning">{{ total_stock_bajo }}</span>
-            <span class="cys-report-card__stat-label">Bajo</span>
-          </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-danger">{{ total_agotados }}</span>
-            <span class="cys-report-card__stat-label">Agotados</span>
-          </div>
-        </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Inventario</div>
+            <div class="cys-report-card__desc">Stock, niveles y productos agotados</div>
+            
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">{{ total_en_stock }}</span>
+                <span class="cys-report-card__stat-label">Stock</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-warning">{{ total_stock_bajo }}</span>
+                <span class="cys-report-card__stat-label">Bajo</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-danger">{{ total_agotados }}</span>
+                <span class="cys-report-card__stat-label">Agotado</span>
+              </div>
+            </div>
 
-        <span class="cys-report-card__link-text--inv">Ver reporte →</span>
+            <span class="cys-report-card__link-text--inv">Ver reporte →</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -75,46 +81,58 @@
     <div class="col-md-4">
       <div class="cys-card cys-card--interactive cys-card--prov h-100"
            data-bs-toggle="modal" data-bs-target="#modalProveedores">
-        <div class="cys-report-card-icon cys-report-card-icon--prov">
-          <i class="bi bi-truck"></i>
-        </div>
-        <div class="cys-report-card__title">Proveedores</div>
-        <div class="cys-report-card__desc">Lista y datos de proveedores activos</div>
-
-        <!-- Grid de métricas en tiempo real -->
-        <div class="cys-report-card__stats-grid">
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-success">{{ proveedores|length }}</span>
-            <span class="cys-report-card__stat-label">Registrados</span>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--prov">
+            <i class="bi bi-truck"></i>
           </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-info">Activos</span>
-            <span class="cys-report-card__stat-label">Estado</span>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Proveedores</div>
+            <div class="cys-report-card__desc">Lista y datos de proveedores activos</div>
+
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">{{ proveedores|length }}</span>
+                <span class="cys-report-card__stat-label">Registrados</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">Activos</span>
+                <span class="cys-report-card__stat-label">Estado</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--prov">Ver reporte →</span>
           </div>
         </div>
-
-        <span class="cys-report-card__link-text--prov">Ver reporte →</span>
       </div>
     </div>
 
     <!-- Tarjeta Productos por Proveedor -->
     <div class="col-md-4">
       <div class="cys-card cys-card--disabled cys-card--proxima h-100">
-        <div class="cys-report-card-icon cys-report-card-icon--proxima">
-          <i class="bi bi-list-ul"></i>
-        </div>
-        <div class="cys-report-card__title">Productos por proveedor</div>
-        <div class="cys-report-card__desc">Qué productos suministra cada uno</div>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--proxima">
+            <i class="bi bi-list-ul"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Productos por proveedor</div>
+            <div class="cys-report-card__desc">Qué productos suministra cada uno</div>
 
-        <!-- Grid de métricas -->
-        <div class="cys-report-card__stats-grid">
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-muted">—</span>
-            <span class="cys-report-card__stat-label">Asociaciones</span>
+            <!-- Grid de métricas -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-muted">—</span>
+                <span class="cys-report-card__stat-label">Asociaciones</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--proxima">Próximamente</span>
           </div>
         </div>
-
-        <span class="cys-report-card__link-text--proxima">Próximamente</span>
       </div>
     </div>
 
@@ -122,29 +140,35 @@
     <div class="col-md-4">
       <div class="cys-card cys-card--interactive cys-card--diario h-100"
            data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
-        <div class="cys-report-card-icon cys-report-card-icon--diario">
-          <i class="bi bi-calendar-day"></i>
-        </div>
-        <div class="cys-report-card__title">Resumen Diario</div>
-        <div class="cys-report-card__desc">Ingresos, egresos y movimientos de hoy</div>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--diario">
+            <i class="bi bi-calendar-day"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Resumen Diario</div>
+            <div class="cys-report-card__desc">Ingresos, egresos y movimientos de hoy</div>
 
-        <!-- Grid de métricas en tiempo real -->
-        <div class="cys-report-card__stats-grid">
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-success">${{ ingresos_hoy|floatformat:0 }}</span>
-            <span class="cys-report-card__stat-label">Ingresos</span>
-          </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-info">{{ ventas_hoy|length }}</span>
-            <span class="cys-report-card__stat-label">Ventas</span>
-          </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-warning">+{{ total_entradas_hoy }}</span>
-            <span class="cys-report-card__stat-label">Entradas</span>
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">${{ ingresos_hoy|floatformat:0 }}</span>
+                <span class="cys-report-card__stat-label">Ingresos</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">{{ ventas_hoy|length }}</span>
+                <span class="cys-report-card__stat-label">Ventas</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-warning">+{{ total_entradas_hoy }}</span>
+                <span class="cys-report-card__stat-label">Entradas</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--diario">Ver reporte →</span>
           </div>
         </div>
-
-        <span class="cys-report-card__link-text--diario">Ver reporte →</span>
       </div>
     </div>
 
@@ -152,29 +176,35 @@
     <div class="col-md-4">
       <div class="cys-card cys-card--interactive cys-card--analisis h-100"
            data-bs-toggle="modal" data-bs-target="#modalAnalisisVentas">
-        <div class="cys-report-card-icon cys-report-card-icon--analisis">
-          <i class="bi bi-graph-up-arrow"></i>
-        </div>
-        <div class="cys-report-card__title">Análisis de Ventas</div>
-        <div class="cys-report-card__desc">Resumen de ventas y top productos</div>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--analisis">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Análisis de Ventas</div>
+            <div class="cys-report-card__desc">Resumen de ventas y top productos</div>
 
-        <!-- Grid de métricas en tiempo real -->
-        <div class="cys-report-card__stats-grid">
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-success">${{ total_ventas|floatformat:0 }}</span>
-            <span class="cys-report-card__stat-label">Ventas</span>
-          </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-info">{{ total_productos }}</span>
-            <span class="cys-report-card__stat-label">Uds</span>
-          </div>
-          <div class="cys-report-card__stat-item">
-            <span class="cys-report-card__stat-num text-primary">{{ total_clientes }}</span>
-            <span class="cys-report-card__stat-label">Clientes</span>
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">${{ total_ventas|floatformat:0 }}</span>
+                <span class="cys-report-card__stat-label">Ventas</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">{{ total_productos }}</span>
+                <span class="cys-report-card__stat-label">Uds</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-primary">{{ total_clientes }}</span>
+                <span class="cys-report-card__stat-label">Clientes</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--analisis">Ver reporte →</span>
           </div>
         </div>
-
-        <span class="cys-report-card__link-text--analisis">Ver reporte →</span>
       </div>
     </div>
 
