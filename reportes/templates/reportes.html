@@ -11,6 +11,7 @@
 
 {% block content %}
 <div class="container-fluid p-0">
+  <div class="cys-snap-section">
 
   <!-- ══════════════════════════════════════
        TARJETAS RESUMEN
@@ -210,10 +211,11 @@
 
   </div>
 
-  <!-- ══════════════════════════════════════
-       FILTROS HISTORIAL
-  ══════════════════════════════════════ -->
-  <section class="cys-card mb-4">
+  <div class="cys-snap-section">
+    <!-- ══════════════════════════════════════
+         FILTROS HISTORIAL
+    ══════════════════════════════════════ -->
+    <section class="cys-card mb-4">
     <div class="cys-card__title">Filtrar Ventas</div>
     <form method="get" action="">
       <div class="row gx-3 gy-2 align-items-end">
@@ -370,8 +372,8 @@
     </div>
     {% endif %}
 
-  </section>
-
+    </section>
+  </div>
 </div>
 
 
