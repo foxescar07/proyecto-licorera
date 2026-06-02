@@ -190,19 +190,37 @@
 <script>
 (function () {
 
+  // Toggle clicked submenu without closing other submenus
   window.toggleSubmenu = function (e, btn, id) {
     e.stopPropagation();
-    const sub    = document.getElementById(id);
-    const isOpen = sub.classList.contains('abierto');
-    document.querySelectorAll('.cys-sb-submenu.abierto').forEach(s => {
-      s.classList.remove('abierto');
-      s.previousElementSibling?.classList.remove('abierto');
-    });
-    if (!isOpen) {
-      sub.classList.add('abierto');
-      btn.classList.add('abierto');
-    }
+    const sub = document.getElementById(id);
+    sub.classList.toggle('abierto');
+    btn.classList.toggle('abierto');
   };
+
+  // Auto-highlight active links and auto-open their parent submenus
+  const currentPath = window.location.pathname;
+  const links = document.querySelectorAll('.cys-sb-link, .cys-sb-sublink, .cys-sb-user-drop-link');
+  
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && href !== '#' && (currentPath === href || (currentPath.startsWith(href) && href !== '/'))) {
+      link.classList.add('active');
+      
+      // If it's a sublink, find its parent submenu and auto-open it
+      if (link.classList.contains('cys-sb-sublink')) {
+        const parentSubmenu = link.closest('.cys-sb-submenu');
+        if (parentSubmenu) {
+          parentSubmenu.classList.add('abierto');
+          const parentBtn = parentSubmenu.previousElementSibling;
+          if (parentBtn && parentBtn.classList.contains('cys-sb-link--parent')) {
+            parentBtn.classList.add('abierto');
+            parentBtn.classList.add('active');
+          }
+        }
+      }
+    }
+  });
 
   const sidebar = document.getElementById('sidebarRight');
   if (!sidebar) return;

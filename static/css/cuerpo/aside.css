@@ -290,7 +290,8 @@
   text-align: center;
 }
 
-.cys-sb-sublink:hover {
+.cys-sb-sublink:hover,
+.cys-sb-sublink.active {
   background: rgba(77,168,218,.08);
   color: var(--azul-claro);
   border-color: rgba(77,168,218,.15);
