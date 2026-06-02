@@ -8,14 +8,14 @@ import json
 import hashlib
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
+Usuario = get_user_model()
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
 from .forms import VentaForm, DetalleVentaForm
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
-from usuarios.models import Perfil
+
 
 
 # ════════════════════════════════════════
@@ -78,11 +78,11 @@ def desbloquear_caja(request):
             user = None
             if usuario_id:
                 try:
-                    user = User.objects.get(pk=usuario_id)
-                except User.DoesNotExist:
+                    user = Usuario.objects.get(pk=usuario_id)
+                except Usuario.DoesNotExist:
                     pass
 
-            if user and user.check_password(password) and hasattr(user, 'perfil') and user.perfil.activo:
+            if user and user.check_password(password) and user.activo:
                 request.session['caja_desbloqueada'] = True
                 request.session['caja_usuario'] = (
                     f'{user.first_name} {user.last_name}'.strip()
@@ -333,9 +333,9 @@ def _nombre_usuario_sesion(request):
     usuario_id = request.session.get('usuario_id')
     if usuario_id:
         try:
-            u = User.objects.get(pk=usuario_id)
+            u = Usuario.objects.get(pk=usuario_id)
             return f'{u.first_name} {u.last_name}'.strip() or u.username
-        except User.DoesNotExist:
+        except Usuario.DoesNotExist:
             pass
     return ''
 

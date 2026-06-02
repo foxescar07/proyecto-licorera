@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils import timezone
 from productos.models import Producto, PresentacionProducto
 
@@ -35,7 +35,7 @@ class Venta(models.Model):
     cliente              = models.ForeignKey(Cliente, on_delete=models.PROTECT,
                                              related_name='ventas',
                                              verbose_name='Cliente')
-    vendedor             = models.ForeignKey(User, on_delete=models.PROTECT,
+    vendedor             = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
                                              related_name='ventas',
                                              verbose_name='Vendedor',
                                              null=True, blank=True)
@@ -90,7 +90,7 @@ class AperturaCaja(models.Model):
     fecha_apertura = models.DateTimeField(default=timezone.now)
     fecha          = models.DateField(default=timezone.localdate)
     monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario        = models.ForeignKey(User, on_delete=models.PROTECT,
+    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
                                        related_name='aperturas_caja',
                                        verbose_name='Usuario',
                                        null=True, blank=True)

@@ -11,12 +11,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import transaction
 
 # Model Imports
-from usuarios.models import Perfil
+from usuarios.models import Usuario
 from productos.models import Categoria, Producto, PresentacionProducto, Inventario as InventarioProducto
 from inventario.models import Lote, Inventario as InventarioMovimiento, SesionConteo, ConteoProducto, ResultadoInventario, AgendaInventario
 from ventas.models import Cliente, Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
@@ -50,18 +49,22 @@ def run():
             Producto.objects.all().delete()
             Categoria.objects.all().delete()
             
-            # Delete profiles and all users
-            Perfil.objects.all().delete()
-            User.objects.all().delete()
+            # Delete all users
+            Usuario.objects.all().delete()
             
             # Create a base global superuser
-            superuser = User.objects.create_superuser('admin_global', 'admin@licorera.com', 'admin123')
+            superuser = Usuario.objects.create_superuser(
+                username='admin_global',
+                email='admin@licorera.com',
+                password='admin123',
+                identificacion='9999999999'
+            )
             print("Superusuario 'admin_global' creado con contraseña 'admin123'.")
             
             # ----------------------------------------------------
-            # 1. USUARIOS (10 Users + 10 Perfiles)
+            # 1. USUARIOS (10 Usuarios)
             # ----------------------------------------------------
-            print("Creando 10 Usuarios y Perfiles...")
+            print("Creando 10 Usuarios...")
             usuarios_data = [
                 ("0000000000", "Administrador", "Principal", "admin", "CC", "0000000000", "3000000000"),
                 ("carlos_cajero", "Carlos", "Gómez", "cajero", "CC", "1002345671", "3001234561"),
@@ -77,18 +80,22 @@ def run():
             ]
             
             users = []
-            perfiles = []
             
             for username, first_name, last_name, rol, tipo_id, identificacion, telefono in usuarios_data:
                 is_admin = (rol == 'admin')
                 is_super = (username == "0000000000")
-                user = User.objects.create(
+                user = Usuario.objects.create_user(
                     username=username,
                     first_name=first_name,
                     last_name=last_name,
                     email=f"{username}@licorera.com",
                     is_staff=is_admin or is_super,
-                    is_superuser=is_super
+                    is_superuser=is_super,
+                    tipo_id=tipo_id,
+                    identificacion=identificacion,
+                    telefono=telefono,
+                    rol=rol,
+                    activo=True
                 )
                 if username == "0000000000":
                     user.set_password("@dmin123")
@@ -96,18 +103,8 @@ def run():
                     user.set_password("pass12345")
                 user.save()
                 users.append(user)
-                
-                perfil = Perfil.objects.create(
-                    user=user,
-                    tipo_id=tipo_id,
-                    identificacion=identificacion,
-                    telefono=telefono,
-                    rol=rol,
-                    activo=True
-                )
-                perfiles.append(perfil)
             
-            print(f"-> Creados exitosamente {len(users)} usuarios con sus respectivos perfiles.")
+            print(f"-> Creados exitosamente {len(users)} usuarios.")
 
             # ----------------------------------------------------
             # 2. CATEGORIAS (10 Categorías)
