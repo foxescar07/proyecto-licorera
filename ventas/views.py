@@ -8,12 +8,14 @@ import json
 import hashlib
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
 from .forms import VentaForm, DetalleVentaForm
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
-from usuarios.models import Usuario
+from usuarios.models import Perfil
 
 
 # ════════════════════════════════════════
@@ -35,7 +37,6 @@ def caja_desbloqueada(view_func):
             return redirect('login')
         if not request.session.get('caja_desbloqueada'):
             return redirect('ventas:desbloquear_caja')
-        # Solo bloquear si hay cierre hoy Y no hay apertura activa
         hoy = timezone.localdate()
         if CierreCaja.objects.filter(fecha=hoy).exists():
             request.session.pop('caja_desbloqueada', None)
@@ -43,6 +44,7 @@ def caja_desbloqueada(view_func):
             return redirect('ventas:desbloquear_caja')
         return view_func(request, *args, **kwargs)
     return wrapper
+
 
 # ════════════════════════════════════════
 # DESBLOQUEO / BLOQUEO DE CAJA
@@ -71,16 +73,20 @@ def desbloquear_caja(request):
         if not password:
             error = 'Ingresa la contraseña.'
         else:
-            clave_hash = hashlib.sha256(password.encode()).hexdigest()
-            usuario_encontrado = Usuario.objects.filter(
-                clave=clave_hash, activo=True
-            ).first()
-            if usuario_encontrado:
+            # Buscar usuario activo cuyo Perfil esté activo
+            usuario_id = request.session.get('usuario_id')
+            user = None
+            if usuario_id:
+                try:
+                    user = User.objects.get(pk=usuario_id)
+                except User.DoesNotExist:
+                    pass
+
+            if user and user.check_password(password) and hasattr(user, 'perfil') and user.perfil.activo:
                 request.session['caja_desbloqueada'] = True
                 request.session['caja_usuario'] = (
-                    getattr(usuario_encontrado, 'nombre', None)
-                    or getattr(usuario_encontrado, 'username', None)
-                    or str(usuario_encontrado)
+                    f'{user.first_name} {user.last_name}'.strip()
+                    or user.username
                 )
                 return redirect('ventas:ventas_lista')
             else:
@@ -319,6 +325,21 @@ def ventas_dia(request):
 # CAJA — APERTURA Y CIERRE
 # ════════════════════════════════════════
 
+def _nombre_usuario_sesion(request):
+    """Devuelve el nombre del usuario activo en sesión."""
+    nombre = request.session.get('caja_usuario', '')
+    if nombre:
+        return nombre
+    usuario_id = request.session.get('usuario_id')
+    if usuario_id:
+        try:
+            u = User.objects.get(pk=usuario_id)
+            return f'{u.first_name} {u.last_name}'.strip() or u.username
+        except User.DoesNotExist:
+            pass
+    return ''
+
+
 @require_POST
 @session_required
 def apertura_caja(request):
@@ -339,20 +360,9 @@ def apertura_caja(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
 
-    usuario_nombre = request.session.get('caja_usuario', '')
-    if not usuario_nombre:
-        usuario_id = request.session.get('usuario_id')
-        if usuario_id:
-            try:
-                u = Usuario.objects.get(pk=usuario_id)
-                usuario_nombre = getattr(u, 'nombre', '') or getattr(u, 'username', '') or str(u)
-            except Usuario.DoesNotExist:
-                pass
-
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_base,
-        usuario=usuario_nombre,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
@@ -422,20 +432,9 @@ def registrar_conteo(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto inválido.'}, status=400)
 
-    usuario_nombre = request.session.get('caja_usuario', '')
-    if not usuario_nombre:
-        usuario_id = request.session.get('usuario_id')
-        if usuario_id:
-            try:
-                u = Usuario.objects.get(pk=usuario_id)
-                usuario_nombre = getattr(u, 'nombre', '') or getattr(u, 'username', '') or str(u)
-            except Usuario.DoesNotExist:
-                pass
-
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_contado,
-        usuario=usuario_nombre,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
@@ -460,13 +459,20 @@ def buscar_venta_devolucion(request):
     if not q:
         return JsonResponse({'ventas': []})
 
-    ventas = Venta.objects.filter(cliente__icontains=q).order_by('-fecha')[:10]
+    ventas = Venta.objects.filter(
+        cliente__nombre__icontains=q
+    ).order_by('-fecha')[:10]
+
     if q.isdigit():
         ventas = (Venta.objects.filter(pk=int(q)) | ventas).distinct()
 
     return JsonResponse({'ventas': [
-        {'id': v.pk, 'cliente': v.cliente,
-         'fecha': v.fecha.strftime('%d/%m/%Y %H:%M'), 'total': float(v.total_venta)}
+        {
+            'id':      v.pk,
+            'cliente': v.cliente.nombre,
+            'fecha':   v.fecha.strftime('%d/%m/%Y %H:%M'),
+            'total':   float(v.total_venta),
+        }
         for v in ventas
     ]})
 
@@ -476,7 +482,7 @@ def detalle_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta, pk=venta_id)
     return JsonResponse({
         'venta_id':  venta.pk,
-        'cliente':   venta.cliente,
+        'cliente':   venta.cliente.nombre,
         'fecha':     venta.fecha.strftime('%d/%m/%Y %H:%M'),
         'total':     float(venta.total_venta),
         'descuento': float(venta.descuento_porcentaje),
