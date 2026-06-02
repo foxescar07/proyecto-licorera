@@ -713,3 +713,114 @@ table.dataTable tbody tr:hover td {
   border-radius: 10px;
   margin-top: 10px;
 }
+
+/* ────────────────────────────────────
+   TARJETAS DE RESUMEN KPI MEJORADAS
+   ──────────────────────────────────── */
+.cys-summary-card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 1.25rem 1.5rem !important;
+  cursor: default !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
+}
+
+.cys-summary-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12) !important;
+}
+
+.cys-summary-card__icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.cys-summary-card:hover .cys-summary-card__icon {
+  transform: scale(1.06);
+}
+
+.cys-summary-card__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cys-summary-card__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.cys-summary-card__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.95rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.cys-summary-card__sub {
+  font-size: 0.65rem;
+  color: var(--texto-muted);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+
+/* Modificadores Semánticos de Resumen */
+.cys-summary-card--ventas {
+  border-left: 4px solid #2ecc71 !important;
+}
+.cys-summary-card__icon--ventas {
+  background: rgba(46, 204, 113, 0.12);
+  color: #2ecc71;
+}
+.cys-summary-card--ventas .cys-summary-card__label {
+  color: #6ee7b7;
+}
+.cys-summary-card--ventas .cys-summary-card__val {
+  color: #2ecc71;
+  text-shadow: 0 0 12px rgba(46, 204, 113, 0.25);
+}
+
+.cys-summary-card--productos {
+  border-left: 4px solid #4DA8DA !important;
+}
+.cys-summary-card__icon--productos {
+  background: rgba(77, 168, 218, 0.12);
+  color: #4DA8DA;
+}
+.cys-summary-card--productos .cys-summary-card__label {
+  color: #7ecfef;
+}
+.cys-summary-card--productos .cys-summary-card__val {
+  color: #4DA8DA;
+  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+}
+
+.cys-summary-card--clientes {
+  border-left: 4px solid #a18df2 !important;
+}
+.cys-summary-card__icon--clientes {
+  background: rgba(161, 141, 242, 0.12);
+  color: #a18df2;
+}
+.cys-summary-card--clientes .cys-summary-card__label {
+  color: #c4b5fd;
+}
+.cys-summary-card--clientes .cys-summary-card__val {
+  color: #a18df2;
+  text-shadow: 0 0 12px rgba(161, 141, 242, 0.25);
+}
