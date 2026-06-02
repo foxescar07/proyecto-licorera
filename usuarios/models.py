@@ -16,13 +16,13 @@ class Perfil(models.Model):
         ('PT',  'Permiso de Permanencia Temporal'),
     ]
 
-    user             = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
-    tipo_id          = models.CharField(max_length=5, choices=TIPO_ID_CHOICES, default='CC')
-    identificacion   = models.CharField(max_length=20, unique=True)
-    telefono         = models.CharField(max_length=15, blank=True, null=True)
-    rol              = models.CharField(max_length=20, choices=ROL_CHOICES, default='empleado')
-    activo           = models.BooleanField(default=True)
-    reset_token      = models.CharField(max_length=64, blank=True, null=True)
+    user               = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
+    tipo_id            = models.CharField(max_length=5, choices=TIPO_ID_CHOICES, default='CC')
+    identificacion     = models.CharField(max_length=20, unique=True)
+    telefono           = models.CharField(max_length=15, blank=True, null=True)
+    rol                = models.CharField(max_length=20, choices=ROL_CHOICES, default='empleado')
+    activo             = models.BooleanField(default=True)
+    reset_token        = models.CharField(max_length=64, blank=True, null=True)
     reset_token_expira = models.DateTimeField(blank=True, null=True)
 
     class Meta:
