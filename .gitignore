@@ -1,30 +1,62 @@
-# Django
+# ==========================
+# DJANGO
+# ==========================
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media
+media/
 
-# Django Migrations
+# ==========================
+# MIGRACIONES
+# ==========================
 **/migrations/*.py
 !**/migrations/__init__.py
 
-# Assets
-node_modules/
+# ==========================
+# PYTHON
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
 
-
-# Environments
+# ==========================
+# ENTORNOS VIRTUALES
+# ==========================
 .env
-.venv
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
 
-# Python
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
+# ==========================
+# NODE
+# ==========================
+node_modules/
+
+# ==========================
+# VSCODE
+# ==========================
+.vscode/
+
+# ==========================
+# PYCHARM
+# ==========================
+.idea/
+
+# ==========================
+# ARCHIVOS DEL SISTEMA
+# ==========================
+.DS_Store
+Thumbs.db
+
+# ==========================
+# ARCHIVOS TEMPORALES
+# ==========================
+*.tmp
+*.temp
