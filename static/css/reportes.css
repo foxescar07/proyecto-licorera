@@ -597,3 +597,91 @@ html {
     margin-bottom: 1.5rem;
   }
 }
+
+/* ────────────────────────────────────
+   DATATABLES DARK THEME INTEGRATION
+   ──────────────────────────────────── */
+/* Quitar fondo blanco de la tabla */
+table.dataTable,
+table.dataTable th,
+table.dataTable td,
+table.dataTable tbody tr,
+table.dataTable tbody tr td {
+  background-color: transparent !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-color: rgba(77, 168, 218, 0.1) !important;
+}
+
+table.dataTable tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Estilo para el buscador (input) */
+.dt-search input {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  outline: none !important;
+}
+
+.dt-search input:focus {
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+}
+
+.dt-search label {
+  color: var(--texto-muted, #AF8D86) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+/* Estilo para el selector de longitud (length select) */
+.dt-length select {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-radius: 8px !important;
+  padding: 4px 24px 4px 10px !important;
+  outline: none !important;
+}
+
+.dt-length label {
+  color: var(--texto-muted, #AF8D86) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+/* Estilos de información e indicadores */
+.dt-info {
+  color: var(--texto-muted, #AF8D86) !important;
+  font-size: 0.8rem !important;
+}
+
+/* Paginación de DataTables */
+.dt-paging .pagination .page-link {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border-color: var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--azul-claro, #4DA8DA) !important;
+  transition: all 0.2s ease;
+}
+
+.dt-paging .pagination .page-item.active .page-link {
+  background-color: var(--azul-claro, #4DA8DA) !important;
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  color: #011936 !important;
+  font-weight: bold !important;
+}
+
+.dt-paging .pagination .page-link:hover {
+  background-color: var(--azul-claro, #4DA8DA) !important;
+  color: #011936 !important;
+  border-color: var(--azul-claro, #4DA8DA) !important;
+}
+
+.dt-paging .pagination .page-item.disabled .page-link {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
+}
