@@ -214,49 +214,27 @@
 
   <div class="cys-snap-section">
     <!-- ══════════════════════════════════════
-         FILTROS HISTORIAL
+         HISTORIAL DE VENTAS
     ══════════════════════════════════════ -->
     <section class="cys-card mb-4">
-    <div class="cys-card__title">Filtrar Ventas</div>
-    <form method="get" action="">
-      <div class="row gx-3 gy-2 align-items-end">
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Fecha inicio</label>
-          <input type="date" id="filtro-fecha-inicio" name="fecha_inicio" class="form-control form-control-sm"
-                 value="{{ fecha_inicio }}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Fecha fin</label>
-          <input type="date" id="filtro-fecha-fin" name="fecha_fin" class="form-control form-control-sm"
-                 value="{{ fecha_fin }}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Cliente</label>
-          <input type="text" name="cliente" class="form-control form-control-sm"
-                 placeholder="Nombre cliente…" value="{{ cliente_q }}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Producto</label>
-          <input type="text" name="producto" class="form-control form-control-sm"
-                 placeholder="Nombre producto…" value="{{ producto_q }}">
-        </div>
-        <div class="col-12 d-flex gap-2 mt-2">
-          <button type="submit" class="btn btn-sm btn-primary">
-            <i class="bi bi-funnel me-1"></i>Aplicar filtros
-          </button>
-          <a href="{% url 'reportes' %}" class="btn btn-sm btn-outline-secondary">
+      <div class="cys-card__title">Historial de Ventas</div>
+
+      <!-- Filtro de Fechas Compacto Integrado -->
+      <div class="cys-table-filters-container mb-3">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="cys-filter-label mb-0">Rango de fechas:</span>
+            <input type="date" id="filtro-fecha-inicio" class="form-control form-control-sm" value="{{ fecha_inicio }}">
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="cys-filter-label mb-0">a</span>
+            <input type="date" id="filtro-fecha-fin" class="form-control form-control-sm" value="{{ fecha_fin }}">
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 cys-clear-dates-btn">
             <i class="bi bi-x-circle me-1"></i>Limpiar
-          </a>
+          </button>
         </div>
       </div>
-    </form>
-  </section>
-
-  <!-- ══════════════════════════════════════
-       HISTORIAL DE VENTAS
-  ══════════════════════════════════════ -->
-  <section class="cys-card mb-4">
-    <div class="cys-card__title">Historial de Ventas</div>
 
     {% if cliente_q or producto_q or fecha_inicio or fecha_fin %}
     <div class="cys-busqueda-activa mb-2">

@@ -685,3 +685,31 @@ table.dataTable tbody tr:hover td {
   border-color: rgba(255, 255, 255, 0.05) !important;
   color: rgba(255, 255, 255, 0.2) !important;
 }
+
+/* ── Estilos de Campos de Fecha del Historial ── */
+#filtro-fecha-inicio,
+#filtro-fecha-fin {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  outline: none !important;
+  color-scheme: dark !important; /* Selector de fecha oscuro nativo */
+  font-size: 0.85rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#filtro-fecha-inicio:focus,
+#filtro-fecha-fin:focus {
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+}
+
+.cys-table-filters-container {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-top: 10px;
+}

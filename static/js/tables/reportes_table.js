@@ -63,4 +63,12 @@ $(document).ready(function() {
     $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', function() {
         table.draw();
     });
+
+    // Limpiar campos de fecha y actualizar tabla en el cliente
+    $('.cys-clear-dates-btn').on('click', function(e) {
+        e.preventDefault();
+        $('#filtro-fecha-inicio').val('');
+        $('#filtro-fecha-fin').val('');
+        table.draw();
+    });
 });
