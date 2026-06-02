@@ -65,7 +65,7 @@
             </button>
           </div>
 
-          <form method="POST" action="{% url 'inventario:gestion_salida' %}" id="form-salida">
+          <form method="POST" action="{% url 'gestion_salida' %}" id="form-salida">
             {% csrf_token %}
 
             <div class="mb-3">
@@ -228,7 +228,7 @@
             <h6 class="mb-0 fw-bold" style="color:var(--inv-texto);font-family:'Rajdhani',sans-serif;letter-spacing:.08em;text-transform:uppercase">Registrar Nuevo Lote</h6>
           </div>
 
-          <form method="POST" action="{% url 'inventario:registrar_lote' %}">
+          <form method="POST" action="{% url 'registrar_lote' %}">
             {% csrf_token %}
 
             <div class="mb-3">

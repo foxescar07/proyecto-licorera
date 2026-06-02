@@ -342,7 +342,7 @@
       </div>
       <div class="modal-footer prod-modal-footer justify-content-between">
         <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
-        <a href="{% url 'inventario:gestion_productos' %}" class="btn prod-btn-primary">
+        <a href="{% url 'gestion_productos' %}" class="btn prod-btn-primary">
           <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
         </a>
       </div>
@@ -355,11 +355,11 @@
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const GESTION_URL  = "{% url 'inventario:gestion_productos' %}";
-const CREAR_URL    = "{% url 'producto:crear_producto' %}";
-const PRES_URL     = "{% url 'producto:presentaciones_guardar' 0 %}";
+const GESTION_URL  = "{% url 'gestion_productos' %}";
+const CREAR_URL    = "{% url 'crear_producto' %}";
+const PRES_URL     = "{% url 'presentaciones_guardar' 0 %}";
 const CSRF_TOKEN   = "{{ csrf_token }}";
-const ROTACION_URL = "{% url 'producto:rotacion_json' %}";
+const ROTACION_URL = "{% url 'rotacion_json' %}";
 
 // stock_total viene de la property del modelo (suma lotes__stock_actual)
 // pres.stock_actual viene del JSON que retorna la view

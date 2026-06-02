@@ -138,7 +138,7 @@
           <button type="submit" class="btn btn-sm btn-primary">
             <i class="bi bi-funnel me-1"></i>Aplicar filtros
           </button>
-          <a href="{% url 'reportes:reportes' %}" class="btn btn-sm btn-outline-secondary">
+          <a href="{% url 'reportes' %}" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-x-circle me-1"></i>Limpiar
           </a>
         </div>
@@ -157,14 +157,14 @@
       <i class="bi bi-funnel"></i>
       <span>Filtros activos:</span>
       {% if cliente_q %}<strong>Cliente: "{{ cliente_q }}"</strong>{% endif %}
-      {% if producto_q %}<strong>Producto: "{{ producto_q }}"</strong>{% endif %}
+      {% if producto_q %}<strong> "{{ producto_q }}"</strong>{% endif %}
       {% if fecha_inicio or fecha_fin %}
         <strong>Fechas: {{ fecha_inicio|default:"…" }} → {{ fecha_fin|default:"…" }}</strong>
       {% endif %}
       <span style="color: var(--texto-muted, #8FA3B1);">
         — {{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize:",s" }}
       </span>
-      <a href="{% url 'reportes:reportes' %}"
+      <a href="{% url 'reportes' %}"
          style="color: var(--texto-muted, #8FA3B1); font-size: .75rem; margin-left: 4px;">
         ✕ Limpiar
       </a>

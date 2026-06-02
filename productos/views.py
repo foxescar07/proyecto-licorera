@@ -64,7 +64,7 @@ def crear_producto(request):
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'}, status=405)
 
     is_ajax  = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    next_url = request.POST.get('next') or request.GET.get('next') or 'producto:lista_productos'
+    next_url = request.POST.get('next') or request.GET.get('next') or 'lista_productos'
 
     nombre      = request.POST.get('nombre', '').strip()
     codigo      = request.POST.get('codigo', '').strip()
@@ -81,7 +81,7 @@ def crear_producto(request):
         if is_ajax:
             return JsonResponse({'ok': False, 'errores': errores}, status=400)
         messages.error(request, 'Corrige los errores del formulario.')
-        return redirect('producto:lista_productos')
+        return redirect('lista_productos')
 
     producto = Producto.objects.create(
         nombre=nombre,
@@ -202,7 +202,7 @@ def producto_editar(request, pk):
         else:
             messages.info(request, 'ℹ️ No se detectaron cambios en el producto.')
 
-    return redirect('producto:lista_productos')
+    return redirect('lista_productos')
 
 
 # ===============================
@@ -215,7 +215,7 @@ def producto_eliminar(request, pk):
         nombre = producto.nombre
         producto.delete()
         messages.success(request, f'✅ Producto "{nombre}" eliminado correctamente.')
-    return redirect('producto:lista_productos')
+    return redirect('lista_productos')
 
 
 # ===============================
@@ -258,9 +258,9 @@ def presentaciones_guardar(request, pk):
                 PresentacionProducto.objects.bulk_create(nuevas)
 
         messages.success(request, 'Presentaciones guardadas correctamente.')
-        return redirect(request.GET.get('next', 'producto:lista_productos'))
+        return redirect(request.GET.get('next', 'lista_productos'))
 
-    return redirect('producto:lista_productos')
+    return redirect('lista_productos')
 
 
 @login_required
@@ -281,7 +281,7 @@ def producto_registro(request):
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Producto registrado correctamente.')
-            return redirect('producto:producto_registro')
+            return redirect('producto_registro')
     return render(request, 'productos/registro.html', {'form': form})
 
 
@@ -321,7 +321,7 @@ def stock_status(request):
 @login_required
 def producto_salida(request):
     if request.method != 'POST':
-        return redirect('producto:lista_productos')
+        return redirect('lista_productos')
 
     presentacion_id = request.POST.get('presentacion_id') or request.POST.get('presentacion')
     cantidad_raw    = request.POST.get('cantidad', 0)
@@ -333,11 +333,11 @@ def producto_salida(request):
             raise ValueError
     except (ValueError, TypeError):
         messages.error(request, '⚠️ Cantidad inválida.')
-        return redirect('producto:lista_productos')
+        return redirect('lista_productos')
 
     if not presentacion_id:
         messages.error(request, '⚠️ Debes seleccionar una presentación.')
-        return redirect('producto:lista_productos')
+        return redirect('lista_productos')
 
     presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
     stock_actual = presentacion.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
@@ -347,7 +347,7 @@ def producto_salida(request):
             request,
             f"⚠️ Stock insuficiente: solo hay {stock_actual} unidades de '{presentacion.nombre}'."
         )
-        return redirect('producto:lista_productos')
+        return redirect('lista_productos')
 
     # Descuento FEFO
     restante = cantidad
@@ -371,7 +371,7 @@ def producto_salida(request):
         request,
         f"✅ Salida registrada: {cantidad} × '{presentacion.nombre}'. Motivo: {motivo}."
     )
-    return redirect('producto:lista_productos')
+    return redirect('lista_productos')
 
 
 # ===============================
@@ -508,18 +508,18 @@ def categoria_crear(request):
 
         if not nombre or not codigo:
             messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('producto:categorias_lista')
+            return redirect('categorias_lista')
 
         if Categoria.objects.filter(codigo=codigo).exists():
             messages.error(request, f'⚠️ Ya existe una categoría con el código "{codigo}".')
-            return redirect('producto:categorias_lista')
+            return redirect('categorias_lista')
 
         padre = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
         Categoria.objects.create(nombre=nombre, codigo=codigo, descripcion=descripcion, padre=padre)
         tipo = 'Subcategoría' if padre else 'Categoría'
         messages.success(request, f'✅ {tipo} "{nombre}" creada.')
 
-    return redirect('producto:categorias_lista')
+    return redirect('categorias_lista')
 
 
 @login_required
@@ -533,11 +533,11 @@ def categoria_editar(request, pk):
 
         if not nombre or not codigo:
             messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('producto:categorias_lista')
+            return redirect('categorias_lista')
 
         if Categoria.objects.filter(codigo=codigo).exclude(pk=pk).exists():
             messages.error(request, f'⚠️ Ya existe otra categoría con el código "{codigo}".')
-            return redirect('producto:categorias_lista')
+            return redirect('categorias_lista')
 
         categoria.nombre      = nombre
         categoria.codigo      = codigo
@@ -546,7 +546,7 @@ def categoria_editar(request, pk):
         categoria.save()
         messages.success(request, f'✅ Categoría "{nombre}" actualizada.')
 
-    return redirect('producto:categorias_lista')
+    return redirect('categorias_lista')
 
 
 @login_required
@@ -559,7 +559,7 @@ def categoria_eliminar(request, pk):
             nombre = categoria.nombre
             categoria.delete()
             messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
-    return redirect('producto:categorias_lista')
+    return redirect('categorias_lista')
 
 
 # ===============================
@@ -577,4 +577,4 @@ def agenda_eliminar(request, pk):
     if request.method == 'POST':
         agenda.delete()
         messages.success(request, '✅ Registro de agenda eliminado.')
-    return redirect('producto:agenda_lista')
+    return redirect('agenda_lista')

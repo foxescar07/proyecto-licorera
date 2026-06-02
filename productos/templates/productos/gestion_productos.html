@@ -26,7 +26,7 @@
   {% endif %}
 
   <div class="mb-4 d-flex align-items-center gap-3">
-    <a href="{% url 'inventario:inventario_home' %}" class="btn prod-btn-outline btn-sm rounded-pill">
+    <a href="{% url 'inventario_home' %}" class="btn prod-btn-outline btn-sm rounded-pill">
       <i class="bi bi-arrow-left"></i> Volver a Inventario
     </a>
     <h3 class="mb-0 fw-bold" style="color: var(--prod-texto);">
@@ -168,7 +168,7 @@
                           <button class="btn btn-sm rounded-pill px-2"
                                   style="background:rgba(13,202,240,0.1);border:1px solid rgba(13,202,240,0.3);color:#0dcaf0;"
                                   data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers"></i></button>
-                          <form method="POST" action="{% url 'producto:producto_eliminar' p.pk %}" class="d-inline"
+                          <form method="POST" action="{% url 'producto_eliminar' p.pk %}" class="d-inline"
                                 onsubmit="return confirm('¿Eliminar {{ p.nombre }}?');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm rounded-pill px-2"
@@ -213,7 +213,7 @@
                             <button class="btn btn-sm rounded-pill px-2"
                                     style="background:rgba(13,202,240,0.1);border:1px solid rgba(13,202,240,0.3);color:#0dcaf0;"
                                     data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers"></i></button>
-                            <form method="POST" action="{% url 'producto:producto_eliminar' p.pk %}" class="d-inline"
+                            <form method="POST" action="{% url 'producto_eliminar' p.pk %}" class="d-inline"
                                   onsubmit="return confirm('¿Eliminar {{ p.nombre }}?');">
                               {% csrf_token %}
                               <button type="submit" class="btn btn-sm rounded-pill px-2"
@@ -251,7 +251,7 @@
           <h4 class="card-title fw-bold mb-4 text-danger">
             <i class="bi bi-box-arrow-up me-2"></i> Registrar Salida
           </h4>
-          <form method="POST" action="{% url 'inventario:gestion_salida' %}">
+          <form method="POST" action="{% url 'gestion_salida' %}">
             {% csrf_token %}
             <div class="mb-4">
               <label class="form-label prod-label">Presentación / Producto <span class="text-danger">*</span></label>
@@ -374,7 +374,7 @@
         <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2" style="color:#ffc107;"></i>Editar Producto</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto:producto_editar' p.pk %}">
+      <form method="POST" action="{% url 'producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="row g-3">
@@ -423,7 +423,7 @@
         <h5 class="modal-title fw-bold"><i class="bi bi-layers me-2 text-info"></i>Presentaciones: {{ p.nombre }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto:producto_editar' p.pk %}">
+      <form method="POST" action="{% url 'producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <h6 class="prod-label text-uppercase mb-3">Presentaciones Actuales</h6>

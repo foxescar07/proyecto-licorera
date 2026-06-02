@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -17,7 +17,7 @@ class Lote(models.Model):
     fecha_vencimiento = models.DateField(null=True, blank=True)
     fecha_registro    = models.DateTimeField(default=timezone.now, editable=False)
     registrado_por    = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name='lotes_registrados'
     )
@@ -66,7 +66,7 @@ class Inventario(models.Model):
         related_name='movimientos'
     )
     registrado_por = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name='movimientos_inventario'
     )
@@ -95,7 +95,7 @@ class SesionConteo(models.Model):
     estado       = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='activa')
     fecha_fin    = models.DateTimeField(null=True, blank=True)
     responsable  = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name='sesiones_conteo'
     )
@@ -168,12 +168,12 @@ class AgendaInventario(models.Model):
     fecha_programada = models.DateTimeField()
     estado           = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
     creado_por       = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name='agendas_creadas'
     )
     responsable      = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name='agendas_asignadas'
     )

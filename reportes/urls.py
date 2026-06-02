@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-app_name = 'reportes'
 
 urlpatterns = [
     # Mapea http://127.0.0.1:8000/reportes/
