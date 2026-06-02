@@ -40,10 +40,10 @@ def inventario_home(request):
     discrepancias = []
     if sesion:
         for c in ConteoProducto.objects.filter(sesion=sesion).select_related('presentacion__producto__categoria'):
-            diff = c.cantidad_contada - c.presentacion.stock_total
+            diff = c.cantidad_contada - c.presentacion.cantidad
             discrepancias.append({
                 'presentacion': c.presentacion,
-                'en_sistema':   c.presentacion.stock_total,
+                'en_sistema':   c.presentacion.cantidad,
                 'fisico':       c.cantidad_contada,
                 'diferencia':   diff,
                 'estado':       'ok' if diff == 0 else ('sobrante' if diff > 0 else 'faltante'),

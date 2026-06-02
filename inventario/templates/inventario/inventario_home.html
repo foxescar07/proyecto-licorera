@@ -355,7 +355,7 @@
              {% for c in conteos %}
             <tr>
           <td class="fw-semibold small">{{ c.presentacion.producto.nombre }}</td>
-          <td class="small">{{ c.presentacion.stock_total }}</td>  {# ← corregida #}
+          <td class="small">{{ c.presentacion.cantidad }}</td>  {# ← corregida #}
           <td class="fw-bold small">{{ c.cantidad_contada }}</td>
           </tr>
                   {% empty %}
