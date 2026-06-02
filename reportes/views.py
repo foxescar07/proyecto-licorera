@@ -127,7 +127,7 @@ def index_reportes(request):
     )
 
     return render(request, 'reportes.html', {
-        'ventas':             page_obj,
+        'ventas':             ventas_todas,
         'page_obj':           page_obj,
         'paginator':          paginator,
         'total_ventas':       total_ventas,

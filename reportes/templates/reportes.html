@@ -7,6 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -276,8 +277,8 @@
     </div>
     {% endif %}
 
-    <div class="table-responsive">
-      <table class="cys-inv-table">
+    <div class="table-responsive mt-3">
+      <table id="reportes-table" class="cys-inv-table table w-100">
         <thead>
           <tr>
             <th>#</th>
@@ -290,12 +291,10 @@
           </tr>
         </thead>
         <tbody>
-          {% for venta in page_obj %}
+          {% for venta in ventas %}
             {% for det in venta.detalles.all %}
             <tr>
-              <td class="cys-td cys-td--muted">
-                {{ forloop.parentloop.counter0|add:page_obj.start_index }}
-              </td>
+              <td class="cys-td cys-td--muted">{{ forloop.parentloop.counter }}</td>
               <td class="cys-td cys-td--bold">{{ venta.cliente }}</td>
               <td class="cys-td">{{ det.producto.nombre }}</td>
               <td class="cys-td">{{ det.cantidad }}</td>
@@ -321,59 +320,7 @@
         </tbody>
       </table>
     </div>
-
-    <!-- PAGINACIÓN -->
-    {% if page_obj.has_other_pages %}
-    <div class="cys-pag-wrap">
-      <span class="cys-pag-info">
-        Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }}
-        de {{ page_obj.paginator.count }}
-      </span>
-      <nav aria-label="Paginación historial">
-        <ul class="pagination pagination-sm mb-0">
-
-          {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.previous_page_number }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&cliente={{ cliente_q }}&producto={{ producto_q }}">
-              ‹
-            </a>
-          </li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">‹</span></li>
-          {% endif %}
-
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num >= page_obj.number|add:"-3" and num <= page_obj.number|add:"3" %}
-              <li class="page-item">
-                <a class="page-link"
-                   href="?page={{ num }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&cliente={{ cliente_q }}&producto={{ producto_q }}">
-                  {{ num }}
-                </a>
-              </li>
-            {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.next_page_number }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&cliente={{ cliente_q }}&producto={{ producto_q }}">
-              ›
-            </a>
-          </li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">›</span></li>
-          {% endif %}
-
-        </ul>
-      </nav>
-    </div>
-    {% endif %}
-
-    </section>
-  </div>
+  </section>
 </div>
 
 
@@ -949,4 +896,10 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.js' %}"></script>
+<script src="{% static 'js/tables/reportes_table.js' %}"></script>
 {% endblock %}

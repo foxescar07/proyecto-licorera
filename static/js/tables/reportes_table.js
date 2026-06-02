@@ -1,0 +1,39 @@
+$(document).ready(function() {
+    $('#reportes-table').DataTable({
+        responsive: true,
+        dom: '<"row mb-3 align-items-center"<"col-md-6"B><"col-md-6"f>>t<"row mt-3 align-items-center"<"col-md-6"i><"col-md-6"p>>',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
+                className: 'btn btn-sm btn-success px-3 me-2',
+                title: 'Reporte de Ventas - CYS Ltda'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
+                className: 'btn btn-sm btn-danger px-3 me-2',
+                title: 'Reporte de Ventas - CYS Ltda',
+                customize: function (doc) {
+                    // Personalización del PDF generado
+                    if (doc.styles && doc.styles.tableHeader) {
+                        doc.styles.tableHeader.fillColor = '#011936';
+                        doc.styles.tableHeader.color = '#FFFFFF';
+                    }
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="bi bi-printer me-1"></i> Imprimir',
+                className: 'btn btn-sm btn-primary px-3',
+                title: 'Reporte de Ventas - CYS Ltda'
+            }
+        ],
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+        },
+        order: [[6, 'desc']], // Ordenar por Fecha (columna 6, indexada desde 0) descendente
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
+    });
+});
