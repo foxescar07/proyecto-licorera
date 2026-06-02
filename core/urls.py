@@ -12,12 +12,12 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),
     
     # App productos e inventario
-    path('productos/', include('productos.urls', namespace='producto')),
-    path('inventario/', include('inventario.urls', namespace='inventario')),
+    path('productos/', include('productos.urls')),
+    path('inventario/', include('inventario.urls')),
     
     # App reportes
-    path('reportes/', include('reportes.urls', namespace='reportes')),
-    path('ventas/', include('ventas.urls', namespace='ventas')),
-    path('proveedores/', include('proveedores.urls', namespace='proveedores')),
+    path('reportes/', include('reportes.urls')),
+    path('ventas/', include('ventas.urls')),
+    path('proveedores/', include('proveedores.urls')),
     
 ]

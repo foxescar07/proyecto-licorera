@@ -14,7 +14,7 @@
     <h2 class="fw-bold m-0" style="color: var(--texto);">
       <i class="bi bi-tags me-2" style="color: var(--azul-claro);"></i>Gestión de Categorías
     </h2>
-    <a href="{% url 'producto:lista_productos' %}"   class="btn rounded-pill fw-bold px-4"
+    <a href="{% url 'lista_productos' %}"   class="btn rounded-pill fw-bold px-4"
     style="background: var(--azul-claro); color: var(--fondo); border: none;">
       <i class="bi bi-arrow-left me-1"></i> Productos
     </a>
@@ -29,7 +29,7 @@
           <h5 class="card-title fw-bold mb-4">
             <i class="bi bi-plus-circle me-2"></i> Nueva Categoría
           </h5>
-          <form method="POST" action="{% url 'producto:categoria_crear' %}">
+          <form method="POST" action="{% url 'categoria_crear' %}">
             {% csrf_token %}
             <div class="mb-3">
               <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
@@ -97,7 +97,7 @@
                     data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ cat.pk }}">
                     <i class="bi bi-pencil"></i>
                   </button>
-                  <form method="POST" action="{% url 'producto:categoria_eliminar' cat.pk %}" class="d-inline"
+                  <form method="POST" action="{% url 'categoria_eliminar' cat.pk %}" class="d-inline"
                     onsubmit="return confirm('¿Eliminar definitivamente «{{ cat.nombre }}»?');">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm rounded-pill px-3"
@@ -124,7 +124,7 @@
                       data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}">
                       <i class="bi bi-pencil" style="font-size:12px;"></i>
                     </button>
-                    <form method="POST" action="{% url 'producto:categoria_eliminar' sub.pk %}" class="d-inline"
+                    <form method="POST" action="{% url 'categoria_eliminar' sub.pk %}" class="d-inline"
                       onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?');">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
@@ -163,7 +163,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto:categoria_editar' cat.pk %}">
+      <form method="POST" action="{% url 'categoria_editar' cat.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="mb-3">

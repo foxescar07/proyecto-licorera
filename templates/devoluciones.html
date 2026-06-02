@@ -42,7 +42,7 @@
     {% endfor %}
   {% endif %}
 
-  <form method="post" action="{% url 'ventas:registrar_devolucion' %}" enctype="multipart/form-data" class="needs-validation">
+  <form method="post" action="{% url 'registrar_devolucion' %}" enctype="multipart/form-data" class="needs-validation">
     {% csrf_token %}
 
     <!-- ALERTA DE VALIDACIÓN -->
@@ -386,7 +386,7 @@
         </div>
       </div>
 
-      <a href="{% url 'ventas:lista_devoluciones' %}" class="btn btn-lg btn-primary fw-bold text-white px-4 py-2">
+      <a href="{% url 'lista_devoluciones' %}" class="btn btn-lg btn-primary fw-bold text-white px-4 py-2">
         <i class="bi bi-arrow-left me-2"></i>Volver a Devoluciones
       </a>
     </div>
@@ -405,7 +405,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="get" action="{% url 'ventas:lista_devoluciones' %}" id="formSeleccionarVenta">
+      <form method="get" action="{% url 'lista_devoluciones' %}" id="formSeleccionarVenta">
         <div class="modal-body p-4">
           <div class="mb-3">
             <label class="form-label fw-bold text-uppercase small" style="letter-spacing:.08em;color:var(--text-md);">Búsqueda de Venta</label>
@@ -560,7 +560,7 @@
               <div class="fw-bold" style="color:var(--text-hi);">{{ dev.venta.cliente }}</div>
               <div class="small" style="color:var(--text-md);">{{ dev.fecha|date:"d/m/Y H:i" }}</div>
             </div>
-            <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" class="btn btn-link btn-sm p-0" style="color:var(--cyan);">
+            <a href="{% url 'comprobante_devolucion' dev.pk %}" class="btn btn-link btn-sm p-0" style="color:var(--cyan);">
               <i class="bi bi-eye"></i>
             </a>
           </div>

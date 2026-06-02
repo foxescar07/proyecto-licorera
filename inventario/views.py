@@ -21,7 +21,7 @@ def inventario_home(request):
             responsable=request.user,
         )
         messages.success(request, 'Inventario agendado correctamente.')
-        return redirect('inventario:inventario_home')
+        return redirect('inventario_home')
 
     hoy          = timezone.now().date()
     fecha_filtro = request.GET.get('fecha_mov', str(hoy))
@@ -134,7 +134,7 @@ def agenda_estado(request, pk):
         agenda.estado = request.POST.get('estado', agenda.estado)
         agenda.save()
         messages.success(request, 'Estado actualizado.')
-    return redirect('inventario:inventario_home')
+    return redirect('inventario_home')
 
 
 @login_required
@@ -143,7 +143,7 @@ def conteo_inventario(request):
         SesionConteo.objects.filter(estado='activa').update(estado='finalizada')
         SesionConteo.objects.create(responsable=request.user, estado='activa')
         messages.success(request, 'Sesión de conteo iniciada.')
-    return redirect('inventario:inventario_home')
+    return redirect('inventario_home')
 
 
 @login_required
@@ -163,14 +163,14 @@ def guardar_conteo(request):
                 defaults={'cantidad_contada': cantidad_contada}
             )
             messages.success(request, 'Conteo guardado.')
-    return redirect('inventario:inventario_home')
+    return redirect('inventario_home')
 
 
 @login_required
 def ajustar_stock(request, pk):
     if request.method == 'POST':
         messages.success(request, 'Ajuste de stock registrado.')
-    return redirect('inventario:inventario_home')
+    return redirect('inventario_home')
 
 
 @login_required
@@ -180,7 +180,7 @@ def guardar_codigo(request, pk):
         producto.codigo = request.POST.get('codigo', '').strip()
         producto.save()
         messages.success(request, f'Código guardado para {producto.nombre}.')
-    return redirect('inventario:inventario_home')
+    return redirect('inventario_home')
 
 
 @login_required
@@ -196,7 +196,7 @@ def editar_movimiento(request, pk):
             messages.success(request, f'✅ Movimiento de "{mov.presentacion.producto.nombre}" actualizado.')
         except (ValueError, TypeError):
             messages.error(request, '❌ Cantidad inválida.')
-    return redirect('inventario:inventario_home')
+    return redirect('inventario_home')
 
 
 @login_required
@@ -232,7 +232,7 @@ def gestion_salida(request):
 
         if not presentacion_id:
             messages.error(request, '⚠️ Debes seleccionar una presentación.')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         try:
             cantidad = int(cantidad_raw)
@@ -240,24 +240,24 @@ def gestion_salida(request):
                 raise ValueError
         except (ValueError, TypeError):
             messages.error(request, '⚠️ La cantidad debe ser un número mayor a cero.')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         if lote_id:
             lote = get_object_or_404(Lote, pk=lote_id)
             if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
                 messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido desde el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
-                return redirect('inventario:gestion_inventario')
+                return redirect('gestion_inventario')
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
         producto     = presentacion.producto
 
         if cantidad > presentacion.cantidad:
             messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades de "{presentacion.nombre}".')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         # Descontar lotes por FEFO
         restante = cantidad
@@ -286,7 +286,7 @@ def gestion_salida(request):
         )
         messages.success(request, f'✅ Salida de {cantidad} × "{presentacion.nombre}" registrada para {producto.nombre}.')
 
-    return redirect('inventario:gestion_inventario')
+    return redirect('gestion_inventario')
 
 
 @login_required
@@ -404,7 +404,7 @@ def gestion_producto_editar(request, pk):
                 'sin_cambios': len(cambios) == 0,
             })
 
-    return redirect('inventario:gestion_productos')
+    return redirect('gestion_productos')
 
 
 @login_required
@@ -415,7 +415,7 @@ def gestion_producto_eliminar(request, pk):
         producto.delete()
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'ok': True, 'nombre': nombre})
-    return redirect('inventario:gestion_productos')
+    return redirect('gestion_productos')
 
 
 @login_required
@@ -428,18 +428,18 @@ def gestion_categoria_crear(request):
 
         if not nombre or not codigo:
             messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('inventario:gestion_productos')
+            return redirect('gestion_productos')
 
         if Categoria.objects.filter(codigo=codigo).exists():
             messages.error(request, f'⚠️ Ya existe una categoría con el código "{codigo}".')
-            return redirect('inventario:gestion_productos')
+            return redirect('gestion_productos')
 
         padre = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
         Categoria.objects.create(nombre=nombre, codigo=codigo, descripcion=descripcion, padre=padre)
         tipo = 'Subcategoría' if padre else 'Categoría'
         messages.success(request, f'✅ {tipo} "{nombre}" creada.')
 
-    return redirect('inventario:gestion_productos')
+    return redirect('gestion_productos')
 
 
 @login_required
@@ -453,11 +453,11 @@ def gestion_categoria_editar(request, pk):
 
         if not nombre or not codigo:
             messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('inventario:gestion_productos')
+            return redirect('gestion_productos')
 
         if Categoria.objects.filter(codigo=codigo).exclude(pk=pk).exists():
             messages.error(request, f'⚠️ Ya existe otra categoría con el código "{codigo}".')
-            return redirect('inventario:gestion_productos')
+            return redirect('gestion_productos')
 
         categoria.nombre      = nombre
         categoria.codigo      = codigo
@@ -466,7 +466,7 @@ def gestion_categoria_editar(request, pk):
         categoria.save()
         messages.success(request, f'✅ Categoría "{nombre}" actualizada.')
 
-    return redirect('inventario:gestion_productos')
+    return redirect('gestion_productos')
 
 
 @login_required
@@ -479,7 +479,7 @@ def gestion_categoria_eliminar(request, pk):
             nombre = categoria.nombre
             categoria.delete()
             messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
-    return redirect('inventario:gestion_productos')
+    return redirect('gestion_productos')
 
 
 @login_required
@@ -493,15 +493,15 @@ def registrar_lote(request):
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         if not presentacion_id:
             messages.error(request, '⚠️ Debes seleccionar una presentación.')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         if Lote.objects.filter(numero_lote=numero_lote).exists():
             messages.error(request, f'⚠️ El lote "{numero_lote}" ya está registrado.')
-            return redirect('inventario:gestion_inventario')
+            return redirect('gestion_inventario')
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
 
@@ -519,4 +519,4 @@ def registrar_lote(request):
         else:
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}" (sin fecha de vencimiento).')
 
-    return redirect('inventario:gestion_inventario')
+    return redirect('gestion_inventario')

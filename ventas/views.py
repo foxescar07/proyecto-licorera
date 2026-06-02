@@ -36,12 +36,12 @@ def caja_desbloqueada(view_func):
         if not request.session.get('usuario_id'):
             return redirect('login')
         if not request.session.get('caja_desbloqueada'):
-            return redirect('ventas:desbloquear_caja')
+            return redirect('desbloquear_caja')
         hoy = timezone.localdate()
         if CierreCaja.objects.filter(fecha=hoy).exists():
             request.session.pop('caja_desbloqueada', None)
             request.session.pop('caja_usuario', None)
-            return redirect('ventas:desbloquear_caja')
+            return redirect('desbloquear_caja')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -55,7 +55,7 @@ def desbloquear_caja(request):
     hoy = timezone.localdate()
 
     if request.session.get('caja_desbloqueada'):
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
     ultimo_cierre  = CierreCaja.objects.filter(fecha=hoy).first()
     hay_cierre_hoy = ultimo_cierre is not None
@@ -88,7 +88,7 @@ def desbloquear_caja(request):
                     f'{user.first_name} {user.last_name}'.strip()
                     or user.username
                 )
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
             else:
                 error = 'Contraseña incorrecta.'
 
@@ -102,7 +102,7 @@ def desbloquear_caja(request):
 def bloquear_caja(request):
     request.session.pop('caja_desbloqueada', None)
     request.session.pop('caja_usuario', None)
-    return redirect('ventas:desbloquear_caja')
+    return redirect('desbloquear_caja')
 
 
 # ════════════════════════════════════════
@@ -138,7 +138,7 @@ def ventas_lista(request):
 @caja_desbloqueada
 def nueva_venta(request):
     if request.method != 'POST':
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
     form             = VentaForm(request.POST)
     producto_ids     = request.POST.getlist('producto_id[]')
@@ -161,11 +161,11 @@ def nueva_venta(request):
 
     if not producto_ids:
         messages.error(request, "El carrito está vacío.")
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
     if not form.is_valid():
         messages.error(request, "Revisa los campos del formulario.")
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
     items_validados = []
     subtotal_venta  = Decimal('0')
@@ -178,13 +178,13 @@ def nueva_venta(request):
                 raise ValueError
         except (ValueError, TypeError, InvalidOperation, IndexError):
             messages.error(request, f"Datos inválidos en el ítem {i+1}.")
-            return redirect('ventas:ventas_lista')
+            return redirect('ventas_lista')
 
         try:
             producto = Producto.objects.prefetch_related('presentaciones').get(pk=prod_id)
         except Producto.DoesNotExist:
             messages.error(request, f"Producto {i+1} no encontrado.")
-            return redirect('ventas:ventas_lista')
+            return redirect('ventas_lista')
 
         pres_id      = presentacion_ids[i] if i < len(presentacion_ids) else ''
         presentacion = None
@@ -194,14 +194,14 @@ def nueva_venta(request):
                 presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
             except PresentacionProducto.DoesNotExist:
                 messages.error(request, f"Presentación inválida para {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
             if cantidad > presentacion.cantidad:
                 messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} de {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
         else:
             if cantidad > producto.cantidad_disponible:
                 messages.error(request, f"Stock insuficiente: solo hay {producto.cantidad_disponible} unidades de {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
 
         items_validados.append({
             'producto': producto, 'presentacion': presentacion,
@@ -215,7 +215,7 @@ def nueva_venta(request):
 
     if total_pagado < total_final:
         messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.'))
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
     venta = form.save(commit=False)
     venta.descuento_porcentaje = descuento_pct
@@ -253,7 +253,7 @@ def nueva_venta(request):
         )
 
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
-    return redirect('ventas:ventas_lista')
+    return redirect('ventas_lista')
 
 
 @caja_desbloqueada
@@ -276,7 +276,7 @@ def eliminar_venta(request, pk):
             )
         venta.delete()
         messages.success(request, "Venta eliminada y stock restaurado.")
-    return redirect('ventas:ventas_lista')
+    return redirect('ventas_lista')
 
 
 def producto_stock_json(request, pk):
@@ -506,7 +506,7 @@ def detalle_venta_devolucion(request, venta_id):
 @transaction.atomic
 def registrar_devolucion(request):
     if request.method != 'POST':
-        return redirect('ventas:lista_devoluciones')
+        return redirect('lista_devoluciones')
 
     venta_id          = request.POST.get('venta_id')
     tiene_comprobante = request.POST.get('tiene_comprobante') == '1'
@@ -520,7 +520,7 @@ def registrar_devolucion(request):
 
     if not tiene_comprobante:
         messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
-        return redirect('ventas:lista_devoluciones')
+        return redirect('lista_devoluciones')
 
     venta          = get_object_or_404(Venta, pk=venta_id)
     total_devuelto = sum(int(cantidades[i]) * float(precios[i]) for i in range(len(producto_ids)))
@@ -549,7 +549,7 @@ def registrar_devolucion(request):
             presentacion.save()
 
     messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
-    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
+    return redirect('comprobante_devolucion', pk=devolucion.pk)
 
 
 @session_required
