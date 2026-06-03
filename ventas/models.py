@@ -1,7 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
 from productos.models import Producto, PresentacionProducto
-from usuarios.models import Usuario
 
 
 class Cliente(models.Model):
@@ -35,7 +35,7 @@ class Venta(models.Model):
     cliente              = models.ForeignKey(Cliente, on_delete=models.PROTECT,
                                              related_name='ventas',
                                              verbose_name='Cliente')
-    vendedor             = models.ForeignKey(Usuario, on_delete=models.PROTECT,
+    vendedor             = models.ForeignKey(User, on_delete=models.PROTECT,
                                              related_name='ventas',
                                              verbose_name='Vendedor',
                                              null=True, blank=True)
@@ -49,12 +49,12 @@ class Venta(models.Model):
     pago_daviplata       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     class Meta:
-        verbose_name        = "Venta"
-        verbose_name_plural = "Ventas"
-        ordering            = ["-fecha"]
+        verbose_name        = 'Venta'
+        verbose_name_plural = 'Ventas'
+        ordering            = ['-fecha']
 
     def __str__(self):
-        return f"{self.cliente.nombre} — {self.fecha:%d/%m/%Y %H:%M}"
+        return f'{self.cliente.nombre} — {self.fecha:%d/%m/%Y %H:%M}'
 
     def subtotal(self):
         return sum(d.subtotal() for d in self.detalles.all())
@@ -66,28 +66,31 @@ class Venta(models.Model):
 
 class DetalleVenta(models.Model):
     venta           = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
-    producto        = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='detalles_venta', null=True, blank=True)
-    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE, related_name='detalles_venta', null=True, blank=True)
-    lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL, null=True, blank=True, related_name='detalles_venta')
+    producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
+                                        related_name='detalles_venta', null=True, blank=True)
+    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
+                                        related_name='detalles_venta', null=True, blank=True)
+    lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
+                                        null=True, blank=True, related_name='detalles_venta')
     cantidad        = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        verbose_name        = "Detalle de Venta"
-        verbose_name_plural = "Detalles de Venta"
+        verbose_name        = 'Detalle de Venta'
+        verbose_name_plural = 'Detalles de Venta'
 
     def subtotal(self):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f"{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}"
+        return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
 
 
 class AperturaCaja(models.Model):
     fecha_apertura = models.DateTimeField(default=timezone.now)
     fecha          = models.DateField(default=timezone.localdate)
     monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario        = models.ForeignKey(Usuario, on_delete=models.PROTECT,
+    usuario        = models.ForeignKey(User, on_delete=models.PROTECT,
                                        related_name='aperturas_caja',
                                        verbose_name='Usuario',
                                        null=True, blank=True)
@@ -104,10 +107,8 @@ class AperturaCaja(models.Model):
 
 
 class CierreCaja(models.Model):
-    apertura             = models.ForeignKey(
-                               AperturaCaja, on_delete=models.SET_NULL,
-                               null=True, blank=True, related_name='cierres'
-                           )
+    apertura             = models.ForeignKey(AperturaCaja, on_delete=models.SET_NULL,
+                                             null=True, blank=True, related_name='cierres')
     fecha_cierre         = models.DateTimeField(default=timezone.now)
     fecha                = models.DateField(default=timezone.localdate)
     turno                = models.PositiveIntegerField(default=1)
@@ -132,6 +133,7 @@ class Devolucion(models.Model):
         ('insatisfecho', 'Cliente insatisfecho'),
         ('otro',         'Otro'),
     ]
+
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
                                           related_name='devoluciones',
                                           verbose_name='Venta original')
@@ -156,10 +158,14 @@ class Devolucion(models.Model):
 
 
 class DetalleDevolucion(models.Model):
-    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE, related_name='detalles')
-    producto        = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='detalles_devolucion', null=True, blank=True)
-    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE, related_name='detalles_devolucion', null=True, blank=True)
-    lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL, null=True, blank=True, related_name='detalles_devolucion')
+    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE,
+                                        related_name='detalles')
+    producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
+                                        related_name='detalles_devolucion', null=True, blank=True)
+    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
+                                        related_name='detalles_devolucion', null=True, blank=True)
+    lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
+                                        null=True, blank=True, related_name='detalles_devolucion')
     cantidad        = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
 
