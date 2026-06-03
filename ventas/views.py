@@ -13,9 +13,9 @@ Usuario = get_user_model()
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
 from .forms import VentaForm, DetalleVentaForm
-from producto.models import Producto, Categoria, PresentacionProducto
+from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
-from usuario.models import Usuario
+from usuarios.models import Usuario
 
 
 # ════════════════════════════════════════
