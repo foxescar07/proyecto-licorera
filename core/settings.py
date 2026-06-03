@@ -18,7 +18,6 @@ INSTALLED_APPS = [
     'usuarios',
     'principal',
     'proveedores',
-
     'ventas',
     'inventario',
     'productos',
@@ -77,7 +76,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'usuarios.Usuario'
+
 LOGIN_URL = '/usuarios/login/'
 LOGIN_REDIRECT_URL = '/'
-AUTH_USER_MODEL = 'usuarios.Usuario'

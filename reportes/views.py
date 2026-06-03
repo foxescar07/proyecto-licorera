@@ -40,7 +40,13 @@ def index_reportes(request):
     ventas_todas = ventas_qs
 
     productos   = Producto.objects.all().order_by('nombre')
-    proveedores = []  # sin modelo de proveedores por ahora
+    proveedores = [
+        {"nombre_contacto": "Carlos Mendoza", "nombre_empresa": "Licores del Caribe S.A.S.", "telefono": "300 456 7890", "email": "carlos.mendoza@licorescaribe.com"},
+        {"nombre_contacto": "Ana María Gómez", "nombre_empresa": "Distribuidora El Brindis", "telefono": "315 987 6543", "email": "contacto@elbrindis.com"},
+        {"nombre_contacto": "Juan Fernando Ruiz", "nombre_empresa": "Cervecerías Unidas", "telefono": "310 456 1234", "email": "jruiz@cerveceriasunidas.co"},
+        {"nombre_contacto": "Patricia Lara", "nombre_empresa": "Importaciones Premium Ltda.", "telefono": "312 789 4561", "email": "plara@premiumimports.com"},
+        {"nombre_contacto": "Roberto Díaz", "nombre_empresa": "Bodegas de la Sabana", "telefono": "320 123 7894", "email": "rdiaz@bodegassabana.com"}
+    ]
 
     total_ventas    = sum(v.total_venta for v in ventas_todas)
     total_productos = sum(det.cantidad for v in ventas_todas for det in v.detalles.all())
@@ -121,7 +127,7 @@ def index_reportes(request):
     )
 
     return render(request, 'reportes.html', {
-        'ventas':             page_obj,
+        'ventas':             ventas_todas,
         'page_obj':           page_obj,
         'paginator':          paginator,
         'total_ventas':       total_ventas,

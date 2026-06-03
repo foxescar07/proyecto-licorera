@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from productos.models import Producto, PresentacionProducto
+from django.contrib.auth.models import User
 
 
 class Cliente(models.Model):
