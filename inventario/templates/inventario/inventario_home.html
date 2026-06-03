@@ -63,7 +63,7 @@
 
   <!-- ENLACE GESTIÓN DE PRODUCTOS -->
   <div class="mb-4">
-    <a href="{% url 'inventario:gestion_productos' %}" class="inv-gestion-link text-decoration-none d-flex align-items-center justify-content-between gap-3 flex-wrap">
+    <a href="{% url 'gestion_productos' %}" class="inv-gestion-link text-decoration-none d-flex align-items-center justify-content-between gap-3 flex-wrap">
       <div class="d-flex align-items-center gap-3">
         <div class="inv-gestion-link__icon">
           <i class="bi bi-box-seam-fill"></i>
@@ -111,7 +111,7 @@
           <!-- Tracker de estado -->
           <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
             {% for estado_val, estado_label in agenda.ESTADO_CHOICES %}
-            <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}" class="d-inline">
+            <form method="POST" action="{% url 'agenda_estado' agenda.pk %}" class="d-inline">
               {% csrf_token %}
               <input type="hidden" name="estado" value="{{ estado_val }}">
               <button type="submit"
@@ -257,7 +257,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form method="POST" action="{% url 'inventario:inventario_home' %}">
+          <form method="POST" action="{% url 'inventario_home' %}">
             {% csrf_token %}
             <div class="mb-3">
               <label class="form-label inv-label">Título</label>
@@ -308,7 +308,7 @@
                 <div class="text-muted small">No hay sesión activa</div>
               {% endif %}
             </div>
-            <form method="POST" action="{% url 'inventario:conteo_inventario' %}">
+            <form method="POST" action="{% url 'conteo_inventario' %}">
               {% csrf_token %}
               <button type="submit" name="iniciar_sesion" class="btn inv-btn-primary btn-sm">
                 <i class="bi bi-play-fill me-1"></i>
@@ -318,7 +318,7 @@
           </div>
 
           {% if sesion %}
-            <form method="POST" action="{% url 'inventario:guardar_conteo' %}">
+            <form method="POST" action="{% url 'guardar_conteo' %}">
               {% csrf_token %}
               <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
               <div class="row g-3 align-items-end mb-3">
@@ -355,7 +355,7 @@
              {% for c in conteos %}
             <tr>
           <td class="fw-semibold small">{{ c.presentacion.producto.nombre }}</td>
-          <td class="small">{{ c.presentacion.stock_total }}</td>  {# ← corregida #}
+          <td class="small">{{ c.presentacion.cantidad }}</td>  {# ← corregida #}
           <td class="fw-bold small">{{ c.cantidad_contada }}</td>
           </tr>
                   {% empty %}
@@ -460,7 +460,7 @@
                     </td>
                     <td class="text-center">
                       {% if d.estado != 'ok' %}
-                        <form method="POST" action="{% url 'inventario:ajustar_stock' d.presentacion.pk %}">
+                        <form method="POST" action="{% url 'ajustar_stock' d.presentacion.pk %}">
                           {% csrf_token %}
                           <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
                           <button type="submit" class="btn btn-sm inv-btn-primary"
@@ -547,7 +547,7 @@
                     </span>
                   </td>
                   <td>
-                    <form method="POST" action="{% url 'inventario:guardar_codigo' p.pk %}">
+                    <form method="POST" action="{% url 'guardar_codigo' p.pk %}">
                       {% csrf_token %}
                       <div class="input-group input-group-sm">
                         <input type="text" name="codigo" class="form-control inv-input"

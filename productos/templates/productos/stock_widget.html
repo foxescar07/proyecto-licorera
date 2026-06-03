@@ -54,7 +54,7 @@
   }
 
   function actualizar() {
-    fetch("{% url 'producto:stock_status' %}?_=" + Date.now(), {
+    fetch("{% url 'stock_status' %}?_=" + Date.now(), {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' }
     })

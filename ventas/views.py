@@ -8,14 +8,14 @@ import json
 import hashlib
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
+Usuario = get_user_model()
 
-from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
+from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
 from .forms import VentaForm, DetalleVentaForm
-from productos.models import Producto, Categoria, PresentacionProducto
+from producto.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
-from usuarios.models import Perfil
+from usuario.models import Usuario
 
 
 # ════════════════════════════════════════
@@ -41,7 +41,7 @@ def caja_desbloqueada(view_func):
         if CierreCaja.objects.filter(fecha=hoy).exists():
             request.session.pop('caja_desbloqueada', None)
             request.session.pop('caja_usuario', None)
-            return redirect('ventas:desbloquear_caja')
+            return redirect('desbloquear_caja')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -55,7 +55,7 @@ def desbloquear_caja(request):
     hoy = timezone.localdate()
 
     if request.session.get('caja_desbloqueada'):
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
     ultimo_cierre  = CierreCaja.objects.filter(fecha=hoy).first()
     hay_cierre_hoy = ultimo_cierre is not None
@@ -78,16 +78,14 @@ def desbloquear_caja(request):
             user = None
             if usuario_id:
                 try:
-                    user = User.objects.get(pk=usuario_id)
-                except User.DoesNotExist:
+                    user = Usuario.objects.get(pk=usuario_id)
+                except Usuario.DoesNotExist:
                     pass
 
-            if user and user.check_password(password) and hasattr(user, 'perfil') and user.perfil.activo:
+            if user and user.check_password(password) and user.activo:
                 request.session['caja_desbloqueada'] = True
-                request.session['caja_usuario'] = (
-                    f'{user.first_name} {user.last_name}'.strip()
-                    or user.username
-                )
+                request.session['caja_usuario']      = usuario_encontrado.nombre_completo
+                request.session['caja_usuario_id']   = usuario_encontrado.pk
                 return redirect('ventas:ventas_lista')
             else:
                 error = 'Contraseña incorrecta.'
@@ -98,10 +96,12 @@ def desbloquear_caja(request):
         'ultimo_cierre':  ultimo_cierre,
     })
 
+
 @session_required
 def bloquear_caja(request):
     request.session.pop('caja_desbloqueada', None)
     request.session.pop('caja_usuario', None)
+    request.session.pop('caja_usuario_id', None)
     return redirect('ventas:desbloquear_caja')
 
 
@@ -114,6 +114,7 @@ def ventas_lista(request):
     ventas     = Venta.objects.prefetch_related('detalles__producto', 'detalles__presentacion').order_by('-fecha')
     form       = VentaForm()
     categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
+    clientes   = Cliente.objects.all().order_by('nombre')
     hoy        = timezone.localdate()
 
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
@@ -126,6 +127,7 @@ def ventas_lista(request):
         'ventas':                  ventas,
         'form':                    form,
         'categorias':              categorias,
+        'clientes':                clientes,
         'caja_abierta':            caja_abierta,
         'ultimo_cierre':           ultimo_cierre,
         'total_dia':               total_dia,
@@ -138,9 +140,8 @@ def ventas_lista(request):
 @caja_desbloqueada
 def nueva_venta(request):
     if request.method != 'POST':
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
-    form             = VentaForm(request.POST)
     producto_ids     = request.POST.getlist('producto_id[]')
     presentacion_ids = request.POST.getlist('presentacion_id[]')
     cantidades       = request.POST.getlist('cantidad[]')
@@ -161,11 +162,22 @@ def nueva_venta(request):
 
     if not producto_ids:
         messages.error(request, "El carrito está vacío.")
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
-    if not form.is_valid():
-        messages.error(request, "Revisa los campos del formulario.")
-        return redirect('ventas:ventas_lista')
+    # Obtener o crear cliente
+    cliente_id     = request.POST.get('cliente_id', '').strip()
+    cliente_nombre = request.POST.get('cliente_nombre', 'Consumidor final').strip() or 'Consumidor final'
+
+    if cliente_id:
+        cliente = get_object_or_404(Cliente, pk=cliente_id)
+    else:
+        cliente, _ = Cliente.objects.get_or_create(nombre=cliente_nombre)
+
+    # Obtener vendedor desde sesión
+    vendedor    = None
+    vendedor_id = request.session.get('caja_usuario_id') or request.session.get('usuario_id')
+    if vendedor_id:
+        vendedor = Usuario.objects.filter(pk=vendedor_id).first()
 
     items_validados = []
     subtotal_venta  = Decimal('0')
@@ -178,13 +190,13 @@ def nueva_venta(request):
                 raise ValueError
         except (ValueError, TypeError, InvalidOperation, IndexError):
             messages.error(request, f"Datos inválidos en el ítem {i+1}.")
-            return redirect('ventas:ventas_lista')
+            return redirect('ventas_lista')
 
         try:
             producto = Producto.objects.prefetch_related('presentaciones').get(pk=prod_id)
         except Producto.DoesNotExist:
             messages.error(request, f"Producto {i+1} no encontrado.")
-            return redirect('ventas:ventas_lista')
+            return redirect('ventas_lista')
 
         pres_id      = presentacion_ids[i] if i < len(presentacion_ids) else ''
         presentacion = None
@@ -194,14 +206,14 @@ def nueva_venta(request):
                 presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
             except PresentacionProducto.DoesNotExist:
                 messages.error(request, f"Presentación inválida para {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
             if cantidad > presentacion.cantidad:
                 messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} de {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
         else:
             if cantidad > producto.cantidad_disponible:
                 messages.error(request, f"Stock insuficiente: solo hay {producto.cantidad_disponible} unidades de {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
 
         items_validados.append({
             'producto': producto, 'presentacion': presentacion,
@@ -215,16 +227,19 @@ def nueva_venta(request):
 
     if total_pagado < total_final:
         messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.'))
-        return redirect('ventas:ventas_lista')
+        return redirect('ventas_lista')
 
-    venta = form.save(commit=False)
-    venta.descuento_porcentaje = descuento_pct
-    venta.total_con_descuento  = total_final
-    venta.pago_efectivo        = pago_efectivo
-    venta.pago_tarjeta         = pago_tarjeta
-    venta.pago_transferencia   = pago_transferencia
-    venta.pago_nequi           = pago_nequi
-    venta.pago_daviplata       = pago_daviplata
+    venta = Venta(
+        cliente=cliente,
+        vendedor=vendedor,
+        descuento_porcentaje=descuento_pct,
+        total_con_descuento=total_final,
+        pago_efectivo=pago_efectivo,
+        pago_tarjeta=pago_tarjeta,
+        pago_transferencia=pago_transferencia,
+        pago_nequi=pago_nequi,
+        pago_daviplata=pago_daviplata,
+    )
     venta.save()
 
     for item in items_validados:
@@ -253,7 +268,7 @@ def nueva_venta(request):
         )
 
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
-    return redirect('ventas:ventas_lista')
+    return redirect('ventas_lista')
 
 
 @caja_desbloqueada
@@ -276,7 +291,7 @@ def eliminar_venta(request, pk):
             )
         venta.delete()
         messages.success(request, "Venta eliminada y stock restaurado.")
-    return redirect('ventas:ventas_lista')
+    return redirect('ventas_lista')
 
 
 def producto_stock_json(request, pk):
@@ -333,9 +348,9 @@ def _nombre_usuario_sesion(request):
     usuario_id = request.session.get('usuario_id')
     if usuario_id:
         try:
-            u = User.objects.get(pk=usuario_id)
+            u = Usuario.objects.get(pk=usuario_id)
             return f'{u.first_name} {u.last_name}'.strip() or u.username
-        except User.DoesNotExist:
+        except Usuario.DoesNotExist:
             pass
     return ''
 
@@ -360,9 +375,15 @@ def apertura_caja(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
 
+    usuario    = None
+    usuario_id = request.session.get('caja_usuario_id') or request.session.get('usuario_id')
+    if usuario_id:
+        usuario = Usuario.objects.filter(pk=usuario_id).first()
+
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_base,
+        usuario=usuario,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
@@ -404,6 +425,7 @@ def cierre_caja(request):
 
     request.session.pop('caja_desbloqueada', None)
     request.session.pop('caja_usuario', None)
+    request.session.pop('caja_usuario_id', None)
 
     return JsonResponse({'ok': True})
 
@@ -432,9 +454,15 @@ def registrar_conteo(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto inválido.'}, status=400)
 
+    usuario    = None
+    usuario_id = request.session.get('caja_usuario_id') or request.session.get('usuario_id')
+    if usuario_id:
+        usuario = Usuario.objects.filter(pk=usuario_id).first()
+
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_contado,
+        usuario=usuario,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
@@ -459,20 +487,13 @@ def buscar_venta_devolucion(request):
     if not q:
         return JsonResponse({'ventas': []})
 
-    ventas = Venta.objects.filter(
-        cliente__nombre__icontains=q
-    ).order_by('-fecha')[:10]
-
+    ventas = Venta.objects.filter(cliente__nombre__icontains=q).order_by('-fecha')[:10]
     if q.isdigit():
         ventas = (Venta.objects.filter(pk=int(q)) | ventas).distinct()
 
     return JsonResponse({'ventas': [
-        {
-            'id':      v.pk,
-            'cliente': v.cliente.nombre,
-            'fecha':   v.fecha.strftime('%d/%m/%Y %H:%M'),
-            'total':   float(v.total_venta),
-        }
+        {'id': v.pk, 'cliente': v.cliente.nombre,
+         'fecha': v.fecha.strftime('%d/%m/%Y %H:%M'), 'total': float(v.total_venta)}
         for v in ventas
     ]})
 
@@ -506,7 +527,7 @@ def detalle_venta_devolucion(request, venta_id):
 @transaction.atomic
 def registrar_devolucion(request):
     if request.method != 'POST':
-        return redirect('ventas:lista_devoluciones')
+        return redirect('lista_devoluciones')
 
     venta_id          = request.POST.get('venta_id')
     tiene_comprobante = request.POST.get('tiene_comprobante') == '1'
@@ -520,7 +541,7 @@ def registrar_devolucion(request):
 
     if not tiene_comprobante:
         messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
-        return redirect('ventas:lista_devoluciones')
+        return redirect('lista_devoluciones')
 
     venta          = get_object_or_404(Venta, pk=venta_id)
     total_devuelto = sum(int(cantidades[i]) * float(precios[i]) for i in range(len(producto_ids)))
@@ -549,7 +570,7 @@ def registrar_devolucion(request):
             presentacion.save()
 
     messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
-    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
+    return redirect('comprobante_devolucion', pk=devolucion.pk)
 
 
 @session_required

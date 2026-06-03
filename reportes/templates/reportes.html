@@ -7,31 +7,54 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid p-0">
+  <div class="cys-snap-section">
 
   <!-- ══════════════════════════════════════
        TARJETAS RESUMEN
   ══════════════════════════════════════ -->
   <div class="row gx-3 gy-3 mb-4 align-items-stretch">
+    <!-- Total Ventas -->
     <div class="col-md-4">
-      <div class="cys-card text-center h-100">
-        <div class="cys-reporte-label">Total Ventas</div>
-        <div class="cys-reporte-val">${{ total_ventas|floatformat:0 }}</div>
+      <div class="cys-card cys-summary-card cys-summary-card--ventas h-100">
+        <div class="cys-summary-card__icon cys-summary-card__icon--ventas">
+          <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="cys-summary-card__content">
+          <span class="cys-summary-card__label">Total Ventas</span>
+          <span class="cys-summary-card__val">${{ total_ventas|floatformat:0 }}</span>
+          <span class="cys-summary-card__sub">Ingresos registrados</span>
+        </div>
       </div>
     </div>
+    <!-- Productos Vendidos -->
     <div class="col-md-4">
-      <div class="cys-card text-center h-100">
-        <div class="cys-reporte-label">Productos Vendidos</div>
-        <div class="cys-reporte-val">{{ total_productos }}</div>
+      <div class="cys-card cys-summary-card cys-summary-card--productos h-100">
+        <div class="cys-summary-card__icon cys-summary-card__icon--productos">
+          <i class="bi bi-bag-check"></i>
+        </div>
+        <div class="cys-summary-card__content">
+          <span class="cys-summary-card__label">Productos Vendidos</span>
+          <span class="cys-summary-card__val">{{ total_productos }}</span>
+          <span class="cys-summary-card__sub">Unidades despachadas</span>
+        </div>
       </div>
     </div>
+    <!-- Total Clientes -->
     <div class="col-md-4">
-      <div class="cys-card text-center h-100">
-        <div class="cys-reporte-label">Total Clientes</div>
-        <div class="cys-reporte-val">{{ total_clientes }}</div>
+      <div class="cys-card cys-summary-card cys-summary-card--clientes h-100">
+        <div class="cys-summary-card__icon cys-summary-card__icon--clientes">
+          <i class="bi bi-people"></i>
+        </div>
+        <div class="cys-summary-card__content">
+          <span class="cys-summary-card__label">Total Clientes</span>
+          <span class="cys-summary-card__val">{{ total_clientes }}</span>
+          <span class="cys-summary-card__sub">Clientes únicos registrados</span>
+        </div>
       </div>
     </div>
   </div>
@@ -41,138 +64,220 @@
   ══════════════════════════════════════ -->
   <div class="row gx-3 gy-3 mb-4">
 
+    <!-- Tarjeta Inventario -->
     <div class="col-md-4">
-      <div class="cys-card h-100"
-           style="border-top: 2px solid #4DA8DA; cursor: pointer;"
+      <div class="cys-card cys-card--interactive cys-card--inv h-100"
            data-bs-toggle="modal" data-bs-target="#modalInventario">
-        <div class="cys-report-card-icon cys-report-card-icon--inv">
-          <i class="bi bi-box-seam"></i>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--inv">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Inventario</div>
+            <div class="cys-report-card__desc">Stock, niveles y productos agotados</div>
+            
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">{{ total_en_stock }}</span>
+                <span class="cys-report-card__stat-label">Stock</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-warning">{{ total_stock_bajo }}</span>
+                <span class="cys-report-card__stat-label">Bajo</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-danger">{{ total_agotados }}</span>
+                <span class="cys-report-card__stat-label">Agotado</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--inv">Ver reporte →</span>
+          </div>
         </div>
-        <div class="cys-report-card__title">Inventario</div>
-        <div class="cys-report-card__desc">Stock, niveles y productos agotados</div>
-        <span class="cys-report-card__link-text--inv">Ver reporte →</span>
       </div>
     </div>
 
+    <!-- Tarjeta Proveedores -->
     <div class="col-md-4">
-      <div class="cys-card h-100"
-           style="border-top: 2px solid #1D9E75; cursor: pointer;"
+      <div class="cys-card cys-card--interactive cys-card--prov h-100"
            data-bs-toggle="modal" data-bs-target="#modalProveedores">
-        <div class="cys-report-card-icon cys-report-card-icon--prov">
-          <i class="bi bi-truck"></i>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--prov">
+            <i class="bi bi-truck"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Proveedores</div>
+            <div class="cys-report-card__desc">Lista y datos de proveedores activos</div>
+
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">{{ proveedores|length }}</span>
+                <span class="cys-report-card__stat-label">Registrados</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">Activos</span>
+                <span class="cys-report-card__stat-label">Estado</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--prov">Ver reporte →</span>
+          </div>
         </div>
-        <div class="cys-report-card__title">Proveedores</div>
-        <div class="cys-report-card__desc">Lista y datos de proveedores activos</div>
-        <span class="cys-report-card__link-text--prov">Ver reporte →</span>
       </div>
     </div>
 
+    <!-- Tarjeta Productos por Proveedor -->
     <div class="col-md-4">
-      <div class="cys-card h-100"
-           style="border-top: 2px solid #BA7517; cursor: default; opacity: .55;">
-        <div class="cys-report-card-icon cys-report-card-icon--proxima">
-          <i class="bi bi-list-ul"></i>
+      <div class="cys-card cys-card--disabled cys-card--proxima h-100">
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--proxima">
+            <i class="bi bi-list-ul"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Productos por proveedor</div>
+            <div class="cys-report-card__desc">Qué productos suministra cada uno</div>
+
+            <!-- Grid de métricas -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-muted">—</span>
+                <span class="cys-report-card__stat-label">Asociaciones</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--proxima">Próximamente</span>
+          </div>
         </div>
-        <div class="cys-report-card__title">Productos por proveedor</div>
-        <div class="cys-report-card__desc">Qué productos suministra cada uno</div>
-        <span class="cys-report-card__link-text--proxima">Próximamente</span>
       </div>
     </div>
 
+    <!-- Tarjeta Resumen Diario -->
     <div class="col-md-4">
-      <div class="cys-card h-100"
-           style="border-top: 2px solid #7F77DD; cursor: pointer;"
+      <div class="cys-card cys-card--interactive cys-card--diario h-100"
            data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
-        <div class="cys-report-card-icon cys-report-card-icon--diario">
-          <i class="bi bi-calendar-day"></i>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--diario">
+            <i class="bi bi-calendar-day"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Resumen Diario</div>
+            <div class="cys-report-card__desc">Ingresos, egresos y movimientos de hoy</div>
+
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">${{ ingresos_hoy|floatformat:0 }}</span>
+                <span class="cys-report-card__stat-label">Ingresos</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">{{ ventas_hoy|length }}</span>
+                <span class="cys-report-card__stat-label">Ventas</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-warning">+{{ total_entradas_hoy }}</span>
+                <span class="cys-report-card__stat-label">Entradas</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--diario">Ver reporte →</span>
+          </div>
         </div>
-        <div class="cys-report-card__title">Resumen Diario</div>
-        <div class="cys-report-card__desc">Ingresos, egresos y movimientos de hoy</div>
-        <span class="cys-report-card__link-text--diario">Ver reporte →</span>
       </div>
     </div>
 
+    <!-- Tarjeta Análisis de Ventas -->
     <div class="col-md-4">
-      <div class="cys-card h-100"
-           style="border-top: 2px solid #E8834A; cursor: pointer;"
+      <div class="cys-card cys-card--interactive cys-card--analisis h-100"
            data-bs-toggle="modal" data-bs-target="#modalAnalisisVentas">
-        <div class="cys-report-card-icon cys-report-card-icon--analisis">
-          <i class="bi bi-graph-up-arrow"></i>
+        <div class="cys-report-card-layout">
+          <!-- Columna Izquierda: Logo Grande -->
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--analisis">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <!-- Columna Derecha: Contenido y Métricas -->
+          <div>
+            <div class="cys-report-card__title">Análisis de Ventas</div>
+            <div class="cys-report-card__desc">Resumen de ventas y top productos</div>
+
+            <!-- Grid de métricas en tiempo real -->
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-success">${{ total_ventas|floatformat:0 }}</span>
+                <span class="cys-report-card__stat-label">Ventas</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">{{ total_productos }}</span>
+                <span class="cys-report-card__stat-label">Uds</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-primary">{{ total_clientes }}</span>
+                <span class="cys-report-card__stat-label">Clientes</span>
+              </div>
+            </div>
+
+            <span class="cys-report-card__link-text--analisis">Ver reporte →</span>
+          </div>
         </div>
-        <div class="cys-report-card__title">Análisis de Ventas</div>
-        <div class="cys-report-card__desc">Resumen de ventas y top productos</div>
-        <span class="cys-report-card__link-text--analisis">Ver reporte →</span>
       </div>
     </div>
 
   </div>
 
-  <!-- ══════════════════════════════════════
-       FILTROS HISTORIAL
-  ══════════════════════════════════════ -->
-  <section class="cys-card mb-4">
-    <div class="cys-card__title">Filtrar Ventas</div>
-    <form method="get" action="">
-      <div class="row gx-3 gy-2 align-items-end">
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Fecha inicio</label>
-          <input type="date" name="fecha_inicio" class="form-control form-control-sm"
-                 value="{{ fecha_inicio }}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Fecha fin</label>
-          <input type="date" name="fecha_fin" class="form-control form-control-sm"
-                 value="{{ fecha_fin }}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Cliente</label>
-          <input type="text" name="cliente" class="form-control form-control-sm"
-                 placeholder="Nombre cliente…" value="{{ cliente_q }}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label cys-filter-label">Producto</label>
-          <input type="text" name="producto" class="form-control form-control-sm"
-                 placeholder="Nombre producto…" value="{{ producto_q }}">
-        </div>
-        <div class="col-12 d-flex gap-2 mt-2">
-          <button type="submit" class="btn btn-sm btn-primary">
-            <i class="bi bi-funnel me-1"></i>Aplicar filtros
-          </button>
-          <a href="{% url 'reportes:reportes' %}" class="btn btn-sm btn-outline-secondary">
+  <div class="cys-snap-section">
+    <!-- ══════════════════════════════════════
+         HISTORIAL DE VENTAS
+    ══════════════════════════════════════ -->
+    <section class="cys-card mb-4">
+      <div class="cys-card__title">Historial de Ventas</div>
+
+      <!-- Filtro de Fechas Compacto Integrado -->
+      <div class="cys-table-filters-container mb-3">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="cys-filter-label mb-0">Rango de fechas:</span>
+            <input type="date" id="filtro-fecha-inicio" class="form-control form-control-sm" value="{{ fecha_inicio }}">
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="cys-filter-label mb-0">a</span>
+            <input type="date" id="filtro-fecha-fin" class="form-control form-control-sm" value="{{ fecha_fin }}">
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 cys-clear-dates-btn">
             <i class="bi bi-x-circle me-1"></i>Limpiar
-          </a>
+          </button>
         </div>
       </div>
-    </form>
-  </section>
-
-  <!-- ══════════════════════════════════════
-       HISTORIAL DE VENTAS
-  ══════════════════════════════════════ -->
-  <section class="cys-card mb-4">
-    <div class="cys-card__title">Historial de Ventas</div>
 
     {% if cliente_q or producto_q or fecha_inicio or fecha_fin %}
     <div class="cys-busqueda-activa mb-2">
       <i class="bi bi-funnel"></i>
       <span>Filtros activos:</span>
       {% if cliente_q %}<strong>Cliente: "{{ cliente_q }}"</strong>{% endif %}
-      {% if producto_q %}<strong>Producto: "{{ producto_q }}"</strong>{% endif %}
+      {% if producto_q %}<strong> "{{ producto_q }}"</strong>{% endif %}
       {% if fecha_inicio or fecha_fin %}
         <strong>Fechas: {{ fecha_inicio|default:"…" }} → {{ fecha_fin|default:"…" }}</strong>
       {% endif %}
       <span style="color: var(--texto-muted, #8FA3B1);">
         — {{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize:",s" }}
       </span>
-      <a href="{% url 'reportes:reportes' %}"
+      <a href="{% url 'reportes' %}"
          style="color: var(--texto-muted, #8FA3B1); font-size: .75rem; margin-left: 4px;">
         ✕ Limpiar
       </a>
     </div>
     {% endif %}
 
-    <div class="table-responsive">
-      <table class="cys-inv-table">
+    <div class="table-responsive mt-3">
+      <table id="reportes-table" class="cys-inv-table table w-100">
         <thead>
           <tr>
             <th>#</th>
@@ -185,12 +290,10 @@
           </tr>
         </thead>
         <tbody>
-          {% for venta in page_obj %}
+          {% for venta in ventas %}
             {% for det in venta.detalles.all %}
             <tr>
-              <td class="cys-td cys-td--muted">
-                {{ forloop.parentloop.counter0|add:page_obj.start_index }}
-              </td>
+              <td class="cys-td cys-td--muted">{{ forloop.parentloop.counter }}</td>
               <td class="cys-td cys-td--bold">{{ venta.cliente }}</td>
               <td class="cys-td">{{ det.producto.nombre }}</td>
               <td class="cys-td">{{ det.cantidad }}</td>
@@ -216,59 +319,7 @@
         </tbody>
       </table>
     </div>
-
-    <!-- PAGINACIÓN -->
-    {% if page_obj.has_other_pages %}
-    <div class="cys-pag-wrap">
-      <span class="cys-pag-info">
-        Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }}
-        de {{ page_obj.paginator.count }}
-      </span>
-      <nav aria-label="Paginación historial">
-        <ul class="pagination pagination-sm mb-0">
-
-          {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.previous_page_number }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&cliente={{ cliente_q }}&producto={{ producto_q }}">
-              ‹
-            </a>
-          </li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">‹</span></li>
-          {% endif %}
-
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num >= page_obj.number|add:"-3" and num <= page_obj.number|add:"3" %}
-              <li class="page-item">
-                <a class="page-link"
-                   href="?page={{ num }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&cliente={{ cliente_q }}&producto={{ producto_q }}">
-                  {{ num }}
-                </a>
-              </li>
-            {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.next_page_number }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&cliente={{ cliente_q }}&producto={{ producto_q }}">
-              ›
-            </a>
-          </li>
-          {% else %}
-          <li class="page-item disabled"><span class="page-link">›</span></li>
-          {% endif %}
-
-        </ul>
-      </nav>
-    </div>
-    {% endif %}
-
   </section>
-
 </div>
 
 
@@ -844,4 +895,10 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.js' %}"></script>
+<script src="{% static 'js/tables/reportes_table.js' %}"></script>
 {% endblock %}

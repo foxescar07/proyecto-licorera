@@ -462,3 +462,365 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ────────────────────────────────────
+   TARJETAS DE REPORTE INTERACTIVAS
+   ──────────────────────────────────── */
+.cys-card--interactive {
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-top-width 0.2s ease !important;
+}
+
+.cys-card--interactive:hover {
+  transform: translateY(-5px);
+  border-top-width: 4px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(77, 168, 218, 0.1) !important;
+}
+
+.cys-card--disabled {
+  cursor: default !important;
+  opacity: 0.55;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Modificadores de color para bordes de reportes */
+.cys-card--inv { border-top: 2px solid #4DA8DA !important; }
+.cys-card--prov { border-top: 2px solid #1D9E75 !important; }
+.cys-card--proxima { border-top: 2px solid #BA7517 !important; }
+.cys-card--diario { border-top: 2px solid #7F77DD !important; }
+.cys-card--analisis { border-top: 2px solid #E8834A !important; }
+
+/* ── Stats Grid dentro de la tarjeta ── */
+.cys-report-card__stats-grid {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cys-report-card__stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cys-report-card__stat-item:last-child {
+  border-right: none;
+}
+
+.cys-report-card__stat-num {
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.cys-report-card__stat-label {
+  font-size: 0.6rem;
+  color: var(--texto-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* ── Dos columnas dentro de las tarjetas ── */
+.cys-report-card-layout {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.cys-report-card-icon--large {
+  width: 80px !important;
+  height: 80px !important;
+  font-size: 2.4rem !important;
+  border-radius: 16px !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.cys-card--interactive:hover .cys-report-card-icon--large {
+  transform: scale(1.08) rotate(3deg);
+  box-shadow: 0 10px 24px rgba(77, 168, 218, 0.25);
+}
+
+@media (max-width: 576px) {
+  .cys-report-card-layout {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+  .cys-report-card-icon--large {
+    margin-bottom: 12px !important;
+  }
+}
+
+/* ────────────────────────────────────
+   SCROLL SNAP (Efecto Imán)
+   ──────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: calc(var(--header-h) + var(--nav-h) + 1.5rem);
+}
+
+.cys-snap-section {
+  scroll-snap-align: start;
+  min-height: calc(100vh - var(--header-h) - var(--nav-h) - 3.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 3.5rem;
+}
+
+@media (max-width: 992px) {
+  html {
+    scroll-snap-type: none; /* Desactivar efecto imán en pantallas pequeñas */
+  }
+  .cys-snap-section {
+    min-height: auto;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ────────────────────────────────────
+   DATATABLES DARK THEME INTEGRATION
+   ──────────────────────────────────── */
+/* Quitar fondo blanco de la tabla */
+table.dataTable,
+table.dataTable th,
+table.dataTable td,
+table.dataTable tbody tr,
+table.dataTable tbody tr td {
+  background-color: transparent !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-color: rgba(77, 168, 218, 0.1) !important;
+}
+
+table.dataTable tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Estilo para el buscador (input) */
+.dt-search input {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  outline: none !important;
+}
+
+.dt-search input:focus {
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+}
+
+.dt-search label {
+  color: var(--texto-muted, #AF8D86) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+/* Estilo para el selector de longitud (length select) */
+.dt-length select {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-radius: 8px !important;
+  padding: 4px 24px 4px 10px !important;
+  outline: none !important;
+}
+
+.dt-length label {
+  color: var(--texto-muted, #AF8D86) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+/* Estilos de información e indicadores */
+.dt-info {
+  color: var(--texto-muted, #AF8D86) !important;
+  font-size: 0.8rem !important;
+}
+
+/* Paginación de DataTables */
+.dt-paging .pagination .page-link {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border-color: var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--azul-claro, #4DA8DA) !important;
+  transition: all 0.2s ease;
+}
+
+.dt-paging .pagination .page-item.active .page-link {
+  background-color: var(--azul-claro, #4DA8DA) !important;
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  color: #011936 !important;
+  font-weight: bold !important;
+}
+
+.dt-paging .pagination .page-link:hover {
+  background-color: var(--azul-claro, #4DA8DA) !important;
+  color: #011936 !important;
+  border-color: var(--azul-claro, #4DA8DA) !important;
+}
+
+.dt-paging .pagination .page-item.disabled .page-link {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ── Estilos de Campos de Fecha del Historial ── */
+#filtro-fecha-inicio,
+#filtro-fecha-fin {
+  background-color: var(--fondo-card2, #111f33) !important;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
+  color: var(--texto, #E8EDF2) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  outline: none !important;
+  color-scheme: dark !important; /* Selector de fecha oscuro nativo */
+  font-size: 0.85rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#filtro-fecha-inicio:focus,
+#filtro-fecha-fin:focus {
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+}
+
+.cys-table-filters-container {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* ────────────────────────────────────
+   TARJETAS DE RESUMEN KPI MEJORADAS
+   ──────────────────────────────────── */
+.cys-summary-card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 1.25rem 1.5rem !important;
+  cursor: default !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
+}
+
+.cys-summary-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12) !important;
+}
+
+.cys-summary-card__icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.cys-summary-card:hover .cys-summary-card__icon {
+  transform: scale(1.06);
+}
+
+.cys-summary-card__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cys-summary-card__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.cys-summary-card__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.95rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.cys-summary-card__sub {
+  font-size: 0.65rem;
+  color: var(--texto-muted);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+
+/* Modificadores Semánticos de Resumen */
+.cys-summary-card--ventas {
+  border-left: 4px solid #2ecc71 !important;
+}
+.cys-summary-card__icon--ventas {
+  background: rgba(46, 204, 113, 0.12);
+  color: #2ecc71;
+}
+.cys-summary-card--ventas .cys-summary-card__label {
+  color: #6ee7b7;
+}
+.cys-summary-card--ventas .cys-summary-card__val {
+  color: #2ecc71;
+  text-shadow: 0 0 12px rgba(46, 204, 113, 0.25);
+}
+
+.cys-summary-card--productos {
+  border-left: 4px solid #4DA8DA !important;
+}
+.cys-summary-card__icon--productos {
+  background: rgba(77, 168, 218, 0.12);
+  color: #4DA8DA;
+}
+.cys-summary-card--productos .cys-summary-card__label {
+  color: #7ecfef;
+}
+.cys-summary-card--productos .cys-summary-card__val {
+  color: #4DA8DA;
+  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+}
+
+.cys-summary-card--clientes {
+  border-left: 4px solid #a18df2 !important;
+}
+.cys-summary-card__icon--clientes {
+  background: rgba(161, 141, 242, 0.12);
+  color: #a18df2;
+}
+.cys-summary-card--clientes .cys-summary-card__label {
+  color: #c4b5fd;
+}
+.cys-summary-card--clientes .cys-summary-card__val {
+  color: #a18df2;
+  text-shadow: 0 0 12px rgba(161, 141, 242, 0.25);
+}
