@@ -11,11 +11,11 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, get_user_model
 Usuario = get_user_model()
 
-from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
+from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
 from .forms import VentaForm, DetalleVentaForm
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
-
+from usuarios.models import Usuario
 
 
 # ════════════════════════════════════════
@@ -36,7 +36,7 @@ def caja_desbloqueada(view_func):
         if not request.session.get('usuario_id'):
             return redirect('login')
         if not request.session.get('caja_desbloqueada'):
-            return redirect('desbloquear_caja')
+            return redirect('ventas:desbloquear_caja')
         hoy = timezone.localdate()
         if CierreCaja.objects.filter(fecha=hoy).exists():
             request.session.pop('caja_desbloqueada', None)
@@ -84,11 +84,9 @@ def desbloquear_caja(request):
 
             if user and user.check_password(password) and user.activo:
                 request.session['caja_desbloqueada'] = True
-                request.session['caja_usuario'] = (
-                    f'{user.first_name} {user.last_name}'.strip()
-                    or user.username
-                )
-                return redirect('ventas_lista')
+                request.session['caja_usuario']      = usuario_encontrado.nombre_completo
+                request.session['caja_usuario_id']   = usuario_encontrado.pk
+                return redirect('ventas:ventas_lista')
             else:
                 error = 'Contraseña incorrecta.'
 
@@ -98,11 +96,13 @@ def desbloquear_caja(request):
         'ultimo_cierre':  ultimo_cierre,
     })
 
+
 @session_required
 def bloquear_caja(request):
     request.session.pop('caja_desbloqueada', None)
     request.session.pop('caja_usuario', None)
-    return redirect('desbloquear_caja')
+    request.session.pop('caja_usuario_id', None)
+    return redirect('ventas:desbloquear_caja')
 
 
 # ════════════════════════════════════════
@@ -114,6 +114,7 @@ def ventas_lista(request):
     ventas     = Venta.objects.prefetch_related('detalles__producto', 'detalles__presentacion').order_by('-fecha')
     form       = VentaForm()
     categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
+    clientes   = Cliente.objects.all().order_by('nombre')
     hoy        = timezone.localdate()
 
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
@@ -126,6 +127,7 @@ def ventas_lista(request):
         'ventas':                  ventas,
         'form':                    form,
         'categorias':              categorias,
+        'clientes':                clientes,
         'caja_abierta':            caja_abierta,
         'ultimo_cierre':           ultimo_cierre,
         'total_dia':               total_dia,
@@ -140,7 +142,6 @@ def nueva_venta(request):
     if request.method != 'POST':
         return redirect('ventas_lista')
 
-    form             = VentaForm(request.POST)
     producto_ids     = request.POST.getlist('producto_id[]')
     presentacion_ids = request.POST.getlist('presentacion_id[]')
     cantidades       = request.POST.getlist('cantidad[]')
@@ -163,9 +164,20 @@ def nueva_venta(request):
         messages.error(request, "El carrito está vacío.")
         return redirect('ventas_lista')
 
-    if not form.is_valid():
-        messages.error(request, "Revisa los campos del formulario.")
-        return redirect('ventas_lista')
+    # Obtener o crear cliente
+    cliente_id     = request.POST.get('cliente_id', '').strip()
+    cliente_nombre = request.POST.get('cliente_nombre', 'Consumidor final').strip() or 'Consumidor final'
+
+    if cliente_id:
+        cliente = get_object_or_404(Cliente, pk=cliente_id)
+    else:
+        cliente, _ = Cliente.objects.get_or_create(nombre=cliente_nombre)
+
+    # Obtener vendedor desde sesión
+    vendedor    = None
+    vendedor_id = request.session.get('caja_usuario_id') or request.session.get('usuario_id')
+    if vendedor_id:
+        vendedor = Usuario.objects.filter(pk=vendedor_id).first()
 
     items_validados = []
     subtotal_venta  = Decimal('0')
@@ -217,14 +229,17 @@ def nueva_venta(request):
         messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.'))
         return redirect('ventas_lista')
 
-    venta = form.save(commit=False)
-    venta.descuento_porcentaje = descuento_pct
-    venta.total_con_descuento  = total_final
-    venta.pago_efectivo        = pago_efectivo
-    venta.pago_tarjeta         = pago_tarjeta
-    venta.pago_transferencia   = pago_transferencia
-    venta.pago_nequi           = pago_nequi
-    venta.pago_daviplata       = pago_daviplata
+    venta = Venta(
+        cliente=cliente,
+        vendedor=vendedor,
+        descuento_porcentaje=descuento_pct,
+        total_con_descuento=total_final,
+        pago_efectivo=pago_efectivo,
+        pago_tarjeta=pago_tarjeta,
+        pago_transferencia=pago_transferencia,
+        pago_nequi=pago_nequi,
+        pago_daviplata=pago_daviplata,
+    )
     venta.save()
 
     for item in items_validados:
@@ -360,9 +375,15 @@ def apertura_caja(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
 
+    usuario    = None
+    usuario_id = request.session.get('caja_usuario_id') or request.session.get('usuario_id')
+    if usuario_id:
+        usuario = Usuario.objects.filter(pk=usuario_id).first()
+
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_base,
+        usuario=usuario,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
@@ -404,6 +425,7 @@ def cierre_caja(request):
 
     request.session.pop('caja_desbloqueada', None)
     request.session.pop('caja_usuario', None)
+    request.session.pop('caja_usuario_id', None)
 
     return JsonResponse({'ok': True})
 
@@ -432,9 +454,15 @@ def registrar_conteo(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto inválido.'}, status=400)
 
+    usuario    = None
+    usuario_id = request.session.get('caja_usuario_id') or request.session.get('usuario_id')
+    if usuario_id:
+        usuario = Usuario.objects.filter(pk=usuario_id).first()
+
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_contado,
+        usuario=usuario,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
@@ -459,20 +487,13 @@ def buscar_venta_devolucion(request):
     if not q:
         return JsonResponse({'ventas': []})
 
-    ventas = Venta.objects.filter(
-        cliente__nombre__icontains=q
-    ).order_by('-fecha')[:10]
-
+    ventas = Venta.objects.filter(cliente__nombre__icontains=q).order_by('-fecha')[:10]
     if q.isdigit():
         ventas = (Venta.objects.filter(pk=int(q)) | ventas).distinct()
 
     return JsonResponse({'ventas': [
-        {
-            'id':      v.pk,
-            'cliente': v.cliente.nombre,
-            'fecha':   v.fecha.strftime('%d/%m/%Y %H:%M'),
-            'total':   float(v.total_venta),
-        }
+        {'id': v.pk, 'cliente': v.cliente.nombre,
+         'fecha': v.fecha.strftime('%d/%m/%Y %H:%M'), 'total': float(v.total_venta)}
         for v in ventas
     ]})
 
