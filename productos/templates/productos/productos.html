@@ -28,37 +28,95 @@
 {% include 'productos/stock_widget.html' %}
 {% include 'productos/busqueda_producto.html' %}
 
-  <!-- INVENTARIO POR CATEGORÍA -->
-  <div class="card prod-card mb-4">
-    <div class="card-header prod-card-header d-flex justify-content-between align-items-center">
-      <span class="fw-semibold">
-        <i class="bi bi-box-seam me-2 text-info"></i>Inventario por Categoría
-      </span>
-      <button class="btn prod-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
-        <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
-      </button>
-    </div>
-    <div class="card-body">
-      <div class="row g-3">
+ <!-- INVENTARIO POR CATEGORÍA -->
+<div class="row g-3 mb-4">
+
+  <!-- CUADRO CATEGORÍAS -->
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow" style="background:#0d1b2a; border-radius:14px; border-top:3px solid #4DA8DA !important; min-height:320px;">
+      <div class="card-header border-0 d-flex justify-content-between align-items-center px-4 py-3" style="background:transparent;">
+        <span class="fw-semibold text-white fs-6">
+          <i class="bi bi-tags-fill me-2" style="color:#4DA8DA;"></i>Categorías
+        </span>
+        <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                style="width:32px;height:32px;background:#4DA8DA;border:none;"
+                data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
+          <i class="bi bi-plus-lg text-white" style="font-size:.8rem;"></i>
+        </button>
+      </div>
+      <div class="card-body px-4 pt-0 pb-4">
+        <p class="text-uppercase mb-3" style="font-size:.68rem; letter-spacing:.08em; color:#6c8ea4;">Selecciona una</p>
         {% for cat in resumen_categorias %}
-          <div class="col-md-4">
-            <div class="prod-stat-card text-center"
-                 data-bs-toggle="modal" data-bs-target="#modalProductosCategoria"
-                 data-cat-pk="{{ cat.pk }}" data-cat-nombre="{{ cat.nombre }}"
-                 role="button" style="cursor:pointer;">
-              <div class="text-muted small">{{ cat.nombre }}</div>
-              <div class="fw-bold fs-4 text-info">{{ cat.total }}</div>
-              <div class="text-muted" style="font-size:.7rem;">productos</div>
-            </div>
-          </div>
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
+                data-cat-pk="{{ cat.pk }}"
+                data-cat-nombre="{{ cat.nombre }}"
+                onclick="filtrarCategoria(this)"
+                style="font-size:.9rem; border-radius:8px;
+                       background:rgba(77,168,218,.1);
+                       border:1px solid rgba(77,168,218,.25);
+                       color:#c8dce8;">
+          <span class="text-truncate me-2" style="max-width:120px; color:inherit; display:inline-block;">{{ cat.nombre }}</span>
+          <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ cat.total }}</span>
+        </button>
         {% empty %}
-          <div class="col-12 text-center py-4 text-muted small">
-            No hay categorías registradas.
-          </div>
+        <p class="text-muted small px-1 mb-0">Sin categorías registradas.</p>
         {% endfor %}
       </div>
     </div>
   </div>
+
+  <!-- CUADRO TABLA -->
+  <div class="col-md-9">
+    <div class="card h-100 border-0 shadow" style="background:#0d1b2a; border-radius:14px; border-top:3px solid #27ae60 !important; min-height:320px;">
+      <div class="card-header border-0 d-flex justify-content-between align-items-center px-4 py-3" style="background:transparent;">
+        <span class="fw-semibold text-white fs-6">
+          <i class="bi bi-box-seam me-2" style="color:#27ae60;"></i>
+          <span id="cat-titulo">Productos por categoría</span>
+        </span>
+        <a href="{% url 'gestion_productos' %}" class="btn btn-sm px-3"
+           style="background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3); color:#4DA8DA; border-radius:8px; font-size:.82rem;">
+          <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
+        </a>
+      </div>
+     <div class="card-body p-0" style="position:relative; min-height:280px;">
+
+        <!-- Estado vacío -->
+        <div id="cat-empty-state"
+             class="d-flex flex-column align-items-center justify-content-center py-5"
+             style="position:absolute; inset:0;
+                    transition:opacity .35s ease;
+                    opacity:1; pointer-events:auto;">
+          <i class="bi bi-hand-index-thumb fs-1 mb-3" style="color:#4DA8DA; opacity:.4;"></i>
+          <span class="small" style="color:#6c8ea4;">Selecciona una categoría para ver sus productos</span>
+        </div>
+
+        <!-- Tabla -->
+        <div id="cat-tabla-wrap"
+             style="position:absolute; inset:0;
+                    transition:opacity .35s ease;
+                    opacity:0; pointer-events:none;
+                    overflow-y:auto;">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0" style="color:#c8dce8; background:transparent;">
+              <thead>
+                <tr style="border-bottom:1px solid rgba(24, 87, 121, 0.81); font-size:.78rem; color:#6c8ea4; text-transform:uppercase; letter-spacing:.06em;">
+                  <th class="px-4 py-3 fw-normal">#</th>
+                  <th class="py-3 fw-normal">Nombre</th>
+                  <th class="py-3 fw-normal">Código</th>
+                  <th class="py-3 text-center fw-normal">Stock</th>
+                  <th class="py-3 fw-normal">Presentaciones</th>
+                </tr>
+              </thead>
+              <tbody id="cat-tbody" style="font-size:.88rem;"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
 
   <!-- ANALÍTICA: ROTACIÓN -->
   <div class="card prod-card mb-4" id="seccion-analitica" style="display:none;">
@@ -388,7 +446,76 @@ const todoProductos = [
   }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
+let ultimaCatPk = null;
 
+function filtrarCategoria(btn) {
+  const pk      = btn.dataset.catPk;
+  const nombre  = btn.dataset.catNombre;
+  const empty   = document.getElementById('cat-empty-state');
+  const tabla   = document.getElementById('cat-tabla-wrap');
+
+  // Doble clic en la misma → vuelve la manito
+  if (ultimaCatPk === pk) {
+    ultimaCatPk = null;
+    btn.classList.remove('active', 'text-info');
+    document.getElementById('cat-titulo').textContent = 'Productos por categoría';
+    empty.style.opacity       = '1';
+    empty.style.pointerEvents = 'auto';
+    tabla.style.opacity       = '0';
+    tabla.style.pointerEvents = 'none';
+    return;
+  }
+
+  // Clic en categoría nueva
+  ultimaCatPk = pk;
+  document.querySelectorAll('.prod-cat-chip').forEach(b => b.classList.remove('active', 'text-info'));
+  btn.classList.add('active', 'text-info');
+
+  const filtrados = todoProductos.filter(p => p.categoria_pk == pk);
+  document.getElementById('cat-titulo').textContent =
+    nombre + ' — ' + filtrados.length + ' producto' + (filtrados.length !== 1 ? 's' : '');
+
+  empty.style.opacity       = '0';
+  empty.style.pointerEvents = 'none';
+  tabla.style.opacity       = '1';
+  tabla.style.pointerEvents = 'auto';
+
+  const tbody = document.getElementById('cat-tbody');
+
+  if (!filtrados.length) {
+    tbody.innerHTML = `<tr><td colspan="5"
+      style="background-color:#0d1b2a !important; text-align:center; padding:2rem; color:#6c8ea4; font-size:.88rem;">
+      <i class="bi bi-box-seam d-block mb-2" style="font-size:1.5rem;"></i>
+      No hay productos en esta categoría.
+    </td></tr>`;
+    return;
+  }
+
+  // ✅ Asignación correcta al tbody
+  tbody.innerHTML = filtrados.map((p, i) => {
+    const pres = p.presentaciones.length
+      ? p.presentaciones.map(pr =>
+          `<span class="badge"
+            style="background:rgba(77,168,218,.2); color:#4DA8DA;
+            font-size:.72rem; margin-right:3px; padding:3px 7px; border-radius:6px;">
+            ${pr.nombre} · ${pr.unidades} uds · $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
+          </span>`
+        ).join('')
+      : `<span style="color:#6c8ea4; font-size:.82rem;">Sin definir</span>`;
+
+    return `<tr style="background-color:#0d1b2a !important; border-bottom:1px solid rgba(77,168,218,0.1);">
+      <td style="background-color:#0d1b2a !important; color:#6c8ea4; padding:10px 16px; font-size:.88rem;">${i + 1}</td>
+      <td style="background-color:#0d1b2a !important; color:#c8dce8; font-weight:600; font-size:.88rem;">${p.nombre}</td>
+      <td style="background-color:#0d1b2a !important; color:#4DA8DA; font-family:monospace; font-size:.88rem;">${p.codigo || '—'}</td>
+      <td style="background-color:#0d1b2a !important; text-align:center;">
+        <span style="font-weight:700; color:${p.stock_critico ? '#e74c3c' : '#4DA8DA'};">
+          ${p.stock_total} uds
+        </span>
+      </td>
+      <td style="background-color:#0d1b2a !important; padding:10px 16px;">${pres}</td>
+    </tr>`;
+  }).join('');
+}
 // ── MODAL CATEGORÍA ───────────────────────────────────────────────────────────
 document.getElementById('modalProductosCategoria').addEventListener('show.bs.modal', function(e) {
   const btn = e.relatedTarget;
@@ -671,5 +798,6 @@ function guardarPresentacionesModal() {
         '<p class="text-muted small">Error al cargar datos.</p>';
     });
 })();
+
 </script>
 {% endblock %}

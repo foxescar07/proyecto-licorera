@@ -260,3 +260,42 @@
   .page-header {
     border-bottom: 1px solid rgba(128,128,128,0.15);
   }
+
+.prod-cat-chip { background: transparent; border: 1px solid transparent; color: var(--bs-body-color); }
+.prod-cat-chip:hover { background: rgba(180, 223, 246, 0.08); border-color: rgba(77,168,218,.2); }
+.prod-cat-chip.active { background: rgba(117, 130, 138, 0.12); border-color: rgba(77,168,218,.35); }
+.prod-cat-sidebar {
+  background-color: #0a2240; !important;
+  
+.prod-cat-chip:hover {
+  background: rgba(77,168,218,.2) !important;
+  border-color: rgba(77,168,218,.5) !important;
+  color: #ffffff !important;
+}
+.prod-cat-chip.active {
+  background: rgba(77,168,218,.25) !important;
+  border-color: #4DA8DA !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+/* === TABLA CATEGORÍA === */
+#cat-tabla-wrap,
+#cat-tabla-wrap .table-responsive,
+#cat-tabla-wrap table,
+#cat-tabla-wrap thead,
+#cat-tabla-wrap tbody,
+#cat-tabla-wrap tr,
+#cat-tabla-wrap th,
+#cat-tabla-wrap td {
+  background: transparent !important;
+  background-color: transparent !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-color: #c8dce8 !important;
+  color: #c8dce8 !important;
+  border-color: rgba(77, 168, 218, 0.1) !important;
+}
+
+#cat-tabla-wrap tr:hover td {
+  background: rgba(77, 168, 218, 0.06) !important;
+  background-color: rgba(77, 168, 218, 0.06) !important;
+}
