@@ -90,10 +90,10 @@
           <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
         <div class="cys-sb-submenu" id="submenuProductos">
-          <a href="#" class="cys-sb-sublink">
-            <i class="bi bi-box-seam"></i> Lista de Productos
+          <a href="{% url 'gestion_productos' %}" class="cys-sb-sublink">
+            <i class="bi bi-box-seam"></i> Gestión de Productos
           </a>
-          <a href="#" class="cys-sb-sublink">
+          <a href="{% url 'categorias_lista' %}" class="cys-sb-sublink">
             <i class="bi bi-tags-fill"></i> Categorías
           </a>
         </div>
@@ -106,10 +106,10 @@
           <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
         <div class="cys-sb-submenu" id="submenuInventario">
-          <a href="#" class="cys-sb-sublink">
+          <a href="{% url 'inventario_home' %}" class="cys-sb-sublink">
             <i class="bi bi-house-fill"></i> Inicio Inventario
           </a>
-          <a href="#" class="cys-sb-sublink">
+          <a href="{% url 'gestion_inventario' %}" class="cys-sb-sublink">
             <i class="bi bi-boxes"></i> Gestión de Inventario
           </a>
         </div>
