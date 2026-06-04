@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Proveedores{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  <div class="cys-snap-section px-3 py-4">
+
+  <!-- ENCABEZADO -->
+  <div class="card card-dev cys-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <span class="badge badge-cyan small mb-2 d-inline-block">
+          <i class="bi bi-building me-1"></i>GESTIÓN DE PROVEEDORES
+        </span>
+        <h1 class="cys-card__title mb-0">
+          <i class="bi bi-truck"></i>Proveedores
+        </h1>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="/proveedores/nuevo/" class="btn btn-sm btn-primary fw-bold">
+          <i class="bi bi-plus-lg me-1"></i>Nuevo proveedor
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS RESUMEN -->
+  <div class="row gx-2 gy-2 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--inv h-100 p-3">
+        <div class="cys-card__title small mb-2">Total</div>
+        <div class="h6 fw-bold mb-1 text-cyan">{{ total_proveedores }}</div>
+        <div class="text-muted text-sm">Registrados</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--prov h-100 p-3">
+        <div class="cys-card__title small mb-2">Activos</div>
+        <div class="h6 fw-bold mb-1 text-green-light">{{ proveedores_activos }}</div>
+        <div class="text-muted text-sm">{{ porcentaje_activos }}% del total</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--diario h-100 p-3">
+        <div class="cys-card__title small mb-2">Inactivos</div>
+        <div class="h6 fw-bold mb-1 text-yellow">{{ proveedores_inactivos }}</div>
+        <div class="text-muted text-sm">Desactivados</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--analisis h-100 p-3">
+        <div class="cys-card__title small mb-2">Sancionados</div>
+        <div class="h6 fw-bold mb-1 text-orange">{{ proveedores_sancionados }}</div>
+        <div class="text-muted text-sm">Bajo sanciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENSAJES -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %}-dev mb-4" role="alert">
+        <i class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- FILTROS -->
+  <div class="card card-dev p-4 mb-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <i class="bi bi-funnel" style="color: var(--cyan);"></i>
+      <h5 class="mb-0">Filtros</h5>
+    </div>
+
+    <!-- ✅ Así deben quedar -->
+<form method="GET" action="/proveedores/" class="row g-3">
+<a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+      <div class="col-12 col-md-4">
+        <label for="busqueda" class="form-label small fw-bold">Buscar por empresa o contacto</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" id="busqueda" class="form-control" placeholder="Nombre..." value="{{ request.GET.q }}">
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label for="filtroEstado" class="form-label small fw-bold">Estado</label>
+        <select name="estado" id="filtroEstado" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="activo" {% if request.GET.estado == 'activo' %}selected{% endif %}>Activos</option>
+          <option value="inactivo" {% if request.GET.estado == 'inactivo' %}selected{% endif %}>Inactivos</option>
+          <option value="sancionado" {% if request.GET.estado == 'sancionado' %}selected{% endif %}>Sancionados</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label for="filtroTipo" class="form-label small fw-bold">Tipo</label>
+        <select name="tipo" id="filtroTipo" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="mayorista" {% if request.GET.tipo == 'mayorista' %}selected{% endif %}>Mayorista</option>
+          <option value="minorista" {% if request.GET.tipo == 'minorista' %}selected{% endif %}>Minorista</option>
+          <option value="distribuidor" {% if request.GET.tipo == 'distribuidor' %}selected{% endif %}>Distribuidor</option>
+          <option value="fabricante" {% if request.GET.tipo == 'fabricante' %}selected{% endif %}>Fabricante</option>
+          <option value="importador" {% if request.GET.tipo == 'importador' %}selected{% endif %}>Importador</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-2 d-flex gap-2 align-items-end">
+        <button type="submit" class="btn btn-sm btn-primary flex-grow-1">
+          <i class="bi bi-funnel me-1"></i>Filtrar
+        </button>
+         <a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- TABLA DE PROVEEDORES -->
+  <div class="card card-dev p-0 mb-4">
+    <div class="table-responsive">
+      <table class="table table-sm mb-0" id="tablaProveedores">
+        <thead style="background: rgba(77, 168, 218, 0.08);">
+          <tr>
+            <th class="fw-bold small text-cyan">Empresa</th>
+            <th class="fw-bold small text-cyan">Contacto</th>
+            <th class="fw-bold small text-cyan">Tipo</th>
+            <th class="fw-bold small text-cyan">Estado</th>
+            <th class="fw-bold small text-cyan">Responsable</th>
+            <th class="fw-bold small text-center text-cyan">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+          {% for p in proveedores %}
+          <tr class="fila-proveedor" data-empresa="{{ p.nombre_empresa|lower }}" data-contacto="{{ p.nombre_contacto|lower }}" data-estado="{{ p.estado }}" data-tipo="{{ p.tipo_proveedor }}">
+            <td class="fw-bold small">
+              {{ p.nombre_empresa }}<br>
+              <span class="text-sm text-md">{{ p.email }}</span>
+            </td>
+            <td class="small">{{ p.nombre_contacto }}</td>
+            <td>
+              <span class="badge badge-cyan-bg">
+                {{ p.get_tipo_proveedor_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge 
+                {% if p.estado == 'activo' %}badge-status-activo
+                {% elif p.estado == 'inactivo' %}badge-status-inactivo
+                {% else %}badge-status-sancionado{% endif %}">
+                {{ p.get_estado_display|upper }}
+              </span>
+            </td>
+            <td class="small text-md">{{ p.registrado_por.email|default:"Admin" }}</td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm" role="group">
+                <a href="/proveedores/editar/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="POST" action="/proveedores/eliminar/{{ p.id }}/" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este proveedor?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <i class="bi bi-building d-block mb-2 text-lo" style="font-size: 2rem;"></i>
+              <small class="text-md">No hay proveedores registrados</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+{% endblock %}
