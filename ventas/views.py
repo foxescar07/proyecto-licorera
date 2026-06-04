@@ -36,7 +36,7 @@ def caja_desbloqueada(view_func):
         if not request.session.get('usuario_id'):
             return redirect('login')
         if not request.session.get('caja_desbloqueada'):
-            return redirect('ventas:desbloquear_caja')
+            return redirect('desbloquear_caja')
         hoy = timezone.localdate()
         if CierreCaja.objects.filter(fecha=hoy).exists():
             request.session.pop('caja_desbloqueada', None)
@@ -86,7 +86,7 @@ def desbloquear_caja(request):
                 request.session['caja_desbloqueada'] = True
                 request.session['caja_usuario']      = usuario_encontrado.nombre_completo
                 request.session['caja_usuario_id']   = usuario_encontrado.pk
-                return redirect('ventas:ventas_lista')
+                return redirect('ventas_lista')
             else:
                 error = 'Contraseña incorrecta.'
 
@@ -102,7 +102,7 @@ def bloquear_caja(request):
     request.session.pop('caja_desbloqueada', None)
     request.session.pop('caja_usuario', None)
     request.session.pop('caja_usuario_id', None)
-    return redirect('ventas:desbloquear_caja')
+    return redirect('desbloquear_caja')
 
 
 # ════════════════════════════════════════

@@ -7,26 +7,57 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/devoluciones/devoluciones.css' %}">
+
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" style="max-width:900px;">
+<div class="container-fluid p-0">
+  <div class="cys-snap-section px-3 py-4">
 
   <!-- ENCABEZADO -->
-  <div class="card card-dev p-4 mb-4">
+  <div class="card card-dev cys-card p-4 mb-4">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
       <div>
         <span class="badge badge-cyan small mb-2 d-inline-block">
           <i class="bi bi-arrow-left-right me-1"></i>MÓDULO DE DEVOLUCIONES
         </span>
-        <h1 class="h5 fw-bold mb-0">
-          <i class="bi bi-box-arrow-in-left me-2" style="color:var(--cyan);"></i>Solicitar Devolución
+        <h1 class="cys-card__title mb-0">
+          <i class="bi bi-box-arrow-in-left"></i>Solicitar Devolución
         </h1>
       </div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="offcanvas" data-bs-target="#drawerHistorial">
           <i class="bi bi-clock-history me-1"></i>Historial
           <span class="ms-2 badge rounded-pill" style="background:var(--blue);font-size:.65rem;">{{ devoluciones|length|default:"0" }}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalDatosPedido">
+          <i class="bi bi-box-arrow-in-left me-1"></i>Registrar devolución
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row gx-2 gy-2 mb-4">
+    <div class="col-6 col-lg-4">
+      <div class="cys-card cys-card--inv h-100 p-3">
+        <div class="cys-card__title small mb-2">Solicitudes</div>
+        <div class="h6 fw-bold mb-1" style="color: var(--cyan);">{{ devoluciones|length|default:"0" }}</div>
+        <div class="text-muted" style="font-size: 0.75rem;">Historial</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-4">
+      <div class="cys-card cys-card--prov h-100 p-3">
+        <div class="cys-card__title small mb-2">Productos</div>
+        <div class="h6 fw-bold mb-1" style="color: #c8e6a0;">{{ detalles_venta|length|default:"0" }}</div>
+        <div class="text-muted" style="font-size: 0.75rem;">Seleccionados</div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="cys-card cys-card--diario h-100 p-3">
+        <div class="cys-card__title small mb-2">Registrar</div>
+        <div class="h6 fw-bold mb-2" style="color: #c9b8f0;">Nueva solicitud</div>
+        <button type="button" class="btn btn-xs btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" data-bs-toggle="modal" data-bs-target="#modalDatosPedido">
+          <i class="bi bi-box-arrow-in-left" style="font-size: 0.7rem;"></i> Iniciar
         </button>
       </div>
     </div>
@@ -65,31 +96,111 @@
       </div>
     </div>
 
-    <!-- PASO 1: DATOS DEL PEDIDO -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <span class="step-badge">1</span>
-          <div>
-            <div class="fw-bold">
-              <i class="bi bi-receipt me-2" style="color:var(--cyan);"></i>Datos del pedido
+    <!-- MODAL — DATOS DEL PEDIDO -->
+    <div class="modal fade" id="modalDatosPedido" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content dev-modal-premium">
+          <div class="modal-header dev-modal-header-premium">
+            <div class="d-flex align-items-center gap-3">
+              <div class="dev-modal-icon">
+                <i class="bi bi-receipt"></i>
+              </div>
+              <div>
+                <h5 class="modal-title fw-bold mb-0">Seleccionar Venta</h5>
+                <p class="dev-modal-subtitle mb-0">Busca la venta del cliente para procesar la devolución</p>
+              </div>
             </div>
-            <div id="resumenPedido" class="small" style="color:var(--text-md);">Sin completar</div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
+          
+          <form method="get" action="{% url 'lista_devoluciones' %}" id="formSeleccionarVenta">
+            <div class="modal-body p-0">
+              
+              <!-- SECCIÓN BÚSQUEDA -->
+              <div class="dev-modal-search-section p-4">
+                <div class="mb-4">
+                  <label class="form-label dev-form-label">
+                    <i class="bi bi-search me-2"></i>Buscar por cliente o número
+                  </label>
+                  <div class="dev-search-wrapper">
+                    <i class="bi bi-search dev-search-icon"></i>
+                    <input type="text" class="form-control dev-search-input" id="busquedaVenta" 
+                      placeholder="Ej: Vanessa, VTA-0042..." required>
+                  </div>
+                  <small class="text-muted d-block mt-2">
+                    <i class="bi bi-info-circle me-1"></i>Escribe el nombre del cliente o número de venta
+                  </small>
+                </div>
+              </div>
+
+              <!-- RESULTADOS DE BÚSQUEDA -->
+              <div class="dev-modal-results p-4 border-top" id="devSearchResults" style="display:none;">
+                <div class="mb-3">
+                  <label class="dev-form-label">
+                    <i class="bi bi-check-circle me-2" style="color:var(--dev-verde);"></i>Ventas encontradas
+                  </label>
+                  <div id="devResultsList" class="dev-results-list"></div>
+                </div>
+              </div>
+
+              <!-- SELECCIÓN VENTA -->
+              <div class="dev-modal-select p-4 border-top">
+                <label class="dev-form-label">
+                  <i class="bi bi-hand-index me-2"></i>Confirmar selección
+                </label>
+                <select id="ventaSeleccionadaModal" name="venta_id" class="form-select dev-select-premium" required>
+                  <option value="">-- Selecciona una venta --</option>
+                </select>
+              </div>
+
+              <!-- PREVIEW VENTA SELECCIONADA -->
+              <div id="ventaPreview" class="dev-venta-preview mx-4 mb-4 p-4 rounded-3 d-none">
+                <div class="d-flex align-items-start gap-3 mb-3">
+                  <div class="dev-preview-badge">
+                    <i class="bi bi-check-circle"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="dev-preview-title mb-2">Venta seleccionada</div>
+                    <div class="row g-3 text-sm">
+                      <div class="col-md-6">
+                        <div class="dev-preview-label">Cliente</div>
+                        <div class="dev-preview-value" id="previewCliente">—</div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="dev-preview-label">Fecha</div>
+                        <div class="dev-preview-value" id="previewFecha">—</div>
+                      </div>
+                      <div class="col-12">
+                        <div class="dev-preview-label">Total</div>
+                        <div class="dev-preview-total" id="previewTotal">—</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="modal-footer dev-modal-footer-premium">
+              <button type="button" class="btn btn-outline-secondary dev-btn-cancel" data-bs-dismiss="modal">
+                <i class="bi bi-x me-2"></i>Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary dev-btn-confirm fw-bold">
+                <i class="bi bi-check2 me-2"></i>Cargar venta
+              </button>
+            </div>
+          </form>
         </div>
-        <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="modal" data-bs-target="#modalDatosPedido">
-          <i class="bi bi-pencil me-1"></i>Editar
-        </button>
       </div>
     </div>
 
     <!-- PASO 2: PRODUCTOS -->
     <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
+      <div class="d-flex align-items-center gap-3 mb-4">
         <span class="step-badge">2</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-box-seam me-2"></i>Productos a devolver
-        </span>
+        <h2 class="cys-card__title mb-0">
+          <i class="bi bi-box-seam"></i> Productos a devolver
+        </h2>
       </div>
 
       {% if detalles_venta %}
@@ -140,11 +251,11 @@
 
     <!-- PASO 3: MOTIVO DE DEVOLUCIÓN -->
     <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
+      <div class="d-flex align-items-center gap-3 mb-4">
         <span class="step-badge">3</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-question-circle me-2"></i>Motivo de devolución
-        </span>
+        <h2 class="cys-card__title mb-0">
+          <i class="bi bi-question-circle"></i> Motivo de devolución
+        </h2>
       </div>
 
       <div class="row g-3 mb-4" id="motivoGrid">
@@ -220,38 +331,38 @@
 
     <!-- PASO 4: TIPO DE REEMBOLSO -->
     <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
+      <div class="d-flex align-items-center gap-3 mb-4">
         <span class="step-badge">4</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-cash-coin me-2"></i>Tipo de reembolso
-        </span>
+        <h2 class="cys-card__title mb-0">
+          <i class="bi bi-cash-coin"></i> Tipo de reembolso
+        </h2>
       </div>
 
       <div class="row g-3" id="reembolsoGrid">
         <div class="col-md-4">
           <input type="radio" id="reembolso_cambio" name="tipo_reembolso" value="cambio" class="d-none">
-          <label for="reembolso_cambio" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block">
-            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:var(--text-lo);">Opción 1</div>
-            <div style="font-size:1.8rem;color:var(--text-md);margin-bottom:.5rem;"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="fw-bold" style="color:var(--text-hi);">Cambio de producto</div>
+          <label for="reembolso_cambio" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block" style="border-top: 4px solid #4DA8DA; background: linear-gradient(135deg, rgba(77,168,218,0.08) 0%, rgba(77,168,218,0.02) 100%); transition: all 0.3s ease;">
+            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:#4DA8DA;">Opción 1</div>
+            <div style="font-size:2rem;color:#4DA8DA;margin-bottom:.5rem;"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="fw-bold" style="color:#EFF8E2;">Cambio de producto</div>
             <div class="small" style="color:var(--text-md);">Misma referencia u otra</div>
           </label>
         </div>
         <div class="col-md-4">
           <input type="radio" id="reembolso_nota_credito" name="tipo_reembolso" value="nota_credito" class="d-none">
-          <label for="reembolso_nota_credito" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block">
-            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:var(--text-lo);">Opción 2</div>
-            <div style="font-size:1.8rem;color:var(--text-md);margin-bottom:.5rem;"><i class="bi bi-file-earmark-text"></i></div>
-            <div class="fw-bold" style="color:var(--text-hi);">Nota crédito</div>
+          <label for="reembolso_nota_credito" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block" style="border-top: 4px solid #1D9E75; background: linear-gradient(135deg, rgba(29,158,117,0.08) 0%, rgba(29,158,117,0.02) 100%); transition: all 0.3s ease;">
+            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:#1D9E75;">Opción 2</div>
+            <div style="font-size:2rem;color:#1D9E75;margin-bottom:.5rem;"><i class="bi bi-file-earmark-text"></i></div>
+            <div class="fw-bold" style="color:#EFF8E2;">Nota crédito</div>
             <div class="small" style="color:var(--text-md);">Abono a próxima factura</div>
           </label>
         </div>
         <div class="col-md-4">
           <input type="radio" id="reembolso_reembolso" name="tipo_reembolso" value="reembolso" class="d-none">
-          <label for="reembolso_reembolso" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block">
-            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:var(--text-lo);">Opción 3</div>
-            <div style="font-size:1.8rem;color:var(--text-md);margin-bottom:.5rem;"><i class="bi bi-bank"></i></div>
-            <div class="fw-bold" style="color:var(--text-hi);">Reembolso</div>
+          <label for="reembolso_reembolso" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block" style="border-top: 4px solid #E8834A; background: linear-gradient(135deg, rgba(232,131,74,0.08) 0%, rgba(232,131,74,0.02) 100%); transition: all 0.3s ease;">
+            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:#E8834A;">Opción 3</div>
+            <div style="font-size:2rem;color:#E8834A;margin-bottom:.5rem;"><i class="bi bi-bank"></i></div>
+            <div class="fw-bold" style="color:#EFF8E2;">Reembolso</div>
             <div class="small" style="color:var(--text-md);">Devolución al método de pago</div>
           </label>
         </div>
@@ -260,11 +371,11 @@
 
     <!-- PASO 5: EVIDENCIA FOTOGRÁFICA -->
     <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
+      <div class="d-flex align-items-center gap-3 mb-4">
         <span class="step-badge">5</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-camera me-2"></i>Evidencia fotográfica
-        </span>
+        <h2 class="cys-card__title mb-0">
+          <i class="bi bi-camera"></i> Evidencia fotográfica
+        </h2>
       </div>
 
       <div class="card card-dev-inner p-4 text-center cursor-pointer border-2 border-dashed" id="dropZone" style="border-color:var(--border);">
@@ -391,52 +502,8 @@
     </div>
   </div>
 
-</div>
-
-
-<!-- MODAL — DATOS DEL PEDIDO -->
-<div class="modal fade" id="modalDatosPedido" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-receipt me-2" style="color:var(--cyan);"></i>Seleccionar Venta
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <form method="get" action="{% url 'lista_devoluciones' %}" id="formSeleccionarVenta">
-        <div class="modal-body p-4">
-          <div class="mb-3">
-            <label class="form-label fw-bold text-uppercase small" style="letter-spacing:.08em;color:var(--text-md);">Búsqueda de Venta</label>
-            <input type="text" class="form-control" id="busquedaVenta" placeholder="Buscar por cliente o número de venta..." required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-bold text-uppercase small" style="letter-spacing:.08em;color:var(--text-md);">Selecciona una venta</label>
-            <select id="ventaSeleccionadaModal" name="venta_id" class="form-select" required>
-              <option value="">-- Busca una venta arriba --</option>
-            </select>
-          </div>
-
-          <div id="ventaPreview" class="card card-dev-inner p-3 d-none">
-            <div class="small" style="color:var(--text-md);">Cliente: <span id="previewCliente" class="fw-bold" style="color:var(--cyan);"></span></div>
-            <div class="small" style="color:var(--text-md);">Fecha: <span id="previewFecha" class="fw-bold" style="color:var(--text-hi);"></span></div>
-            <div class="small" style="color:var(--text-md);">Total: <span id="previewTotal" class="fw-bold" style="color:var(--green);"></span></div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-dismiss="modal">
-            <i class="bi bi-x me-1"></i>Cancelar
-          </button>
-          <button type="submit" class="btn btn-sm btn-primary fw-bold">
-            <i class="bi bi-check2 me-1"></i>Cargar
-          </button>
-        </div>
-      </form>
-    </div>
   </div>
 </div>
-
 
 <!-- MODAL — PROCESO Y POLÍTICA -->
 <div class="modal fade" id="modalProceso" tabindex="-1">
@@ -507,7 +574,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- OFFCANVAS — HISTORIAL DE DEVOLUCIONES -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="drawerHistorial" style="max-width:400px;">
