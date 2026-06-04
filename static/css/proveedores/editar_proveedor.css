@@ -1,0 +1,37 @@
+
+  .form-section {
+    background: rgba(77, 168, 218, 0.05);
+    border-left: 4px solid var(--cyan);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-section h5 {
+    color: var(--cyan);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .form-control, .form-select {
+    background: var(--color-surface);
+    border: 1px solid rgba(77, 168, 218, 0.2);
+    color: var(--text-hi);
+  }
+  
+  .form-control:focus, .form-select:focus {
+    background: var(--color-surface);
+    border-color: var(--cyan);
+    color: var(--text-hi);
+    box-shadow: 0 0 0 0.2rem rgba(77, 168, 218, 0.15);
+  }
+  
+  .form-control::placeholder {
+    color: var(--text-lo);
+  }
+  
+  .form-label {
+    color: var(--text-hi);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }

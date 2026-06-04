@@ -83,7 +83,7 @@
         </div>
 
         <!-- PRODUCTOS -->
-        <button class="cys-sb-link cys-sb-link--parent"
+        <button id="btnProductos" class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuProductos')">
           <i class="bi bi-box-seam-fill"></i>
           <span class="flex-grow-1">Productos</span>
@@ -99,7 +99,7 @@
         </div>
 
         <!-- INVENTARIO -->
-        <button class="cys-sb-link cys-sb-link--parent"
+        <button id="btnInventario" class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuInventario')">
           <i class="bi bi-clipboard-data-fill"></i>
           <span class="flex-grow-1">Inventario</span>
@@ -115,18 +115,21 @@
         </div>
 
         <!-- PROVEEDORES -->
-        <button class="cys-sb-link cys-sb-link--parent"
-                onclick="toggleSubmenu(event, this, 'submenuProveedores')">
+        <div class="cys-sb-link cys-sb-link--parent">
+          <a href="{% url 'lista_proveedores' %}">
           <i class="bi bi-truck"></i>
           <span class="flex-grow-1">Proveedores</span>
           <i class="bi bi-chevron-down cys-chevron"></i>
-        </button>
+          <button onclick="toggleSubmenu(event, this, 'submenuProductos')"
+          style="background:none; border:none; color:inherit; padding: 10px 14px; cursor:pointer;">
+    <i class="bi bi-chevron-down cys-chevron"></i>
+  </button>
+          </div>
         <div class="cys-sb-submenu" id="submenuProveedores">
-          <a href="#" class="cys-sb-sublink">
+          <a href="{% url 'lista_compras' %}" class="cys-sb-sublink">
             <i class="bi bi-cart-plus-fill"></i> Compras
           </a>
         </div>
-
       </nav>
     </div>
 
