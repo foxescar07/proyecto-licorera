@@ -25,12 +25,25 @@ def find_files_to_purge():
     pycache_dirs = []
     database_files = []
 
-    # Ignore directories to speed up search and avoid permission issues
-    ignored_dirs = {'.git', '.venv', '.vscode', 'node_modules'}
+    # Common virtual environment and system directories to ignore (case-insensitive)
+    ignored_dir_names = {
+        '.git', '.venv', 'venv', 'env', '.vscode', 'node_modules', 
+        'lib', 'libs', 'site-packages', 'include', 'bin', 'share', 'obj'
+    }
 
     for root, dirs, files in os.walk(project_root):
-        # Modifying dirs in-place affects os.walk traversal
-        dirs[:] = [d for d in dirs if d not in ignored_dirs]
+        # Filter directories to avoid traversing virtual envs and system folders
+        filtered_dirs = []
+        for d in dirs:
+            # Check if directory name is in ignored names (case-insensitive)
+            if d.lower() in ignored_dir_names:
+                continue
+            # Check if directory looks like a virtual env (contains pyvenv.cfg)
+            if os.path.exists(os.path.join(root, d, 'pyvenv.cfg')):
+                continue
+            filtered_dirs.append(d)
+        
+        dirs[:] = filtered_dirs
 
         # Check for database files in the root folder
         if root == project_root:

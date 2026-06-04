@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ventas_extras %}
+
+{% block title %}Ventas del Día — CYS Ltda{% endblock %}
+{% block page_title %}Ventas del Día{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --azul-claro:  #4da8da;
+    --azul-borde:  #1e3a5f;
+    --texto:       #e8eaf0;
+    --texto-muted: #7a8fa6;
+    --fondo-card2: #0f1e2e;
+    --rojo:        #ff4d4d;
+    --verde:       #2ed573;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- ── ENCABEZADO ── -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <div class="text-uppercase small" style="color:var(--texto-muted); letter-spacing:1px;">Resumen</div>
+      <div class="fw-bold fs-5" style="color:var(--texto);">
+        <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
+        Ventas del día — {{ hoy|date:"d/m/Y" }}
+      </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap align-items-center">
+      <a href="{% url 'ventas:ventas_lista' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+      <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-printer"></i> Imprimir
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TARJETAS RESUMEN ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-4">
+      <div class="p-3 rounded-3 h-100" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+        <div class="small mb-1" style="color:var(--texto-muted);">
+          <i class="bi bi-receipt me-1"></i>Ventas
+        </div>
+        <div class="fw-bold fs-3" style="color:var(--texto);">{{ ventas.count }}</div>
+        <div class="small" style="color:var(--texto-muted);">transacciones hoy</div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-4">
+      <div class="p-3 rounded-3 h-100" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+        <div class="small mb-1" style="color:var(--texto-muted);">
+          <i class="bi bi-cash-stack me-1"></i>Total del día
+        </div>
+        <div class="fw-bold fs-4" style="color:var(--texto);">${{ total_dia|pesos }}</div>
+        <div class="small" style="color:var(--texto-muted);">ingresos acumulados</div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-4">
+      <div class="p-3 rounded-3 h-100" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+        <div class="small mb-1" style="color:var(--texto-muted);">
+          <i class="bi bi-box-seam me-1"></i>Productos vendidos
+        </div>
+        <div class="fw-bold fs-3" style="color:var(--texto);">{{ total_productos }}</div>
+        <div class="small" style="color:var(--texto-muted);">unidades totales</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABLA VENTAS ── -->
+  <div class="p-3 rounded-3" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+    <div class="fw-bold mb-3" style="color:var(--texto);">Detalle de Ventas</div>
+
+    {% if ventas %}
+    <div class="table-responsive">
+      <table class="table table-dark mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Métodos de pago</th>
+            <th>Descuento</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for venta in ventas %}
+          <tr>
+            <td class="small" style="color:var(--texto-muted);">{{ forloop.counter }}</td>
+            <td class="small" style="color:var(--texto-muted);">{{ venta.fecha|date:"H:i" }}</td>
+            <td class="fw-bold" style="color:var(--texto);">{{ venta.cliente.nombre }}</td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                {% for det in venta.detalles.all %}
+                <span class="badge rounded-pill" style="background:var(--azul-borde); color:var(--texto);">
+                  {{ det.presentacion.producto.nombre }}
+                  {% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+                  ×{{ det.cantidad }}
+                </span>
+                {% endfor %}
+              </div>
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                {% if venta.pago_efectivo      > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-cash"></i> Efectivo</span>{% endif %}
+                {% if venta.pago_tarjeta       > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-credit-card"></i> Tarjeta</span>{% endif %}
+                {% if venta.pago_transferencia > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-bank"></i> Transfer.</span>{% endif %}
+                {% if venta.pago_nequi         > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-phone"></i> Nequi</span>{% endif %}
+                {% if venta.pago_daviplata     > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-phone"></i> Daviplata</span>{% endif %}
+              </div>
+            </td>
+            <td>
+              {% if venta.descuento_porcentaje > 0 %}
+              <span class="fw-bold small" style="color:var(--rojo);">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>
+              {% else %}
+              <span style="color:var(--texto-muted);">—</span>
+              {% endif %}
+            </td>
+            <td class="fw-bold" style="color:var(--azul-claro);">${{ venta.total_venta|pesos }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3" style="border-top:1px solid var(--azul-borde);">
+      <span class="fw-bold small" style="color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
+      <span class="fw-bold fs-4" style="color:var(--azul-claro);">${{ total_dia|pesos }}</span>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5" style="color:var(--texto-muted);">
+      <i class="bi bi-receipt d-block mb-2" style="font-size:2.5rem;"></i>
+      No hay ventas registradas hoy
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
