@@ -129,6 +129,7 @@
   align-items: center;
   gap: 1rem;
   padding: .85rem 1rem;
+  min-height: 68px;
   background: rgba(77,168,218,.04);
   border: 1px solid rgba(77,168,218,.12);
   border-radius: 10px;
@@ -148,11 +149,13 @@
 .cys-perfil-security__body { flex: 1; }
 .cys-perfil-security__title { font-size: .85rem; font-weight: 600; color: var(--texto); }
 .cys-perfil-security__sub   { font-size: .7rem; color: var(--texto-muted); margin-top: .1rem; }
+
 .cys-btn-sm-text {
   font-size: .78rem;
-  padding: .35rem .9rem;
+  padding: .48rem 1.05rem;
   border-radius: 8px;
   white-space: nowrap;
+  letter-spacing: .1em;
 }
 
 /* ══════════════════════════════════════════════
@@ -178,7 +181,6 @@
   gap: .85rem;
 }
 
-/* Avatar en modal editar info */
 .cys-modal-avatar {
   width: 44px; height: 44px;
   border-radius: 50%;
@@ -198,7 +200,6 @@
   transform: rotate(12deg) scale(1.06);
 }
 
-/* Títulos en modal */
 .cys-modal-title {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
@@ -210,7 +211,6 @@
 }
 .cys-modal-subtitle { font-size: .75rem; color: var(--azul-claro); margin-top: .1rem; }
 
-/* Ícono + glow (pasos) */
 .cys-modal-title-wrap { display: flex; align-items: center; gap: 1rem; }
 .cys-modal-icon-wrap  { position: relative; flex-shrink: 0; }
 .cys-modal-icon {
@@ -234,7 +234,6 @@
   color: var(--azul-claro); opacity: .65; margin-bottom: .2rem;
 }
 
-/* Cuerpos */
 .cys-modal-body {
   padding: 1.25rem;
   background: #0a1e35;
@@ -245,7 +244,6 @@
   margin-bottom: 1.1rem; line-height: 1.6;
 }
 
-/* Footers */
 .cys-modal-footer {
   padding: .85rem 1.25rem;
   border-top: 1px solid rgba(77,168,218,.12);
@@ -260,7 +258,6 @@
   display: flex; align-items: center; justify-content: flex-end; gap: .75rem;
 }
 
-/* Alerta dentro del modal */
 .cys-modal-alert {
   padding: .6rem .9rem;
   border-radius: 8px;
@@ -279,7 +276,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   INPUTS — heredados / locales
+   INPUTS
 ══════════════════════════════════════════════ */
 .cys-form-label {
   font-size: .65rem;
@@ -334,7 +331,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   BOTONES — locales (por si base.css no los carga)
+   BOTONES
 ══════════════════════════════════════════════ */
 .cys-btn-primary {
   background: linear-gradient(135deg, #4DA8DA 0%, #3a93c4 100%);
