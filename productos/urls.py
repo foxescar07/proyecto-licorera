@@ -9,8 +9,6 @@ urlpatterns = [
     path('buscar/',                                 views.buscar_producto,        name='buscar_producto'),
     path('stock-status/',                           views.stock_status,           name='stock_status'),
     path('rotacion/',                               views.rotacion_json,          name='rotacion_json'),
-
-    # ── de la rama anterior ───────────────────────────────────────────────────
     path('producto/<int:pk>/',                      views.producto_detalle,       name='producto_detalle'),
     path('producto/<int:pk>/editar/',               views.producto_editar,        name='producto_editar'),
     path('producto/<int:pk>/eliminar/',             views.producto_eliminar,      name='producto_eliminar'),
@@ -22,4 +20,5 @@ urlpatterns = [
     path('categorias/<int:pk>/editar/',             views.categoria_editar,       name='categoria_editar'),
     path('categorias/<int:pk>/eliminar/',           views.categoria_eliminar,     name='categoria_eliminar'),
     path('salida/',                                 views.producto_salida,        name='producto_salida'),
+    path('gestion/',                                views.gestion_productos,      name='gestion_productos'),  # ← mueve la vista aquí
 ]
