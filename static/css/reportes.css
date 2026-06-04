@@ -134,6 +134,15 @@
   font-size: .85rem;
 }
 
+/* Celda de estado vacío: Evita que herede anchos de columna y centra el contenido */
+.cys-td--empty {
+  width: 100% !important;
+  display: table-cell !important;
+  text-align: center !important;
+  padding: 40px 20px !important;
+  background: transparent !important;
+}
+
 .cys-empty-box i {
   display: block;
   font-size: 2.2rem;
@@ -202,6 +211,7 @@
   text-transform: uppercase;
   letter-spacing: .04em;
   white-space: nowrap;
+  text-align: left;
 }
 
 .cys-inv-table td {
@@ -209,7 +219,19 @@
   border-bottom: 1px solid rgba(239,248,226,.07);
   vertical-align: middle;
   color: var(--color-blanco);
+  text-align: left;
+  word-break: break-word;
 }
+
+/* Alineación específica para evitar el descuadre en la tabla de Historial */
+#reportes-table th:nth-child(1), 
+#reportes-table td:nth-child(1):not([colspan]) { text-align: center; width: 45px; }
+#reportes-table th:nth-child(4), #reportes-table td:nth-child(4):not([colspan]), /* Cantidad */
+#reportes-table th:nth-child(5), #reportes-table td:nth-child(5):not([colspan]), /* Precio Uni. */
+#reportes-table th:nth-child(6), #reportes-table td:nth-child(6):not([colspan])  /* Total */ { text-align: right; }
+
+/* Ajustes generales para celdas numéricas en otras tablas */
+.cys-qty, .cys-td--green { text-align: right; }
 
 .cys-inv-table tbody tr:last-child td { border-bottom: none; }
 .cys-inv-table tbody tr:hover         { background: rgba(239,248,226,.04); }
@@ -770,6 +792,55 @@ table.dataTable tbody tr:hover td {
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: 0.02em;
+}
+
+/* ────────────────────────────────────
+   RESPONSIVE TABLES (Conversión a Cards en Móvil)
+   ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .cys-inv-table thead { display: none; } /* Ocultar cabeceras en móvil */
+  .cys-inv-table, .cys-inv-table tbody, .cys-inv-table tr, .cys-inv-table td { 
+    display: block; 
+    width: 100%; 
+  }
+  .cys-inv-table tr { 
+    margin-bottom: 1.25rem; 
+    border: 1px solid var(--azul-borde); 
+    border-radius: 12px; 
+    padding: 10px; 
+    background: var(--color-bg-card); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  .cys-inv-table td { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px 12px !important; 
+    border: none !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important; 
+    text-align: right !important;
+  }
+
+  /* Excepción para celdas vacías en móvil: no mostrar labels ni flex */
+  .cys-inv-table td[colspan], .cys-td--empty { 
+    display: block !important; 
+    text-align: center !important; 
+    border: none !important; 
+  }
+  .cys-inv-table td[colspan]::before, .cys-td--empty::before { display: none !important; }
+
+  .cys-inv-table td:last-child { border-bottom: none !important; }
+  .cys-inv-table td::before { 
+    content: attr(data-label); 
+    font-weight: 700; 
+    color: var(--texto-muted); 
+    font-size: 0.7rem; 
+    text-transform: uppercase; 
+    margin-right: 1rem; 
+    text-align: left;
+  }
+  .cys-inv-table td[colspan] { display: block; text-align: center; border: none !important; }
+  .cys-inv-table td[colspan]::before { display: none; }
 }
 
 .cys-summary-card__sub {
