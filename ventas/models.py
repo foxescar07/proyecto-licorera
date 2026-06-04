@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
 from productos.models import Producto, PresentacionProducto
-from django.contrib.auth.models import User
 
 
 class Cliente(models.Model):
@@ -70,7 +68,7 @@ class DetalleVenta(models.Model):
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_venta', null=True, blank=True)
     presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
-                                        related_name='detalles_venta', null=True, blank=True)
+                                        related_name='detalles_venta')
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
                                         null=True, blank=True, related_name='detalles_venta')
     cantidad        = models.PositiveIntegerField()
@@ -85,46 +83,6 @@ class DetalleVenta(models.Model):
 
     def __str__(self):
         return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
-
-
-class AperturaCaja(models.Model):
-    fecha_apertura = models.DateTimeField(default=timezone.now)
-    fecha          = models.DateField(default=timezone.localdate)
-    monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
-                                       related_name='aperturas_caja',
-                                       verbose_name='Usuario',
-                                       null=True, blank=True)
-    observacion    = models.TextField(blank=True, default='')
-    denominaciones = models.JSONField(default=dict, blank=True)
-
-    class Meta:
-        ordering            = ['-fecha_apertura']
-        verbose_name        = 'Apertura de caja'
-        verbose_name_plural = 'Aperturas de caja'
-
-    def __str__(self):
-        return f'Apertura {self.fecha} — ${self.monto_base:,.0f}'
-
-
-class CierreCaja(models.Model):
-    apertura             = models.ForeignKey(AperturaCaja, on_delete=models.SET_NULL,
-                                             null=True, blank=True, related_name='cierres')
-    fecha_cierre         = models.DateTimeField(default=timezone.now)
-    fecha                = models.DateField(default=timezone.localdate)
-    turno                = models.PositiveIntegerField(default=1)
-    total_contado        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    total_retirado       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    monto_base_siguiente = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    denominaciones       = models.JSONField(default=dict, blank=True)
-
-    class Meta:
-        ordering            = ['-fecha_cierre']
-        verbose_name        = 'Cierre de caja'
-        verbose_name_plural = 'Cierres de caja'
-
-    def __str__(self):
-        return f'Cierre {self.fecha} turno {self.turno} — contado ${self.total_contado:,.0f}'
 
 
 class Devolucion(models.Model):
@@ -164,7 +122,7 @@ class DetalleDevolucion(models.Model):
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
     presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
-                                        related_name='detalles_devolucion', null=True, blank=True)
+                                        related_name='detalles_devolucion')
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
                                         null=True, blank=True, related_name='detalles_devolucion')
     cantidad        = models.PositiveIntegerField()

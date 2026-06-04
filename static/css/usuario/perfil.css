@@ -7,23 +7,27 @@
   gap: .5rem;
   font-size: .78rem;
 }
-
-
+.cys-breadcrumb__link {
+  color: var(--texto-muted);
+  text-decoration: none;
+  opacity: .75;
+  transition: opacity .2s, color .2s;
+}
 .cys-breadcrumb__link:hover { opacity: 1; color: var(--azul-claro); }
 .cys-breadcrumb__sep { color: var(--texto-muted); font-size: .65rem; }
 .cys-breadcrumb__current { color: var(--texto-muted); }
 
 /* ══════════════════════════════════════════════
-   PERFIL — HERO CARD
+   PERFIL — HERO CARD (columna izquierda)
 ══════════════════════════════════════════════ */
 .cys-perfil-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2rem 1.5rem !important;
+  height: 100%;
 }
 
-/* Avatar — misma animación que el aside */
 .cys-perfil-avatar {
   width: 80px;
   height: 80px;
@@ -36,9 +40,7 @@
   transition: border-color .25s, transform .3s cubic-bezier(.25,.8,.25,1);
   cursor: default;
 }
-.cys-perfil-avatar:hover {
-  border-color: rgba(77,168,218,.8);
-}
+.cys-perfil-avatar:hover { border-color: rgba(77,168,218,.8); }
 .cys-perfil-avatar:hover .cys-perfil-avatar__icon {
   transform: rotate(12deg) scale(1.08);
 }
@@ -71,12 +73,12 @@
   border-radius: 999px;
   border: 1px solid;
 }
-.cys-rol-badge--admin    { background:rgba(192,57,43,.18); color:#e87070; border-color:rgba(192,57,43,.4); }
+.cys-rol-badge--admin    { background:rgba(192,57,43,.18);  color:#e87070; border-color:rgba(192,57,43,.4); }
 .cys-rol-badge--cajero   { background:rgba(77,168,218,.15); color:#4DA8DA; border-color:rgba(77,168,218,.4); }
 .cys-rol-badge--empleado { background:rgba(46,204,113,.12); color:#2ecc71; border-color:rgba(46,204,113,.3); }
 
 /* Meta items */
-.cys-perfil-meta { width: 100%; }
+.cys-perfil-meta { width: 100%; flex-grow: 1; }
 .cys-perfil-meta__item {
   display: flex;
   justify-content: space-between;
@@ -88,6 +90,9 @@
 .cys-perfil-meta__item:last-child { border-bottom: none; }
 .cys-perfil-meta__label { color: var(--texto-muted); font-size: .72rem; }
 .cys-perfil-meta__val   { color: var(--texto); font-weight: 500; }
+
+/* Botón siempre al fondo */
+.cys-perfil-hero .cys-btn { margin-top: auto !important; }
 
 /* ══════════════════════════════════════════════
    PERFIL — CAMPOS INFO
@@ -131,14 +136,11 @@
 }
 .cys-perfil-security__item:hover { border-color: rgba(77,168,218,.25); }
 .cys-perfil-security__icon {
-  width: 36px;
-  height: 36px;
+  width: 36px; height: 36px;
   border-radius: 8px;
   background: rgba(77,168,218,.1);
   border: 1px solid rgba(77,168,218,.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   color: var(--azul-claro);
   font-size: .95rem;
   flex-shrink: 0;
@@ -154,21 +156,49 @@
 }
 
 /* ══════════════════════════════════════════════
-   MODAL EDITAR PERFIL — con avatar, sin ID
+   MODALES — BASE COMPARTIDA
 ══════════════════════════════════════════════ */
+.cys-modal-sm { max-width: 420px; }
+
 .cys-modal-content {
   background: #0a1e35;
   border: 1px solid rgba(77,168,218,.3);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0,0,0,.7);
+  color: var(--texto);
+  overflow: hidden;
 }
+
 .cys-modal-header {
+  background: linear-gradient(135deg, rgba(77,168,218,.08) 0%, #0a1e35 70%);
   border-bottom: 1px solid rgba(77,168,218,.15);
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.25rem;
   display: flex;
   align-items: center;
   gap: .85rem;
 }
+
+/* Avatar en modal editar info */
+.cys-modal-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a3a5c, #2a5080);
+  border: 2px solid rgba(77,168,218,.45);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: border-color .25s;
+}
+.cys-modal-header:hover .cys-modal-avatar { border-color: rgba(77,168,218,.8); }
+.cys-modal-avatar__icon {
+  font-size: 1.2rem;
+  color: var(--azul-claro);
+  transition: transform .3s cubic-bezier(.25,.8,.25,1);
+}
+.cys-modal-header:hover .cys-modal-avatar__icon {
+  transform: rotate(12deg) scale(1.06);
+}
+
+/* Títulos en modal */
 .cys-modal-title {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
@@ -180,71 +210,168 @@
 }
 .cys-modal-subtitle { font-size: .75rem; color: var(--azul-claro); margin-top: .1rem; }
 
-/* Avatar en el modal — misma animación */
-.cys-modal-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1a3a5c, #2a5080);
-  border: 2px solid rgba(77,168,218,.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: border-color .25s;
-}
-.cys-modal-header:hover .cys-modal-avatar {
-  border-color: rgba(77,168,218,.8);
-}
-.cys-modal-avatar__icon {
+/* Ícono + glow (pasos) */
+.cys-modal-title-wrap { display: flex; align-items: center; gap: 1rem; }
+.cys-modal-icon-wrap  { position: relative; flex-shrink: 0; }
+.cys-modal-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, rgba(77,168,218,.18), rgba(77,168,218,.06));
+  border: 1px solid rgba(77,168,218,.55);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
   font-size: 1.2rem;
   color: var(--azul-claro);
-  transition: transform .3s cubic-bezier(.25,.8,.25,1);
 }
-.cys-modal-header:hover .cys-modal-avatar__icon {
-  transform: rotate(12deg) scale(1.06);
+.cys-modal-icon-glow {
+  position: absolute; inset: -4px;
+  border-radius: 14px;
+  background: radial-gradient(circle, rgba(77,168,218,.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cys-modal-eyebrow {
+  font-size: .6rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--azul-claro); opacity: .65; margin-bottom: .2rem;
 }
 
-.cys-modal-body   { padding: 1.25rem; background: #0a1e35; }
+/* Cuerpos */
+.cys-modal-body {
+  padding: 1.25rem;
+  background: #0a1e35;
+}
+.cys-modal-body-simple { padding: 1.4rem 1.5rem; background: #0a1e35; }
+.cys-modal-desc {
+  font-size: .82rem; color: var(--texto-sub);
+  margin-bottom: 1.1rem; line-height: 1.6;
+}
+
+/* Footers */
 .cys-modal-footer {
   padding: .85rem 1.25rem;
   border-top: 1px solid rgba(77,168,218,.12);
   background: #0a1e35;
-  display: flex;
-  justify-content: flex-end;
-  gap: .5rem;
+  display: flex; justify-content: flex-end; gap: .5rem;
   border-radius: 0 0 16px 16px;
 }
+.cys-modal-footer-row {
+  background: #0d1b2e;
+  border-top: 1px solid rgba(77,168,218,.15);
+  padding: 1rem 1.5rem;
+  display: flex; align-items: center; justify-content: flex-end; gap: .75rem;
+}
+
+/* Alerta dentro del modal */
+.cys-modal-alert {
+  padding: .6rem .9rem;
+  border-radius: 8px;
+  font-size: .81rem;
+  line-height: 1.45;
+}
+.cys-modal-alert--ok  {
+  background: rgba(46,204,113,.1);
+  border: 1px solid rgba(46,204,113,.35);
+  color: #2ecc71;
+}
+.cys-modal-alert--err {
+  background: rgba(192,57,43,.1);
+  border: 1px solid rgba(232,112,112,.35);
+  color: #e87070;
+}
+
+/* ══════════════════════════════════════════════
+   INPUTS — heredados / locales
+══════════════════════════════════════════════ */
+.cys-form-label {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--texto-muted);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: .38rem;
+}
+
+.cys-input {
+  background: var(--fondo-input, #091422) !important;
+  border: 1px solid rgba(77,168,218,.30) !important;
+  color: var(--texto) !important;
+  border-radius: 10px !important;
+  padding: .65rem 1rem !important;
+  font-size: .855rem !important;
+  font-family: 'Inter', sans-serif !important;
+  width: 100%;
+  transition: border-color .2s, box-shadow .2s;
+}
+.cys-input:focus {
+  border-color: var(--azul-claro, #4DA8DA) !important;
+  box-shadow: 0 0 0 3px rgba(77,168,218,.13) !important;
+  outline: none !important;
+}
+.cys-input::placeholder { color: rgba(232,237,242,.42) !important; font-size: .82rem !important; }
+
+.cys-input-icon-wrap { position: relative; display: flex; align-items: center; }
+.cys-input-icon-wrap .cys-input { padding-left: 2.5rem !important; }
+.cys-input-icon {
+  position: absolute; left: .9rem;
+  color: rgba(77,168,218,.45); font-size: .95rem;
+  pointer-events: none; z-index: 3;
+}
+
+.cys-input-eye { position: relative; display: flex; align-items: center; }
+.cys-input-eye .cys-input { padding-right: 2.6rem !important; }
+.cys-eye-btn {
+  position: absolute; right: .75rem;
+  background: transparent; border: none;
+  color: rgba(77,168,218,.4); cursor: pointer;
+  padding: 0; font-size: .95rem;
+  transition: color .2s; line-height: 1; z-index: 2;
+}
+.cys-eye-btn:hover { color: var(--azul-claro, #4DA8DA); }
+
+.cys-form-error {
+  font-size: .7rem; color: #e87070;
+  display: flex; align-items: center; gap: .25rem;
+}
+
+/* ══════════════════════════════════════════════
+   BOTONES — locales (por si base.css no los carga)
+══════════════════════════════════════════════ */
+.cys-btn-primary {
+  background: linear-gradient(135deg, #4DA8DA 0%, #3a93c4 100%);
+  color: #011936;
+  border: none; border-radius: 10px;
+  padding: .58rem 1.3rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700; font-size: .85rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all .22s;
+  box-shadow: 0 4px 20px rgba(77,168,218,.35);
+}
+.cys-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(77,168,218,.5); }
+.cys-btn-primary:disabled { background: rgba(77,168,218,.2); cursor: not-allowed; transform: none; box-shadow: none; }
+.cys-btn-sm { width: auto; padding: .52rem 1.2rem; font-size: .82rem; }
+
+.cys-btn-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: transparent;
+  border: 1px solid rgba(77,168,218,.30);
+  border-radius: 8px;
+  color: rgba(232,237,242,.65);
+  font-size: .75rem; font-weight: 500;
+  padding: .45rem .9rem; cursor: pointer;
+  text-decoration: none;
+  transition: all .2s;
+  font-family: 'Inter', sans-serif;
+}
+.cys-btn-link:hover {
+  background: rgba(77,168,218,.13);
+  border-color: rgba(77,168,218,.55);
+  color: var(--azul-claro, #4DA8DA);
+}
+
 /* ══════════════════════════════════════════════
    ALINEACIÓN DE TARJETAS
 ══════════════════════════════════════════════ */
-
-/* Hace que ambas columnas tengan la misma altura */
-.row.gx-4.gy-4 {
-  align-items: stretch;
-}
-
-/* Las tarjetas ocupan toda la altura disponible */
-.cys-card {
-  height: 100%;
-}
-
-/* Tarjeta izquierda */
-.cys-perfil-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 1.5rem !important;
-  height: 100%;
-}
-
-/* El contenido central ocupa el espacio libre */
-.cys-perfil-meta {
-  width: 100%;
-  flex-grow: 1;
-}
-
-/* Botón siempre abajo */
-.cys-perfil-hero .cys-btn {
-  margin-top: auto !important;
-}
+.row.gx-4.gy-4 { align-items: stretch; }
+.cys-card { height: 100%; }
