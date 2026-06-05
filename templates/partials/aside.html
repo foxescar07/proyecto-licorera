@@ -68,23 +68,6 @@
         </a>
 
         <!-- VENTAS -->
- HEAD
-<button id="btnVentas"
-        class="cys-sb-link cys-sb-link--parent"
-        onclick="toggleSubmenu(event, this, 'submenuVentas')">
-  <i class="bi bi-receipt"></i>
-  <span class="flex-grow-1">Ventas</span>
-  <i class="bi bi-chevron-down cys-chevron"></i>
-</button>
-<div class="cys-sb-submenu" id="submenuVentas">
-  <a href="{% url 'reportes' %}" class="cys-sb-sublink">
-    <i class="bi bi-bar-chart-fill"></i> Reportes
-  </a>
-  <a href="{% url 'lista_devoluciones' %}" class="cys-sb-sublink">
-    <i class="bi bi-arrow-return-left"></i> Devoluciones
-  </a>
-</div>
-
         <button id="btnVentas" class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuVentas')">
           <i class="bi bi-receipt"></i>
@@ -102,7 +85,6 @@
             <i class="bi bi-arrow-return-left"></i> Devoluciones
           </a>
         </div>
-         main
 
         <!-- PRODUCTOS -->
         <button id="btnProductos" class="cys-sb-link cys-sb-link--parent"
@@ -137,23 +119,12 @@
         </div>
 
         <!-- PROVEEDORES -->
-          HEAD
-        <a href="{% url 'lista_proveedores' %}"
-           id="btnProveedores"
-           class="cys-sb-link cys-sb-link--parent"
-           onclick="toggleSubmenu(event, this, 'submenuProveedores')">
-          <i class="bi bi-truck"></i>
-          <span class="flex-grow-1">Proveedores</span>
-          <i class="bi bi-chevron-down cys-chevron"></i>
-        </a>
-
         <button id="btnProveedores" class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuProveedores')">
           <i class="bi bi-truck"></i>
           <span class="flex-grow-1">Proveedores</span>
           <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
-         main
         <div class="cys-sb-submenu" id="submenuProveedores">
           <a href="{% url 'lista_proveedores' %}" class="cys-sb-sublink">
             <i class="bi bi-truck"></i> Lista de Proveedores
@@ -246,16 +217,10 @@
     const href = link.getAttribute('href');
     if (href && href !== '#') {
       const normalizedHref = normalizePath(href);
-      HEAD
-      const isExactMatch = currentPath === normalizedHref;
+      const isExactMatch  = currentPath === normalizedHref;
       const isPrefixMatch = currentPath.startsWith(normalizedHref + '/') ||
                             (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
 
-      const isExactMatch   = currentPath === normalizedHref;
-      const isPrefixMatch  = currentPath.startsWith(normalizedHref + '/') ||
-                             (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
-
-       main
       if (isExactMatch || isPrefixMatch) {
         if (normalizedHref.length > maxLength) {
           maxLength = normalizedHref.length;
