@@ -7,65 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
-<style>
-  .stat-box { background:#0a2240; border:1px solid rgba(77,168,218,0.2); border-radius:12px; padding:14px 16px; }
-  .stat-label { font-size:11px; color:rgba(226,232,240,0.55); font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
-  .bar-track { background:rgba(0,0,0,0.35); border-radius:6px; height:8px; overflow:hidden; }
-  .bar-fill { height:100%; border-radius:6px; }
 
-  /* Buscador */
-  .search-box { background:#0a2240; border:1px solid rgba(77,168,218,0.15); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
-  #buscadorProductos { background:rgba(255,255,255,0.05); border:1px solid rgba(77,168,218,0.2); border-radius:0 8px 8px 0; border-left:none; color:#e2e8f0; font-size:13px; padding:7px 12px; outline:none; width:100%; }
-  #buscadorProductos::placeholder { color:rgba(226,232,240,0.3); }
-  #buscadorProductos:focus { border-color:#4DA8DA; background:rgba(255,255,255,0.07); box-shadow:none; }
-  .search-prefix { background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.2); border-right:none; border-radius:8px 0 0 8px; padding:7px 10px; color:#4DA8DA; }
-
-  /* Accordion */
-  .acc-item { background:#0a2240; border:1px solid rgba(77,168,218,0.15); border-radius:10px; margin-bottom:8px; overflow:hidden; }
-  .acc-hdr { display:flex; align-items:center; gap:8px; padding:11px 14px; cursor:pointer; color:#e2e8f0; font-weight:600; font-size:13px; border:none; background:none; width:100%; text-align:left; }
-  .acc-hdr i.chevron { margin-left:auto; color:rgba(226,232,240,0.4); font-size:13px; transition:transform .2s; }
-  .acc-hdr[aria-expanded="true"] i.chevron { transform:rotate(180deg); }
-
-  /* Tabla */
-  .tbl-wrap { overflow-x:auto; }
-  .prod-table { width:100%; border-collapse:collapse; }
-  .prod-table thead th { background:rgba(77,168,218,0.07); color:#4DA8DA; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:10px 14px; border-bottom:1px solid rgba(77,168,218,0.12); white-space:nowrap; }
-  .prod-table tbody tr { border-bottom:1px solid rgba(77,168,218,0.07); transition:background .15s; }
-  .prod-table tbody tr:last-child { border-bottom:none; }
-  .prod-table tbody tr:hover { background:rgba(77,168,218,0.04); }
-  .prod-table tbody td { padding:10px 14px; color:#e2e8f0; font-size:12.5px; vertical-align:middle; }
-
-  /* Tags/badges */
-  .tag-info  { background:rgba(77,168,218,0.12);  color:#4DA8DA;  border:1px solid rgba(77,168,218,0.25);  font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
-  .tag-ok    { background:rgba(39,174,96,0.15);   color:#27ae60;  border:1px solid rgba(39,174,96,0.3);    font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
-  .tag-crit  { background:rgba(220,53,69,0.15);   color:#dc3545;  border:1px solid rgba(220,53,69,0.3);    font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
-  .tag-warn  { background:rgba(255,193,7,0.12);   color:#ffc107;  border:1px solid rgba(255,193,7,0.25);   font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
-
-  /* Dropdown 3 puntos */
-  .dd-wrap  { position:relative; display:inline-block; }
-  .dd-btn   { background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.2); color:#4DA8DA; border-radius:7px; padding:3px 9px; cursor:pointer; font-size:15px; line-height:1.4; }
-  .dd-btn:hover { background:rgba(77,168,218,0.22); }
-  .dd-menu  { display:none; position:absolute; right:0; top:110%; background:#0d2d50; border:1px solid rgba(77,168,218,0.25); border-radius:10px; min-width:160px; z-index:1050; box-shadow:0 8px 24px rgba(0,0,0,0.45); overflow:hidden; }
-  .dd-menu.open { display:block; }
-  .dd-item  { display:flex; align-items:center; gap:8px; padding:9px 14px; font-size:12.5px; color:#e2e8f0; cursor:pointer; transition:background .12s; white-space:nowrap; text-decoration:none; }
-  .dd-item:hover { background:rgba(77,168,218,0.1); color:#e2e8f0; }
-  .dd-item.danger { color:#dc3545; }
-  .dd-item.danger:hover { background:rgba(220,53,69,0.1); }
-  .dd-sep   { height:1px; background:rgba(77,168,218,0.12); margin:3px 0; }
-  .dd-item i { font-size:14px; }
-
-  /* Modales */
-  .modal-content { background:#0a2240 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.2); }
-  .modal-header, .modal-footer { background:rgba(0,0,0,0.15) !important; border-color:rgba(77,168,218,0.12) !important; }
-  .prod-input { background:rgba(255,255,255,0.05) !important; border:1px solid rgba(77,168,218,0.2) !important; color:#e2e8f0 !important; border-radius:8px; }
-  .prod-input:focus { background:rgba(255,255,255,0.08) !important; border-color:#4DA8DA !important; box-shadow:0 0 0 .2rem rgba(77,168,218,0.15) !important; color:#e2e8f0 !important; }
-  .prod-input::placeholder { color:rgba(226,232,240,0.3); }
-  .prod-input option { background:#0a2240; color:#e2e8f0; }
-
-  /* Cat bars scroll */
-  #grafico-categorias::-webkit-scrollbar { width:4px; }
-  #grafico-categorias::-webkit-scrollbar-thumb { background:rgba(77,168,218,0.3); border-radius:4px; }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -91,56 +33,54 @@
   <div class="d-flex gap-3 align-items-start">
 
     <!-- ══════════ COLUMNA IZQUIERDA: ESTADÍSTICAS ══════════ -->
-    <div style="width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
+    <div style="width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
+<!-- Categorías -->
+<div class="stat-box">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
+    <span class="tag-info fs-6 px-3 py-1">{{ categorias|length }}</span>
+  </div>
+  <div id="grafico-categorias" style="display:flex; flex-direction:column; gap:8px; max-height:100px; overflow-y:auto;"></div>
+</div>
 
-      <!-- Categorías -->
-      <div class="stat-box">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
-          <span class="tag-info">{{ categorias|length }}</span>
-        </div>
-        <div id="grafico-categorias" style="display:flex; flex-direction:column; gap:6px; max-height:88px; overflow-y:auto;"></div>
-      </div>
+<!-- Salud Stock -->
+<div class="stat-box">
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
+    <span id="txt-pct-salud" class="fw-bold" style="color:#27ae60; font-size:18px;">0%</span>
+  </div>
+  <div class="bar-track my-2">
+    <div id="bar-ok" class="bar-fill" style="background:#27ae60; width:0%;"></div>
+  </div>
+  <div class="d-flex justify-content-between stat-sub mt-1">
+    <span>OK: <strong id="stat-ok" style="color:#27ae60;">0</strong></span>
+    <span>Crítico: <strong style="color:#dc3545;">{{ total_criticos|default:0 }}</strong></span>
+  </div>
+</div>
 
-      <!-- Salud Stock -->
-      <div class="stat-box">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
-          <span id="txt-pct-salud" class="fw-bold small" style="color:#27ae60;">0%</span>
-        </div>
-        <div class="bar-track mb-2" style="height:10px;">
-          <div id="bar-ok" class="bar-fill" style="background:#27ae60; width:0%;"></div>
-        </div>
-        <div class="d-flex justify-content-between" style="font-size:11px; color:rgba(226,232,240,0.5);">
-          <span>OK: <strong id="stat-ok" style="color:#27ae60;">0</strong></span>
-          <span>Crítico: <strong style="color:#dc3545;">{{ total_criticos|default:0 }}</strong></span>
-        </div>
-      </div>
+<!-- Alertas -->
+<div class="stat-box" style="border-color:rgba(255,193,7,0.25);">
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
+    <span class="stat-sub">Total: {{ productos|length }}</span>
+  </div>
+  <div class="d-flex justify-content-between align-items-center my-2">
+    <span class="stat-sub">Sin presentación</span>
+    <span style="color:#ffc107; font-weight:700; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
+  </div>
+  <div class="bar-track">
+    <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
+  </div>
+</div>
 
-      <!-- Alertas -->
-      <div class="stat-box" style="border-color:rgba(255,193,7,0.2);">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
-          <span style="font-size:11px; color:rgba(226,232,240,0.4);">Total: {{ productos|length }}</span>
-        </div>
-        <div class="d-flex justify-content-between mb-1" style="font-size:11px; color:rgba(226,232,240,0.5);">
-          <span>Sin presentación</span>
-          <span style="color:#ffc107; font-weight:600;"><span id="stat-sin-pres">—</span> pds</span>
-        </div>
-        <div class="bar-track">
-          <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
-        </div>
-      </div>
+<!-- Total productos -->
+<div class="stat-box">
+  <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
+  <div class="stat-value">{{ productos|length }}</div>
+  <div class="stat-sub mt-1">En inventario</div>
+</div>
 
-      <!-- Total productos -->
-      <div class="stat-box">
-        <div class="stat-label mb-1"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
-        <div style="font-size:22px; font-weight:500; color:#e2e8f0;">{{ productos|length }}</div>
-        <div style="font-size:11px; color:rgba(226,232,240,0.4);">en inventario</div>
-      </div>
-
-    </div>
-    <!-- fin columna izquierda -->
+</div><!-- fin columna izquierda -->
 
     <!-- ══════════ COLUMNA DERECHA: BUSCADOR + TABLA ══════════ -->
     <div style="flex:1; min-width:0;">
@@ -550,7 +490,12 @@ function toggleDD(e, btn) {
   const menu = btn.nextElementSibling;
   const isOpen = menu.classList.contains('open');
   closeAllDD();
-  if (!isOpen) menu.classList.add('open');
+  if (!isOpen) {
+    const rect = btn.getBoundingClientRect();
+    menu.style.top  = (rect.bottom + 6) + 'px';
+    menu.style.left = (rect.right - 170) + 'px';
+    menu.classList.add('open');
+  }
 }
 
 function closeAllDD() {
@@ -558,7 +503,6 @@ function closeAllDD() {
 }
 
 document.addEventListener('click', closeAllDD);
-
 /* ── Filtrar ── */
 function filtrarProductos(q) {
   const term = q.toLowerCase().trim();
