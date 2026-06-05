@@ -84,8 +84,8 @@ def desbloquear_caja(request):
 
             if user and user.check_password(password) and user.activo:
                 request.session['caja_desbloqueada'] = True
-                request.session['caja_usuario']      = usuario_encontrado.nombre_completo
-                request.session['caja_usuario_id']   = usuario_encontrado.pk
+                request.session['caja_usuario']      = user.nombre_completo  # ✅ ARREGLADO
+                request.session['caja_usuario_id']   = user.pk               # ✅ ARREGLADO
                 return redirect('ventas:ventas_lista')
             else:
                 error = 'Contraseña incorrecta.'
@@ -157,7 +157,7 @@ def nueva_venta(request):
     pago_efectivo      = to_decimal('pago_efectivo')
     pago_tarjeta       = to_decimal('pago_tarjeta')
     pago_transferencia = to_decimal('pago_transferencia')
-    pago_nequi         = to_decimal('pago_nequi')
+    pago_nequi        = to_decimal('pago_nequi')
     pago_daviplata     = to_decimal('pago_daviplata')
 
     if not producto_ids:
