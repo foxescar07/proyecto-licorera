@@ -340,25 +340,51 @@
             <div class="cys-modal__subtitle">CYS Ltda · {{ productos|length }} productos registrados</div>
           </div>
         </div>
-        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        <div class="d-flex align-items-center">
+          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        </div>
       </div>
 
       <div class="cys-modal__stats">
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val">{{ total_registrados }}</div>
-          <div class="cys-stat-mini__label">Productos Reg.</div>
+        <!-- KPI: Total Registrados -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
+          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
+            <i class="bi bi-list-check"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Registrados</span>
+            <span class="cys-summary-card__val">{{ total_registrados }}</span>
+          </div>
         </div>
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">{{ total_en_stock }}</div>
-          <div class="cys-stat-mini__label">En stock</div>
+        <!-- KPI: En Stock -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
+          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">En stock</span>
+            <span class="cys-summary-card__val">{{ total_en_stock }}</span>
+          </div>
         </div>
-        <div class="cys-stat-mini cys-stat-mini--amarillo">
-          <div class="cys-stat-mini__val">{{ total_stock_bajo }}</div>
-          <div class="cys-stat-mini__label">Stock bajo</div>
+        <!-- KPI: Stock Bajo -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #f1c40f;">
+          <div class="cys-summary-card__icon" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Bajo</span>
+            <span class="cys-summary-card__val">{{ total_stock_bajo }}</span>
+          </div>
         </div>
-        <div class="cys-stat-mini cys-stat-mini--rojo">
-          <div class="cys-stat-mini__val">{{ total_agotados }}</div>
-          <div class="cys-stat-mini__label">Agotados</div>
+        <!-- KPI: Agotados -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #e74c3c;">
+          <div class="cys-summary-card__icon" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+            <i class="bi bi-x-circle"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Agotados</span>
+            <span class="cys-summary-card__val">{{ total_agotados }}</span>
+          </div>
         </div>
       </div>
 
@@ -366,7 +392,7 @@
 
         <!-- Tabla de productos -->
         <div class="table-responsive">
-        <table class="cys-inv-table">
+        <table id="tabla-modal-stock" class="cys-inv-table">
           <thead>
             <tr>
               <th>#</th><th>Producto</th><th>Stock</th><th>Estado</th>
@@ -417,7 +443,7 @@
           </div>
         </div>
         <div class="table-responsive">
-        <table class="cys-inv-table">
+        <table id="tabla-modal-entradas" class="cys-inv-table">
           <thead>
             <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
           </thead>
@@ -451,7 +477,7 @@
           </div>
         </div>
         <div class="table-responsive">
-        <table class="cys-inv-table">
+        <table id="tabla-modal-salidas" class="cys-inv-table">
           <thead>
             <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
           </thead>
@@ -480,6 +506,14 @@
       </div><!-- /modal-body -->
 
       <div class="modal-footer cys-modal__footer">
+        <div class="me-auto d-flex gap-2">
+          <a href="?export=excel&tipo=inventario" class="btn btn-sm btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </a>
+          <a href="?export=pdf&tipo=inventario" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          </a>
+        </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
@@ -509,19 +543,26 @@
             </div>
           </div>
         </div>
-        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        <div class="d-flex align-items-center">
+          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        </div>
       </div>
 
-      <div class="cys-modal__stats" style="grid-template-columns: 1fr;">
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">{{ proveedores|length }}</div>
-          <div class="cys-stat-mini__label">Total registrados</div>
+      <div class="cys-modal__stats">
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #5DCAA5;">
+          <div class="cys-summary-card__icon" style="background: rgba(93, 202, 165, 0.1); color: #5DCAA5;">
+            <i class="bi bi-truck"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Total Proveedores Registrados</span>
+            <span class="cys-summary-card__val">{{ proveedores|length }}</span>
+          </div>
         </div>
       </div>
 
       <div class="modal-body p-0">
         <div class="table-responsive">
-        <table class="cys-inv-table">
+        <table id="tabla-modal-proveedores" class="cys-inv-table">
           <thead>
             <tr>
               <th>#</th><th>Nombre</th><th>Empresa</th><th>Teléfono</th><th>Correo</th>
@@ -551,6 +592,14 @@
       </div>
 
       <div class="modal-footer cys-modal__footer">
+        <div class="me-auto d-flex gap-2">
+          <a href="?export=excel&tipo=proveedores" class="btn btn-sm btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </a>
+          <a href="?export=pdf&tipo=proveedores" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          </a>
+        </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
@@ -578,29 +627,51 @@
             <div class="cys-modal__subtitle">CYS Ltda · {{ hoy }}</div>
           </div>
         </div>
-        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        <div class="d-flex align-items-center">
+          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        </div>
       </div>
 
-      <div class="cys-rd-stats">
-        <div class="cys-rd-stat">
-          <div class="cys-rd-stat__val cys-rd-stat__val--verde">
-            ${{ ingresos_hoy|floatformat:0 }}
+      <div class="cys-modal__stats">
+        <!-- Ingresos -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
+          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+            <i class="bi bi-cash-stack"></i>
           </div>
-          <div class="cys-rd-stat__label">Ingresos hoy</div>
-        </div>
-        <div class="cys-rd-stat">
-          <div class="cys-rd-stat__val cys-rd-stat__val--azul">{{ ventas_hoy|length }}</div>
-          <div class="cys-rd-stat__label">Ventas hoy</div>
-        </div>
-        <div class="cys-rd-stat">
-          <div class="cys-rd-stat__val cys-rd-stat__val--amarillo">
-            {{ total_entradas_hoy }}
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Ingresos hoy</span>
+            <span class="cys-summary-card__val">${{ ingresos_hoy|floatformat:0 }}</span>
           </div>
-          <div class="cys-rd-stat__label">Und. entrada</div>
         </div>
-        <div class="cys-rd-stat">
-          <div class="cys-rd-stat__val cys-rd-stat__val--rojo">{{ total_salidas_hoy }}</div>
-          <div class="cys-rd-stat__label">Und. salida</div>
+        <!-- Ventas -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
+          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
+            <i class="bi bi-cart-check"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Ventas hoy</span>
+            <span class="cys-summary-card__val">{{ ventas_hoy|length }}</span>
+          </div>
+        </div>
+        <!-- Entradas Stock -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #f1c40f;">
+          <div class="cys-summary-card__icon" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">
+            <i class="bi bi-box-arrow-in-down"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Und. Entrada</span>
+            <span class="cys-summary-card__val">{{ total_entradas_hoy }}</span>
+          </div>
+        </div>
+        <!-- Salidas Stock -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #e74c3c;">
+          <div class="cys-summary-card__icon" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+            <i class="bi bi-box-arrow-up"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Und. Salida</span>
+            <span class="cys-summary-card__val">{{ total_salidas_hoy }}</span>
+          </div>
         </div>
       </div>
 
@@ -650,7 +721,7 @@
                id="rdPanelEntradas" role="tabpanel"
                aria-labelledby="tab-entradas">
             <div class="table-responsive">
-            <table class="cys-inv-table">
+            <table id="tabla-modal-rd-entradas" class="cys-inv-table">
               <thead>
                 <tr>
                   <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
@@ -684,7 +755,7 @@
                id="rdPanelSalidas" role="tabpanel"
                aria-labelledby="tab-salidas">
             <div class="table-responsive">
-            <table class="cys-inv-table">
+            <table id="tabla-modal-rd-salidas" class="cys-inv-table">
               <thead>
                 <tr>
                   <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
@@ -718,7 +789,7 @@
                id="rdPanelVentas" role="tabpanel"
                aria-labelledby="tab-ventas">
             <div class="table-responsive">
-            <table class="cys-inv-table">
+            <table id="tabla-modal-rd-ventas" class="cys-inv-table">
               <thead>
                 <tr>
                   <th>#</th><th>Cliente</th><th>Producto</th>
@@ -762,7 +833,7 @@
           </div>
         </div>
         <div class="table-responsive">
-        <table class="cys-inv-table mb-3">
+        <table id="tabla-modal-rd-top" class="cys-inv-table mb-3">
           <thead>
             <tr>
               <th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th>
@@ -785,6 +856,14 @@
       </div><!-- /modal-body -->
 
       <div class="modal-footer cys-modal__footer">
+        <div class="me-auto d-flex gap-2">
+          <a href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </a>
+          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          </a>
+        </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
@@ -812,21 +891,41 @@
             <div class="cys-modal__subtitle">CYS Ltda · Resumen y top productos</div>
           </div>
         </div>
-        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        <div class="d-flex align-items-center">
+          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        </div>
       </div>
 
       <div class="cys-modal__stats">
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">${{ total_ventas|floatformat:0 }}</div>
-          <div class="cys-stat-mini__label">Total ventas</div>
+        <!-- KPI: Total Ventas -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
+          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Ventas Totales</span>
+            <span class="cys-summary-card__val">${{ total_ventas|floatformat:0 }}</span>
+          </div>
         </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val">{{ total_productos }}</div>
-          <div class="cys-stat-mini__label">Uds. vendidas</div>
+        <!-- KPI: Uds Vendidas -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
+          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
+            <i class="bi bi-bag-check"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Uds. Vendidas</span>
+            <span class="cys-summary-card__val">{{ total_productos }}</span>
+          </div>
         </div>
-        <div class="cys-stat-mini cys-stat-mini--amarillo">
-          <div class="cys-stat-mini__val">{{ total_clientes }}</div>
-          <div class="cys-stat-mini__label">Clientes</div>
+        <!-- KPI: Clientes -->
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #f1c40f;">
+          <div class="cys-summary-card__icon" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Clientes</span>
+            <span class="cys-summary-card__val">{{ total_clientes }}</span>
+          </div>
         </div>
       </div>
 
@@ -839,7 +938,7 @@
             Ventas por fecha
           </div>
           <div class="table-responsive">
-          <table class="cys-inv-table">
+          <table id="tabla-modal-av-ventas" class="cys-inv-table">
             <thead>
               <tr>
                 <th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th>
@@ -877,7 +976,7 @@
             Top productos del día más vendidos
           </div>
           <div class="table-responsive">
-          <table class="cys-inv-table">
+          <table id="tabla-modal-av-top" class="cys-inv-table">
             <thead>
               <tr>
                 <th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th>
@@ -908,6 +1007,14 @@
       </div><!-- /modal-body -->
 
       <div class="modal-footer cys-modal__footer">
+        <div class="me-auto d-flex gap-2">
+          <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </a>
+          <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          </a>
+        </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
           Cerrar
         </button>
@@ -923,6 +1030,4 @@
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="{% static 'js/datatables.js' %}"></script>
-<script src="{% static 'js/tables/reportes_table.js' %}"></script>
 {% endblock %}

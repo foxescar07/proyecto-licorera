@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from ventas.models import Venta, DetalleVenta
 from productos.models import Producto
 from productos.models import Inventario
 from .forms import FiltroReporteForm
 import json
 import zoneinfo
+import csv
 from django.core.serializers.json import DjangoJSONEncoder
 ZONA_COLOMBIA = zoneinfo.ZoneInfo('America/Bogota')
 
@@ -36,6 +38,64 @@ def index_reportes(request):
     paginator   = Paginator(ventas_qs, 10)
     page_number = request.GET.get('page', 1)
     page_obj    = paginator.get_page(page_number)
+
+    # Definimos proveedores aquí para que esté disponible en exportaciones y en la vista
+    proveedores_data_list = [
+        {"nombre_contacto": "Carlos Mendoza", "nombre_empresa": "Licores del Caribe S.A.S.", "telefono": "300 456 7890", "email": "carlos.mendoza@licorescaribe.com"},
+        {"nombre_contacto": "Ana María Gómez", "nombre_empresa": "Distribuidora El Brindis", "telefono": "315 987 6543", "email": "contacto@elbrindis.com"},
+        {"nombre_contacto": "Juan Fernando Ruiz", "nombre_empresa": "Cervecerías Unidas", "telefono": "310 456 1234", "email": "jruiz@cerveceriasunidas.co"},
+        {"nombre_contacto": "Patricia Lara", "nombre_empresa": "Importaciones Premium Ltda.", "telefono": "312 789 4561", "email": "plara@premiumimports.com"},
+        {"nombre_contacto": "Roberto Díaz", "nombre_empresa": "Bodegas de la Sabana", "telefono": "320 123 7894", "email": "rdiaz@bodegassabana.com"}
+    ]
+
+    # --- LÓGICA DE EXPORTACIÓN (SIN JAVASCRIPT) ---
+    export_format = request.GET.get('export')
+    if export_format == 'excel':
+        tipo = request.GET.get('tipo', 'ventas')
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="reporte_{tipo}_{timezone.now().strftime("%Y%m%d")}.csv"'
+        
+        # BOM para que Excel abra correctamente el UTF-8 (acentos y ñ)
+        response.write(u'\ufeff'.encode('utf8'))
+        writer = csv.writer(response)
+
+        if tipo == 'ventas':
+            writer.writerow(['Fecha', 'Cliente', 'Producto', 'Cantidad', 'Precio Unitario', 'Total'])
+            for v in ventas_qs:
+                for det in v.detalles.all():
+                    writer.writerow([
+                        v.fecha.astimezone(ZONA_COLOMBIA).strftime("%Y-%m-%d %H:%M"),
+                        v.cliente,
+                        det.producto.nombre,
+                        det.cantidad,
+                        det.precio_unitario,
+                        det.subtotal()
+                    ])
+        
+        elif tipo == 'inventario':
+            writer.writerow(['Producto', 'Stock Disponible', 'Estado'])
+            for p in Producto.objects.all().order_by('nombre'):
+                status = "En Stock" if getattr(p, 'cantidad_disponible', 0) > 10 else "Bajo" if getattr(p, 'cantidad_disponible', 0) > 0 else "Agotado"
+                writer.writerow([p.nombre, getattr(p, 'cantidad_disponible', 0), status])
+
+        elif tipo == 'proveedores':
+            # Datos estáticos según tu lista en la vista
+            writer.writerow(['Contacto', 'Empresa', 'Teléfono', 'Email'])
+            proveedores_data = [
+                ["Carlos Mendoza", "Licores del Caribe S.A.S.", "300 456 7890", "carlos.mendoza@licorescaribe.com"],
+                ["Ana María Gómez", "Distribuidora El Brindis", "315 987 6543", "contacto@elbrindis.com"],
+                ["Juan Fernando Ruiz", "Cervecerías Unidas", "310 456 1234", "jruiz@cerveceriasunidas.co"],
+                ["Patricia Lara", "Importaciones Premium Ltda.", "312 789 4561", "plara@premiumimports.com"],
+                ["Roberto Díaz", "Bodegas de la Sabana", "320 123 7894", "rdiaz@bodegassabana.com"]
+            ]
+            for row in proveedores_data:
+                writer.writerow(row)
+
+        return response
+
+    elif export_format == 'pdf':
+        return HttpResponse("Funcionalidad PDF en servidor activa. (Requiere librerías como xhtml2pdf)", content_type="text/plain")
+    # -----------------------------------------------
 
     ventas_todas = ventas_qs
 

@@ -190,37 +190,90 @@
 .cys-report-card__link-text--proxima  { color: var(--dorado-acento);  font-size: .8rem; font-weight: 600; }
 
 /* ────────────────────────────────────
-   TABLA INVENTARIO / GENÉRICA
+   TABLA INVENTARIO / GENÉRICA (MODERNA)
 ──────────────────────────────────── */
 .cys-inv-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: .84rem;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: .88rem;
+  background: transparent;
 }
 
-.cys-inv-table thead tr {
-  border-bottom: 1px solid var(--azul-borde);
-  background-color: rgba(239,248,226,0.03);
-}
-
-.cys-inv-table th {
-  padding: 10px 14px;
-  color: var(--texto-muted);
-  font-weight: 600;
-  font-size: .75rem;
+.cys-inv-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  color: #4DA8DA;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .04em;
-  white-space: nowrap;
-  text-align: left;
+  letter-spacing: 0.1em;
+  padding: 14px 16px;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.3);
 }
 
 .cys-inv-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(239,248,226,.07);
-  vertical-align: middle;
-  color: var(--color-blanco);
-  text-align: left;
-  word-break: break-word;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.cys-inv-table tbody tr:hover td {
+  background: rgba(77, 168, 218, 0.08);
+  color: #fff;
+  border-bottom-color: rgba(77, 168, 218, 0.2);
+}
+
+.cys-inv-table .cys-qty {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--azul-acento);
+}
+
+/* ────────────────────────────────────
+   MODAL KPI (Dashboard Style)
+──────────────────────────────────── */
+.cys-modal-kpi {
+  padding: 1.25rem !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-bottom: 3px solid #4DA8DA !important;
+  background: var(--color-bg-card) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  margin: 0 !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.cys-modal-kpi .cys-summary-card__icon {
+  width: 42px;
+  height: 42px;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.cys-modal-kpi .cys-summary-card__val {
+  font-size: 1.4rem;
+}
+
+/* Ajustes para DataTables dentro de modales */
+.cys-modal .dt-container {
+  padding: 1rem;
+}
+
+.cys-modal .dt-search input {
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
+.cys-modal-kpi .cys-summary-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Alineación específica para evitar el descuadre en la tabla de Historial */
@@ -350,39 +403,6 @@
 .cys-modal-meta__item            { color: var(--texto-muted); }
 .cys-modal-meta__accent--inv     { color: var(--azul-acento);   font-weight: 600; }
 .cys-modal-meta__accent--prov    { color: var(--verde-acento);  font-weight: 600; }
-
-/* ────────────────────────────────────
-   RESUMEN DIARIO — STATS
-──────────────────────────────────── */
-.cys-rd-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  padding: 16px;
-  background-color: var(--color-bg);
-}
-
-.cys-rd-stat {
-  text-align: center;
-  background: rgba(239,248,226,.05);
-  border-radius: 10px;
-  padding: 14px 8px;
-  border: 1px solid rgba(239,248,226,.1);
-}
-
-.cys-rd-stat__val            { font-size: 1.55rem; font-weight: 800; line-height: 1; }
-.cys-rd-stat__val--verde     { color: var(--verde-acento); }
-.cys-rd-stat__val--azul      { color: var(--azul-acento); }
-.cys-rd-stat__val--amarillo  { color: var(--amarillo-acento); }
-.cys-rd-stat__val--rojo      { color: #e87a8a; }
-
-.cys-rd-stat__label {
-  font-size: .65rem;
-  color: var(--texto-muted);
-  margin-top: 6px;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
 
 /* ────────────────────────────────────
    ANÁLISIS DE VENTAS — tabla card
