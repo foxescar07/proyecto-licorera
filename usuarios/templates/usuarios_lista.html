@@ -11,7 +11,6 @@
 {% block content %}
 <div class="container-fluid p-0">
 
-  <!-- BREADCRUMB -->
   <nav class="cys-breadcrumb mb-4">
     <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
       Tablero
@@ -33,123 +32,215 @@
     {% endfor %}
   {% endif %}
 
-  <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="usuarios-info">
       <i class="bi bi-people me-1"></i>
       {{ usuarios|length }} usuario{{ usuarios|length|pluralize:"s" }} registrado{{ usuarios|length|pluralize:"s" }}
     </div>
-
     {% if request.session.usuario_rol == 'admin' %}
-    <a href="{% url 'crear_usuario' %}" class="cys-btn cys-btn--primary">
+    <a href="{% url 'crear_usuario' %}" class="cys-btn-primary">
       <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
     </a>
     {% endif %}
   </div>
 
-  {% if usuarios %}
-  <div class="row g-3">
+  <div class="ul-layout layout-items-{{ usuarios|length }}">
 
-    {% for u in usuarios %}
-    {% if u.pk != request.session.usuario_id %}
-    <div class="col-12 col-md-6 col-xl-4">
-      <div id="fila-{{ u.pk }}" class="usuario-card h-100">
+    <div class="ul-main">
+      {% if usuarios %}
+      <div class="row g-3" id="contenedor-tarjetas">
+        {% for u in usuarios %}
+        {% if u.pk != request.session.usuario_id %}
+        <div class="col-12 col-md-6" id="col-{{ u.pk }}">
+          <div id="fila-{{ u.pk }}" class="usuario-card h-100">
 
-        <!-- CABECERA -->
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div class="d-flex align-items-center gap-2">
-            <div class="usuario-avatar">
-              {{ u.nombre|slice:":1"|upper }}
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="usuario-avatar">
+                  {{ u.nombre|slice:":1"|upper }}
+                </div>
+                <div>
+                  <div class="usuario-nombre">{{ u.nombre_completo }}</div>
+                  <div class="usuario-user">@{{ u.usuario }}</div>
+                </div>
+              </div>
+              <span id="rol-badge-{{ u.pk }}"
+                    class="badge usuario-rol
+                    {% if u.rol == 'admin' %}usuario-rol--admin
+                    {% elif u.rol == 'cajero' %}usuario-rol--cajero
+                    {% else %}usuario-rol--empleado{% endif %}">
+                {{ u.get_rol_display }}
+              </span>
             </div>
-            <div>
-              <div class="usuario-nombre">{{ u.nombre_completo }}</div>
-              <div class="usuario-user">@{{ u.usuario }}</div>
+
+            <hr class="usuario-divider">
+
+            <div class="row g-2 mb-3 usuario-datos">
+              <div class="col-6">
+                <div class="usuario-label">Identificación</div>
+                <div class="usuario-value">{{ u.identificacion }}</div>
+                <div class="usuario-sub">{{ u.get_tipo_id_display }}</div>
+              </div>
+              <div class="col-6">
+                <div class="usuario-label">Correo</div>
+                <div class="usuario-email">{{ u.email|default:"—" }}</div>
+              </div>
+              <div class="col-6">
+                <div class="usuario-label">Miembro desde</div>
+                <div class="usuario-muted">{{ u.fecha_registro|date:"d/m/Y" }}</div>
+              </div>
+              <div class="col-6">
+                <div class="usuario-label">Estado</div>
+                <span id="estado-badge-{{ u.pk }}"
+                      class="usuario-estado
+                      {% if u.activo %}usuario-estado--activo
+                      {% else %}usuario-estado--inactivo{% endif %}">
+                  <span class="usuario-dot"></span>
+                  {% if u.activo %}Activo{% else %}Inactivo{% endif %}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <span id="rol-badge-{{ u.pk }}"
-                class="badge usuario-rol
-                {% if u.rol == 'admin' %}usuario-rol--admin
-                {% elif u.rol == 'cajero' %}usuario-rol--cajero
-                {% else %}usuario-rol--empleado{% endif %}">
-            {{ u.get_rol_display }}
-          </span>
-        </div>
+            {% if request.session.usuario_rol == 'admin' %}
+            <div class="d-flex gap-2">
+              <button onclick="abrirEditar({{ u.pk }})"
+                      class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
+                <i class="bi bi-pencil me-1"></i> Editar
+              </button>
+              <div id="wrap-toggle-{{ u.pk }}" class="flex-fill d-flex flex-column gap-1">
+                <button id="btn-toggle-{{ u.pk }}"
+                        onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
+                        class="btn btn-sm w-100 usuario-btn
+                        {% if u.activo %}usuario-btn-desactivar
+                        {% else %}usuario-btn-activar{% endif %}">
+                  <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %} me-1"></i>
+                  {% if u.activo %}Desactivar{% else %}Activar{% endif %}
+                </button>
+                <button id="btn-eliminar-{{ u.pk }}"
+                        onclick="eliminarUsuario({{ u.pk }})"
+                        class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
+                        {% if u.activo %}style="display:none;"{% endif %}>
+                  <i class="bi bi-trash3 me-1"></i> Eliminar
+                </button>
+              </div>
+            </div>
+            {% endif %}
 
-        <hr class="usuario-divider">
-
-        <!-- DATOS -->
-        <div class="row g-2 mb-3 usuario-datos">
-          <div class="col-6">
-            <div class="usuario-label">Identificación</div>
-            <div class="usuario-value">{{ u.identificacion }}</div>
-            <div class="usuario-sub">{{ u.get_tipo_id_display }}</div>
-          </div>
-          <div class="col-6">
-            <div class="usuario-label">Correo</div>
-            <div class="usuario-email">{{ u.email|default:"—" }}</div>
-          </div>
-          <div class="col-6">
-            <div class="usuario-label">Miembro desde</div>
-            <div class="usuario-muted">{{ u.fecha_registro|date:"d/m/Y" }}</div>
-          </div>
-          <div class="col-6">
-            <div class="usuario-label">Estado</div>
-            <span id="estado-badge-{{ u.pk }}"
-                  class="usuario-estado
-                  {% if u.activo %}usuario-estado--activo
-                  {% else %}usuario-estado--inactivo{% endif %}">
-              <span class="usuario-dot"></span>
-              {% if u.activo %}Activo{% else %}Inactivo{% endif %}
-            </span>
-          </div>
-        </div>
-
-        <!-- ACCIONES — solo admin -->
-        {% if request.session.usuario_rol == 'admin' %}
-        <div class="d-flex gap-2">
-          <button onclick="abrirEditar({{ u.pk }})"
-                  class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
-            <i class="bi bi-pencil me-1"></i> Editar
-          </button>
-
-          <div id="wrap-toggle-{{ u.pk }}" class="flex-fill d-flex flex-column gap-1">
-            <button id="btn-toggle-{{ u.pk }}"
-                    onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
-                    class="btn btn-sm w-100 usuario-btn
-                    {% if u.activo %}usuario-btn-desactivar
-                    {% else %}usuario-btn-activar{% endif %}">
-              <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %} me-1"></i>
-              {% if u.activo %}Desactivar{% else %}Activar{% endif %}
-            </button>
-
-            <button id="btn-eliminar-{{ u.pk }}"
-                    onclick="eliminarUsuario({{ u.pk }})"
-                    class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
-                    {% if u.activo %}style="display:none;"{% endif %}>
-              <i class="bi bi-trash3 me-1"></i> Eliminar
-            </button>
           </div>
         </div>
         {% endif %}
-
+        {% endfor %}
       </div>
+
+      {% else %}
+      <div class="usuarios-vacio text-center py-5">
+        <i class="bi bi-people usuarios-vacio-icon"></i>
+        <div class="usuarios-vacio-text">No hay usuarios registrados.</div>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
-    {% endfor %}
 
+    <div class="ul-sidebar">
+
+      <div class="ul-widget widget-total">
+        <div class="ul-big-stat">
+          <div class="ul-big-stat__num">{{ usuarios|length }}</div>
+          <div class="ul-big-stat__label">Usuarios totales</div>
+        </div>
+        <div class="ul-bar-wrap">
+          <div class="ul-bar-label-row">
+            <span>Activos</span>
+            <span id="pct-activos">—</span>
+          </div>
+          <div class="ul-bar-track">
+            <div class="ul-bar-fill" id="bar-activos" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-dropdown-wrapper" id="wrapperStats">
+        <button class="btn-trigger-dropdown" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats" aria-expanded="false">
+          <span><i class="bi bi-bar-chart-steps me-2"></i>Ver Estadísticas Detalladas</span>
+          <i class="bi bi-chevron-down arrow-icon"></i>
+        </button>
+        
+        <div class="collapse show content-dropdown-grid" id="collapseStats">
+          <div class="ul-widget widget-estado">
+            <div class="ul-widget__title">
+              <i class="bi bi-circle-fill"></i> Estado
+            </div>
+            <div class="ul-stat-row">
+              <span class="ul-stat-label">
+                <span class="ul-stat-dot ul-stat-dot--activo"></span> Activos
+              </span>
+              <span class="ul-stat-val" id="cnt-activos">0</span>
+            </div>
+            <div class="ul-stat-row">
+              <span class="ul-stat-label">
+                <span class="ul-stat-dot ul-stat-dot--inactivo"></span> Inactivos
+              </span>
+              <span class="ul-stat-val" id="cnt-inactivos">0</span>
+            </div>
+          </div>
+
+          <div class="ul-widget widget-rol">
+            <div class="ul-widget__title">
+              <i class="bi bi-person-badge"></i> Por Rol
+            </div>
+            <div class="ul-stat-row">
+              <span class="ul-stat-label">
+                <span class="ul-stat-dot ul-stat-dot--admin"></span> Admin
+              </span>
+              <span class="ul-stat-val" id="cnt-admin">0</span>
+            </div>
+            <div class="ul-stat-row">
+              <span class="ul-stat-label">
+                <span class="ul-stat-dot ul-stat-dot--cajero"></span> Cajeros
+              </span>
+              <span class="ul-stat-val" id="cnt-cajero">0</span>
+            </div>
+            <div class="ul-stat-row">
+              <span class="ul-stat-label">
+                <span class="ul-stat-dot ul-stat-dot--empleado"></span> Empl.
+              </span>
+              <span class="ul-stat-val" id="cnt-empleado">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
+        <button class="btn-trigger-dropdown" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecientes" aria-expanded="false">
+          <span><i class="bi bi-clock-history me-2"></i>Ver Registros Recientes</span>
+          <i class="bi bi-chevron-down arrow-icon"></i>
+        </button>
+
+        <div class="collapse show" id="collapseRecientes">
+          <div class="ul-widget widget-recientes">
+            <div class="ul-widget__title">
+              <i class="bi bi-clock-history"></i> Registros recientes
+            </div>
+            {% for u in usuarios %}
+            {% if u.pk != request.session.usuario_id %}
+            <div class="ul-activity-item">
+              <div class="ul-activity-avatar">{{ u.nombre|slice:":1"|upper }}</div>
+              <div class="ul-activity-body">
+                <div class="ul-activity-name">{{ u.nombre_completo }}</div>
+                <div class="ul-activity-meta">{{ u.get_rol_display }}</div>
+              </div>
+              <div class="ul-activity-time">{{ u.fecha_registro|date:"d/m/y" }}</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div>
   </div>
 
-  {% else %}
-  <div class="usuarios-vacio text-center py-5">
-    <i class="bi bi-people usuarios-vacio-icon"></i>
-    <div class="usuarios-vacio-text">No hay usuarios registrados.</div>
-  </div>
-  {% endif %}
 
-</div>
-
-<!-- MODAL EDITAR — solo admin -->
 {% if request.session.usuario_rol == 'admin' %}
 <div class="modal fade" id="modalEditarUsuario" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
@@ -217,6 +308,64 @@
 {% endif %}
 
 <script>
+(function () {
+
+  /* ── LÓGICA DE COMPORTAMIENTO ADAPTABLE SEGÚN CARDS (1-2, 3-4, 5+) ── */
+  function ajustarDesplegables() {
+    // Contamos cuántas tarjetas de usuario se renderizaron en la pantalla
+    const totalCards = document.querySelectorAll('#contenedor-tarjetas > div').length;
+    
+    const collapseStats = document.getElementById('collapseStats');
+    const collapseRecientes = document.getElementById('collapseRecientes');
+
+    if (totalCards <= 2) {
+      // 1 o 2 usuarios: Las estadísticas se colapsan por defecto
+      if(collapseStats) {
+        collapseStats.classList.remove('show');
+      }
+    } else if (totalCards === 3 || totalCards === 4) {
+      // 3 o 4 usuarios: Estadísticas abiertas fijas, Recientes se colapsa
+      if(collapseStats) collapseStats.classList.add('show');
+      if(collapseRecientes) collapseRecientes.classList.remove('show');
+    } else {
+      // 5 o más usuarios: Todo abierto por completo sin colapsar
+      if(collapseStats) collapseStats.classList.add('show');
+      if(collapseRecientes) collapseRecientes.classList.add('show');
+    }
+  }
+
+  /* ── Contadores sidebar ── */
+  function calcularStats() {
+    const cards = document.querySelectorAll('[id^="fila-"]');
+    let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
+    cards.forEach(card => {
+      const pk = card.id.replace('fila-', '');
+      const estadoBadge = document.getElementById('estado-badge-' + pk);
+      const rolBadge    = document.getElementById('rol-badge-'    + pk);
+      if (!estadoBadge || !rolBadge) return;
+      if (estadoBadge.classList.contains('usuario-estado--activo')) activos++;
+      else inactivos++;
+      const rolText = rolBadge.textContent.trim().toLowerCase();
+      if (rolText.includes('admin'))    admin++;
+      else if (rolText.includes('caj')) cajero++;
+      else                              empleado++;
+    });
+    const total = activos + inactivos;
+    document.getElementById('cnt-activos').textContent  = activos;
+    document.getElementById('cnt-inactivos').textContent = inactivos;
+    document.getElementById('cnt-admin').textContent    = admin;
+    document.getElementById('cnt-cajero').textContent   = cajero;
+    document.getElementById('cnt-empleado').textContent = empleado;
+    const pct = total > 0 ? Math.round((activos / total) * 100) : 0;
+    document.getElementById('pct-activos').textContent    = pct + '%';
+    document.getElementById('bar-activos').style.width    = pct + '%';
+  }
+
+  // Inicialización
+  calcularStats();
+  ajustarDesplegables();
+
+  /* ── Cookie ── */
   function getCookie(name) {
     let v = null;
     document.cookie.split(';').forEach(c => {
@@ -226,14 +375,15 @@
     return v;
   }
 
-  function euMostrarMsg(texto, tipo) {
+  /* ── Modal editar ── */
+  window.euMostrarMsg = function(texto, tipo) {
     const el = document.getElementById('euMsg');
     el.textContent   = texto;
     el.style.display = 'block';
     el.className     = tipo === 'ok' ? 'eu-msg eu-msg-ok' : 'eu-msg eu-msg-error';
-  }
+  };
 
-  function abrirEditar(pk) {
+  window.abrirEditar = function(pk) {
     fetch(`/usuarios/editar/${pk}/`, {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
@@ -250,9 +400,9 @@
       document.getElementById('euMsg').style.display = 'none';
       new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
     });
-  }
+  };
 
-  function guardarEditar() {
+  window.guardarEditar = function() {
     const pk  = document.getElementById('euPk').value;
     const btn = document.getElementById('euBtnGuardar');
     btn.disabled    = true;
@@ -286,9 +436,10 @@
       btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
       euMostrarMsg('Error de conexión.', 'err');
     });
-  }
+  };
 
-  function toggleActivo(pk, activo) {
+  /* ── Toggle activo/inactivo ── */
+  window.toggleActivo = function(pk, activo) {
     const fd = new FormData();
     fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
     fetch(`/usuarios/toggle/${pk}/`, {
@@ -302,24 +453,26 @@
       const btnT  = document.getElementById(`btn-toggle-${pk}`);
       const btnE  = document.getElementById(`btn-eliminar-${pk}`);
       if (d.activo) {
-        badge.className  = 'usuario-estado usuario-estado--activo';
-        badge.innerHTML  = '<span class="usuario-dot"></span> Activo';
-        btnT.className   = btnT.className.replace('usuario-btn-activar','usuario-btn-desactivar');
-        btnT.innerHTML   = '<i class="bi bi-person-dash me-1"></i> Desactivar';
-        btnT.onclick     = () => toggleActivo(pk, true);
+        badge.className = 'usuario-estado usuario-estado--activo';
+        badge.innerHTML = '<span class="usuario-dot"></span> Activo';
+        btnT.className  = btnT.className.replace('usuario-btn-activar','usuario-btn-desactivar');
+        btnT.innerHTML  = '<i class="bi bi-person-dash me-1"></i> Desactivar';
+        btnT.onclick    = () => toggleActivo(pk, true);
         btnE.style.display = 'none';
       } else {
-        badge.className  = 'usuario-estado usuario-estado--inactivo';
-        badge.innerHTML  = '<span class="usuario-dot"></span> Inactivo';
-        btnT.className   = btnT.className.replace('usuario-btn-desactivar','usuario-btn-activar');
-        btnT.innerHTML   = '<i class="bi bi-person-check me-1"></i> Activar';
-        btnT.onclick     = () => toggleActivo(pk, false);
+        badge.className = 'usuario-estado usuario-estado--inactivo';
+        badge.innerHTML = '<span class="usuario-dot"></span> Inactivo';
+        btnT.className  = btnT.className.replace('usuario-btn-desactivar','usuario-btn-activar');
+        btnT.innerHTML  = '<i class="bi bi-person-check me-1"></i> Activar';
+        btnT.onclick    = () => toggleActivo(pk, false);
         btnE.style.display = 'block';
       }
+      calcularStats();
     });
-  }
+  };
 
-  function eliminarUsuario(pk) {
+  /* ── Eliminar usuario ── */
+  window.eliminarUsuario = function(pk) {
     if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
     const fd = new FormData();
     fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
@@ -329,11 +482,19 @@
     })
     .then(r => r.json())
     .then(d => {
-      if (d.ok) {
-        const card = document.getElementById(`fila-${pk}`);
-        card?.closest('.col-12')?.remove();
+      if (!d.ok) return;
+      const card = document.getElementById(`fila-${pk}`);
+      if (card) {
+        card.classList.add('usuario-card--removing');
+        setTimeout(() => {
+          document.getElementById(`col-${pk}`)?.remove();
+          calcularStats();
+          ajustarDesplegables();
+        }, 380);
       }
     });
-  }
+  };
+
+})();
 </script>
 {% endblock %}

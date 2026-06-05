@@ -1,13 +1,278 @@
-﻿.usuario-card {
+﻿/* ══════════════════════════════════════════════
+   LAYOUT PRINCIPAL BASE
+══════════════════════════════════════════════ */
+.ul-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.ul-main {
+  flex: 1;
+  min-width: 0;
+}
+.ul-sidebar {
+  width: 350px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Contenedor Grid interno para cuando las estadísticas estén abiertas */
+.content-dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* ══════════════════════════════════════════════
+   ESTILOS DE BOTONES DESPLEGABLES (COMPACTACIÓN)
+══════════════════════════════════════════════ */
+.sidebar-dropdown-wrapper {
+  width: 100%;
+}
+.btn-trigger-dropdown {
+  width: 100%;
+  background: #0D1B2E;
+  border: 1px solid rgba(77,168,218,.25);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  color: #4DA8DA;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  display: none; /* Oculto por defecto, se activa dinámicamente */
+  align-items: center;
+  justify-content: space-between;
+  transition: all .2s ease;
+  margin-bottom: .5rem;
+}
+.btn-trigger-dropdown:hover {
+  background: rgba(77, 168, 218, 0.08);
+  border-color: #4DA8DA;
+}
+.btn-trigger-dropdown .arrow-icon {
+  transition: transform 0.3s ease;
+}
+.btn-trigger-dropdown[aria-expanded="true"] .arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* ══════════════════════════════════════════════
+   REGLAS DINÁMICAS BASADAS EN CONTENIDO (DJANGO SIZES)
+══════════════════════════════════════════════ */
+
+/* CASO A: Solo 1 o 2 usuarios registrados
+   - El bloque de estadísticas tiene botón desplegable.
+   - El bloque de recientes está completamente oculto o cerrado para nivelar la única tarjeta visible. */
+.layout-items-1 #wrapperStats .btn-trigger-dropdown,
+.layout-items-2 #wrapperStats .btn-trigger-dropdown {
+  display: flex;
+}
+.layout-items-1 #collapseStats,
+.layout-items-2 #collapseStats {
+  grid-template-columns: 1fr; /* Al colapsar y abrir ocupa ancho completo de botón */
+}
+.layout-items-1 #wrapperRecientes,
+.layout-items-2 #wrapperRecientes {
+  display: none; /* Se oculta para no crear espacio vertical innecesario */
+}
+
+/* CASO B: Exactamente 3 o 4 usuarios (Dos filas)
+   - Estadísticas fijas sin botón de desplegar.
+   - Registros recientes se convierte en Desplegable con botón. */
+.layout-items-3 #wrapperRecientes .btn-trigger-dropdown,
+.layout-items-4 #wrapperRecientes .btn-trigger-dropdown {
+  display: flex;
+}
+
+/* CASO C: 5 o más usuarios (Muchas filas a la izquierda)
+   - Todo se muestra extendido por completo.
+   - Se ocultan todos los botones de trigger. */
+.layout-items-5 .btn-trigger-dropdown,
+.layout-items-6 .btn-trigger-dropdown,
+.layout-items-7 .btn-trigger-dropdown,
+.layout-items-8 .btn-trigger-dropdown {
+  display: none !important;
+}
+.layout-items-5 .ul-sidebar,
+.layout-items-6 .ul-sidebar,
+.layout-items-7 .ul-sidebar {
+  position: sticky;
+  top: 1rem;
+}
+.layout-items-5 .content-dropdown-grid,
+.layout-items-6 .content-dropdown-grid,
+.layout-items-7 .content-dropdown-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ══════════════════════════════════════════════
+   PANEL LATERAL — WIDGETS INTERNOS
+══════════════════════════════════════════════ */
+.ul-widget {
   background: #0D1B2E;
   border: 1px solid rgba(77,168,218,.18);
   border-radius: 14px;
   padding: 1.1rem 1.2rem;
-  transition: border-color .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+.ul-widget__title {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: rgba(232,237,242,.35);
+  margin-bottom: .85rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.ul-widget__title i { color: var(--azul-claro, #4DA8DA); font-size: .75rem; }
+
+.ul-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .45rem 0;
+  border-bottom: 1px solid rgba(77,168,218,.07);
+  font-size: .82rem;
+}
+.ul-stat-row:last-child { border-bottom: none; }
+.ul-stat-label {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: rgba(232,237,242,.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ul-stat-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.ul-stat-dot--admin    { background: #e87070; }
+.ul-stat-dot--cajero   { background: #4DA8DA; }
+.ul-stat-dot--empleado { background: #5edb97; }
+.ul-stat-dot--activo   { background: #5edb97; }
+.ul-stat-dot--inactivo { background: rgba(232,237,242,.2); }
+.ul-stat-val {
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .95rem;
+  color: #E8EDF2;
+}
+
+.ul-big-stat {
+  text-align: center;
+  padding: .5rem 0 .25rem;
+}
+.ul-big-stat__num {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 2.8rem;
+  line-height: 1;
+  color: #4DA8DA;
+}
+.ul-big-stat__label {
+  font-size: .68rem;
+  color: rgba(232,237,242,.35);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-top: .25rem;
+}
+
+.ul-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid rgba(77,168,218,.07);
+}
+.ul-activity-item:last-child { border-bottom: none; }
+.ul-activity-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(77,168,218,.12);
+  border: 1px solid rgba(77,168,218,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .75rem;
+  color: #4DA8DA;
+  flex-shrink: 0;
+}
+.ul-activity-body { flex: 1; min-width: 0; }
+.ul-activity-name {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #E8EDF2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ul-activity-meta {
+  font-size: .65rem;
+  color: rgba(232,237,242,.35);
+  margin-top: .1rem;
+}
+.ul-activity-time {
+  font-size: .65rem;
+  color: rgba(77,168,218,.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ul-bar-wrap { margin-top: .6rem; }
+.ul-bar-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: .65rem;
+  color: rgba(232,237,242,.35);
+  margin-bottom: .3rem;
+}
+.ul-bar-track {
+  height: 5px;
+  background: rgba(77,168,218,.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ul-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4DA8DA, #5edb97);
+  transition: width .6s cubic-bezier(.25,.8,.25,1);
+}
+
+/* ══════════════════════════════════════════════
+   CARDS DE USUARIOS
+══════════════════════════════════════════════ */
+.usuario-card {
+  background: #0D1B2E;
+  border: 1px solid rgba(77,168,218,.18);
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem;
+  transition: border-color .2s, box-shadow .2s, opacity .35s ease, transform .35s ease;
 }
 .usuario-card:hover {
   border-color: rgba(77,168,218,.4);
   box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.usuario-card--removing {
+  opacity: 0 !important;
+  transform: scale(.94) !important;
+  pointer-events: none;
 }
 .usuario-avatar {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
@@ -34,17 +299,28 @@
 .usuario-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 .usuario-estado--activo .usuario-dot   { background: #5edb97; }
 .usuario-estado--inactivo .usuario-dot { background: rgba(232,237,242,.2); }
+
 .usuario-btn          { border-radius: 8px; font-size: .78rem; font-family: 'Inter',sans-serif; transition: all .2s; }
 .usuario-btn-editar   { background: rgba(77,168,218,.08); border: 1px solid rgba(77,168,218,.25); color: #4DA8DA; }
 .usuario-btn-editar:hover { background: rgba(77,168,218,.2); }
 .usuario-btn-desactivar { background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #e87070; }
 .usuario-btn-activar    { background: rgba(77,218,140,.08); border: 1px solid rgba(77,218,140,.25); color: #5edb97; }
-.usuario-btn-eliminar   { display: flex; align-items: center; justify-content: center; gap: .35rem; border-radius: 8px; font-size: .73rem; font-family: 'Inter',sans-serif; background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #e87070; transition: all .2s; }
+.usuario-btn-eliminar   {
+  display: flex; align-items: center; justify-content: center; gap: .35rem;
+  border-radius: 8px; font-size: .73rem; font-family: 'Inter',sans-serif;
+  background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #e87070;
+  transition: all .2s;
+}
 .usuario-btn-eliminar:hover { background: rgba(192,57,43,1); color: #fff; }
+
+/* ══════════════════════════════════════════════
+   VACÍO Y MODAL
+══════════════════════════════════════════════ */
 .usuarios-vacio { color: rgba(232,237,242,.25); }
 .usuarios-vacio-icon { font-size: 3rem; display: block; margin-bottom: 1rem; color: rgba(77,168,218,.15); }
 .usuarios-vacio-text { font-size: .9rem; }
-.usuarios-info { font-size: .78rem; color: var(--texto-muted); }
+.usuarios-info { font-size: .78rem; color: rgba(232,237,242,.4); }
+
 .modal-editar { max-width: 500px; }
 .modal-editar-content { background: #0D1B2E; border: 1px solid rgba(77,168,218,.35); border-radius: 18px; box-shadow: 0 16px 48px rgba(0,0,0,.8); font-family: 'Inter',sans-serif; }
 .modal-editar-header  { border-bottom: 1px solid rgba(77,168,218,.2); padding: 1.1rem 1.4rem; }
@@ -62,3 +338,26 @@
 .modal-pass-title { font-size: .68rem; color: rgba(232,237,242,.3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .85rem; }
 .modal-btn-guardar { background: #4DA8DA; color: #011936; border: none; border-radius: 10px; padding: .75rem; font-family: 'Rajdhani',sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: .1em; text-transform: uppercase; transition: background .2s; box-shadow: 0 4px 14px rgba(77,168,218,.3); }
 .modal-btn-guardar:hover { background: #6dc0e8; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE EN DISPOSITIVOS MÓVILES
+══════════════════════════════════════════════ */
+@media (max-width: 992px) {
+  .ul-layout { flex-direction: column; }
+  .ul-sidebar { 
+    width: 100% !important; 
+    position: static !important;
+  }
+  .btn-trigger-dropdown {
+    display: flex !important; /* En móviles siempre es útil que todo sea colapsable */
+  }
+  .collapse:not(.show) {
+    display: none !important;
+  }
+  .content-dropdown-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .layout-items-1 #wrapperRecientes, .layout-items-2 #wrapperRecientes {
+    display: block !important;
+  }
+}
