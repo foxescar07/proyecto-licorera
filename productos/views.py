@@ -578,3 +578,15 @@ def agenda_eliminar(request, pk):
         agenda.delete()
         messages.success(request, '✅ Registro de agenda eliminado.')
     return redirect('agenda_lista')
+
+# ===============================
+# GESTIÓN DE PRODUCTOS
+# ===============================
+@login_required
+def gestion_productos(request):
+    productos  = Producto.objects.select_related('categoria').all()
+    categorias = Categoria.objects.all()
+    return render(request, 'productos/gestion_productos.html', {
+        'productos':  productos,
+        'categorias': categorias,
+    })

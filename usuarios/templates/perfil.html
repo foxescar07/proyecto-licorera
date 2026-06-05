@@ -11,7 +11,6 @@
 {% block content %}
 <div class="container-fluid p-0">
 
-  <!-- BREADCRUMB — solo Tablero > Mi Perfil, sin enlace a Usuarios -->
   <nav class="cys-breadcrumb mb-4">
     <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
       <i class="bi bi-grid-1x2-fill"></i> Tablero
@@ -24,14 +23,12 @@
 
     <!-- COLUMNA IZQUIERDA -->
     <div class="col-lg-4 d-flex">
-        <div class="cys-card cys-perfil-hero text-center w-100">
-        <div class="cys-perfil-avatar" id="perfilAvatarWrap">
+      <div class="cys-card cys-perfil-hero text-center w-100">
+        <div class="cys-perfil-avatar">
           <i class="bi bi-person-fill cys-perfil-avatar__icon"></i>
         </div>
-
         <div class="cys-perfil-nombre mt-3">{{ nombre }} {{ apellidos }}</div>
         <div class="cys-perfil-user">@{{ usuario }}</div>
-
         <div class="mt-2">
           {% if rol == 'admin' %}
             <span class="cys-rol-badge cys-rol-badge--admin">Administrador</span>
@@ -41,9 +38,7 @@
             <span class="cys-rol-badge cys-rol-badge--empleado">Empleado</span>
           {% endif %}
         </div>
-
         <hr class="cys-sb-divider mt-3 mb-3">
-
         <div class="cys-perfil-meta">
           <div class="cys-perfil-meta__item">
             <span class="cys-perfil-meta__label">Miembro desde</span>
@@ -62,23 +57,22 @@
             <span class="cys-perfil-meta__val">{{ telefono }}</span>
           </div>
         </div>
-
         <button class="cys-btn cys-btn--primary w-100 mt-3"
-                data-bs-toggle="modal" data-bs-target="#modalEditarPerfil">
+                data-bs-toggle="modal" data-bs-target="#modalEditarInfo">
           <i class="bi bi-pencil-square"></i> Editar Perfil
         </button>
-
       </div>
     </div>
 
     <!-- COLUMNA DERECHA -->
-    <div class="col-lg-8 d-flex flex-column">
-      <div class="cys-card mb-4">
+    <div class="col-lg-8 d-flex flex-column gap-4">
+
+      <!-- Información Personal -->
+      <div class="cys-card flex-grow-1">
         <div class="cys-card__title">
           <i class="bi bi-info-circle-fill text-azul me-2"></i>
           Información Personal
         </div>
-
         <div class="row gx-3 gy-3">
           <div class="col-sm-6">
             <div class="cys-perfil-field">
@@ -114,46 +108,64 @@
       </div>
 
       <!-- Seguridad -->
-      <div class="cys-card">
+      <div class="cys-card flex-grow-1">
         <div class="cys-card__title">
           <i class="bi bi-shield-lock-fill text-azul me-2"></i>
           Seguridad
         </div>
         <div class="cys-perfil-security">
+
+          <!-- Ítem: Usuario -->
+          <div class="cys-perfil-security__item">
+            <div class="cys-perfil-security__icon">
+              <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <div class="cys-perfil-security__body">
+              <div class="cys-perfil-security__title">Nombre de Usuario</div>
+              <div class="cys-perfil-security__sub">@{{ usuario }}</div>
+            </div>
+            <button class="cys-btn cys-btn--outline cys-btn-sm-text"
+                    id="btnAbrirCambioUsuario">
+              Cambiar
+            </button>
+          </div>
+
+          <!-- Ítem: Contraseña -->
           <div class="cys-perfil-security__item">
             <div class="cys-perfil-security__icon">
               <i class="bi bi-key-fill"></i>
             </div>
             <div class="cys-perfil-security__body">
               <div class="cys-perfil-security__title">Contraseña</div>
-              <div class="cys-perfil-security__sub">Última actualización desconocida</div>
+              <div class="cys-perfil-security__sub">••••••••</div>
             </div>
             <button class="cys-btn cys-btn--outline cys-btn-sm-text"
-                    data-bs-toggle="modal" data-bs-target="#modalEditarPerfil">
+                    id="btnAbrirCambioClave">
               Cambiar
             </button>
           </div>
+
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- MODAL EDITAR PERFIL -->
-<div class="modal fade" id="modalEditarPerfil" tabindex="-1"
-     aria-labelledby="modalEditarPerfilLabel" aria-hidden="true">
+
+<!-- ═══════════════════════════════════════════
+     MODAL 1 — EDITAR INFORMACIÓN PERSONAL
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalEditarInfo" tabindex="-1"
+     aria-labelledby="modalEditarInfoLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-md">
     <div class="modal-content cys-modal-content">
 
       <div class="modal-header cys-modal-header">
-        <div class="cys-modal-avatar" id="modalAvatarWrap">
+        <div class="cys-modal-avatar">
           <i class="bi bi-person-fill cys-modal-avatar__icon"></i>
         </div>
         <div>
-          <h5 class="modal-title cys-modal-title" id="modalEditarPerfilLabel">
-            Editar Perfil
-          </h5>
+          <h5 class="modal-title cys-modal-title" id="modalEditarInfoLabel">Editar Perfil</h5>
           <div class="cys-modal-subtitle">@{{ usuario }}</div>
         </div>
         <button type="button" class="btn-close btn-close-white ms-auto"
@@ -161,58 +173,39 @@
       </div>
 
       <div class="modal-body cys-modal-body">
-
-        <div id="editPerfilMsg" style="display:none;" class="mb-3"></div>
-
+        <div id="msgEditarInfo" style="display:none;" class="cys-modal-alert mb-3"></div>
         <div class="row gx-3">
           <div class="col-sm-6 mb-3">
             <label class="cys-form-label">Nombres</label>
-            <input type="text" id="epNombre" class="form-control cys-input"
-                   value="{{ nombre }}">
+            <input type="text" id="epNombre" class="cys-input" value="{{ nombre }}">
           </div>
           <div class="col-sm-6 mb-3">
             <label class="cys-form-label">Apellidos</label>
-            <input type="text" id="epApellidos" class="form-control cys-input"
-                   value="{{ apellidos }}">
+            <input type="text" id="epApellidos" class="cys-input" value="{{ apellidos }}">
           </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="cys-form-label">Correo Electrónico</label>
-          <input type="email" id="epEmail" class="form-control cys-input"
-                 value="{{ email }}">
-        </div>
-
-        <hr style="border-color:rgba(77,168,218,.12); margin:1rem 0;">
-        <div class="cys-form-label mb-2" style="opacity:.5;">
-          Cambiar contraseña <em style="font-style:normal;">(opcional)</em>
-        </div>
-
-        <div class="mb-3">
-          <label class="cys-form-label">Contraseña Actual</label>
-          <input type="password" id="epClaveActual" class="form-control cys-input"
-                 placeholder="Solo si deseas cambiarla">
         </div>
         <div class="row gx-3">
           <div class="col-sm-6 mb-3">
-            <label class="cys-form-label">Nueva Contraseña</label>
-            <input type="password" id="epClaveNueva" class="form-control cys-input"
-                   placeholder="Mín. 6 car., 2 núm., 1 may.">
+            <label class="cys-form-label">Correo Electrónico</label>
+            <div class="cys-input-icon-wrap">
+              <i class="bi bi-envelope cys-input-icon"></i>
+              <input type="email" id="epEmail" class="cys-input" value="{{ email }}">
+            </div>
           </div>
           <div class="col-sm-6 mb-3">
-            <label class="cys-form-label">Confirmar</label>
-            <input type="password" id="epClaveConfirmar" class="form-control cys-input"
-                   placeholder="Repite la contraseña">
+            <label class="cys-form-label">Teléfono</label>
+            <div class="cys-input-icon-wrap">
+              <i class="bi bi-telephone cys-input-icon"></i>
+              <input type="text" id="epTelefono" class="cys-input" value="{{ telefono }}">
+            </div>
           </div>
         </div>
-
       </div>
 
       <div class="modal-footer cys-modal-footer">
         <button type="button" class="cys-btn cys-btn--outline"
                 data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="cys-btn cys-btn--primary"
-                id="btnGuardarPerfil" onclick="guardarPerfilPagina()">
+        <button type="button" class="cys-btn cys-btn--primary" id="btnGuardarInfo">
           <i class="bi bi-check-lg"></i> Guardar Cambios
         </button>
       </div>
@@ -220,13 +213,230 @@
     </div>
   </div>
 </div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL 2A — CAMBIAR USUARIO: Paso 1 (Confirmar usuario actual)
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalUsuarioPaso1" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered cys-modal-sm">
+    <div class="modal-content cys-modal-content">
+
+      <div class="modal-header cys-modal-header">
+        <div class="cys-modal-title-wrap">
+          <div class="cys-modal-icon-wrap">
+            <span class="cys-modal-icon"><i class="bi bi-key-fill"></i></span>
+            <div class="cys-modal-icon-glow"></div>
+          </div>
+          <div>
+            <div class="cys-modal-eyebrow">Paso 1 de 2</div>
+            <h5 class="cys-modal-title">Confirmar Contraseña</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body cys-modal-body-simple">
+        <p class="cys-modal-desc">
+          Para cambiar tu nombre de usuario, confirma tu contraseña actual.
+        </p>
+        <label class="cys-form-label">Contraseña Actual</label>
+        <div class="cys-input-eye">
+          <input type="password" id="usuP1Clave" class="cys-input"
+                 placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="cys-eye-btn" data-toggle-target="usuP1Clave">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        <div class="cys-form-error mt-2" id="errUsuP1" style="display:none;">
+          <i class="bi bi-x-circle me-1"></i><span id="errUsuP1Txt"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal-footer-row">
+        <button type="button" class="cys-btn-link" data-bs-dismiss="modal">
+          <i class="bi bi-x"></i> Cancelar
+        </button>
+        <button type="button" class="cys-btn-primary cys-btn-sm" id="btnUsuP1Siguiente">
+          Siguiente <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL 2B — CAMBIAR USUARIO: Paso 2 (Nuevo Username)
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalUsuarioPaso2" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered cys-modal-sm">
+    <div class="modal-content cys-modal-content">
+
+      <div class="modal-header cys-modal-header">
+        <div class="cys-modal-title-wrap">
+          <div class="cys-modal-icon-wrap">
+            <span class="cys-modal-icon"><i class="bi bi-person-badge-fill"></i></span>
+            <div class="cys-modal-icon-glow"></div>
+          </div>
+          <div>
+            <div class="cys-modal-eyebrow">Paso 2 de 2</div>
+            <h5 class="cys-modal-title">Nuevo Usuario</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body cys-modal-body-simple">
+        <p class="cys-modal-desc">
+          Elige un nuevo nombre de usuario. Solo letras, números y guiones bajos.
+        </p>
+        <label class="cys-form-label">Nuevo nombre de usuario</label>
+        <div class="cys-input-icon-wrap">
+          <i class="bi bi-at cys-input-icon"></i>
+          <input type="text" id="usuP2Nuevo" class="cys-input"
+                 placeholder="nuevo_usuario" autocomplete="off">
+        </div>
+        <div class="cys-form-error mt-2" id="errUsuP2" style="display:none;">
+          <i class="bi bi-x-circle me-1"></i><span id="errUsuP2Txt"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal-footer-row">
+        <button type="button" class="cys-btn-link" id="btnUsuP2Volver">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+        <button type="button" class="cys-btn-primary cys-btn-sm" id="btnUsuP2Guardar">
+          <i class="bi bi-check-lg me-1"></i> Confirmar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL 3A — CAMBIAR CONTRASEÑA: Paso 1 (Clave Actual)
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalClavePaso1" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered cys-modal-sm">
+    <div class="modal-content cys-modal-content">
+
+      <div class="modal-header cys-modal-header">
+        <div class="cys-modal-title-wrap">
+          <div class="cys-modal-icon-wrap">
+            <span class="cys-modal-icon"><i class="bi bi-lock-fill"></i></span>
+            <div class="cys-modal-icon-glow"></div>
+          </div>
+          <div>
+            <div class="cys-modal-eyebrow">Paso 1 de 2</div>
+            <h5 class="cys-modal-title">Contraseña Actual</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body cys-modal-body-simple">
+        <p class="cys-modal-desc">
+          Ingresa tu contraseña actual para continuar con el cambio.
+        </p>
+        <label class="cys-form-label">Contraseña Actual</label>
+        <div class="cys-input-eye">
+          <input type="password" id="clvP1Actual" class="cys-input"
+                 placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="cys-eye-btn" data-toggle-target="clvP1Actual">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        <div class="cys-form-error mt-2" id="errClvP1" style="display:none;">
+          <i class="bi bi-x-circle me-1"></i><span id="errClvP1Txt"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal-footer-row">
+        <button type="button" class="cys-btn-link" data-bs-dismiss="modal">
+          <i class="bi bi-x"></i> Cancelar
+        </button>
+        <button type="button" class="cys-btn-primary cys-btn-sm" id="btnClvP1Siguiente">
+          Siguiente <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL 3B — CAMBIAR CONTRASEÑA: Paso 2 (Nueva Clave)
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalClavePaso2" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered cys-modal-sm">
+    <div class="modal-content cys-modal-content">
+
+      <div class="modal-header cys-modal-header">
+        <div class="cys-modal-title-wrap">
+          <div class="cys-modal-icon-wrap">
+            <span class="cys-modal-icon"><i class="bi bi-shield-lock-fill"></i></span>
+            <div class="cys-modal-icon-glow"></div>
+          </div>
+          <div>
+            <div class="cys-modal-eyebrow">Paso 2 de 2</div>
+            <h5 class="cys-modal-title">Nueva Contraseña</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body cys-modal-body-simple">
+        <p class="cys-modal-desc">
+          Elige una contraseña segura. Mínimo 6 caracteres, 2 números y 1 mayúscula.
+        </p>
+        <label class="cys-form-label">Nueva Contraseña</label>
+        <div class="cys-input-eye mb-3">
+          <input type="password" id="clvP2Nueva" class="cys-input"
+                 placeholder="••••••••" autocomplete="new-password">
+          <button type="button" class="cys-eye-btn" data-toggle-target="clvP2Nueva">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        <label class="cys-form-label">Confirmar Contraseña</label>
+        <div class="cys-input-eye">
+          <input type="password" id="clvP2Confirmar" class="cys-input"
+                 placeholder="••••••••" autocomplete="new-password">
+          <button type="button" class="cys-eye-btn" data-toggle-target="clvP2Confirmar">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+        <div class="cys-form-error mt-2" id="errClvP2" style="display:none;">
+          <i class="bi bi-x-circle me-1"></i><span id="errClvP2Txt"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal-footer-row">
+        <button type="button" class="cys-btn-link" id="btnClvP2Volver">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+        <button type="button" class="cys-btn-primary cys-btn-sm" id="btnClvP2Guardar">
+          <i class="bi bi-check-lg me-1"></i> Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 {% endblock %}
+
 
 {% block extra_js %}
 <script>
 (function () {
   const EDITAR_URL = "{% url 'perfil_editar' %}";
 
+  /* ── Utilidades ── */
   function getCookie(n) {
     let v = null;
     document.cookie.split(';').forEach(c => {
@@ -236,57 +446,253 @@
     return v;
   }
 
-  function msgPerfil(texto, tipo) {
-    const el = document.getElementById('editPerfilMsg');
-    el.className = tipo === 'ok'
-      ? 'alert alert-success py-2 px-3 rounded-3'
-      : 'alert alert-danger py-2 px-3 rounded-3';
-    el.style.cssText = tipo === 'ok'
-      ? 'display:block;background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.35);color:#2ecc71;font-size:.82rem;'
-      : 'display:block;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.35);color:#e87070;font-size:.82rem;';
-    el.textContent = texto;
+  function showErr(spanId, divId, txt) {
+    document.getElementById(spanId).textContent = txt;
+    document.getElementById(divId).style.display = 'flex';
   }
 
-  window.guardarPerfilPagina = function () {
-    const nueva     = document.getElementById('epClaveNueva').value;
-    const confirmar = document.getElementById('epClaveConfirmar').value;
-    if (nueva && nueva !== confirmar) {
-      msgPerfil('Las contraseñas no coinciden.', 'err');
-      return;
-    }
-    const btn = document.getElementById('btnGuardarPerfil');
-    btn.disabled    = true;
-    btn.textContent = 'Guardando…';
+  function hideErr(divId) {
+    document.getElementById(divId).style.display = 'none';
+  }
 
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-    fd.append('nombre',       document.getElementById('epNombre').value.trim());
-    fd.append('apellidos',    document.getElementById('epApellidos').value.trim());
-    fd.append('email',        document.getElementById('epEmail').value.trim());
-    fd.append('clave_actual', document.getElementById('epClaveActual').value);
-    fd.append('clave_nueva',  nueva);
+  function showAlert(elId, txt, tipo) {
+    const el = document.getElementById(elId);
+    el.className = 'cys-modal-alert mb-3 ' + (tipo === 'ok' ? 'cys-modal-alert--ok' : 'cys-modal-alert--err');
+    el.textContent = txt;
+    el.style.display = 'block';
+  }
 
-    fetch(EDITAR_URL, {
-      method: 'POST', body: fd,
+  function postAjax(url, data, onOk, onErr) {
+    data.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fetch(url, {
+      method: 'POST', body: data,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(r => r.json())
-    .then(d => {
-      btn.disabled  = false;
-      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
-      if (d.ok) {
-        msgPerfil('✅ ' + d.mensaje, 'ok');
-        setTimeout(() => { location.reload(); }, 1500);
-      } else {
-        msgPerfil(d.error, 'err');
+    .then(d => d.ok ? onOk(d) : onErr(d.error || 'Error desconocido.'))
+    .catch(() => onErr('Error de conexión.'));
+  }
+
+  function modalChain(hideEl, showEl) {
+    const mHide = bootstrap.Modal.getInstance(hideEl) || new bootstrap.Modal(hideEl);
+    mHide.hide();
+    hideEl.addEventListener('hidden.bs.modal', () => {
+      new bootstrap.Modal(showEl).show();
+    }, { once: true });
+  }
+
+  /* ── Toggle ojos (delegado) ── */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-toggle-target]');
+    if (!btn) return;
+    const field = document.getElementById(btn.dataset.toggleTarget);
+    const icon  = btn.querySelector('i');
+    if (!field || !icon) return;
+    const isPwd = field.type === 'password';
+    field.type = isPwd ? 'text' : 'password';
+    icon.classList.toggle('bi-eye',      !isPwd);
+    icon.classList.toggle('bi-eye-slash', isPwd);
+  });
+
+  /* ════════════════════════════════════════
+     MODAL: EDITAR INFORMACIÓN PERSONAL
+  ════════════════════════════════════════ */
+  document.getElementById('btnGuardarInfo')?.addEventListener('click', function () {
+    const btn       = this;
+    const nombre    = document.getElementById('epNombre').value.trim();
+    const apellidos = document.getElementById('epApellidos').value.trim();
+    const email     = document.getElementById('epEmail').value.trim();
+    const telefono  = document.getElementById('epTelefono').value.trim();
+
+    if (!nombre || !apellidos || !email) {
+      showAlert('msgEditarInfo', 'Nombre, apellidos y correo son obligatorios.', 'err');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando…';
+
+    const fd = new FormData();
+    fd.append('accion',    'info');
+    fd.append('nombre',    nombre);
+    fd.append('apellidos', apellidos);
+    fd.append('email',     email);
+    fd.append('telefono',  telefono);
+
+    postAjax(EDITAR_URL, fd,
+      () => {
+        showAlert('msgEditarInfo', '✅ Perfil actualizado correctamente.', 'ok');
+        setTimeout(() => location.reload(), 1400);
+      },
+      err => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
+        showAlert('msgEditarInfo', err, 'err');
       }
-    })
-    .catch(() => {
-      btn.disabled  = false;
-      btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar Cambios';
-      msgPerfil('Error de conexión.', 'err');
-    });
-  };
+    );
+  });
+
+  /* ════════════════════════════════════════
+     MODAL: CAMBIAR USUARIO — cadena de pasos
+  ════════════════════════════════════════ */
+  const elUsuP1 = document.getElementById('modalUsuarioPaso1');
+  const elUsuP2 = document.getElementById('modalUsuarioPaso2');
+
+  /* Botón "Cambiar" usuario desde Seguridad → abre paso 1 */
+  document.getElementById('btnAbrirCambioUsuario')?.addEventListener('click', () => {
+    document.getElementById('usuP1Clave').value = '';
+    hideErr('errUsuP1');
+    new bootstrap.Modal(elUsuP1).show();
+  });
+
+  /* Limpiar al cerrar paso 1 */
+  elUsuP1?.addEventListener('hidden.bs.modal', () => {
+    document.getElementById('usuP1Clave').value = '';
+    hideErr('errUsuP1');
+  });
+
+  /* Paso 1 → verificar clave → Paso 2 */
+  document.getElementById('btnUsuP1Siguiente')?.addEventListener('click', function () {
+    const clave = document.getElementById('usuP1Clave').value;
+    if (!clave) { showErr('errUsuP1Txt', 'errUsuP1', 'Ingresa tu contraseña actual.'); return; }
+
+    hideErr('errUsuP1');
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    const fd = new FormData();
+    fd.append('accion',       'verificar_clave');
+    fd.append('clave_actual', clave);
+
+    postAjax(EDITAR_URL, fd,
+      () => {
+        this.disabled = false;
+        this.innerHTML = 'Siguiente <i class="bi bi-arrow-right ms-1"></i>';
+        document.getElementById('usuP2Nuevo').value = '';
+        hideErr('errUsuP2');
+        modalChain(elUsuP1, elUsuP2);
+      },
+      err => {
+        this.disabled = false;
+        this.innerHTML = 'Siguiente <i class="bi bi-arrow-right ms-1"></i>';
+        showErr('errUsuP1Txt', 'errUsuP1', err);
+      }
+    );
+  });
+
+  /* Paso 2 → volver a Paso 1 */
+  document.getElementById('btnUsuP2Volver')?.addEventListener('click', () => {
+    modalChain(elUsuP2, elUsuP1);
+  });
+
+  /* Paso 2 → guardar nuevo usuario */
+  document.getElementById('btnUsuP2Guardar')?.addEventListener('click', function () {
+    const nuevo = document.getElementById('usuP2Nuevo').value.trim();
+    if (!nuevo) { showErr('errUsuP2Txt', 'errUsuP2', 'Escribe el nuevo nombre de usuario.'); return; }
+    if (!/^[a-zA-Z0-9_]{3,30}$/.test(nuevo)) {
+      showErr('errUsuP2Txt', 'errUsuP2', 'Solo letras, números y _ (3–30 caracteres).');
+      return;
+    }
+
+    hideErr('errUsuP2');
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    const fd = new FormData();
+    fd.append('accion',  'cambiar_usuario');
+    fd.append('usuario', nuevo);
+
+    postAjax(EDITAR_URL, fd,
+      () => { location.reload(); },
+      err => {
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-check-lg me-1"></i> Confirmar';
+        showErr('errUsuP2Txt', 'errUsuP2', err);
+      }
+    );
+  });
+
+  /* ════════════════════════════════════════
+     MODAL: CAMBIAR CONTRASEÑA — cadena de pasos
+  ════════════════════════════════════════ */
+  const elClvP1 = document.getElementById('modalClavePaso1');
+  const elClvP2 = document.getElementById('modalClavePaso2');
+
+  /* Botón "Cambiar" contraseña desde Seguridad → abre paso 1 */
+  document.getElementById('btnAbrirCambioClave')?.addEventListener('click', () => {
+    document.getElementById('clvP1Actual').value = '';
+    hideErr('errClvP1');
+    new bootstrap.Modal(elClvP1).show();
+  });
+
+  /* Limpiar al cerrar paso 1 */
+  elClvP1?.addEventListener('hidden.bs.modal', () => {
+    document.getElementById('clvP1Actual').value = '';
+    hideErr('errClvP1');
+  });
+
+  /* Paso 1 → verificar clave → Paso 2 */
+  document.getElementById('btnClvP1Siguiente')?.addEventListener('click', function () {
+    const clave = document.getElementById('clvP1Actual').value;
+    if (!clave) { showErr('errClvP1Txt', 'errClvP1', 'Ingresa tu contraseña actual.'); return; }
+
+    hideErr('errClvP1');
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    const fd = new FormData();
+    fd.append('accion',       'verificar_clave');
+    fd.append('clave_actual', clave);
+
+    postAjax(EDITAR_URL, fd,
+      () => {
+        this.disabled = false;
+        this.innerHTML = 'Siguiente <i class="bi bi-arrow-right ms-1"></i>';
+        document.getElementById('clvP2Nueva').value     = '';
+        document.getElementById('clvP2Confirmar').value = '';
+        hideErr('errClvP2');
+        modalChain(elClvP1, elClvP2);
+      },
+      err => {
+        this.disabled = false;
+        this.innerHTML = 'Siguiente <i class="bi bi-arrow-right ms-1"></i>';
+        showErr('errClvP1Txt', 'errClvP1', err);
+      }
+    );
+  });
+
+  /* Paso 2 → volver a Paso 1 */
+  document.getElementById('btnClvP2Volver')?.addEventListener('click', () => {
+    modalChain(elClvP2, elClvP1);
+  });
+
+  /* Paso 2 → guardar nueva contraseña */
+  document.getElementById('btnClvP2Guardar')?.addEventListener('click', function () {
+    const nueva     = document.getElementById('clvP2Nueva').value;
+    const confirmar = document.getElementById('clvP2Confirmar').value;
+
+    if (!nueva)            { showErr('errClvP2Txt', 'errClvP2', 'Escribe la nueva contraseña.'); return; }
+    if (nueva.length < 6)  { showErr('errClvP2Txt', 'errClvP2', 'Mínimo 6 caracteres.'); return; }
+    if (nueva !== confirmar){ showErr('errClvP2Txt', 'errClvP2', 'Las contraseñas no coinciden.'); return; }
+
+    hideErr('errClvP2');
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    const fd = new FormData();
+    fd.append('accion',      'cambiar_clave');
+    fd.append('clave_nueva', nueva);
+
+    postAjax(EDITAR_URL, fd,
+      () => { location.reload(); },
+      err => {
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar';
+        showErr('errClvP2Txt', 'errClvP2', err);
+      }
+    );
+  });
+
 })();
 </script>
 {% endblock %}

@@ -1,0 +1,277 @@
+/* PROVEEDORES - CYS DESIGN SYSTEM */
+
+:root {
+  /* Colors */
+  --color-bg: #011936;
+  --color-bg-card: #02224a;
+  --color-surface: #031e3e;
+  
+  /* Accent Colors */
+  --cyan: #4DA8DA;
+  --green: #1D9E75;
+  --green-light: #c8e6a0;
+  --purple: #7F77DD;
+  --purple-light: #c9b8f0;
+  --orange: #E8834A;
+  --yellow: #f0d080;
+  
+  /* Text Colors */
+  --text-hi: #FDFFFC;
+  --text-md: #AF8D86;
+  --text-lo: #6b7280;
+  
+  /* Borders */
+  --border: rgba(239, 248, 226, 0.12);
+}
+
+/* BASE CARD STYLING */
+.cys-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.cys-card:hover {
+  border-color: rgba(77, 168, 218, 0.3);
+  box-shadow: 0 4px 12px rgba(77, 168, 218, 0.1);
+}
+
+/* CARD COLOR VARIANTS */
+.cys-card--inv {
+  border-top: 4px solid var(--cyan) !important;
+}
+
+.cys-card--prov {
+  border-top: 4px solid var(--green-light) !important;
+}
+
+.cys-card--diario {
+  border-top: 4px solid var(--yellow) !important;
+}
+
+.cys-card--analisis {
+  border-top: 4px solid var(--orange) !important;
+}
+
+/* CARD TITLES */
+.cys-card__title {
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-md);
+}
+
+/* SNAP SECTION */
+.cys-snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* BADGES */
+.badge-cyan {
+  background: rgba(77, 168, 218, 0.15) !important;
+  color: var(--cyan) !important;
+  border: 1px solid rgba(77, 168, 218, 0.3);
+}
+
+/* CARDS */
+.card-dev {
+  background: var(--color-bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* ALERTS */
+.alert-success-dev {
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+  border-radius: 6px;
+}
+
+.alert-danger-dev {
+  background: rgba(232, 131, 74, 0.08);
+  border: 1px solid rgba(232, 131, 74, 0.3);
+  color: #e8a87c;
+  border-radius: 6px;
+}
+
+/* FORM CONTROLS */
+.form-control, 
+.form-select {
+  background-color: var(--color-surface);
+  border: 1px solid var(--border);
+  color: var(--text-hi);
+  font-size: 0.9rem;
+}
+
+.form-control:focus, 
+.form-select:focus {
+  background-color: var(--color-surface);
+  border-color: var(--cyan);
+  color: var(--text-hi);
+  box-shadow: 0 0 0 0.2rem rgba(77, 168, 218, 0.15);
+}
+
+.form-control::placeholder {
+  color: var(--text-lo);
+}
+
+.form-label {
+  color: var(--text-hi);
+}
+
+/* INPUT GROUP */
+.input-group-text {
+  background-color: var(--color-surface);
+  border: 1px solid var(--border);
+  color: var(--text-md);
+}
+
+/* TABLE STYLING */
+.table {
+  color: var(--text-hi);
+  background: var(--color-bg-card);
+}
+
+.table thead th {
+  border-bottom: 2px solid rgba(77, 168, 218, 0.3);
+  background: rgba(77, 168, 218, 0.12);
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid rgba(77, 168, 218, 0.1);
+  transition: all 0.2s ease;
+  background: var(--color-surface);
+}
+
+.table tbody tr:hover {
+  background: rgba(77, 168, 218, 0.08);
+  border-left: 3px solid var(--cyan);
+}
+
+.table tbody td {
+  vertical-align: middle;
+  color: var(--text-hi);
+  padding: 0.75rem;
+  font-weight: 500;
+}
+
+/* TEXT COLORS */
+.text-cyan {
+  color: var(--cyan) !important;
+}
+
+.text-green-light {
+  color: var(--green-light) !important;
+}
+
+.text-yellow {
+  color: var(--yellow) !important;
+}
+
+.text-orange {
+  color: var(--orange) !important;
+}
+
+.text-md {
+  color: var(--text-md) !important;
+}
+
+.text-lo {
+  color: var(--text-lo) !important;
+}
+
+.text-sm {
+  font-size: 0.75rem;
+}
+
+/* BADGE BACKGROUNDS */
+.badge-cyan-bg {
+  background: rgba(77, 168, 218, 0.15) !important;
+  color: var(--cyan) !important;
+  font-size: 0.7rem;
+}
+
+.badge-status-activo {
+  background: rgba(76, 175, 80, 0.15) !important;
+  color: #4caf50 !important;
+}
+
+.badge-status-inactivo {
+  background: rgba(240, 208, 128, 0.15) !important;
+  color: var(--yellow) !important;
+}
+
+.badge-status-sancionado {
+  background: rgba(232, 131, 74, 0.15) !important;
+  color: var(--orange) !important;
+}
+
+/* BUTTONS */
+.btn-primary {
+  background-color: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--color-bg);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #3d8ac0;
+  border-color: #3d8ac0;
+}
+
+.btn-outline-warning {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+
+.btn-outline-warning:hover {
+  background-color: var(--orange);
+  border-color: var(--orange);
+  color: white;
+}
+
+.btn-outline-danger {
+  color: #e8a87c;
+  border-color: #e8a87c;
+}
+
+.btn-outline-danger:hover {
+  background-color: #e8a87c;
+  border-color: #e8a87c;
+  color: white;
+}
+
+.btn-outline-secondary {
+  color: var(--text-md);
+  border-color: var(--border);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--color-surface);
+  border-color: var(--text-md);
+  color: var(--text-hi);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .cys-snap-section {
+    min-height: auto;
+  }
+  
+  .cys-card {
+    font-size: 0.9rem;
+  }
+}

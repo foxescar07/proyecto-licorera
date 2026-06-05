@@ -3,7 +3,7 @@
 
 {% block title %}Gestión de Productos — CYS Ltda{% endblock %}
 {% block page_title %}Gestión de Productos{% endblock %}
-{% block nav_productos %}active{% endblock %}
+{% block nav_proveedores %}active{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
@@ -251,7 +251,7 @@
           <h4 class="card-title fw-bold mb-4 text-danger">
             <i class="bi bi-box-arrow-up me-2"></i> Registrar Salida
           </h4>
-          <form method="POST" action="{% url 'gestion_salida' %}">
+          <form method="POST" action="{% url 'producto_salida' %}">
             {% csrf_token %}
             <div class="mb-4">
               <label class="form-label prod-label">Presentación / Producto <span class="text-danger">*</span></label>
