@@ -13,7 +13,7 @@
 
   <nav class="cys-breadcrumb mb-4">
     <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
-      <i class="bi bi-grid-1x2-fill"></i> Tablero
+      Tablero
     </a>
     <span class="cys-breadcrumb__sep"><i class="bi bi-chevron-right"></i></span>
     <span class="cys-breadcrumb__current">Mi Perfil</span>
@@ -115,7 +115,6 @@
         </div>
         <div class="cys-perfil-security">
 
-          <!-- Ítem: Usuario -->
           <div class="cys-perfil-security__item">
             <div class="cys-perfil-security__icon">
               <i class="bi bi-person-badge-fill"></i>
@@ -130,7 +129,6 @@
             </button>
           </div>
 
-          <!-- Ítem: Contraseña -->
           <div class="cys-perfil-security__item">
             <div class="cys-perfil-security__icon">
               <i class="bi bi-key-fill"></i>
@@ -152,9 +150,7 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     MODAL 1 — EDITAR INFORMACIÓN PERSONAL
-═══════════════════════════════════════════ -->
+<!-- MODAL 1 — EDITAR INFORMACIÓN PERSONAL -->
 <div class="modal fade" id="modalEditarInfo" tabindex="-1"
      aria-labelledby="modalEditarInfoLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-md">
@@ -215,9 +211,7 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     MODAL 2A — CAMBIAR USUARIO: Paso 1 (Confirmar usuario actual)
-═══════════════════════════════════════════ -->
+<!-- MODAL 2A — CAMBIAR USUARIO: Paso 1 -->
 <div class="modal fade" id="modalUsuarioPaso1" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered cys-modal-sm">
@@ -237,9 +231,7 @@
       </div>
 
       <div class="modal-body cys-modal-body-simple">
-        <p class="cys-modal-desc">
-          Para cambiar tu nombre de usuario, confirma tu contraseña actual.
-        </p>
+        <p class="cys-modal-desc">Para cambiar tu nombre de usuario, confirma tu contraseña actual.</p>
         <label class="cys-form-label">Contraseña Actual</label>
         <div class="cys-input-eye">
           <input type="password" id="usuP1Clave" class="cys-input"
@@ -267,9 +259,7 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     MODAL 2B — CAMBIAR USUARIO: Paso 2 (Nuevo Username)
-═══════════════════════════════════════════ -->
+<!-- MODAL 2B — CAMBIAR USUARIO: Paso 2 -->
 <div class="modal fade" id="modalUsuarioPaso2" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered cys-modal-sm">
@@ -289,9 +279,7 @@
       </div>
 
       <div class="modal-body cys-modal-body-simple">
-        <p class="cys-modal-desc">
-          Elige un nuevo nombre de usuario. Solo letras, números y guiones bajos.
-        </p>
+        <p class="cys-modal-desc">Elige un nuevo nombre de usuario. Solo letras, números y guiones bajos.</p>
         <label class="cys-form-label">Nuevo nombre de usuario</label>
         <div class="cys-input-icon-wrap">
           <i class="bi bi-at cys-input-icon"></i>
@@ -317,9 +305,7 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     MODAL 3A — CAMBIAR CONTRASEÑA: Paso 1 (Clave Actual)
-═══════════════════════════════════════════ -->
+<!-- MODAL 3A — CAMBIAR CONTRASEÑA: Paso 1 -->
 <div class="modal fade" id="modalClavePaso1" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered cys-modal-sm">
@@ -339,9 +325,7 @@
       </div>
 
       <div class="modal-body cys-modal-body-simple">
-        <p class="cys-modal-desc">
-          Ingresa tu contraseña actual para continuar con el cambio.
-        </p>
+        <p class="cys-modal-desc">Ingresa tu contraseña actual para continuar con el cambio.</p>
         <label class="cys-form-label">Contraseña Actual</label>
         <div class="cys-input-eye">
           <input type="password" id="clvP1Actual" class="cys-input"
@@ -369,9 +353,7 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     MODAL 3B — CAMBIAR CONTRASEÑA: Paso 2 (Nueva Clave)
-═══════════════════════════════════════════ -->
+<!-- MODAL 3B — CAMBIAR CONTRASEÑA: Paso 2 -->
 <div class="modal fade" id="modalClavePaso2" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered cys-modal-sm">
@@ -391,9 +373,7 @@
       </div>
 
       <div class="modal-body cys-modal-body-simple">
-        <p class="cys-modal-desc">
-          Elige una contraseña segura. Mínimo 6 caracteres, 2 números y 1 mayúscula.
-        </p>
+        <p class="cys-modal-desc">Elige una contraseña segura. Mínimo 6 caracteres, 2 números y 1 mayúscula.</p>
         <label class="cys-form-label">Nueva Contraseña</label>
         <div class="cys-input-eye mb-3">
           <input type="password" id="clvP2Nueva" class="cys-input"
@@ -436,7 +416,6 @@
 (function () {
   const EDITAR_URL = "{% url 'perfil_editar' %}";
 
-  /* ── Utilidades ── */
   function getCookie(n) {
     let v = null;
     document.cookie.split(';').forEach(c => {
@@ -481,7 +460,6 @@
     }, { once: true });
   }
 
-  /* ── Toggle ojos (delegado) ── */
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-toggle-target]');
     if (!btn) return;
@@ -494,9 +472,7 @@
     icon.classList.toggle('bi-eye-slash', isPwd);
   });
 
-  /* ════════════════════════════════════════
-     MODAL: EDITAR INFORMACIÓN PERSONAL
-  ════════════════════════════════════════ */
+  /* EDITAR INFORMACIÓN */
   document.getElementById('btnGuardarInfo')?.addEventListener('click', function () {
     const btn       = this;
     const nombre    = document.getElementById('epNombre').value.trim();
@@ -532,26 +508,21 @@
     );
   });
 
-  /* ════════════════════════════════════════
-     MODAL: CAMBIAR USUARIO — cadena de pasos
-  ════════════════════════════════════════ */
+  /* CAMBIAR USUARIO */
   const elUsuP1 = document.getElementById('modalUsuarioPaso1');
   const elUsuP2 = document.getElementById('modalUsuarioPaso2');
 
-  /* Botón "Cambiar" usuario desde Seguridad → abre paso 1 */
   document.getElementById('btnAbrirCambioUsuario')?.addEventListener('click', () => {
     document.getElementById('usuP1Clave').value = '';
     hideErr('errUsuP1');
     new bootstrap.Modal(elUsuP1).show();
   });
 
-  /* Limpiar al cerrar paso 1 */
   elUsuP1?.addEventListener('hidden.bs.modal', () => {
     document.getElementById('usuP1Clave').value = '';
     hideErr('errUsuP1');
   });
 
-  /* Paso 1 → verificar clave → Paso 2 */
   document.getElementById('btnUsuP1Siguiente')?.addEventListener('click', function () {
     const clave = document.getElementById('usuP1Clave').value;
     if (!clave) { showErr('errUsuP1Txt', 'errUsuP1', 'Ingresa tu contraseña actual.'); return; }
@@ -580,12 +551,10 @@
     );
   });
 
-  /* Paso 2 → volver a Paso 1 */
   document.getElementById('btnUsuP2Volver')?.addEventListener('click', () => {
     modalChain(elUsuP2, elUsuP1);
   });
 
-  /* Paso 2 → guardar nuevo usuario */
   document.getElementById('btnUsuP2Guardar')?.addEventListener('click', function () {
     const nuevo = document.getElementById('usuP2Nuevo').value.trim();
     if (!nuevo) { showErr('errUsuP2Txt', 'errUsuP2', 'Escribe el nuevo nombre de usuario.'); return; }
@@ -612,26 +581,21 @@
     );
   });
 
-  /* ════════════════════════════════════════
-     MODAL: CAMBIAR CONTRASEÑA — cadena de pasos
-  ════════════════════════════════════════ */
+  /* CAMBIAR CONTRASEÑA */
   const elClvP1 = document.getElementById('modalClavePaso1');
   const elClvP2 = document.getElementById('modalClavePaso2');
 
-  /* Botón "Cambiar" contraseña desde Seguridad → abre paso 1 */
   document.getElementById('btnAbrirCambioClave')?.addEventListener('click', () => {
     document.getElementById('clvP1Actual').value = '';
     hideErr('errClvP1');
     new bootstrap.Modal(elClvP1).show();
   });
 
-  /* Limpiar al cerrar paso 1 */
   elClvP1?.addEventListener('hidden.bs.modal', () => {
     document.getElementById('clvP1Actual').value = '';
     hideErr('errClvP1');
   });
 
-  /* Paso 1 → verificar clave → Paso 2 */
   document.getElementById('btnClvP1Siguiente')?.addEventListener('click', function () {
     const clave = document.getElementById('clvP1Actual').value;
     if (!clave) { showErr('errClvP1Txt', 'errClvP1', 'Ingresa tu contraseña actual.'); return; }
@@ -661,19 +625,17 @@
     );
   });
 
-  /* Paso 2 → volver a Paso 1 */
   document.getElementById('btnClvP2Volver')?.addEventListener('click', () => {
     modalChain(elClvP2, elClvP1);
   });
 
-  /* Paso 2 → guardar nueva contraseña */
   document.getElementById('btnClvP2Guardar')?.addEventListener('click', function () {
     const nueva     = document.getElementById('clvP2Nueva').value;
     const confirmar = document.getElementById('clvP2Confirmar').value;
 
-    if (!nueva)            { showErr('errClvP2Txt', 'errClvP2', 'Escribe la nueva contraseña.'); return; }
-    if (nueva.length < 6)  { showErr('errClvP2Txt', 'errClvP2', 'Mínimo 6 caracteres.'); return; }
-    if (nueva !== confirmar){ showErr('errClvP2Txt', 'errClvP2', 'Las contraseñas no coinciden.'); return; }
+    if (!nueva)             { showErr('errClvP2Txt', 'errClvP2', 'Escribe la nueva contraseña.'); return; }
+    if (nueva.length < 6)   { showErr('errClvP2Txt', 'errClvP2', 'Mínimo 6 caracteres.'); return; }
+    if (nueva !== confirmar) { showErr('errClvP2Txt', 'errClvP2', 'Las contraseñas no coinciden.'); return; }
 
     hideErr('errClvP2');
     this.disabled = true;
