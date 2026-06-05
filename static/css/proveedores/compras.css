@@ -1,0 +1,451 @@
+/* Compras - Bootstrap 5 con paleta visual de reportes */
+
+:root {
+  --compras-bg: #011936;
+  --compras-card: #02224a;
+  --compras-surface: #031e3e;
+  --compras-surface-2: #062b58;
+  --compras-hover: #032d60;
+  --compras-border: rgba(239, 248, 226, 0.12);
+  --compras-border-strong: rgba(239, 248, 226, 0.22);
+  --compras-text: #FDFFFC;
+  --compras-muted: #AF8D86;
+  --compras-accent: #EFF8E2;
+  --compras-danger: #912F40;
+  --compras-success: #c8e6a0;
+  --compras-warning: #f0d080;
+  --compras-info: #4DA8DA;
+}
+
+.cys-compras {
+  color: var(--compras-text);
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.cys-panel,
+.cys-kpi,
+.cys-modal {
+  background:
+    linear-gradient(145deg, rgba(239, 248, 226, 0.035), rgba(145, 47, 64, 0.02)),
+    var(--compras-card);
+  border: 1px solid var(--compras-border);
+  border-radius: 8px;
+  color: var(--compras-text);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.cys-hero {
+  border-left: 4px solid var(--compras-accent);
+  overflow: hidden;
+  position: relative;
+}
+
+.cys-hero .card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.cys-panel__header {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgba(239, 248, 226, 0.055), rgba(239, 248, 226, 0.015)),
+    var(--compras-surface);
+  border-bottom: 1px solid var(--compras-border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+}
+
+.cys-page-title,
+.cys-panel h2,
+.cys-modal .modal-title {
+  color: var(--compras-accent);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.cys-provider-meta,
+.cys-muted,
+.cys-kpi__sub,
+.cys-empty,
+.cys-detail-box small,
+.cys-panel-subtitle {
+  color: var(--compras-muted);
+}
+
+.cys-text-accent,
+.cys-section-icon {
+  color: var(--compras-accent);
+}
+
+.cys-separator {
+  background: var(--compras-border-strong);
+  display: inline-block;
+  height: 16px;
+  width: 1px;
+}
+
+.cys-badge-soft {
+  background: rgba(239, 248, 226, 0.105);
+  border: 1px solid var(--compras-border);
+  color: var(--compras-accent);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.cys-kpi {
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.cys-kpi .card-body {
+  min-height: 126px;
+}
+
+.cys-kpi:hover {
+  border-color: var(--compras-border-strong);
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(239, 248, 226, 0.04);
+  transform: translateY(-2px);
+}
+
+.cys-kpi--success {
+  border-left: 4px solid var(--compras-success);
+}
+
+.cys-kpi--info {
+  border-left: 4px solid var(--compras-info);
+}
+
+.cys-kpi--warning {
+  border-left: 4px solid var(--compras-warning);
+}
+
+.cys-kpi__icon {
+  align-items: center;
+  background:
+    linear-gradient(145deg, rgba(239, 248, 226, 0.14), rgba(239, 248, 226, 0.045));
+  border: 1px solid var(--compras-border);
+  border-radius: 10px;
+  color: var(--compras-accent);
+  display: inline-flex;
+  flex: 0 0 48px;
+  font-size: 1.35rem;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.cys-kpi--success .cys-kpi__icon {
+  color: var(--compras-success);
+}
+
+.cys-kpi--info .cys-kpi__icon {
+  color: var(--compras-info);
+}
+
+.cys-kpi--warning .cys-kpi__icon {
+  color: var(--compras-warning);
+}
+
+.cys-kpi__label,
+.form-label,
+.cys-detail-label {
+  color: var(--compras-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.cys-kpi__value {
+  color: var(--compras-text);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.05;
+  text-shadow: 0 0 18px rgba(239, 248, 226, 0.12);
+}
+
+.cys-kpi__value span {
+  color: var(--compras-muted);
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.cys-kpi__value--product {
+  color: var(--compras-warning);
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cys-work-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.cys-work-card .card-body,
+.cys-work-card .table-responsive {
+  flex: 1 1 auto;
+}
+
+.cys-header-icon {
+  align-items: center;
+  background: rgba(239, 248, 226, 0.1);
+  border: 1px solid var(--compras-border);
+  border-radius: 8px;
+  color: var(--compras-accent);
+  display: inline-flex;
+  flex: 0 0 36px;
+  font-size: 1rem;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.cys-panel-subtitle {
+  font-size: 0.78rem;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  background-color: var(--compras-bg);
+  border-color: rgba(239, 248, 226, 0.18);
+  border-radius: 8px;
+  color: var(--compras-text);
+  font-size: 0.94rem;
+  min-height: 46px;
+}
+
+.form-control::placeholder {
+  color: rgba(175, 141, 134, 0.78);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--compras-bg);
+  border-color: var(--compras-accent);
+  box-shadow: 0 0 0 0.2rem rgba(239, 248, 226, 0.12);
+  color: var(--compras-text);
+}
+
+.form-select {
+  color-scheme: dark;
+}
+
+.btn {
+  border-radius: 6px;
+  font-weight: 700;
+  min-height: 40px;
+}
+
+.btn-primary {
+  background-color: var(--compras-accent);
+  border-color: var(--compras-accent);
+  color: var(--compras-bg);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #dbe8ca;
+  border-color: #dbe8ca;
+  color: var(--compras-bg);
+}
+
+.btn-outline-light {
+  border-color: var(--compras-border-strong);
+  color: var(--compras-accent);
+}
+
+.btn-outline-light:hover,
+.btn-outline-light:focus {
+  background-color: rgba(239, 248, 226, 0.1);
+  border-color: var(--compras-accent);
+  color: var(--compras-text);
+}
+
+.cys-alert {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.cys-alert--success {
+  background: rgba(200, 230, 160, 0.1);
+  border: 1px solid rgba(200, 230, 160, 0.28);
+  color: var(--compras-success);
+}
+
+.cys-alert--danger {
+  background: rgba(145, 47, 64, 0.16);
+  border: 1px solid rgba(145, 47, 64, 0.35);
+  color: #e87a8a;
+}
+
+.cys-alert--info {
+  background: rgba(77, 168, 218, 0.1);
+  border: 1px solid rgba(77, 168, 218, 0.28);
+  color: var(--compras-info);
+}
+
+.cys-table {
+  --bs-table-bg: var(--compras-card);
+  --bs-table-color: var(--compras-text);
+  --bs-table-hover-bg: rgba(239, 248, 226, 0.055);
+  --bs-table-hover-color: var(--compras-text);
+  border-color: var(--compras-border);
+  font-size: 0.86rem;
+  table-layout: fixed;
+}
+
+.cys-table thead th {
+  background:
+    linear-gradient(180deg, rgba(239, 248, 226, 0.06), rgba(239, 248, 226, 0.025)),
+    var(--compras-surface);
+  border-bottom: 1px solid var(--compras-border);
+  color: var(--compras-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.85rem 1rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cys-table thead th:first-child,
+.cys-table tbody td:first-child {
+  width: 52px;
+}
+
+.cys-table thead th:nth-child(2),
+.cys-table tbody td:nth-child(2) {
+  width: 28%;
+}
+
+.cys-table thead th:nth-child(3),
+.cys-table tbody td:nth-child(3) {
+  width: 82px;
+}
+
+.cys-table thead th:nth-child(4),
+.cys-table tbody td:nth-child(4),
+.cys-table thead th:nth-child(5),
+.cys-table tbody td:nth-child(5) {
+  width: 120px;
+}
+
+.cys-table thead th:nth-child(6),
+.cys-table tbody td:nth-child(6) {
+  width: 132px;
+}
+
+.cys-table thead th:nth-child(7),
+.cys-table tbody td:nth-child(7) {
+  width: 96px;
+}
+
+.cys-table tbody td,
+.cys-table tfoot td {
+  border-bottom: 1px solid rgba(239, 248, 226, 0.08);
+  padding: 0.95rem 1rem;
+  vertical-align: middle;
+}
+
+.cys-table tbody tr {
+  transition: background-color 0.16s ease;
+}
+
+.cys-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cys-table tfoot td {
+  background: var(--compras-surface);
+  border-top: 1px solid var(--compras-border);
+}
+
+.cys-muted-cell {
+  color: rgba(175, 141, 134, 0.8);
+}
+
+.cys-money {
+  color: var(--compras-success);
+}
+
+.cys-empty {
+  max-width: 320px;
+  padding: 0.5rem;
+}
+
+.cys-empty i {
+  color: rgba(239, 248, 226, 0.22);
+  font-size: 2.25rem;
+}
+
+.cys-modal .modal-header,
+.cys-modal .modal-footer {
+  background: var(--compras-surface);
+  border-color: var(--compras-border);
+}
+
+.cys-modal .modal-body {
+  background: var(--compras-bg);
+}
+
+.cys-detail-box {
+  background:
+    linear-gradient(145deg, rgba(239, 248, 226, 0.06), rgba(239, 248, 226, 0.025));
+  border: 1px solid var(--compras-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem;
+}
+
+.cys-detail-box strong {
+  color: var(--compras-text);
+}
+
+.cys-detail-box--total {
+  background: rgba(200, 230, 160, 0.08);
+  border-color: rgba(200, 230, 160, 0.22);
+}
+
+.cys-detail-box--total strong {
+  color: var(--compras-success);
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+@media (max-width: 576px) {
+  .cys-panel__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cys-kpi__value {
+    font-size: 1.55rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .cys-table {
+    table-layout: auto;
+    min-width: 780px;
+  }
+
+  .cys-kpi .card-body {
+    min-height: auto;
+  }
+}

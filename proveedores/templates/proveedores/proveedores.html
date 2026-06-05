@@ -130,6 +130,7 @@
             <th class="fw-bold small text-cyan">Tipo</th>
             <th class="fw-bold small text-cyan">Estado</th>
             <th class="fw-bold small text-cyan">Responsable</th>
+            <th class="fw-bold small text-cyan">Fecha Registro</th>
             <th class="fw-bold small text-center text-cyan">Acciones</th>
           </tr>
         </thead>
@@ -155,14 +156,60 @@
               </span>
             </td>
             <td class="small text-md">{{ p.registrado_por.email|default:"Admin" }}</td>
+            <td class="small">
+              <div class="fw-bold">{{ p.fecha_registro|date:"d/m/Y" }}</div>
+              <span class="text-sm">{{ p.fecha_registro|date:"H:i" }}</span>
+            </td>
             <td class="text-center">
-              <div class="btn-group btn-group-sm" role="group">
-                <a href="/proveedores/editar/{{ p.id }}/" class="btn btn-outline-warning btn-sm" title="Editar">
-                  <i class="bi bi-pencil"></i>
-                </a>
-                <button type="button" class="btn btn-outline-danger btn-sm" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminarProveedor{{ p.id }}">
-                  <i class="bi bi-trash"></i>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-link text-cyan p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Acciones" style="text-decoration: none; font-size: 1.2rem;">
+                  <i class="bi bi-three-dots-vertical"></i>
                 </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="/proveedores/detalle/{{ p.id }}/">
+                      <i class="bi bi-eye me-2"></i>Ver detalles
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/proveedores/editar/{{ p.id }}/">
+                      <i class="bi bi-pencil me-2"></i>Editar
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if p.estado == 'activo' %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDesactivar{{ p.id }}">
+                      <i class="bi bi-pause-circle me-2"></i>Desactivar
+                    </button>
+                  </li>
+                  {% elif p.estado == 'inactivo' %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalActivar{{ p.id }}">
+                      <i class="bi bi-play-circle me-2"></i>Activar
+                    </button>
+                  </li>
+                  {% endif %}
+                  {% if p.estado != 'sancionado' %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalSancionar{{ p.id }}">
+                      <i class="bi bi-exclamation-triangle me-2"></i>Sancionar
+                    </button>
+                  </li>
+                  {% else %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalVerSancion{{ p.id }}">
+                      <i class="bi bi-info-circle me-2"></i>Ver causa
+                    </button>
+                  </li>
+                  {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarProveedor{{ p.id }}">
+                      <i class="bi bi-trash me-2"></i>Eliminar
+                    </button>
+                  </li>
+                </ul>
               </div>
             </td>
           </tr>
@@ -233,6 +280,168 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL DESACTIVAR PROVEEDOR -->
+<div class="modal fade" id="modalDesactivar{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(240, 208, 128, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-inactivo mb-2">
+            <i class="bi bi-pause-circle me-1"></i>DESACTIVAR
+          </span>
+          <h5 class="modal-title fw-bold" style="color: var(--yellow);">
+            <i class="bi bi-pause-circle me-2"></i>Desactivar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">¿Deseas desactivar a <strong style="color: var(--cyan);">{{ p.nombre_empresa }}</strong>?</p>
+        <div style="background: rgba(240, 208, 128, 0.06); border-left: 4px solid var(--yellow); padding: 1rem; border-radius: 6px;">
+          <div class="fw-bold">{{ p.nombre_empresa }}</div>
+          <small class="text-muted">{{ p.nombre_contacto }}</small>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" action="{% url 'desactivar_proveedor' p.id %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning btn-sm fw-bold">
+            <i class="bi bi-pause-circle me-1"></i>Desactivar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACTIVAR PROVEEDOR -->
+<div class="modal fade" id="modalActivar{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(76, 175, 80, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-activo mb-2">
+            <i class="bi bi-play-circle me-1"></i>ACTIVAR
+          </span>
+          <h5 class="modal-title fw-bold" style="color: #4caf50;">
+            <i class="bi bi-play-circle me-2"></i>Activar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">¿Deseas activar a <strong style="color: var(--cyan);">{{ p.nombre_empresa }}</strong>?</p>
+        <div style="background: rgba(76, 175, 80, 0.06); border-left: 4px solid #4caf50; padding: 1rem; border-radius: 6px;">
+          <div class="fw-bold">{{ p.nombre_empresa }}</div>
+          <small class="text-muted">{{ p.nombre_contacto }}</small>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" action="{% url 'activar_proveedor' p.id %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-sm fw-bold">
+            <i class="bi bi-play-circle me-1"></i>Activar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SANCIONAR PROVEEDOR -->
+<div class="modal fade" id="modalSancionar{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(232, 131, 74, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-sancionado mb-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>SANCIONAR
+          </span>
+          <h5 class="modal-title fw-bold" style="color: var(--orange);">
+            <i class="bi bi-exclamation-triangle me-2"></i>Sancionar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Registra la causa por la cual sancionas a <strong style="color: var(--cyan);">{{ p.nombre_empresa }}</strong>:</p>
+        <form id="formSancionar{{ p.id }}" method="POST" action="{% url 'sancionar_proveedor' p.id %}">
+          {% csrf_token %}
+          <div style="background: rgba(232, 131, 74, 0.06); border-left: 4px solid var(--orange); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <div class="fw-bold">{{ p.nombre_empresa }}</div>
+            <small class="text-muted">{{ p.nombre_contacto }}</small>
+          </div>
+          <div class="mb-3">
+            <label for="causaSancion{{ p.id }}" class="form-label fw-bold">Causa de sanción *</label>
+            <textarea
+              id="causaSancion{{ p.id }}"
+              name="motivo_sancion"
+              class="form-control"
+              rows="4"
+              placeholder="Describe el motivo de la sanción..."
+              style="background: var(--color-surface); border-color: rgba(232, 131, 74, 0.2); color: var(--text-hi);"
+              required></textarea>
+            <small class="text-muted mt-2 d-block">Sé específico sobre el motivo de la sanción</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <button type="submit" form="formSancionar{{ p.id }}" class="btn btn-danger btn-sm fw-bold">
+          <i class="bi bi-exclamation-triangle me-1"></i>Sancionar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER CAUSA DE SANCIÓN -->
+<div class="modal fade" id="modalVerSancion{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(77, 168, 218, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-sancionado mb-2">
+            <i class="bi bi-info-circle me-1"></i>INFORMACIÓN
+          </span>
+          <h5 class="modal-title fw-bold" style="color: var(--cyan);">
+            <i class="bi bi-info-circle me-2"></i>Causa de sanción
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(77, 168, 218, 0.06); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <div class="fw-bold text-cyan">{{ p.nombre_empresa }}</div>
+          <small class="text-muted">{{ p.nombre_contacto }}</small>
+        </div>
+        <div class="mb-3">
+          <small class="text-muted text-uppercase fw-bold">Motivo de sanción</small>
+          <p class="mt-2 mb-0">{{ p.motivo_sancion|default:"No especificado" }}</p>
+        </div>
+        <hr style="border-color: rgba(77, 168, 218, 0.2);">
+        <small class="text-muted">
+          <i class="bi bi-calendar me-1"></i>Registrado: {{ p.fecha_registro|date:"d/m/Y H:i" }}<br>
+          <i class="bi bi-pencil me-1"></i>Última modificación: {{ p.ultima_modificacion|date:"d/m/Y H:i" }}
+        </small>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endfor %}
 
 <!-- MODAL NUEVO PROVEEDOR -->
@@ -252,68 +461,55 @@
           {% csrf_token %}
           
           <!-- INFORMACIÓN BÁSICA -->
-          <div style="background: rgba(77, 168, 218, 0.05); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-            <h6 style="color: var(--cyan); margin-bottom: 1rem;"><i class="bi bi-building me-2"></i>Información Básica</h6>
-            <div class="row g-2">
+          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.2rem;">
+            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-building me-2"></i>Información Básica</h6>
+            <div class="row g-3">
               <div class="col-12 col-md-6">
-                <label for="id_nombre_empresa" class="form-label small fw-bold">Empresa *</label>
-                <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control form-control-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);" required>
+                <label for="id_nombre_empresa" class="form-label fw-bold" style="color: var(--cyan);">Empresa *</label>
+                <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control" placeholder="Ej: ABC Distribuciones" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
               </div>
               <div class="col-12 col-md-6">
-                <label for="id_nombre_contacto" class="form-label small fw-bold">Contacto *</label>
-                <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control form-control-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);" required>
+                <label for="id_nombre_contacto" class="form-label fw-bold" style="color: var(--cyan);">Responsable/Contacto *</label>
+                <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control" placeholder="Ej: Juan Pérez" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
               </div>
             </div>
           </div>
 
           <!-- CONTACTO -->
-          <div style="background: rgba(77, 168, 218, 0.05); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-            <h6 style="color: var(--cyan); margin-bottom: 1rem;"><i class="bi bi-telephone me-2"></i>Datos de Contacto</h6>
-            <div class="row g-2">
+          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.2rem;">
+            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-telephone me-2"></i>Datos de Contacto</h6>
+            <div class="row g-3">
               <div class="col-12 col-md-6">
-                <label for="id_email" class="form-label small fw-bold">Email *</label>
-                <input type="email" name="email" id="id_email" class="form-control form-control-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);" required>
+                <label for="id_email" class="form-label fw-bold" style="color: var(--cyan);">Correo *</label>
+                <input type="email" name="email" id="id_email" class="form-control" placeholder="contacto@empresa.com" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
               </div>
               <div class="col-12 col-md-6">
-                <label for="id_telefono" class="form-label small fw-bold">Teléfono</label>
-                <input type="text" name="telefono" id="id_telefono" class="form-control form-control-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);">
-              </div>
-            </div>
-          </div>
-
-          <!-- UBICACIÓN -->
-          <div style="background: rgba(77, 168, 218, 0.05); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-            <h6 style="color: var(--cyan); margin-bottom: 1rem;"><i class="bi bi-geo-alt me-2"></i>Ubicación</h6>
-            <div class="row g-2">
-              <div class="col-12 col-md-8">
-                <label for="id_direccion" class="form-label small fw-bold">Dirección</label>
-                <textarea name="direccion" id="id_direccion" class="form-control form-control-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi); height: 70px;"></textarea>
-              </div>
-              <div class="col-12 col-md-4">
-                <label for="id_ciudad" class="form-label small fw-bold">Ciudad</label>
-                <input type="text" name="ciudad" id="id_ciudad" class="form-control form-control-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);">
+                <label for="id_telefono" class="form-label fw-bold" style="color: var(--cyan);">Número de Teléfono</label>
+                <input type="text" name="telefono" id="id_telefono" class="form-control" placeholder="+56 9 1234 5678" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;">
               </div>
             </div>
           </div>
 
           <!-- CLASIFICACIÓN -->
-          <div style="background: rgba(77, 168, 218, 0.05); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px;">
-            <h6 style="color: var(--cyan); margin-bottom: 1rem;"><i class="bi bi-tag me-2"></i>Clasificación</h6>
-            <div class="row g-2">
+          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px;">
+            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-tag me-2"></i>Clasificación</h6>
+            <div class="row g-3">
               <div class="col-12 col-md-6">
-                <label for="id_tipo_proveedor" class="form-label small fw-bold">Tipo *</label>
-                <select name="tipo_proveedor" id="id_tipo_proveedor" class="form-select form-select-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);" required>
+                <label for="id_tipo_proveedor" class="form-label fw-bold" style="color: var(--cyan);">Tipo de Proveedor *</label>
+                <select name="tipo_proveedor" id="id_tipo_proveedor" class="form-select" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+                  <option value="">-- Selecciona un tipo --</option>
                   <option value="distribuidor">Distribuidor</option>
                   <option value="fabricante">Fabricante</option>
                   <option value="importador">Importador</option>
                 </select>
               </div>
               <div class="col-12 col-md-6">
-                <label for="id_estado" class="form-label small fw-bold">Estado *</label>
-                <select name="estado" id="id_estado" class="form-select form-select-sm" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.2); color: var(--text-hi);" required>
-                  <option value="activo">Activo</option>
-                  <option value="inactivo">Inactivo</option>
-                  <option value="sancionado">Sancionado</option>
+                <label for="id_estado" class="form-label fw-bold" style="color: var(--cyan);">Estado *</label>
+                <select name="estado" id="id_estado" class="form-select" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+                  <option value="">-- Selecciona un estado --</option>
+                  <option value="activo">✓ Activo</option>
+                  <option value="inactivo">⏸ Inactivo</option>
+                  <option value="sancionado">⚠ Sancionado</option>
                 </select>
               </div>
             </div>
@@ -324,10 +520,43 @@
         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <button type="submit" form="formNuevoProveedor" class="btn btn-primary btn-sm fw-bold">
+        <button type="submit" form="formNuevoProveedor" class="btn btn-primary btn-sm fw-bold" onclick="return validarFormulario()">
           <i class="bi bi-check-circle me-1"></i>Guardar Proveedor
         </button>
       </div>
+
+      <script>
+        function validarFormulario() {
+          const empresa = document.getElementById('id_nombre_empresa').value.trim();
+          const contacto = document.getElementById('id_nombre_contacto').value.trim();
+          const email = document.getElementById('id_email').value.trim();
+          const tipo = document.getElementById('id_tipo_proveedor').value;
+          const estado = document.getElementById('id_estado').value;
+
+          if (!empresa) {
+            alert('Por favor ingresa el nombre de la empresa');
+            return false;
+          }
+          if (!contacto) {
+            alert('Por favor ingresa el responsable/contacto');
+            return false;
+          }
+          if (!email) {
+            alert('Por favor ingresa el correo');
+            return false;
+          }
+          if (!tipo) {
+            alert('Por favor selecciona un tipo de proveedor');
+            return false;
+          }
+          if (!estado) {
+            alert('Por favor selecciona un estado');
+            return false;
+          }
+
+          return true;
+        }
+      </script>
     </div>
   </div>
 </div>
