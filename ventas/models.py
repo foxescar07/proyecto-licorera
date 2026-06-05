@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from productos.models import Producto, PresentacionProducto
 
 
@@ -86,13 +87,13 @@ class DetalleVenta(models.Model):
 
 
 class AperturaCaja(models.Model):
-    fecha           = models.DateField(unique=True)
-    monto_base      = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-                                        null=True, blank=True, related_name='aperturas_caja')
-    observacion     = models.TextField(blank=True)
-    denominaciones  = models.JSONField(default=dict, blank=True)
-    creado_en       = models.DateTimeField(auto_now_add=True)
+    fecha          = models.DateField(unique=True)
+    monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                       null=True, blank=True, related_name='aperturas_caja')
+    observacion    = models.TextField(blank=True)
+    denominaciones = models.JSONField(default=dict, blank=True)
+    creado_en      = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
         verbose_name        = 'Apertura de Caja'
@@ -111,7 +112,7 @@ class CierreCaja(models.Model):
     monto_base_siguiente = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_retirado       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     denominaciones       = models.JSONField(default=dict, blank=True)
-    creado_en            = models.DateTimeField(auto_now_add=True)
+    creado_en            = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
         verbose_name        = 'Cierre de Caja'
