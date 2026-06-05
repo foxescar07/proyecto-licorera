@@ -207,6 +207,25 @@ body.sidebar-open {
 }
 
 /* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.cys-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .78rem;
+}
+.cys-breadcrumb__link {
+  color: var(--texto-muted);
+  text-decoration: none;
+  opacity: .75;
+  transition: opacity .2s, color .2s;
+}
+.cys-breadcrumb__link:hover { opacity: 1; color: var(--azul-claro); }
+.cys-breadcrumb__sep { color: var(--texto-muted); font-size: .65rem; }
+.cys-breadcrumb__current { color: var(--texto-muted); }
+
+/* ============================================================
    SIDEBAR OFFCANVAS
    ============================================================ */
 #sidebarRight {
