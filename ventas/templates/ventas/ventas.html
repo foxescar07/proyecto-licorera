@@ -4,6 +4,10 @@
 {% block title %}Ventas — CYS Ltda{% endblock %}
 {% block page_title %}Punto de Venta{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid p-3">
 
@@ -245,40 +249,97 @@
     </div>
   </div>
 
-  <!-- ── HISTORIAL ── -->
-  <div class="mt-4 rounded-3 p-3" style="background:var(--fondo-card); border:1px solid var(--azul-borde);">
-    <div style="font-size:1rem; font-weight:800; color:var(--azul-claro); text-transform:uppercase; letter-spacing:.8px; margin-bottom:1rem;">
-      Historial de Ventas
+  <!-- ══════════════════════════════════════
+       HISTORIAL DE VENTAS — estilo reportes
+  ══════════════════════════════════════ -->
+  <section class="mt-4" style="background:var(--color-bg-card, var(--fondo-card)); border:1px solid var(--azul-borde); border-radius:14px; overflow:hidden;">
+
+    <!-- Encabezado -->
+    <div style="padding:1.1rem 1.25rem .6rem; border-bottom:1px solid var(--azul-borde); background:var(--color-surface, var(--fondo-card2));">
+      <div style="font-size:1rem; font-weight:800; color:var(--azul-acento, var(--azul-claro)); text-transform:uppercase; letter-spacing:.8px;">
+        <i class="bi bi-clock-history me-2"></i>Historial de Ventas
+      </div>
     </div>
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0" style="color:var(--texto);">
+
+    <!-- Tarjetas KPI -->
+    <div class="row gx-3 gy-3 p-3">
+      <div class="col-12 col-md-4">
+        <div class="cys-summary-card cys-summary-card--ventas rounded-3">
+          <div class="cys-summary-card__icon cys-summary-card__icon--ventas">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Total del día</span>
+            <span class="cys-summary-card__val">${{ total_dia|floatformat:0 }}</span>
+            <span class="cys-summary-card__sub">Ingresos registrados hoy</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="cys-summary-card cys-summary-card--productos rounded-3">
+          <div class="cys-summary-card__icon cys-summary-card__icon--productos">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Ventas registradas</span>
+            <span class="cys-summary-card__val">{{ ventas|length }}</span>
+            <span class="cys-summary-card__sub">Transacciones del período</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="cys-summary-card cys-summary-card--clientes rounded-3">
+          <div class="cys-summary-card__icon cys-summary-card__icon--clientes">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Clientes atendidos</span>
+            <span class="cys-summary-card__val">{{ ventas|length }}</span>
+            <span class="cys-summary-card__sub">En el período actual</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive px-3 pb-3">
+      <table class="cys-inv-table">
         <thead>
-          <tr style="color:var(--azul-claro); font-size:.75rem; text-transform:uppercase; border-bottom:1px solid var(--azul-borde);">
-            <th>#</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Descuento</th><th>Total</th><th></th>
+          <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Descuento</th>
+            <th style="text-align:right;">Total</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {% for venta in ventas %}
-          <tr style="border-bottom:1px solid var(--azul-borde);">
-            <td style="color:var(--texto-muted); font-size:.8rem;">{{ venta.pk }}</td>
-            <td style="font-size:.8rem;">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-            <td style="font-weight:600;">{{ venta.cliente.nombre }}</td>
-            <td>
+          <tr class="cys-tr">
+            <td class="cys-td cys-td--muted" data-label="#">{{ venta.pk }}</td>
+            <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+            <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente.nombre }}</td>
+            <td class="cys-td" data-label="Productos">
               {% for det in venta.detalles.all %}
-              <span class="badge me-1" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto); font-size:.72rem; border-radius:20px; padding:.2rem .6rem;">
+              <span class="cys-badge cys-badge--verde me-1">
                 {{ det.producto.nombre }} x{{ det.cantidad }}
               </span>
               {% endfor %}
             </td>
-            <td style="color:var(--texto-muted);">
-              {% if venta.descuento_porcentaje %}{{ venta.descuento_porcentaje }}%{% else %}—{% endif %}
+            <td class="cys-td cys-td--muted" data-label="Descuento">
+              {% if venta.descuento_porcentaje %}
+                <span class="cys-badge cys-badge--amarillo">{{ venta.descuento_porcentaje }}%</span>
+              {% else %}—{% endif %}
             </td>
-            <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
-            <td>
+            <td class="cys-qty cys-qty--ok" data-label="Total">${{ venta.total_venta|floatformat:0 }}</td>
+            <td data-label="">
               <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}"
                     onsubmit="return confirm('¿Eliminar esta venta?');">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;">
+                <button type="submit" class="btn btn-sm"
+                        style="background:rgba(145,47,64,.15); border:1px solid rgba(145,47,64,.4); color:#e87a8a; border-radius:8px;">
                   <i class="bi bi-trash"></i>
                 </button>
               </form>
@@ -286,16 +347,19 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="7" class="text-center py-4" style="color:var(--texto-muted);">
-              <i class="bi bi-receipt d-block mb-2" style="font-size:2rem;"></i>
-              No hay ventas registradas
+            <td colspan="7" class="cys-td--empty">
+              <div class="cys-empty-box">
+                <i class="bi bi-receipt"></i>
+                No hay ventas registradas
+              </div>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </div>
+
+  </section>
 
 </div>
 
@@ -314,7 +378,6 @@
       <div class="modal-body">
         <p style="font-size:.82rem; color:var(--texto-muted);">Cuenta el dinero disponible e ingresa la cantidad por denominación.</p>
 
-        {# ── BILLETES APERTURA ── #}
         <div style="font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
         <div class="row g-2 mb-3">
           {% for valor in billetes_denom %}
@@ -326,7 +389,6 @@
           {% endfor %}
         </div>
 
-        {# ── MONEDAS APERTURA ── #}
         <div style="font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
         <div class="row g-2 mb-3">
           {% for valor in monedas_denom %}
@@ -512,7 +574,6 @@ document.querySelectorAll('[data-cat-id]').forEach(card => {
       lista.appendChild(div);
     });
 
-    // Bind click productos
     lista.querySelectorAll('[data-prod-id]').forEach(card => {
       card.addEventListener('click', function() {
         cargarPresentaciones(
@@ -545,7 +606,6 @@ function cargarPresentaciones(prodId, nombre, precio, stock, unidad) {
     .then(data => {
       lista.innerHTML = '';
 
-      // Opción unidad suelta
       if (data.stock > 0) {
         const div = document.createElement('div');
         div.className = 'rounded-3 p-3';
@@ -565,7 +625,6 @@ function cargarPresentaciones(prodId, nombre, precio, stock, unidad) {
         lista.appendChild(div);
       }
 
-      // Presentaciones
       data.presentaciones.forEach(p => {
         if (p.cantidad <= 0) return;
         const div = document.createElement('div');
@@ -636,7 +695,6 @@ function renderCarrito() {
   carrito.forEach((item, idx) => {
     subtotal += item.precio * item.cantidad;
 
-    // Item visual
     const div = document.createElement('div');
     div.className = 'rounded-3 p-3';
     div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde);';
@@ -661,7 +719,6 @@ function renderCarrito() {
       </div>`;
     lista.appendChild(div);
 
-    // Campos ocultos para el form
     ocultos.innerHTML += `
       <input type="hidden" name="producto_id[]"     value="${item.prodId}">
       <input type="hidden" name="presentacion_id[]" value="${item.presId || ''}">
@@ -669,8 +726,7 @@ function renderCarrito() {
       <input type="hidden" name="precio[]"          value="${item.precio}">`;
   });
 
-  // Total con descuento
-  const descPct  = parseFloat(document.getElementById('inputDescuento').value) || 0;
+  const descPct   = parseFloat(document.getElementById('inputDescuento').value) || 0;
   const descMonto = subtotal * descPct / 100;
   const totalFinal = subtotal - descMonto;
   document.getElementById('totalMonto').textContent = '$' + totalFinal.toLocaleString('es-CO');
@@ -807,19 +863,19 @@ document.querySelectorAll('.denom-ci').forEach(i => {
   i.addEventListener('input', () => {
     let total = 0;
     document.querySelectorAll('.denom-ci').forEach(d => total += (parseInt(d.value)||0) * parseInt(d.dataset.valor));
-    document.getElementById('totalCierre').textContent        = '$' + total.toLocaleString('es-CO');
+    document.getElementById('totalCierre').textContent         = '$' + total.toLocaleString('es-CO');
     document.getElementById('resumenTotalContado').textContent = '$' + total.toLocaleString('es-CO');
-    const base     = parseInt(document.getElementById('baseSiguiente').value) || 0;
-    const retirar  = Math.max(0, total - base);
+    const base    = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    const retirar = Math.max(0, total - base);
     document.getElementById('resumenRetirar').textContent = '$' + retirar.toLocaleString('es-CO');
   });
 });
 
 document.getElementById('baseSiguiente').addEventListener('input', function() {
-  const total   = parseInt(document.getElementById('totalCierre').textContent.replace(/\D/g,'')) || 0;
-  const base    = parseInt(this.value) || 0;
-  document.getElementById('resumenBaseSig').textContent  = '$' + base.toLocaleString('es-CO');
-  document.getElementById('resumenRetirar').textContent  = '$' + Math.max(0, total - base).toLocaleString('es-CO');
+  const total  = parseInt(document.getElementById('totalCierre').textContent.replace(/\D/g,'')) || 0;
+  const base   = parseInt(this.value) || 0;
+  document.getElementById('resumenBaseSig').textContent = '$' + base.toLocaleString('es-CO');
+  document.getElementById('resumenRetirar').textContent = '$' + Math.max(0, total - base).toLocaleString('es-CO');
 });
 
 document.getElementById('btnConfirmarCierre').addEventListener('click', function() {
