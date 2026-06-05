@@ -48,22 +48,30 @@ def crear_proveedor(request):
             proveedor.save()
             messages.success(request, f'Proveedor {proveedor.nombre_empresa} creado exitosamente.')
             return redirect('lista_proveedores')
+        else:
+            # Si hay errores, mostrarlos
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+            return redirect('lista_proveedores')
 
     return redirect('lista_proveedores')
 
 @login_required
 def editar_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
-    
+
     if request.method == 'POST':
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
-            form.save()
+            proveedor_guardado = form.save(commit=False)
+            proveedor_guardado.modificado_por = request.user
+            proveedor_guardado.save()
             messages.success(request, f'Proveedor {proveedor.nombre_empresa} actualizado exitosamente.')
             return redirect('lista_proveedores')
     else:
         form = ProveedorForm(instance=proveedor)
-    
+
     return render(request, 'proveedores/editar_proveedor.html', {'form': form, 'proveedor': proveedor})
 
 @login_required
@@ -74,6 +82,52 @@ def eliminar_proveedor(request, id):
         nombre = proveedor.nombre_empresa
         proveedor.delete()
         messages.success(request, f'Proveedor {nombre} eliminado exitosamente.')
+
+    return redirect('lista_proveedores')
+
+@login_required
+def detalle_proveedor(request, id):
+    proveedor = get_object_or_404(Proveedor, id=id)
+    return render(request, 'proveedores/detalle_proveedor.html', {'proveedor': proveedor})
+
+@login_required
+def activar_proveedor(request, id):
+    proveedor = get_object_or_404(Proveedor, id=id)
+
+    if request.method == 'POST':
+        proveedor.estado = 'activo'
+        proveedor.modificado_por = request.user
+        proveedor.save()
+        messages.success(request, f'Proveedor {proveedor.nombre_empresa} activado exitosamente.')
+
+    return redirect('lista_proveedores')
+
+@login_required
+def desactivar_proveedor(request, id):
+    proveedor = get_object_or_404(Proveedor, id=id)
+
+    if request.method == 'POST':
+        proveedor.estado = 'inactivo'
+        proveedor.modificado_por = request.user
+        proveedor.save()
+        messages.success(request, f'Proveedor {proveedor.nombre_empresa} desactivado exitosamente.')
+
+    return redirect('lista_proveedores')
+
+@login_required
+def sancionar_proveedor(request, id):
+    proveedor = get_object_or_404(Proveedor, id=id)
+
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo_sancion', '')
+        if motivo:
+            proveedor.estado = 'sancionado'
+            proveedor.motivo_sancion = motivo
+            proveedor.modificado_por = request.user
+            proveedor.save()
+            messages.success(request, f'Proveedor {proveedor.nombre_empresa} sancionado exitosamente.')
+        else:
+            messages.error(request, 'Debe indicar el motivo de la sanción.')
 
     return redirect('lista_proveedores')
 
