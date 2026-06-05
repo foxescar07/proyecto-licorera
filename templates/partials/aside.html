@@ -82,56 +82,54 @@
           </a>
         </div>
 
-      <!-- PRODUCTOS -->
-<div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
-  <a href="{% url 'lista_productos' %}" style="display:flex; align-items:center; gap:10px; flex:1; padding: 10px 14px; text-decoration:none; color:inherit;">
-    <i class="bi bi-box-seam-fill"></i>
-    <span class="flex-grow-1">Productos</span>
-  </a>
-  <button onclick="toggleSubmenu(event, this, 'submenuProductos')"
-          style="background:none; border:none; color:inherit; padding: 10px 14px; cursor:pointer;">
-    <i class="bi bi-chevron-down cys-chevron"></i>
-  </button>
-</div>
-<div class="cys-sb-submenu" id="submenuProductos">
-  <a href="{% url 'gestion_productos' %}" class="cys-sb-sublink">
-    <i class="bi bi-box-seam"></i> Gestión de Productos
-  </a>
-  <a href="{% url 'categorias_lista' %}" class="cys-sb-sublink">
-    <i class="bi bi-tags-fill"></i> Categorías
-  </a>
-</div>
-
-      <!-- INVENTARIO -->
-<div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
-  <a href="{% url 'inventario_home' %}" style="display:flex; align-items:center; gap:10px; flex:1; padding: 10px 14px; text-decoration:none; color:inherit;">
-    <i class="bi bi-clipboard-data-fill"></i>
-    <span class="flex-grow-1">Inventario</span>
-  </a>
-  <button onclick="toggleSubmenu(event, this, 'submenuInventario')"
-          style="background:none; border:none; color:inherit; padding: 10px 14px; cursor:pointer;">
-    <i class="bi bi-chevron-down cys-chevron"></i>
-  </button>
-</div>
-<div class="cys-sb-submenu" id="submenuInventario">
-  <a href="{% url 'gestion_inventario' %}" class="cys-sb-sublink">
-    <i class="bi bi-boxes"></i> Gestión de Inventario
-  </a>
-</div>
-
-        <!-- PROVEEDORES -->
-        <button class="cys-sb-link cys-sb-link--parent"
-                onclick="toggleSubmenu(event, this, 'submenuProveedores')">
-          <i class="bi bi-truck"></i>
-          <span class="flex-grow-1">Proveedores</span>
+        <!-- PRODUCTOS -->
+        <button id="btnProductos" class="cys-sb-link cys-sb-link--parent"
+                onclick="toggleSubmenu(event, this, 'submenuProductos')">
+          <i class="bi bi-box-seam-fill"></i>
+          <span class="flex-grow-1">Productos</span>
           <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
-        <div class="cys-sb-submenu" id="submenuProveedores">
-          <a href="#" class="cys-sb-sublink">
-            <i class="bi bi-cart-plus-fill"></i> Compras
+        <div class="cys-sb-submenu" id="submenuProductos">
+          <a href="{% url 'gestion_productos' %}" class="cys-sb-sublink">
+            <i class="bi bi-box-seam"></i> Gestión de Productos
+          </a>
+          <a href="{% url 'categorias_lista' %}" class="cys-sb-sublink">
+            <i class="bi bi-tags-fill"></i> Categorías
           </a>
         </div>
 
+        <!-- INVENTARIO -->
+        <button id="btnInventario" class="cys-sb-link cys-sb-link--parent"
+                onclick="toggleSubmenu(event, this, 'submenuInventario')">
+          <i class="bi bi-clipboard-data-fill"></i>
+          <span class="flex-grow-1">Inventario</span>
+          <i class="bi bi-chevron-down cys-chevron"></i>
+        </button>
+        <div class="cys-sb-submenu" id="submenuInventario">
+          <a href="{% url 'inventario_home' %}" class="cys-sb-sublink">
+            <i class="bi bi-house-fill"></i> Inicio Inventario
+          </a>
+          <a href="{% url 'gestion_inventario' %}" class="cys-sb-sublink">
+            <i class="bi bi-boxes"></i> Gestión de Inventario
+          </a>
+        </div>
+
+        <!-- PROVEEDORES -->
+        <div class="cys-sb-link cys-sb-link--parent">
+          <a href="{% url 'lista_proveedores' %}">
+          <i class="bi bi-truck"></i>
+          <span class="flex-grow-1">Proveedores</span>
+          <i class="bi bi-chevron-down cys-chevron"></i>
+          <button onclick="toggleSubmenu(event, this, 'submenuProductos')"
+          style="background:none; border:none; color:inherit; padding: 10px 14px; cursor:pointer;">
+    <i class="bi bi-chevron-down cys-chevron"></i>
+  </button>
+          </div>
+        <div class="cys-sb-submenu" id="submenuProveedores">
+          <a href="{% url 'lista_compras' %}" class="cys-sb-sublink">
+            <i class="bi bi-cart-plus-fill"></i> Compras
+          </a>
+        </div>
       </nav>
     </div>
 

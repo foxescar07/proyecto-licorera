@@ -14,7 +14,7 @@
   <!-- BREADCRUMB -->
   <nav class="cys-breadcrumb mb-4">
     <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
-      <i class="bi bi-grid-1x2-fill"></i> Tablero
+      Tablero
     </a>
     <span class="cys-breadcrumb__sep"><i class="bi bi-chevron-right"></i></span>
     <span class="cys-breadcrumb__current">
@@ -51,6 +51,7 @@
   <div class="row g-3">
 
     {% for u in usuarios %}
+    {% if u.pk != request.session.usuario_id %}
     <div class="col-12 col-md-6 col-xl-4">
       <div id="fila-{{ u.pk }}" class="usuario-card h-100">
 
@@ -112,7 +113,6 @@
             <i class="bi bi-pencil me-1"></i> Editar
           </button>
 
-          {% if u.pk != request.session.usuario_id %}
           <div id="wrap-toggle-{{ u.pk }}" class="flex-fill d-flex flex-column gap-1">
             <button id="btn-toggle-{{ u.pk }}"
                     onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
@@ -130,12 +130,12 @@
               <i class="bi bi-trash3 me-1"></i> Eliminar
             </button>
           </div>
-          {% endif %}
         </div>
         {% endif %}
 
       </div>
     </div>
+    {% endif %}
     {% endfor %}
 
   </div>
@@ -228,9 +228,9 @@
 
   function euMostrarMsg(texto, tipo) {
     const el = document.getElementById('euMsg');
-    el.textContent  = texto;
+    el.textContent   = texto;
     el.style.display = 'block';
-    el.className    = tipo === 'ok' ? 'eu-msg eu-msg-ok' : 'eu-msg eu-msg-error';
+    el.className     = tipo === 'ok' ? 'eu-msg eu-msg-ok' : 'eu-msg eu-msg-error';
   }
 
   function abrirEditar(pk) {
@@ -298,9 +298,9 @@
     .then(r => r.json())
     .then(d => {
       if (!d.ok) return;
-      const badge  = document.getElementById(`estado-badge-${pk}`);
-      const btnT   = document.getElementById(`btn-toggle-${pk}`);
-      const btnE   = document.getElementById(`btn-eliminar-${pk}`);
+      const badge = document.getElementById(`estado-badge-${pk}`);
+      const btnT  = document.getElementById(`btn-toggle-${pk}`);
+      const btnE  = document.getElementById(`btn-eliminar-${pk}`);
       if (d.activo) {
         badge.className  = 'usuario-estado usuario-estado--activo';
         badge.innerHTML  = '<span class="usuario-dot"></span> Activo';
