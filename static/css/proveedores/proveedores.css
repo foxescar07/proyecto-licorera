@@ -3,7 +3,7 @@
 :root {
   /* Colors */
   --color-bg: #080F1A;
-  --color-bg-card: #0D1B2E;
+  --color-bg-card: #02224a;
   --color-surface: #111f33;
 
   /* Accent Colors */
@@ -162,18 +162,18 @@
 /* TABLE STYLING */
 .table {
   color: #7ab3d6 !important;
-  background: #1a3a52 !important;
+  background: #02224a !important;
   border-collapse: collapse !important;
   font-size: 0.85rem !important;
   margin-bottom: 0 !important;
 }
 
 .table thead {
-  background: #0d1f32 !important;
+  background: #02224a !important;
 }
 
 .table thead th {
-  background: #0d1f32 !important;
+  background: #02224a !important;
   color: #4DA8DA !important;
   font-weight: 700 !important;
   font-size: 0.8rem !important;
@@ -187,17 +187,17 @@
 }
 
 .table tbody {
-  background: #1a3a52 !important;
+  background: #02224a !important;
 }
 
 .table tbody tr {
   border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important;
   transition: background-color 0.15s ease !important;
-  background: #1a3a52 !important;
+  background: #02224a !important;
 }
 
 .table tbody tr:hover {
-  background: #234560 !important;
+  background: #0d3456 !important;
 }
 
 .table tbody td {
@@ -207,7 +207,7 @@
   font-weight: 500 !important;
   font-size: 0.85rem !important;
   border: none !important;
-  background: #1a3a52 !important;
+  background: #02224a !important;
 }
 
 .table tbody td .fw-bold {
