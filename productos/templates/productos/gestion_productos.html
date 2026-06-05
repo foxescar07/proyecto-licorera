@@ -7,371 +7,362 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
+<style>
+  .stat-box { background:#0a2240; border:1px solid rgba(77,168,218,0.2); border-radius:12px; padding:14px 16px; }
+  .stat-label { font-size:11px; color:rgba(226,232,240,0.55); font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+  .bar-track { background:rgba(0,0,0,0.35); border-radius:6px; height:8px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:6px; }
+
+  /* Buscador */
+  .search-box { background:#0a2240; border:1px solid rgba(77,168,218,0.15); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  #buscadorProductos { background:rgba(255,255,255,0.05); border:1px solid rgba(77,168,218,0.2); border-radius:0 8px 8px 0; border-left:none; color:#e2e8f0; font-size:13px; padding:7px 12px; outline:none; width:100%; }
+  #buscadorProductos::placeholder { color:rgba(226,232,240,0.3); }
+  #buscadorProductos:focus { border-color:#4DA8DA; background:rgba(255,255,255,0.07); box-shadow:none; }
+  .search-prefix { background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.2); border-right:none; border-radius:8px 0 0 8px; padding:7px 10px; color:#4DA8DA; }
+
+  /* Accordion */
+  .acc-item { background:#0a2240; border:1px solid rgba(77,168,218,0.15); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  .acc-hdr { display:flex; align-items:center; gap:8px; padding:11px 14px; cursor:pointer; color:#e2e8f0; font-weight:600; font-size:13px; border:none; background:none; width:100%; text-align:left; }
+  .acc-hdr i.chevron { margin-left:auto; color:rgba(226,232,240,0.4); font-size:13px; transition:transform .2s; }
+  .acc-hdr[aria-expanded="true"] i.chevron { transform:rotate(180deg); }
+
+  /* Tabla */
+  .tbl-wrap { overflow-x:auto; }
+  .prod-table { width:100%; border-collapse:collapse; }
+  .prod-table thead th { background:rgba(77,168,218,0.07); color:#4DA8DA; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:10px 14px; border-bottom:1px solid rgba(77,168,218,0.12); white-space:nowrap; }
+  .prod-table tbody tr { border-bottom:1px solid rgba(77,168,218,0.07); transition:background .15s; }
+  .prod-table tbody tr:last-child { border-bottom:none; }
+  .prod-table tbody tr:hover { background:rgba(77,168,218,0.04); }
+  .prod-table tbody td { padding:10px 14px; color:#e2e8f0; font-size:12.5px; vertical-align:middle; }
+
+  /* Tags/badges */
+  .tag-info  { background:rgba(77,168,218,0.12);  color:#4DA8DA;  border:1px solid rgba(77,168,218,0.25);  font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
+  .tag-ok    { background:rgba(39,174,96,0.15);   color:#27ae60;  border:1px solid rgba(39,174,96,0.3);    font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
+  .tag-crit  { background:rgba(220,53,69,0.15);   color:#dc3545;  border:1px solid rgba(220,53,69,0.3);    font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
+  .tag-warn  { background:rgba(255,193,7,0.12);   color:#ffc107;  border:1px solid rgba(255,193,7,0.25);   font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600; }
+
+  /* Dropdown 3 puntos */
+  .dd-wrap  { position:relative; display:inline-block; }
+  .dd-btn   { background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.2); color:#4DA8DA; border-radius:7px; padding:3px 9px; cursor:pointer; font-size:15px; line-height:1.4; }
+  .dd-btn:hover { background:rgba(77,168,218,0.22); }
+  .dd-menu  { display:none; position:absolute; right:0; top:110%; background:#0d2d50; border:1px solid rgba(77,168,218,0.25); border-radius:10px; min-width:160px; z-index:1050; box-shadow:0 8px 24px rgba(0,0,0,0.45); overflow:hidden; }
+  .dd-menu.open { display:block; }
+  .dd-item  { display:flex; align-items:center; gap:8px; padding:9px 14px; font-size:12.5px; color:#e2e8f0; cursor:pointer; transition:background .12s; white-space:nowrap; text-decoration:none; }
+  .dd-item:hover { background:rgba(77,168,218,0.1); color:#e2e8f0; }
+  .dd-item.danger { color:#dc3545; }
+  .dd-item.danger:hover { background:rgba(220,53,69,0.1); }
+  .dd-sep   { height:1px; background:rgba(77,168,218,0.12); margin:3px 0; }
+  .dd-item i { font-size:14px; }
+
+  /* Modales */
+  .modal-content { background:#0a2240 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.2); }
+  .modal-header, .modal-footer { background:rgba(0,0,0,0.15) !important; border-color:rgba(77,168,218,0.12) !important; }
+  .prod-input { background:rgba(255,255,255,0.05) !important; border:1px solid rgba(77,168,218,0.2) !important; color:#e2e8f0 !important; border-radius:8px; }
+  .prod-input:focus { background:rgba(255,255,255,0.08) !important; border-color:#4DA8DA !important; box-shadow:0 0 0 .2rem rgba(77,168,218,0.15) !important; color:#e2e8f0 !important; }
+  .prod-input::placeholder { color:rgba(226,232,240,0.3); }
+  .prod-input option { background:#0a2240; color:#e2e8f0; }
+
+  /* Cat bars scroll */
+  #grafico-categorias::-webkit-scrollbar { width:4px; }
+  #grafico-categorias::-webkit-scrollbar-thumb { background:rgba(77,168,218,0.3); border-radius:4px; }
+</style>
 {% endblock %}
 
 {% block content %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
 <div class="container-fluid p-0">
 
   {% if messages %}
-    <div class="mb-3">
+  <div class="mb-3">
     {% for message in messages %}
-      <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
+    <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    {% endfor %}
+  </div>
   {% endif %}
 
-  <div class="mb-4 d-flex align-items-center gap-3">
-    <a href="{% url 'inventario_home' %}" class="btn prod-btn-outline btn-sm rounded-pill">
-      <i class="bi bi-arrow-left"></i> Volver a Inventario
-    </a>
-    <h3 class="mb-0 fw-bold" style="color: var(--prod-texto);">
-      <i class="bi bi-box-seam-fill me-2" style="color: var(--prod-azul);"></i>Gestión de Productos
+  <div class="mb-4 d-flex align-items-center">
+    <h3 class="mb-0 fw-bold" style="color:#e2e8f0;">
+      <i class="bi bi-box-seam-fill me-2" style="color:#4DA8DA;"></i>Gestión de Productos
     </h3>
   </div>
 
-  <!-- TABS NAV -->
-  <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="gestionTabs" role="tablist"
-      style="border-color: rgba(77,168,218,0.15) !important;">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active rounded-pill fw-semibold" id="productos-tab"
-              data-bs-toggle="tab" data-bs-target="#productos" type="button" role="tab"
-              style="background: var(--prod-azul); color: var(--prod-fondo);">
-        <i class="bi bi-box-seam me-1"></i> Productos
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link rounded-pill fw-semibold" id="salida-tab"
-              data-bs-toggle="tab" data-bs-target="#salida" type="button" role="tab"
-              style="border: 1px solid rgba(220,53,69,0.4); color: #dc3545;">
-        <i class="bi bi-box-arrow-up me-1"></i> Registrar Salida
-      </button>
-    </li>
-  </ul>
+  <div class="d-flex gap-3 align-items-start">
 
-  <!-- TAB PANES -->
-  <div class="tab-content">
+    <!-- ══════════ COLUMNA IZQUIERDA: ESTADÍSTICAS ══════════ -->
+    <div style="width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
 
-    <!-- PRODUCTOS -->
-    <div class="tab-pane fade show active" id="productos" role="tabpanel">
+      <!-- Categorías -->
+      <div class="stat-box">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
+          <span class="tag-info">{{ categorias|length }}</span>
+        </div>
+        <div id="grafico-categorias" style="display:flex; flex-direction:column; gap:6px; max-height:88px; overflow-y:auto;"></div>
+      </div>
 
-    <!-- MÉTRICAS -->
-<div class="row g-3 mb-4">
-  <div class="col-md-4">
-    <div class="card bg-primary text-white border-0 shadow-sm h-100 rounded-4">
-      <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
-        <i class="bi bi-boxes fs-3 mb-1 opacity-75"></i>
-        <h6 class="card-title fw-semibold mb-1">Total Productos</h6>
-        <h3 class="fw-bold mb-0">{{ productos|length }}</h3>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card bg-danger text-white border-0 shadow-sm h-100 rounded-4">
-      <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
-        <i class="bi bi-exclamation-triangle fs-3 mb-1 opacity-75"></i>
-        <h6 class="card-title fw-semibold mb-1">Stock Crítico</h6>
-        <h3 class="fw-bold mb-0">{{ total_criticos|default:0 }}</h3>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card bg-info text-white border-0 shadow-sm h-100 rounded-4">
-      <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
-        <i class="bi bi-tags fs-3 mb-1 opacity-75"></i>
-        <h6 class="card-title fw-semibold mb-1">Categorías</h6>
-        <h3 class="fw-bold mb-0">{{ categorias|length }}</h3>
-      </div>
-    </div>
-  </div>
-</div>
-      <!-- BUSCADOR -->
-      <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: var(--prod-card);">
-        <div class="card-body">
-          <div class="input-group input-group-lg">
-            <span class="input-group-text border-end-0" style="background: rgba(255,255,255,0.05); border-color: rgba(77,168,218,0.2); color: var(--prod-azul);">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" id="buscadorProductos" class="form-control prod-input border-start-0 ps-0"
-                   placeholder="Buscar por nombre o código..." oninput="filtrarProductos(this.value)">
-          </div>
+      <!-- Salud Stock -->
+      <div class="stat-box">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
+          <span id="txt-pct-salud" class="fw-bold small" style="color:#27ae60;">0%</span>
+        </div>
+        <div class="bar-track mb-2" style="height:10px;">
+          <div id="bar-ok" class="bar-fill" style="background:#27ae60; width:0%;"></div>
+        </div>
+        <div class="d-flex justify-content-between" style="font-size:11px; color:rgba(226,232,240,0.5);">
+          <span>OK: <strong id="stat-ok" style="color:#27ae60;">0</strong></span>
+          <span>Crítico: <strong style="color:#dc3545;">{{ total_criticos|default:0 }}</strong></span>
         </div>
       </div>
 
-      <!-- ACORDEÓN -->
-      <div class="accordion" id="accordionCategorias" style="border-radius: 1rem; overflow: hidden;">
-        {% for cat in categorias %}
-          {% if cat %}
-          <div class="accordion-item categoria-item border-0 border-bottom"
-               style="background: var(--prod-card); border-color: rgba(77,168,218,0.12) !important;">
-            <h2 class="accordion-header" id="headingCat{{ cat.pk }}">
-              <button class="accordion-button collapsed fw-bold py-3"
-                      type="button" data-bs-toggle="collapse"
-                      data-bs-target="#collapseCat{{ cat.pk }}"
-                      style="background: var(--prod-card); color: var(--prod-texto); box-shadow: none;">
-                <i class="bi bi-tag-fill me-2" style="color: var(--prod-azul);"></i>
-                {{ cat.nombre }}
-                <span class="badge ms-auto rounded-pill"
-                      style="background: rgba(77,168,218,0.15); color: var(--prod-azul);">
-                  {{ cat.productos.all|length }} productos
-                </span>
-              </button>
-            </h2>
-            <div id="collapseCat{{ cat.pk }}" class="accordion-collapse collapse">
-              <div class="accordion-body p-0">
-                <div class="table-responsive">
-                  <table class="table align-middle mb-0 prod-table">
-                    <thead>
-                      <tr>
-                        <th class="ps-4">Nombre</th>
-                        <th>Código</th>
-                        <th>Stock</th>
-                        <th>Presentaciones</th>
-                        <th class="text-end pe-4">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for p in cat.productos.all %}
-                      <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                        <td class="ps-4">
-                          <div class="fw-semibold" style="color: var(--prod-texto);">{{ p.nombre }}</div>
-                          {% if p.stock_critico %}
-                            <span class="badge bg-danger rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-                          {% endif %}
-                        </td>
-                        <td><span class="badge badge-codigo font-monospace">{{ p.codigo }}</span></td>
-                        <td>
-                          <span class="badge rounded-pill {% if p.stock_critico %}bg-danger{% else %}bg-success{% endif %}">
-                            {{ p.stock_total }} uds
-                          </span>
-                        </td>
-                        <td>
-                          <div class="d-flex flex-wrap gap-1">
-                            {% for pr in p.presentaciones.all %}
-                              <span class="badge prod-badge-pres text-start">
-                                {{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}
-                              </span>
-                            {% empty %}
-                              <span class="badge" style="background: rgba(255,255,255,0.08); color: var(--prod-muted);">Sin presentaciones</span>
-                            {% endfor %}
-                          </div>
-                        </td>
-                        <td class="text-end pe-4">
-                          <button class="btn btn-sm prod-btn-info" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}" title="Ver"><i class="bi bi-eye"></i></button>
-                          <button class="btn btn-sm rounded-pill px-2"
-                                  style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);color:#ffc107;"
-                                  data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil"></i></button>
-                          <button class="btn btn-sm rounded-pill px-2"
-                                  style="background:rgba(13,202,240,0.1);border:1px solid rgba(13,202,240,0.3);color:#0dcaf0;"
-                                  data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers"></i></button>
-                          <form method="POST" action="{% url 'producto_eliminar' p.pk %}" class="d-inline"
-                                onsubmit="return confirm('¿Eliminar {{ p.nombre }}?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm rounded-pill px-2"
-                                    style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#dc3545;"><i class="bi bi-trash"></i></button>
-                          </form>
-                        </td>
-                      </tr>
-                      {% endfor %}
+      <!-- Alertas -->
+      <div class="stat-box" style="border-color:rgba(255,193,7,0.2);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
+          <span style="font-size:11px; color:rgba(226,232,240,0.4);">Total: {{ productos|length }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1" style="font-size:11px; color:rgba(226,232,240,0.5);">
+          <span>Sin presentación</span>
+          <span style="color:#ffc107; font-weight:600;"><span id="stat-sin-pres">—</span> pds</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
+        </div>
+      </div>
 
-                      {% for sub in cat.subcategorias.all %}
-                        {% for p in sub.productos.all %}
-                        <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                          <td class="ps-4">
-                            <div class="fw-semibold" style="color: var(--prod-texto);">{{ p.nombre }}</div>
-                            <small style="color: var(--prod-muted);"><i class="bi bi-arrow-return-right"></i> {{ sub.nombre }}</small>
-                            {% if p.stock_critico %}
-                              <br><span class="badge bg-danger rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-                            {% endif %}
-                          </td>
-                          <td><span class="badge badge-codigo font-monospace">{{ p.codigo }}</span></td>
-                          <td>
-                            <span class="badge rounded-pill {% if p.stock_critico %}bg-danger{% else %}bg-success{% endif %}">
-                              {{ p.stock_total }} uds
-                            </span>
-                          </td>
-                          <td>
-                            <div class="d-flex flex-wrap gap-1">
-                              {% for pr in p.presentaciones.all %}
-                                <span class="badge prod-badge-pres text-start">
-                                  {{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}
-                                </span>
-                              {% empty %}
-                                <span class="badge" style="background: rgba(255,255,255,0.08); color: var(--prod-muted);">Sin presentaciones</span>
-                              {% endfor %}
-                            </div>
-                          </td>
-                          <td class="text-end pe-4">
-                            <button class="btn btn-sm prod-btn-info" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye"></i></button>
-                            <button class="btn btn-sm rounded-pill px-2"
-                                    style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);color:#ffc107;"
-                                    data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm rounded-pill px-2"
-                                    style="background:rgba(13,202,240,0.1);border:1px solid rgba(13,202,240,0.3);color:#0dcaf0;"
-                                    data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers"></i></button>
-                            <form method="POST" action="{% url 'producto_eliminar' p.pk %}" class="d-inline"
-                                  onsubmit="return confirm('¿Eliminar {{ p.nombre }}?');">
-                              {% csrf_token %}
-                              <button type="submit" class="btn btn-sm rounded-pill px-2"
-                                      style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#dc3545;"><i class="bi bi-trash"></i></button>
-                            </form>
-                          </td>
-                        </tr>
+      <!-- Total productos -->
+      <div class="stat-box">
+        <div class="stat-label mb-1"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
+        <div style="font-size:22px; font-weight:500; color:#e2e8f0;">{{ productos|length }}</div>
+        <div style="font-size:11px; color:rgba(226,232,240,0.4);">en inventario</div>
+      </div>
+
+    </div>
+    <!-- fin columna izquierda -->
+
+    <!-- ══════════ COLUMNA DERECHA: BUSCADOR + TABLA ══════════ -->
+    <div style="flex:1; min-width:0;">
+
+      <!-- Buscador -->
+      <div class="search-box">
+        <label class="stat-label mb-2 d-block"><i class="bi bi-filter-left me-1"></i>Filtrar inventario</label>
+        <div class="d-flex">
+          <span class="search-prefix"><i class="bi bi-search" style="font-size:14px;"></i></span>
+          <input type="text" id="buscadorProductos" placeholder="Buscar por nombre o código..." oninput="filtrarProductos(this.value)">
+        </div>
+      </div>
+
+      <!-- Accordions por categoría -->
+      <div id="accordion-categorias">
+        {% for cat in categorias %}
+        {% if cat %}
+        <div class="acc-item categoria-item" data-cat="{{ cat.nombre }}">
+          <button class="acc-hdr" aria-expanded="false" aria-controls="acc-body-{{ cat.pk }}"
+                  onclick="toggleAcc(this, 'acc-body-{{ cat.pk }}')">
+            <i class="bi bi-tag-fill" style="color:#4DA8DA;"></i>
+            {{ cat.nombre }}
+            <span class="tag-info ms-1">{{ cat.productos.all|length }} productos</span>
+            <i class="bi bi-chevron-down chevron"></i>
+          </button>
+          <div id="acc-body-{{ cat.pk }}" class="acc-body" style="display:none;">
+            <div class="tbl-wrap">
+              <table class="prod-table">
+                <thead>
+                  <tr>
+                    <th style="min-width:160px;">Nombre</th>
+                    <th>Código</th>
+                    <th>Stock</th>
+                    <th>Presentaciones</th>
+                    <th style="text-align:right; padding-right:16px;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <!-- Productos directos de la categoría -->
+                  {% for p in cat.productos.all %}
+                  <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+                    <td>
+                      <div class="fw-semibold">{{ p.nombre }}</div>
+                      {% if p.stock_critico %}
+                      <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
+                    <td>
+                      <span class="{% if p.stock_critico %}tag-crit{% else %}tag-ok{% endif %}">{{ p.stock_total }} uds</span>
+                    </td>
+                    <td>
+                      <div class="d-flex flex-wrap gap-1">
+                        {% for pr in p.presentaciones.all %}
+                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
+                        {% empty %}
+                        <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
                         {% endfor %}
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                      </div>
+                    </td>
+                    <td style="text-align:right; padding-right:14px;">
+                      <div class="dd-wrap">
+                        <button class="dd-btn" onclick="toggleDD(event, this)" aria-label="Acciones para {{ p.nombre }}">•••</button>
+                        <div class="dd-menu">
+                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}">
+                            <i class="bi bi-eye"></i> Ver detalle
+                          </span>
+                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}">
+                            <i class="bi bi-pencil"></i> Editar
+                          </span>
+                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}">
+                            <i class="bi bi-layers"></i> Presentaciones
+                          </span>
+                          <div class="dd-sep"></div>
+                          <span class="dd-item danger" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')">
+                            <i class="bi bi-trash"></i> Eliminar
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                  <!-- Productos de subcategorías -->
+                  {% for sub in cat.subcategorias.all %}
+                  {% for p in sub.productos.all %}
+                  <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+                    <td>
+                      <div class="fw-semibold">{{ p.nombre }}</div>
+                      <small style="color:rgba(77,168,218,0.6);"><i class="bi bi-arrow-return-right me-1"></i>{{ sub.nombre }}</small>
+                      {% if p.stock_critico %}
+                      <br><span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
+                    <td>
+                      <span class="{% if p.stock_critico %}tag-crit{% else %}tag-ok{% endif %}">{{ p.stock_total }} uds</span>
+                    </td>
+                    <td>
+                      <div class="d-flex flex-wrap gap-1">
+                        {% for pr in p.presentaciones.all %}
+                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
+                        {% empty %}
+                        <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
+                        {% endfor %}
+                      </div>
+                    </td>
+                    <td style="text-align:right; padding-right:14px;">
+                      <div class="dd-wrap">
+                        <button class="dd-btn" onclick="toggleDD(event, this)" aria-label="Acciones para {{ p.nombre }}">•••</button>
+                        <div class="dd-menu">
+                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}">
+                            <i class="bi bi-eye"></i> Ver detalle
+                          </span>
+                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}">
+                            <i class="bi bi-pencil"></i> Editar
+                          </span>
+                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}">
+                            <i class="bi bi-layers"></i> Presentaciones
+                          </span>
+                          <div class="dd-sep"></div>
+                          <span class="dd-item danger" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')">
+                            <i class="bi bi-trash"></i> Eliminar
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  {% endfor %}
+
+                </tbody>
+              </table>
             </div>
           </div>
-          {% endif %}
+        </div>
+        {% endif %}
         {% empty %}
-          <div class="text-center p-5" style="color: var(--prod-muted);">
-            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
-            No hay productos registrados aún.
-          </div>
+        <div class="text-center p-5 rounded-4" style="background:#0a2240; color:rgba(226,232,240,0.4);">
+          <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+          No hay productos registrados aún.
+        </div>
         {% endfor %}
       </div>
 
-      <div id="noResultados" class="text-center p-5 d-none" style="color: var(--prod-muted);">
+      <div id="noResultados" class="text-center p-5 d-none rounded-4" style="background:#0a2240; color:rgba(226,232,240,0.4);">
         <i class="bi bi-search fs-1 d-block mb-3 opacity-50"></i>
         No se encontraron productos.
       </div>
-    </div>
 
-    <!-- REGISTRAR SALIDA -->
-    <div class="tab-pane fade" id="salida" role="tabpanel">
-      <div class="card border-0 shadow-sm rounded-4 mx-auto" style="max-width:600px; background: var(--prod-card);">
-        <div class="card-body p-4 p-md-5">
-          <h4 class="card-title fw-bold mb-4 text-danger">
-            <i class="bi bi-box-arrow-up me-2"></i> Registrar Salida
-          </h4>
-          <form method="POST" action="{% url 'producto_salida' %}">
-            {% csrf_token %}
-            <div class="mb-4">
-              <label class="form-label prod-label">Presentación / Producto <span class="text-danger">*</span></label>
-              <select name="presentacion" class="form-select prod-input" required>
-                <option value="">— Selecciona un producto —</option>
-                {% for p in productos %}
-                  {% if p.presentaciones.all %}
-                  <optgroup label="{{ p.nombre }} ({{ p.codigo }})">
-                    {% for pr in p.presentaciones.all %}
-                      <option value="{{ pr.pk }}">{{ pr.nombre }} - {{ pr.cantidad }} uds disponibles</option>
-                    {% endfor %}
-                  </optgroup>
-                  {% endif %}
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-4">
-              <label class="form-label prod-label">Lote <span style="color: var(--prod-muted);">(Opcional)</span></label>
-              <select name="lote_id" class="form-select prod-input">
-                <option value="">— Sin lote específico —</option>
-                {% for p in productos %}
-                  {% for pr in p.presentaciones.all %}
-                    {% for lote in pr.lotes.all %}
-                    <option value="{{ lote.pk }}">
-                      {{ lote.numero_lote }} — {{ p.nombre }} ({{ pr.nombre }})
-                      {% if lote.fecha_vencimiento %}· vence {{ lote.fecha_vencimiento|date:"d/m/Y" }}{% endif %}
-                    </option>
-                    {% endfor %}
-                  {% endfor %}
-                {% endfor %}
-              </select>
-            </div>
-            <div class="row mb-4">
-              <div class="col-sm-6 mb-3 mb-sm-0">
-                <label class="form-label prod-label">Cantidad <span class="text-danger">*</span></label>
-                <input type="number" name="cantidad" class="form-control prod-input" min="1" placeholder="Ej: 5" required>
-              </div>
-              <div class="col-sm-6">
-                <label class="form-label prod-label">Motivo <span class="text-danger">*</span></label>
-                <select name="motivo" class="form-select prod-input" required>
-                  <option value="">— Seleccionar —</option>
-                  <option value="Venta">Venta</option>
-                  <option value="Merma">Merma</option>
-                  <option value="Daño">Daño</option>
-                  <option value="Vencimiento">Vencimiento</option>
-                  <option value="Consumo interno">Consumo interno</option>
-                  <option value="Devolución">Devolución</option>
-                  <option value="Otro">Otro...</option>
-                </select>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold">
-              <i class="bi bi-box-arrow-up"></i> Registrar Salida
-            </button>
-          </form>
-        </div>
-      </div>
     </div>
-
+    <!-- fin columna derecha -->
   </div>
 </div>
 
-<!-- MODALES -->
+
+<!-- ══════════════════════════════════════
+     MODALES POR PRODUCTO
+══════════════════════════════════════ -->
 {% for p in productos %}
 
 <!-- Modal Detalle -->
-<div class="modal fade" id="modalDetalle{{ p.pk }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalDetalle{{ p.pk }}" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header">
-        <h5 class="modal-title fw-bold"><i class="bi bi-eye me-2 text-info"></i>Detalle del Producto</h5>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-eye me-2" style="color:#4DA8DA;"></i>Detalle del Producto
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
-        <h4 class="fw-bold mb-3" style="color: var(--prod-texto);">{{ p.nombre }}</h4>
-        <div class="row g-3 mb-4">
+        <h4 class="fw-bold mb-3">{{ p.nombre }}</h4>
+        <div class="row g-3 mb-3">
           <div class="col-6">
-            <span class="prod-label d-block">Código</span>
-            <span class="badge badge-codigo font-monospace fs-6">{{ p.codigo }}</span>
+            <div class="small mb-1" style="color:rgba(226,232,240,0.5);">Código</div>
+            <span class="tag-info font-monospace">{{ p.codigo }}</span>
           </div>
           <div class="col-6">
-            <span class="prod-label d-block">Categoría</span>
-            <span class="fw-semibold" style="color: var(--prod-texto);">{{ p.categoria.nombre }}</span>
+            <div class="small mb-1" style="color:rgba(226,232,240,0.5);">Categoría</div>
+            <span class="fw-semibold">{{ p.categoria.nombre }}</span>
           </div>
           <div class="col-6">
-            <span class="prod-label d-block">Stock Total</span>
+            <div class="small mb-1" style="color:rgba(226,232,240,0.5);">Stock Total</div>
             <span class="fw-bold fs-5 {% if p.stock_critico %}text-danger{% else %}text-success{% endif %}">
               {{ p.stock_total }} uds
             </span>
           </div>
         </div>
-        <h6 class="prod-label text-uppercase mb-2"><i class="bi bi-layers me-1"></i>Presentaciones</h6>
-        <ul class="list-group list-group-flush border rounded-3 overflow-hidden mb-3">
+        <div class="small fw-semibold text-uppercase mb-2" style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">
+          <i class="bi bi-layers me-1"></i>Presentaciones
+        </div>
+        <div class="rounded-3 overflow-hidden" style="border:1px solid rgba(77,168,218,0.12);">
           {% for pr in p.presentaciones.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center"
-              style="background: rgba(255,255,255,0.03); border-color: rgba(77,168,218,0.1); color: var(--prod-texto);">
+          <div class="d-flex justify-content-between align-items-center px-3 py-2" style="border-bottom:1px solid rgba(77,168,218,0.08); background:rgba(255,255,255,0.02);">
             <div>
               <span class="fw-semibold">{{ pr.nombre }}</span>
-              <small style="color: var(--prod-muted);" class="ms-2">(x{{ pr.unidades }})</small>
+              <small class="ms-2" style="color:rgba(226,232,240,0.45);">(x{{ pr.unidades }})</small>
             </div>
-            <span class="fw-bold" style="color: var(--prod-azul);">${{ pr.precio|floatformat:0 }}</span>
-          </li>
+            <span class="fw-bold" style="color:#4DA8DA;">${{ pr.precio|floatformat:0 }}</span>
+          </div>
           {% empty %}
-          <li class="list-group-item" style="background: transparent; color: var(--prod-muted);">Sin presentaciones.</li>
+          <div class="px-3 py-2" style="color:rgba(226,232,240,0.4);">Sin presentaciones.</div>
           {% endfor %}
-        </ul>
+        </div>
       </div>
-      <div class="modal-footer prod-modal-footer">
-        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+      <div class="modal-footer">
+        <button type="button" class="btn rounded-pill px-4" style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Modal Editar -->
-<div class="modal fade" id="modalEditar{{ p.pk }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalEditar{{ p.pk }}" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header">
-        <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2" style="color:#ffc107;"></i>Editar Producto</h5>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-pencil-square me-2" style="color:#ffc107;"></i>Editar Producto
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{% url 'producto_editar' p.pk %}">
@@ -379,36 +370,35 @@
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label prod-label">Nombre</label>
+              <label class="form-label small fw-semibold" style="color:rgba(226,232,240,0.55);">Nombre</label>
               <input type="text" name="nombre" class="form-control prod-input" value="{{ p.nombre }}" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label prod-label">Código</label>
+              <label class="form-label small fw-semibold" style="color:rgba(226,232,240,0.55);">Código</label>
               <input type="text" name="codigo" class="form-control prod-input" value="{{ p.codigo }}" required>
             </div>
-            <div class="col-md-12">
-              <label class="form-label prod-label">Categoría</label>
+            <div class="col-12">
+              <label class="form-label small fw-semibold" style="color:rgba(226,232,240,0.55);">Categoría</label>
               <select name="categoria" class="form-select prod-input">
                 {% for main_cat in categorias %}
-                  <optgroup label="{{ main_cat.nombre }}">
-                    <option value="{{ main_cat.pk }}" {% if main_cat.pk == p.categoria.pk %}selected{% endif %}>{{ main_cat.nombre }} (Principal)</option>
-                    {% for sub_cat in main_cat.subcategorias.all %}
-                      <option value="{{ sub_cat.pk }}" {% if sub_cat.pk == p.categoria.pk %}selected{% endif %}>└ {{ sub_cat.nombre }}</option>
-                    {% endfor %}
-                  </optgroup>
+                <optgroup label="{{ main_cat.nombre }}">
+                  <option value="{{ main_cat.pk }}" {% if main_cat.pk == p.categoria.pk %}selected{% endif %}>{{ main_cat.nombre }} (Principal)</option>
+                  {% for sub_cat in main_cat.subcategorias.all %}
+                  <option value="{{ sub_cat.pk }}" {% if sub_cat.pk == p.categoria.pk %}selected{% endif %}>└ {{ sub_cat.nombre }}</option>
+                  {% endfor %}
+                </optgroup>
                 {% endfor %}
               </select>
             </div>
-            <div class="col-md-12">
-              <label class="form-label prod-label">Descripción</label>
+            <div class="col-12">
+              <label class="form-label small fw-semibold" style="color:rgba(226,232,240,0.55);">Descripción</label>
               <textarea name="descripcion" class="form-control prod-input" rows="2">{{ p.descripcion }}</textarea>
             </div>
           </div>
         </div>
-        <div class="modal-footer prod-modal-footer">
-          <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn rounded-pill fw-bold px-4"
-                  style="background:#ffc107;color:#1a1a1a;border:none;">Guardar Cambios</button>
+        <div class="modal-footer">
+          <button type="button" class="btn rounded-pill px-4" style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4" style="background:#ffc107; color:#1a1a1a; border:none;">Guardar Cambios</button>
         </div>
       </form>
     </div>
@@ -416,61 +406,68 @@
 </div>
 
 <!-- Modal Presentaciones -->
-<div class="modal fade" id="modalPresentaciones{{ p.pk }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalPresentaciones{{ p.pk }}" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header">
-        <h5 class="modal-title fw-bold"><i class="bi bi-layers me-2 text-info"></i>Presentaciones: {{ p.nombre }}</h5>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-layers me-2" style="color:#0dcaf0;"></i>Presentaciones: {{ p.nombre }}
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{% url 'producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
-          <h6 class="prod-label text-uppercase mb-3">Presentaciones Actuales</h6>
+          <div class="small fw-semibold text-uppercase mb-3" style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">Presentaciones Actuales</div>
           {% for pr in p.presentaciones.all %}
-          <div class="card border-0 rounded-3 mb-2" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(77,168,218,0.12) !important;">
-            <div class="card-body p-3">
-              <div class="row g-2 align-items-center">
-                <div class="col-md-6">
-                  <label class="form-label prod-label mb-1">Nombre</label>
-                  <input type="text" name="pres_nombre_{{ pr.pk }}" class="form-control prod-input form-control-sm" value="{{ pr.nombre }}" required>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label prod-label mb-1">Unidades</label>
-                  <input type="number" name="pres_unidades_{{ pr.pk }}" class="form-control prod-input form-control-sm" value="{{ pr.unidades }}" min="1" required>
-                </div>
-                <div class="col-md-2 text-end mt-4">
-                  <span class="badge" style="background: rgba(77,168,218,0.15); color: var(--prod-azul);">Actual</span>
-                </div>
+          <div class="rounded-3 p-3 mb-2" style="background:rgba(77,168,218,0.05); border:1px solid rgba(77,168,218,0.12);">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-5">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Nombre</label>
+                <input type="text" name="pres_nombre_{{ pr.pk }}" class="form-control form-control-sm prod-input" value="{{ pr.nombre }}" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Unidades</label>
+                <input type="number" name="pres_unidades_{{ pr.pk }}" class="form-control form-control-sm prod-input" value="{{ pr.unidades }}" min="1" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Precio</label>
+                <input type="number" name="pres_precio_{{ pr.pk }}" class="form-control form-control-sm prod-input" value="{{ pr.precio }}" min="0" step="0.01">
+              </div>
+              <div class="col-md-1 text-end mt-3">
+                <span class="tag-info" style="font-size:.7rem;">Actual</span>
               </div>
             </div>
           </div>
           {% empty %}
-            <div class="alert" style="background: rgba(255,255,255,0.05); color: var(--prod-muted); border: 1px solid rgba(77,168,218,0.15);">
-              Sin presentaciones. Agrega una abajo.
-            </div>
+          <div class="rounded-3 p-3 mb-3 text-center" style="background:rgba(255,193,7,0.05); border:1px solid rgba(255,193,7,0.15); color:rgba(226,232,240,0.5);">
+            Sin presentaciones. Agrega una abajo.
+          </div>
           {% endfor %}
 
-          <h6 class="prod-label text-uppercase mt-4 mb-3"><i class="bi bi-plus-circle me-1"></i>Nueva Presentación</h6>
-          <div class="card border-0 rounded-3 prod-pres-base">
-            <div class="card-body p-3">
-              <div class="row g-2 align-items-center">
-                <div class="col-md-8">
-                  <label class="form-label prod-label mb-1">Nombre</label>
-                  <input type="text" name="nueva_pres_nombre[]" class="form-control prod-input form-control-sm" placeholder="Ej: Six-pack">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label prod-label mb-1">Unidades</label>
-                  <input type="number" name="nueva_pres_unidades[]" class="form-control prod-input form-control-sm" placeholder="Ej: 6" min="1">
-                </div>
+          <div class="small fw-semibold text-uppercase mt-4 mb-3" style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">
+            <i class="bi bi-plus-circle me-1"></i>Nueva Presentación
+          </div>
+          <div class="rounded-3 p-3" style="background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.2);">
+            <div class="row g-2">
+              <div class="col-md-5">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Nombre</label>
+                <input type="text" name="nueva_pres_nombre[]" class="form-control form-control-sm prod-input" placeholder="Ej: Six-pack">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Unidades</label>
+                <input type="number" name="nueva_pres_unidades[]" class="form-control form-control-sm prod-input" placeholder="Ej: 6" min="1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Precio</label>
+                <input type="number" name="nueva_pres_precio[]" class="form-control form-control-sm prod-input" placeholder="Ej: 19000" min="0" step="0.01">
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer prod-modal-footer">
-          <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn rounded-pill fw-bold px-4 text-white"
-                  style="background: #0dcaf0; border: none;">Guardar Presentaciones</button>
+        <div class="modal-footer">
+          <button type="button" class="btn rounded-pill px-4" style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4" style="background:#0dcaf0; color:#011936; border:none;">Guardar Presentaciones</button>
         </div>
       </form>
     </div>
@@ -479,57 +476,122 @@
 
 {% endfor %}
 
+<!-- Form oculto para eliminar -->
+<form id="form-eliminar" method="POST" style="display:none;">
+  {% csrf_token %}
+</form>
+
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
 <script>
-function filtrarProductos(query) {
-  const term = query.toLowerCase().trim();
+document.addEventListener('DOMContentLoaded', function () {
   const rows = document.querySelectorAll('.producto-row');
-  const noResults = document.getElementById('noResultados');
-  let totalVisibles = 0;
+  const total = rows.length;
+  const criticos = parseInt('{{ total_criticos|default:0 }}') || 0;
+  const ok = Math.max(0, total - criticos);
+  let sinPres = 0;
+  const conteoCats = {};
 
   rows.forEach(row => {
-    const nombre = row.getAttribute('data-nombre') || '';
-    const codigo = row.getAttribute('data-codigo') || '';
-    if (nombre.includes(term) || codigo.includes(term)) {
-      row.style.display = '';
-      totalVisibles++;
-    } else {
-      row.style.display = 'none';
-    }
+    const badges = row.querySelectorAll('td:nth-child(4) .tag-warn');
+    if (badges.length > 0) sinPres++;
   });
 
-  document.querySelectorAll('.categoria-item').forEach(cat => {
-    const rowsInCat = cat.querySelectorAll('.producto-row');
-    const hasVisible = Array.from(rowsInCat).some(r => r.style.display !== 'none');
-    cat.style.display = hasVisible ? '' : 'none';
-    const collapse = cat.querySelector('.accordion-collapse');
-    const btn = cat.querySelector('.accordion-button');
-    if (term !== '' && hasVisible) {
-      collapse.classList.add('show');
-      btn.classList.remove('collapsed');
-      btn.setAttribute('aria-expanded', 'true');
-    } else if (term === '') {
-      collapse.classList.remove('show');
-      btn.classList.add('collapsed');
-      btn.setAttribute('aria-expanded', 'false');
-    }
+  document.querySelectorAll('.categoria-item').forEach(item => {
+    const nombre = item.querySelector('.acc-hdr').textContent.split('productos')[0].trim();
+    const cant = item.querySelectorAll('.producto-row').length;
+    if (cant > 0) conteoCats[nombre] = cant;
   });
 
-  if (totalVisibles === 0 && term !== '') {
-    noResults.classList.remove('d-none');
-    document.getElementById('accordionCategorias').classList.add('d-none');
-  } else {
-    noResults.classList.add('d-none');
-    document.getElementById('accordionCategorias').classList.remove('d-none');
+  // Barras de categorías
+  const catWrap = document.getElementById('grafico-categorias');
+  Object.entries(conteoCats).forEach(([cat, n]) => {
+    const pct = total > 0 ? Math.round((n / total) * 100) : 0;
+    catWrap.innerHTML += `
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:rgba(226,232,240,0.5); margin-bottom:2px;">
+          <span style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat}</span>
+          <span>${n} (${pct}%)</span>
+        </div>
+        <div class="bar-track" style="height:4px;">
+          <div class="bar-fill" style="width:${pct}%; background:#4DA8DA;"></div>
+        </div>
+      </div>`;
+  });
+
+  // Salud stock
+  if (total > 0) {
+    const pctOk = Math.round((ok / total) * 100);
+    document.getElementById('txt-pct-salud').textContent = pctOk + '%';
+    document.getElementById('bar-ok').style.width = pctOk + '%';
   }
+  document.getElementById('stat-ok').textContent = ok;
+
+  // Alertas
+  document.getElementById('stat-sin-pres').textContent = sinPres;
+  if (total > 0) {
+    document.getElementById('bar-sin-pres').style.width = Math.round((sinPres / total) * 100) + '%';
+  }
+});
+
+/* ── Accordion ── */
+function toggleAcc(btn, bodyId) {
+  const body = document.getElementById(bodyId);
+  const isOpen = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!isOpen));
+  body.style.display = isOpen ? 'none' : 'block';
 }
 
-document.addEventListener('DOMContentLoaded', activarTabDesdeHash);
-window.addEventListener('hashchange', activarTabDesdeHash);
+/* ── Dropdown 3 puntos ── */
+function toggleDD(e, btn) {
+  e.stopPropagation();
+  const menu = btn.nextElementSibling;
+  const isOpen = menu.classList.contains('open');
+  closeAllDD();
+  if (!isOpen) menu.classList.add('open');
+}
 
-function activarTabDesdeHash() {
-  if (window.location.hash) {
-    const targetTab = document.querySelector(`button[data-bs-target="${window.location.hash}"]`);
-    if (targetTab) new bootstrap.Tab(targetTab).show();
+function closeAllDD() {
+  document.querySelectorAll('.dd-menu.open').forEach(m => m.classList.remove('open'));
+}
+
+document.addEventListener('click', closeAllDD);
+
+/* ── Filtrar ── */
+function filtrarProductos(q) {
+  const term = q.toLowerCase().trim();
+  let alguno = false;
+
+  document.querySelectorAll('.categoria-item').forEach(item => {
+    let visibles = 0;
+    item.querySelectorAll('.producto-row').forEach(row => {
+      const match = !term || row.dataset.nombre.includes(term) || row.dataset.codigo.includes(term);
+      row.style.display = match ? '' : 'none';
+      if (match) visibles++;
+    });
+    item.style.display = visibles ? '' : 'none';
+
+    if (term && visibles) {
+      const btn = item.querySelector('.acc-hdr');
+      const bodyId = btn.getAttribute('aria-controls');
+      btn.setAttribute('aria-expanded', 'true');
+      document.getElementById(bodyId).style.display = 'block';
+    }
+    if (visibles) alguno = true;
+  });
+
+  document.getElementById('noResultados').classList.toggle('d-none', alguno || !term);
+}
+
+/* ── Eliminar (submit con form oculto) ── */
+function confirmarEliminar(url, nombre) {
+  closeAllDD();
+  if (confirm('¿Eliminar "' + nombre + '"?')) {
+    const form = document.getElementById('form-eliminar');
+    form.action = url;
+    form.submit();
   }
 }
 </script>

@@ -1,4 +1,342 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Compras{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/compras.css' %}">
+{% endblock %}
+
 {% block content %}
-<h1>Compras</h1>
+<div class="container-fluid cys-compras px-3 py-4">
+  {% if messages %}
+    <div class="mb-4">
+      {% for message in messages %}
+        <div class="alert cys-alert {% if message.tags == 'success' %}cys-alert--success{% elif message.tags == 'error' %}cys-alert--danger{% else %}cys-alert--info{% endif %} alert-dismissible fade show" role="alert">
+          <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <section class="card cys-panel cys-hero mb-4">
+    <div class="card-body p-4">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-lg">
+          <span class="badge cys-badge-soft mb-2">
+            <i class="bi bi-bag-plus me-1"></i>REGISTRAR COMPRA
+          </span>
+          <h1 class="cys-page-title h3 mb-2">Compras a proveedores</h1>
+          <div class="d-flex flex-wrap align-items-center gap-2 cys-provider-meta">
+            <span class="fw-bold cys-text-accent">
+              {{ proveedor.nombre_empresa|default:"Selecciona un proveedor" }}
+            </span>
+            {% if proveedor %}
+              <span class="cys-separator"></span>
+              <span><i class="bi bi-person me-1"></i>{{ proveedor.nombre_contacto|default:"Sin contacto" }}</span>
+              <span class="cys-separator"></span>
+              <span><i class="bi bi-telephone me-1"></i>{{ proveedor.telefono|default:"Sin telefono" }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-12 col-lg-auto">
+          <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row g-3 mb-4 cys-kpi-row">
+    <div class="col-12 col-md-4">
+      <div class="card cys-kpi cys-kpi--success h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between gap-3">
+            <div>
+              <p class="cys-kpi__label mb-1">Total gastado</p>
+              <p class="cys-kpi__value mb-1">${{ total_gastado|default:0|floatformat:0 }}</p>
+              <span class="cys-kpi__sub">Historico acumulado</span>
+            </div>
+            <span class="cys-kpi__icon"><i class="bi bi-cash-coin"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card cys-kpi cys-kpi--info h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between gap-3">
+            <div>
+              <p class="cys-kpi__label mb-1">Compras este mes</p>
+              <p class="cys-kpi__value mb-1">{{ count_mes|default:0 }} <span>registros</span></p>
+              <span class="cys-kpi__sub">${{ total_mes|default:0|floatformat:0 }} este mes</span>
+            </div>
+            <span class="cys-kpi__icon"><i class="bi bi-calendar-check"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card cys-kpi cys-kpi--warning h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between gap-3">
+            <div class="min-w-0">
+              <p class="cys-kpi__label mb-1">Producto mas comprado</p>
+              <p class="cys-kpi__value cys-kpi__value--product mb-1">
+                {% if producto_top %}{{ producto_top.producto__nombre }}{% else %}Sin datos{% endif %}
+              </p>
+              <span class="cys-kpi__sub">
+                {% if producto_top %}{{ producto_top.total_und }} und. en total{% else %}Sin compras registradas{% endif %}
+              </span>
+            </div>
+            <span class="cys-kpi__icon"><i class="bi bi-trophy"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row g-4 align-items-stretch cys-workspace">
+    <div class="col-12 col-lg-5">
+      <section class="card cys-panel cys-work-card h-100">
+        <div class="card-header cys-panel__header">
+          <div class="d-flex align-items-center gap-3">
+            <span class="cys-header-icon"><i class="bi bi-clipboard2-plus"></i></span>
+            <div>
+              <h2 class="h6 mb-1 text-uppercase">Nueva compra</h2>
+              <p class="cys-panel-subtitle mb-0">Completa los datos para registrar el ingreso.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" class="row g-3">
+            {% csrf_token %}
+
+            <div class="col-12">
+              <label for="proveedor_id" class="form-label">Proveedor</label>
+              <select name="proveedor_id" id="proveedor_id" class="form-select" required>
+                <option value="">Selecciona un proveedor</option>
+                {% for prov in todos_proveedores %}
+                  <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
+                    {{ prov.nombre_empresa }} - {{ prov.nombre_contacto }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="productoSeleccionadoId" class="form-label">Producto</label>
+              <select name="producto" id="productoSeleccionadoId" class="form-select" required>
+                <option value="">Selecciona un producto</option>
+                {% for p in productos %}
+                  <option value="{{ p.pk }}">
+                    {{ p.nombre }}{% if p.categoria %} - {{ p.categoria.nombre }}{% endif %}{% if p.cantidad_disponible != None %} - Stock: {{ p.cantidad_disponible }}{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="selectLote" class="form-label">Lote <span class="fw-normal text-lowercase">(opcional)</span></label>
+              <select name="lote_id" id="selectLote" class="form-select">
+                <option value="">Sin lote</option>
+                {% for lote in lotes %}
+                  <option value="{{ lote.pk }}">
+                    {{ lote.numero_lote }}{% if lote.producto %} - {{ lote.producto.nombre }}{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="inputCantidad" class="form-label">Cantidad</label>
+              <input type="number" name="cantidad" id="inputCantidad" min="1" placeholder="Ej: 10" class="form-control" required>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="inputPrecio" class="form-label">Precio unitario <span class="fw-normal text-lowercase">(opcional)</span></label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" name="precio_unitario" id="inputPrecio" min="0" step="1" placeholder="15000" class="form-control">
+              </div>
+            </div>
+
+            <div class="col-12 pt-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-bag-check me-1"></i>Registrar compra
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <section class="card cys-panel cys-work-card h-100">
+        <div class="card-header cys-panel__header">
+          <div class="d-flex align-items-center gap-3">
+            <span class="cys-header-icon"><i class="bi bi-clock-history"></i></span>
+            <div>
+              <h2 class="h6 mb-1 text-uppercase">Historial de compras</h2>
+              <p class="cys-panel-subtitle mb-0">Movimientos registrados para este proveedor.</p>
+            </div>
+          </div>
+          <span class="badge cys-badge-soft">{{ compras|length|default:0 }} registros</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table cys-table align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col" class="text-center">#</th>
+                <th scope="col">Producto</th>
+                <th scope="col" class="text-center">Cant.</th>
+                <th scope="col" class="text-end">Precio unit.</th>
+                <th scope="col" class="text-end">Total</th>
+                <th scope="col" class="text-center">Fecha</th>
+                <th scope="col" class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for compra in compras %}
+                <tr>
+                  <td class="text-center cys-muted-cell">{{ forloop.counter }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-box cys-text-accent"></i>
+                      <div class="min-w-0">
+                        <div class="fw-semibold text-truncate">{{ compra.producto.nombre }}</div>
+                        {% if compra.producto.categoria %}
+                          <small class="cys-muted">{{ compra.producto.categoria.nombre }}</small>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge cys-badge-soft">{{ compra.cantidad }}</span>
+                  </td>
+                  <td class="text-end">
+                    {% if compra.precio_unitario %}
+                      ${{ compra.precio_unitario|floatformat:0 }}
+                    {% else %}
+                      <span class="cys-muted-cell">Sin precio</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end fw-bold cys-money">
+                    {% if compra.precio_unitario %}
+                      ${{ compra.total|floatformat:0 }}
+                    {% else %}
+                      <span class="cys-muted-cell">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center cys-muted-cell">{{ compra.fecha_registro|date:"d/m/Y H:i" }}</td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#detalleCompra{{ compra.id }}">
+                      <i class="bi bi-eye me-1"></i>Ver
+                    </button>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="7" class="text-center py-5">
+                    <div class="cys-empty mx-auto">
+                      <i class="bi bi-clock-history d-block mb-2"></i>
+                      <p class="fw-semibold mb-1">Sin compras registradas aun</p>
+                      <p class="small mb-0">Registra la primera compra desde el formulario.</p>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            {% if compras %}
+              <tfoot>
+                <tr>
+                  <td colspan="4" class="text-end fw-bold text-uppercase">
+                    <i class="bi bi-calculator me-1"></i>Subtotal
+                  </td>
+                  <td class="text-end fw-bold cys-money">${{ subtotal_compras|default:0|floatformat:0 }}</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            {% endif %}
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{% for compra in compras %}
+  <div class="modal fade" id="detalleCompra{{ compra.id }}" tabindex="-1" aria-labelledby="detalleCompraLabel{{ compra.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content cys-modal">
+        <div class="modal-header">
+          <div>
+            <span class="badge cys-badge-soft mb-2">ID compra #{{ compra.id }}</span>
+            <h2 class="modal-title h5" id="detalleCompraLabel{{ compra.id }}">
+              <i class="bi bi-receipt me-2"></i>Detalle de compra
+            </h2>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="cys-detail-box">
+                <span class="cys-detail-label">Producto</span>
+                <strong>{{ compra.producto.nombre }}</strong>
+                {% if compra.producto.categoria %}
+                  <small>{{ compra.producto.categoria.nombre }}</small>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="cys-detail-box h-100">
+                <span class="cys-detail-label">Cantidad</span>
+                <strong>{{ compra.cantidad }} und.</strong>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="cys-detail-box h-100">
+                <span class="cys-detail-label">Lote</span>
+                <strong>{% if compra.lote %}{{ compra.lote.numero_lote }}{% else %}Sin lote{% endif %}</strong>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="cys-detail-box h-100">
+                <span class="cys-detail-label">Fecha</span>
+                <strong>{{ compra.fecha_registro|date:"d/m/Y H:i" }}</strong>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="cys-detail-box h-100">
+                <span class="cys-detail-label">Precio unitario</span>
+                <strong>{% if compra.precio_unitario %}${{ compra.precio_unitario|floatformat:0 }}{% else %}Sin precio{% endif %}</strong>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="cys-detail-box cys-detail-box--total h-100">
+                <span class="cys-detail-label">Total compra</span>
+                <strong>{% if compra.precio_unitario %}${{ compra.total|floatformat:0 }}{% else %}Sin precio registrado{% endif %}</strong>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="cys-detail-box">
+                <span class="cys-detail-label">Proveedor</span>
+                <strong>{{ proveedor.nombre_empresa|default:"Proveedor no seleccionado" }}</strong>
+                <small>{{ proveedor.nombre_contacto|default:"Sin contacto" }}{% if proveedor.telefono %} - {{ proveedor.telefono }}{% endif %}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
 {% endblock %}

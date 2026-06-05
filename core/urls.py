@@ -10,14 +10,17 @@ urlpatterns = [
 
     # App usuarios
     path('usuarios/', include('usuarios.urls')),
-    
+
     # App productos e inventario
     path('productos/', include('productos.urls')),
     path('inventario/', include('inventario.urls')),
-    
+
     # App reportes
     path('reportes/', include('reportes.urls')),
-    path('ventas/', include('ventas.urls')),
+
+    # App ventas
+    path('ventas/', include('ventas.urls', namespace='ventas')),
+
+    # App proveedores
     path('proveedores/', include('proveedores.urls')),
-    
 ]
