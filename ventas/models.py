@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from productos.models import Producto, PresentacionProducto
 
 
@@ -83,6 +84,43 @@ class DetalleVenta(models.Model):
 
     def __str__(self):
         return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
+
+
+class AperturaCaja(models.Model):
+    fecha          = models.DateField(unique=True)
+    monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                       null=True, blank=True, related_name='aperturas_caja')
+    observacion    = models.TextField(blank=True)
+    denominaciones = models.JSONField(default=dict, blank=True)
+    creado_en      = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        verbose_name        = 'Apertura de Caja'
+        verbose_name_plural = 'Aperturas de Caja'
+        ordering            = ['-fecha']
+
+    def __str__(self):
+        return f'Apertura {self.fecha} — ${self.monto_base:,.0f}'
+
+
+class CierreCaja(models.Model):
+    fecha                = models.DateField(unique=True)
+    apertura             = models.OneToOneField(AperturaCaja, on_delete=models.PROTECT,
+                                                related_name='cierre')
+    total_contado        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    monto_base_siguiente = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_retirado       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    denominaciones       = models.JSONField(default=dict, blank=True)
+    creado_en            = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        verbose_name        = 'Cierre de Caja'
+        verbose_name_plural = 'Cierres de Caja'
+        ordering            = ['-fecha']
+
+    def __str__(self):
+        return f'Cierre {self.fecha} — contado: ${self.total_contado:,.0f}'
 
 
 class Devolucion(models.Model):

@@ -1,531 +1,904 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ventas — CYS Ltda</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <style>
-    :root {
-      --fondo-card:   #0f1623;
-      --fondo-card2:  #161f2e;
-      --azul-borde:   #1e3a5f;
-      --azul-claro:   #4da8da;
-      --texto:        #e8edf3;
-      --texto-muted:  #6b7f99;
-    }
-    body { background: #0a0f1a; color: var(--texto); font-family: system-ui, sans-serif; }
+{% extends 'base.html' %}
+{% load static %}
 
-    /* ── BADGE CAJA ── */
-    .caja-badge { display:inline-flex; align-items:center; gap:.4rem; border-radius:20px; padding:.3rem .8rem; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; }
-    .caja-badge--abierta { background:rgba(46,213,115,.12); color:#2ed573; border:1px solid #2ed573; }
-    .caja-badge--cerrada { background:rgba(255,77,77,.1);   color:#ff4d4d; border:1px solid #ff4d4d; }
-    .caja-stat { display:flex; flex-direction:column; }
-    .caja-stat__lbl { font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px; }
-    .caja-stat__val { font-size:.9rem; font-weight:700; }
+{% block title %}Ventas — CYS Ltda{% endblock %}
+{% block page_title %}Punto de Venta{% endblock %}
 
-    /* ── CARD ── */
-    .cys-card { background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:14px; padding:1.5rem; }
-    .cys-card__title { font-size:1rem; font-weight:800; color:var(--azul-claro); text-transform:uppercase; letter-spacing:.8px; margin-bottom:1rem; }
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+{% endblock %}
 
-    /* ── BÚSQUEDA ── */
-    .cys-venta-search { position:relative; }
-    .cys-venta-search__icon { position:absolute; left:.8rem; top:50%; transform:translateY(-50%); color:var(--texto-muted); font-size:.9rem; }
-    .cys-venta-search__input { width:100%; background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto); border-radius:10px; padding:.6rem .9rem .6rem 2.4rem; font-size:.88rem; outline:none; }
-    .cys-venta-search__input::placeholder { color:var(--texto-muted); }
-
-    /* ── GRID CATEGORÍAS ── */
-    .cys-cat-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:.8rem; }
-    .cys-cat-card { background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:1rem; text-align:center; cursor:pointer; transition:border-color .2s; }
-    .cys-cat-card:hover { border-color:var(--azul-claro); }
-    .cys-cat-card__icon { font-size:1.4rem; color:var(--azul-claro); margin-bottom:.4rem; }
-    .cys-cat-card__nombre { font-weight:700; font-size:.85rem; color:var(--texto); }
-    .cys-cat-card__count  { font-size:.72rem; color:var(--texto-muted); margin-top:.2rem; }
-
-    /* ── BTN VOLVER ── */
-    .cys-btn-volver { background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.35rem .7rem; cursor:pointer; }
-    .cys-cat-titulo { font-weight:800; font-size:1rem; color:var(--texto); }
-
-    /* ── MÉTODOS DE PAGO ── */
-    .metodo-pago-btn { background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto-muted); border-radius:8px; padding:.4rem .8rem; font-size:.8rem; cursor:pointer; transition:all .2s; }
-    .metodo-pago-btn.activo,
-    .metodo-pago-btn:hover { border-color:var(--azul-claro); color:var(--azul-claro); background:rgba(77,168,218,.08); }
-
-    /* ── BTN PRINCIPAL ── */
-    .cys-btn { border:none; border-radius:10px; padding:.7rem 1rem; font-weight:700; font-size:.88rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:.4rem; transition:opacity .2s; }
-    .cys-btn--danger { background:linear-gradient(135deg,#da4d4d,#b03030); color:#fff; }
-    .cys-btn:disabled { opacity:.4; cursor:not-allowed; }
-
-    /* ── FORM LABEL ── */
-    .cys-form-label { font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px; font-weight:700; display:block; margin-bottom:.4rem; }
-
-    /* ── TABLA ── */
-    .table-dark { --bs-table-bg: var(--fondo-card); --bs-table-hover-bg: var(--fondo-card2); }
-
-    /* ── DENOMINACIONES ── */
-    .denom-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:.5rem; margin-bottom:1rem; }
-    .denom-item { display:flex; flex-direction:column; gap:.2rem; }
-    .denom-item label { font-size:.7rem; color:var(--texto-muted); font-weight:600; }
-    .denom-item input { background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:6px; padding:.3rem .5rem; font-size:.82rem; text-align:center; outline:none; width:100%; }
-    .denom-total { background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
-    .denom-total__label { font-size:.8rem; color:var(--texto-muted); font-weight:600; }
-    .denom-total__val   { font-size:1.15rem; font-weight:800; color:var(--azul-claro); }
-    .caja-input-label { font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px; font-weight:700; margin-bottom:.3rem; }
-    .caja-input { width:100%; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.5rem .8rem; font-size:.88rem; margin-bottom:1rem; outline:none; }
-    .caja-btn-primary { width:100%; background:linear-gradient(135deg,var(--azul-claro),#2979a8); border:none; color:#fff; font-weight:800; border-radius:10px; padding:.8rem; font-size:.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.4rem; }
-    .caja-btn-primary--danger { background:linear-gradient(135deg,#da4d4d,#a02020); }
-    .caja-resultado-fila { display:flex; justify-content:space-between; padding:.3rem 0; font-size:.83rem; }
-
-    /* ── MODALES ── */
-    .vd-modal-overlay, .modal-bloqueo-overlay {
-      display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:9990;
-    }
-    .vd-modal-overlay.open, .modal-bloqueo-overlay.open { display:block; }
-    .vd-modal-box {
-      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      z-index:9991; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto;
-      background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;
-    }
-    .vd-modal-box.open { display:block; }
-    .modal-bloqueo-box {
-      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      z-index:9991; width:380px; max-width:95vw; background:var(--fondo-card);
-      border:1px solid var(--azul-borde); border-radius:16px; padding:2rem; text-align:center;
-    }
-    .modal-bloqueo-box.open { display:block; }
-    .modal-bloqueo-box__icon  { font-size:2.5rem; color:var(--azul-claro); display:block; margin-bottom:.8rem; }
-    .modal-bloqueo-box__title { font-size:1.15rem; font-weight:800; color:var(--texto); margin-bottom:.4rem; }
-    .modal-bloqueo-box__sub   { font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem; }
-    .bloqueo-btn { display:block; width:100%; padding:.75rem; border-radius:10px; font-weight:700; font-size:.9rem; margin-bottom:.6rem; cursor:pointer; border:none; }
-    .bloqueo-btn--momentaneo { background:rgba(77,168,218,.15); color:var(--azul-claro); border:1px solid var(--azul-borde); }
-    .bloqueo-btn--definitivo  { background:rgba(255,77,77,.12);  color:#ff4d4d; border:1px solid #ff4d4d; }
-    .bloqueo-btn--cancelar    { background:var(--fondo-card2); color:var(--texto-muted); border:1px solid var(--azul-borde); }
-  </style>
-</head>
-<body>
-
+{% block content %}
 <div class="container-fluid p-3">
 
   <!-- ── BARRA ESTADO DE CAJA ── -->
-  <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:.8rem 1.2rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:3rem;">
-
-    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:1rem; flex:1;">
-      <!-- Estado: Abierta -->
-      <span class="caja-badge caja-badge--abierta">
-        <i class="bi bi-circle-fill" style="font-size:.4rem;"></i> Caja Abierta
-      </span>
-      <div class="caja-stat">
-        <span class="caja-stat__lbl">Abierta por</span>
-        <span class="caja-stat__val">Usuario</span>
-      </div>
-      <div class="caja-stat">
-        <span class="caja-stat__lbl">Apertura</span>
-        <span class="caja-stat__val">08:30</span>
-      </div>
-      <div class="caja-stat">
-        <span class="caja-stat__lbl">Base</span>
-        <span class="caja-stat__val" style="color:var(--azul-claro);">$100.000</span>
-      </div>
-      <div class="caja-stat">
-        <span class="caja-stat__lbl">Ventas hoy</span>
-        <span class="caja-stat__val" style="color:#2ed573;">$350.000</span>
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 rounded-3 p-3 mb-4"
+       style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      {% if caja_abierta %}
+        <span class="badge rounded-pill px-3 py-2" style="background:rgba(46,213,115,.12); color:#2ed573; border:1px solid #2ed573; font-size:.7rem; letter-spacing:.8px;">
+          <i class="bi bi-circle-fill me-1" style="font-size:.4rem;"></i> CAJA ABIERTA
+        </span>
+        <div>
+          <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px;">Apertura</div>
+          <div style="font-size:.9rem; font-weight:700;">{{ caja_abierta.fecha|date:"H:i" }}</div>
+        </div>
+        <div>
+          <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px;">Base</div>
+          <div style="font-size:.9rem; font-weight:700; color:var(--azul-claro);">${{ caja_abierta.monto_base|floatformat:0 }}</div>
+        </div>
+      {% else %}
+        <span class="badge rounded-pill px-3 py-2" style="background:rgba(255,77,77,.1); color:#ff4d4d; border:1px solid #ff4d4d; font-size:.7rem; letter-spacing:.8px;">
+          <i class="bi bi-circle-fill me-1" style="font-size:.4rem;"></i> CAJA CERRADA
+        </span>
+      {% endif %}
+      <div>
+        <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px;">Ventas hoy</div>
+        <div style="font-size:.9rem; font-weight:700; color:#2ed573;">${{ total_dia|floatformat:0 }}</div>
       </div>
     </div>
-
-    <!-- Botón "Ver día" -->
-    <a href="#" class="cys-btn" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto); text-decoration:none; flex-shrink:0;">
-      <i class="bi bi-calendar-check"></i> Ver día
-    </a>
+    <div class="d-flex gap-2">
+      {% if not caja_abierta and not ultimo_cierre %}
+        <button class="btn btn-sm" style="background:var(--azul-claro); color:#000; font-weight:700; border-radius:8px;"
+                data-bs-toggle="modal" data-bs-target="#modalConteo">
+          <i class="bi bi-unlock me-1"></i> Abrir Caja
+        </button>
+      {% endif %}
+      {% if caja_abierta %}
+        <button class="btn btn-sm" style="background:rgba(255,77,77,.12); color:#ff4d4d; border:1px solid #ff4d4d; border-radius:8px; font-weight:700;"
+                data-bs-toggle="modal" data-bs-target="#modalCierre">
+          <i class="bi bi-lock me-1"></i> Cerrar Caja
+        </button>
+      {% endif %}
+      <a href="{% url 'ventas:ventas_dia' %}" class="btn btn-sm"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px;">
+        <i class="bi bi-calendar-check me-1"></i> Ver día
+      </a>
+    </div>
   </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+      {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
 
   <div class="row g-4">
 
     <!-- ── COLUMNA PRODUCTOS ── -->
     <div class="col-lg-7">
-      <section class="cys-card" style="min-height:600px;">
-        <div class="cys-card__title">Selecciona Productos</div>
-        <div class="cys-venta-search mb-4">
-          <i class="bi bi-search cys-venta-search__icon"></i>
-          <input type="text" id="buscadorProducto" class="cys-venta-search__input" placeholder="Buscar producto por nombre...">
+      <div class="rounded-3 p-3" style="background:var(--fondo-card); border:1px solid var(--azul-borde); min-height:600px;">
+        <div style="font-size:1rem; font-weight:800; color:var(--azul-claro); text-transform:uppercase; letter-spacing:.8px; margin-bottom:1rem;">
+          Selecciona Productos
+        </div>
+
+        <!-- Buscador -->
+        <div class="mb-4">
+          <input type="text" id="buscadorProducto" class="form-control"
+                 placeholder="Buscar producto por nombre..."
+                 style="background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto);">
         </div>
 
         <!-- Vista categorías -->
         <div id="vistaCategorias">
-          <div class="cys-cat-grid">
-            <div class="cys-cat-card">
-              <div class="cys-cat-card__icon"><i class="bi bi-tag-fill"></i></div>
-              <div class="cys-cat-card__nombre">Bebidas</div>
-              <div class="cys-cat-card__count">8 productos</div>
-            </div>
-            <div class="cys-cat-card">
-              <div class="cys-cat-card__icon"><i class="bi bi-tag-fill"></i></div>
-              <div class="cys-cat-card__nombre">Snacks</div>
-              <div class="cys-cat-card__count">12 productos</div>
-            </div>
-            <div class="cys-cat-card">
-              <div class="cys-cat-card__icon"><i class="bi bi-tag-fill"></i></div>
-              <div class="cys-cat-card__nombre">Lácteos</div>
-              <div class="cys-cat-card__count">5 productos</div>
-            </div>
-            <div class="cys-cat-card">
-              <div class="cys-cat-card__icon"><i class="bi bi-tag-fill"></i></div>
-              <div class="cys-cat-card__nombre">Aseo</div>
-              <div class="cys-cat-card__count">9 productos</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Vista productos (oculta por defecto) -->
-        <div id="vistaProductos" style="display:none;">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <button class="cys-btn-volver"><i class="bi bi-arrow-left"></i></button>
-            <span class="cys-cat-titulo" id="catTitulo">Bebidas</span>
-          </div>
-          <div class="cys-cat-grid" id="productoLista">
-            <div class="cys-cat-card">
-              <div class="cys-cat-card__nombre">Agua 500ml</div>
-              <div class="cys-cat-card__count" style="color:var(--azul-claro);">desde $1.500</div>
-            </div>
-            <div class="cys-cat-card">
-              <div class="cys-cat-card__nombre">Gaseosa</div>
-              <div class="cys-cat-card__count" style="color:var(--azul-claro);">desde $2.500</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Vista presentaciones (oculta por defecto) -->
-        <div id="vistaPresentaciones" style="display:none;">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <button class="cys-btn-volver"><i class="bi bi-arrow-left"></i></button>
-            <span class="cys-cat-titulo" id="presTitulo">Agua</span>
-          </div>
-          <div id="presentacionLista" class="d-flex flex-column gap-2">
-            <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; cursor:pointer;">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <span style="font-weight:700; color:var(--texto);">500ml</span>
-                  <span style="font-size:.75rem; color:var(--texto-muted); margin-left:.5rem;">1 ud</span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <span style="color:var(--azul-claro); font-weight:700;">$1.500</span>
-                  <span style="font-size:.75rem; color:var(--texto-muted);">Stock: 24</span>
-                </div>
+          <div class="row g-3">
+            {% for cat in categorias %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="rounded-3 p-3 text-center h-100"
+                   style="background:var(--fondo-card2); border:1px solid var(--azul-borde); cursor:pointer;"
+                   data-cat-id="{{ cat.id }}" data-cat-nombre="{{ cat.nombre }}">
+                <i class="bi bi-tag-fill d-block mb-2" style="font-size:1.4rem; color:var(--azul-claro);"></i>
+                <div style="font-weight:700; font-size:.85rem;">{{ cat.nombre }}</div>
+                <div style="font-size:.72rem; color:var(--texto-muted);">{{ cat.productos.count }} productos</div>
               </div>
             </div>
+            {% empty %}
+            <div class="col-12 text-center py-4" style="color:var(--texto-muted);">
+              No hay categorías registradas.
+            </div>
+            {% endfor %}
           </div>
         </div>
-      </section>
+
+        <!-- Vista productos -->
+        <div id="vistaProductos" style="display:none;">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button class="btn btn-sm" id="btnVolverCats"
+                    style="background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px;">
+              <i class="bi bi-arrow-left"></i>
+            </button>
+            <span style="font-weight:800; font-size:1rem;" id="catTitulo"></span>
+          </div>
+          <div class="row g-3" id="productoLista"></div>
+        </div>
+
+        <!-- Vista presentaciones -->
+        <div id="vistaPresentaciones" style="display:none;">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button class="btn btn-sm" id="btnVolverProds"
+                    style="background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px;">
+              <i class="bi bi-arrow-left"></i>
+            </button>
+            <span style="font-weight:800; font-size:1rem;" id="presTitulo"></span>
+          </div>
+          <div class="d-flex flex-column gap-2" id="presentacionLista"></div>
+        </div>
+
+      </div>
     </div>
 
     <!-- ── COLUMNA CARRITO ── -->
     <div class="col-lg-5">
-      <section class="cys-card" style="height:fit-content;">
-        <div class="cys-card__title mb-3">Carrito de Venta</div>
+      <div class="rounded-3 p-3" style="background:var(--fondo-card); border:1px solid var(--azul-borde);">
+        <div style="font-size:1rem; font-weight:800; color:var(--azul-claro); text-transform:uppercase; letter-spacing:.8px; margin-bottom:1rem;">
+          Carrito de Venta
+        </div>
 
-        <form method="POST" action="#" id="formVenta">
+        <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
+          {% csrf_token %}
 
           <!-- Cliente -->
-          <div id="seccionCliente" style="margin-bottom:1rem;">
-            <label class="cys-form-label">Cliente</label>
-            <input type="text" class="caja-input" placeholder="Nombre del cliente (opcional)">
-          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px; font-weight:700;">Cliente</label>
+            <input type="text" name="cliente_nombre" id="inputClienteNombre" class="form-control"
+                   placeholder="Nombre del cliente (opcional)"
+                   style="background:var(--fondo-card2); border:1px solid var(--azul-borde); color:var(--texto);">
+            <input type="hidden" name="cliente_id" id="inputClienteId">
 
-          <!-- Estado vacío -->
-          <div id="carritoVacio" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; padding:3rem 1rem; color:var(--texto-muted); border:1px dashed var(--azul-borde); border-radius:12px; margin-bottom:1rem;">
-            <i class="bi bi-cart3" style="font-size:1.8rem; color:var(--azul-borde);"></i>
-            <span style="font-size:.85rem; font-weight:600;">Carrito de compras</span>
-            <span style="font-size:.75rem;">Selecciona productos para comenzar</span>
-          </div>
-
-          <!-- Items (ejemplo) -->
-          <div id="carritoItems" style="display:none; margin-bottom:1rem;">
-            <div class="d-flex flex-column gap-2" id="listaCarrito">
-              <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
-                <div class="d-flex justify-content-between">
-                  <span style="font-weight:700; color:var(--texto); font-size:.9rem;">Agua 500ml - Unidad</span>
-                  <button type="button" class="btn-close btn-close-white" style="font-size:.6rem;"></button>
-                </div>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <div class="d-flex align-items-center gap-2">
-                    <input type="number" value="2" min="1" style="width:50px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:5px; padding:.2rem .4rem;">
-                    <span style="font-size:.75rem; color:var(--texto-muted);">x $1.500</span>
-                  </div>
-                  <span style="font-weight:700; color:var(--azul-claro);">$3.000</span>
-                </div>
-              </div>
+            <!-- Sugerencias clientes -->
+            <div id="sugerenciasClientes" class="list-group mt-1" style="display:none; position:absolute; z-index:100; width:calc(100% - 2rem);">
+              {% for cliente in clientes %}
+              <button type="button" class="list-group-item list-group-item-action"
+                      style="background:var(--fondo-card2); border-color:var(--azul-borde); color:var(--texto); font-size:.85rem;"
+                      data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
+                {{ cliente.nombre }}
+              </button>
+              {% endfor %}
             </div>
           </div>
 
+          <!-- Carrito vacío -->
+          <div id="carritoVacio" class="text-center py-4 mb-3 rounded-3"
+               style="border:1px dashed var(--azul-borde); color:var(--texto-muted);">
+            <i class="bi bi-cart3 d-block mb-2" style="font-size:1.8rem; color:var(--azul-borde);"></i>
+            <div style="font-size:.85rem; font-weight:600;">Carrito de compras</div>
+            <div style="font-size:.75rem;">Selecciona productos para comenzar</div>
+          </div>
+
+          <!-- Items carrito -->
+          <div id="carritoItems" style="display:none;" class="mb-3">
+            <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
+          </div>
+
+          <!-- Campos ocultos que se llenan dinámicamente -->
+          <div id="camposOcultos"></div>
+
           <!-- Descuento -->
-          <div id="seccionDescuento" style="display:none; margin-bottom:1rem;">
-            <div class="d-flex justify-content-between align-items-center" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem;">
-              <span style="font-size:1rem; color:var(--texto-muted); font-weight:700;">% DESCUENTO</span>
-              <input type="number" id="inputDescuento" name="descuento_porcentaje" class="text-center" value="0" min="0" max="100"
-                     style="width:80px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--azul-claro); border-radius:5px; font-weight:bold; font-size:1rem; padding:.3rem;">
+          <div id="seccionDescuento" style="display:none;" class="mb-3">
+            <div class="d-flex justify-content-between align-items-center rounded-3 p-3"
+                 style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+              <span style="font-size:.85rem; color:var(--texto-muted); font-weight:700;">% DESCUENTO</span>
+              <input type="number" id="inputDescuento" name="descuento_porcentaje"
+                     value="0" min="0" max="100" class="form-control text-center"
+                     style="width:80px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--azul-claro); font-weight:700;">
             </div>
           </div>
 
           <!-- Total -->
-          <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:1.1rem 1.3rem; margin-bottom:1rem;">
+          <div id="totalGeneral" style="display:none;" class="mb-3 rounded-3 p-3"
+               style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde);">
             <div class="d-flex justify-content-between align-items-center">
               <span style="font-weight:600;">TOTAL:</span>
-              <span style="font-size:1.4rem; font-weight:800; color:var(--azul-claro);">$3.000</span>
+              <span id="totalMonto" style="font-size:1.4rem; font-weight:800; color:var(--azul-claro);">$0</span>
             </div>
           </div>
 
           <!-- Métodos de pago -->
-          <div id="seccionPagos" style="display:none; margin-bottom:1rem;">
-            <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:1rem 1.1rem;">
-              <div style="font-size:1rem; color:var(--texto); font-weight:700; margin-bottom:.9rem;">MÉTODO DE PAGO</div>
-              <div class="d-flex flex-wrap gap-2 mb-3">
-                <button type="button" class="metodo-pago-btn"><i class="bi bi-cash me-1"></i>Efectivo</button>
-                <button type="button" class="metodo-pago-btn"><i class="bi bi-credit-card me-1"></i>Tarjeta</button>
-                <button type="button" class="metodo-pago-btn"><i class="bi bi-bank me-1"></i>Transferencia</button>
-                <button type="button" class="metodo-pago-btn"><i class="bi bi-phone me-1"></i>Nequi</button>
-                <button type="button" class="metodo-pago-btn"><i class="bi bi-phone me-1"></i>Daviplata</button>
-              </div>
-              <div id="inputsPago" class="d-flex flex-column gap-3">
-                <!-- Se generan dinámicamente en Django -->
-              </div>
+          <div id="seccionPagos" style="display:none;" class="mb-3 rounded-3 p-3"
+               style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+            <div style="font-size:.85rem; font-weight:700; margin-bottom:.8rem;">MÉTODO DE PAGO</div>
+
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.75rem; color:var(--texto-muted);">Efectivo</label>
+              <input type="number" name="pago_efectivo" value="0" min="0" class="form-control pago-input"
+                     style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.75rem; color:var(--texto-muted);">Tarjeta</label>
+              <input type="number" name="pago_tarjeta" value="0" min="0" class="form-control pago-input"
+                     style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.75rem; color:var(--texto-muted);">Transferencia</label>
+              <input type="number" name="pago_transferencia" value="0" min="0" class="form-control pago-input"
+                     style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.75rem; color:var(--texto-muted);">Nequi</label>
+              <input type="number" name="pago_nequi" value="0" min="0" class="form-control pago-input"
+                     style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="font-size:.75rem; color:var(--texto-muted);">Daviplata</label>
+              <input type="number" name="pago_daviplata" value="0" min="0" class="form-control pago-input"
+                     style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-2 pt-2"
+                 style="border-top:1px solid var(--azul-borde);">
+              <span style="font-size:.8rem; color:var(--texto-muted);">Total pagado:</span>
+              <span id="totalPagado" style="font-weight:700; color:var(--azul-claro);">$0</span>
             </div>
           </div>
 
-          <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="cys-btn cys-btn--danger flex-fill" id="btnRegistrar" disabled>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn flex-fill fw-bold" id="btnRegistrar" disabled
+                    style="background:linear-gradient(135deg,#da4d4d,#b03030); color:#fff; border-radius:10px;">
               <i class="bi bi-save me-1"></i> REGISTRAR VENTA
             </button>
-            <button type="button" class="cys-btn flex-fill" id="btnCancelarVenta"
-                    style="background:var(--fondo-card2); color:#ff4d4d; border:1px solid #ff4d4d; font-weight:700;">
+            <button type="button" class="btn flex-fill fw-bold" id="btnCancelarVenta"
+                    style="background:var(--fondo-card2); color:#ff4d4d; border:1px solid #ff4d4d; border-radius:10px;">
               <i class="bi bi-x-circle me-1"></i> CANCELAR
             </button>
           </div>
+
         </form>
-      </section>
+      </div>
     </div>
   </div>
 
-  <!-- ── HISTORIAL ── -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <section class="cys-card">
-        <div class="cys-card__title">Historial de Ventas</div>
-        <div class="table-responsive">
-          <table class="table table-dark table-hover align-middle" style="color:var(--texto);">
-            <thead>
-              <tr style="color:var(--azul-claro); font-size:.75rem; text-transform:uppercase; border-bottom:1px solid var(--azul-borde);">
-                <th>#</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Subtotal</th><th>Descuento</th><th>Total</th><th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Fila de ejemplo -->
-              <tr style="border-bottom:1px solid var(--azul-borde); cursor:pointer;">
-                <td style="color:var(--texto-muted);">1</td>
-                <td style="font-size:.8rem;">03/06/2025 09:15</td>
-                <td style="font-weight:600;">Juan Pérez</td>
-                <td>
-                  <span style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:20px; padding:.2rem .6rem; font-size:.75rem;">
-                    Agua (500ml) x2
-                  </span>
-                </td>
-                <td style="color:var(--texto-muted); font-size:.85rem;">—</td>
-                <td><span style="color:var(--texto-muted);">—</span></td>
-                <td style="font-weight:800; color:var(--azul-claro);">$3.000</td>
-                <td>
-                  <button type="button" class="btn btn-sm btn-danger" style="border-radius:8px;"><i class="bi bi-trash"></i></button>
-                </td>
-              </tr>
-              <!-- Sin ventas -->
-              <!-- <tr><td colspan="8" style="text-align:center; padding:2rem 0; color:var(--texto-muted);">
-                <i class="bi bi-receipt" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
+  <!-- ══════════════════════════════════════
+       HISTORIAL DE VENTAS — estilo reportes
+  ══════════════════════════════════════ -->
+  <section class="mt-4" style="background:var(--color-bg-card, var(--fondo-card)); border:1px solid var(--azul-borde); border-radius:14px; overflow:hidden;">
+
+    <!-- Encabezado -->
+    <div style="padding:1.1rem 1.25rem .6rem; border-bottom:1px solid var(--azul-borde); background:var(--color-surface, var(--fondo-card2));">
+      <div style="font-size:1rem; font-weight:800; color:var(--azul-acento, var(--azul-claro)); text-transform:uppercase; letter-spacing:.8px;">
+        <i class="bi bi-clock-history me-2"></i>Historial de Ventas
+      </div>
+    </div>
+
+    <!-- Tarjetas KPI -->
+    <div class="row gx-3 gy-3 p-3">
+      <div class="col-12 col-md-4">
+        <div class="cys-summary-card cys-summary-card--ventas rounded-3">
+          <div class="cys-summary-card__icon cys-summary-card__icon--ventas">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Total del día</span>
+            <span class="cys-summary-card__val">${{ total_dia|floatformat:0 }}</span>
+            <span class="cys-summary-card__sub">Ingresos registrados hoy</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="cys-summary-card cys-summary-card--productos rounded-3">
+          <div class="cys-summary-card__icon cys-summary-card__icon--productos">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Ventas registradas</span>
+            <span class="cys-summary-card__val">{{ ventas|length }}</span>
+            <span class="cys-summary-card__sub">Transacciones del período</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="cys-summary-card cys-summary-card--clientes rounded-3">
+          <div class="cys-summary-card__icon cys-summary-card__icon--clientes">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Clientes atendidos</span>
+            <span class="cys-summary-card__val">{{ ventas|length }}</span>
+            <span class="cys-summary-card__sub">En el período actual</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive px-3 pb-3">
+      <table class="cys-inv-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Descuento</th>
+            <th style="text-align:right;">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for venta in ventas %}
+          <tr class="cys-tr">
+            <td class="cys-td cys-td--muted" data-label="#">{{ venta.pk }}</td>
+            <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+            <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente.nombre }}</td>
+            <td class="cys-td" data-label="Productos">
+              {% for det in venta.detalles.all %}
+              <span class="cys-badge cys-badge--verde me-1">
+                {{ det.producto.nombre }} x{{ det.cantidad }}
+              </span>
+              {% endfor %}
+            </td>
+            <td class="cys-td cys-td--muted" data-label="Descuento">
+              {% if venta.descuento_porcentaje %}
+                <span class="cys-badge cys-badge--amarillo">{{ venta.descuento_porcentaje }}%</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="cys-qty cys-qty--ok" data-label="Total">${{ venta.total_venta|floatformat:0 }}</td>
+            <td data-label="">
+              <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}"
+                    onsubmit="return confirm('¿Eliminar esta venta?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm"
+                        style="background:rgba(145,47,64,.15); border:1px solid rgba(145,47,64,.4); color:#e87a8a; border-radius:8px;">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="cys-td--empty">
+              <div class="cys-empty-box">
+                <i class="bi bi-receipt"></i>
                 No hay ventas registradas
-              </td></tr> -->
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </div>
+
+  </section>
+
 </div>
 
 
-<!-- ══════════════════════════════════════
-     MODAL CONTEO DE APERTURA
-══════════════════════════════════════ -->
-<div id="overlayConteo" class="vd-modal-overlay"></div>
-<div id="modalConteo" class="vd-modal-box">
-  <div style="margin-bottom:1.5rem;">
-    <div style="font-size:.7rem; color:#2ed573; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Inicio del día</div>
-    <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Conteo de Caja</div>
-  </div>
-  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
-    Cuenta el dinero disponible en caja e ingresa la cantidad por denominación antes de comenzar.
-  </p>
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
-  <div class="denom-grid">
-    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="100000"></div>
-    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="50000"></div>
-    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="20000"></div>
-    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="10000"></div>
-    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="5000"></div>
-    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="2000"></div>
-    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="1000"></div>
-  </div>
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
-  <div class="denom-grid">
-    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ct" data-valor="500"></div>
-    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ct" data-valor="200"></div>
-    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ct" data-valor="100"></div>
-    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ct" data-valor="50"></div>
-  </div>
-  <div class="denom-total">
-    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado</span>
-    <span class="denom-total__val" id="totalConteo">$0</span>
-  </div>
-  <div class="caja-input-label">Observación (opcional)</div>
-  <input type="text" class="caja-input" id="ctObservacion" placeholder="Ej: todo en orden">
-  <button class="caja-btn-primary" id="btnConfirmarConteo" type="button">
-    <i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar
-  </button>
-</div>
-
-
-<!-- ══════════════════════════════════════
-     MODAL CIERRE DE CAJA
-══════════════════════════════════════ -->
-<div id="overlayCierre" class="vd-modal-overlay"></div>
-<div id="modalCierre" class="vd-modal-box">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:#ff4d4d; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cierre definitivo</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Conteo de Cierre</div>
-    </div>
-    <button type="button" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
-  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
-    Cuenta todo el dinero físico en caja. El sistema calculará cuánto se recoge y cuánto queda de base para mañana.
-  </p>
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
-  <div class="denom-grid">
-    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000"></div>
-    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50000"></div>
-    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="20000"></div>
-    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="10000"></div>
-    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="5000"></div>
-    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000"></div>
-    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000"></div>
-  </div>
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
-  <div class="denom-grid">
-    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500"></div>
-    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ci" data-valor="200"></div>
-    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100"></div>
-    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50"></div>
-  </div>
-  <div class="denom-total">
-    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span>
-    <span class="denom-total__val" id="totalCierre">$0</span>
-  </div>
-  <div class="caja-input-label">Monto base para mañana ($)</div>
-  <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
-  <div id="resumenCierre" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
-    <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
-    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base de apertura</span><span style="font-weight:600;">$100.000</span></div>
-    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Ventas del día</span><span style="font-weight:600; color:#2ed573;">$350.000</span></div>
-    <div class="caja-resultado-fila" style="border-top:1px solid var(--azul-borde); padding-top:.5rem; margin-top:.3rem;">
-      <span style="color:var(--texto-muted);">Total contado</span><span style="font-weight:700; color:var(--azul-claro);">$0</span>
-    </div>
-    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base para mañana</span><span style="font-weight:600;">$0</span></div>
-    <div class="caja-resultado-fila" style="border-top:2px solid var(--azul-borde); padding-top:.6rem; margin-top:.4rem;">
-      <span style="font-weight:700; font-size:.95rem;">Total a retirar</span>
-      <span style="font-weight:800; font-size:1.15rem; color:#2ed573;">$0</span>
-    </div>
-  </div>
-  <button class="caja-btn-primary caja-btn-primary--danger" id="btnConfirmarCierre" type="button">
-    <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
-  </button>
-</div>
-
-
-<!-- ══════════════════════════════════════
-     MODAL RECIBO
-══════════════════════════════════════ -->
-<div id="overlayRecibo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;"></div>
-<div id="modalRecibo" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:440px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante de Venta</div>
-      <div style="font-size:1.2rem; font-weight:800; color:var(--texto);">CYS Ltda</div>
-    </div>
-    <button type="button" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
-  <div id="reciboContenido">
-    <!-- Contenido generado dinámicamente desde Django -->
-    <div style="background:var(--fondo-card2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
-      <div style="display:flex; justify-content:space-between; margin-bottom:.3rem;">
-        <span style="font-size:.75rem; color:var(--texto-muted);">CLIENTE</span>
-        <span style="font-weight:700;">Juan Pérez</span>
-      </div>
-      <div style="display:flex; justify-content:space-between;">
-        <span style="font-size:.75rem; color:var(--texto-muted);">FECHA</span>
-        <span style="font-size:.85rem;">03/06/2025 09:15</span>
-      </div>
-    </div>
-    <div style="margin-bottom:1rem;">
-      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Productos</div>
-      <div style="display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid var(--azul-borde);">
+<!-- ══ MODAL APERTURA DE CAJA ══ -->
+<div class="modal fade" id="modalConteo" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px;">
+      <div class="modal-header" style="border-bottom:1px solid var(--azul-borde);">
         <div>
-          <div style="font-weight:600; font-size:.9rem;">Agua - 500ml</div>
-          <div style="font-size:.75rem; color:var(--texto-muted);">2 x $1.500</div>
+          <div style="font-size:.7rem; color:#2ed573; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Inicio del día</div>
+          <div style="font-size:1.1rem; font-weight:800; color:var(--texto);">Conteo de Apertura</div>
         </div>
-        <span style="font-weight:700; color:var(--azul-claro);">$3.000</span>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.82rem; color:var(--texto-muted);">Cuenta el dinero disponible e ingresa la cantidad por denominación.</p>
+
+        <div style="font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
+        <div class="row g-2 mb-3">
+          {% for valor in billetes_denom %}
+          <div class="col-6 col-md-3">
+            <label class="form-label" style="font-size:.7rem; color:var(--texto-muted);">${{ valor|floatformat:0 }}</label>
+            <input type="number" min="0" value="0" class="form-control text-center denom-ct" data-valor="{{ valor }}"
+                   style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
+        <div class="row g-2 mb-3">
+          {% for valor in monedas_denom %}
+          <div class="col-6 col-md-3">
+            <label class="form-label" style="font-size:.7rem; color:var(--texto-muted);">${{ valor }}</label>
+            <input type="number" min="0" value="0" class="form-control text-center denom-ct" data-valor="{{ valor }}"
+                   style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center rounded-3 p-3 mb-3"
+             style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde);">
+          <span style="font-size:.85rem; color:var(--texto-muted); font-weight:600;">Total contado</span>
+          <span style="font-size:1.2rem; font-weight:800; color:var(--azul-claro);" id="totalConteo">$0</span>
+        </div>
+
+        <label class="form-label" style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px;">Observación (opcional)</label>
+        <input type="text" class="form-control mb-3" id="ctObservacion" placeholder="Ej: todo en orden"
+               style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+
+        <button class="btn w-100 fw-bold" id="btnConfirmarConteo" type="button"
+                style="background:linear-gradient(135deg,var(--azul-claro),#2979a8); color:#fff; border-radius:10px; padding:.8rem;">
+          <i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar
+        </button>
       </div>
     </div>
-    <div style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem;">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--azul-borde); padding-top:.6rem; margin-top:.3rem;">
-        <span style="font-weight:700; font-size:1rem;">TOTAL</span>
-        <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">$3.000</span>
-      </div>
-    </div>
-  </div>
-  <div style="display:flex; gap:.7rem; margin-top:1.5rem; flex-wrap:wrap;">
-    <button type="button" onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; border:none; border-radius:10px; padding:.7rem; min-width:120px;">
-      <i class="bi bi-printer me-1"></i> Imprimir
-    </button>
-    <button type="button" style="flex:1; min-width:120px; background:none; border:1px solid #ff4d4d; color:#ff4d4d; border-radius:10px; padding:.7rem; font-weight:700; cursor:pointer; font-size:.9rem; display:flex; align-items:center; justify-content:center; gap:.4rem;">
-      <i class="bi bi-x-circle"></i> Cancelar Venta
-    </button>
-    <button type="button" style="flex:1; min-width:120px; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════
-     MODAL CANCELAR VENTA EN PROCESO
-══════════════════════════════════════ -->
-<div id="overlayCancelar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.75); z-index:10000;"></div>
-<div id="modalCancelar" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10001; width:420px; max-width:95vw; background:var(--fondo-card); border:1px solid #ff4d4d; border-radius:16px; padding:2rem;">
-  <div style="text-align:center; margin-bottom:1.2rem;">
-    <i class="bi bi-exclamation-triangle-fill" style="font-size:2.5rem; color:#ff4d4d;"></i>
-    <div style="font-size:1.1rem; font-weight:800; color:var(--texto); margin-top:.7rem;">¿Cancelar venta en proceso?</div>
-    <div style="font-size:.85rem; color:var(--texto-muted); margin-top:.4rem;">Se eliminarán los siguientes productos del carrito:</div>
-  </div>
-  <div id="cancelarListaProductos" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; margin-bottom:1.2rem; max-height:200px; overflow-y:auto;">
-    <div style="display:flex; justify-content:space-between; padding:.4rem 0; border-bottom:1px solid var(--azul-borde); font-size:.85rem;">
-      <span>Agua - 500ml</span><span style="color:var(--texto-muted);">x2</span>
+<!-- ══ MODAL CIERRE DE CAJA ══ -->
+<div class="modal fade" id="modalCierre" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px;">
+      <div class="modal-header" style="border-bottom:1px solid var(--azul-borde);">
+        <div>
+          <div style="font-size:.7rem; color:#ff4d4d; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cierre definitivo</div>
+          <div style="font-size:1.1rem; font-weight:800; color:var(--texto);">Conteo de Cierre</div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.82rem; color:var(--texto-muted);">Cuenta todo el dinero físico en caja.</p>
+
+        <div style="font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
+        <div class="row g-2 mb-3">
+          {% for valor in billetes_denom %}
+          <div class="col-6 col-md-3">
+            <label class="form-label" style="font-size:.7rem; color:var(--texto-muted);">${{ valor|floatformat:0 }}</label>
+            <input type="number" min="0" value="0" class="form-control text-center denom-ci" data-valor="{{ valor }}"
+                   style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
+        <div class="row g-2 mb-3">
+          {% for valor in monedas_denom %}
+          <div class="col-6 col-md-3">
+            <label class="form-label" style="font-size:.7rem; color:var(--texto-muted);">${{ valor }}</label>
+            <input type="number" min="0" value="0" class="form-control text-center denom-ci" data-valor="{{ valor }}"
+                   style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center rounded-3 p-3 mb-3"
+             style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde);">
+          <span style="font-size:.85rem; color:var(--texto-muted); font-weight:600;">Total contado en caja</span>
+          <span style="font-size:1.2rem; font-weight:800; color:var(--azul-claro);" id="totalCierre">$0</span>
+        </div>
+
+        <label class="form-label" style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.6px;">Monto base para mañana ($)</label>
+        <input type="number" class="form-control mb-3" id="baseSiguiente" placeholder="Ej: 100000" min="0"
+               style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto);">
+
+        <div class="rounded-3 p-3 mb-3" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
+          <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
+          {% if caja_abierta %}
+          <div class="d-flex justify-content-between py-1" style="font-size:.83rem;">
+            <span style="color:var(--texto-muted);">Base de apertura</span>
+            <span style="font-weight:600;">${{ caja_abierta.monto_base|floatformat:0 }}</span>
+          </div>
+          {% endif %}
+          <div class="d-flex justify-content-between py-1" style="font-size:.83rem;">
+            <span style="color:var(--texto-muted);">Ventas del día</span>
+            <span style="font-weight:600; color:#2ed573;">${{ total_dia|floatformat:0 }}</span>
+          </div>
+          <div class="d-flex justify-content-between py-1 mt-1 pt-1"
+               style="font-size:.83rem; border-top:1px solid var(--azul-borde);">
+            <span style="color:var(--texto-muted);">Total contado</span>
+            <span style="font-weight:700; color:var(--azul-claro);" id="resumenTotalContado">$0</span>
+          </div>
+          <div class="d-flex justify-content-between py-1" style="font-size:.83rem;">
+            <span style="color:var(--texto-muted);">Base para mañana</span>
+            <span style="font-weight:600;" id="resumenBaseSig">$0</span>
+          </div>
+          <div class="d-flex justify-content-between py-2 mt-1 pt-1"
+               style="font-size:.95rem; border-top:2px solid var(--azul-borde);">
+            <span style="font-weight:700;">Total a retirar</span>
+            <span style="font-weight:800; color:#2ed573;" id="resumenRetirar">$0</span>
+          </div>
+        </div>
+
+        <button class="btn w-100 fw-bold" id="btnConfirmarCierre" type="button"
+                style="background:linear-gradient(135deg,#da4d4d,#a02020); color:#fff; border-radius:10px; padding:.8rem;">
+          <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
+        </button>
+      </div>
     </div>
-  </div>
-  <div class="d-flex gap-2">
-    <button type="button" style="flex:1; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">
-      <i class="bi bi-arrow-left me-1"></i> Volver
-    </button>
-    <button type="button" style="flex:1; background:#ff4d4d; color:#fff; border:none; border-radius:10px; padding:.7rem; cursor:pointer; font-weight:700;">
-      <i class="bi bi-x-circle me-1"></i> Sí, cancelar
-    </button>
   </div>
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<!-- Datos de categorías y productos para Bootstrap collapse -->
+{% for cat in categorias %}
+<div id="cat-data-{{ cat.id }}" style="display:none;"
+     data-nombre="{{ cat.nombre }}">
+  {% for prod in cat.productos.all %}
+  <div class="prod-item"
+       data-id="{{ prod.id }}"
+       data-nombre="{{ prod.nombre }}"
+       data-precio="{{ prod.precio_unitario }}"
+       data-stock="{{ prod.cantidad_disponible }}"
+       data-unidad="{{ prod.unidad }}">
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+// ══ NAVEGACIÓN CATEGORÍAS → PRODUCTOS → PRESENTACIONES ══
+
+const vistaCats  = document.getElementById('vistaCategorias');
+const vistaProds = document.getElementById('vistaProductos');
+const vistaPresS = document.getElementById('vistaPresentaciones');
+let catActual = null;
+let prodActual = null;
+
+function mostrar(vista) {
+  vistaCats.style.display  = 'none';
+  vistaProds.style.display = 'none';
+  vistaPresS.style.display = 'none';
+  vista.style.display = 'block';
+}
+
+// Click en categoría
+document.querySelectorAll('[data-cat-id]').forEach(card => {
+  card.addEventListener('click', function() {
+    const id     = this.dataset.catId;
+    const nombre = this.dataset.catNombre;
+    catActual    = id;
+
+    document.getElementById('catTitulo').textContent = nombre;
+
+    const lista    = document.getElementById('productoLista');
+    const catData  = document.getElementById('cat-data-' + id);
+    const productos = catData ? catData.querySelectorAll('.prod-item') : [];
+
+    lista.innerHTML = '';
+    productos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'col-6 col-md-4';
+      div.innerHTML = `
+        <div class="rounded-3 p-3 text-center h-100"
+             style="background:var(--fondo-card2); border:1px solid var(--azul-borde); cursor:pointer;"
+             data-prod-id="${p.dataset.id}"
+             data-prod-nombre="${p.dataset.nombre}"
+             data-prod-precio="${p.dataset.precio}"
+             data-prod-stock="${p.dataset.stock}"
+             data-prod-unidad="${p.dataset.unidad}">
+          <div style="font-weight:700; font-size:.85rem; color:var(--texto);">${p.dataset.nombre}</div>
+          <div style="font-size:.72rem; color:var(--azul-claro); margin-top:.3rem;">
+            desde $${parseInt(p.dataset.precio).toLocaleString('es-CO')}
+          </div>
+          <div style="font-size:.7rem; color:var(--texto-muted);">Stock: ${p.dataset.stock}</div>
+        </div>`;
+      lista.appendChild(div);
+    });
+
+    lista.querySelectorAll('[data-prod-id]').forEach(card => {
+      card.addEventListener('click', function() {
+        cargarPresentaciones(
+          this.dataset.prodId,
+          this.dataset.prodNombre,
+          this.dataset.prodPrecio,
+          this.dataset.prodStock,
+          this.dataset.prodUnidad
+        );
+      });
+    });
+
+    mostrar(vistaProds);
+  });
+});
+
+document.getElementById('btnVolverCats').addEventListener('click', () => mostrar(vistaCats));
+document.getElementById('btnVolverProds').addEventListener('click', () => mostrar(vistaProds));
+
+// ══ CARGAR PRESENTACIONES VÍA FETCH ══
+function cargarPresentaciones(prodId, nombre, precio, stock, unidad) {
+  prodActual = { id: prodId, nombre, precio, stock, unidad };
+  document.getElementById('presTitulo').textContent = nombre;
+  const lista = document.getElementById('presentacionLista');
+  lista.innerHTML = '<div style="color:var(--texto-muted); font-size:.85rem;">Cargando...</div>';
+  mostrar(vistaPresS);
+
+  fetch(`/ventas/producto/${prodId}/stock/`)
+    .then(r => r.json())
+    .then(data => {
+      lista.innerHTML = '';
+
+      if (data.stock > 0) {
+        const div = document.createElement('div');
+        div.className = 'rounded-3 p-3';
+        div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde); cursor:pointer;';
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span style="font-weight:700; color:var(--texto);">Unidad</span>
+              <span style="font-size:.75rem; color:var(--texto-muted); margin-left:.5rem;">1 ${data.unidad}</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span style="color:var(--azul-claro); font-weight:700;">$${parseInt(data.precio).toLocaleString('es-CO')}</span>
+              <span style="font-size:.75rem; color:var(--texto-muted);">Stock: ${data.stock}</span>
+            </div>
+          </div>`;
+        div.addEventListener('click', () => agregarAlCarrito(prodId, null, nombre, 'Unidad', data.precio, data.stock));
+        lista.appendChild(div);
+      }
+
+      data.presentaciones.forEach(p => {
+        if (p.cantidad <= 0) return;
+        const div = document.createElement('div');
+        div.className = 'rounded-3 p-3';
+        div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde); cursor:pointer;';
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span style="font-weight:700; color:var(--texto);">${p.nombre}</span>
+              <span style="font-size:.75rem; color:var(--texto-muted); margin-left:.5rem;">${p.unidades} uds</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span style="color:var(--azul-claro); font-weight:700;">$${parseInt(p.precio).toLocaleString('es-CO')}</span>
+              <span style="font-size:.75rem; color:var(--texto-muted);">Stock: ${p.cantidad}</span>
+            </div>
+          </div>`;
+        div.addEventListener('click', () => agregarAlCarrito(prodId, p.id, nombre, p.nombre, p.precio, p.cantidad));
+        lista.appendChild(div);
+      });
+
+      if (lista.children.length === 0) {
+        lista.innerHTML = '<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">Sin stock disponible.</div>';
+      }
+    });
+}
+
+// ══ CARRITO ══
+const carrito = [];
+
+function agregarAlCarrito(prodId, presId, nombreProd, nombrePres, precio, stockMax) {
+  const key   = `${prodId}-${presId}`;
+  const exist = carrito.find(i => i.key === key);
+  if (exist) {
+    if (exist.cantidad < stockMax) exist.cantidad++;
+  } else {
+    carrito.push({ key, prodId, presId, nombreProd, nombrePres, precio: parseFloat(precio), stockMax, cantidad: 1 });
+  }
+  renderCarrito();
+  mostrar(vistaCats);
+}
+
+function renderCarrito() {
+  const lista   = document.getElementById('listaCarrito');
+  const vacio   = document.getElementById('carritoVacio');
+  const items   = document.getElementById('carritoItems');
+  const desc    = document.getElementById('seccionDescuento');
+  const total   = document.getElementById('totalGeneral');
+  const pagos   = document.getElementById('seccionPagos');
+  const btnReg  = document.getElementById('btnRegistrar');
+  const ocultos = document.getElementById('camposOcultos');
+
+  if (carrito.length === 0) {
+    vacio.style.display = 'flex';
+    items.style.display = desc.style.display = total.style.display = pagos.style.display = 'none';
+    btnReg.disabled = true;
+    ocultos.innerHTML = '';
+    return;
+  }
+
+  vacio.style.display = 'none';
+  items.style.display = desc.style.display = total.style.display = pagos.style.display = 'block';
+  btnReg.disabled = false;
+
+  lista.innerHTML = '';
+  ocultos.innerHTML = '';
+
+  let subtotal = 0;
+  carrito.forEach((item, idx) => {
+    subtotal += item.precio * item.cantidad;
+
+    const div = document.createElement('div');
+    div.className = 'rounded-3 p-3';
+    div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde);';
+    div.innerHTML = `
+      <div class="d-flex justify-content-between align-items-start">
+        <span style="font-weight:700; font-size:.9rem;">${item.nombreProd} — ${item.nombrePres}</span>
+        <button type="button" class="btn-close btn-close-white" style="font-size:.6rem;"
+                onclick="quitarDelCarrito(${idx})"></button>
+      </div>
+      <div class="d-flex align-items-center justify-content-between mt-2">
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm"
+                  style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:5px; padding:.1rem .5rem;"
+                  onclick="cambiarCantidad(${idx}, -1)">−</button>
+          <span style="font-weight:700; min-width:24px; text-align:center;">${item.cantidad}</span>
+          <button type="button" class="btn btn-sm"
+                  style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:5px; padding:.1rem .5rem;"
+                  onclick="cambiarCantidad(${idx}, 1)">+</button>
+          <span style="font-size:.75rem; color:var(--texto-muted);">x $${parseInt(item.precio).toLocaleString('es-CO')}</span>
+        </div>
+        <span style="font-weight:700; color:var(--azul-claro);">$${(item.precio * item.cantidad).toLocaleString('es-CO')}</span>
+      </div>`;
+    lista.appendChild(div);
+
+    ocultos.innerHTML += `
+      <input type="hidden" name="producto_id[]"     value="${item.prodId}">
+      <input type="hidden" name="presentacion_id[]" value="${item.presId || ''}">
+      <input type="hidden" name="cantidad[]"        value="${item.cantidad}">
+      <input type="hidden" name="precio[]"          value="${item.precio}">`;
+  });
+
+  const descPct   = parseFloat(document.getElementById('inputDescuento').value) || 0;
+  const descMonto = subtotal * descPct / 100;
+  const totalFinal = subtotal - descMonto;
+  document.getElementById('totalMonto').textContent = '$' + totalFinal.toLocaleString('es-CO');
+  actualizarPagado();
+}
+
+function quitarDelCarrito(idx) {
+  carrito.splice(idx, 1);
+  renderCarrito();
+}
+
+function cambiarCantidad(idx, delta) {
+  const item = carrito[idx];
+  const nueva = item.cantidad + delta;
+  if (nueva < 1) { quitarDelCarrito(idx); return; }
+  if (nueva > item.stockMax) return;
+  item.cantidad = nueva;
+  renderCarrito();
+}
+
+document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
+
+// ══ PAGOS ══
+function actualizarPagado() {
+  let pagado = 0;
+  document.querySelectorAll('.pago-input').forEach(i => pagado += parseFloat(i.value) || 0);
+  document.getElementById('totalPagado').textContent = '$' + pagado.toLocaleString('es-CO');
+}
+document.querySelectorAll('.pago-input').forEach(i => i.addEventListener('input', actualizarPagado));
+
+// ══ CANCELAR ══
+document.getElementById('btnCancelarVenta').addEventListener('click', function() {
+  if (carrito.length > 0 && !confirm('¿Cancelar la venta en proceso?')) return;
+  carrito.length = 0;
+  document.getElementById('inputDescuento').value = 0;
+  document.querySelectorAll('.pago-input').forEach(i => i.value = 0);
+  renderCarrito();
+});
+
+// ══ BÚSQUEDA ══
+document.getElementById('buscadorProducto').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (!q) { mostrar(vistaCats); return; }
+
+  mostrar(vistaProds);
+  document.getElementById('catTitulo').textContent = 'Resultados';
+  const lista = document.getElementById('productoLista');
+  lista.innerHTML = '';
+
+  document.querySelectorAll('.prod-item').forEach(p => {
+    if (!p.dataset.nombre.toLowerCase().includes(q)) return;
+    const div = document.createElement('div');
+    div.className = 'col-6 col-md-4';
+    div.innerHTML = `
+      <div class="rounded-3 p-3 text-center"
+           style="background:var(--fondo-card2); border:1px solid var(--azul-borde); cursor:pointer;"
+           data-prod-id="${p.dataset.id}"
+           data-prod-nombre="${p.dataset.nombre}"
+           data-prod-precio="${p.dataset.precio}"
+           data-prod-stock="${p.dataset.stock}"
+           data-prod-unidad="${p.dataset.unidad}">
+        <div style="font-weight:700; font-size:.85rem; color:var(--texto);">${p.dataset.nombre}</div>
+        <div style="font-size:.72rem; color:var(--azul-claro); margin-top:.3rem;">
+          $${parseInt(p.dataset.precio).toLocaleString('es-CO')}
+        </div>
+        <div style="font-size:.7rem; color:var(--texto-muted);">Stock: ${p.dataset.stock}</div>
+      </div>`;
+    div.querySelector('[data-prod-id]').addEventListener('click', function() {
+      cargarPresentaciones(this.dataset.prodId, this.dataset.prodNombre, this.dataset.prodPrecio, this.dataset.prodStock, this.dataset.prodUnidad);
+    });
+    lista.appendChild(div);
+  });
+
+  if (lista.children.length === 0) {
+    lista.innerHTML = '<div class="col-12" style="color:var(--texto-muted); font-size:.85rem;">Sin resultados.</div>';
+  }
+});
+
+// ══ CLIENTES ══
+document.getElementById('inputClienteNombre').addEventListener('input', function() {
+  const q   = this.value.toLowerCase();
+  const sug = document.getElementById('sugerenciasClientes');
+  if (!q) { sug.style.display = 'none'; return; }
+  let visible = false;
+  sug.querySelectorAll('button').forEach(btn => {
+    const match = btn.dataset.nombre.toLowerCase().includes(q);
+    btn.style.display = match ? 'block' : 'none';
+    if (match) visible = true;
+  });
+  sug.style.display = visible ? 'block' : 'none';
+});
+
+document.getElementById('sugerenciasClientes').querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.getElementById('inputClienteNombre').value = this.dataset.nombre;
+    document.getElementById('inputClienteId').value     = this.dataset.id;
+    document.getElementById('sugerenciasClientes').style.display = 'none';
+  });
+});
+
+// ══ APERTURA DE CAJA ══
+document.querySelectorAll('.denom-ct').forEach(i => {
+  i.addEventListener('input', () => {
+    let total = 0;
+    document.querySelectorAll('.denom-ct').forEach(d => total += (parseInt(d.value)||0) * parseInt(d.dataset.valor));
+    document.getElementById('totalConteo').textContent = '$' + total.toLocaleString('es-CO');
+  });
+});
+
+document.getElementById('btnConfirmarConteo').addEventListener('click', function() {
+  const denoms = {};
+  let monto = 0;
+  document.querySelectorAll('.denom-ct').forEach(d => {
+    const cant = parseInt(d.value) || 0;
+    const val  = parseInt(d.dataset.valor);
+    if (cant > 0) denoms[d.dataset.valor] = cant;
+    monto += cant * val;
+  });
+
+  fetch('/ventas/caja/conteo/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: JSON.stringify({ monto_contado: monto, observacion: document.getElementById('ctObservacion').value, denominaciones: denoms })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) location.reload();
+    else alert(data.error || 'Error al registrar apertura.');
+  });
+});
+
+// ══ CIERRE DE CAJA ══
+document.querySelectorAll('.denom-ci').forEach(i => {
+  i.addEventListener('input', () => {
+    let total = 0;
+    document.querySelectorAll('.denom-ci').forEach(d => total += (parseInt(d.value)||0) * parseInt(d.dataset.valor));
+    document.getElementById('totalCierre').textContent         = '$' + total.toLocaleString('es-CO');
+    document.getElementById('resumenTotalContado').textContent = '$' + total.toLocaleString('es-CO');
+    const base    = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    const retirar = Math.max(0, total - base);
+    document.getElementById('resumenRetirar').textContent = '$' + retirar.toLocaleString('es-CO');
+  });
+});
+
+document.getElementById('baseSiguiente').addEventListener('input', function() {
+  const total  = parseInt(document.getElementById('totalCierre').textContent.replace(/\D/g,'')) || 0;
+  const base   = parseInt(this.value) || 0;
+  document.getElementById('resumenBaseSig').textContent = '$' + base.toLocaleString('es-CO');
+  document.getElementById('resumenRetirar').textContent = '$' + Math.max(0, total - base).toLocaleString('es-CO');
+});
+
+document.getElementById('btnConfirmarCierre').addEventListener('click', function() {
+  const denoms = {};
+  let monto = 0;
+  document.querySelectorAll('.denom-ci').forEach(d => {
+    const cant = parseInt(d.value) || 0;
+    const val  = parseInt(d.dataset.valor);
+    if (cant > 0) denoms[d.dataset.valor] = cant;
+    monto += cant * val;
+  });
+  const base = parseInt(document.getElementById('baseSiguiente').value) || 0;
+
+  fetch('/ventas/caja/cierre/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: JSON.stringify({ total_contado: monto, monto_base_siguiente: base, total_retirado: Math.max(0, monto - base), denominaciones: denoms })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) location.reload();
+    else alert(data.error || 'Error al cerrar caja.');
+  });
+});
+</script>
+{% endblock %}

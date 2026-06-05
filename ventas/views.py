@@ -8,11 +8,14 @@ from decimal import Decimal, InvalidOperation
 from functools import wraps
 import json
 
-from .models import Venta, DetalleVenta, Devolucion, DetalleDevolucion, Cliente
+from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
 from .forms import VentaForm, DetalleVentaForm
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
 from usuarios.models import Usuario
+
+BILLETES_DENOM = [100000, 50000, 20000, 10000, 5000, 2000, 1000]
+MONEDAS_DENOM  = [500, 200, 100, 50]
 
 
 # ════════════════════════════════════════
@@ -41,20 +44,27 @@ def ventas_lista(request):
     hoy        = timezone.localdate()
     total_dia  = int(sum(v.total_venta for v in Venta.objects.filter(fecha__date=hoy)))
 
+    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
+    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
+
     return render(request, 'ventas/ventas.html', {
-        'ventas':     ventas,
-        'form':       form,
-        'categorias': categorias,
-        'clientes':   clientes,
-        'total_dia':  total_dia,
-        'hoy':        hoy,
+        'ventas':          ventas,
+        'form':            form,
+        'categorias':      categorias,
+        'clientes':        clientes,
+        'total_dia':       total_dia,
+        'hoy':             hoy,
+        'caja_abierta':    caja_abierta,
+        'ultimo_cierre':   ultimo_cierre,
+        'billetes_denom':  BILLETES_DENOM,
+        'monedas_denom':   MONEDAS_DENOM,
     })
 
 
 @session_required
 def nueva_venta(request):
     if request.method != 'POST':
-        return redirect('ventas_lista')
+        return redirect('ventas:ventas_lista')
 
     producto_ids     = request.POST.getlist('producto_id[]')
     presentacion_ids = request.POST.getlist('presentacion_id[]')
@@ -76,7 +86,7 @@ def nueva_venta(request):
 
     if not producto_ids:
         messages.error(request, "El carrito está vacío.")
-        return redirect('ventas_lista')
+        return redirect('ventas:ventas_lista')
 
     cliente_id     = request.POST.get('cliente_id', '').strip()
     cliente_nombre = request.POST.get('cliente_nombre', 'Consumidor final').strip() or 'Consumidor final'
@@ -102,13 +112,13 @@ def nueva_venta(request):
                 raise ValueError
         except (ValueError, TypeError, InvalidOperation, IndexError):
             messages.error(request, f"Datos inválidos en el ítem {i+1}.")
-            return redirect('ventas_lista')
+            return redirect('ventas:ventas_lista')
 
         try:
             producto = Producto.objects.prefetch_related('presentaciones').get(pk=prod_id)
         except Producto.DoesNotExist:
             messages.error(request, f"Producto {i+1} no encontrado.")
-            return redirect('ventas_lista')
+            return redirect('ventas:ventas_lista')
 
         pres_id      = presentacion_ids[i] if i < len(presentacion_ids) else ''
         presentacion = None
@@ -118,14 +128,14 @@ def nueva_venta(request):
                 presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
             except PresentacionProducto.DoesNotExist:
                 messages.error(request, f"Presentación inválida para {producto.nombre}.")
-                return redirect('ventas_lista')
+                return redirect('ventas:ventas_lista')
             if cantidad > presentacion.cantidad:
                 messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} de {producto.nombre}.")
-                return redirect('ventas_lista')
+                return redirect('ventas:ventas_lista')
         else:
             if cantidad > producto.cantidad_disponible:
                 messages.error(request, f"Stock insuficiente: solo hay {producto.cantidad_disponible} unidades de {producto.nombre}.")
-                return redirect('ventas_lista')
+                return redirect('ventas:ventas_lista')
 
         items_validados.append({
             'producto': producto, 'presentacion': presentacion,
@@ -139,7 +149,7 @@ def nueva_venta(request):
 
     if total_pagado < total_final:
         messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.'))
-        return redirect('ventas_lista')
+        return redirect('ventas:ventas_lista')
 
     venta = Venta(
         cliente=cliente,
@@ -180,7 +190,7 @@ def nueva_venta(request):
         )
 
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
-    return redirect('ventas_lista')
+    return redirect('ventas:ventas_lista')
 
 
 @session_required
@@ -203,7 +213,7 @@ def eliminar_venta(request, pk):
             )
         venta.delete()
         messages.success(request, "Venta eliminada y stock restaurado.")
-    return redirect('ventas_lista')
+    return redirect('ventas:ventas_lista')
 
 
 def producto_stock_json(request, pk):
@@ -235,12 +245,124 @@ def ventas_dia(request):
     total_dia       = sum(v.total_venta for v in ventas)
     total_productos = sum(det.cantidad for v in ventas for det in v.detalles.all())
 
+    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
+    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
+
     return render(request, 'ventas/ventas_dia.html', {
         'ventas':          ventas,
         'total_dia':       total_dia,
         'total_productos': total_productos,
         'hoy':             hoy,
+        'caja_abierta':    caja_abierta,
+        'ultimo_cierre':   ultimo_cierre,
     })
+
+
+# ════════════════════════════════════════
+# CAJA — APERTURA Y CIERRE
+# ════════════════════════════════════════
+
+@require_POST
+@session_required
+def apertura_caja(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+
+    hoy = timezone.localdate()
+
+    if AperturaCaja.objects.filter(fecha=hoy).exists():
+        return JsonResponse({'ok': False, 'error': 'Ya existe una apertura para hoy.'}, status=400)
+
+    try:
+        monto_base = float(data.get('monto_base', 0))
+        if monto_base < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
+
+    usuario = Usuario.objects.filter(pk=request.session.get('usuario_id')).first()
+
+    AperturaCaja.objects.create(
+        fecha=hoy,
+        monto_base=monto_base,
+        usuario=usuario,
+        observacion=data.get('observacion', ''),
+        denominaciones=data.get('denominaciones', {}),
+    )
+    return JsonResponse({'ok': True})
+
+
+@require_POST
+@session_required
+def cierre_caja(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+
+    hoy      = timezone.localdate()
+    apertura = AperturaCaja.objects.filter(fecha=hoy).first()
+
+    if not apertura:
+        return JsonResponse({'ok': False, 'error': 'No hay apertura de caja para hoy.'}, status=400)
+
+    if CierreCaja.objects.filter(fecha=hoy).exists():
+        return JsonResponse({'ok': False, 'error': 'La caja ya fue cerrada hoy.'}, status=400)
+
+    try:
+        total_contado  = float(data.get('total_contado', 0))
+        monto_base_sig = float(data.get('monto_base_siguiente', 0))
+        total_retirado = float(data.get('total_retirado', 0))
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Valores numéricos inválidos.'}, status=400)
+
+    CierreCaja.objects.create(
+        fecha=hoy,
+        apertura=apertura,
+        total_contado=total_contado,
+        monto_base_siguiente=monto_base_sig,
+        total_retirado=total_retirado,
+        denominaciones=data.get('denominaciones', {}),
+    )
+    return JsonResponse({'ok': True})
+
+
+# ════════════════════════════════════════
+# CONTEO DE APERTURA
+# ════════════════════════════════════════
+
+@require_POST
+@session_required
+def registrar_conteo(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+
+    hoy = timezone.localdate()
+
+    if AperturaCaja.objects.filter(fecha=hoy).exists():
+        return JsonResponse({'ok': False, 'error': 'Ya existe un conteo de apertura para hoy.'}, status=400)
+
+    try:
+        monto_contado = float(data.get('monto_contado', 0))
+        if monto_contado < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Monto inválido.'}, status=400)
+
+    usuario = Usuario.objects.filter(pk=request.session.get('usuario_id')).first()
+
+    AperturaCaja.objects.create(
+        fecha=hoy,
+        monto_base=monto_contado,
+        usuario=usuario,
+        observacion=data.get('observacion', ''),
+        denominaciones=data.get('denominaciones', {}),
+    )
+    return JsonResponse({'ok': True})
 
 
 # ════════════════════════════════════════
@@ -301,7 +423,7 @@ def detalle_venta_devolucion(request, venta_id):
 @transaction.atomic
 def registrar_devolucion(request):
     if request.method != 'POST':
-        return redirect('lista_devoluciones')
+        return redirect('ventas:lista_devoluciones')
 
     venta_id          = request.POST.get('venta_id')
     tiene_comprobante = request.POST.get('tiene_comprobante') == '1'
@@ -315,7 +437,7 @@ def registrar_devolucion(request):
 
     if not tiene_comprobante:
         messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
-        return redirect('lista_devoluciones')
+        return redirect('ventas:lista_devoluciones')
 
     venta          = get_object_or_404(Venta, pk=venta_id)
     total_devuelto = sum(int(cantidades[i]) * float(precios[i]) for i in range(len(producto_ids)))
@@ -344,7 +466,7 @@ def registrar_devolucion(request):
             presentacion.save()
 
     messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
-    return redirect('comprobante_devolucion', pk=devolucion.pk)
+    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
 
 
 @session_required
