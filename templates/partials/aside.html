@@ -60,7 +60,6 @@
       <div class="cys-sb-label">Navegación</div>
       <nav class="cys-sb-nav">
 
-        <!-- TABLERO -->
         <a href="{% url 'principal' %}"
            class="cys-sb-link {% block nav_tablero %}{% endblock %}">
           <i class="bi bi-grid-1x2-fill"></i>
@@ -197,13 +196,10 @@
 (function () {
 
   window.toggleSubmenu = function (e, btn, id) {
-    e.preventDefault();
     e.stopPropagation();
     const sub = document.getElementById(id);
-    if (!sub) return;
     sub.classList.toggle('abierto');
     btn.classList.toggle('abierto');
-    btn.querySelector('.cys-chevron')?.classList.toggle('abierto');
   };
 
   const normalizePath = p => p.replace(/\/+$/, '') || '/';
@@ -217,9 +213,9 @@
     const href = link.getAttribute('href');
     if (href && href !== '#') {
       const normalizedHref = normalizePath(href);
-      const isExactMatch  = currentPath === normalizedHref;
-      const isPrefixMatch = currentPath.startsWith(normalizedHref + '/') ||
-                            (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
+      const isExactMatch   = currentPath === normalizedHref;
+      const isPrefixMatch  = currentPath.startsWith(normalizedHref + '/') ||
+                             (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
 
       if (isExactMatch || isPrefixMatch) {
         if (normalizedHref.length > maxLength) {
