@@ -145,14 +145,37 @@
   font-size: .95rem;
   flex-shrink: 0;
 }
-.cys-perfil-security__body { flex: 1; }
-.cys-perfil-security__title { font-size: .85rem; font-weight: 600; color: var(--texto); }
-.cys-perfil-security__sub   { font-size: .7rem; color: var(--texto-muted); margin-top: .1rem; }
+.cys-perfil-security__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cys-perfil-security__title {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--texto);
+  line-height: 1;
+}
+.cys-perfil-security__sub {
+  font-size: .7rem;
+  color: var(--texto-muted);
+  margin-top: .3rem;
+  line-height: 1;
+  min-height: 1em;
+}
+.cys-perfil-security__item:nth-child(2) .cys-perfil-security__sub {
+  font-size: 1.1rem;
+  letter-spacing: .15em;
+  line-height: 1;
+}
+
 .cys-btn-sm-text {
   font-size: .78rem;
-  padding: .35rem .9rem;
+  padding: .48rem 1.05rem;
   border-radius: 8px;
   white-space: nowrap;
+  letter-spacing: .1em;
 }
 
 /* ══════════════════════════════════════════════
@@ -178,7 +201,6 @@
   gap: .85rem;
 }
 
-/* Avatar en modal editar info */
 .cys-modal-avatar {
   width: 44px; height: 44px;
   border-radius: 50%;
@@ -198,7 +220,6 @@
   transform: rotate(12deg) scale(1.06);
 }
 
-/* Títulos en modal */
 .cys-modal-title {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
@@ -210,7 +231,6 @@
 }
 .cys-modal-subtitle { font-size: .75rem; color: var(--azul-claro); margin-top: .1rem; }
 
-/* Ícono + glow (pasos) */
 .cys-modal-title-wrap { display: flex; align-items: center; gap: 1rem; }
 .cys-modal-icon-wrap  { position: relative; flex-shrink: 0; }
 .cys-modal-icon {
@@ -234,7 +254,6 @@
   color: var(--azul-claro); opacity: .65; margin-bottom: .2rem;
 }
 
-/* Cuerpos */
 .cys-modal-body {
   padding: 1.25rem;
   background: #0a1e35;
@@ -245,7 +264,6 @@
   margin-bottom: 1.1rem; line-height: 1.6;
 }
 
-/* Footers */
 .cys-modal-footer {
   padding: .85rem 1.25rem;
   border-top: 1px solid rgba(77,168,218,.12);
@@ -260,7 +278,6 @@
   display: flex; align-items: center; justify-content: flex-end; gap: .75rem;
 }
 
-/* Alerta dentro del modal */
 .cys-modal-alert {
   padding: .6rem .9rem;
   border-radius: 8px;
@@ -279,7 +296,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   INPUTS — heredados / locales
+   INPUTS
 ══════════════════════════════════════════════ */
 .cys-form-label {
   font-size: .65rem;
@@ -334,7 +351,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   BOTONES — locales (por si base.css no los carga)
+   BOTONES
 ══════════════════════════════════════════════ */
 .cys-btn-primary {
   background: linear-gradient(135deg, #4DA8DA 0%, #3a93c4 100%);
@@ -371,7 +388,37 @@
 }
 
 /* ══════════════════════════════════════════════
-   ALINEACIÓN DE TARJETAS
+   CORRECCIÓN DEFINITIVA DE ALTURA PAREJA
 ══════════════════════════════════════════════ */
-.row.gx-4.gy-4 { align-items: stretch; }
-.cys-card { height: 100%; }
+
+/* 1. Forzamos que la fila alinee los elementos en formato stretch */
+.row.gx-4.gy-4 {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+/* 2. Forzamos que ambas columnas ocupen el 100% de la altura de la fila */
+.col-lg-4.d-flex, 
+.col-lg-8.d-flex {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 3. La columna derecha se convierte en un contenedor flex que estira sus tarjetas */
+.col-lg-8.d-flex.flex-column {
+  justify-content: space-between; /* Distribuye el espacio entre las dos tarjetas */
+  height: 100%;
+}
+
+/* 4. Hacemos que cada tarjeta de la derecha crezca equitativamente */
+.col-lg-8.d-flex.flex-column .cys-card {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 5. Evitamos que los elementos internos de "Información Personal" se dispersen feo */
+.col-lg-8 .cys-card .row.gx-3.gy-3 {
+  flex-grow: 1;
+  align-content: flex-start; 
+}
