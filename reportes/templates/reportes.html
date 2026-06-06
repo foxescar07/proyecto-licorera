@@ -302,42 +302,6 @@
           </tbody>
         </table>
       </div>
-
-
-        <!-- Botones de navegación -->
-        <div class="col-12 col-md-6 d-flex justify-content-center justify-content-md-end mb-3 mb-md-0">
-          {% if page_obj.paginator.num_pages > 1 %}
-          <nav>
-          <ul class="pagination pagination-sm mb-0 cys-pagination">
-            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if fecha_inicio %}&fecha_inicio={{ fecha_inicio }}{% endif %}{% if fecha_fin %}&fecha_fin={{ fecha_fin }}{% endif %}">Primero</a>
-            </li>
-            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}&per_page={{ per_page }}{% if fecha_inicio %}&fecha_inicio={{ fecha_inicio }}{% endif %}{% if fecha_fin %}&fecha_fin={{ fecha_fin }}{% endif %}{% else %}#{% endif %}">Anterior</a>
-            </li>
-            {% for num in page_obj.paginator.page_range %}
-              {% if page_obj.number == num %}
-                <li class="page-item active">
-                  <span class="page-link">{{ num }}</span>
-                </li>
-              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if fecha_inicio %}&fecha_inicio={{ fecha_inicio }}{% endif %}{% if fecha_fin %}&fecha_fin={{ fecha_fin }}{% endif %}">{{ num }}</a>
-                </li>
-              {% endif %}
-            {% endfor %}
-            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-              <a class="page-link" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}&per_page={{ per_page }}{% if fecha_inicio %}&fecha_inicio={{ fecha_inicio }}{% endif %}{% if fecha_fin %}&fecha_fin={{ fecha_fin }}{% endif %}{% else %}#{% endif %}">Siguiente</a>
-            </li>
-            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&per_page={{ per_page }}{% if fecha_inicio %}&fecha_inicio={{ fecha_inicio }}{% endif %}{% if fecha_fin %}&fecha_fin={{ fecha_fin }}{% endif %}">Último</a>
-            </li>
-          </ul>
-          </nav>
-          {% endif %}
-        </div>
-      </div>
-
     </section>
   </div>
 
@@ -989,28 +953,17 @@
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
 $(document).ready(function() {
-    const dtConfig = {
-        pageLength: 5,
-        lengthMenu: [5, 10, 25],
-        dom: 'frtip',
-    };
-    $('#tabla-modal-stock').DataTable(dtConfig);
-    $('#tabla-modal-entradas').DataTable(dtConfig);
-    $('#tabla-modal-salidas').DataTable(dtConfig);
-    $('#tabla-modal-proveedores').DataTable(dtConfig);
-    $('#tabla-modal-rd-entradas').DataTable(dtConfig);
-    $('#tabla-modal-rd-salidas').DataTable(dtConfig);
-    $('#tabla-modal-rd-ventas').DataTable(dtConfig);
-    $('#tabla-modal-rd-top').DataTable(dtConfig);
-    $('#tabla-modal-av-ventas').DataTable(dtConfig);
-    $('#tabla-modal-av-top').DataTable(dtConfig);
-
     $('#reportes-table').DataTable({
-        paging: false,
+        paging: true,
         searching: false,
         info: false,
+        lengthChange: false,
+        pageLength: 10,
         ordering: true,
-        responsive: true
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        }
     });
 });
 </script>

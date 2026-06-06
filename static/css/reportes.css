@@ -107,7 +107,6 @@
 }
 
 .cys-pag-info {
-  display: none !important;
   font-size: .78rem;
   color: var(--texto-muted);
   margin-right: auto;
