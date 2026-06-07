@@ -30,14 +30,20 @@
     {% endfor %}
   {% endif %}
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="usuarios-info">
-      <i class="bi bi-people me-1"></i>
-      {{ usuarios|length }} usuario{{ usuarios|length|pluralize:"s" }} registrado{{ usuarios|length|pluralize:"s" }}
-    </div>
+  <!-- BARRA DE BÚSQUEDA + NUEVO USUARIO -->
+  <div class="ul-searchbar mb-4">
+    <i class="bi bi-search ul-searchbar__icon"></i>
+    <input
+      type="text"
+      id="inputBuscarUsuario"
+      class="ul-searchbar__input"
+      placeholder="Buscar usuario en el sistema…"
+      autocomplete="off"
+    >
     {% if request.session.usuario_rol == 'admin' %}
-    <a href="{% url 'crear_usuario' %}" class="cys-btn-primary">
-      <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+    <div class="ul-searchbar__div"></div>
+    <a href="{% url 'crear_usuario' %}" class="ul-searchbar__btn">
+      <i class="bi bi-person-plus"></i> Nuevo Usuario
     </a>
     {% endif %}
   </div>
@@ -50,7 +56,10 @@
       <div class="row g-3" id="contenedor-tarjetas">
         {% for u in usuarios %}
         {% if u.pk != request.session.usuario_id %}
-        <div class="col-12 col-md-6" id="col-{{ u.pk }}">
+        <div class="col-12 col-md-6" id="col-{{ u.pk }}"
+             data-nombre="{{ u.nombre_completo|lower }}"
+             data-usuario="{{ u.usuario|lower }}"
+             data-rol="{{ u.get_rol_display|lower }}">
           <div id="fila-{{ u.pk }}" class="usuario-card h-100">
 
             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -128,6 +137,12 @@
         {% endfor %}
       </div>
 
+      <!-- Sin resultados de búsqueda -->
+      <div class="usuarios-vacio text-center py-5" id="sin-resultados" style="display:none !important;">
+        <i class="bi bi-search usuarios-vacio-icon"></i>
+        <div class="usuarios-vacio-text">No se encontraron usuarios.</div>
+      </div>
+
       {% else %}
       <div class="usuarios-vacio text-center py-5">
         <i class="bi bi-people usuarios-vacio-icon"></i>
@@ -139,7 +154,6 @@
     <!-- SIDEBAR -->
     <div class="ul-sidebar" id="ul-sidebar-ref">
 
-      <!-- Siempre visible: Usuarios Totales -->
       <div class="ul-widget widget-total">
         <div class="ul-big-stat">
           <div class="ul-big-stat__num">{{ usuarios|length }}</div>
@@ -157,96 +171,97 @@
         </div>
       </div>
 
-      <!-- Stats: Estado + Rol -->
-      <div class="sidebar-dropdown-wrapper" id="wrapperStats">
-        <button class="btn-trigger-dropdown"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseStats"
-                aria-expanded="false">
-          <span><i class="bi bi-bar-chart-steps me-2"></i>Ver Estadísticas Detalladas</span>
-          <i class="bi bi-chevron-down arrow-icon"></i>
-        </button>
+      <div class="ul-sidebar-bottom" id="ul-sidebar-bottom-ref">
 
-        <div class="collapse" id="collapseStats">
-          <div class="stats-grid-inner">
-            <div class="ul-widget widget-estado">
-              <div class="ul-widget__title">
-                <i class="bi bi-circle-fill"></i> Estado
+        <div class="sidebar-dropdown-wrapper" id="wrapperStats">
+          <button class="btn-trigger-dropdown"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseStats"
+                  aria-expanded="false">
+            <span><i class="bi bi-bar-chart-steps me-2"></i>Ver Estadísticas Detalladas</span>
+            <i class="bi bi-chevron-down arrow-icon"></i>
+          </button>
+          <div class="collapse" id="collapseStats">
+            <div class="stats-grid-inner">
+              <div class="widget-estado">
+                <div class="ul-widget__title">
+                  <i class="bi bi-circle-fill"></i> Estado
+                </div>
+                <div class="ul-stat-row">
+                  <span class="ul-stat-label">
+                    <span class="ul-stat-dot ul-stat-dot--activo"></span> Activos
+                  </span>
+                  <span class="ul-stat-val" id="cnt-activos">0</span>
+                </div>
+                <div class="ul-stat-row">
+                  <span class="ul-stat-label">
+                    <span class="ul-stat-dot ul-stat-dot--inactivo"></span> Inactivos
+                  </span>
+                  <span class="ul-stat-val" id="cnt-inactivos">0</span>
+                </div>
               </div>
-              <div class="ul-stat-row">
-                <span class="ul-stat-label">
-                  <span class="ul-stat-dot ul-stat-dot--activo"></span> Activos
-                </span>
-                <span class="ul-stat-val" id="cnt-activos">0</span>
-              </div>
-              <div class="ul-stat-row">
-                <span class="ul-stat-label">
-                  <span class="ul-stat-dot ul-stat-dot--inactivo"></span> Inactivos
-                </span>
-                <span class="ul-stat-val" id="cnt-inactivos">0</span>
-              </div>
-            </div>
-            <div class="ul-widget widget-rol">
-              <div class="ul-widget__title">
-                <i class="bi bi-person-badge"></i> Por Rol
-              </div>
-              <div class="ul-stat-row">
-                <span class="ul-stat-label">
-                  <span class="ul-stat-dot ul-stat-dot--admin"></span> Admin
-                </span>
-                <span class="ul-stat-val" id="cnt-admin">0</span>
-              </div>
-              <div class="ul-stat-row">
-                <span class="ul-stat-label">
-                  <span class="ul-stat-dot ul-stat-dot--cajero"></span> Cajeros
-                </span>
-                <span class="ul-stat-val" id="cnt-cajero">0</span>
-              </div>
-              <div class="ul-stat-row">
-                <span class="ul-stat-label">
-                  <span class="ul-stat-dot ul-stat-dot--empleado"></span> Empl.
-                </span>
-                <span class="ul-stat-val" id="cnt-empleado">0</span>
+              <div class="widget-rol">
+                <div class="ul-widget__title">
+                  <i class="bi bi-person-badge"></i> Por Rol
+                </div>
+                <div class="ul-stat-row">
+                  <span class="ul-stat-label">
+                    <span class="ul-stat-dot ul-stat-dot--admin"></span> Admin
+                  </span>
+                  <span class="ul-stat-val" id="cnt-admin">0</span>
+                </div>
+                <div class="ul-stat-row">
+                  <span class="ul-stat-label">
+                    <span class="ul-stat-dot ul-stat-dot--cajero"></span> Cajeros
+                  </span>
+                  <span class="ul-stat-val" id="cnt-cajero">0</span>
+                </div>
+                <div class="ul-stat-row">
+                  <span class="ul-stat-label">
+                    <span class="ul-stat-dot ul-stat-dot--empleado"></span> Empl.
+                  </span>
+                  <span class="ul-stat-val" id="cnt-empleado">0</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Registros Recientes -->
-      <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
-        <button class="btn-trigger-dropdown"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseRecientes"
-                aria-expanded="false">
-          <span><i class="bi bi-clock-history me-2"></i>Ver Registros Recientes</span>
-          <i class="bi bi-chevron-down arrow-icon"></i>
-        </button>
-
-        <div class="collapse" id="collapseRecientes">
-          <div class="ul-widget widget-recientes">
-            <div class="ul-widget__title">
-              <i class="bi bi-clock-history"></i> Registros recientes
-            </div>
-            {% for u in usuarios %}
-            {% if u.pk != request.session.usuario_id %}
-            <div class="ul-activity-item">
-              <div class="ul-activity-avatar">{{ u.nombre|slice:":1"|upper }}</div>
-              <div class="ul-activity-body">
-                <div class="ul-activity-name">{{ u.nombre_completo }}</div>
-                <div class="ul-activity-meta">{{ u.get_rol_display }}</div>
+        <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
+          <button class="btn-trigger-dropdown"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseRecientes"
+                  aria-expanded="false">
+            <span><i class="bi bi-clock-history me-2"></i>Ver Registros Recientes</span>
+            <i class="bi bi-chevron-down arrow-icon"></i>
+          </button>
+          <div class="collapse" id="collapseRecientes">
+            <div class="ul-widget widget-recientes">
+              <div class="ul-widget__title">
+                <i class="bi bi-clock-history"></i> Registros recientes
               </div>
-              <div class="ul-activity-time">{{ u.fecha_registro|date:"d/m/y" }}</div>
+              {% for u in usuarios %}
+              {% if u.pk != request.session.usuario_id %}
+              <div class="ul-activity-item">
+                <div class="ul-activity-avatar">{{ u.nombre|slice:":1"|upper }}</div>
+                <div class="ul-activity-body">
+                  <div class="ul-activity-name">{{ u.nombre_completo }}</div>
+                  <div class="ul-activity-meta">{{ u.get_rol_display }}</div>
+                </div>
+                <div class="ul-activity-time">{{ u.fecha_registro|date:"d/m/y" }}</div>
+              </div>
+              {% endif %}
+              {% endfor %}
             </div>
-            {% endif %}
-            {% endfor %}
           </div>
         </div>
+
       </div>
 
     </div>
+
   </div>
 </div>
 
@@ -319,239 +334,198 @@
 <script>
 (function () {
 
-  function nivelarCaso1() {
-    const main    = document.getElementById('ul-main-ref');
-    const sidebar = document.getElementById('ul-sidebar-ref');
-    if (!main || !sidebar) return;
-    sidebar.style.height = '';
-    const altMain    = main.offsetHeight;
-    const altSidebar = sidebar.offsetHeight;
-    if (altMain > altSidebar) {
-      sidebar.style.height = altMain + 'px';
-    }
+  /* ── UTILIDADES ── */
+  const $  = id => document.getElementById(id);
+  const csrf = () => (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+
+  function apiFetch(url, fd) {
+    return fetch(url, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).then(r => r.json());
   }
 
+  function mkFd(extra) {
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', csrf());
+    Object.entries(extra || {}).forEach(([k, v]) => fd.append(k, v));
+    return fd;
+  }
+
+  /* ── BÚSQUEDA EN VIVO ── */
+  $('inputBuscarUsuario')?.addEventListener('input', function () {
+    const q    = this.value.trim().toLowerCase();
+    const cols = document.querySelectorAll('#contenedor-tarjetas > div[id^="col-"]');
+    let vis    = 0;
+    cols.forEach(col => {
+      const show = !q || ['nombre','usuario','rol'].some(k => (col.dataset[k]||'').includes(q));
+      col.style.display = show ? '' : 'none';
+      if (show) vis++;
+    });
+    const sr = $('sin-resultados');
+    if (sr) sr.style.setProperty('display', vis === 0 ? 'block' : 'none', 'important');
+  });
+
+  /* ── LAYOUT ── */
   function sincronizarAltoCaso2() {
-    const main    = document.getElementById('ul-main-ref');
-    const sidebar = document.getElementById('ul-sidebar-ref');
-    if (!main || !sidebar) return;
-    sidebar.style.height = main.offsetHeight + 'px';
+    const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
+    if (main && sb) sb.style.height = main.offsetHeight + 'px';
+  }
+
+  function escucharCollapseCaso2() {
+    ['collapseStats','collapseRecientes'].forEach(id => {
+      ['shown.bs.collapse','hidden.bs.collapse'].forEach(ev =>
+        $(id)?.addEventListener(ev, () => {
+          if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+            requestAnimationFrame(sincronizarAltoCaso2);
+        })
+      );
+    });
   }
 
   function reajustarLayout() {
-    const total             = document.querySelectorAll('#contenedor-tarjetas > div').length;
-    const layout            = document.getElementById('layout-principal');
-    const sidebar           = document.getElementById('ul-sidebar-ref');
-    const collapseStats     = document.getElementById('collapseStats');
-    const collapseRecientes = document.getElementById('collapseRecientes');
+    const total  = document.querySelectorAll(
+      '#contenedor-tarjetas > div[style=""], #contenedor-tarjetas > div:not([style])'
+    ).length;
+    const layout = $('layout-principal');
+    const sb     = $('ul-sidebar-ref');
+    const cS     = $('collapseStats');
+    const cR     = $('collapseRecientes');
 
-    layout.classList.remove('cards-view-1-2', 'cards-view-3-4', 'cards-view-5-6', 'cards-view-dense');
-    if (sidebar) sidebar.style.height = '';
+    layout.classList.remove('cards-view-1-2','cards-view-3-4','cards-view-5-6','cards-view-dense');
+    if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
 
-    if (total <= 2) {
-      layout.classList.add('cards-view-1-2');
-      collapseStats?.classList.remove('show');
-      collapseRecientes?.classList.remove('show');
-      setTimeout(() => nivelarCaso1(), 80);
+    const casos = [
+      [2,        'cards-view-1-2',   false, false],
+      [4,        'cards-view-3-4',   true,  false],
+      [6,        'cards-view-5-6',   true,  true ],
+      [Infinity, 'cards-view-dense', true,  true ],
+    ];
+    const [, cls, showS, showR] = casos.find(([n]) => total <= n);
+    layout.classList.add(cls);
+    cS?.[showS ? 'classList' : 'classList'][showS ? 'add' : 'remove']('show');
+    cR?.[showR ? 'classList' : 'classList'][showR ? 'add' : 'remove']('show');
 
-    } else if (total <= 4) {
-      layout.classList.add('cards-view-3-4');
-      collapseStats?.classList.add('show');
-      collapseRecientes?.classList.remove('show');
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => sincronizarAltoCaso2());
-      });
-
-    } else if (total <= 6) {
-      layout.classList.add('cards-view-5-6');
-      collapseStats?.classList.add('show');
-      collapseRecientes?.classList.add('show');
-
-    } else {
-      layout.classList.add('cards-view-dense');
-      collapseStats?.classList.add('show');
-      collapseRecientes?.classList.add('show');
-    }
+    if (cls === 'cards-view-3-4')
+      requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
   }
 
   function calcularStats() {
-    const cards = document.querySelectorAll('[id^="fila-"]');
     let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
-
-    cards.forEach(card => {
-      const pk          = card.id.replace('fila-', '');
-      const estadoBadge = document.getElementById('estado-badge-' + pk);
-      const rolBadge    = document.getElementById('rol-badge-'    + pk);
-      if (!estadoBadge || !rolBadge) return;
-
-      if (estadoBadge.classList.contains('usuario-estado--activo')) activos++;
-      else inactivos++;
-
-      const rolText = rolBadge.textContent.trim().toLowerCase();
-      if (rolText.includes('admin'))    admin++;
-      else if (rolText.includes('caj')) cajero++;
-      else                              empleado++;
+    document.querySelectorAll('[id^="fila-"]').forEach(card => {
+      const pk = card.id.slice(5);
+      const eb = $('estado-badge-' + pk);
+      const rb = $('rol-badge-'    + pk);
+      if (!eb || !rb) return;
+      eb.classList.contains('usuario-estado--activo') ? activos++ : inactivos++;
+      const r = rb.textContent.trim().toLowerCase();
+      r.includes('admin') ? admin++ : r.includes('caj') ? cajero++ : empleado++;
     });
-
     const total = activos + inactivos;
-    document.getElementById('cnt-activos').textContent   = activos;
-    document.getElementById('cnt-inactivos').textContent = inactivos;
-    document.getElementById('cnt-admin').textContent     = admin;
-    document.getElementById('cnt-cajero').textContent    = cajero;
-    document.getElementById('cnt-empleado').textContent  = empleado;
-
-    const pct = total > 0 ? Math.round((activos / total) * 100) : 0;
-    document.getElementById('pct-activos').textContent = pct + '%';
-    document.getElementById('bar-activos').style.width = pct + '%';
+    $('cnt-activos').textContent   = activos;
+    $('cnt-inactivos').textContent = inactivos;
+    $('cnt-admin').textContent     = admin;
+    $('cnt-cajero').textContent    = cajero;
+    $('cnt-empleado').textContent  = empleado;
+    const pct = total > 0 ? Math.round(activos / total * 100) : 0;
+    $('pct-activos').textContent  = pct + '%';
+    $('bar-activos').style.width  = pct + '%';
   }
 
   calcularStats();
   reajustarLayout();
+  escucharCollapseCaso2();
 
   window.addEventListener('load', () => {
-    const layout = document.getElementById('layout-principal');
-    if (layout?.classList.contains('cards-view-1-2')) {
-      setTimeout(() => nivelarCaso1(), 80);
-    } else if (layout?.classList.contains('cards-view-3-4')) {
-      requestAnimationFrame(() => sincronizarAltoCaso2());
-    }
+    if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+      requestAnimationFrame(sincronizarAltoCaso2);
   });
 
   window.addEventListener('resize', () => {
-    const layout  = document.getElementById('layout-principal');
-    const sidebar = document.getElementById('ul-sidebar-ref');
-    if (sidebar) sidebar.style.height = '';
-
-    if (layout?.classList.contains('cards-view-1-2')) {
-      setTimeout(() => nivelarCaso1(), 50);
-    } else if (layout?.classList.contains('cards-view-3-4')) {
-      requestAnimationFrame(() => sincronizarAltoCaso2());
-    }
+    const sb = $('ul-sidebar-ref');
+    if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
+    if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+      requestAnimationFrame(sincronizarAltoCaso2);
   });
 
-  function getCookie(name) {
-    let v = null;
-    document.cookie.split(';').forEach(c => {
-      c = c.trim();
-      if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
-    });
-    return v;
-  }
-
-  window.euMostrarMsg = function(texto, tipo) {
-    const el = document.getElementById('euMsg');
-    el.textContent   = texto;
+  /* ── MODAL EDITAR ── */
+  window.euMostrarMsg = (texto, tipo) => {
+    const el = $('euMsg');
+    el.textContent = texto;
     el.style.display = 'block';
-    el.className     = tipo === 'ok' ? 'eu-msg eu-msg-ok' : 'eu-msg eu-msg-error';
+    el.className = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
   };
 
-  window.abrirEditar = function(pk) {
-    fetch(`/usuarios/editar/${pk}/`, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
+  window.abrirEditar = pk =>
+    fetch(`/usuarios/editar/${pk}/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(r => r.json())
     .then(d => {
       if (!d.ok) return;
-      document.getElementById('euPk').value          = d.pk;
-      document.getElementById('euNombre').value      = d.nombre;
-      document.getElementById('euApellidos').value   = d.apellidos;
-      document.getElementById('euEmail').value       = d.email;
-      document.getElementById('euRol').value         = d.rol;
-      document.getElementById('euClaveNueva').value  = '';
-      document.getElementById('euNombreHeader').textContent = '@' + d.usuario;
-      document.getElementById('euMsg').style.display = 'none';
-      new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+      ['Pk','Nombre','Apellidos','Email','Rol'].forEach(f =>
+        $('eu' + f).value = d[f.toLowerCase()] ?? ''
+      );
+      $('euClaveNueva').value = '';
+      $('euNombreHeader').textContent = '@' + d.usuario;
+      $('euMsg').style.display = 'none';
+      new bootstrap.Modal($('modalEditarUsuario')).show();
     });
-  };
 
-  window.guardarEditar = function() {
-    const pk  = document.getElementById('euPk').value;
-    const btn = document.getElementById('euBtnGuardar');
-    btn.disabled    = true;
+  window.guardarEditar = () => {
+    const pk  = $('euPk').value;
+    const btn = $('euBtnGuardar');
+    btn.disabled = true;
     btn.textContent = 'Guardando…';
-
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-    fd.append('nombre',      document.getElementById('euNombre').value.trim());
-    fd.append('apellidos',   document.getElementById('euApellidos').value.trim());
-    fd.append('email',       document.getElementById('euEmail').value.trim());
-    fd.append('rol',         document.getElementById('euRol').value);
-    fd.append('clave_nueva', document.getElementById('euClaveNueva').value);
-
-    fetch(`/usuarios/editar/${pk}/`, {
-      method: 'POST', body: fd,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
-      btn.disabled  = false;
+    apiFetch(`/usuarios/editar/${pk}/`, mkFd({
+      nombre:      $('euNombre').value.trim(),
+      apellidos:   $('euApellidos').value.trim(),
+      email:       $('euEmail').value.trim(),
+      rol:         $('euRol').value,
+      clave_nueva: $('euClaveNueva').value,
+    })).then(d => {
+      btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
-      if (d.ok) {
-        euMostrarMsg('✅ ' + d.mensaje, 'ok');
-        setTimeout(() => location.reload(), 1200);
-      } else {
-        euMostrarMsg(d.error, 'err');
-      }
-    })
-    .catch(() => {
-      btn.disabled  = false;
+      d.ok ? (euMostrarMsg('✅ ' + d.mensaje, 'ok'), setTimeout(() => location.reload(), 1200))
+           : euMostrarMsg(d.error, 'err');
+    }).catch(() => {
+      btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
       euMostrarMsg('Error de conexión.', 'err');
     });
   };
 
-  window.toggleActivo = function(pk, activo) {
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-
-    fetch(`/usuarios/toggle/${pk}/`, {
-      method: 'POST', body: fd,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
+  window.toggleActivo = (pk, activo) =>
+    apiFetch(`/usuarios/toggle/${pk}/`, mkFd()).then(d => {
       if (!d.ok) return;
-      const badge = document.getElementById(`estado-badge-${pk}`);
-      const btnT  = document.getElementById(`btn-toggle-${pk}`);
-      const btnE  = document.getElementById(`btn-eliminar-${pk}`);
-
+      const badge = $('estado-badge-' + pk);
+      const btnT  = $('btn-toggle-'  + pk);
+      const btnE  = $('btn-eliminar-'+ pk);
       if (d.activo) {
         badge.className = 'usuario-estado usuario-estado--activo';
         badge.innerHTML = '<span class="usuario-dot"></span> Activo';
-        btnT.className  = btnT.className.replace('usuario-btn-activar', 'usuario-btn-desactivar');
+        btnT.className  = btnT.className.replace('usuario-btn-activar','usuario-btn-desactivar');
         btnT.innerHTML  = '<i class="bi bi-person-dash me-1"></i> Desactivar';
         btnT.onclick    = () => toggleActivo(pk, true);
         btnE.style.display = 'none';
       } else {
         badge.className = 'usuario-estado usuario-estado--inactivo';
         badge.innerHTML = '<span class="usuario-dot"></span> Inactivo';
-        btnT.className  = btnT.className.replace('usuario-btn-desactivar', 'usuario-btn-activar');
+        btnT.className  = btnT.className.replace('usuario-btn-desactivar','usuario-btn-activar');
         btnT.innerHTML  = '<i class="bi bi-person-check me-1"></i> Activar';
         btnT.onclick    = () => toggleActivo(pk, false);
         btnE.style.display = 'block';
       }
       calcularStats();
     });
-  };
 
-  window.eliminarUsuario = function(pk) {
+  window.eliminarUsuario = pk => {
     if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
-
-    const fd = new FormData();
-    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-
-    fetch(`/usuarios/eliminar/${pk}/`, {
-      method: 'POST', body: fd,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
+    apiFetch(`/usuarios/eliminar/${pk}/`, mkFd()).then(d => {
       if (!d.ok) return;
-      const card = document.getElementById(`fila-${pk}`);
+      const card = $('fila-' + pk);
       if (card) {
         card.classList.add('usuario-card--removing');
         setTimeout(() => {
-          document.getElementById(`col-${pk}`)?.remove();
+          $('col-' + pk)?.remove();
           calcularStats();
           reajustarLayout();
         }, 380);
