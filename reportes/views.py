@@ -16,8 +16,12 @@ ZONA_COLOMBIA = zoneinfo.ZoneInfo('America/Bogota')
 def index_reportes(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin    = request.GET.get('fecha_fin')
-    cliente_q    = request.GET.get('cliente')
-    producto_q   = request.GET.get('producto')
+    per_page     = request.GET.get('per_page', '10')
+
+    try:
+        per_page = int(per_page)
+    except ValueError:
+        per_page = 10
 
     ventas_qs = Venta.objects.prefetch_related(
         'detalles__producto',
@@ -28,14 +32,7 @@ def index_reportes(request):
         ventas_qs = ventas_qs.filter(fecha__date__gte=fecha_inicio)
     if fecha_fin:
         ventas_qs = ventas_qs.filter(fecha__date__lte=fecha_fin)
-    if cliente_q:
-        ventas_qs = ventas_qs.filter(cliente__icontains=cliente_q).distinct()
-    if producto_q:
-        ventas_qs = ventas_qs.filter(
-            detalles__producto__nombre__icontains=producto_q
-        ).distinct()
-
-    paginator   = Paginator(ventas_qs, 10)
+    paginator   = Paginator(ventas_qs, per_page)
     page_number = request.GET.get('page', 1)
     page_obj    = paginator.get_page(page_number)
 
@@ -203,8 +200,7 @@ def index_reportes(request):
         'salidas':            salidas,
         'fecha_inicio':       fecha_inicio or '',
         'fecha_fin':          fecha_fin or '',
-        'cliente_q':          cliente_q or '',
-        'producto_q':         producto_q or '',
+        'per_page':           per_page,
         'hoy':                hoy,
         'ventas_hoy':         ventas_hoy,
         'ingresos_hoy':       ingresos_hoy,
