@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cys-compras px-3 py-4">
+<div class="container-fluid cys-compras px-4 py-4">
   {% if messages %}
     <div class="mb-4">
       {% for message in messages %}
@@ -21,43 +21,62 @@
     </div>
   {% endif %}
 
-  <section class="card cys-panel cys-hero mb-4">
+  <!-- HEADER CON INFORMACIÓN DEL PROVEEDOR -->
+  <div class="card cys-panel mb-4" style="border: 2px solid rgba(77, 168, 218, 0.3); border-radius: 16px; background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);">
     <div class="card-body p-4">
-      <div class="row align-items-center g-3">
-        <div class="col-12 col-lg">
-          <span class="badge cys-badge-soft mb-2">
-            <i class="bi bi-bag-plus me-1"></i>REGISTRAR COMPRA
-          </span>
-          <h1 class="cys-page-title h3 mb-2">Compras a proveedores</h1>
-          <div class="d-flex flex-wrap align-items-center gap-2 cys-provider-meta">
-            <span class="fw-bold cys-text-accent">
-              {{ proveedor.nombre_empresa|default:"Selecciona un proveedor" }}
-            </span>
-            {% if proveedor %}
-              <span class="cys-separator"></span>
-              <span><i class="bi bi-person me-1"></i>{{ proveedor.nombre_contacto|default:"Sin contacto" }}</span>
-              <span class="cys-separator"></span>
-              <span><i class="bi bi-telephone me-1"></i>{{ proveedor.telefono|default:"Sin telefono" }}</span>
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div style="width: 50px; height: 50px; background: rgba(77, 168, 218, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-truck" style="font-size: 1.8rem; color: var(--cyan, #4da8da);"></i>
+            </div>
+            <div>
+              <h2 style="font-size: 1.5rem; font-weight: 800; color: rgba(255, 255, 255, 0.95); margin: 0;">
+                {% if proveedor %}{{ proveedor.nombre_empresa }}{% else %}Registrar Compra{% endif %}
+              </h2>
+            </div>
+          </div>
+          {% if proveedor %}
+          <div style="margin-left: 60px;">
+            <p style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+              <i class="bi bi-person me-2" style="color: var(--cyan, #4da8da);"></i>
+              <span class="fw-bold">{{ proveedor.nombre_contacto|default:"Sin contacto" }}</span>
+            </p>
+            {% if proveedor.telefono %}
+            <p style="margin: 0.25rem 0 0 0; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+              <i class="bi bi-telephone me-2" style="color: var(--cyan, #4da8da);"></i>
+              {{ proveedor.telefono }}
+            </p>
+            {% endif %}
+            {% if proveedor.email %}
+            <p style="margin: 0.25rem 0 0 0; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+              <i class="bi bi-envelope me-2" style="color: var(--cyan, #4da8da);"></i>
+              {{ proveedor.email }}
+            </p>
             {% endif %}
           </div>
+          {% else %}
+          <p style="margin-left: 60px; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem;">
+            Selecciona un proveedor para comenzar a registrar compras
+          </p>
+          {% endif %}
         </div>
-        <div class="col-12 col-lg-auto">
-          <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-light">
-            <i class="bi bi-arrow-left me-1"></i>Volver
-          </a>
-        </div>
+        <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-light btn-sm" style="border-radius: 10px; padding: 0.6rem 1.2rem;">
+          <i class="bi bi-arrow-left me-2"></i>Cambiar proveedor
+        </a>
       </div>
     </div>
-  </section>
+  </div>
 
-  <section class="row g-3 mb-4 cys-kpi-row">
+  <!-- PRIMERA FILA: TARJETAS DE ESTADÍSTICAS -->
+  <div class="row g-3 mb-4">
     <div class="col-12 col-md-4">
       <div class="card cys-kpi cys-kpi--success h-100">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between gap-3">
             <div>
-              <p class="cys-kpi__label mb-1">Total gastado</p>
-              <p class="cys-kpi__value mb-1">${{ total_gastado|default:0|floatformat:0 }}</p>
+              <p class="cys-kpi__label">Total gastado</p>
+              <p class="cys-kpi__value" style="color: #4caf50;">${{ total_gastado|default:0|floatformat:0 }}</p>
               <span class="cys-kpi__sub">Historico acumulado</span>
             </div>
             <span class="cys-kpi__icon"><i class="bi bi-cash-coin"></i></span>
@@ -70,11 +89,11 @@
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between gap-3">
             <div>
-              <p class="cys-kpi__label mb-1">Compras este mes</p>
-              <p class="cys-kpi__value mb-1">{{ count_mes|default:0 }} <span>registros</span></p>
+              <p class="cys-kpi__label">Compras este mes</p>
+              <p class="cys-kpi__value" style="color: #2196f3;">{{ count_mes|default:0 }} <span style="font-size: 0.6em; font-weight: 400;">registros</span></p>
               <span class="cys-kpi__sub">${{ total_mes|default:0|floatformat:0 }} este mes</span>
             </div>
-            <span class="cys-kpi__icon"><i class="bi bi-calendar-check"></i></span>
+            <span class="cys-kpi__icon"><i class="bi bi-bag-check"></i></span>
           </div>
         </div>
       </div>
@@ -84,23 +103,24 @@
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between gap-3">
             <div class="min-w-0">
-              <p class="cys-kpi__label mb-1">Producto mas comprado</p>
-              <p class="cys-kpi__value cys-kpi__value--product mb-1">
+              <p class="cys-kpi__label">Producto mas comprado</p>
+              <p class="cys-kpi__value" style="color: #ff9800;">
                 {% if producto_top %}{{ producto_top.producto__nombre }}{% else %}Sin datos{% endif %}
               </p>
               <span class="cys-kpi__sub">
                 {% if producto_top %}{{ producto_top.total_und }} und. en total{% else %}Sin compras registradas{% endif %}
               </span>
             </div>
-            <span class="cys-kpi__icon"><i class="bi bi-trophy"></i></span>
+            <span class="cys-kpi__icon"><i class="bi bi-box"></i></span>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <div class="row g-4 align-items-stretch cys-workspace">
-    <div class="col-12 col-lg-5">
+  <!-- SEGUNDA FILA: NUEVA COMPRA E HISTORIAL -->
+  <div class="row g-3 align-items-stretch">
+    <div class="col-12 col-md-6">
       <section class="card cys-panel cys-work-card h-100">
         <div class="card-header cys-panel__header">
           <div class="d-flex align-items-center gap-3">
@@ -116,28 +136,135 @@
             {% csrf_token %}
 
             <div class="col-12">
-              <label for="proveedor_id" class="form-label">Proveedor</label>
-              <select name="proveedor_id" id="proveedor_id" class="form-select" required>
-                <option value="">Selecciona un proveedor</option>
-                {% for prov in todos_proveedores %}
-                  <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
-                    {{ prov.nombre_empresa }} - {{ prov.nombre_contacto }}
-                  </option>
-                {% endfor %}
-              </select>
+              <label class="form-label fw-bold mb-3">Proveedor Seleccionado</label>
+
+              <!-- Botón para abrir modal de selección -->
+              <button type="button" class="btn btn-outline-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#modalProveedores" style="border-width: 2px; border-radius: 10px; padding: 12px; font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+                <span>
+                  {% if proveedor %}
+                    <i class="bi bi-truck me-2" style="color: var(--cyan, #4da8da); font-size: 1.2rem;"></i>
+                    <strong style="color: rgba(255,255,255,0.95);">{{ proveedor.nombre_empresa }}</strong>
+                    <span style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-left: 0.5rem;">{{ proveedor.nombre_contacto }}</span>
+                  {% else %}
+                    <i class="bi bi-truck me-2" style="color: var(--cyan, #4da8da); font-size: 1.2rem;"></i>
+                    <span style="color: rgba(255,255,255,0.6);">Selecciona un Proveedor</span>
+                  {% endif %}
+                </span>
+                <i class="bi bi-chevron-down" style="color: var(--cyan, #4da8da);"></i>
+              </button>
+
+              <!-- Campo oculto para almacenar el proveedor seleccionado -->
+              <input type="hidden" id="proveedorSeleccionado" name="proveedor_id" value="{{ proveedor.id|default:'' }}" required>
             </div>
 
+
             <div class="col-12">
-              <label for="productoSeleccionadoId" class="form-label">Producto</label>
-              <select name="producto" id="productoSeleccionadoId" class="form-select" required>
-                <option value="">Selecciona un producto</option>
-                {% for p in productos %}
-                  <option value="{{ p.pk }}">
-                    {{ p.nombre }}{% if p.categoria %} - {{ p.categoria.nombre }}{% endif %}{% if p.cantidad_disponible != None %} - Stock: {{ p.cantidad_disponible }}{% endif %}
-                  </option>
-                {% endfor %}
-              </select>
+              <label class="form-label fw-bold mb-3">Selecciona un Producto</label>
+
+              <!-- Buscador de productos -->
+              <div class="mb-3">
+                <input type="text" id="buscarProducto" class="form-control" placeholder="🔍 Buscar producto..." style="border-radius: 10px;">
+              </div>
+
+              <!-- Grid de productos -->
+              <div class="row g-2" id="gridProductos" style="max-height: 350px; overflow-y: auto; padding: 10px 0;">
+                {% if productos %}
+                  {% for p in productos %}
+                  <div class="col-12 col-sm-6 col-md-4 producto-item" data-nombre="{{ p.nombre|lower }}" data-categoria="{{ p.categoria.nombre|lower|default:'' }}">
+                    <div class="form-check" style="display: none;">
+                      <input class="form-check-input producto-radio" type="radio" name="producto" id="producto{{ p.id }}" value="{{ p.id }}" required>
+                    </div>
+                    <label for="producto{{ p.id }}" class="w-100 mb-0 cursor-pointer">
+                      <div class="card h-100 border-2 transition-all" style="border-color: #ddd; cursor: pointer; transition: all 0.3s ease; border-radius: 12px;">
+                        <div class="card-body p-3" style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.05) 0%, rgba(33, 150, 243, 0.05) 100%);">
+
+                          <!-- Ícono de producto -->
+                          <div style="font-size: 3rem; text-align: center; margin-bottom: 0.5rem; color: var(--cyan, #4da8da);">
+                            <i class="bi bi-box"></i>
+                          </div>
+
+                          <!-- Nombre del producto -->
+                          <h6 class="card-title fw-bold small mb-1" style="color: rgba(255,255,255,0.95); text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center;">
+                            {{ p.nombre }}
+                          </h6>
+
+                          <!-- Categoría -->
+                          {% if p.categoria %}
+                          <p class="small text-muted mb-2" style="text-align: center;">
+                            <i class="bi bi-tag"></i> {{ p.categoria.nombre }}
+                          </p>
+                          {% endif %}
+
+                          <!-- Stock -->
+                          <div class="alert alert-info py-2 px-2 mb-0 small" style="text-align: center; background: rgba(33, 150, 243, 0.15); border: 1px solid rgba(33, 150, 243, 0.3); border-radius: 8px;">
+                            📦 Stock: <strong>{{ p.cantidad_disponible|default:0 }}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                <div class="col-12">
+                  <div class="alert alert-warning text-center">
+                    <i class="bi bi-inbox"></i> No hay productos registrados
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+
+              <!-- Campo oculto para almacenar el producto seleccionado -->
+              <input type="hidden" id="productoSeleccionado" name="producto" value="" required>
             </div>
+
+            <!-- Script para búsqueda de productos y selección -->
+            <script>
+              document.getElementById('buscarProducto').addEventListener('input', function(e) {
+                const busqueda = e.target.value.toLowerCase();
+                const items = document.querySelectorAll('.producto-item');
+
+                items.forEach(item => {
+                  const nombre = item.dataset.nombre;
+                  const categoria = item.dataset.categoria;
+                  const coincide = nombre.includes(busqueda) || categoria.includes(busqueda);
+                  item.style.display = coincide ? '' : 'none';
+                });
+              });
+
+              // Hacer que al seleccionar un producto, se asigne al input oculto
+              document.querySelectorAll('.producto-radio').forEach(radio => {
+                radio.addEventListener('change', function() {
+                  if (this.checked) {
+                    document.getElementById('productoSeleccionado').value = this.value;
+                  }
+                });
+              });
+            </script>
+
+            <!-- CSS y lógica para interactividad -->
+            <style>
+              .producto-item label:has(input:checked) .card {
+                border-color: var(--cyan, #4da8da) !important;
+                background: linear-gradient(135deg, rgba(77, 168, 218, 0.15) 0%, rgba(33, 150, 243, 0.1) 100%) !important;
+                box-shadow: 0 0 20px rgba(77, 168, 218, 0.3);
+                transform: translateY(-4px);
+              }
+
+              .producto-item label:hover .card {
+                border-color: var(--cyan, #4da8da);
+                box-shadow: 0 0 15px rgba(77, 168, 218, 0.2);
+                transform: translateY(-2px);
+              }
+
+              .producto-item .form-check-input:checked {
+                background-color: var(--cyan, #4da8da);
+                border-color: var(--cyan, #4da8da);
+              }
+
+              .producto-item .card {
+                transition: all 0.3s ease;
+              }
+            </style>
 
             <div class="col-12">
               <label for="selectLote" class="form-label">Lote <span class="fw-normal text-lowercase">(opcional)</span></label>
@@ -145,7 +272,7 @@
                 <option value="">Sin lote</option>
                 {% for lote in lotes %}
                   <option value="{{ lote.pk }}">
-                    {{ lote.numero_lote }}{% if lote.producto %} - {{ lote.producto.nombre }}{% endif %}
+                    {{ lote.numero_lote }}{% if lote.presentacion %} - {{ lote.presentacion.producto.nombre }}{% endif %}
                   </option>
                 {% endfor %}
               </select>
@@ -174,7 +301,7 @@
       </section>
     </div>
 
-    <div class="col-12 col-lg-7">
+    <div class="col-12 col-md-6">
       <section class="card cys-panel cys-work-card h-100">
         <div class="card-header cys-panel__header">
           <div class="d-flex align-items-center gap-3">
@@ -187,78 +314,78 @@
           <span class="badge cys-badge-soft">{{ compras|length|default:0 }} registros</span>
         </div>
 
-        <div class="table-responsive">
-          <table class="table cys-table align-middle mb-0">
-            <thead>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+          <table class="table table-sm cys-table align-middle mb-0" style="font-size: 0.9rem;">
+            <thead style="position: sticky; top: 0; background: rgba(77, 168, 218, 0.15); z-index: 10;">
               <tr>
-                <th scope="col" class="text-center">#</th>
-                <th scope="col">Producto</th>
-                <th scope="col" class="text-center">Cant.</th>
-                <th scope="col" class="text-end">Precio unit.</th>
-                <th scope="col" class="text-end">Total</th>
-                <th scope="col" class="text-center">Fecha</th>
-                <th scope="col" class="text-center">Acciones</th>
+                <th scope="col" class="text-center" style="width: 40px; padding: 0.75rem 0.5rem;">#</th>
+                <th scope="col" style="padding: 0.75rem;">Producto</th>
+                <th scope="col" class="text-center" style="width: 60px; padding: 0.75rem 0.5rem;">Cant.</th>
+                <th scope="col" class="text-end" style="width: 100px; padding: 0.75rem 0.5rem;">Precio</th>
+                <th scope="col" class="text-end" style="width: 100px; padding: 0.75rem 0.5rem;">Total</th>
+                <th scope="col" class="text-center" style="width: 120px; padding: 0.75rem 0.5rem;">Fecha</th>
+                <th scope="col" class="text-center" style="width: 70px; padding: 0.75rem 0.5rem;">Ver</th>
               </tr>
             </thead>
             <tbody>
               {% for compra in compras %}
-                <tr>
-                  <td class="text-center cys-muted-cell">{{ forloop.counter }}</td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-box cys-text-accent"></i>
-                      <div class="min-w-0">
-                        <div class="fw-semibold text-truncate">{{ compra.producto.nombre }}</div>
+                <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1);">
+                  <td class="text-center cys-muted-cell" style="padding: 0.6rem 0.5rem; vertical-align: middle;">{{ forloop.counter }}</td>
+                  <td style="padding: 0.6rem; vertical-align: middle;">
+                    <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                      <i class="bi bi-box cys-text-accent" style="flex-shrink: 0;"></i>
+                      <div style="min-width: 0; flex-grow: 1;">
+                        <div class="fw-semibold text-truncate" style="font-size: 0.95rem;">{{ compra.producto.nombre }}</div>
                         {% if compra.producto.categoria %}
-                          <small class="cys-muted">{{ compra.producto.categoria.nombre }}</small>
+                          <small class="cys-muted" style="display: block; font-size: 0.8rem; margin-top: 0.1rem;">{{ compra.producto.categoria.nombre }}</small>
                         {% endif %}
                       </div>
                     </div>
                   </td>
-                  <td class="text-center">
+                  <td class="text-center" style="padding: 0.6rem 0.5rem; vertical-align: middle;">
                     <span class="badge cys-badge-soft">{{ compra.cantidad }}</span>
                   </td>
-                  <td class="text-end">
+                  <td class="text-end" style="padding: 0.6rem 0.5rem; vertical-align: middle; white-space: nowrap;">
                     {% if compra.precio_unitario %}
                       ${{ compra.precio_unitario|floatformat:0 }}
                     {% else %}
-                      <span class="cys-muted-cell">Sin precio</span>
+                      <span class="cys-muted-cell">—</span>
                     {% endif %}
                   </td>
-                  <td class="text-end fw-bold cys-money">
+                  <td class="text-end fw-bold cys-money" style="padding: 0.6rem 0.5rem; vertical-align: middle; white-space: nowrap;">
                     {% if compra.precio_unitario %}
                       ${{ compra.total|floatformat:0 }}
                     {% else %}
-                      <span class="cys-muted-cell">-</span>
+                      <span class="cys-muted-cell">—</span>
                     {% endif %}
                   </td>
-                  <td class="text-center cys-muted-cell">{{ compra.fecha_registro|date:"d/m/Y H:i" }}</td>
-                  <td class="text-center">
-                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#detalleCompra{{ compra.id }}">
-                      <i class="bi bi-eye me-1"></i>Ver
+                  <td class="text-center cys-muted-cell" style="padding: 0.6rem 0.5rem; vertical-align: middle; white-space: nowrap; font-size: 0.85rem;">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
+                  <td class="text-center" style="padding: 0.6rem 0.5rem; vertical-align: middle;">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#detalleCompra{{ compra.id }}" style="padding: 0.35rem 0.5rem; font-size: 0.8rem;">
+                      <i class="bi bi-eye"></i>
                     </button>
                   </td>
                 </tr>
               {% empty %}
                 <tr>
-                  <td colspan="7" class="text-center py-5">
+                  <td colspan="7" class="text-center py-4">
                     <div class="cys-empty mx-auto">
-                      <i class="bi bi-clock-history d-block mb-2"></i>
-                      <p class="fw-semibold mb-1">Sin compras registradas aun</p>
-                      <p class="small mb-0">Registra la primera compra desde el formulario.</p>
+                      <i class="bi bi-clock-history d-block mb-2" style="font-size: 2rem; opacity: 0.5;"></i>
+                      <p class="fw-semibold mb-1" style="font-size: 0.95rem;">Sin compras registradas aun</p>
+                      <p class="small mb-0" style="color: var(--muted-color, #6c757d);">Registra la primera compra desde el formulario.</p>
                     </div>
                   </td>
                 </tr>
               {% endfor %}
             </tbody>
             {% if compras %}
-              <tfoot>
+              <tfoot style="background: rgba(77, 168, 218, 0.08); border-top: 2px solid rgba(77, 168, 218, 0.2);">
                 <tr>
-                  <td colspan="4" class="text-end fw-bold text-uppercase">
+                  <td colspan="4" class="text-end fw-bold text-uppercase" style="padding: 0.75rem; font-size: 0.9rem;">
                     <i class="bi bi-calculator me-1"></i>Subtotal
                   </td>
-                  <td class="text-end fw-bold cys-money">${{ subtotal_compras|default:0|floatformat:0 }}</td>
-                  <td colspan="2"></td>
+                  <td class="text-end fw-bold cys-money" style="padding: 0.75rem; white-space: nowrap;">${{ subtotal_compras|default:0|floatformat:0 }}</td>
+                  <td colspan="2" style="padding: 0.75rem;"></td>
                 </tr>
               </tfoot>
             {% endif %}
@@ -339,4 +466,186 @@
     </div>
   </div>
 {% endfor %}
+
+<!-- MODAL PARA SELECCIONAR PROVEEDOR -->
+<div class="modal fade" id="modalProveedores" tabindex="-1" aria-labelledby="modalProveedoresLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background: linear-gradient(135deg, rgba(15, 30, 50, 0.98) 0%, rgba(20, 40, 65, 0.98) 100%); border: 2px solid rgba(77, 168, 218, 0.3); border-radius: 14px;">
+      <div class="modal-header" style="border-bottom: 2px solid rgba(77, 168, 218, 0.25); background: rgba(77, 168, 218, 0.08);">
+        <div>
+          <h2 class="modal-title h5" id="modalProveedoresLabel" style="color: rgba(255,255,255,0.95); font-weight: 700;">
+            <i class="bi bi-truck me-2" style="color: var(--cyan, #4da8da); font-size: 1.3rem;"></i>Selecciona un Proveedor
+          </h2>
+          <small style="color: rgba(255,255,255,0.5); display: block; margin-top: 0.3rem;">Elige un proveedor para ver y registrar sus compras</small>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem;">
+        <!-- Buscador de proveedores -->
+        <div class="mb-3">
+          <div class="input-group" style="border-radius: 10px; overflow: hidden;">
+            <span class="input-group-text" style="background: rgba(77, 168, 218, 0.15); border: 1px solid rgba(77, 168, 218, 0.4); color: var(--cyan, #4da8da);">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="buscarProveedor" class="form-control" placeholder="Buscar por nombre, contacto o teléfono..." style="background: rgba(20, 40, 65, 0.6); border: 1px solid rgba(77, 168, 218, 0.4); color: rgba(255,255,255,0.9);" onfocus="this.style.background='rgba(20, 40, 65, 0.8)'; this.style.borderColor='rgba(77, 168, 218, 0.6)'" onfocus="this.style.boxShadow='0 0 10px rgba(77, 168, 218, 0.2)'">
+          </div>
+        </div>
+
+        <!-- Tabla de proveedores -->
+        <div style="max-height: 400px; overflow-y: auto; background: rgba(10, 20, 35, 0.8) !important; border-radius: 8px; border: 1px solid rgba(77, 168, 218, 0.15);">
+          <table class="table table-hover align-middle mb-0" style="font-size: 0.95rem; background: rgba(10, 20, 35, 0.8) !important; color: rgba(255,255,255,0.9) !important;">
+            <tbody id="tablaProveedores">
+              {% if todos_proveedores %}
+                {% for prov in todos_proveedores %}
+                <tr class="fila-proveedor" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" style="cursor: pointer; border-bottom: 1px solid rgba(77, 168, 218, 0.1); transition: all 0.2s ease; background: rgba(0,0,0,0);">
+                  <td style="padding: 1rem; border: none;">
+                    <div class="d-flex align-items-center gap-3" style="min-width: 0;">
+                      <!-- Ícono -->
+                      <div style="font-size: 1.5rem; color: var(--cyan, #4da8da); flex-shrink: 0;">
+                        <i class="bi bi-truck"></i>
+                      </div>
+
+                      <!-- Información -->
+                      <div style="min-width: 0; flex-grow: 1;">
+                        <div class="fw-bold" style="color: rgba(255,255,255,0.95); font-size: 0.95rem;">
+                          {{ prov.nombre_empresa }}
+                        </div>
+                        <small style="color: rgba(255,255,255,0.6); display: block;">
+                          <i class="bi bi-person" style="color: var(--cyan, #4da8da);"></i> {{ prov.nombre_contacto }}
+                        </small>
+                        {% if prov.telefono %}
+                        <small style="color: rgba(255,255,255,0.5); display: block;">
+                          <i class="bi bi-telephone"></i> {{ prov.telefono }}
+                        </small>
+                        {% endif %}
+                      </div>
+
+                      <!-- Seleccionado -->
+                      {% if proveedor and prov.id == proveedor.id %}
+                      <div style="color: var(--cyan, #4da8da); font-size: 1.3rem; flex-shrink: 0;">
+                        <i class="bi bi-check-circle-fill"></i>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td class="text-center py-5">
+                  <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.5; display: block; margin-bottom: 1rem;"></i>
+                  <p style="color: rgba(255,255,255,0.5);">No hay proveedores registrados</p>
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mensaje de no encontrado -->
+        <div id="sinResultados" style="display: none; text-align: center; padding: 2rem; color: rgba(255,255,255,0.5); background: rgba(10, 20, 35, 0.5); border-radius: 8px; margin-top: 1rem;">
+          <i class="bi bi-search" style="font-size: 2rem; display: block; margin-bottom: 1rem; opacity: 0.5;"></i>
+          <p>No se encontraron proveedores con ese criterio</p>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="border-top: 2px solid rgba(77, 168, 218, 0.25); background: rgba(77, 168, 218, 0.08);">
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal" style="color: rgba(255,255,255,0.7); border-color: rgba(77, 168, 218, 0.4);">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Estilos para el modal de proveedores -->
+<style>
+  /* Tabla de proveedores */
+  #tablaProveedores {
+    background: rgba(10, 20, 35, 0.8) !important;
+  }
+
+  #tablaProveedores tr {
+    background: rgba(10, 20, 35, 0.8) !important;
+    border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;
+  }
+
+  #tablaProveedores td {
+    background: rgba(10, 20, 35, 0.8) !important;
+    color: rgba(255,255,255,0.9) !important;
+    border: none !important;
+  }
+
+  .fila-proveedor {
+    transition: all 0.2s ease !important;
+    background: rgba(10, 20, 35, 0.8) !important;
+  }
+
+  .fila-proveedor:hover {
+    background: rgba(77, 168, 218, 0.15) !important;
+    border-left: 3px solid var(--cyan, #4da8da) !important;
+    padding-left: 1rem !important;
+  }
+
+  #buscarProveedor::placeholder {
+    color: rgba(255,255,255,0.5) !important;
+  }
+
+  #buscarProveedor:focus {
+    background: rgba(20, 40, 65, 0.8) !important;
+    border-color: rgba(77, 168, 218, 0.6) !important;
+    box-shadow: 0 0 10px rgba(77, 168, 218, 0.2) !important;
+    color: rgba(255,255,255,0.9) !important;
+  }
+
+  /* Modal content background */
+  .modal-content {
+    background: linear-gradient(135deg, rgba(15, 30, 50, 0.98) 0%, rgba(20, 40, 65, 0.98) 100%) !important;
+  }
+</style>
+
+<!-- JavaScript para modal de proveedores -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const buscarInput = document.getElementById('buscarProveedor');
+    const filas = document.querySelectorAll('.fila-proveedor');
+    const sinResultados = document.getElementById('sinResultados');
+    const tablaProveedores = document.getElementById('tablaProveedores');
+
+    // Búsqueda en tiempo real
+    if (buscarInput) {
+      buscarInput.addEventListener('input', function() {
+        const termino = this.value.toLowerCase();
+        let visible = 0;
+
+        filas.forEach(fila => {
+          const nombre = fila.dataset.nombre;
+          const contacto = fila.dataset.contacto;
+          const telefono = fila.dataset.telefono;
+
+          const coincide = nombre.includes(termino) ||
+                          contacto.includes(termino) ||
+                          telefono.includes(termino);
+
+          fila.style.display = coincide ? '' : 'none';
+          if (coincide) visible++;
+        });
+
+        // Mostrar mensaje de no encontrados
+        sinResultados.style.display = visible === 0 && termino !== '' ? 'block' : 'none';
+        tablaProveedores.style.display = visible === 0 && termino !== '' ? 'none' : 'table';
+      });
+    }
+
+    // Seleccionar proveedor al hacer clic
+    filas.forEach(fila => {
+      fila.addEventListener('click', function() {
+        const proveedorId = this.dataset.id;
+
+        // Redirigir a la página con el proveedor seleccionado
+        window.location.href = '?proveedor=' + proveedorId;
+      });
+    });
+  });
+</script>
+
 {% endblock %}

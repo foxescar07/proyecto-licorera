@@ -2,8 +2,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Proveedor
+from django.db.models import Sum
+from django.utils import timezone
+from datetime import timedelta
+from .models import Proveedor, Compra
 from .forms import ProveedorForm
+from productos.models import Producto
+from inventario.models import Lote, Inventario
 
 @login_required
 def lista_proveedores(request):
@@ -134,3 +139,144 @@ def sancionar_proveedor(request, id):
 @login_required
 def lista_compras(request):
     return render(request, 'proveedores/compras.html', {})
+
+@login_required
+def registrar_compra(request):
+    """Vista para registrar compras a proveedores"""
+    todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
+    proveedor = None
+
+    # Obtener proveedor de sesión o parámetro GET
+    if request.method == 'POST':
+        proveedor_id = request.POST.get('proveedor_id') or request.session.get('proveedor_id')
+    else:
+        proveedor_id = request.GET.get('proveedor') or request.session.get('proveedor_id')
+
+    # Guardar proveedor en sesión
+    if proveedor_id:
+        try:
+            request.session['proveedor_id'] = int(proveedor_id)
+            proveedor = Proveedor.objects.get(id=request.session['proveedor_id'])
+        except (Proveedor.DoesNotExist, ValueError):
+            proveedor = None
+    else:
+        primer_proveedor = todos_proveedores.first()
+        if primer_proveedor:
+            request.session['proveedor_id'] = primer_proveedor.id
+            proveedor = primer_proveedor
+
+    compras = []
+    if proveedor:
+        compras = Compra.objects.filter(proveedor=proveedor).order_by('-fecha_registro')
+
+    # Calcular subtotal
+    subtotal = sum(
+        (c.cantidad * c.precio_unitario) for c in compras
+        if c.precio_unitario
+    ) or 0
+
+    # Registrar nueva compra
+    if request.method == 'POST':
+        if not proveedor:
+            messages.error(request, 'Por favor selecciona un proveedor.')
+            return redirect('registrar_compra')
+
+        producto_id = request.POST.get('producto')
+        cantidad = request.POST.get('cantidad')
+        precio_unitario = request.POST.get('precio_unitario')
+        lote_id = request.POST.get('lote_id')
+
+        if not producto_id or not cantidad:
+            messages.warning(request, 'Por favor completa todos los campos obligatorios.')
+        else:
+            try:
+                producto = Producto.objects.get(id=int(producto_id))
+                cantidad_int = int(cantidad)
+
+                if cantidad_int <= 0:
+                    messages.error(request, 'La cantidad debe ser mayor a cero.')
+                    return redirect('registrar_compra')
+
+                # Obtener lote si existe
+                lote = None
+                if lote_id:
+                    lote = Lote.objects.filter(pk=lote_id).first()
+
+                # Crear compra
+                compra = Compra.objects.create(
+                    proveedor=proveedor,
+                    producto=producto,
+                    lote=lote,
+                    cantidad=cantidad_int,
+                    precio_unitario=precio_unitario if precio_unitario else None,
+                )
+
+                # Actualizar cantidad disponible del producto
+                producto.cantidad_disponible += cantidad_int
+                producto.save()
+
+                # Crear registro en inventario
+                Inventario.objects.create(
+                    producto=producto,
+                    tipo='entrada',
+                    cantidad=cantidad_int,
+                    motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
+                    ubicacion='Ingreso por compra',
+                )
+
+                messages.success(
+                    request,
+                    f'✅ {cantidad_int} unidades de "{producto.nombre}" ingresadas correctamente.'
+                )
+                return redirect('registrar_compra')
+
+            except Producto.DoesNotExist:
+                messages.error(request, 'El producto seleccionado no existe.')
+            except ValueError:
+                messages.error(request, 'Por favor verifica los datos ingresados.')
+            except Exception as e:
+                messages.error(request, f'Error al registrar la compra: {str(e)}')
+
+    # Obtener datos para estadísticas
+    hoy = timezone.now()
+    total_gastado = sum(
+        c.cantidad * c.precio_unitario
+        for c in Compra.objects.exclude(precio_unitario__isnull=True)
+    ) or 0
+
+    compras_mes = Compra.objects.filter(
+        fecha_registro__year=hoy.year,
+        fecha_registro__month=hoy.month,
+    )
+    count_mes = compras_mes.count()
+    total_mes = sum(
+        c.cantidad * c.precio_unitario
+        for c in compras_mes.exclude(precio_unitario__isnull=True)
+    ) or 0
+
+    # Producto más comprado
+    producto_top = (
+        Compra.objects
+        .values('producto__nombre')
+        .annotate(total_und=Sum('cantidad'))
+        .order_by('-total_und')
+        .first()
+    )
+
+    productos = Producto.objects.all()
+    lotes = Lote.objects.select_related('presentacion').all()
+
+    context = {
+        'proveedor': proveedor,
+        'todos_proveedores': todos_proveedores,
+        'productos': productos,
+        'compras': compras,
+        'subtotal_compras': subtotal,
+        'total_gastado': total_gastado,
+        'count_mes': count_mes,
+        'total_mes': total_mes,
+        'producto_top': producto_top,
+        'lotes': lotes,
+    }
+
+    return render(request, 'proveedores/compras.html', context)
