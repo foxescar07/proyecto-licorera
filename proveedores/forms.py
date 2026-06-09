@@ -4,7 +4,7 @@ from .models import Proveedor
 class ProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono', 'tipo_proveedor', 'estado']
+        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono', 'categorias_surtidas']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -25,10 +25,7 @@ class ProveedorForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': '+56 9 1234 5678'
             }),
-            'tipo_proveedor': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'estado': forms.Select(attrs={
-                'class': 'form-select'
+            'categorias_surtidas': forms.CheckboxSelectMultiple(attrs={
+                'class': 'form-check-input'
             }),
         }
