@@ -22,64 +22,89 @@
   {% endif %}
 
   <!-- ACCESO RÁPIDO -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button">
-        <i class="bi bi-calendar-plus"></i>
-        <div>
-          <div class="inv-quick-card__title">Agendar Inventario</div>
-          <div class="inv-quick-card__sub">Programar fecha y hora del conteo</div>
+<div class="row g-3 mb-4">
+
+  <div class="col-md-3">
+    <!-- Agendar — azul -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button"
+     style="border-left: 3px solid #4DA8DA;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2" style="background:rgba(77,168,218,.15);">
+          <i class="bi bi-calendar-plus fs-4" style="color:#4DA8DA;"></i>
         </div>
+        <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#4DA8DA;font-size:.65rem;">ACCIÓN</span>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button">
-        <i class="bi bi-clipboard2-check"></i>
-        <div>
-          <div class="inv-quick-card__title">Iniciar Conteo</div>
-          <div class="inv-quick-card__sub">Ingresar cantidades físicas</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button">
-        <i class="bi bi-upc-scan"></i>
-        <div>
-          <div class="inv-quick-card__title">Registrar Códigos</div>
-          <div class="inv-quick-card__sub">Asignar códigos de barras</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button">
-        <i class="bi bi-arrow-left-right"></i>
-        <div>
-          <div class="inv-quick-card__title">Comparar Inventario</div>
-          <div class="inv-quick-card__sub">Ver discrepancias físico vs sistema</div>
-        </div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#4DA8DA;line-height:1;">{{ agendas|length|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Agendar Inventario</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Programar fecha y hora del conteo</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
+        <span style="font-size:.7rem;color:#4DA8DA;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#4DA8DA;"></i>
       </div>
     </div>
   </div>
 
-  <!-- ENLACE GESTIÓN DE PRODUCTOS -->
-  <div class="mb-4">
-    <a href="{% url 'gestion_productos' %}" class="inv-gestion-link text-decoration-none d-flex align-items-center justify-content-between gap-3 flex-wrap">
-      <div class="d-flex align-items-center gap-3">
-        <div class="inv-gestion-link__icon">
-          <i class="bi bi-box-seam-fill"></i>
+  <div class="col-md-3">
+   <!-- Conteo — verde -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button"
+     style="border-left: 3px solid #27ae60;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2" style="background:rgba(39,174,96,.15);">
+          <i class="bi bi-clipboard2-check fs-4" style="color:#27ae60;"></i>
         </div>
-        <div>
-          <div class="inv-gestion-link__title">Gestión de Productos</div>
-          <div class="inv-gestion-link__sub">Productos, salidas, categorías y subcategorías</div>
-        </div>
+        <span class="badge rounded-pill" style="background:rgba(39,174,96,.15);color:#27ae60;font-size:.65rem;">CONTEO</span>
       </div>
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="badge inv-badge-salida"><i class="bi bi-box-arrow-up me-1"></i>Registrar salida</span>
-        <span class="badge inv-badge-cat"><i class="bi bi-tags me-1"></i>Categorías</span>
-        <i class="bi bi-arrow-right-circle-fill inv-arrow-icon"></i>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#27ae60;line-height:1;">{{ conteos|length|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Iniciar Conteo</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Ingresar cantidades físicas</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(39,174,96,.15);">
+        <span style="font-size:.7rem;color:#27ae60;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#27ae60;"></i>
       </div>
-    </a>
+    </div>
   </div>
+
+  <div class="col-md-3">
+    <!-- Códigos — amarillo -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
+     style="border-left: 3px solid #f39c12;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2" style="background:rgba(243,156,18,.15);">
+          <i class="bi bi-upc-scan fs-4" style="color:#f39c12;"></i>
+        </div>
+        <span class="badge rounded-pill" style="background:rgba(243,156,18,.15);color:#f39c12;font-size:.65rem;">CÓDIGOS</span>
+      </div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#f39c12;line-height:1;">{{ sin_codigo|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Registrar Códigos</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Asignar códigos de barras</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(243,156,18,.15);">
+        <span style="font-size:.7rem;color:#f39c12;">Sin código: {{ sin_codigo|default:"0" }}</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#f39c12;"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+   <!-- Comparar — rojo -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button"
+     style="border-left: 3px solid #e74c3c;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2" style="background:rgba(231,76,60,.15);">
+          <i class="bi bi-arrow-left-right fs-4" style="color:#e74c3c;"></i>
+        </div>
+        <span class="badge rounded-pill" style="background:rgba(231,76,60,.15);color:#e74c3c;font-size:.65rem;">COMPARAR</span>
+      </div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#e74c3c;line-height:1;">{{ discrepancias|length|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Comparar Inventario</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Ver discrepancias físico vs sistema</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(231,76,60,.15);">
+        <span style="font-size:.7rem;color:#e74c3c;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#e74c3c;"></i>
+      </div>
+    </div>
+  </div>
+
+</div>
 
   <!-- INVENTARIOS PROGRAMADOS -->
   <div class="card inv-card mb-4">
@@ -486,94 +511,117 @@
     </div>
   </div>
 
-  <!-- MODAL REGISTRAR CÓDIGOS -->
-  <div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content inv-modal">
-        <div class="modal-header inv-modal-header">
-          <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3 mb-3">
-            <div class="col-md-4">
-              <div class="inv-stat-card text-center">
-                <div class="text-muted small">Total Productos</div>
-                <div class="fw-bold fs-4 text-info">{{ productos|length }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="inv-stat-card text-center">
-                <div class="text-muted small">Con Código</div>
-                <div class="fw-bold fs-4 text-success">{{ con_codigo }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="inv-stat-card text-center">
-                <div class="text-muted small">Sin Código</div>
-                <div class="fw-bold fs-4 text-danger">{{ sin_codigo }}</div>
-              </div>
+ <!-- MODAL REGISTRAR CÓDIGOS -->
+<div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content inv-modal">
+      <div class="modal-header inv-modal-header">
+        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- STATS -->
+        <div class="row g-3 mb-3">
+          <div class="col-4">
+            <div class="inv-stat-card text-center">
+              <div class="text-muted small">Total Productos</div>
+              <div class="fw-bold fs-4 text-info">{{ productos|length }}</div>
             </div>
           </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle inv-table mb-0">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Estado</th>
-                  <th>Código actual</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for p in productos %}
-                <tr>
-                  <td class="text-muted small">{{ forloop.counter }}</td>
-                  <td class="fw-semibold small">{{ p.nombre }}</td>
-                  <td class="text-muted small">{{ p.categoria.nombre }}</td>
-                  <td>
-                    {% if p.codigo %}
-                      <span class="badge bg-success">Registrado</span>
-                    {% else %}
-                      <span class="badge bg-danger">Sin código</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <span style="font-family:monospace; font-size:.82rem;"
-                          class="{% if p.codigo %}text-info{% else %}text-muted{% endif %}">
-                      {{ p.codigo|default:"—" }}
-                    </span>
-                  </td>
-                  <td>
-                    <form method="POST" action="{% url 'guardar_codigo' p.pk %}">
-                      {% csrf_token %}
-                      <div class="input-group input-group-sm">
-                        <input type="text" name="codigo" class="form-control inv-input"
-                               value="{{ p.codigo|default:'' }}" placeholder="Escanear..." style="max-width:150px;">
-                        <button type="submit" class="btn inv-btn-primary btn-sm">
-                          <i class="bi bi-save"></i>
-                        </button>
-                      </div>
-                    </form>
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="6" class="text-center py-4 text-muted">No hay productos registrados.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="col-4">
+            <div class="inv-stat-card text-center">
+              <div class="text-muted small">Con Código</div>
+              <div class="fw-bold fs-4 text-success">{{ con_codigo }}</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="inv-stat-card text-center">
+              <div class="text-muted small">Sin Código</div>
+              <div class="fw-bold fs-4 text-danger">{{ sin_codigo }}</div>
+            </div>
           </div>
         </div>
-        <div class="modal-footer inv-modal-footer">
-          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+
+        <!-- ZONA ESCANEO -->
+        <div class="p-3 mb-3 rounded-3 d-flex align-items-center gap-3"
+             style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);">
+          <div class="text-center" style="min-width:48px;">
+            <i class="bi bi-upc-scan fs-2" style="color:var(--inv-azul);"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="inv-label mb-1">Producto seleccionado</div>
+            <div id="scan-producto-nombre" class="fw-semibold" style="color:var(--inv-texto); min-height:1.2rem;">
+              — Haz clic en una fila para seleccionar —
+            </div>
+          </div>
+          <div style="flex:0 0 280px;">
+            <input type="text" id="scan-input"
+                   class="form-control inv-input"
+                   placeholder="Escanea o escribe el código…"
+                   style="font-family:monospace; font-size:.95rem;"
+                   disabled>
+          </div>
+          <button id="scan-guardar" class="btn inv-btn-primary px-4" disabled>
+            <i class="bi bi-save2 me-1"></i>Guardar
+          </button>
         </div>
+
+        <!-- TABLA -->
+        <div class="table-responsive">
+          <table class="table align-middle mb-0 inv-table" id="tabla-codigos">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="text-center">Estado</th>
+                <th>Código registrado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in productos %}
+              <tr class="scan-row"
+                  data-pk="{{ p.pk }}"
+                  data-nombre="{{ p.nombre }}"
+                  data-codigo="{{ p.codigo|default:'' }}"
+                  data-url="{% url 'guardar_codigo' p.pk %}"
+                  style="cursor:pointer;">
+                <td class="text-muted small">{{ forloop.counter }}</td>
+                <td class="fw-semibold small">{{ p.nombre }}</td>
+                <td class="text-muted small">{{ p.categoria.nombre }}</td>
+                <td class="text-center">
+                  {% if p.codigo %}
+                    <span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>
+                  {% else %}
+                    <span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>
+                  {% endif %}
+                </td>
+                <td>
+                 <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %}"
+      style="font-family:monospace; font-size:.82rem;">
+  {{ p.codigo|default:"—" }}
+</span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">
+                  <i class="bi bi-inbox d-block mb-1 fs-3"></i>No hay productos registrados.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer inv-modal-footer">
+        <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- MODAL EDITAR MOVIMIENTO -->
   <div class="modal fade" id="modalEditarMovimiento" tabindex="-1">
@@ -620,7 +668,7 @@
 
 {% block extra_js %}
 <script>
-// Solo llenado del modal editar movimiento con datos del botón
+// ── EDITAR MOVIMIENTO ──
 document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
   const btn = e.relatedTarget;
   if (!btn) return;
@@ -631,5 +679,72 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
   document.getElementById('form-editar-movimiento').action =
     '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
 });
+
+// ── REGISTRAR CÓDIGOS ──
+(function () {
+  let filaActiva = null;
+  const modal      = document.getElementById('modalRegistrarCodigos');
+  const scanInput  = document.getElementById('scan-input');
+  const scanBtn    = document.getElementById('scan-guardar');
+  const scanNombre = document.getElementById('scan-producto-nombre');
+
+  function resetUI() {
+    filaActiva = null;
+    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
+    scanNombre.textContent = '— Haz clic en una fila para seleccionar —';
+    scanInput.value        = '';
+    scanInput.disabled     = true;
+    scanBtn.disabled       = true;
+  }
+
+  function guardarCodigo(fila, codigo) {
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const fd   = new FormData();
+    fd.append('codigo', codigo);
+    fd.append('csrfmiddlewaretoken', csrf);
+
+    fetch(fila.dataset.url, { method: 'POST', body: fd })
+      .then(r => {
+        if (r.ok || r.redirected) {
+          fila.dataset.codigo = codigo;
+          fila.querySelector('.codigo-display').textContent = codigo || '—';
+          fila.querySelector('td:nth-child(4)').innerHTML = codigo
+            ? '<span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>'
+            : '<span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>';
+          fila.classList.add('scan-row--saved');
+          setTimeout(() => { fila.classList.remove('scan-row--saved'); resetUI(); }, 1200);
+        }
+      })
+      .catch(() => alert('Error al guardar. Intenta de nuevo.'));
+  }
+
+  // Delegación de eventos en la tabla — un solo listener, nunca se duplica
+  document.getElementById('tabla-codigos').addEventListener('click', function (e) {
+    const fila = e.target.closest('.scan-row');
+    if (!fila) return;
+    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
+    filaActiva = fila;
+    fila.classList.add('scan-row--active');
+    scanNombre.textContent = fila.dataset.nombre;
+    scanInput.value        = fila.dataset.codigo;
+    scanInput.disabled     = false;
+    scanBtn.disabled       = false;
+    scanInput.focus();
+  });
+
+  scanBtn.addEventListener('click', () => {
+    if (filaActiva) guardarCodigo(filaActiva, scanInput.value.trim());
+  });
+
+  scanInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && filaActiva) {
+      e.preventDefault();
+      guardarCodigo(filaActiva, scanInput.value.trim());
+    }
+  });
+
+  // Limpiar selección al cerrar el modal
+  modal.addEventListener('hidden.bs.modal', resetUI);
+})();
 </script>
 {% endblock %}

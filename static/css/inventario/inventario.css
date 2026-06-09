@@ -34,38 +34,6 @@
   cursor: pointer;
   padding: .85rem 1.25rem;
 }
-
-/* ── ACCESO RÁPIDO ── */
-.inv-quick-card {
-  display: flex;
-  align-items: center;
-  gap: .9rem;
-  background: var(--inv-card);
-  border: 1px solid var(--inv-azul-borde);
-  border-radius: var(--inv-radius);
-  padding: 1rem 1.2rem;
-  color: var(--inv-texto);
-  cursor: pointer;
-  transition: border-color .2s, background .2s;
-}
-.inv-quick-card:hover {
-  border-color: var(--inv-azul);
-  background: var(--inv-azul-dim);
-}
-.inv-quick-card i {
-  font-size: 1.5rem;
-  color: var(--inv-azul);
-  flex-shrink: 0;
-}
-.inv-quick-card__title {
-  font-weight: 600;
-  font-size: .88rem;
-}
-.inv-quick-card__sub {
-  font-size: .72rem;
-  color: var(--inv-muted);
-}
-
 /* ── ENLACE GESTIÓN ── */
 .inv-gestion-link {
   background: var(--inv-azul-dim);
@@ -324,3 +292,50 @@
   .inv-form-card .form-select option { background: var(--inv-fondo); color: var(--inv-texto); }
   .inv-form-card .form-label { font-size:.75rem; font-weight:600; color:var(--inv-muted); text-transform:uppercase; letter-spacing:.06em; }
   .inv-form-card .form-text { font-size:.72rem; color:var(--inv-muted); }
+
+
+/* ── ACCESO RÁPIDO ── */
+.inv-quick-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--inv-card);
+  border: 1px solid var(--inv-azul-borde);
+  border-radius: var(--inv-radius);
+  padding: .75rem 1rem;
+  color: var(--inv-texto);
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.inv-quick-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.25);
+}
+.inv-quick-card::before { display: none; }
+
+.inv-table tbody tr { background: var(--inv-card) !important; }
+.inv-table tbody tr:hover { background: var(--inv-azul-dim) !important; }
+.table { --bs-table-bg: transparent; }
+
+/* Fix tablas blancas Bootstrap */
+.inv-table,
+.inv-table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: var(--inv-texto) !important;
+}
+.modal-content .inv-table tbody tr {
+  background: var(--inv-card) !important;
+}
+.modal-content .inv-table tbody tr:hover {
+  background: var(--inv-azul-dim) !important;
+}
+/* ── SCAN ROWS ── */
+.scan-row--active {
+  background: rgba(77, 168, 218, .18) !important;
+  outline: 1px solid var(--inv-azul);
+}
+.scan-row--saved {
+  background: rgba(39, 174, 96, .2) !important;
+}
