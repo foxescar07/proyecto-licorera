@@ -690,6 +690,13 @@ body.sidebar-open .cys-main .container-fluid {
 }
 
 /* ============================================================
+   SIDEBAR ABIERTO SIN ANIMACIÓN EN CARGA INICIAL
+   ============================================================ */
+#sidebarRight.show {
+  transform: none !important;
+}
+
+/* ============================================================
    RESPONSIVE MÓVIL
    ============================================================ */
 @media (max-width: 768px) {

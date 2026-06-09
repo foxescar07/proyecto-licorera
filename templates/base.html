@@ -78,10 +78,15 @@
     <script>
         const sidebarEl = document.getElementById('sidebarRight');
         if (sidebarEl) {
-            const bsSidebar = new bootstrap.Offcanvas(sidebarEl);
+            const bsSidebar = new bootstrap.Offcanvas(sidebarEl, { scroll: true });
             const menuBtn   = document.getElementById('menuBtn');
 
-            if (localStorage.getItem('sidebarOpen') === 'true') bsSidebar.show();
+            // Mostrar sidebar sin animación en carga inicial para no forzar recarga de imágenes
+            if (localStorage.getItem('sidebarOpen') === 'true') {
+                sidebarEl.classList.add('show');
+                document.body.classList.add('sidebar-open');
+                sidebarEl.style.visibility = 'visible';
+            }
 
             menuBtn?.addEventListener('click', () => bsSidebar.toggle());
 
@@ -95,7 +100,6 @@
             });
         }
 
-        // Submenús — función genérica
         function toggleSubmenu(e, btn, submenuId) {
             e.preventDefault();
             const s = document.getElementById(submenuId);
@@ -105,7 +109,6 @@
             btn.querySelector('.cys-chevron')?.classList.toggle('abierto');
         }
 
-        // Abrir submenú según ruta activa
         document.addEventListener('DOMContentLoaded', function () {
             const path = window.location.pathname;
             function abrir(sid, bid) {

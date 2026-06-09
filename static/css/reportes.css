@@ -10,17 +10,17 @@
   --color-bg-card:    #02224a;
   --color-bg-hover:   #032d60;
   --color-surface:    #031e3e;
-  --color-carmesi:    #912F40;
-  --color-mauve:      #AF8D86;
-  --color-menta:      #EFF8E2;
+  --color-carmesi:    #4DA8DA;
+  --color-mauve:      #8FA3B1;
+  --color-menta:      #4DA8DA;
   --color-blanco:     #FDFFFC;
 
   /* Acentos semánticos (mapeados a la paleta) */
   --azul-borde:        rgba(239, 248, 226, 0.1);
-  --texto-muted:       #AF8D86;
-  --azul-acento:       #EFF8E2;
-  --verde-acento:      #c8e6a0;
-  --morado-acento:     #c9b8f0;
+  --texto-muted:       #8FA3B1;
+  --azul-acento:       #4DA8DA;
+  --verde-acento:      #4DA8DA;
+  --morado-acento:     #4DA8DA;
   --naranja-acento:    #e8a87c;
   --amarillo-acento:   #f0d080;
   --rojo-acento:       #912F40;
@@ -164,11 +164,11 @@
   margin-bottom: .75rem;
 }
 
-.cys-report-card-icon--inv      { background: rgba(239,248,226,.12); color: var(--azul-acento); }
-.cys-report-card-icon--prov     { background: rgba(200,230,160,.12); color: var(--verde-acento); }
-.cys-report-card-icon--diario   { background: rgba(201,184,240,.12); color: var(--morado-acento); }
-.cys-report-card-icon--analisis { background: rgba(232,168,124,.12); color: var(--naranja-acento); }
-.cys-report-card-icon--proxima  { background: rgba(201,144,64,.1);   color: var(--dorado-acento); }
+.cys-report-card-icon--inv      { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--prov     { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--diario   { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--analisis { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--proxima  { background: rgba(77, 168, 218, 0.1);   color: #4DA8DA; }
 
 /* ── Tarjeta — textos ── */
 .cys-report-card__title {
@@ -529,11 +529,12 @@
 }
 
 /* Modificadores de color para bordes de reportes */
-.cys-card--inv { border-top: 2px solid #4DA8DA !important; }
-.cys-card--prov { border-top: 2px solid #1D9E75 !important; }
-.cys-card--proxima { border-top: 2px solid #BA7517 !important; }
-.cys-card--diario { border-top: 2px solid #7F77DD !important; }
-.cys-card--analisis { border-top: 2px solid #E8834A !important; }
+/* Uniformados al azul principal */
+.cys-card--inv, 
+.cys-card--prov, 
+.cys-card--proxima, 
+.cys-card--diario, 
+.cys-card--analisis { border-top: 2px solid #4DA8DA !important; }
 
 /* ── Stats Grid dentro de la tarjeta ── */
 .cys-report-card__stats-grid {
@@ -679,28 +680,6 @@ table.dataTable tbody tr:hover td {
   font-weight: 600 !important;
 }
 
-/* Estilo para el selector de longitud (length select) */
-.dt-length select {
-  background-color: var(--fondo-card2, #111f33) !important;
-  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
-  color: var(--texto, #E8EDF2) !important;
-  border-radius: 8px !important;
-  padding: 4px 24px 4px 10px !important;
-  outline: none !important;
-}
-
-.dt-length label {
-  color: var(--texto-muted, #AF8D86) !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-}
-
-/* Estilos de información e indicadores */
-.dt-info {
-  color: var(--texto-muted, #AF8D86) !important;
-  font-size: 0.8rem !important;
-}
-
 /* Paginación de DataTables */
 .dt-paging .pagination .page-link {
   background-color: var(--fondo-card2, #111f33) !important;
@@ -749,11 +728,40 @@ table.dataTable tbody tr:hover td {
 }
 
 .cys-table-filters-container {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  padding: 10px 14px;
-  border-radius: 10px;
+  background: #031e3e !important;
+  background: #02224a !important;
+  border: 1px solid #4DA8DA !important;
+  border: none !important;
+  padding: 15px 20px;
+  border-radius: 12px;
   margin-top: 10px;
+  box-shadow: inset 0 0 10px rgba(77, 168, 218, 0.1);
+}
+
+#filtro-fecha-inicio,
+#filtro-fecha-fin {
+  background-color: #02224a !important;
+  background-color: #011936 !important;
+  border: 1px solid #4DA8DA !important;
+  color: #FDFFFC !important;
+  color-scheme: dark;
+}
+
+/* Asegura que el icono del calendario sea visible en fondo oscuro */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8) sepia(100%) saturate(5) hue-rotate(175deg);
+    cursor: pointer;
+}
+
+.cys-pagination .page-link {
+  background-color: #031e3e !important;
+  color: #4DA8DA !important;
+  border: 1px solid #4DA8DA !important;
+}
+
+.cys-pagination .page-item.active .page-link {
+  background-color: #4DA8DA !important;
+  color: #011936 !important;
 }
 
 /* ────────────────────────────────────
@@ -872,18 +880,18 @@ table.dataTable tbody tr:hover td {
 
 /* Modificadores Semánticos de Resumen */
 .cys-summary-card--ventas {
-  border-left: 4px solid #2ecc71 !important;
+  border-left: 4px solid #4DA8DA !important;
 }
 .cys-summary-card__icon--ventas {
-  background: rgba(46, 204, 113, 0.12);
-  color: #2ecc71;
+  background: rgba(77, 168, 218, 0.12);
+  color: #4DA8DA;
 }
 .cys-summary-card--ventas .cys-summary-card__label {
-  color: #6ee7b7;
+  color: #7ecfef;
 }
 .cys-summary-card--ventas .cys-summary-card__val {
-  color: #2ecc71;
-  text-shadow: 0 0 12px rgba(46, 204, 113, 0.25);
+  color: #4DA8DA;
+  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
 }
 
 .cys-summary-card--productos {
@@ -902,16 +910,16 @@ table.dataTable tbody tr:hover td {
 }
 
 .cys-summary-card--clientes {
-  border-left: 4px solid #a18df2 !important;
+  border-left: 4px solid #4DA8DA !important;
 }
 .cys-summary-card__icon--clientes {
-  background: rgba(161, 141, 242, 0.12);
-  color: #a18df2;
+  background: rgba(77, 168, 218, 0.12);
+  color: #4DA8DA;
 }
 .cys-summary-card--clientes .cys-summary-card__label {
-  color: #c4b5fd;
+  color: #7ecfef;
 }
 .cys-summary-card--clientes .cys-summary-card__val {
-  color: #a18df2;
-  text-shadow: 0 0 12px rgba(161, 141, 242, 0.25);
+  color: #4DA8DA;
+  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
 }
