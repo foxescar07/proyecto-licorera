@@ -11,7 +11,7 @@
   min-width: 0;
 }
 .ul-sidebar {
-  width: 350px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -19,15 +19,20 @@
   transition: all 0.3s ease-in-out;
 }
 
-/* Contenedor Grid interno para cuando las estadísticas estén abiertas */
-.content-dropdown-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.stats-grid-inner {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
+.widget-estado,
+.widget-rol {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ══════════════════════════════════════════════
-   ESTILOS DE BOTONES DESPLEGABLES (COMPACTACIÓN)
+   BOTONES DISPARADORES (COLLAPSE)
 ══════════════════════════════════════════════ */
 .sidebar-dropdown-wrapper {
   width: 100%;
@@ -36,84 +41,210 @@
   width: 100%;
   background: #0D1B2E;
   border: 1px solid rgba(77,168,218,.25);
-  border-radius: 10px;
-  padding: .75rem 1rem;
+  border-radius: 12px;
+  padding: .8rem 1.1rem;
   color: #4DA8DA;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
-  font-size: .82rem;
+  font-size: .8rem;
   text-transform: uppercase;
   letter-spacing: .08em;
-  display: none; /* Oculto por defecto, se activa dinámicamente */
+  display: none;
   align-items: center;
   justify-content: space-between;
   transition: all .2s ease;
-  margin-bottom: .5rem;
+  margin-bottom: .4rem;
 }
 .btn-trigger-dropdown:hover {
-  background: rgba(77, 168, 218, 0.08);
+  background: rgba(77,168,218,0.08);
   border-color: #4DA8DA;
+  color: #E8EDF2;
 }
 .btn-trigger-dropdown .arrow-icon {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
 .btn-trigger-dropdown[aria-expanded="true"] .arrow-icon {
   transform: rotate(180deg);
 }
 
 /* ══════════════════════════════════════════════
-   REGLAS DINÁMICAS BASADAS EN CONTENIDO (DJANGO SIZES)
+   CASO 1 — 1 o 2 tarjetas
 ══════════════════════════════════════════════ */
+.cards-view-1-2 .ul-layout,
+.ul-layout.cards-view-1-2 {
+  align-items: flex-start;   /* ← cambia a flex-start */
+}
 
-/* CASO A: Solo 1 o 2 usuarios registrados
-   - El bloque de estadísticas tiene botón desplegable.
-   - El bloque de recientes está completamente oculto o cerrado para nivelar la única tarjeta visible. */
-.layout-items-1 #wrapperStats .btn-trigger-dropdown,
-.layout-items-2 #wrapperStats .btn-trigger-dropdown {
+.cards-view-1-2 #contenedor-tarjetas {
+  align-items: stretch;
+  height: 100%;
+}
+.cards-view-1-2 #contenedor-tarjetas > div {
   display: flex;
 }
-.layout-items-1 #collapseStats,
-.layout-items-2 #collapseStats {
-  grid-template-columns: 1fr; /* Al colapsar y abrir ocupa ancho completo de botón */
-}
-.layout-items-1 #wrapperRecientes,
-.layout-items-2 #wrapperRecientes {
-  display: none; /* Se oculta para no crear espacio vertical innecesario */
-}
-
-/* CASO B: Exactamente 3 o 4 usuarios (Dos filas)
-   - Estadísticas fijas sin botón de desplegar.
-   - Registros recientes se convierte en Desplegable con botón. */
-.layout-items-3 #wrapperRecientes .btn-trigger-dropdown,
-.layout-items-4 #wrapperRecientes .btn-trigger-dropdown {
-  display: flex;
-}
-
-/* CASO C: 5 o más usuarios (Muchas filas a la izquierda)
-   - Todo se muestra extendido por completo.
-   - Se ocultan todos los botones de trigger. */
-.layout-items-5 .btn-trigger-dropdown,
-.layout-items-6 .btn-trigger-dropdown,
-.layout-items-7 .btn-trigger-dropdown,
-.layout-items-8 .btn-trigger-dropdown {
-  display: none !important;
-}
-.layout-items-5 .ul-sidebar,
-.layout-items-6 .ul-sidebar,
-.layout-items-7 .ul-sidebar {
-  position: sticky;
-  top: 1rem;
-}
-.layout-items-5 .content-dropdown-grid,
-.layout-items-6 .content-dropdown-grid,
-.layout-items-7 .content-dropdown-grid {
+.cards-view-1-2 .usuario-card {
   display: flex;
   flex-direction: column;
+  width: 100%;
+}
+.cards-view-1-2 .usuario-card.h-100 {
+  height: auto !important;
+}
+.cards-view-1-2 .usuario-card > .d-flex.gap-2:last-child {
+  margin-top: auto;
+}
+.cards-view-1-2 .ul-main {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+}
+.cards-view-1-2 .ul-main #contenedor-tarjetas {
+  flex: 1;
+}
+
+.cards-view-1-2 .ul-sidebar {
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   gap: 1rem;
 }
 
+.cards-view-1-2 .widget-total {
+  flex: 0 0 auto;
+}
+
+.cards-view-1-2 #wrapperStats,
+.cards-view-1-2 #wrapperRecientes {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.cards-view-1-2 #wrapperStats .btn-trigger-dropdown,
+.cards-view-1-2 #wrapperRecientes .btn-trigger-dropdown {
+  display: flex;
+  margin-bottom: 0;
+}
+
+.cards-view-1-2 .btn-trigger-dropdown .arrow-icon {
+  transform: rotate(0deg);
+}
+.cards-view-1-2 .btn-trigger-dropdown[aria-expanded="true"] .arrow-icon {
+  transform: rotate(180deg);
+}
+
+.cards-view-1-2 .widget-estado,
+.cards-view-1-2 .widget-rol {
+  border-radius: 14px !important;
+  border: 1px solid rgba(77,168,218,.18) !important;
+}
+
 /* ══════════════════════════════════════════════
-   PANEL LATERAL — WIDGETS INTERNOS
+   CASO 2 — 3 o 4 tarjetas
+══════════════════════════════════════════════ */
+.cards-view-3-4 #wrapperStats .btn-trigger-dropdown {
+  display: none !important;
+}
+.cards-view-3-4 #wrapperRecientes .btn-trigger-dropdown {
+  display: flex;
+  margin-bottom: 0;
+}
+.cards-view-3-4 .ul-layout {
+  align-items: stretch;
+}
+.cards-view-3-4 .ul-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  height: 100%;
+}
+
+.cards-view-3-4 .widget-total {
+  flex: 1;
+  justify-content: center;
+}
+
+.cards-view-3-4 #wrapperStats {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+.cards-view-3-4 #collapseStats {
+  flex: 1;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.cards-view-3-4 .stats-grid-inner {
+  flex-direction: row;
+  gap: .75rem;
+  flex: 1;
+  align-items: stretch;
+}
+.cards-view-3-4 .widget-estado,
+.cards-view-3-4 .widget-rol {
+  flex: 1;
+  justify-content: flex-start;
+  border-radius: 14px !important;
+  border: 1px solid rgba(77,168,218,.18) !important;
+  padding: 1.4rem 1.4rem;
+}
+.cards-view-3-4 .widget-estado .ul-stat-row,
+.cards-view-3-4 .widget-rol .ul-stat-row {
+  padding: .65rem 0;
+}
+
+.cards-view-3-4 #wrapperRecientes {
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* ══════════════════════════════════════════════
+   CASO 3 — 5 o 6 tarjetas
+══════════════════════════════════════════════ */
+.cards-view-5-6 .btn-trigger-dropdown {
+  display: none !important;
+}
+.cards-view-5-6 .stats-grid-inner {
+  flex-direction: row;
+  gap: .75rem;
+}
+.cards-view-5-6 .widget-estado,
+.cards-view-5-6 .widget-rol {
+  flex: 1;
+  border-radius: 14px !important;
+  border: 1px solid rgba(77,168,218,.18) !important;
+}
+.cards-view-5-6 .ul-sidebar {
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* ══════════════════════════════════════════════
+   CASO 4 — 7 o más tarjetas
+══════════════════════════════════════════════ */
+.cards-view-dense .btn-trigger-dropdown {
+  display: none !important;
+}
+.cards-view-dense .stats-grid-inner {
+  flex-direction: column;
+  gap: 1rem;
+}
+.cards-view-dense .widget-estado,
+.cards-view-dense .widget-rol {
+  border-radius: 14px !important;
+  border: 1px solid rgba(77,168,218,.18) !important;
+}
+.cards-view-dense .ul-sidebar {
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* ══════════════════════════════════════════════
+   WIDGETS
 ══════════════════════════════════════════════ */
 .ul-widget {
   background: #0D1B2E;
@@ -191,6 +322,15 @@
   text-transform: uppercase;
   letter-spacing: .1em;
   margin-top: .25rem;
+}
+.ul-big-stat__sub {
+  font-size: .62rem;
+  color: rgba(77,168,218,.45);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-top: .35rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
 }
 
 .ul-activity-item {
@@ -300,27 +440,31 @@
 .usuario-estado--activo .usuario-dot   { background: #5edb97; }
 .usuario-estado--inactivo .usuario-dot { background: rgba(232,237,242,.2); }
 
-.usuario-btn          { border-radius: 8px; font-size: .78rem; font-family: 'Inter',sans-serif; transition: all .2s; }
-.usuario-btn-editar   { background: rgba(77,168,218,.08); border: 1px solid rgba(77,168,218,.25); color: #4DA8DA; }
+.usuario-btn            { border-radius: 8px; font-size: .78rem; font-family: 'Inter',sans-serif; transition: all .2s; }
+.usuario-btn-editar     { background: rgba(77,168,218,.08); border: 1px solid rgba(77,168,218,.25); color: #4DA8DA; }
 .usuario-btn-editar:hover { background: rgba(77,168,218,.2); }
 .usuario-btn-desactivar { background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #e87070; }
 .usuario-btn-activar    { background: rgba(77,218,140,.08); border: 1px solid rgba(77,218,140,.25); color: #5edb97; }
-.usuario-btn-eliminar   {
+.usuario-btn-eliminar {
   display: flex; align-items: center; justify-content: center; gap: .35rem;
   border-radius: 8px; font-size: .73rem; font-family: 'Inter',sans-serif;
-  background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #e87070;
+  background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.35); color: #e87070;
   transition: all .2s;
 }
 .usuario-btn-eliminar:hover { background: rgba(192,57,43,1); color: #fff; }
 
 /* ══════════════════════════════════════════════
-   VACÍO Y MODAL
+   VACÍO, INFO, ALERTAS
 ══════════════════════════════════════════════ */
 .usuarios-vacio { color: rgba(232,237,242,.25); }
 .usuarios-vacio-icon { font-size: 3rem; display: block; margin-bottom: 1rem; color: rgba(77,168,218,.15); }
 .usuarios-vacio-text { font-size: .9rem; }
 .usuarios-info { font-size: .78rem; color: rgba(232,237,242,.4); }
+.cys-alert-error { background: rgba(192,57,43,.12); border: 1px solid rgba(192,57,43,.4); color: #e87070; border-radius: 10px; }
 
+/* ══════════════════════════════════════════════
+   MODAL EDITAR
+══════════════════════════════════════════════ */
 .modal-editar { max-width: 500px; }
 .modal-editar-content { background: #0D1B2E; border: 1px solid rgba(77,168,218,.35); border-radius: 18px; box-shadow: 0 16px 48px rgba(0,0,0,.8); font-family: 'Inter',sans-serif; }
 .modal-editar-header  { border-bottom: 1px solid rgba(77,168,218,.2); padding: 1.1rem 1.4rem; }
@@ -340,24 +484,20 @@
 .modal-btn-guardar:hover { background: #6dc0e8; }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE EN DISPOSITIVOS MÓVILES
+   RESPONSIVE
 ══════════════════════════════════════════════ */
 @media (max-width: 992px) {
   .ul-layout { flex-direction: column; }
-  .ul-sidebar { 
-    width: 100% !important; 
-    position: static !important;
-  }
-  .btn-trigger-dropdown {
-    display: flex !important; /* En móviles siempre es útil que todo sea colapsable */
-  }
-  .collapse:not(.show) {
-    display: none !important;
-  }
-  .content-dropdown-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .layout-items-1 #wrapperRecientes, .layout-items-2 #wrapperRecientes {
-    display: block !important;
-  }
+  .ul-sidebar { width: 100% !important; position: static !important; }
+
+  .cards-view-3-4 .ul-layout { align-items: flex-start !important; }
+  .cards-view-3-4 .ul-sidebar { height: auto !important; }
+  .cards-view-3-4 .widget-total { flex: none !important; }
+  .cards-view-3-4 #wrapperStats { flex: none !important; }
+  .cards-view-3-4 #collapseStats { flex: none !important; display: block !important; }
+  .cards-view-3-4 .stats-grid-inner { flex: none !important; align-items: flex-start !important; }
+  .cards-view-3-4 #wrapperRecientes { margin-top: 0 !important; }
+  .cards-view-3-4 .stats-grid-inner,
+  .cards-view-5-6 .stats-grid-inner { flex-direction: column !important; }
+  .btn-trigger-dropdown { display: flex !important; }
 }
