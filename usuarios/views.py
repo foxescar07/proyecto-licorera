@@ -224,7 +224,6 @@ def perfil_editar(request):
     usuario = request.user
     accion  = request.POST.get('accion', '')
 
-    # ── Verificar contraseña actual (paso 1 para cambio usuario o clave)
     if accion == 'verificar_clave':
         clave = request.POST.get('clave_actual', '')
         if not clave:
@@ -233,7 +232,6 @@ def perfil_editar(request):
             return JsonResponse({'ok': False, 'error': 'La contraseña actual es incorrecta.'})
         return JsonResponse({'ok': True})
 
-    # ── Cambiar nombre de usuario
     if accion == 'cambiar_usuario':
         nuevo = request.POST.get('usuario', '').strip()
         if not nuevo:
@@ -247,7 +245,6 @@ def perfil_editar(request):
         request.session['usuario_user'] = nuevo
         return JsonResponse({'ok': True})
 
-    # ── Cambiar contraseña
     if accion == 'cambiar_clave':
         nueva = request.POST.get('clave_nueva', '')
         if not nueva:
@@ -260,7 +257,6 @@ def perfil_editar(request):
         update_session_auth_hash(request, usuario)
         return JsonResponse({'ok': True})
 
-    # ── Editar info personal
     if accion == 'info':
         nombre    = request.POST.get('nombre', '').strip()
         apellidos = request.POST.get('apellidos', '').strip()
@@ -399,3 +395,32 @@ def perfil_pagina(request):
         'telefono':       u.telefono or '—',
     }
     return render(request, 'perfil.html', ctx)
+
+
+# ── ACTUALIZAR FOTO ───────────────────────────────────────────────────────────
+@login_required
+def actualizar_foto(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
+    # Quitar foto
+    if request.POST.get('quitar') == '1':
+        if request.user.foto:
+            request.user.foto.delete(save=False)
+            request.user.foto = None
+            request.user.save(update_fields=['foto'])
+        return JsonResponse({'ok': True})
+
+    # Subir foto
+    foto = request.FILES.get('foto')
+    if not foto:
+        return JsonResponse({'ok': False, 'error': 'No se recibió ninguna imagen.'})
+    if foto.content_type not in ['image/jpeg', 'image/png', 'image/webp', 'image/gif']:
+        return JsonResponse({'ok': False, 'error': 'Formato no permitido. Usa JPG, PNG o WEBP.'})
+    if foto.size > 5 * 1024 * 1024:
+        return JsonResponse({'ok': False, 'error': 'La imagen no debe superar 5 MB.'})
+    if request.user.foto:
+        request.user.foto.delete(save=False)
+    request.user.foto = foto
+    request.user.save(update_fields=['foto'])
+    return JsonResponse({'ok': True, 'url': request.user.foto.url})

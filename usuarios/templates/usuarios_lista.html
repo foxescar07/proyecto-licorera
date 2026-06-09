@@ -64,7 +64,15 @@
 
             <div class="d-flex align-items-center justify-content-between mb-3">
               <div class="d-flex align-items-center gap-2">
-                <div class="usuario-avatar">{{ u.nombre|slice:":1"|upper }}</div>
+                <div class="usuario-avatar">
+                  {% if u.foto %}
+                    <img src="{{ u.foto.url }}" alt="{{ u.nombre|slice:':1'|upper }}"
+                         loading="eager"
+                         style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
+                  {% else %}
+                    {{ u.nombre|slice:":1"|upper }}
+                  {% endif %}
+                </div>
                 <div>
                   <div class="usuario-nombre">{{ u.nombre_completo }}</div>
                   <div class="usuario-user">@{{ u.usuario }}</div>
@@ -245,7 +253,15 @@
               {% for u in usuarios %}
               {% if u.pk != request.session.usuario_id %}
               <div class="ul-activity-item">
-                <div class="ul-activity-avatar">{{ u.nombre|slice:":1"|upper }}</div>
+                <div class="ul-activity-avatar">
+                  {% if u.foto %}
+                    <img src="{{ u.foto.url }}" alt="{{ u.nombre|slice:':1'|upper }}"
+                         loading="eager"
+                         style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
+                  {% else %}
+                    {{ u.nombre|slice:":1"|upper }}
+                  {% endif %}
+                </div>
                 <div class="ul-activity-body">
                   <div class="ul-activity-name">{{ u.nombre_completo }}</div>
                   <div class="ul-activity-meta">{{ u.get_rol_display }}</div>
@@ -334,8 +350,7 @@
 <script>
 (function () {
 
-  /* ── UTILIDADES ── */
-  const $  = id => document.getElementById(id);
+  const $    = id => document.getElementById(id);
   const csrf = () => (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
 
   function apiFetch(url, fd) {
@@ -352,7 +367,6 @@
     return fd;
   }
 
-  /* ── BÚSQUEDA EN VIVO ── */
   $('inputBuscarUsuario')?.addEventListener('input', function () {
     const q    = this.value.trim().toLowerCase();
     const cols = document.querySelectorAll('#contenedor-tarjetas > div[id^="col-"]');
@@ -366,7 +380,6 @@
     if (sr) sr.style.setProperty('display', vis === 0 ? 'block' : 'none', 'important');
   });
 
-  /* ── LAYOUT ── */
   function sincronizarAltoCaso2() {
     const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
     if (main && sb) sb.style.height = main.offsetHeight + 'px';
@@ -448,7 +461,6 @@
       requestAnimationFrame(sincronizarAltoCaso2);
   });
 
-  /* ── MODAL EDITAR ── */
   window.euMostrarMsg = (texto, tipo) => {
     const el = $('euMsg');
     el.textContent = texto;

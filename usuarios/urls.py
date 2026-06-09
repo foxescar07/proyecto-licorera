@@ -11,6 +11,7 @@ urlpatterns = [
     path('perfil/',                  views.perfil_datos,           name='perfil_datos'),
     path('perfil/editar/',           views.perfil_editar,          name='perfil_editar'),
     path('perfil/pagina/',           views.perfil_pagina,          name='perfil_pagina'),
+    path('perfil/foto/',             views.actualizar_foto,        name='actualizar_foto'),
     path('editar/<int:pk>/',         views.editar_usuario,         name='editar_usuario'),
     path('toggle/<int:pk>/',         views.toggle_activo,          name='toggle_activo'),
     path('eliminar/<int:pk>/',       views.eliminar_usuario,       name='eliminar_usuario'),

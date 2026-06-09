@@ -467,6 +467,7 @@
   font-size: .75rem;
   color: #4DA8DA;
   flex-shrink: 0;
+  overflow: hidden;
 }
 .ul-activity-body { flex: 1; min-width: 0; }
 .ul-activity-name {
@@ -533,6 +534,7 @@
   background: rgba(77,168,218,.12); border: 1px solid rgba(77,168,218,.3);
   display: flex; align-items: center; justify-content: center;
   font-family: 'Rajdhani',sans-serif; font-weight: 700; font-size: .95rem; color: #4DA8DA;
+  overflow: hidden;
 }
 .usuario-nombre { font-size: .88rem; font-weight: 600; color: #E8EDF2; line-height: 1.2; }
 .usuario-user   { font-size: .72rem; color: #4DA8DA; margin-top: .1rem; }

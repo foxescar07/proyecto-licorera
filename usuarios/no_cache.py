@@ -4,7 +4,8 @@ class NoCacheMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, private, max-age=0'
-        response['Pragma']  = 'no-cache'
-        response['Expires'] = '0'
+        if not request.path.startswith('/media/') and not request.path.startswith('/static/'):
+            response['Cache-Control'] = 'no-store, no-cache, must-revalidate, private, max-age=0'
+            response['Pragma']  = 'no-cache'
+            response['Expires'] = '0'
         return response
