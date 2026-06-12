@@ -45,11 +45,19 @@ class Producto(models.Model):
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"
 
+    
     @property
     def stock_total(self):
-        stock_pres = self.presentaciones.aggregate(total=Sum('cantidad'))['total'] or 0
-        return self.cantidad_disponible + stock_pres
-
+        from django.db.models import Sum
+        try:
+            from inventario.models import Lote
+            total_lotes = Lote.objects.filter(
+                presentacion__producto=self
+            ).aggregate(total=Sum('stock_actual'))['total'] or 0
+            return total_lotes
+        except Exception:
+            return 0
+    
     @property
     def stock_critico(self):
         return self.stock_total <= 5
