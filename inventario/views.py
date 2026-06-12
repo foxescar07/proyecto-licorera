@@ -259,7 +259,6 @@ def gestion_salida(request):
             messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades de "{presentacion.nombre}".')
             return redirect('gestion_inventario')
 
-        # Descontar lotes por FEFO
         restante = cantidad
         lotes_qs = presentacion.lotes.filter(stock_actual__gt=0).order_by(
             db_models.F('fecha_vencimiento').asc(nulls_last=True), 'id'
@@ -284,10 +283,11 @@ def gestion_salida(request):
             cantidad=cantidad,
             motivo=motivo,
         )
-        messages.success(request, f'✅ Salida de {cantidad} × "{presentacion.nombre}" registrada para {producto.nombre}.')
+        presentacion.cantidad = max(0, (presentacion.cantidad or 0) - cantidad)
+        presentacion.save()
+        messages.success(request, f'✅ Salida de {cantidad} unidades de "{presentacion.nombre}" registrada.')
 
     return redirect('gestion_inventario')
-
 
 @login_required
 def gestion_producto_editar(request, pk):
@@ -380,6 +380,9 @@ def gestion_producto_editar(request, pk):
         for i, nombre_pres in enumerate(nuevos_nombres):
             nombre_pres = nombre_pres.strip()
             if not nombre_pres:
+                continue
+            # Evitar duplicados: si ya existe una presentación con ese nombre, no crear
+            if PresentacionProducto.objects.filter(producto=producto, nombre__iexact=nombre_pres).exists():
                 continue
             try:
                 precio_pres   = max(0, float(nuevos_precios[i]))   if i < len(nuevos_precios)    else 0
@@ -486,11 +489,19 @@ def gestion_categoria_eliminar(request, pk):
 def registrar_lote(request):
     if request.method == 'POST':
         numero_lote       = request.POST.get('numero_lote', '').strip()
-        presentacion_id   = request.POST.get('presentacion')
+        presentacion_id   = request.POST.get('presentacion_lote')
         costo_unitario    = request.POST.get('costo_unitario', 0)
-        stock_inicial     = request.POST.get('stock_inicial', 0)
-        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
-
+        stock_inicial     = request.POST.get('cantidad_lote', 0)
+        fecha_vencimiento_str = request.POST.get('fecha_vencimiento', '').strip()
+        if fecha_vencimiento_str:
+            from datetime import date
+            try:
+                fecha_vencimiento = date.fromisoformat(fecha_vencimiento_str)
+            except ValueError:
+                fecha_vencimiento = None
+        else:
+            fecha_vencimiento = None
+        
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
             return redirect('gestion_inventario')
@@ -505,14 +516,22 @@ def registrar_lote(request):
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
 
+        try:
+            stock_inicial_int = int(stock_inicial)
+        except (ValueError, TypeError):
+            stock_inicial_int = 0
+
         lote = Lote.objects.create(
             numero_lote=numero_lote,
             presentacion=presentacion,
             costo_unitario=costo_unitario,
-            stock_actual=stock_inicial,
+            stock_actual=stock_inicial_int,
             fecha_vencimiento=fecha_vencimiento,
             registrado_por=request.user,
         )
+
+        presentacion.cantidad = (presentacion.cantidad or 0) + stock_inicial_int
+        presentacion.save()
 
         if fecha_vencimiento:
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}" — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
