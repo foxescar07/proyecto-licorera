@@ -239,37 +239,38 @@
         <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
           <button class="btn-trigger-dropdown"
                   type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseRecientes"
+                  id="btnRecientes34"
                   aria-expanded="false">
             <span><i class="bi bi-clock-history me-2"></i>Ver Registros Recientes</span>
             <i class="bi bi-chevron-down arrow-icon"></i>
           </button>
-          <div class="collapse" id="collapseRecientes">
+          <div id="collapseRecientes34" style="display:none; overflow:hidden;">
             <div class="ul-widget widget-recientes">
               <div class="ul-widget__title">
                 <i class="bi bi-clock-history"></i> Registros recientes
               </div>
-              {% for u in usuarios %}
-              {% if u.pk != request.session.usuario_id %}
-              <div class="ul-activity-item">
-                <div class="ul-activity-avatar">
-                  {% if u.foto %}
-                    <img src="{{ u.foto.url }}" alt="{{ u.nombre|slice:':1'|upper }}"
-                         loading="eager"
-                         style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
-                  {% else %}
-                    {{ u.nombre|slice:":1"|upper }}
-                  {% endif %}
+              <div class="ul-recientes-scroll">
+                {% for u in usuarios %}
+                {% if u.pk != request.session.usuario_id %}
+                <div class="ul-activity-item">
+                  <div class="ul-activity-avatar">
+                    {% if u.foto %}
+                      <img src="{{ u.foto.url }}" alt="{{ u.nombre|slice:':1'|upper }}"
+                           loading="eager"
+                           style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
+                    {% else %}
+                      {{ u.nombre|slice:":1"|upper }}
+                    {% endif %}
+                  </div>
+                  <div class="ul-activity-body">
+                    <div class="ul-activity-name">{{ u.nombre_completo }}</div>
+                    <div class="ul-activity-meta">{{ u.get_rol_display }}</div>
+                  </div>
+                  <div class="ul-activity-time">{{ u.fecha_registro|date:"d/m/y" }}</div>
                 </div>
-                <div class="ul-activity-body">
-                  <div class="ul-activity-name">{{ u.nombre_completo }}</div>
-                  <div class="ul-activity-meta">{{ u.get_rol_display }}</div>
-                </div>
-                <div class="ul-activity-time">{{ u.fecha_registro|date:"d/m/y" }}</div>
+                {% endif %}
+                {% endfor %}
               </div>
-              {% endif %}
-              {% endfor %}
             </div>
           </div>
         </div>
@@ -382,17 +383,32 @@
 
   function sincronizarAltoCaso2() {
     const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
-    if (main && sb) sb.style.height = main.offsetHeight + 'px';
+    if (!main || !sb) return;
+    sb.style.height = '';
+    const alturaMain  = main.offsetHeight;
+    const alturaMinSb = sb.scrollHeight;
+    sb.style.height = Math.max(alturaMain, alturaMinSb) + 'px';
   }
 
   function escucharCollapseCaso2() {
-    ['collapseStats','collapseRecientes'].forEach(id => {
-      ['shown.bs.collapse','hidden.bs.collapse'].forEach(ev =>
-        $(id)?.addEventListener(ev, () => {
-          if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-            requestAnimationFrame(sincronizarAltoCaso2);
-        })
-      );
+    ['shown.bs.collapse','hidden.bs.collapse'].forEach(ev =>
+      $('collapseStats')?.addEventListener(ev, () => {
+        if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+          requestAnimationFrame(sincronizarAltoCaso2);
+      })
+    );
+  }
+
+  function iniciarToggleRecientes() {
+    const btn = $('btnRecientes34');
+    btn?.addEventListener('click', function () {
+      const panel   = $('collapseRecientes34');
+      const abierto = panel.style.display !== 'none';
+      panel.style.display = abierto ? 'none' : 'block';
+      this.setAttribute('aria-expanded', String(!abierto));
+      this.querySelector('.arrow-icon').style.transform = abierto ? '' : 'rotate(180deg)';
+      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+        requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
     });
   }
 
@@ -403,7 +419,6 @@
     const layout = $('layout-principal');
     const sb     = $('ul-sidebar-ref');
     const cS     = $('collapseStats');
-    const cR     = $('collapseRecientes');
 
     layout.classList.remove('cards-view-1-2','cards-view-3-4','cards-view-5-6','cards-view-dense');
     if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
@@ -414,10 +429,18 @@
       [6,        'cards-view-5-6',   true,  true ],
       [Infinity, 'cards-view-dense', true,  true ],
     ];
-    const [, cls, showS, showR] = casos.find(([n]) => total <= n);
+    const [, cls, showS] = casos.find(([n]) => total <= n);
     layout.classList.add(cls);
-    cS?.[showS ? 'classList' : 'classList'][showS ? 'add' : 'remove']('show');
-    cR?.[showR ? 'classList' : 'classList'][showR ? 'add' : 'remove']('show');
+    if (showS) cS?.classList.add('show'); else cS?.classList.remove('show');
+
+    const p34  = $('collapseRecientes34');
+    const b34  = $('btnRecientes34');
+    if (p34) p34.style.display = 'none';
+    if (b34) {
+      b34.setAttribute('aria-expanded', 'false');
+      const arrow = b34.querySelector('.arrow-icon');
+      if (arrow) arrow.style.transform = '';
+    }
 
     if (cls === 'cards-view-3-4')
       requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
@@ -448,6 +471,7 @@
   calcularStats();
   reajustarLayout();
   escucharCollapseCaso2();
+  iniciarToggleRecientes();
 
   window.addEventListener('load', () => {
     if ($('layout-principal')?.classList.contains('cards-view-3-4'))

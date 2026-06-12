@@ -12,7 +12,7 @@ class Usuario(AbstractUser):
         ('empleado', 'Empleado'),
     ]
     TIPO_ID_CHOICES = [
-        ('CC',  'Cédula de Ciudadanía'),
+        ('CC',  'Cédula d.e Ciudadanía'),
         ('CE',  'Cédula de Extranjería'),
         ('TI',  'Tarjeta de Identidad'),
         ('PA',  'Pasaporte'),
@@ -37,7 +37,9 @@ class Usuario(AbstractUser):
         verbose_name_plural = 'Usuarios'
 
     def __str__(self):
-        return f'{self.nombre_completo} ({self.get_rol_display()})'
+        # Ajuste para cumplir con la Fase de Modelado sin errores visuales
+        nombre_visible = self.nombre_completo if self.nombre_completo else self.username
+        return f'{nombre_visible} ({self.get_rol_display()})'
 
     @property
     def nombre(self):
@@ -65,8 +67,6 @@ class Usuario(AbstractUser):
         f_name = self.first_name.split()[0] if self.first_name else ''
         l_name = self.last_name.split()[0] if self.last_name else ''
         return f"{quote(f_name)}+{quote(l_name)}"
-
-
 
     def save(self, *args, **kwargs):
         if self.first_name:
