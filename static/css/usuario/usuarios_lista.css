@@ -134,7 +134,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   CASO 1 — 1 o 2 tarjetas  (SIN CAMBIOS)
+   CASO 1 — 1 o 2 tarjetas
 ══════════════════════════════════════════════ */
 .cards-view-1-2 .ul-layout,
 .ul-layout.cards-view-1-2 {
@@ -270,26 +270,31 @@
   display: flex;
   flex-direction: column;
   align-self: stretch;
-  height: 100%;
+  overflow: visible;
 }
-.cards-view-3-4 .widget-total {
+.cards-view-3-4 .ul-sidebar-bottom {
   flex: 1;
-  justify-content: center;
-}
-.cards-view-3-4 #wrapperStats {
-  flex: 2;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+}
+.cards-view-3-4 #wrapperStats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .cards-view-3-4 #collapseStats {
   flex: 1;
   display: flex !important;
   flex-direction: column;
+  min-height: 0;
 }
 .cards-view-3-4 .stats-grid-inner {
+  flex: 1;
   flex-direction: row;
   gap: .5rem;
-  flex: 1;
   align-items: stretch;
 }
 .cards-view-3-4 .widget-estado,
@@ -305,10 +310,24 @@
 .cards-view-3-4 .widget-rol .ul-stat-row {
   padding: .28rem 0;
 }
+.cards-view-3-4 .widget-total {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .cards-view-3-4 #wrapperRecientes {
-  margin-top: auto;
   flex-shrink: 0;
   width: 100%;
+  align-self: flex-end;
+}
+.cards-view-3-4 #collapseRecientes34 {
+  overflow: hidden;
+}
+.cards-view-3-4 .ul-recientes-scroll {
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
 /* ══════════════════════════════════════════════
@@ -336,8 +355,27 @@
 .cards-view-5-6 .ul-sidebar {
   position: sticky;
   top: 1.5rem;
+  gap: 1rem;
 }
-
+.cards-view-5-6 .ul-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.cards-view-5-6 .widget-recientes {
+  display: flex;
+  flex-direction: column;
+}
+.cards-view-5-6 .widget-recientes .ul-widget__title {
+  display: flex;
+  flex-shrink: 0;
+  margin-bottom: .6rem;
+}
+.cards-view-5-6 .ul-recientes-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 17px;
+}
 /* ══════════════════════════════════════════════
    CASO 4 — 7 o más tarjetas
 ══════════════════════════════════════════════ */
@@ -359,6 +397,25 @@
 .cards-view-dense .ul-sidebar {
   position: sticky;
   top: 1.5rem;
+  gap: 1rem;
+}
+.cards-view-dense .ul-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.cards-view-dense .widget-recientes {
+  display: flex;
+  flex-direction: column;
+}
+.cards-view-dense .widget-recientes .ul-widget__title {
+  display: flex;
+  flex-shrink: 0;
+  margin-bottom: .6rem;
+}
+.cards-view-dense .ul-recientes-scroll {
+  max-height: 260px;
+  overflow-y: auto;
 }
 
 /* ══════════════════════════════════════════════

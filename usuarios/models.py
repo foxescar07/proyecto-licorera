@@ -12,7 +12,7 @@ class Usuario(AbstractUser):
         ('empleado', 'Empleado'),
     ]
     TIPO_ID_CHOICES = [
-        ('CC',  'Cédula de Ciudadanía'),
+        ('CC',  'Cédula d.e Ciudadanía'),
         ('CE',  'Cédula de Extranjería'),
         ('TI',  'Tarjeta de Identidad'),
         ('PA',  'Pasaporte'),

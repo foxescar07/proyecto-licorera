@@ -68,8 +68,9 @@ class DetalleVenta(models.Model):
     venta           = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_venta', null=True, blank=True)
-    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
-                                        related_name='detalles_venta')
+    # Se corrige para usar directamente la clase importada
+    presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
+                                        related_name='detalles_venta', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
                                         null=True, blank=True, related_name='detalles_venta')
     cantidad        = models.PositiveIntegerField()
@@ -83,7 +84,9 @@ class DetalleVenta(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
+        nombre_prod = self.presentacion.producto.nombre if self.presentacion else (self.producto.nombre if self.producto else "Producto")
+        nombre_pres = f" ({self.presentacion.nombre})" if self.presentacion else ""
+        return f'{nombre_prod}{nombre_pres} x{self.cantidad}'
 
 
 class AperturaCaja(models.Model):
@@ -147,7 +150,7 @@ class Devolucion(models.Model):
         ordering            = ['-fecha']
 
     def __str__(self):
-        return f'DEV-{self.pk:04d} | {self.venta.cliente.nombre} — {self.fecha:%d/%m/%Y %H:%M}'
+        return f'DEV-{self.pk:04d} | {self.venta.cliente.nombre} — {self.fecha:%d/%m/%Y %H:%M}' if self.pk else f'Nueva Devolución — {self.venta.cliente.nombre}'
 
     @property
     def numero(self):
@@ -155,12 +158,12 @@ class Devolucion(models.Model):
 
 
 class DetalleDevolucion(models.Model):
-    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE,
-                                        related_name='detalles')
+    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE, related_name='detalles')
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
-    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
-                                        related_name='detalles_devolucion')
+    # Se corrige para usar directamente la clase importada
+    presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
+                                        related_name='detalles_devolucion', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
                                         null=True, blank=True, related_name='detalles_devolucion')
     cantidad        = models.PositiveIntegerField()
@@ -174,4 +177,6 @@ class DetalleDevolucion(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
+        nombre_prod = self.presentacion.producto.nombre if self.presentacion else (self.producto.nombre if self.producto else "Producto")
+        nombre_pres = f" ({self.presentacion.nombre})" if self.presentacion else ""
+        return f'{nombre_prod}{nombre_pres} x{self.cantidad}'
