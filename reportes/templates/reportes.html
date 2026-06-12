@@ -230,14 +230,13 @@
         </div>
 
         <!-- Botones de Acción -->
-        <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: rgba(77, 168, 218, 0.3) !important;">
-          <a href="?export=excel&tipo=ventas&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" class="btn btn-sm btn-success px-3 shadow-sm">
+        <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: rgba(77, 168, 218, 0.3) !important;">          <a href="?export=excel&tipo=ventas&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}" class="btn btn-sm btn-success px-3 shadow-sm" download="historial_ventas.xlsx" target="_blank">
             <i class="bi bi-file-earmark-excel me-1"></i>Excel
           </a>
-          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" class="btn btn-sm btn-danger px-3 shadow-sm">
+          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}" class="btn btn-sm btn-danger px-3 shadow-sm" download="historial_ventas.pdf" target="_blank">
             <i class="bi bi-file-earmark-pdf me-1"></i>PDF
           </a>
-          <a href="?export=pdf&tipo=ventas&print=true&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" class="btn btn-sm btn-info px-3 shadow-sm text-dark">
+          <a href="?export=pdf&tipo=ventas&print=true&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}" class="btn btn-sm btn-info px-3 shadow-sm text-dark" target="_blank">
             <i class="bi bi-printer me-1"></i>Imprimir
           </a>
         </div>
@@ -484,10 +483,10 @@
 
       <div class="modal-footer cys-modal__footer">
         <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=inventario" class="btn btn-sm btn-success">
+          <a href="?export=excel&tipo=inventario" class="btn btn-sm btn-success" download="reporte_inventario.xlsx" target="_blank">
             <i class="bi bi-file-earmark-excel"></i> Exportar Excel
           </a>
-          <a href="?export=pdf&tipo=inventario" class="btn btn-sm btn-danger">
+          <a href="?export=pdf&tipo=inventario" class="btn btn-sm btn-danger" download="reporte_inventario.pdf" target="_blank">
             <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
           </a>
         </div>
@@ -567,10 +566,10 @@
 
       <div class="modal-footer cys-modal__footer">
         <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=proveedores" class="btn btn-sm btn-success">
+          <a href="?export=excel&tipo=proveedores" class="btn btn-sm btn-success" download="reporte_proveedores.xlsx" target="_blank">
             <i class="bi bi-file-earmark-excel"></i> Exportar Excel
           </a>
-          <a href="?export=pdf&tipo=proveedores" class="btn btn-sm btn-danger">
+          <a href="?export=pdf&tipo=proveedores" class="btn btn-sm btn-danger" download="reporte_proveedores.pdf" target="_blank">
             <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
           </a>
         </div>
@@ -788,10 +787,10 @@
 
       <div class="modal-footer cys-modal__footer">
         <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-success">
+          <a href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-success" download="resumen_diario.xlsx" target="_blank">
             <i class="bi bi-file-earmark-excel"></i> Exportar Excel
           </a>
-          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-danger">
+          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-danger" download="resumen_diario.pdf" target="_blank">
             <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
           </a>
         </div>
@@ -930,10 +929,10 @@
 
       <div class="modal-footer cys-modal__footer">
         <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-success">
+          <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-success" download="analisis_ventas.xlsx" target="_blank">
             <i class="bi bi-file-earmark-excel"></i> Exportar Excel
           </a>
-          <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-danger">
+          <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-danger" download="analisis_ventas.pdf" target="_blank">
             <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
           </a>
         </div>
@@ -962,6 +961,27 @@ $(document).ready(function() {
         ordering: true,
         responsive: true
     });
+
+    // Script para sincronizar las fechas con los botones de exportación
+    function syncExportLinks() {
+        const fechaInicio = $('#filtro-fecha-inicio').val() || '';
+        const fechaFin = $('#filtro-fecha-fin').val() || '';
+        
+        const params = `&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+        
+        // Actualizar los href de los botones de la sección principal
+        $('#btn-export-excel').attr('href', `?export=excel&tipo=ventas${params}`);
+        $('#btn-export-pdf').attr('href', `?export=pdf&tipo=ventas${params}`);
+        $('#btn-export-print').attr('href', `?export=pdf&tipo=ventas&print=true${params}`);
+    }
+
+    // Escuchar cambios en los inputs de fecha
+    $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', function() {
+        syncExportLinks();
+    });
+
+    // Inicializar al cargar
+    syncExportLinks();
 });
 </script>
 {% endblock %}
