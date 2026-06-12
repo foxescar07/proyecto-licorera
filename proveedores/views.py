@@ -6,7 +6,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from datetime import timedelta
 from .models import Proveedor, Compra
-from .forms import ProveedorForm
+from .forms import ProveedorForm, CompraForm
 from productos.models import Producto
 from inventario.models import Lote, Inventario
 
@@ -145,6 +145,7 @@ def registrar_compra(request):
     """Vista para registrar compras a proveedores"""
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
     proveedor = None
+    form = None
 
     # Obtener proveedor de sesión o parámetro GET
     if request.method == 'POST':
@@ -181,61 +182,53 @@ def registrar_compra(request):
             messages.error(request, 'Por favor selecciona un proveedor.')
             return redirect('registrar_compra')
 
-        producto_id = request.POST.get('producto')
-        cantidad = request.POST.get('cantidad')
-        precio_unitario = request.POST.get('precio_unitario')
-        lote_id = request.POST.get('lote_id')
+        form = CompraForm(request.POST)
 
-        if not producto_id or not cantidad:
-            messages.warning(request, 'Por favor completa todos los campos obligatorios.')
-        else:
+        if form.is_valid():
             try:
-                producto = Producto.objects.get(id=int(producto_id))
-                cantidad_int = int(cantidad)
-
-                if cantidad_int <= 0:
-                    messages.error(request, 'La cantidad debe ser mayor a cero.')
-                    return redirect('registrar_compra')
-
-                # Obtener lote si existe
-                lote = None
-                if lote_id:
-                    lote = Lote.objects.filter(pk=lote_id).first()
-
-                # Crear compra
-                compra = Compra.objects.create(
-                    proveedor=proveedor,
-                    producto=producto,
-                    lote=lote,
-                    cantidad=cantidad_int,
-                    precio_unitario=precio_unitario if precio_unitario else None,
-                )
+                compra = form.save(commit=False)
+                compra.proveedor = proveedor
+                compra.save()
 
                 # Actualizar cantidad disponible del producto
-                producto.cantidad_disponible += cantidad_int
+                producto = compra.producto
+                producto.cantidad_disponible += compra.cantidad
                 producto.save()
 
-                # Crear registro en inventario
-                Inventario.objects.create(
-                    producto=producto,
-                    tipo='entrada',
-                    cantidad=cantidad_int,
-                    motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
-                    ubicacion='Ingreso por compra',
-                )
+                # Crear registro en inventario solo si hay lote
+                if compra.lote:
+                    from inventario.models import Inventario
+
+                    # Obtener la presentación del lote
+                    presentacion = compra.lote.presentacion
+                    presentacion.cantidad += compra.cantidad
+                    presentacion.save()
+
+                    # Crear movimiento de inventario
+                    Inventario.objects.create(
+                        presentacion=presentacion,
+                        lote=compra.lote,
+                        registrado_por=request.user,
+                        tipo='entrada',
+                        cantidad=compra.cantidad,
+                        motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
+                    )
 
                 messages.success(
                     request,
-                    f'✅ {cantidad_int} unidades de "{producto.nombre}" ingresadas correctamente.'
+                    f'✅ {compra.cantidad} unidades de "{producto.nombre}" ingresadas correctamente.'
                 )
                 return redirect('registrar_compra')
 
-            except Producto.DoesNotExist:
-                messages.error(request, 'El producto seleccionado no existe.')
-            except ValueError:
-                messages.error(request, 'Por favor verifica los datos ingresados.')
             except Exception as e:
                 messages.error(request, f'Error al registrar la compra: {str(e)}')
+        else:
+            # Mostrar errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = CompraForm()
 
     # Obtener datos para estadísticas
     hoy = timezone.now()
@@ -277,6 +270,7 @@ def registrar_compra(request):
         'total_mes': total_mes,
         'producto_top': producto_top,
         'lotes': lotes,
+        'form': form,
     }
 
     return render(request, 'proveedores/compras.html', context)
