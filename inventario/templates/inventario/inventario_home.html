@@ -106,59 +106,112 @@
 
 </div>
 
-  <!-- INVENTARIOS PROGRAMADOS -->
-  <div class="card inv-card mb-4">
-    <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
-         data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
-      <span class="fw-semibold">
-        <i class="bi bi-calendar2-week me-2 text-info"></i>
-        Inventarios Programados
-        {% if agendas %}
-          <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
-        {% endif %}
-      </span>
-      <i class="bi bi-chevron-down"></i>
-    </div>
-    <div class="collapse" id="agendaBody">
-      <div class="card-body">
+ <!-- INVENTARIOS PROGRAMADOS -->
+<div class="card inv-card mb-4">
+  <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
+       data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
+    <span class="fw-semibold">
+      <i class="bi bi-calendar2-week me-2 text-info"></i>
+      Inventarios Programados
+      {% if agendas %}
+        <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
+      {% endif %}
+    </span>
+    <i class="bi bi-chevron-down"></i>
+  </div>
+
+  <div class="collapse show" id="agendaBody">
+    <div class="card-body">
+
+<!-- TABS -->
+<div class="d-flex gap-2 mb-3">
+  <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn active" data-tab="activos"
+          style="background: var(--inv-azul-dim); color: var(--inv-azul); border: 1px solid var(--inv-azul-borde); font-size:.78rem;">
+    <i class="bi bi-clock me-1"></i>Activos
+  </button>
+  <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn" data-tab="historial"
+          style="background: transparent; color: var(--inv-texto); border: 1px solid var(--inv-azul-borde); font-size:.78rem; opacity:.6;">
+    <i class="bi bi-archive me-1"></i>Historial
+  </button>
+</div>
+
+      <div class="d-flex flex-column gap-3" id="lista-agendas">
+
         {% for agenda in agendas %}
-        <div class="inv-agenda-item mb-3 p-3 rounded">
-          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-            <div>
-              <div class="fw-semibold">{{ agenda.titulo }}</div>
-              <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}</div>
-              {% if agenda.descripcion %}
-                <div class="text-muted small mt-1">{{ agenda.descripcion }}</div>
+          {% with estado=agenda.estado %}
+          <div class="agenda-item p-3 rounded-3
+                      {% if estado == 'completada' or estado == 'cancelada' %}agenda-historial{% else %}agenda-activo{% endif %}"
+               style="background: var(--inv-card2); border: 1px solid var(--inv-azul-borde);
+                      {% if estado == 'completada' or estado == 'cancelada' %}display:none;{% endif %}">
+
+            <!-- Cabecera -->
+            <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
+              <div>
+                <div class="fw-semibold" style="color: var(--inv-texto);">{{ agenda.titulo }}</div>
+                <div class="text-muted small mt-1">
+                  <i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}
+                </div>
+                {% if agenda.descripcion %}
+                  <div class="text-muted small mt-1">{{ agenda.descripcion }}</div>
+                {% endif %}
+              </div>
+              <span class="badge rounded-pill inv-estado-{{ estado }} flex-shrink-0">
+                {{ agenda.get_estado_display }}
+              </span>
+            </div>
+
+            <!-- Stepper clicable -->
+            <div class="d-flex align-items-center gap-2 flex-wrap my-3">
+              {% for val, label in agenda.ESTADO_CHOICES %}
+                {% if estado == 'completada' or estado == 'cancelada' %}
+                  <span class="badge rounded-pill px-3 py-2
+                    {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %}"
+                    style="font-size:.75rem;">
+                    {{ label }}
+                  </span>
+                {% else %}
+                  <form method="POST" action="{% url 'agenda_estado' agenda.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="estado" value="{{ val }}">
+                    <button type="submit"
+                            class="badge rounded-pill px-3 py-2 border-0
+                              {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %}"
+                            style="font-size:.75rem; cursor:pointer;"
+                            {% if agenda.estado == val %}disabled{% endif %}>
+                      {{ label }}
+                    </button>
+                  </form>
+                {% endif %}
+                {% if not forloop.last %}
+                  <i class="bi bi-arrow-right text-muted" style="font-size:.75rem;"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- Pie -->
+            <div class="pt-2 border-top" style="border-color: var(--inv-azul-borde) !important;">
+              {% if estado == 'completada' %}
+                <small class="text-muted">Inventario finalizado · sin acciones disponibles</small>
+              {% elif estado == 'cancelada' %}
+                <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
+              {% else %}
+                <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
               {% endif %}
             </div>
-            <span class="badge inv-estado-{{ agenda.estado }}">{{ agenda.get_estado_display }}</span>
+
           </div>
-          <!-- Tracker de estado -->
-          <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
-            {% for estado_val, estado_label in agenda.ESTADO_CHOICES %}
-            <form method="POST" action="{% url 'agenda_estado' agenda.pk %}" class="d-inline">
-              {% csrf_token %}
-              <input type="hidden" name="estado" value="{{ estado_val }}">
-              <button type="submit"
-                class="btn btn-sm {% if agenda.estado == estado_val %}inv-tracker-active{% else %}inv-tracker-inactive{% endif %}">
-                {{ estado_label }}
-              </button>
-            </form>
-            {% if not forloop.last %}
-              <i class="bi bi-arrow-right text-muted small"></i>
-            {% endif %}
-            {% endfor %}
-          </div>
-        </div>
+          {% endwith %}
         {% empty %}
-        <div class="text-center py-3 text-muted">
-          <i class="bi bi-calendar-x d-block mb-1 fs-4"></i>
-          No hay inventarios programados.
-        </div>
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-calendar-x d-block mb-2 fs-3"></i>
+            No hay inventarios programados.
+          </div>
         {% endfor %}
+
       </div>
     </div>
   </div>
+</div>
 
   <!-- MOVIMIENTOS DE INVENTARIO -->
   <div class="card inv-card">
@@ -299,8 +352,8 @@
             </div>
             <div class="d-flex gap-2 justify-content-end">
               <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn inv-btn-primary">
-                <i class="bi bi-calendar-check me-1"></i>Agendar
+               <button type="submit" name="Agendar" class="btn inv-btn-outline btn-sm">
+                <i class="bi bi-calendar-check me-2"></i>Agendar
               </button>
             </div>
           </form>
@@ -335,7 +388,7 @@
             </div>
             <form method="POST" action="{% url 'conteo_inventario' %}">
               {% csrf_token %}
-              <button type="submit" name="iniciar_sesion" class="btn inv-btn-primary btn-sm">
+              <button type="submit" name="iniciar_sesion" class="btn inv-btn-outline btn-sm">
                 <i class="bi bi-play-fill me-1"></i>
                 {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
               </button>
@@ -746,5 +799,26 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
   // Limpiar selección al cerrar el modal
   modal.addEventListener('hidden.bs.modal', resetUI);
 })();
+// ── TABS AGENDAS ──
+document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.agenda-tab-btn').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.opacity    = '0.6';
+    });
+    this.style.background = 'var(--inv-azul-dim)';
+    this.style.opacity    = '1';
+    this.classList.add('active');
+
+    const tab = this.dataset.tab;
+    document.querySelectorAll('.agenda-item').forEach(item => {
+      if (tab === 'activos') {
+        item.style.display = item.classList.contains('agenda-activo') ? '' : 'none';
+      } else {
+        item.style.display = item.classList.contains('agenda-historial') ? '' : 'none';
+      }
+    });
+  });
+});
 </script>
 {% endblock %}

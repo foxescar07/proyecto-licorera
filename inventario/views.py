@@ -20,6 +20,7 @@ def inventario_home(request):
             creado_por=request.user,
             responsable=request.user,
         )
+        
         messages.success(request, 'Inventario agendado correctamente.')
         return redirect('inventario_home')
 
@@ -48,7 +49,7 @@ def inventario_home(request):
                 'diferencia':   diff,
                 'estado':       'ok' if diff == 0 else ('sobrante' if diff > 0 else 'faltante'),
             })
-
+    
     # =========================================================================
     # LÓGICA DE DATOS REALES PARA KPIs Y GRÁFICOS (LICORERA)
     # =========================================================================

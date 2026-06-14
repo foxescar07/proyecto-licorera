@@ -590,3 +590,44 @@ def gestion_productos(request):
         'productos':  productos,
         'categorias': categorias,
     })
+    # ===============================
+# STOCK STATUS (widget)
+# ===============================
+@login_required
+def stock_status(request):
+    from django.urls import reverse
+    productos = Producto.objects.prefetch_related('presentaciones__lotes').all()
+    criticos, bajos = [], []
+
+    for p in productos:
+        stock_total = p.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+        
+        # Tomamos la primera presentación para la URL
+        primera_pres = p.presentaciones.first()
+        pres_pk = primera_pres.pk if primera_pres else None
+        
+        entrada = {
+            'nombre':            p.nombre,
+            'cantidad':          stock_total,
+            'url_presentacion':  reverse('gestion_productos'),
+            'url_lote':          reverse('gestion_lotes') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
+        }
+        
+        if stock_total == 0:
+            criticos.append(entrada)
+        elif stock_total <= 5:
+            bajos.append(entrada)
+
+    if criticos:
+        estado = 'rojo'
+    elif bajos:
+        estado = 'amarillo'
+    else:
+        estado = 'verde'
+
+    return JsonResponse({
+        'estado':        estado,
+        'total_alertas': len(criticos) + len(bajos),
+        'criticos':      criticos,
+        'bajos':         bajos,
+    })
