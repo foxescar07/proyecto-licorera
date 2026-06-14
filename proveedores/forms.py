@@ -1,5 +1,7 @@
 from django import forms
-from .models import Proveedor
+from .models import Proveedor, Compra
+from productos.models import Producto
+from inventario.models import Lote
 
 class ProveedorForm(forms.ModelForm):
     class Meta:
@@ -29,3 +31,53 @@ class ProveedorForm(forms.ModelForm):
                 'class': 'form-check-input'
             }),
         }
+
+class CompraForm(forms.ModelForm):
+    """Formulario para registrar compras a proveedores"""
+    producto = forms.ModelChoiceField(
+        queryset=Producto.objects.all(),
+        required=True,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'selectProducto'
+        }),
+        label='Selecciona Producto'
+    )
+
+    cantidad = forms.IntegerField(
+        required=True,
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: 10',
+            'id': 'inputCantidad'
+        }),
+        label='Cantidad'
+    )
+
+    precio_unitario = forms.DecimalField(
+        required=False,
+        decimal_places=2,
+        max_digits=10,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': '15000',
+            'id': 'inputPrecio',
+            'step': '1'
+        }),
+        label='Precio Unitario (Opcional)'
+    )
+
+    lote = forms.ModelChoiceField(
+        queryset=Lote.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'selectLote'
+        }),
+        label='Lote (Opcional)'
+    )
+
+    class Meta:
+        model = Compra
+        fields = ['producto', 'cantidad', 'precio_unitario', 'lote']
