@@ -71,7 +71,6 @@
     <div class="col-lg-7">
       <div style="background:var(--color-bg-card); border:1px solid var(--azul-borde); border-radius:14px; min-height:600px; overflow:hidden;">
 
-        <!-- Header columna -->
         <div style="padding:1.1rem 1.25rem .6rem; border-bottom:1px solid var(--azul-borde); background:var(--color-surface);">
           <div style="font-size:1rem; font-weight:800; color:var(--azul-acento); text-transform:uppercase; letter-spacing:.8px;">
             <i class="bi bi-grid-3x3-gap me-2"></i>Selecciona Productos
@@ -79,14 +78,12 @@
         </div>
 
         <div class="p-3">
-          <!-- Buscador -->
           <div class="mb-4">
             <input type="text" id="buscadorProducto" class="form-control"
                    placeholder="Buscar producto por nombre..."
                    style="background:var(--color-surface); border:1px solid var(--azul-borde); color:var(--color-blanco); border-radius:8px;">
           </div>
 
-          <!-- Vista categorías -->
           <div id="vistaCategorias">
             <div class="row g-3">
               {% for cat in categorias %}
@@ -110,7 +107,6 @@
             </div>
           </div>
 
-          <!-- Vista productos -->
           <div id="vistaProductos" style="display:none;">
             <div class="d-flex align-items-center gap-2 mb-3">
               <button class="btn btn-sm" id="btnVolverCats"
@@ -122,7 +118,6 @@
             <div class="row g-3" id="productoLista"></div>
           </div>
 
-          <!-- Vista presentaciones -->
           <div id="vistaPresentaciones" style="display:none;">
             <div class="d-flex align-items-center gap-2 mb-3">
               <button class="btn btn-sm" id="btnVolverProds"
@@ -141,7 +136,6 @@
     <div class="col-lg-5">
       <div style="background:var(--color-bg-card); border:1px solid var(--azul-borde); border-radius:14px; overflow:hidden;">
 
-        <!-- Header carrito -->
         <div style="padding:1.1rem 1.25rem .6rem; border-bottom:1px solid var(--azul-borde); background:var(--color-surface);">
           <div style="font-size:1rem; font-weight:800; color:var(--azul-acento); text-transform:uppercase; letter-spacing:.8px;">
             <i class="bi bi-cart3 me-2"></i>Carrito de Venta
@@ -152,7 +146,6 @@
           <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
             {% csrf_token %}
 
-            <!-- Cliente -->
             <div class="mb-3">
               <label class="cys-filter-label">Cliente</label>
               <input type="text" name="cliente_nombre" id="inputClienteNombre" class="form-control"
@@ -170,7 +163,6 @@
               </div>
             </div>
 
-            <!-- Carrito vacío -->
             <div id="carritoVacio" class="text-center py-4 mb-3 rounded-3"
                  style="border:1px dashed var(--azul-borde);">
               <div class="cys-empty-box" style="padding:1.5rem 1rem;">
@@ -180,14 +172,12 @@
               </div>
             </div>
 
-            <!-- Items carrito -->
             <div id="carritoItems" style="display:none;" class="mb-3">
               <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
             </div>
 
             <div id="camposOcultos"></div>
 
-            <!-- Descuento -->
             <div id="seccionDescuento" style="display:none;" class="mb-3">
               <div class="d-flex justify-content-between align-items-center rounded-3 p-3"
                    style="background:var(--color-surface); border:1px solid var(--azul-borde);">
@@ -198,7 +188,6 @@
               </div>
             </div>
 
-            <!-- Total -->
             <div id="totalGeneral" style="display:none;" class="mb-3 rounded-3 p-3"
                  style="background:rgba(77,168,218,.06); border:1px solid var(--azul-borde);">
               <div class="d-flex justify-content-between align-items-center">
@@ -207,14 +196,10 @@
               </div>
             </div>
 
-            <!-- Métodos de pago -->
             <div id="seccionPagos" style="display:none;" class="mb-3 rounded-3 p-3"
                  style="background:var(--color-surface); border:1px solid var(--azul-borde);">
               <div class="cys-filter-label mb-3">Método de Pago</div>
-              {% for label, name in pago_fields|default:"" %}{% endfor %}
-
               <div class="row g-2 mb-2">
-                {% for metodo, icono in forloop.parentloop|default:"" %}{% endfor %}
                 <div class="col-6">
                   <label style="font-size:.7rem; color:var(--texto-muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em;">Efectivo</label>
                   <input type="number" name="pago_efectivo" value="0" min="0" class="form-control pago-input"
@@ -241,7 +226,6 @@
                          style="background:var(--color-bg); border:1px solid var(--azul-borde); color:var(--color-blanco); border-radius:8px; font-size:.9rem;">
                 </div>
               </div>
-
               <div class="d-flex justify-content-between align-items-center pt-2 mt-1"
                    style="border-top:1px solid var(--azul-borde);">
                 <span class="cys-filter-label" style="margin:0;">Total pagado</span>
@@ -279,102 +263,91 @@
       </div>
     </div>
 
-    <!-- Tarjetas KPI -->
-    <div class="row gx-3 gy-3 p-3">
-      <div class="col-12 col-md-4">
-        <div class="cys-summary-card cys-summary-card--ventas rounded-3">
-          <div class="cys-summary-card__icon cys-summary-card__icon--ventas">
-            <i class="bi bi-currency-dollar"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Total del día</span>
-            <span class="cys-summary-card__val">${{ total_dia|floatformat:0 }}</span>
-            <span class="cys-summary-card__sub">Ingresos registrados hoy</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="cys-summary-card cys-summary-card--productos rounded-3">
-          <div class="cys-summary-card__icon cys-summary-card__icon--productos">
-            <i class="bi bi-receipt"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Ventas registradas</span>
-            <span class="cys-summary-card__val">{{ ventas|length }}</span>
-            <span class="cys-summary-card__sub">Transacciones del período</span>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="cys-summary-card cys-summary-card--clientes rounded-3">
-          <div class="cys-summary-card__icon cys-summary-card__icon--clientes">
-            <i class="bi bi-people"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Clientes atendidos</span>
-            <span class="cys-summary-card__val">{{ ventas|length }}</span>
-            <span class="cys-summary-card__sub">En el período actual</span>
-          </div>
-        </div>
-      </div>
+    <!-- Filtro de fechas -->
+    <div class="px-3 pt-3 pb-2 d-flex flex-wrap align-items-center gap-3"
+         style="border-bottom:1px solid var(--azul-borde);">
+      <span style="font-size:.72rem; font-weight:700; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.06em;">Rango de fechas:</span>
+      <input type="date" id="filtroDesde" class="form-control form-control-sm"
+             style="background:var(--color-surface); border:1px solid var(--azul-borde); color:var(--color-blanco); border-radius:8px; width:auto;">
+      <span style="color:var(--texto-muted); font-size:.85rem;">A</span>
+      <input type="date" id="filtroHasta" class="form-control form-control-sm"
+             style="background:var(--color-surface); border:1px solid var(--azul-borde); color:var(--color-blanco); border-radius:8px; width:auto;">
+      <button id="btnLimpiarFiltro" class="btn btn-sm"
+              style="background:var(--color-surface); border:1px solid var(--azul-borde); color:var(--texto-muted); border-radius:8px; font-weight:600;">
+        <i class="bi bi-x-circle me-1"></i>Limpiar
+      </button>
     </div>
 
     <!-- Tabla -->
-    <div class="table-responsive px-3 pb-3">
-      <table class="cys-inv-table">
+    <div class="table-responsive px-3 pb-3 pt-2">
+      <table class="cys-inv-table" id="tablaHistorial">
         <thead>
           <tr>
             <th>#</th>
-            <th>Fecha</th>
             <th>Cliente</th>
-            <th>Productos</th>
-            <th>Descuento</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Uni.</th>
             <th style="text-align:right;">Total</th>
+            <th>Fecha</th>
             <th></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tablaHistorialBody">
           {% for venta in ventas %}
-          <tr>
-            <td class="cys-td cys-td--muted" data-label="#">{{ venta.pk }}</td>
-            <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-            <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente.nombre }}</td>
-            <td class="cys-td" data-label="Productos">
-              {% for det in venta.detalles.all %}
-              <span class="cys-badge cys-badge--verde me-1">
-                {{ det.producto.nombre }} x{{ det.cantidad }}
-              </span>
-              {% endfor %}
-            </td>
-            <td class="cys-td cys-td--muted" data-label="Descuento">
-              {% if venta.descuento_porcentaje %}
-                <span class="cys-badge cys-badge--amarillo">{{ venta.descuento_porcentaje }}%</span>
-              {% else %}—{% endif %}
-            </td>
-            <td class="cys-qty cys-qty--ok" data-label="Total">${{ venta.total_venta|floatformat:0 }}</td>
-            <td data-label="">
-              <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}"
-                    onsubmit="return confirm('¿Eliminar esta venta?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm"
-                        style="background:rgba(145,47,64,.15); border:1px solid rgba(145,47,64,.4); color:#e87a8a; border-radius:8px;">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            </td>
-          </tr>
+            {% for det in venta.detalles.all %}
+            <tr class="fila-venta"
+                data-fecha="{{ venta.fecha|date:'Y-m-d' }}"
+                data-venta-id="{{ venta.pk }}"
+                data-first="{% if forloop.first %}1{% else %}0{% endif %}"
+                data-rowspan="{{ venta.detalles.all|length }}">
+              {% if forloop.first %}
+              <td class="cys-td cys-td--muted" data-label="#" rowspan="{{ venta.detalles.all|length }}">{{ venta.pk }}</td>
+              <td class="cys-td cys-td--bold" data-label="Cliente" rowspan="{{ venta.detalles.all|length }}">{{ venta.cliente.nombre }}</td>
+              {% endif %}
+              <td class="cys-td" data-label="Producto">
+                <span class="cys-badge cys-badge--verde">
+                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+                </span>
+              </td>
+              <td class="cys-td cys-td--muted" data-label="Cantidad">{{ det.cantidad }}</td>
+              <td class="cys-td cys-td--muted" data-label="Precio Uni.">${{ det.precio_unitario|floatformat:0 }}</td>
+              {% if forloop.first %}
+              <td class="cys-qty cys-qty--ok" data-label="Total" rowspan="{{ venta.detalles.all|length }}">${{ venta.total_venta|floatformat:0 }}</td>
+              <td class="cys-td cys-td--muted" data-label="Fecha" rowspan="{{ venta.detalles.all|length }}">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+              <td data-label="" rowspan="{{ venta.detalles.all|length }}">
+                <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}"
+                      onsubmit="return confirm('¿Eliminar esta venta?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm"
+                          style="background:rgba(145,47,64,.15); border:1px solid rgba(145,47,64,.4); color:#e87a8a; border-radius:8px;">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
           {% empty %}
-          <tr>
-            <td colspan="7" class="cys-td--empty">
+          <tr id="filaVacia">
+            <td colspan="8" class="cys-td--empty">
               <div class="cys-empty-box">
-                <i class="bi bi-receipt"></i>
-                No hay ventas registradas
+                <i class="bi bi-bar-chart"></i>
+                No hay ventas registradas aún.
               </div>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+
+      <!-- Mensaje sin resultados del filtro -->
+      <div id="sinResultadosFiltro" style="display:none;" class="text-center py-4">
+        <div class="cys-empty-box">
+          <i class="bi bi-bar-chart"></i>
+          No hay ventas registradas aún.
+        </div>
+      </div>
     </div>
 
   </section>
@@ -490,7 +463,6 @@
         <input type="number" class="form-control mb-3" id="baseSiguiente" placeholder="Ej: 100000" min="0"
                style="background:var(--color-bg); border:1px solid var(--azul-borde); color:var(--color-blanco); border-radius:8px;">
 
-        <!-- Resumen del día -->
         <div class="rounded-3 p-3 mb-3" style="background:var(--color-surface); border:1px solid var(--azul-borde);">
           <div class="cys-filter-label mb-2">Resumen del día</div>
           {% if caja_abierta %}
@@ -561,7 +533,7 @@ document.querySelectorAll('.cys-cat-card').forEach(c => {
   });
 });
 
-// ══ NAVEGACIÓN CATEGORÍAS → PRODUCTOS → PRESENTACIONES ══
+// ══ NAVEGACIÓN ══
 const vistaCats  = document.getElementById('vistaCategorias');
 const vistaProds = document.getElementById('vistaProductos');
 const vistaPresS = document.getElementById('vistaPresentaciones');
@@ -630,7 +602,7 @@ document.querySelectorAll('[data-cat-id]').forEach(card => {
 document.getElementById('btnVolverCats').addEventListener('click', () => mostrar(vistaCats));
 document.getElementById('btnVolverProds').addEventListener('click', () => mostrar(vistaProds));
 
-// ══ CARGAR PRESENTACIONES ══
+// ══ PRESENTACIONES ══
 function cargarPresentaciones(prodId, nombre, precio, stock, unidad) {
   document.getElementById('presTitulo').textContent = nombre;
   const lista = document.getElementById('presentacionLista');
@@ -692,7 +664,7 @@ function cargarPresentaciones(prodId, nombre, precio, stock, unidad) {
 const carrito = [];
 
 function agregarAlCarrito(prodId, presId, nombreProd, nombrePres, precio, stockMax) {
-  const key  = `${prodId}-${presId}`;
+  const key   = `${prodId}-${presId}`;
   const exist = carrito.find(i => i.key === key);
   if (exist) { if (exist.cantidad < stockMax) exist.cantidad++; }
   else { carrito.push({ key, prodId, presId, nombreProd, nombrePres, precio: parseFloat(precio), stockMax, cantidad: 1 }); }
@@ -850,6 +822,46 @@ document.getElementById('sugerenciasClientes').querySelectorAll('button').forEac
     document.getElementById('inputClienteId').value     = this.dataset.id;
     document.getElementById('sugerenciasClientes').style.display = 'none';
   });
+});
+
+// ══ FILTRO DE FECHAS ══
+function aplicarFiltro() {
+  const desde = document.getElementById('filtroDesde').value;
+  const hasta = document.getElementById('filtroHasta').value;
+  const filas = document.querySelectorAll('.fila-venta');
+  let visibles = 0;
+
+  // Agrupar filas por venta (para manejar rowspan)
+  const grupos = {};
+  filas.forEach(fila => {
+    const vid = fila.dataset.ventaId;
+    if (!grupos[vid]) grupos[vid] = [];
+    grupos[vid].push(fila);
+  });
+
+  Object.values(grupos).forEach(grupo => {
+    const fecha = grupo[0].dataset.fecha;
+    let mostrar = true;
+    if (desde && fecha < desde) mostrar = false;
+    if (hasta && fecha > hasta) mostrar = false;
+
+    grupo.forEach(fila => {
+      fila.style.display = mostrar ? '' : 'none';
+    });
+    if (mostrar) visibles++;
+  });
+
+  const sinRes = document.getElementById('sinResultadosFiltro');
+  sinRes.style.display = visibles === 0 ? 'block' : 'none';
+}
+
+document.getElementById('filtroDesde').addEventListener('change', aplicarFiltro);
+document.getElementById('filtroHasta').addEventListener('change', aplicarFiltro);
+document.getElementById('btnLimpiarFiltro').addEventListener('click', function() {
+  document.getElementById('filtroDesde').value = '';
+  document.getElementById('filtroHasta').value = '';
+  document.querySelectorAll('.fila-venta').forEach(f => f.style.display = '');
+  document.getElementById('sinResultadosFiltro').style.display = 'none';
 });
 
 // ══ APERTURA DE CAJA ══
