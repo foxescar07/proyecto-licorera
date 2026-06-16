@@ -115,7 +115,9 @@
     <i class="bi bi-tags-fill"></i> Categorías
   </a>
 </div>
-      <!-- INVENTARIO -->
+     
+
+<!-- INVENTARIO -->
 <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
   <a href="{% url 'inventario_home' %}" 
      class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
@@ -128,9 +130,16 @@
     <i class="bi bi-chevron-down cys-chevron"></i>
   </button>
 </div>
+
 <div class="cys-sb-submenu" id="submenuInventario">
-  <a href="{% url 'gestion_inventario' %}" class="cys-sb-sublink">
-    <i class="bi bi-boxes"></i> Gestión de Inventario
+  <a href="{% url 'gestion_inventario' %}?tab=salida" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
+    <i class="bi bi-box-arrow-up"></i> Registrar Salida
+  </a>
+  <a href="{% url 'gestion_inventario' %}?tab=lote" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
+    <i class="bi bi-tag-fill"></i> Gestión de Lotes
+  </a>
+  <a href="{% url 'gestion_stock' %}" class="cys-sb-sublink {% block nav_stock %}{% endblock %}">
+    <i class="bi bi-layers"></i> Stock & Productos
   </a>
 </div>
         <!-- PROVEEDORES -->

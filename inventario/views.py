@@ -8,6 +8,7 @@ from django.db.models import Prefetch, Sum
 
 from .models import Inventario, AgendaInventario, SesionConteo, ConteoProducto, Lote
 from productos.models import Producto, PresentacionProducto, Categoria
+from django.urls import reverse
 
 
 @login_required
@@ -408,6 +409,9 @@ def gestion_producto_editar(request, pk):
                 'sin_cambios': len(cambios) == 0,
             })
 
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect('gestion_productos')
 
 
@@ -540,3 +544,75 @@ def registrar_lote(request):
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}" (sin fecha de vencimiento).')
 
     return redirect('gestion_inventario')
+
+@login_required
+def gestion_stock(request):
+    """
+    Vista unificada: Stock por lote + tabla de productos con presentaciones.
+    Reemplaza la necesidad de ir a gestion_productos para ver/editar stock.
+    """
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).all()
+
+    categorias     = Categoria.objects.filter(padre=None).prefetch_related('subcategorias', 'productos__presentaciones')
+    todas_cats     = Categoria.objects.all()
+
+    # Lotes con stock > 0 para la tabla de stock
+    lotes_activos = Lote.objects.select_related(
+        'presentacion__producto__categoria',
+        'registrado_por'
+    ).filter(stock_actual__gt=0).order_by(
+        db_models.F('fecha_vencimiento').asc(nulls_last=True)
+    )
+
+    # Lotes próximos a vencer (≤ 30 días)
+    hoy = timezone.now().date()
+    lotes_por_vencer = [l for l in lotes_activos if l.proximo_a_vencer]
+    lotes_vencidos   = [l for l in lotes_activos if l.esta_vencido]
+
+    context = {
+        'productos':         productos,
+        'categorias':        categorias,
+        'todas_cats':        todas_cats,
+        'lotes_activos':     lotes_activos,
+        'lotes_por_vencer':  lotes_por_vencer,
+        'lotes_vencidos':    lotes_vencidos,
+        'total_criticos':    0,
+        'hoy':               hoy,
+    }
+    return render(request, 'inventario/gestion_stock.html', context)
+
+@login_required
+def stock_status(request):
+    UMBRAL_CRITICO = 5
+    UMBRAL_BAJO    = 15
+
+    presentaciones = PresentacionProducto.objects.select_related('producto').all()
+
+    criticos, bajos = [], []
+    for pr in presentaciones:
+        if pr.cantidad <= UMBRAL_CRITICO:
+            criticos.append({
+                'nombre':          f"{pr.producto.nombre} — {pr.nombre}",
+                'cantidad':        pr.cantidad,
+                'url_presentacion': '/inventario/inventario/stock/',
+                'url_lote':        '/inventario/lote/registrar/',
+            })
+        elif pr.cantidad <= UMBRAL_BAJO:
+            bajos.append({
+                'nombre':          f"{pr.producto.nombre} — {pr.nombre}",
+                'cantidad':        pr.cantidad,
+                'url_presentacion': '/inventario/inventario/stock/',
+                'url_lote':        '/inventario/lote/registrar/',
+            })
+
+    total  = len(criticos) + len(bajos)
+    estado = 'verde' if total == 0 else ('rojo' if criticos else 'amarillo')
+
+    return JsonResponse({
+        'estado':        estado,
+        'total_alertas': total,
+        'criticos':      criticos,
+        'bajos':         bajos,
+    })
