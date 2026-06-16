@@ -9,7 +9,7 @@ from functools import wraps
 import json
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
-from .forms import VentaForm, DetalleVentaForm
+from .forms import VentaForm, DetalleVentaForm, DevolucionForm
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario
 from usuarios.models import Usuario
@@ -371,10 +371,17 @@ def registrar_conteo(request):
 
 @session_required
 def lista_devoluciones(request):
+    """Lista principal de devoluciones - selecciona venta"""
+    ventas = Venta.objects.select_related('cliente').prefetch_related('detalles').order_by('-fecha')
     devoluciones = Devolucion.objects.select_related('venta').prefetch_related(
         'detalles__producto', 'detalles__presentacion'
     )
-    return render(request, 'ventas/devoluciones.html', {'devoluciones': devoluciones})
+
+    context = {
+        'ventas': ventas,
+        'devoluciones': devoluciones,
+    }
+    return render(request, 'ventas/devoluciones.html', context)
 
 
 @session_required
@@ -420,52 +427,76 @@ def detalle_venta_devolucion(request, venta_id):
 
 
 @session_required
+def seleccionar_venta_devolucion(request, venta_id):
+    """Selecciona venta y muestra formulario de devolución"""
+    venta = get_object_or_404(Venta, pk=venta_id)
+    form = DevolucionForm() if request.method == 'GET' else DevolucionForm(request.POST)
+
+    context = {
+        'venta': venta,
+        'detalles': venta.detalles.select_related('producto', 'presentacion'),
+        'form': form,
+        'devoluciones': Devolucion.objects.select_related('venta'),
+    }
+
+    return render(request, 'ventas/devoluciones.html', context)
+
+
+@session_required
 @transaction.atomic
-def registrar_devolucion(request):
+def registrar_devolucion(request, venta_id):
+    """Registra la devolución con los productos y detalles seleccionados"""
     if request.method != 'POST':
         return redirect('ventas:lista_devoluciones')
 
-    venta_id          = request.POST.get('venta_id')
-    tiene_comprobante = request.POST.get('tiene_comprobante') == '1'
-    restaurar_stock   = request.POST.get('restaurar_stock') == '1'
-    motivo            = request.POST.get('motivo', 'otro')
-    observaciones     = request.POST.get('observaciones', '')
-    producto_ids      = request.POST.getlist('producto_id[]')
-    presentacion_ids  = request.POST.getlist('presentacion_id[]')
-    cantidades        = request.POST.getlist('cantidad[]')
-    precios           = request.POST.getlist('precio[]')
+    venta = get_object_or_404(Venta, pk=venta_id)
+    form = DevolucionForm(request.POST)
 
-    if not tiene_comprobante:
-        messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
-        return redirect('ventas:lista_devoluciones')
+    # Obtener detalles seleccionados
+    detalles_seleccionados = request.POST.getlist('detalle_id')
 
-    venta          = get_object_or_404(Venta, pk=venta_id)
-    total_devuelto = sum(int(cantidades[i]) * float(precios[i]) for i in range(len(producto_ids)))
+    if not detalles_seleccionados:
+        messages.error(request, '⚠️ Debes seleccionar al menos un producto para devolver.')
+        return redirect('ventas:seleccionar_venta_devolucion', venta_id=venta_id)
 
+    if not form.is_valid():
+        messages.error(request, '⚠️ Debes completar todos los campos obligatorios.')
+        return redirect('ventas:seleccionar_venta_devolucion', venta_id=venta_id)
+
+    # Calcular total devuelto
+    total_devuelto = Decimal('0')
+    detalles_venta = venta.detalles.filter(pk__in=detalles_seleccionados)
+
+    for detalle in detalles_venta:
+        total_devuelto += detalle.subtotal()
+
+    # Crear devolución
     devolucion = Devolucion.objects.create(
-        venta=venta, motivo=motivo, observaciones=observaciones,
-        restaurar_stock=restaurar_stock, tiene_comprobante=tiene_comprobante,
+        venta=venta,
+        motivo=form.cleaned_data['motivo'],
+        tipo_reembolso=form.cleaned_data['tipo_reembolso'],
+        observaciones=form.cleaned_data['observaciones'],
         total_devuelto=total_devuelto,
+        tiene_comprobante=True,
+        restaurar_stock=True,
     )
 
-    for i in range(len(producto_ids)):
-        producto     = get_object_or_404(Producto, pk=producto_ids[i])
-        presentacion = None
-        if presentacion_ids[i] and presentacion_ids[i] != 'null':
-            presentacion = PresentacionProducto.objects.filter(pk=presentacion_ids[i]).first()
-
-        cantidad = int(cantidades[i])
-        precio   = float(precios[i])
-
+    # Crear detalles de devolución
+    for detalle_venta in detalles_venta:
         DetalleDevolucion.objects.create(
-            devolucion=devolucion, producto=producto, presentacion=presentacion,
-            cantidad=cantidad, precio_unitario=precio,
+            devolucion=devolucion,
+            producto=detalle_venta.producto,
+            presentacion=detalle_venta.presentacion,
+            cantidad=detalle_venta.cantidad,
+            precio_unitario=detalle_venta.precio_unitario,
         )
-        if restaurar_stock and presentacion:
-            presentacion.cantidad += cantidad
-            presentacion.save()
 
-    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
+        # Restaurar stock
+        if detalle_venta.presentacion:
+            detalle_venta.presentacion.cantidad += detalle_venta.cantidad
+            detalle_venta.presentacion.save()
+
+    messages.success(request, f'✅ Devolución {devolucion.numero} registrada correctamente.')
     return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
 
 

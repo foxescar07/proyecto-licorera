@@ -129,9 +129,17 @@ class CierreCaja(models.Model):
 class Devolucion(models.Model):
     MOTIVO_CHOICES = [
         ('defectuoso',   'Producto defectuoso'),
-        ('equivocado',   'Producto equivocado'),
+        ('equivocado',   'Error en el pedido'),
         ('insatisfecho', 'Cliente insatisfecho'),
-        ('otro',         'Otro'),
+        ('calidad',      'Problema de calidad'),
+        ('empaque',      'Empaque dañado'),
+        ('otro',         'Otro motivo'),
+    ]
+
+    REEMBOLSO_CHOICES = [
+        ('cambio',       'Cambio de producto'),
+        ('nota_credito', 'Nota crédito'),
+        ('reembolso',    'Reembolso'),
     ]
 
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
@@ -139,6 +147,7 @@ class Devolucion(models.Model):
                                           verbose_name='Venta original')
     fecha             = models.DateTimeField(auto_now_add=True)
     motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
+    tipo_reembolso    = models.CharField(max_length=20, choices=REEMBOLSO_CHOICES, default='cambio')
     observaciones     = models.TextField(blank=True)
     restaurar_stock   = models.BooleanField(default=True)
     tiene_comprobante = models.BooleanField(default=True)
