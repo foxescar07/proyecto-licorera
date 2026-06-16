@@ -408,3 +408,74 @@
   .stat-row { display: flex !important; }
   .stat-row .col-sm-6 { display: flex !important; flex-direction: column !important; }
   .stat-row .col-sm-6 > div { flex: 1 !important; }
+
+    /* ── TABS ── */
+  #invTabs .pill-tab {
+    background: transparent !important;
+    color: #4DA8DA !important;
+    border: 1.5px solid #4DA8DA !important;
+    border-radius: 50px !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    padding: 0.45rem 1.3rem !important;
+    letter-spacing: .03em !important;
+    transition: background 0.18s, color 0.18s !important;
+  }
+  #invTabs .pill-tab.active {
+    background: #3b9ad6 !important;
+    color: #0d1b2a !important;
+    border-color: #3b9ad6 !important;
+  }
+  #invTabs .pill-tab:hover:not(.active) {
+    background: rgba(77,168,218,0.12) !important;
+  }
+
+  /* ── CARDS ── */
+  .inv-page-card {
+    background: #152d50 !important;
+    border: 1px solid rgba(77,168,218,0.35) !important;
+    border-radius: 12px !important;
+  }
+  .inv-stat-mini {
+    background: #152d50 !important;
+    border-radius: 10px !important;
+  }
+
+  /* ── INPUTS ── */
+  .inv-page-card .form-select,
+  .inv-page-card .form-control {
+    background-color: #0e2240 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(77,168,218,0.3) !important;
+    border-radius: 8px !important;
+  }
+  .inv-page-card .form-select:focus,
+  .inv-page-card .form-control:focus {
+    border-color: #4DA8DA !important;
+    box-shadow: 0 0 0 2px rgba(77,168,218,.18) !important;
+  }
+  .inv-page-card .form-control::placeholder { color: rgba(226,232,240,0.4) !important; }
+  .inv-page-card .form-label {
+    font-size: .75rem !important;
+    font-weight: 600 !important;
+    color: rgba(226,232,240,0.6) !important;
+    text-transform: uppercase !important;
+    letter-spacing: .06em !important;
+  }
+
+  /* ── BOTÓN SUBMIT ── */
+  .inv-btn-submit {
+    background: #3b9ad6 !important;
+    color: #0d1b2a !important;
+    border: none !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    padding: 0.55rem 1rem !important;
+    width: 100% !important;
+    transition: background 0.18s !important;
+  }
+  .inv-btn-submit:hover {
+    background: #2e88c2 !important;
+    color: #fff !important;
+  }
