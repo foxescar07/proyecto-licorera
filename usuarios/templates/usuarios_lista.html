@@ -162,6 +162,7 @@
     <!-- SIDEBAR -->
     <div class="ul-sidebar" id="ul-sidebar-ref">
 
+      <!-- Widget Usuarios Totales -->
       <div class="ul-widget widget-total">
         <div class="ul-big-stat">
           <div class="ul-big-stat__num">{{ usuarios|length }}</div>
@@ -179,8 +180,10 @@
         </div>
       </div>
 
+      <!-- Sidebar bottom -->
       <div class="ul-sidebar-bottom" id="ul-sidebar-bottom-ref">
 
+        <!-- Stats: siempre visible en caso 2, colapsable en caso 1 -->
         <div class="sidebar-dropdown-wrapper" id="wrapperStats">
           <button class="btn-trigger-dropdown"
                   type="button"
@@ -236,6 +239,7 @@
           </div>
         </div>
 
+        <!-- Recientes: botón PRIMERO en el DOM para que collapse abra hacia abajo -->
         <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
           <button class="btn-trigger-dropdown"
                   type="button"
@@ -276,7 +280,6 @@
         </div>
 
       </div>
-
     </div>
 
   </div>
@@ -347,7 +350,6 @@
   </div>
 </div>
 {% endif %}
-
 <script>
 (function () {
 
@@ -384,6 +386,7 @@
   function sincronizarAltoCaso2() {
     const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
     if (!main || !sb) return;
+<<<<<<< Updated upstream
     sb.style.height = '';
     const alturaMain  = main.offsetHeight;
     const alturaMinSb = sb.scrollHeight;
@@ -409,6 +412,30 @@
       this.querySelector('.arrow-icon').style.transform = abierto ? '' : 'rotate(180deg)';
       if ($('layout-principal')?.classList.contains('cards-view-3-4'))
         requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
+=======
+    if ($('collapseRecientes')?.classList.contains('show')) return;
+    sb.style.height = main.offsetHeight + 'px';
+  }
+
+  function escucharCollapseCaso2() {
+    $('collapseStats')?.addEventListener('shown.bs.collapse', () => {
+      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+        requestAnimationFrame(sincronizarAltoCaso2);
+    });
+    $('collapseStats')?.addEventListener('hidden.bs.collapse', () => {
+      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+        requestAnimationFrame(sincronizarAltoCaso2);
+    });
+    $('collapseRecientes')?.addEventListener('show.bs.collapse', () => {
+      if ($('layout-principal')?.classList.contains('cards-view-3-4')) {
+        const sb = $('ul-sidebar-ref');
+        if (sb) sb.style.height = 'auto';
+      }
+    });
+    $('collapseRecientes')?.addEventListener('hidden.bs.collapse', () => {
+      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+        requestAnimationFrame(sincronizarAltoCaso2);
+>>>>>>> Stashed changes
     });
   }
 
@@ -440,6 +467,24 @@
       b34.setAttribute('aria-expanded', 'false');
       const arrow = b34.querySelector('.arrow-icon');
       if (arrow) arrow.style.transform = '';
+    }
+
+    // AJUSTE DINÁMICO INLINE PARA CASO 3 (Evita que se encimen los widgets)
+    if (cls === 'cards-view-5-6' && sb) {
+      requestAnimationFrame(() => {
+        sb.style.setProperty('display', 'flex', 'important');
+        sb.style.setProperty('flex-direction', 'column', 'important');
+        sb.style.setProperty('gap', '1.25rem', 'important'); // Despega verticalmente los componentes del sidebar
+        sb.style.setProperty('height', 'auto', 'important');
+
+        // Despegar horizontalmente los mini-widgets internos de Estado y Rol
+        const statsInner = sb.querySelector('.stats-grid-inner');
+        if (statsInner) {
+          statsInner.style.setProperty('display', 'flex', 'important');
+          statsInner.style.setProperty('flex-direction', 'row', 'important');
+          statsInner.style.setProperty('gap', '1rem', 'important');
+        }
+      });
     }
 
     if (cls === 'cards-view-3-4')
@@ -481,6 +526,10 @@
   window.addEventListener('resize', () => {
     const sb = $('ul-sidebar-ref');
     if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
+    
+    // Forzar reajuste en resize para que el caso 5-6 mantenga los gaps inyectados
+    reajustarLayout();
+
     if ($('layout-principal')?.classList.contains('cards-view-3-4'))
       requestAnimationFrame(sincronizarAltoCaso2);
   });
