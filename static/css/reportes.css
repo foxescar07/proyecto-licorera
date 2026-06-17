@@ -277,11 +277,33 @@
 }
 
 /* Alineación específica para evitar el descuadre en la tabla de Historial */
-#reportes-table th:nth-child(1), 
-#reportes-table td:nth-child(1):not([colspan]) { text-align: center; width: 45px; }
+#reportes-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  margin-top: 1rem !important;
+  border: 1px solid rgba(77, 168, 218, 0.1) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#reportes-table thead th {
+  background: rgba(77, 168, 218, 0.08) !important;
+  border-bottom: 2px solid var(--azul-acento) !important;
+  padding: 14px 10px !important;
+  color: var(--azul-claro) !important;
+}
+
+#reportes-table th:nth-child(1),
+#reportes-table td:nth-child(1):not([colspan]) { text-align: center; width: 60px; }
+
 #reportes-table th:nth-child(4), #reportes-table td:nth-child(4):not([colspan]), /* Cantidad */
 #reportes-table th:nth-child(5), #reportes-table td:nth-child(5):not([colspan]), /* Precio Uni. */
 #reportes-table th:nth-child(6), #reportes-table td:nth-child(6):not([colspan])  /* Total */ { text-align: right; }
+
+#reportes-table tbody tr:hover {
+  background-color: rgba(77, 168, 218, 0.05) !important;
+}
 
 /* Ajustes generales para celdas numéricas en otras tablas */
 .cys-qty, .cys-td--green { text-align: right; }
@@ -922,4 +944,336 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cys-summary-card--clientes .cys-summary-card__val {
   color: #4DA8DA;
   text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+}
+/* ────────────────────────────────────
+   HISTORIAL DE VENTAS — Filtros y Footer
+──────────────────────────────────── */
+.cys-hv-filters { padding: 4px 0; }
+
+.cys-hv-date-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cys-hv-date-label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--texto-muted);
+}
+
+.cys-hv-date-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cys-hv-date-input {
+  background-color: #011936 !important;
+  border: 1px solid #4DA8DA !important;
+  color: #FDFFFC !important;
+  color-scheme: dark;
+  border-radius: 8px !important;
+  padding: 6px 36px 6px 10px !important;
+  font-size: 0.85rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s; 
+}
+/* ==========================================================
+   HISTORIAL DE VENTAS - ESTILO FINAL MODIFICADO
+   ========================================================== */
+
+/* CONTENEDOR */
+.cys-card:has(#reportes-table){
+    background:#041d3d;
+    border:1px solid rgba(77,168,218,.08);
+    border-radius:16px;
+    overflow:hidden;
+}
+
+/* -----------------------------------
+   FILTROS
+----------------------------------- */
+
+.cys-hv-filters{
+    display:flex;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+    padding:20px 24px;
+}
+
+.cys-hv-date-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.cys-hv-date-label{
+    color:#7dbce6;
+    font-size:.78rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:6px;
+}
+
+.cys-hv-date-input-wrap{
+    position:relative;
+}
+
+.cys-hv-date-input{
+    width:180px;
+    height:38px;
+    padding:0 36px 0 14px;
+    background:#071b3a !important;
+    border:1px solid #1f4f80 !important;
+    border-radius:10px;
+    color:#fff !important;
+    font-size:.9rem;
+}
+
+.cys-hv-date-input:focus{
+    border-color:#4DA8DA !important;
+    box-shadow:0 0 0 3px rgba(77,168,218,.18);
+}
+
+.cys-hv-cal-icon{
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#4DA8DA;
+    pointer-events:none;
+}
+
+/* -----------------------------------
+   BOTÓN FILTRAR Y LIMPIAR (MISMO COLOR Y TAMAÑO)
+----------------------------------- */
+
+.cys-hv-btn-filtrar,
+.cys-hv-btn-limpiar{
+    box-sizing:border-box;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    height:38px;
+    padding:0 18px;
+    border-radius:8px;
+    font-size:.9rem;
+    font-weight:700;
+    line-height:1;
+    white-space:nowrap;
+    transition:.2s;
+    border:1px solid rgba(77,168,218,.5);
+    background:#071b3a;
+    color:#4DA8DA;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+.cys-hv-btn-filtrar:hover,
+.cys-hv-btn-limpiar:hover{
+    background:rgba(77,168,218,.12);
+    color:#7cd4ff;
+    border-color:#4DA8DA;
+}
+
+/* -----------------------------------
+   EXPORTAR
+----------------------------------- */
+
+.cys-hv-btn-exportar{
+    height:38px;
+    padding:0 18px;
+    border-radius:8px;
+    border:1px solid rgba(77,168,218,.5);
+    background:#071b3a;
+    color:#fff;
+    font-weight:600;
+}
+
+.cys-hv-btn-exportar:hover{
+    background:#0b274d;
+}
+
+.cys-hv-dropdown{
+    background:#071b3a;
+    border:1px solid rgba(77,168,218,.25);
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.cys-hv-dropdown-item{
+    color:#fff;
+    padding:10px 14px;
+}
+
+.cys-hv-dropdown-item:hover{
+    background:rgba(77,168,218,.12);
+    color:#fff;
+}
+
+/* -----------------------------------
+   TABLA
+----------------------------------- */
+
+#reportes-table{
+    width:100% !important;
+    border-collapse:collapse !important;
+    border-spacing:0 !important;
+    margin:0 !important;
+    border:none !important;
+    background:transparent !important;
+}
+
+#reportes-table thead th{
+    background:#0c2b54 !important;
+    color:#4DA8DA !important;
+    font-family:'Rajdhani',sans-serif;
+    font-weight:700;
+    font-size:.92rem;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    padding:16px 14px !important;
+    border-bottom:2px solid #4DA8DA !important;
+}
+
+#reportes-table tbody td{
+    background:transparent !important;
+    color:#EAF3FA !important;
+    padding:14px !important;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+#reportes-table tbody tr{
+    background:transparent !important;
+}
+
+#reportes-table tbody tr:hover td{
+    background:rgba(77,168,218,.05) !important;
+}
+
+/* ANCHOS */
+
+#reportes-table th:nth-child(1),
+#reportes-table td:nth-child(1){
+    width:60px;
+    text-align:center;
+}
+
+#reportes-table th:nth-child(4),
+#reportes-table td:nth-child(4),
+#reportes-table th:nth-child(5),
+#reportes-table td:nth-child(5),
+#reportes-table th:nth-child(6),
+#reportes-table td:nth-child(6){
+    text-align:right;
+}
+
+/* -----------------------------------
+   ESTADO VACÍO
+----------------------------------- */
+
+.cys-td--empty{
+    padding:80px 20px !important;
+    background:transparent !important;
+    border:none !important;
+}
+
+.cys-empty-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.cys-empty-box i{
+    font-size:3rem;
+    color:rgba(77,168,218,.25);
+    margin-bottom:12px;
+}
+
+.cys-empty-box{
+    color:#8aa6bf;
+    font-size:1rem;
+}
+
+/* -----------------------------------
+   FOOTER (CON MÁS ESPACIO ABAJO)
+----------------------------------- */
+
+.cys-hv-table-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 24px;
+    border-top:1px solid rgba(255,255,255,.04);
+    margin-top:40px;
+}
+
+/* Separación extra para el bloque inferior (info + paginación que
+   se completa dinámicamente), para que no quede pegado al bloque
+   de "Mostrando X a X de X ventas" generado arriba */
+.cys-hv-table-footer:has(#cys-dt-info){
+    margin-top:50px;
+}
+
+/* -----------------------------------
+   PAGINACIÓN
+----------------------------------- */
+
+.cys-hv-pagination-wrap .page-link,
+.pagination .page-link{
+    background:#0a2348 !important;
+    border:1px solid rgba(77,168,218,.2) !important;
+    color:#4DA8DA !important;
+    min-width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.cys-hv-pagination-wrap .active .page-link,
+.pagination .active .page-link{
+    background:#4DA8DA !important;
+    color:#03152d !important;
+    border-color:#4DA8DA !important;
+    font-weight:700;
+}
+
+.cys-hv-pagination-wrap .page-link:hover,
+.pagination .page-link:hover{
+    background:#4DA8DA !important;
+    color:#03152d !important;
+}
+
+/* -----------------------------------
+   DATATABLES
+----------------------------------- */
+
+.dataTables_wrapper,
+.dt-container{
+    background:transparent !important;
+}
+
+.dataTables_info,
+.dt-info{
+    color:#dcecf9 !important;
+}
+
+.dataTables_paginate,
+.dt-paging{
+    margin-top:0 !important;
+}
+
+/* Quita espacios que rompen el diseño */
+
+.cys-inv-table{
+    border-spacing:0 !important;
+}
+
+table.dataTable{
+    border-spacing:0 !important;
 }
