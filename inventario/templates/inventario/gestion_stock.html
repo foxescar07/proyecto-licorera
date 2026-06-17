@@ -121,7 +121,7 @@
     <i class="bi bi-arrow-left"></i> Gestión de Inventario
   </a>
 </div>
-
+{% include 'inventario/stock_widget.html' %}
 <!-- KPI Cards -->
 <div class="row g-3 mb-4">
   <div class="col-6 col-md-3">
@@ -257,13 +257,12 @@
           </span>
         </td>
         <td class="pe-3 text-end">
-          <button class="btn-edit-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalEditarStock{{ lote.presentacion.producto.pk }}">
-            <i class="bi bi-pencil"></i>Editar
-          </button>
-        </td>
-      </tr>
+    <button class="btn-edit-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#modalEditarLote{{ lote.pk }}">
+    <i class="bi bi-pencil"></i>Editar
+    </button>
+    </td>
       {% empty %}
       <tr>
         <td colspan="7" class="text-center py-5" style="color:rgba(226,232,240,.35);">
@@ -284,77 +283,65 @@
   Sin resultados para tu búsqueda.
 </div>
 
+    <!-- MODALES EDITAR PRESENTACIONES -->
 
-<!-- MODALES EDITAR PRESENTACIONES -->
-{% for p in productos %}
-<div class="modal fade" id="modalEditarStock{{ p.pk }}" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+{% for lote in lotes_activos %}
+<div class="modal fade" id="modalEditarLote{{ lote.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
     <div class="modal-content" style="background:#0d1b2a;border:1px solid rgba(77,168,218,.25);">
+
       <div class="modal-header" style="border-color:rgba(77,168,218,.15);">
-        <h5 class="modal-title fw-bold" style="color:#e2e8f0;">
-          <i class="bi bi-layers me-2" style="color:#4DA8DA;"></i>
-          Editar stock — {{ p.nombre }}
+        <h5 class="modal-title fw-bold" style="color:#e2e8f0;font-size:1rem;">
+          <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>
+          Editar lote {{ lote.numero_lote }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-       <input type="hidden" name="next" value="{% url 'gestion_stock' %}"> 
+
+      <form method="post" action="{% url 'editar_lote_stock' lote.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
-          {% if p.presentaciones.all %}
-          <p class="mb-3" style="color:rgba(226,232,240,.5);font-size:.85rem;">
-            Ajusta el stock, nombre o precio de cada presentación.
-          </p>
-          {% for pr in p.presentaciones.all %}
-          <div class="rounded-3 p-3 mb-2"
+
+          <div class="rounded-3 p-3 mb-3"
                style="background:rgba(77,168,218,.05);border:1px solid rgba(77,168,218,.12);">
-            <div class="row g-2 align-items-end">
-              <div class="col-md-4">
-                <label class="form-label small" style="color:rgba(226,232,240,.5);">Presentación</label>
-                <input type="text" name="pres_nombre_{{ pr.pk }}"
-                       class="form-control form-control-sm"
-                       style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.25);color:#e2e8f0;"
-                       value="{{ pr.nombre }}" required>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small" style="color:rgba(226,232,240,.5);">Stock actual</label>
-                <input type="number" name="pres_cantidad_{{ pr.pk }}"
-                       class="form-control form-control-sm"
-                       style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.25);color:#e2e8f0;"
-                       value="{{ pr.cantidad }}" min="0">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small" style="color:rgba(226,232,240,.5);">Precio</label>
-                <input type="number" name="pres_precio_{{ pr.pk }}"
-                       class="form-control form-control-sm"
-                       style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.25);color:#e2e8f0;"
-                       value="{{ pr.precio }}" min="0" step="0.01">
-              </div>
-              <div class="col-md-2 text-end">
-                <span class="badge rounded-pill px-2 py-1"
-                      style="background:rgba(77,168,218,.1);color:#4DA8DA;border:1px solid rgba(77,168,218,.2);font-size:.7rem;">
-                  {{ pr.lotes.count }} lotes
-                </span>
-              </div>
-            </div>
+            <div class="fw-semibold" style="color:#e2e8f0;">{{ lote.presentacion.producto.nombre }}</div>
+            <small style="color:rgba(77,168,218,.8);">{{ lote.presentacion.nombre }}</small>
           </div>
-          {% endfor %}
-          {% else %}
-          <div class="rounded-3 p-4 text-center"
-               style="background:rgba(255,193,7,.05);border:1px solid rgba(255,193,7,.15);color:rgba(226,232,240,.4);">
-            <i class="bi bi-exclamation-triangle mb-2 d-block fs-3" style="color:#ffc107;"></i>
-            Este producto no tiene presentaciones. Agrégalas desde Gestión de Productos.
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold" style="color:rgba(226,232,240,.7);">
+              Stock de este lote
+            </label>
+            <input type="number"
+                   name="nuevo_stock"
+                   class="form-control"
+                   style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;font-size:1.1rem;"
+                   min="0"
+                   value="{{ lote.stock_actual }}"
+                   required>
           </div>
-          {% endif %}
+
+          <div class="mb-1">
+            <label class="form-label small fw-semibold" style="color:rgba(226,232,240,.7);">
+              Motivo (opcional)
+            </label>
+            <input type="text"
+                   name="motivo"
+                   class="form-control"
+                   style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;"
+                   placeholder="Conteo físico, corrección de error…"
+                   maxlength="200">
+          </div>
+
         </div>
         <div class="modal-footer" style="border-color:rgba(77,168,218,.15);">
           <button type="button" class="btn-accion-ghost" data-bs-dismiss="modal">Cancelar</button>
-          {% if p.presentaciones.all %}
           <button type="submit" class="btn-accion-primary">
-            <i class="bi bi-check-lg"></i>Guardar Cambios
+            <i class="bi bi-check-lg"></i>Guardar
           </button>
-          {% endif %}
         </div>
       </form>
+
     </div>
   </div>
 </div>
