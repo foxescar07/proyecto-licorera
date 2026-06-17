@@ -386,7 +386,6 @@
   function sincronizarAltoCaso2() {
     const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
     if (!main || !sb) return;
-<<<<<<< Updated upstream
     sb.style.height = '';
     const alturaMain  = main.offsetHeight;
     const alturaMinSb = sb.scrollHeight;
@@ -412,30 +411,6 @@
       this.querySelector('.arrow-icon').style.transform = abierto ? '' : 'rotate(180deg)';
       if ($('layout-principal')?.classList.contains('cards-view-3-4'))
         requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
-=======
-    if ($('collapseRecientes')?.classList.contains('show')) return;
-    sb.style.height = main.offsetHeight + 'px';
-  }
-
-  function escucharCollapseCaso2() {
-    $('collapseStats')?.addEventListener('shown.bs.collapse', () => {
-      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-        requestAnimationFrame(sincronizarAltoCaso2);
-    });
-    $('collapseStats')?.addEventListener('hidden.bs.collapse', () => {
-      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-        requestAnimationFrame(sincronizarAltoCaso2);
-    });
-    $('collapseRecientes')?.addEventListener('show.bs.collapse', () => {
-      if ($('layout-principal')?.classList.contains('cards-view-3-4')) {
-        const sb = $('ul-sidebar-ref');
-        if (sb) sb.style.height = 'auto';
-      }
-    });
-    $('collapseRecientes')?.addEventListener('hidden.bs.collapse', () => {
-      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-        requestAnimationFrame(sincronizarAltoCaso2);
->>>>>>> Stashed changes
     });
   }
 
