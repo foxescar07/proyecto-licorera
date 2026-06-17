@@ -7,13 +7,16 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
 from .forms import UsuarioForm
-
+import random
+import logging
 import ssl
 import smtplib
 import re
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+logger = logging.getLogger(__name__)
 
 Usuario = get_user_model()
 
@@ -284,7 +287,7 @@ def perfil_editar(request):
     return JsonResponse({'ok': False, 'error': 'Acción no reconocida.'})
 
 
-# ── RECUPERAR CLAVE ───────────────────────────────────────────────────────────
+# ── RECUPERAR CLAVE (CORREO) ──────────────────────────────────────────────────
 def solicitar_recuperacion(request):
     if request.method == 'POST':
         es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -320,6 +323,87 @@ def solicitar_recuperacion(request):
             messages.error(request, str(e))
 
     return redirect('login')
+
+
+# ── RECUPERAR CLAVE (TELÉFONO) ────────────────────────────────────────────────
+def recuperar_por_telefono(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
+    es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    telefono       = request.POST.get('telefono', '').strip()
+    identificacion = request.POST.get('identificacion', '').strip()
+
+    if not telefono or not identificacion:
+        return JsonResponse({'ok': False, 'error': 'Ingresa tu número de teléfono e identificación.'})
+
+    try:
+        usuario = Usuario.objects.get(
+            telefono=telefono,
+            identificacion=identificacion,
+            activo=True
+        )
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con esos datos.'})
+
+    # Generar código de 6 dígitos
+    codigo = str(random.randint(100000, 999999))
+    expira = timezone.now() + timedelta(minutes=15)
+
+    # Reutilizamos reset_token para guardar el código
+    usuario.reset_token        = codigo
+    usuario.reset_token_expira = expira
+    usuario.save(update_fields=['reset_token', 'reset_token_expira'])
+
+    # Imprimir en logs para que el admin lo vea y se lo comunique al usuario
+    logger.warning(
+        f'[CYS RESET] Código para {usuario.nombre_completo} '
+        f'(ID: {usuario.identificacion}, Tel: {usuario.telefono}): {codigo} '
+        f'— expira en 15 min'
+    )
+    # También print para desarrollo
+    print(f'\n🔑 CÓDIGO DE RECUPERACIÓN para {usuario.nombre_completo}: {codigo}\n')
+
+    return JsonResponse({
+        'ok': True,
+        'mensaje': f'Código generado. El administrador te lo comunicará en breve.'
+    })
+
+
+# ── VERIFICAR CÓDIGO TELÉFONO ─────────────────────────────────────────────────
+def verificar_codigo_telefono(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
+    telefono       = request.POST.get('telefono', '').strip()
+    identificacion = request.POST.get('identificacion', '').strip()
+    codigo         = request.POST.get('codigo', '').strip()
+
+    if not telefono or not identificacion or not codigo:
+        return JsonResponse({'ok': False, 'error': 'Datos incompletos.'})
+
+    try:
+        usuario = Usuario.objects.get(
+            telefono=telefono,
+            identificacion=identificacion,
+            reset_token=codigo,
+            activo=True
+        )
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Código incorrecto.'})
+
+    if timezone.now() > usuario.reset_token_expira:
+        Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
+        return JsonResponse({'ok': False, 'error': 'El código expiró. Solicita uno nuevo.'})
+
+    # Código válido — generar token de sesión para restablecer
+    token  = get_random_string(32)
+    expira = timezone.now() + timedelta(minutes=10)
+    usuario.reset_token        = token
+    usuario.reset_token_expira = expira
+    usuario.save(update_fields=['reset_token', 'reset_token_expira'])
+
+    return JsonResponse({'ok': True, 'redirect': f'/usuarios/restablecer/{token}/'})
 
 
 # ── RESTABLECER CLAVE ─────────────────────────────────────────────────────────
@@ -403,7 +487,6 @@ def actualizar_foto(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
 
-    # Quitar foto
     if request.POST.get('quitar') == '1':
         if request.user.foto:
             request.user.foto.delete(save=False)
@@ -411,7 +494,6 @@ def actualizar_foto(request):
             request.user.save(update_fields=['foto'])
         return JsonResponse({'ok': True})
 
-    # Subir foto
     foto = request.FILES.get('foto')
     if not foto:
         return JsonResponse({'ok': False, 'error': 'No se recibió ninguna imagen.'})

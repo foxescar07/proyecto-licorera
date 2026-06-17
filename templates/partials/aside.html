@@ -29,7 +29,6 @@
     <div class="cys-sb-user-wrap" id="userHoverWrapper">
       <div class="cys-sb-user-row">
         <a href="{% url 'perfil_pagina' %}" class="cys-sb-user-info-btn">
-
           <div class="cys-sb-avatar">
             {% if request.user.foto %}
               <img src="{{ request.user.foto.url }}"
@@ -40,7 +39,6 @@
               <i class="bi bi-person-fill cys-sb-avatar__icon"></i>
             {% endif %}
           </div>
-
           <div class="cys-sb-user-info">
             <div class="cys-sb-user-name">
               @{{ request.session.usuario_user|default:"usuario" }}
@@ -75,16 +73,21 @@
           <span>Tablero</span>
         </a>
 
-        <button id="btnVentas" class="cys-sb-link cys-sb-link--parent"
-                onclick="toggleSubmenu(event, this, 'submenuVentas')">
-          <i class="bi bi-receipt"></i>
-          <span class="flex-grow-1">Ventas</span>
-          <i class="bi bi-chevron-down cys-chevron"></i>
-        </button>
-        <div class="cys-sb-submenu" id="submenuVentas">
-          <a href="{% url 'ventas:ventas_lista' %}" class="cys-sb-sublink">
-            <i class="bi bi-cart-fill"></i> Punto de Venta
+        <!-- VENTAS: link directo + chevron para submenú -->
+        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+          <a href="{% url 'ventas:ventas_lista' %}"
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
+             style="color:inherit; padding:10px 14px;">
+            <i class="bi bi-receipt"></i>
+            <span class="flex-grow-1">Ventas</span>
           </a>
+          <button id="btnVentas"
+                  onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuVentas')"
+                  style="background:none; border:none; color:inherit; padding:10px 14px; cursor:pointer;">
+            <i class="bi bi-chevron-down cys-chevron"></i>
+          </button>
+        </div>
+        <div class="cys-sb-submenu" id="submenuVentas">
           <a href="{% url 'reportes' %}" class="cys-sb-sublink">
             <i class="bi bi-bar-chart-fill"></i> Reportes
           </a>
@@ -93,8 +96,8 @@
           </a>
         </div>
 
-
         <!-- PRODUCTOS -->
+
     <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
   <a href="{% url 'lista_productos' %}" 
      class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
@@ -115,7 +118,9 @@
     <i class="bi bi-tags-fill"></i> Categorías
   </a>
 </div>
-      <!-- INVENTARIO -->
+     
+
+<!-- INVENTARIO -->
 <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
   <a href="{% url 'inventario_home' %}" 
      class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
@@ -128,13 +133,21 @@
     <i class="bi bi-chevron-down cys-chevron"></i>
   </button>
 </div>
+
 <div class="cys-sb-submenu" id="submenuInventario">
-  <a href="{% url 'gestion_inventario' %}" class="cys-sb-sublink">
-    <i class="bi bi-boxes"></i> Gestión de Inventario
+  <a href="{% url 'gestion_inventario' %}?tab=salida" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
+    <i class="bi bi-box-arrow-up"></i> Registrar Salida
+  </a>
+  <a href="{% url 'gestion_inventario' %}?tab=lote" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
+    <i class="bi bi-tag-fill"></i> Gestión de Lotes
+  </a>
+  <a href="{% url 'gestion_stock' %}" class="cys-sb-sublink {% block nav_stock %}{% endblock %}">
+    <i class="bi bi-layers"></i> Stock & Productos
   </a>
 </div>
-        <!-- PROVEEDORES -->
+      
 
+        <!-- PROVEEDORES -->
         <button id="btnProveedores" class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuProveedores')">
           <i class="bi bi-truck"></i>
@@ -248,6 +261,14 @@
         }
       }
     }
+  }
+
+  // Abrir submenú de ventas automáticamente si estamos en /ventas/
+  if (currentPath.startsWith('/ventas')) {
+    document.getElementById('submenuVentas')?.classList.add('abierto');
+  }
+  if (currentPath.startsWith('/proveedores') || currentPath.startsWith('/compra')) {
+    document.getElementById('submenuProveedores')?.classList.add('abierto');
   }
 
   const sidebar = document.getElementById('sidebarRight');

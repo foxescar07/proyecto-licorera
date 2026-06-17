@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.http import JsonResponse
-from django.db import transaction
+from django.shortcuts import render, redirect, get_object_or_404 # type: ignore
+from django.contrib import messages # type: ignore
+from django.http import JsonResponse # type: ignore
+from django.db import transaction # type: ignore
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from decimal import Decimal, InvalidOperation
@@ -242,8 +242,10 @@ def ventas_dia(request):
         'detalles__producto', 'detalles__presentacion',
     ).filter(fecha__date=hoy).order_by('-fecha')
 
-    total_dia       = sum(v.total_venta for v in ventas)
-    total_productos = sum(det.cantidad for v in ventas for det in v.detalles.all())
+    # Convertir a lista para evitar múltiples queries al iterar
+    ventas_list     = list(ventas)
+    total_dia       = sum(v.total_venta for v in ventas_list)
+    total_productos = sum(det.cantidad for v in ventas_list for det in v.detalles.all())
 
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
