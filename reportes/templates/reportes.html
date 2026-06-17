@@ -218,7 +218,7 @@
       </div>
 
       <!-- Barra de filtros -->
-      <div class="cys-hv-filters d-flex align-items-center flex-wrap gap-2 mb-3">
+      <div class="cys-hv-filters d-flex align-items-center flex-wrap gap-3 mb-3">
 
         <!-- Desde -->
         <div class="cys-hv-date-group">
@@ -243,20 +243,20 @@
         </div>
 
         <!-- Botón Filtrar -->
-        <button type="button" id="btn-filtrar" class="cys-hv-btn-filtrar"
+        <button type="button" id="btn-filtrar" class="cys-hv-btn-action cys-hv-btn-filtrar"
                 onclick="aplicarFiltro()">
           <i class="bi bi-funnel-fill me-1"></i>Filtrar
         </button>
 
         <!-- Botón Limpiar -->
-        <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar">
+        <a href="{% url 'reportes' %}" class="cys-hv-btn-action cys-hv-btn-limpiar">
           <i class="bi bi-trash me-1"></i>Limpiar
         </a>
 
         <!-- Dropdown Exportar (a la derecha) -->
         <div class="ms-auto">
           <div class="dropdown">
-            <button class="cys-hv-btn-exportar dropdown-toggle" type="button"
+            <button class="cys-hv-btn-action cys-hv-btn-exportar dropdown-toggle" type="button"
                     id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-box-arrow-up me-1"></i>Exportar
             </button>
