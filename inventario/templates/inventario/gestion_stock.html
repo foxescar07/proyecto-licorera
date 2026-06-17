@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Stock & Productos — CYS Ltda{% endblock %}
+{% block page_title %}Stock & Productos{% endblock %}
+{% block nav_stock %}active{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mb-3">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<style>
+  .kpi-card {
+    padding: 1.4rem 1.6rem;
+    border-radius: 14px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: transform .18s ease, box-shadow .18s ease;
+    min-height: 110px;
+  }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,.25);
+  }
+  .kpi-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(226,232,240,.45);
+    margin-bottom: .35rem;
+  }
+  .kpi-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .kpi-icon {
+    font-size: 2.2rem;
+    opacity: .55;
+  }
+  .btn-accion-primary {
+    background: #3b9ad6;
+    color: #0d1b2a;
+    border: none;
+    border-radius: 50px;
+    padding: .5rem 1.4rem;
+    font-size: .87rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    transition: background .15s, box-shadow .15s;
+    text-decoration: none;
+  }
+  .btn-accion-primary:hover {
+    background: #4fb3f0;
+    color: #0d1b2a;
+    box-shadow: 0 4px 14px rgba(59,154,214,.35);
+  }
+  .btn-accion-ghost {
+    background: transparent;
+    color: #4DA8DA;
+    border: 1px solid rgba(77,168,218,.35);
+    border-radius: 50px;
+    padding: .5rem 1.4rem;
+    font-size: .87rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    transition: background .15s, border-color .15s;
+    text-decoration: none;
+  }
+  .btn-accion-ghost:hover {
+    background: rgba(77,168,218,.1);
+    border-color: rgba(77,168,218,.6);
+    color: #4DA8DA;
+  }
+  .btn-edit-sm {
+    background: rgba(77,168,218,.12);
+    border: 1px solid rgba(77,168,218,.3);
+    color: #4DA8DA;
+    border-radius: 50px;
+    padding: .28rem .9rem;
+    font-size: .78rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    transition: background .15s, border-color .15s;
+    cursor: pointer;
+  }
+  .btn-edit-sm:hover {
+    background: rgba(77,168,218,.22);
+    border-color: rgba(77,168,218,.55);
+    color: #7ecef4;
+  }
+</style>
+
+<!-- Encabezado -->
+<div class="d-flex align-items-center justify-content-between gap-2 mb-4 pb-3"
+     style="border-bottom:1px solid rgba(77,168,218,0.25);">
+  <div class="d-flex align-items-center gap-2">
+    <i class="bi bi-layers fs-4" style="color:#4DA8DA"></i>
+    <h2 class="fw-bold m-0" style="color:#e2e8f0;">Stock &amp; Productos</h2>
+  </div>
+  <a href="{% url 'gestion_inventario' %}" class="btn-accion-ghost">
+    <i class="bi bi-arrow-left"></i> Gestión de Inventario
+  </a>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="kpi-card" style="background:rgba(77,168,218,.07);border-color:rgba(77,168,218,.22);">
+      <div>
+        <div class="kpi-label">Productos</div>
+        <div class="kpi-value" style="color:#e2e8f0;">{{ productos|length }}</div>
+      </div>
+      <i class="bi bi-box kpi-icon" style="color:#4DA8DA;"></i>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kpi-card" style="background:rgba(39,174,96,.07);border-color:rgba(39,174,96,.22);">
+      <div>
+        <div class="kpi-label">Lotes activos</div>
+        <div class="kpi-value" style="color:#27ae60;">{{ lotes_activos|length }}</div>
+      </div>
+      <i class="bi bi-box-seam kpi-icon" style="color:#27ae60;"></i>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kpi-card" style="background:rgba(243,156,18,.07);border-color:rgba(243,156,18,.22);">
+      <div>
+        <div class="kpi-label">Por vencer</div>
+        <div class="kpi-value" style="color:#f39c12;">{{ lotes_por_vencer|length }}</div>
+      </div>
+      <i class="bi bi-exclamation-circle kpi-icon" style="color:#f39c12;"></i>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kpi-card" style="background:rgba(231,76,60,.07);border-color:rgba(231,76,60,.22);">
+      <div>
+        <div class="kpi-label">Vencidos</div>
+        <div class="kpi-value" style="color:#e74c3c;">{{ lotes_vencidos|length }}</div>
+      </div>
+      <i class="bi bi-x-circle kpi-icon" style="color:#e74c3c;"></i>
+    </div>
+  </div>
+</div>
+
+<!-- SECCIÓN: STOCK POR LOTE -->
+<div class="d-flex align-items-center gap-2 mb-3">
+  <i class="bi bi-table" style="color:#4DA8DA;font-size:1.1rem;"></i>
+  <h4 class="fw-bold m-0" style="color:#e2e8f0;">Stock por Lote</h4>
+</div>
+
+<!-- Buscador de lotes -->
+<div class="d-flex flex-wrap gap-2 mb-3">
+  <div class="input-group" style="max-width:360px;">
+    <span class="input-group-text"
+          style="background:rgba(77,168,218,.08);border-color:rgba(77,168,218,.25);color:#4DA8DA;">
+      <i class="bi bi-search"></i>
+    </span>
+    <input type="text" id="buscarLote" class="form-control"
+           placeholder="Buscar producto, lote…"
+           style="background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#e2e8f0;">
+  </div>
+  <select id="filtroEstado" class="form-select" style="max-width:170px;background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#e2e8f0;">
+    <option value="todos">Todos</option>
+    <option value="ok">OK</option>
+    <option value="por_vencer">Por vencer</option>
+    <option value="vencido">Vencido</option>
+  </select>
+</div>
+
+<div class="table-responsive rounded-3" style="border:1px solid rgba(77,168,218,.18);">
+  <table class="table table-hover mb-0 align-middle" id="tablaLotes"
+         style="--bs-table-bg:rgba(10,26,64,.55);--bs-table-hover-bg:rgba(77,168,218,.07);--bs-table-color:#e2e8f0;--bs-table-border-color:rgba(77,168,218,.12);">
+    <thead style="background:rgba(10,26,64,.9);">
+      <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:rgba(226,232,240,.5);">
+        <th class="ps-3">Producto / Presentación</th>
+        <th>Nº Lote</th>
+        <th class="text-center">Stock</th>
+        <th>Vencimiento</th>
+        <th>Estado</th>
+        <th class="text-center">Costo u.</th>
+        <th class="pe-3 text-end">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lote in lotes_activos %}
+      <tr class="lote-row"
+          data-nombre="{{ lote.presentacion.producto.nombre|lower }}"
+          data-lote="{{ lote.numero_lote|lower }}"
+          data-estado="{% if lote.esta_vencido %}vencido{% elif lote.proximo_a_vencer %}por_vencer{% else %}ok{% endif %}">
+        <td class="ps-3">
+          <div class="fw-semibold" style="color:#e2e8f0;">{{ lote.presentacion.producto.nombre }}</div>
+          <small style="color:rgba(77,168,218,.8);">{{ lote.presentacion.nombre }}</small>
+        </td>
+        <td>
+          <span class="badge rounded-pill px-2 py-1"
+                style="background:rgba(77,168,218,.12);color:#4DA8DA;border:1px solid rgba(77,168,218,.25);font-size:.75rem;">
+            {{ lote.numero_lote }}
+          </span>
+        </td>
+        <td class="text-center">
+          <span class="fw-bold" style="color:#e2e8f0;">{{ lote.stock_actual }}</span>
+          <small style="color:rgba(226,232,240,.4);"> uds</small>
+        </td>
+        <td>
+          {% if lote.fecha_vencimiento %}
+            <span style="color:{% if lote.esta_vencido %}#e74c3c{% elif lote.proximo_a_vencer %}#f39c12{% else %}rgba(226,232,240,.6){% endif %};">
+              {{ lote.fecha_vencimiento|date:"d/m/Y" }}
+            </span>
+            {% if lote.dias_para_vencer is not None %}
+              <br><small style="font-size:.7rem;color:rgba(226,232,240,.4);">
+                {% if lote.esta_vencido %}Vencido hace {{ lote.dias_para_vencer }} días
+                {% else %}{{ lote.dias_para_vencer }} días{% endif %}
+              </small>
+            {% endif %}
+          {% else %}
+            <span style="color:rgba(226,232,240,.35);">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if lote.esta_vencido %}
+            <span class="badge rounded-pill px-2" style="background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.3);">
+              <i class="bi bi-x-circle me-1"></i>Vencido
+            </span>
+          {% elif lote.proximo_a_vencer %}
+            <span class="badge rounded-pill px-2" style="background:rgba(243,156,18,.15);color:#f39c12;border:1px solid rgba(243,156,18,.3);">
+              <i class="bi bi-exclamation-circle me-1"></i>Por vencer
+            </span>
+          {% else %}
+            <span class="badge rounded-pill px-2" style="background:rgba(39,174,96,.12);color:#27ae60;border:1px solid rgba(39,174,96,.25);">
+              <i class="bi bi-check-circle me-1"></i>OK
+            </span>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          <span style="color:rgba(226,232,240,.7);font-size:.9rem;">
+            ${{ lote.costo_unitario|floatformat:0 }}
+          </span>
+        </td>
+        <td class="pe-3 text-end">
+          <button class="btn-edit-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalEditarStock{{ lote.presentacion.producto.pk }}">
+            <i class="bi bi-pencil"></i>Editar
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center py-5" style="color:rgba(226,232,240,.35);">
+          <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+          No hay lotes con stock activo.
+          <br>
+          <a href="{% url 'gestion_inventario' %}?tab=lote" class="mt-2 d-inline-block"
+             style="color:#4DA8DA;font-size:.9rem;">Registrar un lote →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="sinResultadosLotes" class="text-center py-5 d-none" style="color:rgba(226,232,240,.35);">
+  <i class="bi bi-search fs-1 d-block mb-2 opacity-50"></i>
+  Sin resultados para tu búsqueda.
+</div>
+
+
+<!-- MODALES EDITAR PRESENTACIONES -->
+{% for p in productos %}
+<div class="modal fade" id="modalEditarStock{{ p.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="background:#0d1b2a;border:1px solid rgba(77,168,218,.25);">
+      <div class="modal-header" style="border-color:rgba(77,168,218,.15);">
+        <h5 class="modal-title fw-bold" style="color:#e2e8f0;">
+          <i class="bi bi-layers me-2" style="color:#4DA8DA;"></i>
+          Editar stock — {{ p.nombre }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+       <input type="hidden" name="next" value="{% url 'gestion_stock' %}"> 
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          {% if p.presentaciones.all %}
+          <p class="mb-3" style="color:rgba(226,232,240,.5);font-size:.85rem;">
+            Ajusta el stock, nombre o precio de cada presentación.
+          </p>
+          {% for pr in p.presentaciones.all %}
+          <div class="rounded-3 p-3 mb-2"
+               style="background:rgba(77,168,218,.05);border:1px solid rgba(77,168,218,.12);">
+            <div class="row g-2 align-items-end">
+              <div class="col-md-4">
+                <label class="form-label small" style="color:rgba(226,232,240,.5);">Presentación</label>
+                <input type="text" name="pres_nombre_{{ pr.pk }}"
+                       class="form-control form-control-sm"
+                       style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.25);color:#e2e8f0;"
+                       value="{{ pr.nombre }}" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small" style="color:rgba(226,232,240,.5);">Stock actual</label>
+                <input type="number" name="pres_cantidad_{{ pr.pk }}"
+                       class="form-control form-control-sm"
+                       style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.25);color:#e2e8f0;"
+                       value="{{ pr.cantidad }}" min="0">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small" style="color:rgba(226,232,240,.5);">Precio</label>
+                <input type="number" name="pres_precio_{{ pr.pk }}"
+                       class="form-control form-control-sm"
+                       style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.25);color:#e2e8f0;"
+                       value="{{ pr.precio }}" min="0" step="0.01">
+              </div>
+              <div class="col-md-2 text-end">
+                <span class="badge rounded-pill px-2 py-1"
+                      style="background:rgba(77,168,218,.1);color:#4DA8DA;border:1px solid rgba(77,168,218,.2);font-size:.7rem;">
+                  {{ pr.lotes.count }} lotes
+                </span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="rounded-3 p-4 text-center"
+               style="background:rgba(255,193,7,.05);border:1px solid rgba(255,193,7,.15);color:rgba(226,232,240,.4);">
+            <i class="bi bi-exclamation-triangle mb-2 d-block fs-3" style="color:#ffc107;"></i>
+            Este producto no tiene presentaciones. Agrégalas desde Gestión de Productos.
+          </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer" style="border-color:rgba(77,168,218,.15);">
+          <button type="button" class="btn-accion-ghost" data-bs-dismiss="modal">Cancelar</button>
+          {% if p.presentaciones.all %}
+          <button type="submit" class="btn-accion-primary">
+            <i class="bi bi-check-lg"></i>Guardar Cambios
+          </button>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+<script>
+const buscarLoteInput = document.getElementById('buscarLote');
+const filtroEstado    = document.getElementById('filtroEstado');
+const filaLotes       = document.querySelectorAll('.lote-row');
+const sinResLotes     = document.getElementById('sinResultadosLotes');
+
+function filtrarLotes() {
+  const q      = buscarLoteInput.value.toLowerCase().trim();
+  const estado = filtroEstado.value;
+  let visibles = 0;
+
+  filaLotes.forEach(row => {
+    const matchTexto  = !q || row.dataset.nombre.includes(q) || row.dataset.lote.includes(q);
+    const matchEstado = estado === 'todos' || row.dataset.estado === estado;
+    const visible     = matchTexto && matchEstado;
+    row.style.display = visible ? '' : 'none';
+    if (visible) visibles++;
+  });
+
+  sinResLotes.classList.toggle('d-none', visibles > 0 || filaLotes.length === 0);
+  document.querySelector('#tablaLotes tbody').style.display =
+    visibles === 0 && filaLotes.length > 0 ? 'none' : '';
+}
+
+buscarLoteInput.addEventListener('input', filtrarLotes);
+filtroEstado.addEventListener('change', filtrarLotes);
+</script>
+
+{% endblock %}
