@@ -34,8 +34,7 @@ class Lote(models.Model):
     def dias_para_vencer(self):
         if not self.fecha_vencimiento:
             return None
-        diferencia = (self.fecha_vencimiento - timezone.now().date()).days
-        return abs(diferencia)
+        return (self.fecha_vencimiento - timezone.now().date()).days
 
     @property
     def esta_vencido(self):
