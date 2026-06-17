@@ -169,10 +169,87 @@ def guardar_conteo(request):
 
 
 @login_required
-def ajustar_stock(request, pk):
-    if request.method == 'POST':
-        messages.success(request, 'Ajuste de stock registrado.')
-    return redirect('inventario_home')
+def ajustar_stock_presentacion(request, pk):
+    """
+    Crea un lote de ajuste con la diferencia entre el stock deseado
+    y el stock real (suma de lotes). No toca presentacion.cantidad.
+    """
+    presentacion = get_object_or_404(PresentacionProducto, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('gestion_stock')
+
+    stock_deseado_raw = request.POST.get('stock_deseado', '').strip()
+    motivo = request.POST.get('motivo', '').strip() or 'Ajuste manual'
+
+    try:
+        stock_deseado = int(stock_deseado_raw)
+        if stock_deseado < 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        messages.error(request, '⚠️ Stock deseado inválido.')
+        return redirect('gestion_stock')
+
+    stock_real = presentacion.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
+    diff = stock_deseado - stock_real
+
+    if diff == 0:
+        messages.info(request, f'ℹ️ El stock de "{presentacion.nombre}" ya es {stock_real} uds.')
+        return redirect('gestion_stock')
+
+    if diff > 0:
+        import uuid
+        numero_lote = f"AJU-{uuid.uuid4().hex[:8].upper()}"
+        lote = Lote.objects.create(
+            numero_lote=numero_lote,
+            presentacion=presentacion,
+            costo_unitario=0,
+            stock_actual=diff,
+            fecha_vencimiento=None,
+            registrado_por=request.user,
+        )
+        Inventario.objects.create(
+            presentacion=presentacion,
+            lote=lote,
+            registrado_por=request.user,
+            tipo='ajuste',
+            cantidad=diff,
+            motivo=motivo,
+        )
+        messages.success(request, f'✅ Ajuste: +{diff} uds a "{presentacion.nombre}" (lote {numero_lote}).')
+
+    else:
+        restante = abs(diff)
+        if restante > stock_real:
+            messages.error(request, f'⚠️ No hay suficiente stock para ese ajuste (stock real: {stock_real} uds).')
+            return redirect('gestion_stock')
+
+        lotes_qs = presentacion.lotes.filter(stock_actual__gt=0).order_by(
+            db_models.F('fecha_vencimiento').asc(nulls_last=True), 'id'
+        )
+        lote_principal = None
+        for lote in lotes_qs:
+            if restante <= 0:
+                break
+            if lote_principal is None:
+                lote_principal = lote
+            descuento = min(lote.stock_actual, restante)
+            lote.stock_actual -= descuento
+            lote.save()
+            restante -= descuento
+
+        if lote_principal:
+            Inventario.objects.create(
+                presentacion=presentacion,
+                lote=lote_principal,
+                registrado_por=request.user,
+                tipo='ajuste',
+                cantidad=diff,
+                motivo=motivo,
+            )
+        messages.success(request, f'✅ Ajuste: {diff} uds de "{presentacion.nombre}".')
+
+    return redirect('gestion_stock')
 
 
 @login_required
@@ -285,8 +362,6 @@ def gestion_salida(request):
             cantidad=cantidad,
             motivo=motivo,
         )
-        presentacion.cantidad = max(0, (presentacion.cantidad or 0) - cantidad)
-        presentacion.save()
         messages.success(request, f'✅ Salida de {cantidad} unidades de "{presentacion.nombre}" registrada.')
 
     return redirect('gestion_inventario')
@@ -535,9 +610,6 @@ def registrar_lote(request):
             registrado_por=request.user,
         )
 
-        presentacion.cantidad = (presentacion.cantidad or 0) + stock_inicial_int
-        presentacion.save()
-
         if fecha_vencimiento:
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}" — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
         else:
@@ -588,24 +660,23 @@ def stock_status(request):
     UMBRAL_CRITICO = 5
     UMBRAL_BAJO    = 15
 
-    presentaciones = PresentacionProducto.objects.select_related('producto').all()
+    presentaciones = PresentacionProducto.objects.select_related('producto').annotate(
+        stock_lotes=Sum('lotes__stock_actual')
+    )
 
     criticos, bajos = [], []
     for pr in presentaciones:
-        if pr.cantidad <= UMBRAL_CRITICO:
-            criticos.append({
-                'nombre':          f"{pr.producto.nombre} — {pr.nombre}",
-                'cantidad':        pr.cantidad,
-                'url_presentacion': '/inventario/inventario/stock/',
-                'url_lote':        '/inventario/lote/registrar/',
-            })
-        elif pr.cantidad <= UMBRAL_BAJO:
-            bajos.append({
-                'nombre':          f"{pr.producto.nombre} — {pr.nombre}",
-                'cantidad':        pr.cantidad,
-                'url_presentacion': '/inventario/inventario/stock/',
-                'url_lote':        '/inventario/lote/registrar/',
-            })
+        stock = pr.stock_lotes or 0
+        entrada = {
+            'nombre':           f"{pr.producto.nombre} — {pr.nombre}",
+            'cantidad':         stock,
+            'url_presentacion': '/inventario/inventario/stock/',
+            'url_lote':         '/inventario/lote/registrar/',
+        }
+        if stock <= UMBRAL_CRITICO:
+            criticos.append(entrada)
+        elif stock <= UMBRAL_BAJO:
+            bajos.append(entrada)
 
     total  = len(criticos) + len(bajos)
     estado = 'verde' if total == 0 else ('rojo' if criticos else 'amarillo')
@@ -616,3 +687,51 @@ def stock_status(request):
         'criticos':      criticos,
         'bajos':         bajos,
     })
+@login_required
+def editar_lote_stock(request, pk):
+    """
+    Edita el stock_actual de UN lote específico, directamente.
+    No crea lotes nuevos. Registra el cambio en Inventario para trazabilidad.
+    """
+    lote = get_object_or_404(Lote, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('gestion_stock')
+
+    nuevo_stock_raw = request.POST.get('nuevo_stock', '').strip()
+    motivo = request.POST.get('motivo', '').strip() or 'Corrección de lote'
+
+    try:
+        nuevo_stock = int(nuevo_stock_raw)
+        if nuevo_stock < 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        messages.error(request, '⚠️ Stock inválido.')
+        return redirect('gestion_stock')
+
+    stock_anterior = lote.stock_actual
+    diff = nuevo_stock - stock_anterior
+
+    if diff == 0:
+        messages.info(request, f'ℹ️ El lote "{lote.numero_lote}" ya tiene {nuevo_stock} uds.')
+        return redirect('gestion_stock')
+
+    lote.stock_actual = nuevo_stock
+    lote.save()
+
+    Inventario.objects.create(
+        presentacion=lote.presentacion,
+        lote=lote,
+        registrado_por=request.user,
+        tipo='ajuste',
+        cantidad=diff,
+        motivo=motivo,
+    )
+
+    signo = f'+{diff}' if diff > 0 else str(diff)
+    messages.success(
+        request,
+        f'✅ Lote "{lote.numero_lote}" actualizado: {stock_anterior} → {nuevo_stock} uds ({signo}).'
+    )
+
+    return redirect('gestion_stock')
