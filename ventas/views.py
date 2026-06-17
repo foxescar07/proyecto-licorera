@@ -371,17 +371,15 @@ def registrar_conteo(request):
 
 @session_required
 def lista_devoluciones(request):
-    """Lista principal de devoluciones - selecciona venta"""
-    ventas = Venta.objects.select_related('cliente').prefetch_related('detalles').order_by('-fecha')
-    devoluciones = Devolucion.objects.select_related('venta').prefetch_related(
-        'detalles__producto', 'detalles__presentacion'
-    )
+    """Lista principal de devoluciones con flujo integrado"""
+    # Reiniciar flujo si viene desde el botón "Nueva devolución"
+    if request.GET.get('nuevo'):
+        request.session['dev_paso'] = 1
+        for key in list(request.session.keys()):
+            if key.startswith('dev_'):
+                del request.session[key]
 
-    context = {
-        'ventas': ventas,
-        'devoluciones': devoluciones,
-    }
-    return render(request, 'ventas/devoluciones.html', context)
+    return devoluciones_flujo(request)
 
 
 @session_required
@@ -434,7 +432,7 @@ def seleccionar_venta_devolucion(request, venta_id):
 
     context = {
         'venta': venta,
-        'detalles': venta.detalles.select_related('producto', 'presentacion'),
+        'detalles_venta': venta.detalles.select_related('producto', 'presentacion'),
         'form': form,
         'devoluciones': Devolucion.objects.select_related('venta'),
     }
@@ -508,3 +506,174 @@ def comprobante_devolucion(request, pk):
         ), pk=pk,
     )
     return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})
+
+
+# FLUJO DE DEVOLUCIONES - 100% SERVER-SIDE SIN JAVASCRIPT
+@session_required
+def devoluciones_flujo(request):
+    """Maneja TODO el flujo de devoluciones en un único HTML - Sin JavaScript"""
+    paso = request.session.get('dev_paso', 1)
+    venta_id = request.session.get('dev_venta_id')
+
+    # PASO 1: Seleccionar venta
+    if request.method == 'POST' and paso == 1:
+        venta_id_post = request.POST.get('venta_id', '').strip()
+        if venta_id_post:
+            try:
+                venta = Venta.objects.get(pk=int(venta_id_post))
+                request.session['dev_venta_id'] = venta.pk
+                request.session['dev_paso'] = 2
+                request.session.modified = True
+                return redirect('ventas:lista_devoluciones')
+            except (Venta.DoesNotExist, ValueError):
+                messages.error(request, '⚠️ Selecciona una venta válida.')
+        else:
+            messages.error(request, '⚠️ Debes seleccionar una venta.')
+
+    # PASO 2: Seleccionar productos
+    elif request.method == 'POST' and paso == 2:
+        if not venta_id:
+            messages.error(request, '⚠️ Primero debes seleccionar una venta.')
+            request.session['dev_paso'] = 1
+            request.session.modified = True
+            return redirect('ventas:lista_devoluciones')
+
+        productos_ids = request.POST.getlist('producto_id')
+        if productos_ids:
+            request.session['dev_productos'] = [int(pid) for pid in productos_ids]
+            request.session['dev_paso'] = 3
+            request.session.modified = True
+            return redirect('ventas:lista_devoluciones')
+        else:
+            messages.error(request, '⚠️ Debes seleccionar al menos un producto para devolver.')
+
+    # PASO 3: Motivo de devolución
+    elif request.method == 'POST' and paso == 3:
+        motivo = request.POST.get('motivo', '').strip()
+        observaciones = request.POST.get('observaciones', '').strip()
+
+        motivos_validos = [choice[0] for choice in Devolucion.MOTIVO_CHOICES]
+        if motivo in motivos_validos:
+            request.session['dev_motivo'] = motivo
+            request.session['dev_observaciones'] = observaciones
+            request.session['dev_paso'] = 4
+            request.session.modified = True
+            return redirect('ventas:lista_devoluciones')
+        else:
+            messages.error(request, '⚠️ Selecciona un motivo válido.')
+
+    # PASO 4: Tipo de reembolso
+    elif request.method == 'POST' and paso == 4:
+        tipo_reembolso = request.POST.get('tipo_reembolso', '').strip()
+
+        tipos_validos = [choice[0] for choice in Devolucion.REEMBOLSO_CHOICES]
+        if tipo_reembolso in tipos_validos:
+            request.session['dev_tipo_reembolso'] = tipo_reembolso
+            request.session['dev_paso'] = 5
+            request.session.modified = True
+            return redirect('ventas:lista_devoluciones')
+        else:
+            messages.error(request, '⚠️ Selecciona un tipo de reembolso válido.')
+
+    # PASO 5: Confirmar y crear devolución
+    elif request.method == 'POST' and paso == 5:
+        try:
+            venta = Venta.objects.get(pk=venta_id)
+            productos_ids = request.session.get('dev_productos', [])
+            motivo = request.session.get('dev_motivo')
+            tipo_reembolso = request.session.get('dev_tipo_reembolso')
+            observaciones = request.session.get('dev_observaciones', '')
+
+            if not (venta and productos_ids and motivo and tipo_reembolso):
+                messages.error(request, '⚠️ Error: Datos incompletos. Reinicia el proceso.')
+                request.session['dev_paso'] = 1
+                request.session.modified = True
+                return redirect('ventas:lista_devoluciones')
+
+            # Calcular total devuelto
+            total_devuelto = Decimal('0')
+            detalles_venta = venta.detalles.filter(pk__in=productos_ids)
+
+            if not detalles_venta.exists():
+                messages.error(request, '⚠️ Los productos seleccionados no están disponibles.')
+                request.session['dev_paso'] = 2
+                request.session.modified = True
+                return redirect('ventas:lista_devoluciones')
+
+            for detalle in detalles_venta:
+                total_devuelto += detalle.subtotal()
+
+            # Crear devolución
+            devolucion = Devolucion.objects.create(
+                venta=venta,
+                motivo=motivo,
+                tipo_reembolso=tipo_reembolso,
+                observaciones=observaciones,
+                total_devuelto=total_devuelto,
+                tiene_comprobante=True,
+                restaurar_stock=True,
+            )
+
+            # Crear detalles de devolución
+            for detalle_venta in detalles_venta:
+                DetalleDevolucion.objects.create(
+                    devolucion=devolucion,
+                    producto=detalle_venta.producto,
+                    presentacion=detalle_venta.presentacion,
+                    cantidad=detalle_venta.cantidad,
+                    precio_unitario=detalle_venta.precio_unitario,
+                )
+
+            # Limpiar sesión
+            for key in list(request.session.keys()):
+                if key.startswith('dev_'):
+                    del request.session[key]
+            request.session.modified = True
+
+            messages.success(request, f'✅ Devolución {devolucion.numero} registrada correctamente.')
+            return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
+
+        except Exception as e:
+            messages.error(request, f'⚠️ Error al registrar devolución: {str(e)}')
+            request.session['dev_paso'] = 1
+            request.session.modified = True
+            return redirect('ventas:lista_devoluciones')
+
+    # Botón atrás
+    if request.method == 'POST' and request.POST.get('action') == 'atras':
+        nuevo_paso = max(1, paso - 1)
+        request.session['dev_paso'] = nuevo_paso
+        request.session.modified = True
+        return redirect('ventas:lista_devoluciones')
+
+    # Obtener datos para renderizar
+    ventas = Venta.objects.select_related('cliente').prefetch_related('detalles').order_by('-fecha')
+    devoluciones = Devolucion.objects.select_related('venta').prefetch_related('detalles').order_by('-fecha')
+
+    venta = None
+    detalles_venta = []
+    if venta_id:
+        try:
+            venta = Venta.objects.get(pk=venta_id)
+            detalles_venta = venta.detalles.select_related('producto', 'presentacion').all()
+        except Venta.DoesNotExist:
+            venta = None
+
+    # Obtener nombres de motivos y tipos para mostrar
+    motivo_dict = dict(Devolucion.MOTIVO_CHOICES)
+    tipo_dict = dict(Devolucion.REEMBOLSO_CHOICES)
+
+    context = {
+        'ventas': ventas,
+        'venta': venta,
+        'detalles_venta': detalles_venta,
+        'devoluciones': devoluciones,
+        'paso': paso,
+        'motivo_seleccionado': motivo_dict.get(request.session.get('dev_motivo'), ''),
+        'tipo_reembolso_seleccionado': tipo_dict.get(request.session.get('dev_tipo_reembolso'), ''),
+        'observaciones': request.session.get('dev_observaciones', ''),
+    }
+
+    return render(request, 'ventas/devoluciones.html', context)
+
+
