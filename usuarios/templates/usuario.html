@@ -4,20 +4,15 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>CYS — Acceso al Sistema</title>
-
   <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-
   {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/usuario/usuario.css' %}">
   {% endblock %}
 </head>
-
 <body>
 
   <div class="cys-wrap">
@@ -27,293 +22,327 @@
 
       <div id="msgGlobal" class="cys-msg" role="alert"></div>
 
-      <!-- LOGIN -->
+      <!-- ── LOGIN ── -->
       <div id="secLogin">
-
-        <div class="cys-title">
-          Acceso al Sistema
-        </div>
+        <div class="cys-title">Acceso al Sistema</div>
 
         <div class="mb-3">
-          <label class="cys-label" for="loginUser">
-            Usuario
-          </label>
-
-          <input
-            type="text"
-            id="loginUser"
-            class="cys-input"
-            placeholder="Tu número de identificación"
-            autocomplete="off">
+          <label class="cys-label" for="loginUser">Usuario</label>
+          <input type="text" id="loginUser" class="cys-input"
+                 placeholder="Tu número de identificación" autocomplete="off">
         </div>
 
         <div class="mb-4">
-          <label class="cys-label" for="loginPass">
-            Contraseña
-          </label>
-
-          <input
-            type="password"
-            id="loginPass"
-            class="cys-input"
-            placeholder="Tu contraseña">
+          <label class="cys-label" for="loginPass">Contraseña</label>
+          <div class="cys-input-eye">
+            <input type="password" id="loginPass" class="cys-input" placeholder="Tu contraseña">
+            <button type="button" class="cys-eye-btn" id="btnToggleLogin" tabindex="-1">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
         </div>
 
         <button class="cys-btn-primary" onclick="hacerLogin()">
-          <i class="bi bi-box-arrow-in-right me-1"></i>
-          Iniciar Sesión
+          <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
         </button>
 
         <div class="cys-divider"></div>
 
         <div class="d-flex justify-content-between align-items-center gap-2">
-
           <button class="cys-btn-link" onclick="mostrar('secRecuperar')">
-            <i class="bi bi-key" style="font-size:.75rem;"></i>
-            Olvidé mi contraseña
+            <i class="bi bi-key" style="font-size:.75rem;"></i> Olvidé mi contraseña
           </button>
-
           <a href="{% url 'crear_usuario' %}" class="cys-btn-link">
-            <i class="bi bi-person-plus" style="font-size:.75rem;"></i>
-            Crear usuario
+            <i class="bi bi-person-plus" style="font-size:.75rem;"></i> Crear usuario
           </a>
-
         </div>
       </div>
 
-      <!-- RECUPERAR -->
+      <!-- ── RECUPERAR (selector método) ── -->
       <div id="secRecuperar" style="display:none;">
+        <div class="cys-title">Recuperar Acceso</div>
 
-        <div class="cys-title">
-          Recuperar Acceso
+        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          ¿Cómo quieres recuperar tu contraseña?
+        </p>
+
+        <button class="cys-btn-primary mb-3" onclick="mostrar('secRecCorreo')">
+          <i class="bi bi-envelope me-1"></i> Por correo electrónico
+        </button>
+
+        <button class="cys-btn-primary mb-3" onclick="mostrar('secRecTel')">
+          <i class="bi bi-phone me-1"></i> Por número de teléfono
+        </button>
+
+        <div class="text-center mt-2">
+          <button class="cys-btn-link mx-auto" onclick="mostrar('secLogin')">
+            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver al inicio
+          </button>
         </div>
+      </div>
 
-        <p class="text-center mb-4"
-           style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+      <!-- ── RECUPERAR POR CORREO ── -->
+      <div id="secRecCorreo" style="display:none;">
+        <div class="cys-title">Recuperar por Correo</div>
 
-          Ingresa tu correo registrado y te enviaremos un enlace
-          para crear una nueva contraseña.
-
+        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Ingresa tu correo registrado y te enviaremos un enlace para crear una nueva contraseña.
         </p>
 
         <div class="mb-4">
-          <label class="cys-label" for="recCorreo">
-            Correo Electrónico
-          </label>
-
-          <input
-            type="email"
-            id="recCorreo"
-            class="cys-input"
-            placeholder="correo@ejemplo.com"
-            autocomplete="off">
+          <label class="cys-label" for="recCorreo">Correo Electrónico</label>
+          <input type="email" id="recCorreo" class="cys-input"
+                 placeholder="correo@ejemplo.com" autocomplete="off">
         </div>
 
         <button class="cys-btn-primary mb-3" onclick="hacerRecuperar()">
-          <i class="bi bi-send me-1"></i>
-          Enviar Enlace
+          <i class="bi bi-send me-1"></i> Enviar Enlace
         </button>
 
         <div class="text-center">
-          <button class="cys-btn-link mx-auto" onclick="mostrar('secLogin')">
-            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i>
-            Volver al inicio
+          <button class="cys-btn-link mx-auto" onclick="mostrar('secRecuperar')">
+            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver
           </button>
         </div>
+      </div>
 
+      <!-- ── RECUPERAR POR TELÉFONO ── -->
+      <div id="secRecTel" style="display:none;">
+        <div class="cys-title">Recuperar por Teléfono</div>
+
+        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Ingresa tu número de teléfono y número de identificación. El administrador te dará un código de verificación.
+        </p>
+
+        <div class="mb-3">
+          <label class="cys-label" for="telTelefono">Número de Teléfono</label>
+          <input type="tel" id="telTelefono" class="cys-input"
+                 placeholder="Ej: 3001234567" autocomplete="off">
+        </div>
+
+        <div class="mb-4">
+          <label class="cys-label" for="telIdentificacion">Número de Identificación</label>
+          <input type="text" id="telIdentificacion" class="cys-input"
+                 placeholder="Tu número de identificación" autocomplete="off">
+        </div>
+
+        <button class="cys-btn-primary mb-3" onclick="hacerRecuperarTel()">
+          <i class="bi bi-shield-lock me-1"></i> Solicitar Código
+        </button>
+
+        <div class="text-center">
+          <button class="cys-btn-link mx-auto" onclick="mostrar('secRecuperar')">
+            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver
+          </button>
+        </div>
+      </div>
+
+      <!-- ── VERIFICAR CÓDIGO ── -->
+      <div id="secCodigo" style="display:none;">
+        <div class="cys-title">Ingresar Código</div>
+
+        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Ingresa el código de 6 dígitos que te proporcionó el administrador. Expira en 15 minutos.
+        </p>
+
+        <div class="mb-4">
+          <label class="cys-label" for="inputCodigo">Código de Verificación</label>
+          <input type="text" id="inputCodigo" class="cys-input"
+                 placeholder="Ej: 483920" maxlength="6" autocomplete="off"
+                 style="letter-spacing:.2rem; font-size:1.1rem; text-align:center;">
+        </div>
+
+        <button class="cys-btn-primary mb-3" onclick="hacerVerificarCodigo()">
+          <i class="bi bi-check-circle me-1"></i> Verificar Código
+        </button>
+
+        <div class="text-center">
+          <button class="cys-btn-link mx-auto" onclick="mostrar('secRecTel')">
+            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver
+          </button>
+        </div>
       </div>
 
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
   <script>
 
-    function mostrar(id) {
+    const SECCIONES = ['secLogin','secRecuperar','secRecCorreo','secRecTel','secCodigo'];
 
-      ['secLogin','secRecuperar'].forEach(s => {
+    // Guardamos teléfono e identificación para reutilizar en la verificación
+    let _telRecuperar = '';
+    let _idRecuperar  = '';
+
+    document.getElementById('btnToggleLogin').addEventListener('click', function () {
+      const field  = document.getElementById('loginPass');
+      const icon   = this.querySelector('i');
+      const isPass = field.type === 'password';
+      field.type = isPass ? 'text' : 'password';
+      icon.classList.toggle('bi-eye',      !isPass);
+      icon.classList.toggle('bi-eye-slash', isPass);
+    });
+
+    function mostrar(id) {
+      SECCIONES.forEach(s => {
         document.getElementById(s).style.display = 'none';
       });
-
       document.getElementById(id).style.display = 'block';
-
       limpiarMsg();
     }
 
     function mostrarMsg(texto, tipo) {
-
       const el = document.getElementById('msgGlobal');
-
-      el.textContent = texto;
-      el.className   = `cys-msg cys-msg--${tipo}`;
+      el.textContent   = texto;
+      el.className     = `cys-msg cys-msg--${tipo}`;
       el.style.display = 'block';
     }
 
     function limpiarMsg() {
-
       const el = document.getElementById('msgGlobal');
-
       el.style.display = 'none';
       el.textContent   = '';
     }
 
     function sacudir() {
-
       const t = document.getElementById('tarjeta');
-
       t.classList.remove('shake');
-
       void t.offsetWidth;
-
       t.classList.add('shake');
     }
 
     function getCookie(name) {
-
       let v = null;
-
       document.cookie.split(';').forEach(c => {
-
         c = c.trim();
-
-        if (c.startsWith(name + '=')) {
+        if (c.startsWith(name + '='))
           v = decodeURIComponent(c.slice(name.length + 1));
-        }
       });
-
       return v;
     }
 
+    // ── Login ──
     function hacerLogin() {
-
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value;
-
       if (!user || !pass) {
-
-        mostrarMsg('Completa usuario y contraseña.', 'err');
-        sacudir();
-
-        return;
+        mostrarMsg('Completa usuario y contraseña.', 'err'); sacudir(); return;
       }
-
       const fd = new FormData();
-
       fd.append('usuario_input', user);
       fd.append('clave_input', pass);
-
       fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-
       fetch("{% url 'login' %}", {
-        method : 'POST',
-        body   : fd,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
+        method: 'POST', body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
       })
-
       .then(r => r.json())
-
       .then(data => {
-
         if (data.ok) {
-
           mostrarMsg('✅ Acceso correcto. Redirigiendo...', 'ok');
-
-          setTimeout(() => {
-            window.location.href = data.redirect;
-          }, 1000);
-
+          setTimeout(() => { window.location.href = data.redirect; }, 1000);
         } else {
-
-          mostrarMsg(data.error, 'err');
-
-          sacudir();
-
+          mostrarMsg(data.error, 'err'); sacudir();
           document.getElementById('loginPass').value = '';
         }
       })
-
-      .catch(() => {
-
-        mostrarMsg('Error de conexión. Intenta de nuevo.', 'err');
-
-        sacudir();
-      });
+      .catch(() => { mostrarMsg('Error de conexión. Intenta de nuevo.', 'err'); sacudir(); });
     }
 
+    // ── Recuperar por correo ──
     function hacerRecuperar() {
-
       const correo = document.getElementById('recCorreo').value.trim();
-
       if (!correo) {
-
-        mostrarMsg('Ingresa tu correo electrónico.', 'err');
-
-        sacudir();
-
-        return;
+        mostrarMsg('Ingresa tu correo electrónico.', 'err'); sacudir(); return;
       }
-
       const fd = new FormData();
-
       fd.append('correo', correo);
-
       fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-
       fetch("{% url 'recuperar_clave' %}", {
-        method : 'POST',
-        body   : fd,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
+        method: 'POST', body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
       })
-
       .then(r => r.json())
-
       .then(data => {
-
         if (data.ok) {
-
           mostrarMsg('✅ ' + data.mensaje, 'ok');
-
           document.getElementById('recCorreo').value = '';
-
         } else {
-
-          mostrarMsg(data.error, 'err');
-
-          sacudir();
-
+          mostrarMsg(data.error, 'err'); sacudir();
           document.getElementById('recCorreo').value = '';
         }
       })
-
-      .catch(() => {
-
-        mostrarMsg('Error de conexión. Intenta de nuevo.', 'err');
-
-        sacudir();
-      });
+      .catch(() => { mostrarMsg('Error de conexión. Intenta de nuevo.', 'err'); sacudir(); });
     }
 
-    document.addEventListener('keydown', e => {
-
-      if (e.key === 'Enter') {
-
-        if (document.getElementById('secLogin').style.display !== 'none') {
-
-          hacerLogin();
-
-        } else if (document.getElementById('secRecuperar').style.display !== 'none') {
-
-          hacerRecuperar();
-        }
+    // ── Recuperar por teléfono ──
+    function hacerRecuperarTel() {
+      const tel = document.getElementById('telTelefono').value.trim();
+      const id  = document.getElementById('telIdentificacion').value.trim();
+      if (!tel || !id) {
+        mostrarMsg('Ingresa teléfono y número de identificación.', 'err'); sacudir(); return;
       }
+      const fd = new FormData();
+      fd.append('telefono', tel);
+      fd.append('identificacion', id);
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+      fetch("{% url 'recuperar_por_telefono' %}", {
+        method: 'POST', body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          _telRecuperar = tel;
+          _idRecuperar  = id;
+          mostrarMsg('✅ ' + data.mensaje, 'ok');
+          setTimeout(() => { mostrar('secCodigo'); }, 1200);
+        } else {
+          mostrarMsg(data.error, 'err'); sacudir();
+        }
+      })
+      .catch(() => { mostrarMsg('Error de conexión. Intenta de nuevo.', 'err'); sacudir(); });
+    }
+
+    // ── Verificar código ──
+    function hacerVerificarCodigo() {
+      const codigo = document.getElementById('inputCodigo').value.trim();
+      if (!codigo || codigo.length !== 6) {
+        mostrarMsg('Ingresa el código de 6 dígitos.', 'err'); sacudir(); return;
+      }
+      const fd = new FormData();
+      fd.append('telefono', _telRecuperar);
+      fd.append('identificacion', _idRecuperar);
+      fd.append('codigo', codigo);
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+      fetch("{% url 'verificar_codigo_telefono' %}", {
+        method: 'POST', body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          mostrarMsg('✅ Código correcto. Redirigiendo...', 'ok');
+          setTimeout(() => { window.location.href = data.redirect; }, 1000);
+        } else {
+          mostrarMsg(data.error, 'err'); sacudir();
+          document.getElementById('inputCodigo').value = '';
+        }
+      })
+      .catch(() => { mostrarMsg('Error de conexión. Intenta de nuevo.', 'err'); sacudir(); });
+    }
+
+    // ── Enter en cualquier sección activa ──
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const visible = SECCIONES.find(s => document.getElementById(s).style.display !== 'none');
+      if (visible === 'secLogin')    hacerLogin();
+      if (visible === 'secRecCorreo') hacerRecuperar();
+      if (visible === 'secRecTel')   hacerRecuperarTel();
+      if (visible === 'secCodigo')   hacerVerificarCodigo();
     });
 
   </script>
-
 </body>
 </html>
