@@ -473,9 +473,8 @@
   <div class="prod-item"
        data-id="{{ prod.id }}"
        data-nombre="{{ prod.nombre }}"
-       data-precio="{{ prod.precio_unitario }}"
-       data-stock="{{ prod.cantidad_disponible }}"
-       data-unidad="{{ prod.unidad }}">
+       data-stock="{{ prod.stock_total }}"
+       data-presentaciones='[{% for pr in prod.presentaciones.all %}{"id":{{ pr.pk }},"nombre":"{{ pr.nombre|escapejs }}","unidades":{{ pr.unidades }},"precio":{{ pr.precio }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
   </div>
   {% endfor %}
 </div>
@@ -485,7 +484,7 @@
 
 {% block extra_js %}
 <script>
-// ══ NAVEGACIÓN Y LOGICA DEL TPV ══
+// ══ NAVEGACIÓN Y LÓGICA DEL TPV ══
 const vistaCats  = document.getElementById('vistaCategorias');
 const vistaProds = document.getElementById('vistaProductos');
 const vistaPresS = document.getElementById('vistaPresentaciones');
@@ -497,6 +496,7 @@ function mostrar(vista) {
   vista.style.display = 'block';
 }
 
+// ── Clic en categoría ──
 document.querySelectorAll('[data-cat-id]').forEach(card => {
   card.addEventListener('click', function() {
     const id     = this.dataset.catId;
@@ -508,27 +508,434 @@ document.querySelectorAll('[data-cat-id]').forEach(card => {
     const productos = catData ? catData.querySelectorAll('.prod-item') : [];
 
     lista.innerHTML = '';
+
+    if (productos.length === 0) {
+      lista.innerHTML = `
+        <div class="col-12 text-center py-5">
+          <div style="border:1px dashed var(--cys-borde); border-radius:8px; padding:3rem 1rem; color:var(--cys-texto-muted);">
+            <i class="bi bi-box d-block fs-2 mb-2" style="color:rgba(77,168,218,0.2);"></i>
+            No hay productos en esta categoría.
+          </div>
+        </div>`;
+      mostrar(vistaProds);
+      return;
+    }
+
     productos.forEach(p => {
+      let pres = [];
+      try { pres = JSON.parse(p.dataset.presentaciones || '[]'); } catch(e) {}
+      const minPrecio = pres.length ? Math.min(...pres.map(x => x.precio)) : 0;
+
       const div = document.createElement('div');
       div.className = 'col-6 col-md-4';
       div.innerHTML = `
-        <div class="cys-cat-card-premium"
+        <div class="cys-cat-card-premium prod-card"
+             style="cursor:pointer;"
              data-prod-id="${p.dataset.id}"
              data-prod-nombre="${p.dataset.nombre}"
-             data-prod-precio="${p.dataset.precio}"
              data-prod-stock="${p.dataset.stock}"
-             data-prod-unidad="${p.dataset.unidad}">
+             data-prod-presentaciones='${p.dataset.presentaciones}'>
           <div style="font-weight:700; font-size:.85rem; color:#fff;">${p.dataset.nombre}</div>
           <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
-            desde $${parseInt(p.dataset.precio).toLocaleString('es-CO')}
+            desde $${minPrecio.toLocaleString('es-CO')}
+          </div>
+          <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
+            Stock: ${p.dataset.stock} uds
           </div>
         </div>`;
       lista.appendChild(div);
     });
+
+    // Clic en producto → ver presentaciones
+    lista.querySelectorAll('.prod-card').forEach(card => {
+      card.addEventListener('click', function() {
+        abrirPresentaciones(
+          this.dataset.prodId,
+          this.dataset.prodNombre,
+          this.dataset.prodPresentaciones
+        );
+      });
+    });
+
     mostrar(vistaProds);
   });
 });
 
-// El resto de tu JavaScript lógico (Manejo del carrito, inputs y modales) sigue aquí abajo intacto...
+// ── Abrir presentaciones ──
+function abrirPresentaciones(prodId, prodNombre, presJson) {
+  document.getElementById('presTitulo').textContent = prodNombre;
+  const lista = document.getElementById('presentacionLista');
+  lista.innerHTML = '';
+
+  let pres = [];
+  try { pres = JSON.parse(presJson || '[]'); } catch(e) {}
+
+  if (pres.length === 0) {
+    lista.innerHTML = `
+      <div class="text-center py-4" style="border:1px dashed var(--cys-borde); border-radius:8px; color:var(--cys-texto-muted);">
+        <i class="bi bi-exclamation-circle d-block fs-3 mb-2" style="color:rgba(255,193,7,0.4);"></i>
+        Este producto no tiene presentaciones configuradas.
+      </div>`;
+    mostrar(vistaPresS);
+    return;
+  }
+
+  pres.forEach(pr => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center rounded-3 p-3"
+           style="background:rgba(77,168,218,0.05); border:1px solid var(--cys-borde); cursor:pointer;"
+           onclick="agregarAlCarrito(${prodId}, '${prodNombre.replace(/'/g,"\\'")}', ${pr.id}, '${pr.nombre.replace(/'/g,"\\'")}', ${pr.precio}, ${pr.unidades})">
+        <div>
+          <div style="font-weight:700; color:#fff; font-size:.9rem;">${pr.nombre}</div>
+          <div style="font-size:.72rem; color:var(--cys-texto-muted);">x${pr.unidades} unidades</div>
+        </div>
+        <div style="font-size:1.1rem; font-weight:800; color:var(--cys-acento);">
+          $${pr.precio.toLocaleString('es-CO')}
+        </div>
+      </div>`;
+    lista.appendChild(div);
+  });
+
+  mostrar(vistaPresS);
+}
+
+// ── Volver ──
+document.getElementById('btnVolverCats').addEventListener('click', () => mostrar(vistaCats));
+document.getElementById('btnVolverProds').addEventListener('click', () => mostrar(vistaProds));
+
+// ══ CARRITO ══
+let carrito = [];
+
+function agregarAlCarrito(prodId, prodNombre, presId, presNombre, precio, unidades) {
+  const key = `${prodId}-${presId}`;
+  const existente = carrito.find(i => i.key === key);
+  if (existente) {
+    existente.cantidad++;
+  } else {
+    carrito.push({ key, prodId, prodNombre, presId, presNombre, precio, unidades, cantidad: 1 });
+  }
+  renderCarrito();
+  mostrar(vistaCats);
+}
+
+function renderCarrito() {
+  const listaEl    = document.getElementById('listaCarrito');
+  const camposEl   = document.getElementById('camposOcultos');
+  const vacioEl    = document.getElementById('carritoVacio');
+  const itemsEl    = document.getElementById('carritoItems');
+  const totalEl    = document.getElementById('totalGeneral');
+  const descEl     = document.getElementById('seccionDescuento');
+  const pagosEl    = document.getElementById('seccionPagos');
+  const btnReg     = document.getElementById('btnRegistrar');
+
+  listaEl.innerHTML  = '';
+  camposEl.innerHTML = '';
+
+  if (carrito.length === 0) {
+    vacioEl.style.display = 'block';
+    itemsEl.style.display = 'none';
+    totalEl.style.display = 'none';
+    descEl.style.display  = 'none';
+    pagosEl.style.display = 'none';
+    btnReg.disabled = true;
+    document.getElementById('totalMonto').textContent = '$0';
+    return;
+  }
+
+  vacioEl.style.display = 'none';
+  itemsEl.style.display = 'block';
+  totalEl.style.display = 'block';
+  descEl.style.display  = 'block';
+  pagosEl.style.display = 'block';
+  btnReg.disabled = false;
+
+  let subtotal = 0;
+
+  carrito.forEach((item, idx) => {
+    subtotal += item.precio * item.cantidad;
+
+    // Fila visual
+    const row = document.createElement('div');
+    row.className = 'd-flex justify-content-between align-items-center rounded-3 p-2 px-3';
+    row.style.cssText = 'background:rgba(77,168,218,0.04); border:1px solid var(--cys-borde);';
+    row.innerHTML = `
+      <div style="flex:1; min-width:0;">
+        <div style="font-weight:700; font-size:.83rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          ${item.prodNombre}
+        </div>
+        <div style="font-size:.7rem; color:var(--cys-texto-muted);">${item.presNombre} · $${item.precio.toLocaleString('es-CO')}</div>
+      </div>
+      <div class="d-flex align-items-center gap-2 ms-2">
+        <button type="button" onclick="cambiarCantidad(${idx}, -1)"
+                style="width:24px;height:24px;border-radius:50%;background:rgba(77,168,218,0.1);border:1px solid var(--cys-borde);color:#fff;font-size:.8rem;line-height:1;padding:0;">−</button>
+        <span style="min-width:20px;text-align:center;font-weight:700;color:#fff;">${item.cantidad}</span>
+        <button type="button" onclick="cambiarCantidad(${idx}, 1)"
+                style="width:24px;height:24px;border-radius:50%;background:rgba(77,168,218,0.1);border:1px solid var(--cys-borde);color:#fff;font-size:.8rem;line-height:1;padding:0;">+</button>
+        <span style="font-weight:700;color:var(--cys-acento);min-width:70px;text-align:right;font-size:.85rem;">
+          $${(item.precio * item.cantidad).toLocaleString('es-CO')}
+        </span>
+        <button type="button" onclick="quitarItem(${idx})"
+                style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:6px;padding:2px 7px;font-size:.8rem;">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>`;
+    listaEl.appendChild(row);
+
+    // Campos ocultos para el POST
+    camposEl.innerHTML += `
+      <input type="hidden" name="producto_id[]"    value="${item.prodId}">
+      <input type="hidden" name="presentacion_id[]" value="${item.presId}">
+      <input type="hidden" name="cantidad[]"        value="${item.cantidad}">
+      <input type="hidden" name="precio_unitario[]" value="${item.precio}">`;
+  });
+
+  // Total con descuento
+  const descPct = parseFloat(document.getElementById('inputDescuento').value) || 0;
+  const total   = subtotal * (1 - descPct / 100);
+  document.getElementById('totalMonto').textContent = '$' + Math.round(total).toLocaleString('es-CO');
+  calcularPagado();
+}
+
+function cambiarCantidad(idx, delta) {
+  carrito[idx].cantidad += delta;
+  if (carrito[idx].cantidad <= 0) carrito.splice(idx, 1);
+  renderCarrito();
+}
+
+function quitarItem(idx) {
+  carrito.splice(idx, 1);
+  renderCarrito();
+}
+
+document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
+
+// ── Total pagado ──
+function calcularPagado() {
+  let pagado = 0;
+  document.querySelectorAll('.pago-input').forEach(inp => {
+    pagado += parseFloat(inp.value) || 0;
+  });
+  document.getElementById('totalPagado').textContent = '$' + Math.round(pagado).toLocaleString('es-CO');
+}
+document.querySelectorAll('.pago-input').forEach(inp => {
+  inp.addEventListener('input', calcularPagado);
+});
+
+// ── Cancelar carrito ──
+document.getElementById('btnCancelarVenta').addEventListener('click', function() {
+  if (carrito.length === 0 || confirm('¿Vaciar el carrito?')) {
+    carrito = [];
+    renderCarrito();
+  }
+});
+
+// ── Buscador de productos ──
+document.getElementById('buscadorProducto').addEventListener('input', function() {
+  const term = this.value.toLowerCase().trim();
+  if (!term) return;
+
+  const lista = document.getElementById('productoLista');
+  lista.innerHTML = '';
+  let encontrados = 0;
+
+  document.querySelectorAll('[id^="cat-data-"] .prod-item').forEach(p => {
+    if (p.dataset.nombre.toLowerCase().includes(term)) {
+      encontrados++;
+      let pres = [];
+      try { pres = JSON.parse(p.dataset.presentaciones || '[]'); } catch(e) {}
+      const minPrecio = pres.length ? Math.min(...pres.map(x => x.precio)) : 0;
+
+      const div = document.createElement('div');
+      div.className = 'col-6 col-md-4';
+      div.innerHTML = `
+        <div class="cys-cat-card-premium prod-card" style="cursor:pointer;"
+             data-prod-id="${p.dataset.id}"
+             data-prod-nombre="${p.dataset.nombre}"
+             data-prod-stock="${p.dataset.stock}"
+             data-prod-presentaciones='${p.dataset.presentaciones}'>
+          <div style="font-weight:700; font-size:.85rem; color:#fff;">${p.dataset.nombre}</div>
+          <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
+            desde $${minPrecio.toLocaleString('es-CO')}
+          </div>
+          <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
+            Stock: ${p.dataset.stock} uds
+          </div>
+        </div>`;
+      lista.appendChild(div);
+    }
+  });
+
+  if (encontrados === 0) {
+    lista.innerHTML = `
+      <div class="col-12 text-center py-4" style="color:var(--cys-texto-muted);">
+        <i class="bi bi-search d-block fs-2 mb-2"></i>No se encontraron productos.
+      </div>`;
+  }
+
+  lista.querySelectorAll('.prod-card').forEach(card => {
+    card.addEventListener('click', function() {
+      abrirPresentaciones(
+        this.dataset.prodId,
+        this.dataset.prodNombre,
+        this.dataset.prodPresentaciones
+      );
+    });
+  });
+
+  document.getElementById('catTitulo').textContent = `Resultados: "${this.value}"`;
+  mostrar(vistaProds);
+});
+
+// ══ CONTEO DE CAJA ══
+document.querySelectorAll('.denom-ct').forEach(inp => {
+  inp.addEventListener('input', () => {
+    let total = 0;
+    document.querySelectorAll('.denom-ct').forEach(i => {
+      total += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
+    });
+    document.getElementById('totalConteo').textContent = '$' + Math.round(total).toLocaleString('es-CO');
+  });
+});
+
+document.getElementById('btnConfirmarConteo').addEventListener('click', function() {
+  let total = 0;
+  const denominaciones = {};
+  document.querySelectorAll('.denom-ct').forEach(i => {
+    const cant = parseInt(i.value) || 0;
+    const val  = parseFloat(i.dataset.valor);
+    total += cant * val;
+    if (cant > 0) denominaciones[val] = cant;
+  });
+  const obs = document.getElementById('ctObservacion').value.trim();
+
+  fetch("{% url 'ventas:abrir_caja' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({ monto_base: total, observacion: obs, denominaciones })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) location.reload();
+    else alert('Error al abrir la caja: ' + (data.error || ''));
+  })
+  .catch(() => alert('Error de conexión al abrir la caja.'));
+});
+
+// ══ CIERRE DE CAJA ══
+document.querySelectorAll('.denom-ci').forEach(inp => {
+  inp.addEventListener('input', () => {
+    let total = 0;
+    document.querySelectorAll('.denom-ci').forEach(i => {
+      total += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
+    });
+    document.getElementById('totalCierre').textContent     = '$' + Math.round(total).toLocaleString('es-CO');
+    document.getElementById('resumenTotalContado').textContent = '$' + Math.round(total).toLocaleString('es-CO');
+    recalcCierre();
+  });
+});
+
+document.getElementById('baseSiguiente').addEventListener('input', recalcCierre);
+
+function recalcCierre() {
+  let totalCont = 0;
+  document.querySelectorAll('.denom-ci').forEach(i => {
+    totalCont += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
+  });
+  const base = parseFloat(document.getElementById('baseSiguiente').value) || 0;
+  const retirar = Math.max(0, totalCont - base);
+  document.getElementById('resumenBaseSig').textContent  = '$' + Math.round(base).toLocaleString('es-CO');
+  document.getElementById('resumenRetirar').textContent  = '$' + Math.round(retirar).toLocaleString('es-CO');
+}
+
+document.getElementById('btnConfirmarCierre').addEventListener('click', function() {
+  let totalContado = 0;
+  const denominaciones = {};
+  document.querySelectorAll('.denom-ci').forEach(i => {
+    const cant = parseInt(i.value) || 0;
+    const val  = parseFloat(i.dataset.valor);
+    totalContado += cant * val;
+    if (cant > 0) denominaciones[val] = cant;
+  });
+  const base = parseFloat(document.getElementById('baseSiguiente').value) || 0;
+
+  fetch("{% url 'ventas:cerrar_caja' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({ total_contado: totalContado, monto_base_siguiente: base, denominaciones })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) location.reload();
+    else alert('Error al cerrar la caja: ' + (data.error || ''));
+  })
+  .catch(() => alert('Error de conexión al cerrar la caja.'));
+});
+
+// ══ AUTOCOMPLETAR CLIENTE ══
+const inputCliente = document.getElementById('inputClienteNombre');
+const sugerencias  = document.getElementById('sugerenciasClientes');
+
+inputCliente.addEventListener('input', function() {
+  const term = this.value.toLowerCase();
+  let alguno = false;
+  sugerencias.querySelectorAll('button').forEach(btn => {
+    const match = btn.dataset.nombre.toLowerCase().includes(term);
+    btn.style.display = match ? '' : 'none';
+    if (match) alguno = true;
+  });
+  sugerencias.style.display = (alguno && term) ? 'block' : 'none';
+});
+
+sugerencias.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    inputCliente.value = this.dataset.nombre;
+    document.getElementById('inputClienteId').value = this.dataset.id;
+    sugerencias.style.display = 'none';
+  });
+});
+
+document.addEventListener('click', e => {
+  if (!inputCliente.contains(e.target)) sugerencias.style.display = 'none';
+});
+
+// ══ FILTRO HISTORIAL POR FECHA ══
+document.getElementById('filtroDesde').addEventListener('change', filtrarHistorial);
+document.getElementById('filtroHasta').addEventListener('change', filtrarHistorial);
+document.getElementById('btnLimpiarFiltro').addEventListener('click', () => {
+  document.getElementById('filtroDesde').value = '';
+  document.getElementById('filtroHasta').value = '';
+  filtrarHistorial();
+});
+
+function filtrarHistorial() {
+  const desde = document.getElementById('filtroDesde').value;
+  const hasta = document.getElementById('filtroHasta').value;
+  const filas  = document.querySelectorAll('.fila-venta');
+  let alguna   = false;
+
+  const ventasVistas = new Set();
+  filas.forEach(fila => {
+    const fecha    = fila.dataset.fecha;
+    const ventaId  = fila.dataset.ventaId;
+    const cumple   = (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
+
+    if (cumple) {
+      fila.style.display = '';
+      alguna = true;
+      ventasVistas.add(ventaId);
+    } else {
+      fila.style.display = 'none';
+    }
+  });
+
+  document.getElementById('sinResultadosFiltro').style.display = (alguna || (!desde && !hasta)) ? 'none' : 'block';
+}
 </script>
 {% endblock %}
