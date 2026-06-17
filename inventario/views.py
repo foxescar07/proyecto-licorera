@@ -670,7 +670,7 @@ def stock_status(request):
         entrada = {
             'nombre':           f"{pr.producto.nombre} — {pr.nombre}",
             'cantidad':         stock,
-            'url_presentacion': '/inventario/inventario/stock/',
+            'url_presentacion': f'/inventario/inventario/stock/?buscar={pr.producto.nombre}',
             'url_lote':         '/inventario/lote/registrar/',
         }
         if stock <= UMBRAL_CRITICO:
