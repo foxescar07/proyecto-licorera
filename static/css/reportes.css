@@ -5,7 +5,6 @@
 
 /* ── Variables ── */
 :root {
-  /* Paleta principal */
   --color-bg:         #011936;
   --color-bg-card:    #02224a;
   --color-bg-hover:   #032d60;
@@ -15,7 +14,6 @@
   --color-menta:      #4DA8DA;
   --color-blanco:     #FDFFFC;
 
-  /* Acentos semánticos (mapeados a la paleta) */
   --azul-borde:        rgba(239, 248, 226, 0.1);
   --texto-muted:       #8FA3B1;
   --azul-acento:       #4DA8DA;
@@ -28,7 +26,7 @@
 }
 
 /* ────────────────────────────────────
-   MODAL BASE (fondo oscuro navy)
+   MODAL BASE
 ──────────────────────────────────── */
 .cys-modal {
   background-color: var(--color-bg) !important;
@@ -134,7 +132,6 @@
   font-size: .85rem;
 }
 
-/* Celda de estado vacío: Evita que herede anchos de columna y centra el contenido */
 .cys-td--empty {
   width: 100% !important;
   display: table-cell !important;
@@ -168,9 +165,8 @@
 .cys-report-card-icon--prov     { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--diario   { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--analisis { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
-.cys-report-card-icon--proxima  { background: rgba(77, 168, 218, 0.1);   color: #4DA8DA; }
+.cys-report-card-icon--proxima  { background: rgba(77, 168, 218, 0.1);  color: #4DA8DA; }
 
-/* ── Tarjeta — textos ── */
 .cys-report-card__title {
   font-weight: 700;
   font-size: .97rem;
@@ -190,7 +186,7 @@
 .cys-report-card__link-text--proxima  { color: var(--dorado-acento);  font-size: .8rem; font-weight: 600; }
 
 /* ────────────────────────────────────
-   TABLA INVENTARIO / GENÉRICA (MODERNA)
+   TABLA INVENTARIO / GENÉRICA
 ──────────────────────────────────── */
 .cys-inv-table {
   width: 100%;
@@ -233,7 +229,7 @@
 }
 
 /* ────────────────────────────────────
-   MODAL KPI (Dashboard Style)
+   MODAL KPI
 ──────────────────────────────────── */
 .cys-modal-kpi {
   padding: 1.25rem !important;
@@ -260,7 +256,6 @@
   font-size: 1.4rem;
 }
 
-/* Ajustes para DataTables dentro de modales */
 .cys-modal .dt-container {
   padding: 1rem;
 }
@@ -276,7 +271,9 @@
   align-items: center;
 }
 
-/* Alineación específica para evitar el descuadre en la tabla de Historial */
+/* ────────────────────────────────────
+   TABLA HISTORIAL DE VENTAS
+──────────────────────────────────── */
 #reportes-table {
   border-collapse: separate !important;
   border-spacing: 0 !important;
@@ -297,26 +294,23 @@
 #reportes-table th:nth-child(1),
 #reportes-table td:nth-child(1):not([colspan]) { text-align: center; width: 60px; }
 
-#reportes-table th:nth-child(4), #reportes-table td:nth-child(4):not([colspan]), /* Cantidad */
-#reportes-table th:nth-child(5), #reportes-table td:nth-child(5):not([colspan]), /* Precio Uni. */
-#reportes-table th:nth-child(6), #reportes-table td:nth-child(6):not([colspan])  /* Total */ { text-align: right; }
+#reportes-table th:nth-child(4), #reportes-table td:nth-child(4):not([colspan]),
+#reportes-table th:nth-child(5), #reportes-table td:nth-child(5):not([colspan]),
+#reportes-table th:nth-child(6), #reportes-table td:nth-child(6):not([colspan]) { text-align: right; }
 
 #reportes-table tbody tr:hover {
   background-color: rgba(77, 168, 218, 0.05) !important;
 }
 
-/* Ajustes generales para celdas numéricas en otras tablas */
 .cys-qty, .cys-td--green { text-align: right; }
 
 .cys-inv-table tbody tr:last-child td { border-bottom: none; }
 .cys-inv-table tbody tr:hover         { background: rgba(239,248,226,.04); }
 
-/* ── Modificadores de celda ── */
 .cys-td--muted { color: var(--texto-muted); }
 .cys-td--bold  { font-weight: 600; color: var(--color-blanco); }
 .cys-td--green { color: var(--verde-acento); }
 
-/* ── Estado de cantidad ── */
 .cys-qty--ok  { color: var(--verde-acento);    font-weight: 700; }
 .cys-qty--low { color: var(--amarillo-acento); font-weight: 700; }
 .cys-qty--out { color: var(--rojo-acento);     font-weight: 700; }
@@ -337,7 +331,7 @@
 .cys-badge--rojo     { background: rgba(145,47,64,.2);     color: #e87a8a; }
 
 /* ────────────────────────────────────
-   STATS MINI (modales)
+   STATS MINI
 ──────────────────────────────────── */
 .cys-modal__stats {
   display: grid;
@@ -373,7 +367,7 @@
 }
 
 /* ────────────────────────────────────
-   SECCIÓN ENTRADAS / SALIDAS (encabezados)
+   SECCIÓN ENTRADAS / SALIDAS
 ──────────────────────────────────── */
 .cys-inv-section-header {
   padding: 14px 16px 6px;
@@ -452,7 +446,7 @@
 }
 
 /* ────────────────────────────────────
-   BÚSQUEDA ACTIVA (indicador de filtros)
+   BÚSQUEDA ACTIVA
 ──────────────────────────────────── */
 .cys-busqueda-activa {
   padding: 8px 16px 0;
@@ -465,7 +459,7 @@
 }
 
 /* ────────────────────────────────────
-   TABS (nav-tabs dentro de modales)
+   TABS
 ──────────────────────────────────── */
 .cys-modal .nav-tabs {
   border-bottom: 1px solid rgba(239,248,226,.12);
@@ -498,15 +492,12 @@
   background-color: var(--color-bg);
 }
 
-/* ────────────────────────────────────
-   MODAL BODY
-──────────────────────────────────── */
 .cys-modal .modal-body {
   background-color: var(--color-bg);
 }
 
 /* ────────────────────────────────────
-   TARJETAS RESUMEN — altura uniforme y estilo
+   TARJETAS RESUMEN
 ──────────────────────────────────── */
 .cys-reporte-label {
   font-size: .72rem;
@@ -529,7 +520,7 @@
 
 /* ────────────────────────────────────
    TARJETAS DE REPORTE INTERACTIVAS
-   ──────────────────────────────────── */
+──────────────────────────────────── */
 .cys-card--interactive {
   cursor: pointer !important;
   display: flex !important;
@@ -550,15 +541,12 @@
   flex-direction: column !important;
 }
 
-/* Modificadores de color para bordes de reportes */
-/* Uniformados al azul principal */
-.cys-card--inv, 
-.cys-card--prov, 
-.cys-card--proxima, 
-.cys-card--diario, 
+.cys-card--inv,
+.cys-card--prov,
+.cys-card--proxima,
+.cys-card--diario,
 .cys-card--analisis { border-top: 2px solid #4DA8DA !important; }
 
-/* ── Stats Grid dentro de la tarjeta ── */
 .cys-report-card__stats-grid {
   display: flex;
   gap: 4px;
@@ -597,7 +585,6 @@
   margin-top: 2px;
 }
 
-/* ── Dos columnas dentro de las tarjetas ── */
 .cys-report-card-layout {
   display: grid;
   grid-template-columns: 80px 1fr;
@@ -636,8 +623,8 @@
 }
 
 /* ────────────────────────────────────
-   SCROLL SNAP (Efecto Imán)
-   ──────────────────────────────────── */
+   SCROLL SNAP
+──────────────────────────────────── */
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
@@ -655,7 +642,7 @@ html {
 
 @media (max-width: 992px) {
   html {
-    scroll-snap-type: none; /* Desactivar efecto imán en pantallas pequeñas */
+    scroll-snap-type: none;
   }
   .cys-snap-section {
     min-height: auto;
@@ -664,9 +651,8 @@ html {
 }
 
 /* ────────────────────────────────────
-   DATATABLES DARK THEME INTEGRATION
-   ──────────────────────────────────── */
-/* Quitar fondo blanco de la tabla */
+   DATATABLES DARK THEME
+──────────────────────────────────── */
 table.dataTable,
 table.dataTable th,
 table.dataTable td,
@@ -681,7 +667,6 @@ table.dataTable tbody tr:hover td {
   background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
-/* Estilo para el buscador (input) */
 .dt-search input {
   background-color: var(--fondo-card2, #111f33) !important;
   border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
@@ -702,7 +687,6 @@ table.dataTable tbody tr:hover td {
   font-weight: 600 !important;
 }
 
-/* Paginación de DataTables */
 .dt-paging .pagination .page-link {
   background-color: var(--fondo-card2, #111f33) !important;
   border-color: var(--azul-borde, rgba(77,168,218,.35)) !important;
@@ -729,50 +713,9 @@ table.dataTable tbody tr:hover td {
   color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* ── Estilos de Campos de Fecha del Historial ── */
-#filtro-fecha-inicio,
-#filtro-fecha-fin {
-  background-color: var(--fondo-card2, #111f33) !important;
-  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
-  color: var(--texto, #E8EDF2) !important;
-  border-radius: 8px !important;
-  padding: 4px 10px !important;
-  outline: none !important;
-  color-scheme: dark !important; /* Selector de fecha oscuro nativo */
-  font-size: 0.85rem !important;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-#filtro-fecha-inicio:focus,
-#filtro-fecha-fin:focus {
-  border-color: var(--azul-claro, #4DA8DA) !important;
-  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
-}
-
-.cys-table-filters-container {
-  background: #031e3e !important;
-  background: #02224a !important;
-  border: 1px solid #4DA8DA !important;
-  border: none !important;
-  padding: 15px 20px;
-  border-radius: 12px;
-  margin-top: 10px;
-  box-shadow: inset 0 0 10px rgba(77, 168, 218, 0.1);
-}
-
-#filtro-fecha-inicio,
-#filtro-fecha-fin {
-  background-color: #02224a !important;
-  background-color: #011936 !important;
-  border: 1px solid #4DA8DA !important;
-  color: #FDFFFC !important;
-  color-scheme: dark;
-}
-
-/* Asegura que el icono del calendario sea visible en fondo oscuro */
 input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.8) sepia(100%) saturate(5) hue-rotate(175deg);
-    cursor: pointer;
+  filter: invert(0.8) sepia(100%) saturate(5) hue-rotate(175deg);
+  cursor: pointer;
 }
 
 .cys-pagination .page-link {
@@ -787,8 +730,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* ────────────────────────────────────
-   TARJETAS DE RESUMEN KPI MEJORADAS
-   ──────────────────────────────────── */
+   TARJETAS DE RESUMEN KPI
+──────────────────────────────────── */
 .cys-summary-card {
   display: flex !important;
   flex-direction: row !important;
@@ -845,48 +788,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* ────────────────────────────────────
-   RESPONSIVE TABLES (Conversión a Cards en Móvil)
-   ──────────────────────────────────── */
+   RESPONSIVE TABLES
+──────────────────────────────────── */
 @media (max-width: 768px) {
-  .cys-inv-table thead { display: none; } /* Ocultar cabeceras en móvil */
-  .cys-inv-table, .cys-inv-table tbody, .cys-inv-table tr, .cys-inv-table td { 
-    display: block; 
-    width: 100%; 
+  .cys-inv-table thead { display: none; }
+  .cys-inv-table, .cys-inv-table tbody, .cys-inv-table tr, .cys-inv-table td {
+    display: block;
+    width: 100%;
   }
-  .cys-inv-table tr { 
-    margin-bottom: 1.25rem; 
-    border: 1px solid var(--azul-borde); 
-    border-radius: 12px; 
-    padding: 10px; 
-    background: var(--color-bg-card); 
+  .cys-inv-table tr {
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--azul-borde);
+    border-radius: 12px;
+    padding: 10px;
+    background: var(--color-bg-card);
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   }
-  .cys-inv-table td { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 10px 12px !important; 
-    border: none !important; 
-    border-bottom: 1px solid rgba(255,255,255,0.05) !important; 
+  .cys-inv-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
     text-align: right !important;
   }
-
-  /* Excepción para celdas vacías en móvil: no mostrar labels ni flex */
-  .cys-inv-table td[colspan], .cys-td--empty { 
-    display: block !important; 
-    text-align: center !important; 
-    border: none !important; 
+  .cys-inv-table td[colspan], .cys-td--empty {
+    display: block !important;
+    text-align: center !important;
+    border: none !important;
   }
   .cys-inv-table td[colspan]::before, .cys-td--empty::before { display: none !important; }
-
   .cys-inv-table td:last-child { border-bottom: none !important; }
-  .cys-inv-table td::before { 
-    content: attr(data-label); 
-    font-weight: 700; 
-    color: var(--texto-muted); 
-    font-size: 0.7rem; 
-    text-transform: uppercase; 
-    margin-right: 1rem; 
+  .cys-inv-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--texto-muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-right: 1rem;
     text-align: left;
   }
   .cys-inv-table td[colspan] { display: block; text-align: center; border: none !important; }
@@ -900,266 +840,217 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   letter-spacing: 0.02em;
 }
 
-/* Modificadores Semánticos de Resumen */
-.cys-summary-card--ventas {
-  border-left: 4px solid #4DA8DA !important;
-}
-.cys-summary-card__icon--ventas {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
-}
-.cys-summary-card--ventas .cys-summary-card__label {
-  color: #7ecfef;
-}
-.cys-summary-card--ventas .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+.cys-summary-card--ventas    { border-left: 4px solid #4DA8DA !important; }
+.cys-summary-card__icon--ventas { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-summary-card--ventas .cys-summary-card__label { color: #7ecfef; }
+.cys-summary-card--ventas .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
+
+.cys-summary-card--productos { border-left: 4px solid #4DA8DA !important; }
+.cys-summary-card__icon--productos { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-summary-card--productos .cys-summary-card__label { color: #7ecfef; }
+.cys-summary-card--productos .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
+
+.cys-summary-card--clientes  { border-left: 4px solid #4DA8DA !important; }
+.cys-summary-card__icon--clientes { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-summary-card--clientes .cys-summary-card__label { color: #7ecfef; }
+.cys-summary-card--clientes .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
+
+/* ════════════════════════════════════════════════════════════
+   HISTORIAL DE VENTAS — SECCIÓN COMPLETA (DISEÑO FINAL)
+   ════════════════════════════════════════════════════════════ */
+
+/* CONTENEDOR */
+.cys-card:has(#reportes-table) {
+  background: #041d3d;
+  border: 1px solid rgba(77,168,218,.08);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.cys-summary-card--productos {
-  border-left: 4px solid #4DA8DA !important;
+/* -----------------------------------
+   FILTROS — alineación perfecta
+----------------------------------- */
+.cys-hv-filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px 20px;
 }
-.cys-summary-card__icon--productos {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
-}
-.cys-summary-card--productos .cys-summary-card__label {
-  color: #7ecfef;
-}
-.cys-summary-card--productos .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
-}
-
-.cys-summary-card--clientes {
-  border-left: 4px solid #4DA8DA !important;
-}
-.cys-summary-card__icon--clientes {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
-}
-.cys-summary-card--clientes .cys-summary-card__label {
-  color: #7ecfef;
-}
-.cys-summary-card--clientes .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
-}
-/* ────────────────────────────────────
-   HISTORIAL DE VENTAS — Filtros y Footer
-──────────────────────────────────── */
-.cys-hv-filters { padding: 4px 0; }
 
 .cys-hv-date-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
 .cys-hv-date-label {
-  font-size: .72rem;
+  color: #7dbce6;
+  font-size: .78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--texto-muted);
+  letter-spacing: .08em;
+  margin-bottom: 6px;
 }
 
 .cys-hv-date-input-wrap {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .cys-hv-date-input {
-  background-color: #011936 !important;
-  border: 1px solid #4DA8DA !important;
-  color: #FDFFFC !important;
+  box-sizing: border-box !important;
+  width: 160px !important;
+  flex: none !important;
+  height: 40px !important;
+  padding: 0 36px 0 14px;
+  background: #071b3a !important;
+  border: 1px solid #1f4f80 !important;
+  border-radius: 10px !important;
+  color: #fff !important;
+  font-size: .88rem;
   color-scheme: dark;
-  border-radius: 8px !important;
-  padding: 6px 36px 6px 10px !important;
-  font-size: 0.85rem !important;
-  transition: border-color 0.2s, box-shadow 0.2s; 
-}
-/* ==========================================================
-   HISTORIAL DE VENTAS - ESTILO FINAL MODIFICADO
-   ========================================================== */
-
-/* CONTENEDOR */
-.cys-card:has(#reportes-table){
-    background:#041d3d;
-    border:1px solid rgba(77,168,218,.08);
-    border-radius:16px;
-    overflow:hidden;
+  transition: border-color .2s, box-shadow .2s;
 }
 
-/* -----------------------------------
-   FILTROS
------------------------------------ */
-
-.cys-hv-filters{
-    display:flex;
-    align-items:flex-end;
-    flex-wrap:wrap;
-    gap:16px;
-    padding:20px 24px;
+.cys-hv-date-input:focus {
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 0 3px rgba(77,168,218,.18);
+  outline: none;
 }
 
-.cys-hv-date-group{
-    display:flex;
-    flex-direction:column;
-}
-
-.cys-hv-date-label{
-    color:#7dbce6;
-    font-size:.78rem;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    margin-bottom:6px;
-}
-
-.cys-hv-date-input-wrap{
-    position:relative;
-}
-
-.cys-hv-date-input{
-    width:180px;
-    height:38px;
-    padding:0 36px 0 14px;
-    background:#071b3a !important;
-    border:1px solid #1f4f80 !important;
-    border-radius:10px;
-    color:#fff !important;
-    font-size:.9rem;
-}
-
-.cys-hv-date-input:focus{
-    border-color:#4DA8DA !important;
-    box-shadow:0 0 0 3px rgba(77,168,218,.18);
-}
-
-.cys-hv-cal-icon{
-    position:absolute;
-    right:12px;
-    top:50%;
-    transform:translateY(-50%);
-    color:#4DA8DA;
-    pointer-events:none;
+.cys-hv-cal-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4DA8DA;
+  pointer-events: none;
+  font-size: .9rem;
 }
 
 /* -----------------------------------
-   BOTÓN FILTRAR Y LIMPIAR (MISMO COLOR Y TAMAÑO)
+   BOTONES — mismo tamaño exacto que los inputs de fecha
+   width: 160px  |  height: 40px  |  border-radius: 10px
 ----------------------------------- */
-
 .cys-hv-btn-filtrar,
-.cys-hv-btn-limpiar{
-    box-sizing:border-box;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    height:38px;
-    padding:0 18px;
-    border-radius:8px;
-    font-size:.9rem;
-    font-weight:700;
-    line-height:1;
-    white-space:nowrap;
-    transition:.2s;
-    border:1px solid rgba(77,168,218,.5);
-    background:#071b3a;
-    color:#4DA8DA;
-    text-decoration:none;
-    cursor:pointer;
+.cys-hv-btn-eliminar,
+.cys-hv-btn-limpiar,
+.cys-hv-btn-exportar {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 50px !important;
+
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+  font-family: inherit !important;
+  font-size: .88rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  transition: background .2s, border-color .2s, color .2s !important;
+  border: 1px solid #1f4f80 !important;
+  background: #071b3a !important;
+  color: #4DA8DA !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }
 
 .cys-hv-btn-filtrar:hover,
-.cys-hv-btn-limpiar:hover{
-    background:rgba(77,168,218,.12);
-    color:#7cd4ff;
-    border-color:#4DA8DA;
+.cys-hv-btn-limpiar:hover,
+.cys-hv-btn-eliminar:hover {
+  background: rgba(77,168,218,.14) !important;
+  color: #7cd4ff !important;
+  border-color: #4DA8DA !important;
+}
+
+/* Exportar: texto blanco, mismo tamaño */
+.cys-hv-btn-exportar {
+  color: #fff !important;
+}
+
+.cys-hv-btn-exportar:hover {
+  background: #0b274d !important;
+  color: #fff !important;
+  border-color: #4DA8DA !important;
+}
+
+.cys-hv-btn-exportar::after {
+  vertical-align: 0 !important;
+}
+
+/* Dropdown */
+.cys-hv-dropdown {
+  background: #071b3a;
+  border: 1px solid rgba(77,168,218,.25);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cys-hv-dropdown-item {
+  color: #fff;
+  padding: 10px 14px;
+}
+
+.cys-hv-dropdown-item:hover {
+  background: rgba(77,168,218,.12);
+  color: #fff;
 }
 
 /* -----------------------------------
-   EXPORTAR
+   TABLA INTERNA
 ----------------------------------- */
-
-.cys-hv-btn-exportar{
-    height:38px;
-    padding:0 18px;
-    border-radius:8px;
-    border:1px solid rgba(77,168,218,.5);
-    background:#071b3a;
-    color:#fff;
-    font-weight:600;
+#reportes-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
-.cys-hv-btn-exportar:hover{
-    background:#0b274d;
+#reportes-table thead th {
+  background: #0c2b54 !important;
+  color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .92rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  padding: 16px 14px !important;
+  border-bottom: 2px solid #4DA8DA !important;
 }
 
-.cys-hv-dropdown{
-    background:#071b3a;
-    border:1px solid rgba(77,168,218,.25);
-    border-radius:12px;
-    overflow:hidden;
+#reportes-table tbody td {
+  background: transparent !important;
+  color: #EAF3FA !important;
+  padding: 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,.05);
 }
 
-.cys-hv-dropdown-item{
-    color:#fff;
-    padding:10px 14px;
+#reportes-table tbody tr {
+  background: transparent !important;
 }
 
-.cys-hv-dropdown-item:hover{
-    background:rgba(77,168,218,.12);
-    color:#fff;
+#reportes-table tbody tr:hover td {
+  background: rgba(77,168,218,.05) !important;
 }
-
-/* -----------------------------------
-   TABLA
------------------------------------ */
-
-#reportes-table{
-    width:100% !important;
-    border-collapse:collapse !important;
-    border-spacing:0 !important;
-    margin:0 !important;
-    border:none !important;
-    background:transparent !important;
-}
-
-#reportes-table thead th{
-    background:#0c2b54 !important;
-    color:#4DA8DA !important;
-    font-family:'Rajdhani',sans-serif;
-    font-weight:700;
-    font-size:.92rem;
-    text-transform:uppercase;
-    letter-spacing:.12em;
-    padding:16px 14px !important;
-    border-bottom:2px solid #4DA8DA !important;
-}
-
-#reportes-table tbody td{
-    background:transparent !important;
-    color:#EAF3FA !important;
-    padding:14px !important;
-    border-bottom:1px solid rgba(255,255,255,.05);
-}
-
-#reportes-table tbody tr{
-    background:transparent !important;
-}
-
-#reportes-table tbody tr:hover td{
-    background:rgba(77,168,218,.05) !important;
-}
-
-/* ANCHOS */
 
 #reportes-table th:nth-child(1),
-#reportes-table td:nth-child(1){
-    width:60px;
-    text-align:center;
+#reportes-table td:nth-child(1) {
+  width: 60px;
+  text-align: center;
 }
 
 #reportes-table th:nth-child(4),
@@ -1167,113 +1058,159 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 #reportes-table th:nth-child(5),
 #reportes-table td:nth-child(5),
 #reportes-table th:nth-child(6),
-#reportes-table td:nth-child(6){
-    text-align:right;
+#reportes-table td:nth-child(6) {
+  text-align: right;
+}
+
+/* Estado vacío dentro de la tabla */
+.cys-td--empty {
+  padding: 80px 20px !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.cys-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8aa6bf;
+  font-size: 1rem;
+}
+
+.cys-empty-box i {
+  font-size: 3rem;
+  color: rgba(77,168,218,.25);
+  margin-bottom: 12px;
 }
 
 /* -----------------------------------
-   ESTADO VACÍO
+   FOOTER — paginación + info bien separados
 ----------------------------------- */
-
-.cys-td--empty{
-    padding:80px 20px !important;
-    background:transparent !important;
-    border:none !important;
+.cys-hv-table-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 20px 24px 24px !important;
+  border-top: 1px solid rgba(255,255,255,.05) !important;
+  margin-top: 0 !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
 }
 
-.cys-empty-box{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
+/* Info "Mostrando X a X de X ventas" */
+.cys-hv-table-footer .dt-info,
+.cys-hv-table-footer .dataTables_info {
+  color: #7dbce6 !important;
+  font-size: .82rem !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 !important;
+  min-width: 0 !important;
 }
 
-.cys-empty-box i{
-    font-size:3rem;
-    color:rgba(77,168,218,.25);
-    margin-bottom:12px;
-}
-
-.cys-empty-box{
-    color:#8aa6bf;
-    font-size:1rem;
+/* Paginación a la derecha */
+.cys-hv-table-footer .dt-paging,
+.cys-hv-table-footer .dataTables_paginate {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* -----------------------------------
-   FOOTER (CON MÁS ESPACIO ABAJO)
+   PAGINACIÓN — botones
 ----------------------------------- */
-
-.cys-hv-table-footer{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:18px 24px;
-    border-top:1px solid rgba(255,255,255,.04);
-    margin-top:40px;
-}
-
-/* Separación extra para el bloque inferior (info + paginación que
-   se completa dinámicamente), para que no quede pegado al bloque
-   de "Mostrando X a X de X ventas" generado arriba */
-.cys-hv-table-footer:has(#cys-dt-info){
-    margin-top:50px;
-}
-
-/* -----------------------------------
-   PAGINACIÓN
------------------------------------ */
-
 .cys-hv-pagination-wrap .page-link,
-.pagination .page-link{
-    background:#0a2348 !important;
-    border:1px solid rgba(77,168,218,.2) !important;
-    color:#4DA8DA !important;
-    min-width:40px;
-    height:40px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+.cys-hv-table-footer .page-link,
+.pagination .page-link {
+  background: #0a2348 !important;
+  border: 1px solid rgba(77,168,218,.2) !important;
+  color: #4DA8DA !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: .85rem !important;
+  transition: background .2s, color .2s !important;
 }
 
 .cys-hv-pagination-wrap .active .page-link,
-.pagination .active .page-link{
-    background:#4DA8DA !important;
-    color:#03152d !important;
-    border-color:#4DA8DA !important;
-    font-weight:700;
+.cys-hv-table-footer .active .page-link,
+.pagination .active .page-link {
+  background: #4DA8DA !important;
+  color: #03152d !important;
+  border-color: #4DA8DA !important;
+  font-weight: 700 !important;
 }
 
 .cys-hv-pagination-wrap .page-link:hover,
-.pagination .page-link:hover{
-    background:#4DA8DA !important;
-    color:#03152d !important;
+.cys-hv-table-footer .page-link:hover,
+.pagination .page-link:hover {
+  background: rgba(77,168,218,.2) !important;
+  color: #7cd4ff !important;
+  border-color: #4DA8DA !important;
+}
+
+.cys-hv-pagination-wrap .disabled .page-link,
+.cys-hv-table-footer .disabled .page-link,
+.pagination .disabled .page-link {
+  background: rgba(255,255,255,.02) !important;
+  border-color: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.2) !important;
 }
 
 /* -----------------------------------
-   DATATABLES
+   DATATABLES — contenedor limpio
 ----------------------------------- */
-
 .dataTables_wrapper,
-.dt-container{
-    background:transparent !important;
+.dt-container {
+  background: transparent !important;
 }
 
 .dataTables_info,
-.dt-info{
-    color:#dcecf9 !important;
+.dt-info {
+  color: #7dbce6 !important;
 }
 
 .dataTables_paginate,
-.dt-paging{
-    margin-top:0 !important;
+.dt-paging {
+  margin-top: 0 !important;
 }
 
-/* Quita espacios que rompen el diseño */
-
-.cys-inv-table{
-    border-spacing:0 !important;
+.cys-inv-table {
+  border-spacing: 0 !important;
 }
 
-table.dataTable{
-    border-spacing:0 !important;
+table.dataTable {
+  border-spacing: 0 !important;
+}
+
+/* Inputs de fecha legacy (por si se usan fuera del historial) */
+#filtro-fecha-inicio,
+#filtro-fecha-fin {
+  background-color: #011936 !important;
+  border: 1px solid #4DA8DA !important;
+  color: #FDFFFC !important;
+  color-scheme: dark !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  outline: none !important;
+  font-size: 0.85rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#filtro-fecha-inicio:focus,
+#filtro-fecha-fin:focus {
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+}
+
+.cys-table-filters-container {
+  background: #02224a !important;
+  border: none !important;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 10px rgba(77, 168, 218, 0.1);
 }
