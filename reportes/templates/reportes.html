@@ -217,8 +217,8 @@
         <i class="bi bi-graph-up me-2" style="color: #4DA8DA;"></i>Historial de Ventas
       </div>
 
-      <!-- Barra de filtros -->
-      <div class="cys-hv-filters d-flex align-items-center flex-wrap gap-3 mb-3">
+      <!-- ── Barra de filtros ── -->
+      <div class="cys-hv-filters">
 
         <!-- Desde -->
         <div class="cys-hv-date-group">
@@ -243,22 +243,29 @@
         </div>
 
         <!-- Botón Filtrar -->
-        <button type="button" id="btn-filtrar" class="cys-hv-btn-action cys-hv-btn-filtrar"
-                onclick="aplicarFiltro()">
-          <i class="bi bi-funnel-fill me-1"></i>Filtrar
-        </button>
+        <div class="cys-hv-date-group">
+          <span class="cys-hv-date-label">&nbsp;</span>
+          <button type="button" id="btn-filtrar" class="cys-hv-btn-filtrar"
+                  onclick="aplicarFiltro()">
+            <i class="bi bi-funnel-fill"></i>Filtrar
+          </button>
+        </div>
 
         <!-- Botón Limpiar -->
-        <a href="{% url 'reportes' %}" class="cys-hv-btn-action cys-hv-btn-limpiar">
-          <i class="bi bi-trash me-1"></i>Limpiar
-        </a>
+        <div class="cys-hv-date-group">
+          <span class="cys-hv-date-label">&nbsp;</span>
+          <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar">
+            <i class="bi bi-trash"></i>Limpiar
+          </a>
+        </div>
 
         <!-- Dropdown Exportar (a la derecha) -->
-        <div class="ms-auto">
+        <div class="cys-hv-date-group ms-auto">
+          <span class="cys-hv-date-label">&nbsp;</span>
           <div class="dropdown">
-            <button class="cys-hv-btn-action cys-hv-btn-exportar dropdown-toggle" type="button"
+            <button class="cys-hv-btn-exportar dropdown-toggle" type="button"
                     id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-box-arrow-up me-1"></i>Exportar
+              <i class="bi bi-box-arrow-up"></i>Exportar
             </button>
             <ul class="dropdown-menu cys-hv-dropdown" aria-labelledby="dropdownExportar">
               <li>
@@ -286,7 +293,7 @@
           </div>
         </div>
 
-      </div>
+      </div><!-- /cys-hv-filters -->
 
       {% if fecha_inicio or fecha_fin %}
       <div class="cys-busqueda-activa mb-2">
@@ -341,14 +348,15 @@
                   {% endif %}
                 </div>
               </td>
-              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
+              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
+              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
 
-      <!-- Pie de tabla: paginación solamente (sin "Mostrando registros" duplicado) -->
+      <!-- Pie de tabla -->
       <div class="cys-hv-table-footer">
         <span class="cys-hv-showing-info" id="cys-dt-info"></span>
         <div class="cys-hv-pagination-wrap" id="cys-dt-pagination"></div>
@@ -800,7 +808,8 @@
                   <td colspan="7" class="cys-td--empty">
                     <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay ventas hoy.</div>
                   </td>
-                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
+                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
+                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
                 </tr>
                 {% endfor %}
               </tbody>
