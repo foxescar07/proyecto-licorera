@@ -213,34 +213,80 @@
          HISTORIAL DE VENTAS
     ══════════════════════════════════════ -->
     <section class="cys-card mb-4">
-      <div class="cys-card__title">Historial de Ventas</div>
+      <div class="cys-card__title">
+        <i class="bi bi-graph-up me-2" style="color: #4DA8DA;"></i>Historial de Ventas
+      </div>
 
-      <!-- Solo Rango de Fechas -->
-      <form method="GET" action="{% url 'reportes' %}" class="cys-table-filters-container mb-3">
-        <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-          <span class="cys-filter-label mb-0 text-info"><i class="bi bi-calendar3 me-1"></i>Rango:</span>
-          <div class="d-flex align-items-center gap-1">
-            <input type="date" id="filtro-fecha-inicio" name="fecha_inicio" class="form-control form-control-sm" value="{{ fecha_inicio }}">
-            <span class="cys-filter-label mb-0">al</span>
-            <input type="date" id="filtro-fecha-fin" name="fecha_fin" class="form-control form-control-sm" value="{{ fecha_fin }}">
+      <!-- Barra de filtros -->
+      <div class="cys-hv-filters d-flex align-items-center flex-wrap gap-2 mb-3">
+
+        <!-- Desde -->
+        <div class="cys-hv-date-group">
+          <span class="cys-hv-date-label">Desde</span>
+          <div class="cys-hv-date-input-wrap">
+            <input type="date" id="filtro-fecha-inicio" name="fecha_inicio"
+                   class="cys-hv-date-input" value="{{ fecha_inicio }}"
+                   placeholder="dd/mm/aaaa">
+            <i class="bi bi-calendar3 cys-hv-cal-icon"></i>
           </div>
-          <a href="{% url 'reportes' %}" class="btn btn-sm btn-secondary px-3 shadow-sm ms-2">
-            <i class="bi bi-trash me-1"></i>Limpiar
-          </a>
         </div>
 
-        <!-- Botones de Acción -->
-        <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: rgba(77, 168, 218, 0.3) !important;">          <a href="?export=excel&tipo=ventas&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}" class="btn btn-sm btn-success px-3 shadow-sm" download="historial_ventas.xlsx" target="_blank">
-            <i class="bi bi-file-earmark-excel me-1"></i>Excel
-          </a>
-          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}" class="btn btn-sm btn-danger px-3 shadow-sm" download="historial_ventas.pdf" target="_blank">
-            <i class="bi bi-file-earmark-pdf me-1"></i>PDF
-          </a>
-          <a href="?export=pdf&tipo=ventas&print=true&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}" class="btn btn-sm btn-info px-3 shadow-sm text-dark" target="_blank">
-            <i class="bi bi-printer me-1"></i>Imprimir
-          </a>
+        <!-- Hasta -->
+        <div class="cys-hv-date-group">
+          <span class="cys-hv-date-label">Hasta</span>
+          <div class="cys-hv-date-input-wrap">
+            <input type="date" id="filtro-fecha-fin" name="fecha_fin"
+                   class="cys-hv-date-input" value="{{ fecha_fin }}"
+                   placeholder="dd/mm/aaaa">
+            <i class="bi bi-calendar3 cys-hv-cal-icon"></i>
+          </div>
         </div>
-      </form>
+
+        <!-- Botón Filtrar -->
+        <button type="button" id="btn-filtrar" class="cys-hv-btn-filtrar"
+                onclick="aplicarFiltro()">
+          <i class="bi bi-funnel-fill me-1"></i>Filtrar
+        </button>
+
+        <!-- Botón Limpiar -->
+        <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar">
+          <i class="bi bi-trash me-1"></i>Limpiar
+        </a>
+
+        <!-- Dropdown Exportar (a la derecha) -->
+        <div class="ms-auto">
+          <div class="dropdown">
+            <button class="cys-hv-btn-exportar dropdown-toggle" type="button"
+                    id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-box-arrow-up me-1"></i>Exportar
+            </button>
+            <ul class="dropdown-menu cys-hv-dropdown" aria-labelledby="dropdownExportar">
+              <li>
+                <a id="btn-export-excel"
+                   href="?export=excel&tipo=ventas&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}"
+                   class="dropdown-item cys-hv-dropdown-item" download="historial_ventas.xlsx" target="_blank">
+                  <i class="bi bi-file-earmark-excel me-2 text-success"></i>Excel
+                </a>
+              </li>
+              <li>
+                <a id="btn-export-pdf"
+                   href="?export=pdf&tipo=ventas&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}"
+                   class="dropdown-item cys-hv-dropdown-item" download="historial_ventas.pdf" target="_blank">
+                  <i class="bi bi-file-earmark-pdf me-2 text-danger"></i>PDF
+                </a>
+              </li>
+              <li>
+                <a id="btn-export-print"
+                   href="?export=pdf&tipo=ventas&print=true&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}"
+                   class="dropdown-item cys-hv-dropdown-item" target="_blank">
+                  <i class="bi bi-printer me-2 text-info"></i>Imprimir
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
 
       {% if fecha_inicio or fecha_fin %}
       <div class="cys-busqueda-activa mb-2">
@@ -301,6 +347,13 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pie de tabla: paginación solamente (sin "Mostrando registros" duplicado) -->
+      <div class="cys-hv-table-footer">
+        <span class="cys-hv-showing-info" id="cys-dt-info"></span>
+        <div class="cys-hv-pagination-wrap" id="cys-dt-pagination"></div>
+      </div>
+
     </section>
   </div>
 
@@ -952,36 +1005,50 @@
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
 $(document).ready(function() {
-    $('#reportes-table').DataTable({
+    var table = $('#reportes-table').DataTable({
         paging: true,
         searching: false,
-        info: false,
+        info: true,
         lengthChange: false,
         pageLength: 10,
         ordering: true,
-        responsive: true
+        responsive: true,
+        language: {
+            info: "Mostrando _START_ a _END_ de _TOTAL_ ventas",
+            infoEmpty: "Mostrando 0 a 0 de 0 ventas",
+            paginate: {
+                first:    '«',
+                previous: '‹',
+                next:     '›',
+                last:     '»'
+            }
+        },
+        dom: 'rt<"cys-hv-table-footer"ip>'
     });
 
-    // Script para sincronizar las fechas con los botones de exportación
     function syncExportLinks() {
         const fechaInicio = $('#filtro-fecha-inicio').val() || '';
         const fechaFin = $('#filtro-fecha-fin').val() || '';
-        
         const params = `&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-        
-        // Actualizar los href de los botones de la sección principal
         $('#btn-export-excel').attr('href', `?export=excel&tipo=ventas${params}`);
         $('#btn-export-pdf').attr('href', `?export=pdf&tipo=ventas${params}`);
         $('#btn-export-print').attr('href', `?export=pdf&tipo=ventas&print=true${params}`);
     }
 
-    // Escuchar cambios en los inputs de fecha
     $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', function() {
         syncExportLinks();
     });
 
-    // Inicializar al cargar
     syncExportLinks();
 });
+
+function aplicarFiltro() {
+    const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
+    const fechaFin    = document.getElementById('filtro-fecha-fin').value;
+    let url = window.location.pathname + '?';
+    if (fechaInicio) url += 'fecha_inicio=' + fechaInicio + '&';
+    if (fechaFin)    url += 'fecha_fin='    + fechaFin;
+    window.location.href = url;
+}
 </script>
 {% endblock %}
