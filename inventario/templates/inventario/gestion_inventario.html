@@ -6,7 +6,9 @@
 {% block nav_inventario %}active{% endblock %}
 
 {% block content %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+{% endblock %}
 {% if messages %}
   <div class="mb-3">
   {% for message in messages %}
