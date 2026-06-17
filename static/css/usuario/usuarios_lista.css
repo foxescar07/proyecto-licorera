@@ -203,9 +203,6 @@
   display: flex;
 }
 
-/* El sidebar crece para igualar la altura del main,
-   pero NO usa justify-content: space-between para no
-   separar elementos cuando el collapse está cerrado */
 .cards-view-3-4 .ul-layout {
   align-items: stretch;
 }
@@ -215,10 +212,8 @@
   flex-direction: column;
   gap: 1rem;
   overflow: visible;
-  /* sin height fijo — JS ya no interviene en caso 2 */
 }
 
-/* widget-total: tamaño compacto */
 .cards-view-3-4 .widget-total {
   flex: 0 0 auto;
 }
@@ -227,19 +222,17 @@
 .cards-view-3-4 .widget-total .ul-big-stat__sub   { font-size: .58rem; margin-top: .2rem; }
 .cards-view-3-4 .widget-total .ul-bar-wrap        { margin-top: .4rem; }
 
-/* sidebar-bottom: crece y empuja recientes al fondo */
 .cards-view-3-4 .ul-sidebar-bottom {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: .75rem;
   padding-top: .25rem;
   min-height: 0;
   overflow: visible;
 }
 
-/* wrapperStats: crece para ocupar el espacio libre */
 .cards-view-3-4 #wrapperStats {
   flex: 1;
   display: flex;
@@ -277,10 +270,11 @@
 .cards-view-3-4 #wrapperRecientes {
   flex-shrink: 0;
   width: 100%;
-  align-self: flex-end;
+  overflow: hidden;
 }
 .cards-view-3-4 #collapseRecientes34 {
-  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
 }
 .cards-view-3-4 .ul-recientes-scroll {
   max-height: 180px;
