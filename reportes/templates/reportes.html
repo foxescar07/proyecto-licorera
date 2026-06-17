@@ -254,7 +254,7 @@
         <!-- Botón Limpiar -->
         <div class="cys-hv-date-group">
           <span class="cys-hv-date-label">&nbsp;</span>
-          <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar">
+          <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar" style="text-decoration: none;">
             <i class="bi bi-trash"></i>Limpiar
           </a>
         </div>
@@ -304,7 +304,7 @@
           — {{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize:",s" }}
         </span>
         <a href="{% url 'reportes' %}"
-           style="color: var(--texto-muted, #8FA3B1); font-size: .75rem; margin-left: 4px;">
+           style="color: var(--texto-muted, #8FA3B1); font-size: .75rem; margin-left: 4px; text-decoration: none;">
           ✕ Limpiar
         </a>
       </div>
