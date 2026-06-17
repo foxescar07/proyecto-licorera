@@ -5,148 +5,7 @@
 {% block page_title %}Punto de Venta{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/reportes.css' %}">
-<style>
-  /* ── VARIABLES Y AJUSTES DE COLOR PREMIUM (IGUAL A VENTAS DEL DÍA) ── */
-  :root {
-    --cys-bg-card: #0b1a24;
-    --cys-surface: #07121a;
-    --cys-borde: rgba(77, 168, 218, 0.15);
-    --cys-borde-focus: #4da8da;
-    --cys-texto-muted: #6b8296;
-    --cys-acento: #4da8da;
-    --cys-verde: #2ecc71;
-    --cys-rojo: #e74c3c;
-    --cys-cian-brillante: #00c2ff;
-  }
-
-  /* Botones superiores estilo Píldora CIAN */
-  .cys-btn-action-cian {
-    background: var(--cys-cian-brillante) !important;
-    border: none !important;
-    color: #000000 !important;
-    border-radius: 50px !important;
-    padding: 6px 20px !important;
-    font-size: 0.85rem !important;
-    font-weight: 700 !important;
-    transition: all 0.2s ease-in-out !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-  }
-  .cys-btn-action-cian:hover {
-    background: #00a3d9 !important;
-    color: #000000 !important;
-    transform: translateY(-1px);
-  }
-
-  /* Botón secundario oscuro sutil */
-  .cys-btn-action-dark {
-    background: var(--cys-bg-card) !important;
-    border: 1px solid var(--cys-borde) !important;
-    color: var(--cys-texto-muted) !important;
-    border-radius: 50px !important;
-    padding: 6px 20px !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    transition: all 0.2s !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-  }
-  .cys-btn-action-dark:hover {
-    border-color: var(--cys-acento) !important;
-    color: #fff !important;
-  }
-
-  /* Botón rojo sutil para Cierre de Caja */
-  .cys-btn-action-rojo {
-    background: rgba(231, 76, 60, 0.1) !important;
-    border: 1px solid rgba(231, 76, 60, 0.3) !important;
-    color: #e74c3c !important;
-    border-radius: 50px !important;
-    padding: 6px 20px !important;
-    font-size: 0.85rem !important;
-    font-weight: 700 !important;
-    transition: all 0.2s !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .cys-btn-action-rojo:hover {
-    background: rgba(231, 76, 60, 0.2) !important;
-    border-color: #e74c3c !important;
-  }
-
-  /* Estilos de los inputs oscuros */
-  .cys-input-dark {
-    background: var(--cys-surface) !important;
-    border: 1px solid var(--cys-borde) !important;
-    color: #fff !important;
-    border-radius: 8px !important;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-  }
-  .cys-input-dark:focus {
-    border-color: var(--cys-acento) !important;
-    box-shadow: none !important;
-  }
-
-  /* Tarjetas Dinámicas de Categorías y Productos */
-  .cys-cat-card-premium {
-    background: var(--cys-surface) !important;
-    border: 1px solid var(--cys-borde) !important;
-    border-radius: 12px !important;
-    padding: 1.25rem 1rem !important;
-    text-align: center;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-  }
-  .cys-cat-card-premium:hover {
-    border-color: var(--cys-acento) !important;
-    background: rgba(77, 168, 218, 0.02) !important;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12) !important;
-  }
-
-  /* Botón grande para registrar la venta */
-  .cys-btn-submit {
-    background: var(--cys-cian-brillante) !important;
-    color: #000000 !important;
-    font-weight: 700 !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-  }
-  .cys-btn-submit:hover {
-    background: #00a3d9 !important;
-  }
-  .cys-btn-submit:disabled {
-    background: var(--cys-bg-card) !important;
-    color: var(--cys-texto-muted) !important;
-    border: 1px solid var(--cys-borde) !important;
-    cursor: not-allowed;
-  }
-
-  /* Botón de cancelar con borde rojo sutil */
-  .cys-btn-cancel {
-    background: transparent !important;
-    border: 1px solid rgba(231, 76, 60, 0.3) !important;
-    color: var(--cys-rojo) !important;
-    border-radius: 8px !important;
-    padding: 10px 14px;
-    transition: all 0.2s;
-  }
-  .cys-btn-cancel:hover {
-    background: rgba(231, 76, 60, 0.1) !important;
-    border-color: var(--cys-rojo) !important;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -386,10 +245,10 @@
 
             <!-- Botonera de Enviar / Vaciar -->
             <div class="d-flex gap-2">
-              <button type="submit" class="btn flex-fill cys-btn-submit" id="btnRegistrar" disabled>
+              <button type="submit" class="btn cys-btn-submit" id="btnRegistrar" disabled style="flex: 3 1 0%;">
                 <i class="bi bi-save me-1"></i> Registrar Venta
               </button>
-              <button type="button" class="btn cys-btn-cancel" id="btnCancelarVenta">
+              <button type="button" class="btn cys-btn-cancel" id="btnCancelarVenta" style="flex: 1 1 0%;">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
