@@ -4,7 +4,9 @@
 {% block title %}Stock & Productos — CYS Ltda{% endblock %}
 {% block page_title %}Stock & Productos{% endblock %}
 {% block nav_stock %}active{% endblock %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+{% endblock %}
 {% block content %}
 
 {% if messages %}
@@ -18,98 +20,6 @@
 </div>
 {% endif %}
 
-<style>
-  .kpi-card {
-    padding: 1.4rem 1.6rem;
-    border-radius: 14px;
-    border: 1px solid;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    transition: transform .18s ease, box-shadow .18s ease;
-    min-height: 110px;
-  }
-  .kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0,0,0,.25);
-  }
-  .kpi-label {
-    font-size: .7rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: rgba(226,232,240,.45);
-    margin-bottom: .35rem;
-  }
-  .kpi-value {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 2.4rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .kpi-icon {
-    font-size: 2.2rem;
-    opacity: .55;
-  }
-  .btn-accion-primary {
-    background: #3b9ad6;
-    color: #0d1b2a;
-    border: none;
-    border-radius: 50px;
-    padding: .5rem 1.4rem;
-    font-size: .87rem;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    transition: background .15s, box-shadow .15s;
-    text-decoration: none;
-  }
-  .btn-accion-primary:hover {
-    background: #4fb3f0;
-    color: #0d1b2a;
-    box-shadow: 0 4px 14px rgba(59,154,214,.35);
-  }
-  .btn-accion-ghost {
-    background: transparent;
-    color: #4DA8DA;
-    border: 1px solid rgba(77,168,218,.35);
-    border-radius: 50px;
-    padding: .5rem 1.4rem;
-    font-size: .87rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    transition: background .15s, border-color .15s;
-    text-decoration: none;
-  }
-  .btn-accion-ghost:hover {
-    background: rgba(77,168,218,.1);
-    border-color: rgba(77,168,218,.6);
-    color: #4DA8DA;
-  }
-  .btn-edit-sm {
-    background: rgba(77,168,218,.12);
-    border: 1px solid rgba(77,168,218,.3);
-    color: #4DA8DA;
-    border-radius: 50px;
-    padding: .28rem .9rem;
-    font-size: .78rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: .3rem;
-    transition: background .15s, border-color .15s;
-    cursor: pointer;
-  }
-  .btn-edit-sm:hover {
-    background: rgba(77,168,218,.22);
-    border-color: rgba(77,168,218,.55);
-    color: #7ecef4;
-  }
-</style>
-
 <!-- Encabezado -->
 <div class="d-flex align-items-center justify-content-between gap-2 mb-4 pb-3"
      style="border-bottom:1px solid rgba(77,168,218,0.25);">
@@ -118,7 +28,7 @@
     <h2 class="fw-bold m-0" style="color:#e2e8f0;">Stock &amp; Productos</h2>
   </div>
   <a href="{% url 'gestion_inventario' %}" class="btn-accion-ghost">
-    <i class="bi bi-arrow-left"></i> Gestión de Inventario
+    <i class="bi bi-arrow-left"></i>Inventario
   </a>
 </div>
 {% include 'inventario/stock_widget.html' %}
@@ -374,6 +284,31 @@ function filtrarLotes() {
 
 buscarLoteInput.addEventListener('input', filtrarLotes);
 filtroEstado.addEventListener('change', filtrarLotes);
+
+// Si llegamos con ?buscar=algo en la URL, lo aplicamos automáticamente
+(function aplicarBusquedaDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const termino = params.get('buscar');
+  if (!termino) return;
+
+  buscarLoteInput.value = termino;
+  filtrarLotes();
+
+  // Resaltar visualmente las filas que coinciden
+  setTimeout(() => {
+    filaLotes.forEach(row => {
+      if (row.style.display !== 'none') {
+        row.style.transition = 'background-color 0.3s ease';
+        row.style.backgroundColor = 'rgba(77,168,218,0.18)';
+      }
+    });
+    // Scroll hacia la primera fila resaltada
+    const primeraVisible = document.querySelector('.lote-row[style*="background-color"]');
+    if (primeraVisible) {
+      primeraVisible.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
+})();
 </script>
 
 {% endblock %}
