@@ -20,7 +20,7 @@ def lista_proveedores(request):
     tipo = request.GET.get('tipo', '')
     
     if q:
-        proveedores = proveedores.filter(nombre_empresa__icontains=q) | proveedores.filter(nombre_contacto__icontains=q)
+        proveedores = proveedores.filter(nombre_empresa__icontains=q) | proveedores.filter(email__icontains=q)
     if estado:
         proveedores = proveedores.filter(estado=estado)
     if tipo:

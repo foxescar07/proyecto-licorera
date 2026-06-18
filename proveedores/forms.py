@@ -1,21 +1,25 @@
 from django import forms
-from .models import Proveedor, Compra
-from productos.models import Producto
+from .models import Proveedor, ProveedorCategoria, Compra, OrdenCompra, DetalleCompra
+from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Lote
 
 class ProveedorForm(forms.ModelForm):
+    categorias = forms.ModelMultipleChoiceField(
+        queryset=Categoria.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'form-check-input'
+        }),
+        label='Categorías que surte'
+    )
+
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono', 'categorias_surtidas']
+        fields = ['nombre_empresa', 'email', 'telefono', 'tipo_proveedor', 'estado']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nombre de la empresa',
-                'required': True
-            }),
-            'nombre_contacto': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Responsable/Contacto',
                 'required': True
             }),
             'email': forms.EmailInput(attrs={
@@ -27,13 +31,89 @@ class ProveedorForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': '+56 9 1234 5678'
             }),
-            'categorias_surtidas': forms.CheckboxSelectMultiple(attrs={
-                'class': 'form-check-input'
+            'tipo_proveedor': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
             }),
         }
 
+    def save(self, commit=True):
+        proveedor = super().save(commit=commit)
+        if commit:
+            categorias = self.cleaned_data.get('categorias', [])
+            ProveedorCategoria.objects.filter(proveedor=proveedor).delete()
+            for categoria in categorias:
+                ProveedorCategoria.objects.create(proveedor=proveedor, categoria=categoria)
+        return proveedor
+
+class OrdenCompraForm(forms.ModelForm):
+    class Meta:
+        model = OrdenCompra
+        fields = ['proveedor', 'estado']
+        widgets = {
+            'proveedor': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'estado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
+
+class DetalleCompraForm(forms.ModelForm):
+    class Meta:
+        model = DetalleCompra
+        fields = ['presentacion', 'cantidad', 'precio_unitario']
+        widgets = {
+            'presentacion': forms.Select(attrs={
+                'class': 'form-select',
+                'queryset': PresentacionProducto.objects.all()
+            }),
+            'cantidad': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1'
+            }),
+            'precio_unitario': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01'
+            }),
+        }
+
+
+class LoteForm(forms.ModelForm):
+    class Meta:
+        model = Lote
+        fields = ['numero_lote', 'presentacion', 'stock_actual', 'costo_unitario', 'fecha_vencimiento', 'detalle_compra']
+        widgets = {
+            'numero_lote': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: LOTE-2024-001'
+            }),
+            'presentacion': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'stock_actual': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0'
+            }),
+            'costo_unitario': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01'
+            }),
+            'fecha_vencimiento': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'detalle_compra': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
+
 class CompraForm(forms.ModelForm):
-    """Formulario para registrar compras a proveedores"""
+    """Formulario para registrar compras a proveedores (heredado)"""
     producto = forms.ModelChoiceField(
         queryset=Producto.objects.all(),
         required=True,
