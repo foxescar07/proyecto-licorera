@@ -47,7 +47,7 @@ def ventas_lista(request):
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
 
-    return render(request, 'ventas/ventas.html', {
+    context= {
         'ventas':          ventas,
         'form':            form,
         'categorias':      categorias,
@@ -58,7 +58,8 @@ def ventas_lista(request):
         'ultimo_cierre':   ultimo_cierre,
         'billetes_denom':  BILLETES_DENOM,
         'monedas_denom':   MONEDAS_DENOM,
-    })
+    }
+    return render(request, 'ventas/ventas.html', context )
 
 
 @session_required
