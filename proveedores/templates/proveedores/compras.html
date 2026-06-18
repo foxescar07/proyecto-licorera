@@ -62,7 +62,7 @@
     </div>
 
     <!-- Nueva Compra (Acción) -->
-    <div class="kpi-card kpi-card-pink" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra" role="button">
+    <div class="kpi-card kpi-card-pink">
       <div class="kpi-card-top">
         <div class="kpi-icon-box pink"><i class="bi bi-plus-circle"></i></div>
         <span class="kpi-badge pink">ACCIÓN</span>
@@ -76,47 +76,54 @@
   <!-- ====== FIN TARJETAS KPI ====== -->
 
   <!-- ====== HEADER PROVEEDOR ====== -->
-  <div class="card card-dev card-header-top mb-4">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-start gap-4 flex-wrap">
-        <div class="flex-grow-1">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div class="icon-bg-primary">
-              <i class="bi bi-truck icon-primary"></i>
-            </div>
-            <div>
-              <h2 class="h4 mb-0 fw-bold">
-                {% if proveedor %}{{ proveedor.nombre_empresa }}{% else %}Registrar Compra{% endif %}
-              </h2>
+  <div class="card card-dev card-header-top mb-4 card-proveedor-header">
+    <div class="card-body p-0">
+      {% if proveedor %}
+      <div class="proveedor-container">
+        <div class="proveedor-main">
+          <div class="proveedor-icon">
+            <i class="bi bi-truck"></i>
+          </div>
+          <div class="proveedor-info">
+            <h2 class="proveedor-nombre">{{ proveedor.nombre_empresa }}</h2>
+            <div class="proveedor-details">
+              {% if proveedor.tipo_proveedor %}
+              <span class="detail-badge">{{ proveedor.get_tipo_proveedor_display }}</span>
+              {% endif %}
+              {% if proveedor.email %}
+              <div class="detail-item">
+                <i class="bi bi-envelope-fill"></i>
+                <span>{{ proveedor.email }}</span>
+              </div>
+              {% endif %}
+              {% if proveedor.telefono %}
+              <div class="detail-item">
+                <i class="bi bi-telephone-fill"></i>
+                <span>{{ proveedor.telefono }}</span>
+              </div>
+              {% endif %}
+              <div class="detail-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span class="estado-badge {% if proveedor.estado == 'activo' %}estado-activo{% else %}estado-{{ proveedor.estado }}{% endif %}">{{ proveedor.get_estado_display }}</span>
+              </div>
             </div>
           </div>
-          {% if proveedor %}
-          <div class="d-flex flex-column gap-1 ms-5">
-            <p class="small mb-0">
-              <i class="bi bi-person me-2 icon-muted"></i>
-              <span class="fw-bold">{{ proveedor.nombre_contacto|default:"Sin contacto" }}</span>
-            </p>
-            {% if proveedor.telefono %}
-            <p class="small mb-0">
-              <i class="bi bi-telephone me-2 icon-muted"></i>
-              <span class="telemetry-text">{{ proveedor.telefono }}</span>
-            </p>
-            {% endif %}
-            {% if proveedor.email %}
-            <p class="small mb-0">
-              <i class="bi bi-envelope me-2 icon-muted"></i>
-              {{ proveedor.email }}
-            </p>
-            {% endif %}
-          </div>
-          {% else %}
-          <p class="ms-5 small mb-0 text-muted">Selecciona un proveedor para comenzar a registrar compras</p>
-          {% endif %}
         </div>
-        <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-arrow-left me-2"></i>Cambiar proveedor
-        </a>
+        <div class="proveedor-actions">
+          <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-2"></i>Cambiar
+          </a>
+        </div>
       </div>
+      {% else %}
+      <div class="proveedor-empty">
+        <div class="proveedor-icon-empty">
+          <i class="bi bi-truck"></i>
+        </div>
+        <h3>Registrar Compra</h3>
+        <p>Selecciona un proveedor para comenzar a registrar compras</p>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -309,6 +316,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- ====== MODALES ====== -->
 

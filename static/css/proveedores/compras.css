@@ -1138,8 +1138,405 @@ textarea:focus {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
+   ESTILOS PERSONALIZADOS PARA MODALES KPI
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.modal-content {
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(3, 45, 96, 0.5) 100%) !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%) !important;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.3) !important;
+  padding: 1.5rem !important;
+}
+
+.modal-header h5 {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #5BC8F5 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.modal-header small {
+  display: block !important;
+  font-size: 0.9rem !important;
+  color: #8FA3B1 !important;
+  font-weight: 500 !important;
+}
+
+.modal-body {
+  padding: 2rem !important;
+}
+
+/* Cards de Estadísticas en Modal */
+.modal-body .row.g-3.mb-4 {
+  margin-bottom: 2rem !important;
+}
+
+.modal-body .card-inner {
+  background: linear-gradient(135deg, rgba(77, 168, 218, 0.15) 0%, rgba(77, 168, 218, 0.05) 100%) !important;
+  border: 2px solid rgba(77, 168, 218, 0.3) !important;
+  transition: all 0.3s ease !important;
+  border-radius: 12px !important;
+}
+
+.modal-body .card-inner:hover {
+  border-color: rgba(91, 200, 245, 0.8) !important;
+  box-shadow: 0 12px 30px rgba(77, 168, 218, 0.25) !important;
+  transform: translateY(-6px) !important;
+  background: linear-gradient(135deg, rgba(77, 168, 218, 0.25) 0%, rgba(77, 168, 218, 0.1) 100%) !important;
+}
+
+.modal-body .card-inner .card-body {
+  padding: 2rem 1.5rem !important;
+  text-align: center !important;
+}
+
+.modal-body .card-inner .card-body p {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom: 1rem !important;
+  color: #8FA3B1 !important;
+}
+
+.modal-body .card-inner .card-body h3 {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  color: #5BC8F5 !important;
+  line-height: 1 !important;
+}
+
+/* Colores diferentes para cada card */
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(1) .card-inner {
+  border-left: 4px solid #5BC8F5 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(1) .card-inner .card-body p {
+  color: #5BC8F5 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(2) .card-inner {
+  border-left: 4px solid #27ae60 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(2) .card-inner .card-body h3 {
+  color: #27ae60 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(2) .card-inner .card-body p {
+  color: #27ae60 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(3) .card-inner {
+  border-left: 4px solid #f0d080 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(3) .card-inner .card-body h3 {
+  color: #f0d080 !important;
+}
+
+.modal-body .row.g-3.mb-4 .col-md-4:nth-child(3) .card-inner .card-body p {
+  color: #f0d080 !important;
+}
+
+/* Tabla en Modal */
+.modal-body .table {
+  margin-bottom: 0 !important;
+}
+
+.modal-body .table thead th {
+  background: rgba(77, 168, 218, 0.1) !important;
+  color: #5BC8F5 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.1em !important;
+  padding: 1rem 0.75rem !important;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+.modal-body .table tbody tr {
+  border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-body .table tbody tr:hover {
+  background: rgba(77, 168, 218, 0.08) !important;
+}
+
+.modal-body .table tbody td {
+  padding: 0.9rem 0.75rem !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Footer Modal */
+.modal-footer {
+  background: rgba(3, 45, 96, 0.8) !important;
+  border-top: 1px solid rgba(77, 168, 218, 0.2) !important;
+  padding: 1.5rem !important;
+}
+
+.modal-footer .btn-outline-secondary {
+  border-color: rgba(77, 168, 218, 0.4) !important;
+  color: #5BC8F5 !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.modal-footer .btn-outline-secondary:hover {
+  background: linear-gradient(135deg, #4DA8DA 0%, #3a93c4 100%) !important;
+  border-color: #4DA8DA !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(77, 168, 218, 0.3) !important;
+}
+
+/* Mensaje en Modal Nueva Compra */
+.modal-body .alert-info-dev {
+  background: rgba(77, 168, 218, 0.1) !important;
+  border: 1px solid rgba(77, 168, 218, 0.3) !important;
+  color: #5BC8F5 !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+  .modal-header {
+    padding: 1rem !important;
+  }
+
+  .modal-header h5 {
+    font-size: 1.2rem !important;
+  }
+
+  .modal-body {
+    padding: 1.5rem !important;
+  }
+
+  .modal-body .card-inner .card-body h3 {
+    font-size: 1.5rem !important;
+  }
+
+  .modal-body .table tbody td {
+    font-size: 0.9rem !important;
+    padding: 0.7rem 0.5rem !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
    RESPONSIVE
    ──────────────────────────────────────────────────────────────────────────── */
+
+/* ────────────────────────────────────────────────────────────────────────────
+   MÓDULO PROVEEDOR MEJORADO
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.card-proveedor-header {
+  border-left: 4px solid #4DA8DA !important;
+  overflow: hidden !important;
+}
+
+.proveedor-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.proveedor-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.proveedor-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, rgba(77, 168, 218, 0.2) 0%, rgba(77, 168, 218, 0.05) 100%);
+  border: 2px solid rgba(77, 168, 218, 0.5);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #4DA8DA;
+  flex-shrink: 0;
+}
+
+.proveedor-info {
+  flex: 1;
+}
+
+.proveedor-nombre {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FDFFFC;
+  margin: 0 0 0.75rem 0;
+  text-transform: capitalize;
+}
+
+.proveedor-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.detail-badge {
+  display: inline-block;
+  background: rgba(77, 168, 218, 0.15);
+  color: #5BC8F5;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(77, 168, 218, 0.3);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #8FA3B1;
+}
+
+.detail-item i {
+  color: #4DA8DA;
+  font-size: 0.85rem;
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.estado-activo {
+  background: rgba(39, 174, 96, 0.15) !important;
+  color: #27ae60 !important;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.estado-inactivo {
+  background: rgba(149, 165, 166, 0.15) !important;
+  color: #95a5a6 !important;
+  border: 1px solid rgba(149, 165, 166, 0.3);
+}
+
+.estado-sancionado {
+  background: rgba(231, 76, 60, 0.15) !important;
+  color: #e74c3c !important;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.proveedor-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.proveedor-actions .btn {
+  white-space: nowrap;
+}
+
+.proveedor-actions .btn-outline-secondary {
+  background: linear-gradient(135deg, #4DA8DA 0%, #3a93c4 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 0.6rem 1.5rem !important;
+  border-radius: 25px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(77, 168, 218, 0.3) !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.proveedor-actions .btn-outline-secondary:hover {
+  background: linear-gradient(135deg, #5BC8F5 0%, #4DA8DA 100%) !important;
+  box-shadow: 0 6px 16px rgba(77, 168, 218, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+.proveedor-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.proveedor-icon-empty {
+  width: 80px;
+  height: 80px;
+  background: rgba(77, 168, 218, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #4DA8DA;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.proveedor-empty h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FDFFFC;
+  margin: 0 0 0.5rem 0;
+}
+
+.proveedor-empty p {
+  color: #8FA3B1;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE PROVEEDOR
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 992px) {
+  .proveedor-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .proveedor-main {
+    width: 100%;
+  }
+
+  .proveedor-actions {
+    width: 100%;
+  }
+
+  .proveedor-actions .btn {
+    width: 100%;
+  }
+
+  .proveedor-details {
+    gap: 0.75rem;
+  }
+}
 
 @media (max-width: 768px) {
   .table {
@@ -1177,5 +1574,23 @@ textarea:focus {
 
   .card-kpi:hover {
     transform: translateY(-3px);
+  }
+
+  .proveedor-container {
+    padding: 1.5rem;
+  }
+
+  .proveedor-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+  }
+
+  .proveedor-nombre {
+    font-size: 1.25rem;
+  }
+
+  .detail-item {
+    font-size: 0.8rem;
   }
 }

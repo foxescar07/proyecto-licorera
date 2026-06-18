@@ -250,11 +250,12 @@ def registrar_compra(request):
     # Producto más comprado
     producto_top = (
         Compra.objects
-        .values('producto__nombre')
+        .values('producto__nombre', 'producto__id')
         .annotate(total_und=Sum('cantidad'))
         .order_by('-total_und')
         .first()
     )
+
 
     productos = Producto.objects.all()
     lotes = Lote.objects.select_related('presentacion').all()
