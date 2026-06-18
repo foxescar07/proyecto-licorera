@@ -45,6 +45,33 @@ class DetalleVentaForm(forms.ModelForm):
 class DevolucionForm(forms.ModelForm):
     """Formulario para registrar devoluciones"""
 
+    # Campos adicionales dinámicos
+    producto_cambio = forms.ModelChoiceField(
+        queryset=Producto.objects.all(),
+        required=False,
+        label="Producto de reemplazo",
+        widget=forms.Select(attrs={
+            'class': 'form-select dev-select-premium',
+        })
+    )
+    cantidad_cambio = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label="Cantidad",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': '1',
+        })
+    )
+    metodo_pago_devolucion = forms.ChoiceField(
+        required=False,
+        choices=[('', '-- Selecciona método --')] + list(Devolucion.REEMBOLSO_CHOICES),
+        label="Método de devolución",
+        widget=forms.Select(attrs={
+            'class': 'form-select dev-select-premium',
+        })
+    )
+
     class Meta:
         model = Devolucion
         fields = ['motivo', 'tipo_reembolso', 'observaciones']
