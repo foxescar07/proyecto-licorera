@@ -124,15 +124,18 @@ label {
 
 /* BOTONES */
 .btn-primary {
-  background: #912F40 !important;
-  border-color: #912F40 !important;
-  color: #fff !important;
+  background: #4DA8DA !important;
+  border-color: #4DA8DA !important;
+  color: #011936 !important;
   font-weight: 700 !important;
+  border-radius: 20px !important;
+  padding: 8px 20px !important;
 }
 
 .btn-primary:hover {
-  background: #7a2635 !important;
-  border-color: #7a2635 !important;
+  background: #3d8ab8 !important;
+  border-color: #3d8ab8 !important;
+  color: #fff !important;
 }
 
 .btn-secondary {
@@ -148,8 +151,10 @@ label {
 
 .btn-cyan {
   background: rgba(77, 168, 218, 0.12) !important;
-  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
   color: #7ecfef !important;
+  border-radius: 20px !important;
+  padding: 8px 16px !important;
 }
 
 .btn-cyan:hover {
@@ -478,7 +483,14 @@ input[type="radio"]:checked + label.motivo-item,
 input[type="checkbox"]:checked + label.motivo-item {
   border-color: #4DA8DA !important;
   background: rgba(77, 168, 218, 0.08) !important;
-  box-shadow: 0 4px 12px rgba(77, 168, 218, 0.15) !important;
+  box-shadow: 0 0 0 2px #031e3e, 0 0 0 4px #4DA8DA, 0 4px 12px rgba(77, 168, 218, 0.15) !important;
+}
+
+input[type="radio"]:checked + label.reembolso-card,
+input[type="checkbox"]:checked + label.reembolso-card {
+  border-color: currentColor !important;
+  background: rgba(77, 168, 218, 0.08) !important;
+  box-shadow: 0 0 0 2px #031e3e, 0 0 0 4px currentColor, 0 4px 12px rgba(77, 168, 218, 0.15) !important;
 }
 
 .motivo-number {
@@ -549,6 +561,331 @@ a:hover {
   color: #7ecfef !important;
 }
 
+/* ────────────────────────────────────
+   NUEVO DISEÑO — COMPONENTES
+──────────────────────────────────── */
+
+.badge-module {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(77, 168, 218, 0.12) !important;
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  color: #7ecfef !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-card {
+  background: #02224a !important;
+  border: 1px solid rgba(239, 248, 226, 0.12) !important;
+  border-left: 6px solid !important;
+  border-radius: 16px !important;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-height: 110px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.4rem;
+}
+
+.stat-body {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #FDFFFC !important;
+}
+
+.stat-sub {
+  font-size: 0.75rem;
+  color: #AF8D86 !important;
+  margin-top: 0.3rem;
+}
+
+.section-card {
+  background: #02224a !important;
+  border: 1px solid rgba(239, 248, 226, 0.12) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FDFFFC !important;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.motivo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.motivo-item {
+  background: #031e3e !important;
+  border: 1px solid rgba(239, 248, 226, 0.12) !important;
+  border-radius: 10px !important;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.motivo-item:hover {
+  border-color: #4DA8DA !important;
+  background: rgba(77, 168, 218, 0.08) !important;
+}
+
+.motivo-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4DA8DA, rgba(77, 168, 218, 0.8));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.motivo-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #FDFFFC !important;
+  margin-bottom: 2px;
+}
+
+.motivo-sub {
+  font-size: 0.72rem;
+  color: #AF8D86 !important;
+}
+
+.reembolso-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.reembolso-card {
+  background: #031e3e !important;
+  border-radius: 10px !important;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reembolso-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(77, 168, 218, 0.15) !important;
+}
+
+.r-opt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.r-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.r-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #FDFFFC !important;
+}
+
+.r-sub {
+  font-size: 0.72rem;
+  color: #AF8D86 !important;
+}
+
+.dropzone {
+  background: #031e3e !important;
+  border: 2px dashed rgba(77, 168, 218, 0.4) !important;
+  border-radius: 10px !important;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropzone:hover {
+  border-color: #4DA8DA !important;
+  background: rgba(77, 168, 218, 0.08) !important;
+}
+
+.dz-icon {
+  font-size: 2rem;
+  color: #4DA8DA !important;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.dz-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #FDFFFC !important;
+  margin-bottom: 4px;
+}
+
+.dz-sub {
+  font-size: 0.8rem;
+  color: #AF8D86 !important;
+}
+
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.help-item {
+  background: #031e3e !important;
+  border: 1px solid rgba(239, 248, 226, 0.1) !important;
+  border-radius: 10px !important;
+  padding: 0.85rem;
+  text-align: center;
+}
+
+.help-icon {
+  font-size: 1.3rem;
+  color: #4DA8DA !important;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.help-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #FDFFFC !important;
+}
+
+.help-sub {
+  font-size: 0.72rem;
+  color: #AF8D86 !important;
+}
+
+.info-alert {
+  background: rgba(77, 168, 218, 0.1) !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  border-radius: 8px !important;
+  padding: 0.65rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #7ecfef !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-sep {
+  border-bottom: 1px solid rgba(239, 248, 226, 0.1) !important;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* RADIO Y CHECKBOX SELECCIONADOS */
+input[type="radio"]:checked + label,
+input[type="checkbox"]:checked + label {
+  position: relative;
+}
+
+input[type="radio"]:focus + label,
+input[type="checkbox"]:focus + label {
+  outline: none;
+}
+
+/* MEJORA DE BORDES PARA REEMBOLSO */
+input[type="radio"]:checked + label.reembolso-card {
+  border-width: 2px !important;
+}
+
+/* EFECTOS DE TRANSICIÓN SUAVE */
+.motivo-item,
+.reembolso-card {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* LÍNEAS EXTERIORES PARA SELECCIÓN */
+input[type="radio"]:checked + label.motivo-item::after,
+input[type="radio"]:checked + label.reembolso-card::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border: 2px solid #4DA8DA;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .container-fluid {
@@ -570,5 +907,20 @@ a:hover {
   .offcanvas {
     max-width: 100% !important;
   }
-}
 
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .motivo-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .reembolso-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .help-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
