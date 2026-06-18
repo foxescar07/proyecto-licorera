@@ -72,6 +72,7 @@ class Inventario(models.Model):
     tipo              = models.CharField(max_length=20, choices=TIPO_CHOICES)
     cantidad          = models.IntegerField()
     motivo            = models.CharField(max_length=255, blank=True)
+    stock_resultante  = models.PositiveIntegerField(null=True, blank=True)
     fecha_actualizada = models.DateTimeField(auto_now_add=True)
 
     class Meta:

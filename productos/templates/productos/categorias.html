@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}               
 {% block title %}Gestión de Categorías | Licorera{% endblock %}
+{% block page_title %}Gestión de Categorías{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
@@ -10,10 +11,6 @@
 <div class="container-fluid py-4">
 
   <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-4 page-header pb-3">
-    <h2 class="fw-bold m-0" style="color: var(--texto);">
-      <i class="bi bi-tags me-2" style="color: var(--azul-claro);"></i>Gestión de Categorías
-    </h2>
     <a href="{% url 'lista_productos' %}"   class="btn rounded-pill fw-bold px-4"
     style="background: var(--azul-claro); color: var(--fondo); border: none;">
       <i class="bi bi-arrow-left me-1"></i> Productos
