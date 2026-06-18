@@ -568,3 +568,12 @@
     border-color: rgba(77,168,218,.55);
     color: #7ecef4;
   }
+/* ── CATÁLOGO ── */
+.cat-card {
+  transition: transform .15s, box-shadow .15s;
+  cursor: default;
+}
+.cat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.28);
+}
