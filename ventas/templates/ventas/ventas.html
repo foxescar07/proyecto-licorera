@@ -29,7 +29,7 @@
 
         <div>
           <span style="font-size: .65rem; color: var(--cys-texto-muted); text-transform: uppercase; font-weight: 700; display: block; letter-spacing: 0.5px;">Apertura</span>
-          <span style="font-size: 1.1rem; font-weight: 800; color: #fff; line-height: 1.2;">{{ caja_abierta.fecha|date:"H:i" }}</span>
+          <span style="font-size: 1.1rem; font-weight: 800; color: #fff; line-height: 1.2;">{{ caja_abierta.creado_en|time:"H:i" }}</span>
         </div>
 
         <div>
@@ -474,7 +474,7 @@
        data-id="{{ prod.id }}"
        data-nombre="{{ prod.nombre }}"
        data-stock="{{ prod.stock_total }}"
-       data-presentaciones='[{% for pr in prod.presentaciones.all %}{"id":{{ pr.pk }},"nombre":"{{ pr.nombre|escapejs }}","unidades":{{ pr.unidades }},"precio":{{ pr.precio }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+       data-presentaciones='[{% for pr in prod.presentaciones.all %}{"id":{{ pr.pk }},"nombre":"{{ pr.nombre|escapejs }}","unidades":{{ pr.unidades }},"precio":{{ pr.precio }},"stock":{{ pr.stock_real }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
   </div>
   {% endfor %}
 </div>
@@ -581,17 +581,18 @@ function abrirPresentaciones(prodId, prodNombre, presJson) {
   }
 
   pres.forEach(pr => {
+    const sinStock = pr.stock <= 0;
     const div = document.createElement('div');
     div.innerHTML = `
       <div class="d-flex justify-content-between align-items-center rounded-3 p-3"
-           style="background:rgba(77,168,218,0.05); border:1px solid var(--cys-borde); cursor:pointer;"
-           onclick="agregarAlCarrito(${prodId}, '${prodNombre.replace(/'/g,"\\'")}', ${pr.id}, '${pr.nombre.replace(/'/g,"\\'")}', ${pr.precio}, ${pr.unidades})">
+           style="background:rgba(77,168,218,0.05); border:1px solid var(--cys-borde); cursor:${sinStock ? 'not-allowed' : 'pointer'}; opacity:${sinStock ? '0.5' : '1'};"
+           ${sinStock ? '' : `onclick="agregarAlCarrito(${prodId}, '${prodNombre.replace(/'/g,"\\'")}', ${pr.id}, '${pr.nombre.replace(/'/g,"\\'")}', ${pr.precio}, ${pr.unidades})"`}>
         <div>
           <div style="font-weight:700; color:#fff; font-size:.9rem;">${pr.nombre}</div>
-          <div style="font-size:.72rem; color:var(--cys-texto-muted);">x${pr.unidades} unidades</div>
+          <div style="font-size:.72rem; color:var(--cys-texto-muted);">x${pr.unidades} unidades · Stock: ${pr.stock}</div>
         </div>
-        <div style="font-size:1.1rem; font-weight:800; color:var(--cys-acento);">
-          $${pr.precio.toLocaleString('es-CO')}
+        <div style="font-size:1.1rem; font-weight:800; color:${sinStock ? 'var(--cys-rojo)' : 'var(--cys-acento)'};">
+          ${sinStock ? 'Sin stock' : '$' + pr.precio.toLocaleString('es-CO')}
         </div>
       </div>`;
     lista.appendChild(div);
@@ -655,7 +656,6 @@ function renderCarrito() {
   carrito.forEach((item, idx) => {
     subtotal += item.precio * item.cantidad;
 
-    // Fila visual
     const row = document.createElement('div');
     row.className = 'd-flex justify-content-between align-items-center rounded-3 p-2 px-3';
     row.style.cssText = 'background:rgba(77,168,218,0.04); border:1px solid var(--cys-borde);';
@@ -682,15 +682,13 @@ function renderCarrito() {
       </div>`;
     listaEl.appendChild(row);
 
-    // Campos ocultos para el POST
     camposEl.innerHTML += `
-      <input type="hidden" name="producto_id[]"    value="${item.prodId}">
+      <input type="hidden" name="producto_id[]"     value="${item.prodId}">
       <input type="hidden" name="presentacion_id[]" value="${item.presId}">
-      <input type="hidden" name="cantidad[]"        value="${item.cantidad}">
-      <input type="hidden" name="precio_unitario[]" value="${item.precio}">`;
+      <input type="hidden" name="cantidad[]"         value="${item.cantidad}">
+      <input type="hidden" name="precio[]"           value="${item.precio}">`;
   });
 
-  // Total con descuento
   const descPct = parseFloat(document.getElementById('inputDescuento').value) || 0;
   const total   = subtotal * (1 - descPct / 100);
   document.getElementById('totalMonto').textContent = '$' + Math.round(total).toLocaleString('es-CO');
@@ -710,7 +708,6 @@ function quitarItem(idx) {
 
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
 
-// ── Total pagado ──
 function calcularPagado() {
   let pagado = 0;
   document.querySelectorAll('.pago-input').forEach(inp => {
@@ -722,7 +719,6 @@ document.querySelectorAll('.pago-input').forEach(inp => {
   inp.addEventListener('input', calcularPagado);
 });
 
-// ── Cancelar carrito ──
 document.getElementById('btnCancelarVenta').addEventListener('click', function() {
   if (carrito.length === 0 || confirm('¿Vaciar el carrito?')) {
     carrito = [];
@@ -809,13 +805,13 @@ document.getElementById('btnConfirmarConteo').addEventListener('click', function
   });
   const obs = document.getElementById('ctObservacion').value.trim();
 
-  fetch("{% url 'ventas:abrir_caja' %}", {
+  fetch("{% url 'ventas:registrar_conteo' %}", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
     },
-    body: JSON.stringify({ monto_base: total, observacion: obs, denominaciones })
+    body: JSON.stringify({ monto_contado: total, observacion: obs, denominaciones })
   })
   .then(r => r.json())
   .then(data => {
@@ -832,7 +828,7 @@ document.querySelectorAll('.denom-ci').forEach(inp => {
     document.querySelectorAll('.denom-ci').forEach(i => {
       total += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
     });
-    document.getElementById('totalCierre').textContent     = '$' + Math.round(total).toLocaleString('es-CO');
+    document.getElementById('totalCierre').textContent        = '$' + Math.round(total).toLocaleString('es-CO');
     document.getElementById('resumenTotalContado').textContent = '$' + Math.round(total).toLocaleString('es-CO');
     recalcCierre();
   });
@@ -845,10 +841,10 @@ function recalcCierre() {
   document.querySelectorAll('.denom-ci').forEach(i => {
     totalCont += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
   });
-  const base = parseFloat(document.getElementById('baseSiguiente').value) || 0;
+  const base    = parseFloat(document.getElementById('baseSiguiente').value) || 0;
   const retirar = Math.max(0, totalCont - base);
-  document.getElementById('resumenBaseSig').textContent  = '$' + Math.round(base).toLocaleString('es-CO');
-  document.getElementById('resumenRetirar').textContent  = '$' + Math.round(retirar).toLocaleString('es-CO');
+  document.getElementById('resumenBaseSig').textContent = '$' + Math.round(base).toLocaleString('es-CO');
+  document.getElementById('resumenRetirar').textContent = '$' + Math.round(retirar).toLocaleString('es-CO');
 }
 
 document.getElementById('btnConfirmarCierre').addEventListener('click', function() {
@@ -862,7 +858,7 @@ document.getElementById('btnConfirmarCierre').addEventListener('click', function
   });
   const base = parseFloat(document.getElementById('baseSiguiente').value) || 0;
 
-  fetch("{% url 'ventas:cerrar_caja' %}", {
+  fetch("{% url 'ventas:cierre_caja' %}", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -920,22 +916,16 @@ function filtrarHistorial() {
   const filas  = document.querySelectorAll('.fila-venta');
   let alguna   = false;
 
-  const ventasVistas = new Set();
   filas.forEach(fila => {
-    const fecha    = fila.dataset.fecha;
-    const ventaId  = fila.dataset.ventaId;
-    const cumple   = (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
-
-    if (cumple) {
-      fila.style.display = '';
-      alguna = true;
-      ventasVistas.add(ventaId);
-    } else {
-      fila.style.display = 'none';
-    }
+    const fecha  = fila.dataset.fecha;
+    const cumple = (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
+    fila.style.display = cumple ? '' : 'none';
+    if (cumple) alguna = true;
   });
 
   document.getElementById('sinResultadosFiltro').style.display = (alguna || (!desde && !hasta)) ? 'none' : 'block';
 }
 </script>
 {% endblock %}
+ENDOFFILE
+echo "ok"
