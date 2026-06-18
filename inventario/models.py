@@ -34,7 +34,6 @@ class Lote(models.Model):
     def dias_para_vencer(self):
         if not self.fecha_vencimiento:
             return None
-        from django.utils import timezone
         return (self.fecha_vencimiento - timezone.now().date()).days
 
     @property

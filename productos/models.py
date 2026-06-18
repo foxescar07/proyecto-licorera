@@ -85,6 +85,11 @@ class PresentacionProducto(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} — {self.nombre} ({self.unidades} uds)"
+    
+    @property
+    def stock_real(self):
+        from django.db.models import Sum
+        return self.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
 
 
 class Inventario(models.Model):

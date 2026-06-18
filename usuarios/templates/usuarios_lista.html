@@ -386,6 +386,12 @@
   function sincronizarAltoCaso2() {
     const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
     if (!main || !sb) return;
+    // Si el panel de recientes está abierto, no fijar altura — que fluya naturalmente
+    const panel = $('collapseRecientes34');
+    if (panel && panel.style.display !== 'none') {
+      sb.style.height = '';
+      return;
+    }
     sb.style.height = '';
     const alturaMain  = main.offsetHeight;
     const alturaMinSb = sb.scrollHeight;
@@ -406,11 +412,19 @@
     btn?.addEventListener('click', function () {
       const panel   = $('collapseRecientes34');
       const abierto = panel.style.display !== 'none';
+      const sb      = $('ul-sidebar-ref');
+      const esCaso2 = $('layout-principal')?.classList.contains('cards-view-3-4');
+
+      // Siempre liberar altura antes de cambiar estado
+      if (esCaso2 && sb) sb.style.height = '';
+
       panel.style.display = abierto ? 'none' : 'block';
       this.setAttribute('aria-expanded', String(!abierto));
       this.querySelector('.arrow-icon').style.transform = abierto ? '' : 'rotate(180deg)';
-      if ($('layout-principal')?.classList.contains('cards-view-3-4'))
+
+      if (esCaso2) {
         requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
+      }
     });
   }
 
@@ -449,10 +463,9 @@
       requestAnimationFrame(() => {
         sb.style.setProperty('display', 'flex', 'important');
         sb.style.setProperty('flex-direction', 'column', 'important');
-        sb.style.setProperty('gap', '1.25rem', 'important'); // Despega verticalmente los componentes del sidebar
+        sb.style.setProperty('gap', '1.25rem', 'important');
         sb.style.setProperty('height', 'auto', 'important');
 
-        // Despegar horizontalmente los mini-widgets internos de Estado y Rol
         const statsInner = sb.querySelector('.stats-grid-inner');
         if (statsInner) {
           statsInner.style.setProperty('display', 'flex', 'important');
@@ -501,10 +514,7 @@
   window.addEventListener('resize', () => {
     const sb = $('ul-sidebar-ref');
     if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
-    
-    // Forzar reajuste en resize para que el caso 5-6 mantenga los gaps inyectados
     reajustarLayout();
-
     if ($('layout-principal')?.classList.contains('cards-view-3-4'))
       requestAnimationFrame(sincronizarAltoCaso2);
   });
@@ -595,5 +605,4 @@
 
 })();
 </script>
-
 {% endblock %}

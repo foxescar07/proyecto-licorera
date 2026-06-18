@@ -129,9 +129,32 @@ class CierreCaja(models.Model):
 class Devolucion(models.Model):
     MOTIVO_CHOICES = [
         ('defectuoso',   'Producto defectuoso'),
-        ('equivocado',   'Producto equivocado'),
+        ('equivocado',   'Error en el pedido'),
         ('insatisfecho', 'Cliente insatisfecho'),
-        ('otro',         'Otro'),
+        ('calidad',      'Problema de calidad'),
+        ('empaque',      'Empaque dañado'),
+        ('otro',         'Otro motivo'),
+    ]
+
+    REEMBOLSO_CHOICES = [
+        ('cambio',       'Cambio de producto'),
+        ('nota_credito', 'Nota crédito'),
+        ('reembolso',    'Reembolso'),
+    ]
+
+    ESTADO_CHOICES = [
+        ('pendiente',    'Pendiente de aprobación'),
+        ('aprobada',     'Aprobada'),
+        ('procesada',    'Procesada'),
+        ('rechazada',    'Rechazada'),
+    ]
+
+    ESTADO_RETORNO_CHOICES = [
+        ('pendiente',    'Pendiente de retorno'),
+        ('en_transito',  'En tránsito'),
+        ('recibida',     'Recibida en almacén'),
+        ('verificada',   'Verificada'),
+        ('rechazada',    'Rechazada'),
     ]
 
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
@@ -139,10 +162,38 @@ class Devolucion(models.Model):
                                           verbose_name='Venta original')
     fecha             = models.DateTimeField(auto_now_add=True)
     motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
+    tipo_reembolso    = models.CharField(max_length=20, choices=REEMBOLSO_CHOICES, default='cambio')
     observaciones     = models.TextField(blank=True)
     restaurar_stock   = models.BooleanField(default=True)
     tiene_comprobante = models.BooleanField(default=True)
     total_devuelto    = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # Nuevos campos
+    estado            = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    estado_retorno    = models.CharField(max_length=20, choices=ESTADO_RETORNO_CHOICES, default='pendiente')
+    numero_seguimiento = models.CharField(max_length=50, blank=True, null=True, unique=True)
+
+    # Para cambio de producto
+    producto_cambio   = models.ForeignKey(Producto, on_delete=models.SET_NULL,
+                                          null=True, blank=True, related_name='cambios_recibidos')
+    cantidad_cambio   = models.PositiveIntegerField(null=True, blank=True)
+
+    # Para nota de crédito
+    saldo_credito     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    credito_aplicado  = models.BooleanField(default=False)
+    fecha_aplicacion_credito = models.DateTimeField(null=True, blank=True)
+
+    # Para reembolso
+    metodo_pago_devolucion = models.CharField(max_length=50, blank=True,
+                                              choices=[
+                                                  ('efectivo', 'Efectivo'),
+                                                  ('tarjeta', 'Tarjeta'),
+                                                  ('transferencia', 'Transferencia'),
+                                                  ('nequi', 'Nequi'),
+                                                  ('daviplata', 'DaviPlata'),
+                                              ])
+    fecha_reembolso   = models.DateTimeField(null=True, blank=True)
+    referencia_reembolso = models.CharField(max_length=100, blank=True)
 
     class Meta:
         verbose_name        = 'Devolución'
@@ -155,6 +206,18 @@ class Devolucion(models.Model):
     @property
     def numero(self):
         return f'DEV-{self.pk:04d}'
+
+    def aprobar(self):
+        """Aprueba la devolución"""
+        self.estado = 'aprobada'
+        self.save()
+
+    def procesar(self):
+        """Procesa la devolución según su tipo"""
+        if self.tipo_reembolso == 'nota_credito':
+            self.saldo_credito = self.total_devuelto
+        self.estado = 'procesada'
+        self.save()
 
 
 class DetalleDevolucion(models.Model):

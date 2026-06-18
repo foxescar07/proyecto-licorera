@@ -1,147 +1,253 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load ventas_extras %}
 
 {% block title %}Ventas del Día — CYS Ltda{% endblock %}
 {% block page_title %}Ventas del Día{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes.css' %}">
 <style>
+  /* ── VARIABLES Y AJUSTES DE COLOR PREMIUM ── */
   :root {
-    --azul-claro:  #4da8da;
-    --azul-borde:  #1e3a5f;
-    --texto:       #e8eaf0;
-    --texto-muted: #7a8fa6;
-    --fondo-card2: #0f1e2e;
-    --rojo:        #ff4d4d;
-    --verde:       #2ed573;
+    --cys-bg-card: #0b1a24;
+    --cys-surface: #07121a;
+    --cys-borde: rgba(77, 168, 218, 0.15);
+    --cys-borde-focus: #4da8da;
+    --cys-texto-muted: #6b8296;
+    --cys-acento: #4da8da;
+    --cys-verde: #2ecc71;
+    
+    /* Color del botón del ejemplo */
+    --cys-cian-brillante: #00c2ff; 
+  }
+
+  /* Estilos de los botones de acción superior (Estilo Píldora del ejemplo) */
+  .cys-btn-action {
+    background: var(--cys-cian-brillante);
+    border: none;
+    color: #000000; /* Texto negro */
+    border-radius: 50px; /* Forma de píldora completamente redondeada */
+    padding: 8px 24px; /* Espaciado interno horizontal */
+    font-size: 0.95rem;
+    font-weight: 700; /* Texto bien marcado en negrita */
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+  .cys-btn-action:hover {
+    background: #00a3d9; /* Un tono un poco más oscuro al pasar el mouse */
+    color: #000000;
+    transform: translateY(-1px); /* Sutil efecto de elevación */
+  }
+
+  /* Estilos para simular los gráficos con CSS Puro (Sin JS) */
+  .css-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 45px;
+    width: 100px;
+    margin-left: auto;
+  }
+  .css-bar {
+    width: 6px;
+    background: linear-gradient(to top, rgba(77,168,218,0.2), var(--cys-acento));
+    border-radius: 2px 2px 0 0;
+  }
+
+  .css-line-chart {
+    width: 120px;
+    height: 35px;
+    margin-left: auto;
+    background: linear-gradient(135deg, transparent 40%, rgba(77,168,218,0.1) 40%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' width='100' height='30' preserveAspectRatio='none'%3E%3Cpath d='M0,25 Q15,10 30,20 T60,5 T90,15 T100,10' fill='none' stroke='%234da8da' stroke-width='2'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+  }
+
+  .css-pie-chart {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: conic-gradient(var(--cys-acento) 0% 55%, #2c4a5e 55% 75%, #1a3240 75% 100%);
+    margin-left: auto;
+  }
+
+  /* Estilos de la Tabla del Historial */
+  .cys-history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .cys-history-table th {
+    background-color: rgba(77, 168, 218, 0.05);
+    color: var(--cys-texto-muted);
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--cys-borde);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cys-history-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(77, 168, 218, 0.08);
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  .cys-history-table tbody tr:hover {
+    background-color: rgba(77, 168, 218, 0.02);
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid p-0">
+<div class="container-fluid p-4" style="background-color: #040a0f; min-height: 100vh; font-family: sans-serif;">
 
-  <!-- ── ENCABEZADO ── -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-      <div class="text-uppercase small" style="color:var(--texto-muted); letter-spacing:1px;">Resumen</div>
-      <div class="fw-bold fs-5" style="color:var(--texto);">
-        <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
-        Ventas del día — {{ hoy|date:"d/m/Y" }}
+  <div class="d-flex justify-content-end gap-2 mb-4">
+    <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-action">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    <button onclick="window.print()" class="cys-btn-action">
+      <i class="bi bi-printer"></i> Imprimir
+    </button>
+  </div>
+
+  <div class="row gx-3 gy-3 mb-4">
+    
+    <div class="col-12 col-md-4">
+      <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; padding: 1.25rem; display: flex; align-items: center; position: relative;">
+        <div style="background: rgba(77,168,218,0.1); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+          <i class="bi bi-receipt" style="color: var(--cys-acento); font-size: 1.3rem;"></i>
+        </div>
+        <div>
+          <span style="font-size: .75rem; color: var(--cys-texto-muted); text-transform: uppercase; font-weight: 600; display: block;">Transacciones</span>
+          <span style="font-size: 1.8rem; font-weight: 700; color: #fff; line-height: 1.2; display: block; margin: 2px 0;">{{ ventas.count }}</span>
+          <span style="font-size: .75rem; color: var(--cys-texto-muted);">Ventas registradas hoy</span>
+        </div>
+        {% if ventas %}
+        <div class="css-bar-chart d-none d-sm-flex">
+          <div class="css-bar" style="height: 30%;"></div>
+          <div class="css-bar" style="height: 45%;"></div>
+          <div class="css-bar" style="height: 35%;"></div>
+          <div class="css-bar" style="height: 60%;"></div>
+          <div class="css-bar" style="height: 85%;"></div>
+          <div class="css-bar" style="height: 50%;"></div>
+        </div>
+        {% endif %}
       </div>
     </div>
-    <div class="d-flex gap-2 flex-wrap align-items-center">
-      <a href="{% url 'ventas:ventas_lista' %}" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left"></i> Volver
+
+    <div class="col-12 col-md-4">
+      <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; padding: 1.25rem; display: flex; align-items: center;">
+        <div style="background: rgba(46,204,113,0.1); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+          <i class="bi bi-cash-stack" style="color: var(--cys-verde); font-size: 1.3rem;"></i>
+        </div>
+        <div>
+          <span style="font-size: .75rem; color: var(--cys-texto-muted); text-transform: uppercase; font-weight: 600; display: block;">Total del día</span>
+          <span style="font-size: 1.8rem; font-weight: 700; color: #fff; line-height: 1.2; display: block; margin: 2px 0;">${{ total_dia|floatformat:0 }}</span>
+          <span style="font-size: .75rem; color: var(--cys-verde); font-weight: 500;">Ingresos acumulados</span>
+        </div>
+        {% if ventas %}
+        <div class="css-line-chart d-none d-sm-block"></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; padding: 1.25rem; display: flex; align-items: center;">
+        <div style="background: rgba(77,168,218,0.1); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+          <i class="bi bi-box-seam" style="color: var(--cys-acento); font-size: 1.3rem;"></i>
+        </div>
+        <div>
+          <span style="font-size: .75rem; color: var(--cys-texto-muted); text-transform: uppercase; font-weight: 600; display: block;">Productos vendidos</span>
+          <span style="font-size: 1.8rem; font-weight: 700; color: #fff; line-height: 1.2; display: block; margin: 2px 0;">{{ total_productos }}</span>
+          <span style="font-size: .75rem; color: var(--cys-texto-muted);">Unidades totales</span>
+        </div>
+        {% if ventas %}
+        <div class="css-pie-chart d-none d-sm-block"></div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <section style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; overflow: hidden;">
+    
+    <div style="padding: 1.2rem 1.5rem .8rem; border-bottom: 1px solid var(--cys-borde); background: rgba(77, 168, 218, 0.02);">
+      <div style="font-size: 0.95rem; font-weight: 700; color: var(--cys-acento); text-transform: uppercase; letter-spacing: 0.5px;">
+        <i class="bi bi-clock-history me-2"></i>Historial de Ventas
+      </div>
+    </div>
+
+    <form method="GET" class="d-flex flex-wrap align-items-center gap-2" style="padding: 1rem 1.5rem; background: var(--cys-surface); border-bottom: 1px solid var(--cys-borde); margin: 0;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 5px;">
+        Rango de fechas:
+      </span>
+      
+      <input type="date" name="fecha_inicio" value="{{ request.GET.fecha_inicio }}"
+             style="background: var(--cys-surface); border: 1px solid rgba(77, 168, 218, 0.3); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; outline: none;">
+      
+      <span style="color: var(--cys-texto-muted); font-size: 0.85rem; font-weight: 600; padding: 0 4px;">A</span>
+      
+      <input type="date" name="fecha_fin" value="{{ request.GET.fecha_fin }}"
+             style="background: var(--cys-surface); border: 1px solid rgba(77, 168, 218, 0.3); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; outline: none;">
+      
+      <a href="?" class="cys-btn-action" style="padding: 4px 16px; font-size: 0.85rem; background: transparent; border: 1px solid var(--cys-borde); color: #e2e8f0;">
+        <i class="bi bi-x-circle"></i> Limpiar
       </a>
-      <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-printer"></i> Imprimir
-      </button>
-    </div>
-  </div>
-
-  <!-- ── TARJETAS RESUMEN ── -->
-  <div class="row g-3 mb-4">
-    <div class="col-12 col-sm-4">
-      <div class="p-3 rounded-3 h-100" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
-        <div class="small mb-1" style="color:var(--texto-muted);">
-          <i class="bi bi-receipt me-1"></i>Ventas
-        </div>
-        <div class="fw-bold fs-3" style="color:var(--texto);">{{ ventas.count }}</div>
-        <div class="small" style="color:var(--texto-muted);">transacciones hoy</div>
-      </div>
-    </div>
-    <div class="col-12 col-sm-4">
-      <div class="p-3 rounded-3 h-100" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
-        <div class="small mb-1" style="color:var(--texto-muted);">
-          <i class="bi bi-cash-stack me-1"></i>Total del día
-        </div>
-        <div class="fw-bold fs-4" style="color:var(--texto);">${{ total_dia|pesos }}</div>
-        <div class="small" style="color:var(--texto-muted);">ingresos acumulados</div>
-      </div>
-    </div>
-    <div class="col-12 col-sm-4">
-      <div class="p-3 rounded-3 h-100" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
-        <div class="small mb-1" style="color:var(--texto-muted);">
-          <i class="bi bi-box-seam me-1"></i>Productos vendidos
-        </div>
-        <div class="fw-bold fs-3" style="color:var(--texto);">{{ total_productos }}</div>
-        <div class="small" style="color:var(--texto-muted);">unidades totales</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── TABLA VENTAS ── -->
-  <div class="p-3 rounded-3" style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
-    <div class="fw-bold mb-3" style="color:var(--texto);">Detalle de Ventas</div>
+    </form>
 
     {% if ventas %}
     <div class="table-responsive">
-      <table class="table table-dark mb-0">
+      <table class="cys-history-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Hora</th>
+            <th style="width: 50px; text-align: center;">#</th>
             <th>Cliente</th>
-            <th>Productos</th>
-            <th>Métodos de pago</th>
-            <th>Descuento</th>
-            <th>Total</th>
+            <th>Producto</th>
+            <th style="text-align: center;">Cantidad</th>
+            <th style="text-align: right;">Precio Uni.</th>
+            <th style="text-align: right;">Total</th>
+            <th style="text-align: center;">Fecha</th>
           </tr>
         </thead>
         <tbody>
           {% for venta in ventas %}
-          <tr>
-            <td class="small" style="color:var(--texto-muted);">{{ forloop.counter }}</td>
-            <td class="small" style="color:var(--texto-muted);">{{ venta.fecha|date:"H:i" }}</td>
-            <td class="fw-bold" style="color:var(--texto);">{{ venta.cliente.nombre }}</td>
-            <td>
-              <div class="d-flex flex-wrap gap-1">
-                {% for det in venta.detalles.all %}
-                <span class="badge rounded-pill" style="background:var(--azul-borde); color:var(--texto);">
-                  {{ det.presentacion.producto.nombre }}
-                  {% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
-                  ×{{ det.cantidad }}
-                </span>
-                {% endfor %}
-              </div>
-            </td>
-            <td>
-              <div class="d-flex flex-wrap gap-1">
-                {% if venta.pago_efectivo      > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-cash"></i> Efectivo</span>{% endif %}
-                {% if venta.pago_tarjeta       > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-credit-card"></i> Tarjeta</span>{% endif %}
-                {% if venta.pago_transferencia > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-bank"></i> Transfer.</span>{% endif %}
-                {% if venta.pago_nequi         > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-phone"></i> Nequi</span>{% endif %}
-                {% if venta.pago_daviplata     > 0 %}<span class="badge" style="background:var(--azul-borde); color:var(--texto);"><i class="bi bi-phone"></i> Daviplata</span>{% endif %}
-              </div>
-            </td>
-            <td>
-              {% if venta.descuento_porcentaje > 0 %}
-              <span class="fw-bold small" style="color:var(--rojo);">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>
-              {% else %}
-              <span style="color:var(--texto-muted);">—</span>
-              {% endif %}
-            </td>
-            <td class="fw-bold" style="color:var(--azul-claro);">${{ venta.total_venta|pesos }}</td>
-          </tr>
+            {% for det in venta.detalles.all %}
+            <tr>
+              <td style="text-align: center; color: var(--cys-texto-muted);">{{ forloop.parentloop.counter }}</td>
+              <td style="font-weight: 600; color: #fff;">{{ venta.cliente.nombre }}</td>
+              <td style="color: #e2e8f0;">{{ det.presentacion.producto.nombre }}</td>
+              <td style="text-align: center; color: #e2e8f0;">{{ det.cantidad }}</td>
+              <td style="text-align: right; color: #e2e8f0;">${{ det.precio_unitario|floatformat:0 }}</td>
+              <td style="text-align: right; font-weight: 700; color: var(--cys-acento);">${{ det.subtotal|floatformat:0 }}</td>
+              <td style="text-align: center; color: var(--cys-texto-muted);">{{ venta.fecha|date:"d/m/Y" }}</td>
+            </tr>
+            {% endfor %}
           {% endfor %}
         </tbody>
       </table>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mt-3 pt-3" style="border-top:1px solid var(--azul-borde);">
-      <span class="fw-bold small" style="color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
-      <span class="fw-bold fs-4" style="color:var(--azul-claro);">${{ total_dia|pesos }}</span>
+    <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(77,168,218,0.02); border-top: 1px solid var(--cys-borde);">
+      <span style="font-size: .8rem; font-weight: 600; color: var(--cys-texto-muted); text-transform: uppercase;">
+        Total acumulado en rango
+      </span>
+      <span style="font-size: 1.4rem; font-weight: 700; color: var(--cys-acento);">
+        ${{ total_dia|floatformat:0 }}
+      </span>
     </div>
 
     {% else %}
-    <div class="text-center py-5" style="color:var(--texto-muted);">
-      <i class="bi bi-receipt d-block mb-2" style="font-size:2.5rem;"></i>
-      No hay ventas registradas hoy
+    <div style="padding: 5rem 2rem; text-align: center; color: var(--cys-texto-muted); background: var(--cys-bg-card);">
+      <i class="bi bi-bar-chart" style="font-size: 2.5rem; color: rgba(77, 168, 218, 0.15); display: block; margin-bottom: 1rem;"></i>
+      <span style="font-size: 0.95rem; font-weight: 500;">No hay ventas registradas aún.</span>
     </div>
     {% endif %}
-  </div>
+
+  </section>
 
 </div>
 {% endblock %}

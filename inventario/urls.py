@@ -4,14 +4,15 @@ from . import views
 
 urlpatterns = [
     path('',                                        views.inventario_home,            name='inventario_home'),
-     path('gestion-inventario/',                     views.gestion_inventario,         name='gestion_inventario'), 
+    path('gestion-inventario/',                    views.gestion_inventario,          name='gestion_inventario'), 
     path('agenda/<int:pk>/estado/',                 views.agenda_estado,              name='agenda_estado'),
     path('conteo/',                                 views.conteo_inventario,          name='conteo_inventario'),
     path('conteo/guardar/',                         views.guardar_conteo,             name='guardar_conteo'),
-    path('ajustar/<int:pk>/',                       views.ajustar_stock,              name='ajustar_stock'),
+    path('ajustar/<int:pk>/',                       views.ajustar_stock_presentacion, name='ajustar_stock_presentacion'),
     path('codigos/<int:pk>/guardar/',               views.guardar_codigo,             name='guardar_codigo'),
     path('movimiento/<int:pk>/editar/',             views.editar_movimiento,          name='editar_movimiento'),
-   
+    path('inventario/stock/',                       views.gestion_stock,              name='gestion_stock'),
+    path('stock/status/',                            views.stock_status,              name='stock_status'),
     # ── Rutas de la rama antigua ──
     path('gestion/salida/',                         views.gestion_salida,             name='gestion_salida'),
     path('gestion/producto/eliminar/<int:pk>/',     views.gestion_producto_eliminar,  name='gestion_producto_eliminar'),
@@ -20,4 +21,5 @@ urlpatterns = [
     path('gestion/categoria/eliminar/<int:pk>/',    views.gestion_categoria_eliminar, name='gestion_categoria_eliminar'),
     path('gestion/categoria/editar/<int:pk>/',      views.gestion_categoria_editar,   name='gestion_categoria_editar'),
     path('lote/registrar/',                         views.registrar_lote,             name='registrar_lote'),
+    path('lote/<int:pk>/editar-stock/',             views.editar_lote_stock,          name='editar_lote_stock'),
 ]
