@@ -179,6 +179,7 @@ def producto_editar(request, pk):
                             if np_ != float(pres.precio):
                                 cambios.append(f'💲 Precio "{pres.nombre}": ${pres.precio} → ${np_}')
                                 pres.precio = np_
+                                pres.lotes.all().update(costo_unitario=np_)
                         except (ValueError, TypeError):
                             pass
 
@@ -207,12 +208,15 @@ def producto_editar(request, pk):
             except (ValueError, TypeError):
                 precio_pres = 0.0
 
-            PresentacionProducto.objects.create(
+            nueva_pres = PresentacionProducto.objects.create(
                 producto=producto,
                 nombre=nombre_pres,
                 unidades=unidades_pres,
                 precio=precio_pres,
             )
+            if precio_pres > 0:
+                nueva_pres.lotes.all().update(costo_unitario=precio_pres)
+
             cambios.append(f'➕ Nueva presentación: "{nombre_pres}" · {unidades_pres} uds')
 
         if cambios:
