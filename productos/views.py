@@ -150,7 +150,7 @@ def producto_editar(request, pk):
 
         producto.save()
 
-        # Presentaciones existentes
+        # ── Presentaciones existentes ──────────────────────────────────
         for key, valor in request.POST.items():
             if key.startswith('pres_nombre_'):
                 pres_id = key.replace('pres_nombre_', '')
@@ -158,6 +158,7 @@ def producto_editar(request, pk):
                     pres            = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
                     nuevo_nombre    = valor.strip()
                     nuevas_unidades = request.POST.get(f'pres_unidades_{pres_id}', '').strip()
+                    nuevo_precio    = request.POST.get(f'pres_precio_{pres_id}', '').strip()
 
                     if nuevo_nombre and nuevo_nombre != pres.nombre:
                         cambios.append(f'📦 Presentación: "{pres.nombre}" → "{nuevo_nombre}"')
@@ -172,28 +173,45 @@ def producto_editar(request, pk):
                         except (ValueError, TypeError):
                             pass
 
+                    if nuevo_precio:
+                        try:
+                            np_ = float(nuevo_precio)
+                            if np_ != float(pres.precio):
+                                cambios.append(f'💲 Precio "{pres.nombre}": ${pres.precio} → ${np_}')
+                                pres.precio = np_
+                        except (ValueError, TypeError):
+                            pass
+
                     pres.save()
+
                 except PresentacionProducto.DoesNotExist:
                     pass
 
-        # Nuevas presentaciones
+        # ── Nuevas presentaciones ──────────────────────────────────────
         nuevos_nombres  = request.POST.getlist('nueva_pres_nombre[]')
         nuevas_unidades = request.POST.getlist('nueva_pres_unidades[]')
+        nuevos_precios  = request.POST.getlist('nueva_pres_precio[]')
 
         for i, nombre_pres in enumerate(nuevos_nombres):
             nombre_pres = nombre_pres.strip()
             if not nombre_pres:
                 continue
+
             try:
                 unidades_pres = max(1, int(nuevas_unidades[i])) if i < len(nuevas_unidades) else 1
             except (ValueError, TypeError, IndexError):
                 unidades_pres = 1
 
+            try:
+                precio_pres = float(nuevos_precios[i]) if i < len(nuevos_precios) and nuevos_precios[i].strip() else 0.0
+            except (ValueError, TypeError):
+                precio_pres = 0.0
+
             PresentacionProducto.objects.create(
                 producto=producto,
                 nombre=nombre_pres,
                 unidades=unidades_pres,
-                precio=0.0,
+                precio=precio_pres,
             )
             cambios.append(f'➕ Nueva presentación: "{nombre_pres}" · {unidades_pres} uds')
 
