@@ -215,6 +215,7 @@ def ajustar_stock_presentacion(request, pk):
             tipo='ajuste',
             cantidad=diff,
             motivo=motivo,
+            stock_resultante=lote.stock_actual,
         )
         messages.success(request, f'✅ Ajuste: +{diff} uds a "{presentacion.nombre}" (lote {numero_lote}).')
 
@@ -244,8 +245,9 @@ def ajustar_stock_presentacion(request, pk):
                 lote=lote_principal,
                 registrado_por=request.user,
                 tipo='ajuste',
-                cantidad=diff,
+                cantidad=abs(diff),
                 motivo=motivo,
+                stock_resultante=lote_principal.stock_actual,
             )
         messages.success(request, f'✅ Ajuste: {diff} uds de "{presentacion.nombre}".')
 
@@ -261,18 +263,43 @@ def guardar_codigo(request, pk):
         messages.success(request, f'Código guardado para {producto.nombre}.')
     return redirect('inventario_home')
 
-
 @login_required
 def editar_movimiento(request, pk):
     if request.method == 'POST':
         mov = get_object_or_404(Inventario, pk=pk)
         try:
-            mov.tipo     = request.POST.get('tipo', mov.tipo)
-            mov.cantidad = int(request.POST.get('cantidad', mov.cantidad))
-            mov.motivo   = request.POST.get('motivo', mov.motivo)
-            mov.ubicacion = request.POST.get('ubicacion', getattr(mov, 'ubicacion', ''))
+            tipo_nuevo     = request.POST.get('tipo', mov.tipo)
+            cantidad_nueva = abs(int(request.POST.get('cantidad', mov.cantidad)))  # siempre positivo
+            motivo_nuevo   = request.POST.get('motivo', mov.motivo)
+
+            # ── Revertir el efecto del movimiento anterior en el lote ──
+            lote = mov.lote
+            cantidad_anterior = abs(mov.cantidad)
+
+            if mov.tipo == 'entrada' or mov.tipo == 'ajuste':
+                lote.stock_actual -= cantidad_anterior   # deshace la entrada
+            else:  # salida
+                lote.stock_actual += cantidad_anterior   # deshace la salida
+
+            # ── Aplicar el nuevo movimiento ──
+            if tipo_nuevo == 'entrada' or tipo_nuevo == 'ajuste':
+                lote.stock_actual += cantidad_nueva
+            else:  # salida
+                if lote.stock_actual < cantidad_nueva:
+                    messages.error(request, f'⚠️ Stock insuficiente para aplicar la salida ({lote.stock_actual} uds disponibles).')
+                    return redirect('inventario_home')
+                lote.stock_actual -= cantidad_nueva
+
+            lote.save()
+
+            # ── Actualizar el movimiento ──
+            mov.tipo             = tipo_nuevo
+            mov.cantidad         = cantidad_nueva   # siempre positivo en BD
+            mov.motivo           = motivo_nuevo
+            mov.stock_resultante = lote.stock_actual
             mov.save()
-            messages.success(request, f'✅ Movimiento de "{mov.presentacion.producto.nombre}" actualizado.')
+
+            messages.success(request, f'✅ Movimiento actualizado y stock corregido.')
         except (ValueError, TypeError):
             messages.error(request, '❌ Cantidad inválida.')
     return redirect('inventario_home')
@@ -354,13 +381,15 @@ def gestion_salida(request):
                 lote.stock_actual = 0
                 lote.save()
 
+        lote_referencia = presentacion.lotes.order_by('fecha_vencimiento').first()
         Inventario.objects.create(
             presentacion=presentacion,
-            lote=presentacion.lotes.order_by('fecha_vencimiento').first(),
+            lote=lote_referencia,
             registrado_por=request.user,
             tipo='salida',
             cantidad=cantidad,
             motivo=motivo,
+            stock_resultante=lote_referencia.stock_actual if lote_referencia else None,
         )
         messages.success(request, f'✅ Salida de {cantidad} unidades de "{presentacion.nombre}" registrada.')
 
@@ -724,8 +753,9 @@ def editar_lote_stock(request, pk):
         lote=lote,
         registrado_por=request.user,
         tipo='ajuste',
-        cantidad=diff,
+        cantidad=abs(diff),
         motivo=motivo,
+        stock_resultante=lote.stock_actual,
     )
 
     signo = f'+{diff}' if diff > 0 else str(diff)

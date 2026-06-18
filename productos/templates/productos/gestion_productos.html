@@ -7,7 +7,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
-
 {% endblock %}
 
 {% block content %}
@@ -22,60 +21,70 @@
     </div>
     {% endfor %}
   </div>
-
   {% endif %}
-  {% include 'inventario/stock_widget.html' %}
-  <div class="d-flex gap-3 align-items-start">
+
+ <div class="d-flex align-items-center gap-3 mb-3">
+  <div style="flex:1; min-width:0;">
+    {% include 'inventario/stock_widget.html' %}
+  </div>
+  <a href="{% url 'lista_productos' %}" class="btn rounded-pill fw-bold px-4 flex-shrink-0 align-self-center"
+     style="background: var(--azul-claro); color: var(--fondo); border: none;">
+    <i class="bi bi-arrow-left me-2"></i> Productos
+  </a>
+</div>
+
+  <div class="d-flex gap-3 align-items-start" style="margin-top:20px; flex-wrap:wrap;">
 
     <!-- ══════════ COLUMNA IZQUIERDA: ESTADÍSTICAS ══════════ -->
     <div style="width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
-<!-- Categorías -->
-<div class="stat-box">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
-    <span class="tag-info fs-6 px-3 py-1">{{ categorias|length }}</span>
-  </div>
-  <div id="grafico-categorias" style="display:flex; flex-direction:column; gap:8px; max-height:100px; overflow-y:auto;"></div>
-</div>
 
-<!-- Salud Stock -->
-<div class="stat-box">
-  <div class="d-flex justify-content-between align-items-center mb-1">
-    <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
-    <span id="txt-pct-salud" class="fw-bold" style="color:#27ae60; font-size:18px;">0%</span>
-  </div>
-  <div class="bar-track my-2">
-    <div id="bar-ok" class="bar-fill" style="background:#27ae60; width:0%;"></div>
-  </div>
-  <div class="d-flex justify-content-between stat-sub mt-1">
-    <span>OK: <strong id="stat-ok" style="color:#27ae60;">0</strong></span>
-    <span>Crítico: <strong style="color:#dc3545;">{{ total_criticos|default:0 }}</strong></span>
-  </div>
-</div>
+      <!-- Categorías -->
+      <div class="stat-box">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
+          <span class="tag-info fs-6 px-3 py-1">{{ categorias|length }}</span>
+        </div>
+        <div id="grafico-categorias" style="display:flex; flex-direction:column; gap:8px; max-height:100px; overflow-y:auto;"></div>
+      </div>
 
-<!-- Alertas -->
-<div class="stat-box" style="border-color:rgba(255,193,7,0.25);">
-  <div class="d-flex justify-content-between align-items-center mb-1">
-    <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
-    <span class="stat-sub">Total: {{ productos|length }}</span>
-  </div>
-  <div class="d-flex justify-content-between align-items-center my-2">
-    <span class="stat-sub">Sin presentación</span>
-    <span style="color:#ffc107; font-weight:700; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
-  </div>
-  <div class="bar-track">
-    <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
-  </div>
-</div>
+      <!-- Salud Stock -->
+      <div class="stat-box">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
+          <span id="txt-pct-salud" class="fw-bold" style="color:#27ae60; font-size:18px;">0%</span>
+        </div>
+        <div class="bar-track my-2">
+          <div id="bar-ok" class="bar-fill" style="background:#27ae60; width:0%;"></div>
+        </div>
+        <div class="d-flex justify-content-between stat-sub mt-1">
+          <span>OK: <strong id="stat-ok" style="color:#27ae60;">0</strong></span>
+          <span>Crítico: <strong style="color:#dc3545;">{{ total_criticos|default:0 }}</strong></span>
+        </div>
+      </div>
 
-    <!-- Total productos -->
-    <div class="stat-box">
-      <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
-      <div class="stat-value">{{ productos|length }}</div>
-      <div class="stat-sub mt-1">En inventario</div>
-  </div>
+      <!-- Alertas -->
+      <div class="stat-box" style="border-color:rgba(255,193,7,0.25);">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
+          <span class="stat-sub">Total: {{ productos|length }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center my-2">
+          <span class="stat-sub">Sin presentación</span>
+          <span style="color:#ffc107; font-weight:700; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
+        </div>
+      </div>
 
-</div><!-- fin columna izquierda -->
+      <!-- Total productos -->
+      <div class="stat-box">
+        <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
+        <div class="stat-value">{{ productos|length }}</div>
+        <div class="stat-sub mt-1">En inventario</div>
+      </div>
+
+    </div><!-- fin columna izquierda -->
 
     <!-- ══════════ COLUMNA DERECHA: BUSCADOR + TABLA ══════════ -->
     <div style="flex:1; min-width:0;">
@@ -137,24 +146,18 @@
                         {% endfor %}
                       </div>
                     </td>
-                    <td style="text-align:right; padding-right:14px;">
-                      <div class="dd-wrap">
-                        <button class="dd-btn" onclick="toggleDD(event, this)" aria-label="Acciones para {{ p.nombre }}">•••</button>
-                        <div class="dd-menu">
-                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}">
-                            <i class="bi bi-eye"></i> Ver detalle
-                          </span>
-                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}">
-                            <i class="bi bi-pencil"></i> Editar
-                          </span>
-                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}">
-                            <i class="bi bi-layers"></i> Presentaciones
-                          </span>
-                          <div class="dd-sep"></div>
-                          <span class="dd-item danger" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')">
-                            <i class="bi bi-trash"></i> Eliminar
-                          </span>
-                        </div>
+                    <td class="text-end">
+                      <div class="dropdown">
+                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                        </ul>
                       </div>
                     </td>
                   </tr>
@@ -184,24 +187,18 @@
                         {% endfor %}
                       </div>
                     </td>
-                    <td style="text-align:right; padding-right:14px;">
-                      <div class="dd-wrap">
-                        <button class="dd-btn" onclick="toggleDD(event, this)" aria-label="Acciones para {{ p.nombre }}">•••</button>
-                        <div class="dd-menu">
-                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}">
-                            <i class="bi bi-eye"></i> Ver detalle
-                          </span>
-                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}">
-                            <i class="bi bi-pencil"></i> Editar
-                          </span>
-                          <span class="dd-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}">
-                            <i class="bi bi-layers"></i> Presentaciones
-                          </span>
-                          <div class="dd-sep"></div>
-                          <span class="dd-item danger" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')">
-                            <i class="bi bi-trash"></i> Eliminar
-                          </span>
-                        </div>
+                    <td class="text-end">
+                      <div class="dropdown">
+                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                        </ul>
                       </div>
                     </td>
                   </tr>
@@ -227,10 +224,9 @@
         No se encontraron productos.
       </div>
 
-    </div>
-    <!-- fin columna derecha -->
-  </div>
-</div>
+    </div><!-- fin columna derecha -->
+  </div><!-- fin d-flex -->
+</div><!-- fin container -->
 
 
 <!-- ══════════════════════════════════════
@@ -416,10 +412,6 @@
   {% csrf_token %}
 </form>
 
-
-<!-- ══════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════ -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const rows = document.querySelectorAll('.producto-row');
@@ -440,7 +432,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cant > 0) conteoCats[nombre] = cant;
   });
 
-  // Barras de categorías
   const catWrap = document.getElementById('grafico-categorias');
   Object.entries(conteoCats).forEach(([cat, n]) => {
     const pct = total > 0 ? Math.round((n / total) * 100) : 0;
@@ -456,7 +447,6 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>`;
   });
 
-  // Salud stock
   if (total > 0) {
     const pctOk = Math.round((ok / total) * 100);
     document.getElementById('txt-pct-salud').textContent = pctOk + '%';
@@ -464,14 +454,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   document.getElementById('stat-ok').textContent = ok;
 
-  // Alertas
   document.getElementById('stat-sin-pres').textContent = sinPres;
   if (total > 0) {
     document.getElementById('bar-sin-pres').style.width = Math.round((sinPres / total) * 100) + '%';
   }
 });
 
-/* ── Accordion ── */
 function toggleAcc(btn, bodyId) {
   const body = document.getElementById(bodyId);
   const isOpen = btn.getAttribute('aria-expanded') === 'true';
@@ -479,7 +467,6 @@ function toggleAcc(btn, bodyId) {
   body.style.display = isOpen ? 'none' : 'block';
 }
 
-/* ── Dropdown 3 puntos ── */
 function toggleDD(e, btn) {
   e.stopPropagation();
   const menu = btn.nextElementSibling;
@@ -498,7 +485,7 @@ function closeAllDD() {
 }
 
 document.addEventListener('click', closeAllDD);
-/* ── Filtrar ── */
+
 function filtrarProductos(q) {
   const term = q.toLowerCase().trim();
   let alguno = false;
@@ -524,7 +511,6 @@ function filtrarProductos(q) {
   document.getElementById('noResultados').classList.toggle('d-none', alguno || !term);
 }
 
-/* ── Eliminar (submit con form oculto) ── */
 function confirmarEliminar(url, nombre) {
   closeAllDD();
   if (confirm('¿Eliminar "' + nombre + '"?')) {
