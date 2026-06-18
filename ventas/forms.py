@@ -1,5 +1,5 @@
 from django import forms
-from .models import Venta, DetalleVenta
+from .models import Venta, DetalleVenta, Devolucion, DetalleDevolucion
 from productos.models import Producto
 
 
@@ -40,3 +40,56 @@ class DetalleVentaForm(forms.ModelForm):
     class Meta:
         model  = DetalleVenta
         fields = ['cantidad', 'precio_unitario']
+
+
+class DevolucionForm(forms.ModelForm):
+    """Formulario para registrar devoluciones"""
+
+    # Campos adicionales dinámicos
+    producto_cambio = forms.ModelChoiceField(
+        queryset=Producto.objects.all(),
+        required=False,
+        label="Producto de reemplazo",
+        widget=forms.Select(attrs={
+            'class': 'form-select dev-select-premium',
+        })
+    )
+    cantidad_cambio = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label="Cantidad",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': '1',
+        })
+    )
+    metodo_pago_devolucion = forms.ChoiceField(
+        required=False,
+        choices=[('', '-- Selecciona método --')] + list(Devolucion.REEMBOLSO_CHOICES),
+        label="Método de devolución",
+        widget=forms.Select(attrs={
+            'class': 'form-select dev-select-premium',
+        })
+    )
+
+    class Meta:
+        model = Devolucion
+        fields = ['motivo', 'tipo_reembolso', 'observaciones']
+        widgets = {
+            'motivo': forms.RadioSelect(attrs={
+                'class': 'd-none',
+            }),
+            'tipo_reembolso': forms.RadioSelect(attrs={
+                'class': 'd-none',
+            }),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe el problema con detalle...',
+            }),
+        }
+        labels = {
+            'motivo': 'Motivo de devolución',
+            'tipo_reembolso': 'Tipo de reembolso',
+            'observaciones': 'Observaciones adicionales',
+        }
