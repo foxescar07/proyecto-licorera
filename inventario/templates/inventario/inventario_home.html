@@ -25,21 +25,21 @@
 <div class="row g-3 mb-4">
 
   <div class="col-md-3">
-    <!-- Agendar — azul -->
+    <!-- Agendar — aguamarina -->
 <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button"
-     style="border-left: 3px solid #4DA8DA;">
+     style="border-left: 3px solid #2dd4bf;">
       <div class="d-flex justify-content-between align-items-start w-100 mb-2">
         <div class="rounded-3 p-2" style="background:rgba(77,168,218,.15);">
-          <i class="bi bi-calendar-plus fs-4" style="color:#4DA8DA;"></i>
+          <i class="bi bi-calendar-plus fs-4" style="color:#2dd4bf;"></i>
         </div>
-        <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#4DA8DA;font-size:.65rem;">ACCIÓN</span>
+        <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#2dd4bf;font-size:.65rem;">ACCIÓN</span>
       </div>
-      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#4DA8DA;line-height:1;">{{ agendas|length|default:"0" }}</div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#2dd4bf;line-height:1;">{{ agendas|length|default:"0" }}</div>
       <div class="fw-semibold mt-1" style="font-size:.88rem;">Agendar Inventario</div>
       <div class="text-muted small mt-1" style="font-size:.72rem;">Programar fecha y hora del conteo</div>
       <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
-        <span style="font-size:.7rem;color:#4DA8DA;">Abrir módulo</span>
-        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#4DA8DA;"></i>
+        <span style="font-size:.7rem;color:#2dd4bf;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#2dd4bf;"></i>
       </div>
     </div>
   </div>
@@ -65,41 +65,41 @@
   </div>
 
   <div class="col-md-3">
-    <!-- Códigos — amarillo -->
+    <!-- Códigos — morado -->
 <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
-     style="border-left: 3px solid #f39c12;">
+     style="border-left: 3px solid #9b5de5;">
       <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-        <div class="rounded-3 p-2" style="background:rgba(243,156,18,.15);">
-          <i class="bi bi-upc-scan fs-4" style="color:#f39c12;"></i>
+        <div class="rounded-3 p-2"style="background:rgba(155,93,229,.15);">
+          <i class="bi bi-upc-scan fs-4" style="color:#9b5de5;"></i>
         </div>
-        <span class="badge rounded-pill" style="background:rgba(243,156,18,.15);color:#f39c12;font-size:.65rem;">CÓDIGOS</span>
+        <span class="badge rounded-pill" style="background:rgba(155,93,229,.15);color:#9b5de5;font-size:.65rem;">CÓDIGOS</span>
       </div>
-      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#f39c12;line-height:1;">{{ sin_codigo|default:"0" }}</div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#9b5de5;line-height:1;">{{ sin_codigo|default:"0" }}</div>
       <div class="fw-semibold mt-1" style="font-size:.88rem;">Registrar Códigos</div>
       <div class="text-muted small mt-1" style="font-size:.72rem;">Asignar códigos de barras</div>
-      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(243,156,18,.15);">
-        <span style="font-size:.7rem;color:#f39c12;">Sin código: {{ sin_codigo|default:"0" }}</span>
-        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#f39c12;"></i>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(155,93,229,.15);">
+        <span style="font-size:.7rem;color:#9b5de5;">Sin código: {{ sin_codigo|default:"0" }}</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#9b5de5;"></i>
       </div>
     </div>
   </div>
 
   <div class="col-md-3">
-   <!-- Comparar — rojo -->
+   <!-- Comparar — azul-->
 <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button"
-     style="border-left: 3px solid #e74c3c;">
+    style="border-left: 3px solid #4DA8DA;">
       <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-        <div class="rounded-3 p-2" style="background:rgba(231,76,60,.15);">
-          <i class="bi bi-arrow-left-right fs-4" style="color:#e74c3c;"></i>
+        <div class="rounded-3 p-2"  style="background:rgba(77,168,218,.15);">
+          <i class="bi bi-arrow-left-right fs-4" style="color:#4DA8DA;"></i>
         </div>
-        <span class="badge rounded-pill" style="background:rgba(231,76,60,.15);color:#e74c3c;font-size:.65rem;">COMPARAR</span>
+        <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#4DA8DA;font-size:.65rem;">COMPARAR</span>
       </div>
-      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#e74c3c;line-height:1;">{{ discrepancias|length|default:"0" }}</div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#4DA8DA;line-height:1;">{{ discrepancias|length|default:"0" }}</div>
       <div class="fw-semibold mt-1" style="font-size:.88rem;">Comparar Inventario</div>
       <div class="text-muted small mt-1" style="font-size:.72rem;">Ver discrepancias físico vs sistema</div>
-      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(231,76,60,.15);">
-        <span style="font-size:.7rem;color:#e74c3c;">Abrir módulo</span>
-        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#e74c3c;"></i>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
+        <span style="font-size:.7rem;color:#4DA8DA;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#4DA8DA;"></i>
       </div>
     </div>
   </div>
@@ -280,11 +280,13 @@
                 <div class="text-info" style="font-size:.7rem; font-family:monospace;">{{ mov.lote.presentacion.producto.codigo|default:"Sin código" }}</div>
               </td>
               <td class="text-muted small">{{ mov.lote.presentacion.producto.categoria.nombre }}</td>
+              {% with stock_mostrado=mov.stock_resultante|default_if_none:mov.lote.stock_actual %}
               <td class="text-center">
-                <span class="badge {% if mov.lote.stock_actual <= 5 %}bg-danger{% else %}inv-badge-stock{% endif %}">
-                  {{ mov.lote.stock_actual }}
-                </span>
-              </td>
+            <span class="badge {% if stock_mostrado <= 5 %}bg-danger{% else %}inv-badge-stock{% endif %}">
+              {{ stock_mostrado }}
+            </span>
+         </td>
+         {% endwith %}
               <td class="text-center">
                 {% if mov.tipo == 'entrada' %}
                   <span class="badge inv-badge-entrada"><i class="bi bi-arrow-up-short"></i> Entrada</span>
@@ -293,7 +295,13 @@
                 {% endif %}
               </td>
               <td class="text-center fw-bold {% if mov.tipo == 'entrada' %}text-success{% else %}text-danger{% endif %}">
-                {% if mov.tipo == 'entrada' %}+{% else %}−{% endif %}{{ mov.cantidad }}
+                {% if mov.tipo == 'entrada' %}
+              +{{ mov.cantidad }}
+              {% elif mov.tipo == 'salida' %}
+              −{{ mov.cantidad }}
+              {% else %}
+              {{ mov.cantidad }}
+              {% endif %}
               </td>
               <td class="text-muted small">{{ mov.motivo|default:"—" }}</td>
               <td class="text-center">
@@ -707,10 +715,10 @@
         </div>
         <div class="modal-footer inv-modal-footer">
           <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn inv-btn-warning"
-                  onclick="document.getElementById('form-editar-movimiento').submit()">
-            <i class="bi bi-save me-1"></i>Guardar cambios
-          </button>
+          <button type="button" class="btn inv-btn-primary"
+        onclick="document.getElementById('form-editar-movimiento').submit()">
+        <i class="bi bi-save me-1"></i>Guardar cambios
+      </button>
         </div>
       </div>
     </div>

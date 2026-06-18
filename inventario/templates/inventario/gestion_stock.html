@@ -27,8 +27,9 @@
     <i class="bi bi-layers fs-4" style="color:#4DA8DA"></i>
     <h2 class="fw-bold m-0" style="color:#e2e8f0;">Stock &amp; Productos</h2>
   </div>
-  <a href="{% url 'inventario_home' %}" class="btn-accion-ghost">
-    <i class="bi bi-arrow-left"></i>Inventario
+  <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
+     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
+    <i class="bi bi-arrow-left me-1"></i> Inventario
   </a>
 </div>
 {% include 'inventario/stock_widget.html' %}
