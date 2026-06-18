@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path # type: ignore
 from . import views
 
 app_name = 'ventas'
@@ -10,6 +10,10 @@ urlpatterns = [
     path('eliminar/<int:pk>/',       views.eliminar_venta,          name='eliminar_venta'),
     path('dia/',                     views.ventas_dia,              name='ventas_dia'),
     path('producto/<int:pk>/stock/', views.producto_stock_json,     name='producto_stock_json'),
+
+    # Caja
+    path('caja/conteo/',             views.registrar_conteo,        name='registrar_conteo'),
+    path('caja/cierre/',             views.cierre_caja,             name='cierre_caja'),
 
     # Devoluciones
     path('devoluciones/',                                    views.lista_devoluciones,              name='lista_devoluciones'),
