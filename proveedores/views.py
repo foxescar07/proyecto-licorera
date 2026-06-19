@@ -16,35 +16,42 @@ from django.db.models.functions import TruncMonth
 @login_required
 def lista_proveedores(request):
     proveedores = Proveedor.objects.all()
-    
+
     # Filtros
     q = request.GET.get('q', '')
     estado = request.GET.get('estado', '')
     tipo = request.GET.get('tipo', '')
-    
+
     if q:
         proveedores = proveedores.filter(nombre_empresa__icontains=q) | proveedores.filter(email__icontains=q)
+
     if estado:
         proveedores = proveedores.filter(estado=estado)
+
     if tipo:
         proveedores = proveedores.filter(tipo_proveedor=tipo)
-    
+
     # Estadísticas
     total_proveedores = Proveedor.objects.count()
     proveedores_activos = Proveedor.objects.filter(estado='activo').count()
     proveedores_inactivos = Proveedor.objects.filter(estado='inactivo').count()
     proveedores_sancionados = Proveedor.objects.filter(estado='sancionado').count()
-    
-    porcentaje_activos = int((proveedores_activos / total_proveedores * 100)) if total_proveedores > 0 else 0
-    
-    return render(request, 'proveedores/proveedores.html', {
+
+    porcentaje_activos = (
+        int((proveedores_activos / total_proveedores) * 100)
+        if total_proveedores > 0 else 0
+    )
+
+    context = {
         'proveedores': proveedores,
         'total_proveedores': total_proveedores,
         'proveedores_activos': proveedores_activos,
         'proveedores_inactivos': proveedores_inactivos,
         'proveedores_sancionados': proveedores_sancionados,
         'porcentaje_activos': porcentaje_activos,
-    })
+    }
+
+    return render(request, 'proveedores/proveedores.html', context)
 
 @login_required
 def crear_proveedor(request):
@@ -80,7 +87,12 @@ def editar_proveedor(request, id):
     else:
         form = ProveedorForm(instance=proveedor)
 
-    return render(request, 'proveedores/editar_proveedor.html', {'form': form, 'proveedor': proveedor})
+    context = {
+        'form': form,
+        'proveedor': proveedor,
+    }
+
+    return render(request, 'proveedores/editar_proveedor.html', context)
 
 @login_required
 def eliminar_proveedor(request, id):
@@ -90,7 +102,6 @@ def eliminar_proveedor(request, id):
         nombre = proveedor.nombre_empresa
         proveedor.delete()
         messages.success(request, f'Proveedor {nombre} eliminado exitosamente.')
-
     return redirect('lista_proveedores')
 
 @login_required
@@ -325,26 +336,35 @@ def registrar_compra(request):
     productos = Producto.objects.all()
     lotes = Lote.objects.select_related('presentacion').all()
 
+    # ====== CONTEXTO PARA EL TEMPLATE ======
     context = {
+        # --- INFORMACIÓN GENERAL ---
         'proveedor': proveedor,
         'todos_proveedores': todos_proveedores,
+        'form': form,
+
+        # --- PRODUCTOS Y LOTES ---
         'productos': productos,
+        'lotes': lotes,
+
+        # --- COMPRAS Y HISTORIAL ---
         'compras': compras,
         'subtotal_compras': subtotal,
-        'total_gastado': total_gastado,
-        'count_mes': count_mes,
-        'total_mes': total_mes,
-        'producto_top': producto_top,
-        'lotes': lotes,
-        'form': form,
-        # Datos para gráficos
-        'meses_labels_json': json.dumps(meses_labels),
-        'meses_data_json': json.dumps(meses_data),
-        'productos_labels_json': json.dumps(productos_labels),
-        'productos_data_json': json.dumps(productos_data),
-        'gastos_labels_json': json.dumps(gastos_labels),
-        'gastos_data_json': json.dumps(gastos_data),
-        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
+
+        # --- ESTADÍSTICAS KPI ---
+        'total_gastado': total_gastado,              # Total gasto histórico
+        'count_mes': count_mes,                      # Cantidad de compras este mes
+        'total_mes': total_mes,                      # Total gasto este mes
+        'producto_top': producto_top,                # Producto más comprado
+
+        # --- DATOS PARA GRÁFICOS (JSON) ---
+        'meses_labels_json': json.dumps(meses_labels),          # Meses (últimos 12)
+        'meses_data_json': json.dumps(meses_data),              # Cantidad de compras por mes
+        'productos_labels_json': json.dumps(productos_labels),  # Top 5 productos
+        'productos_data_json': json.dumps(productos_data),      # Cantidad comprada por producto
+        'gastos_labels_json': json.dumps(gastos_labels),        # Top 5 proveedores
+        'gastos_data_json': json.dumps(gastos_data),            # Monto gasto por proveedor
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),  # Porcentaje de gasto
     }
 
     return render(request, 'proveedores/compras.html', context)
