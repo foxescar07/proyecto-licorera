@@ -11,7 +11,7 @@
 {% block content %}
 <div class="container-fluid p-4" style="background-color: #040a0f; min-height: 100vh; font-family: sans-serif;">
 
-  <!-- ── BARRA ESTADO DE CAJA (ESTILO TARJETA KPI PREMIUM) ── -->
+  <!-- ── BARRA ESTADO DE CAJA ── -->
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"
        style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; padding: 1.25rem;">
     
@@ -54,7 +54,6 @@
       </div>
     </div>
 
-    <!-- Acciones de Caja superiores alineadas a la derecha -->
     <div class="d-flex gap-2 flex-wrap">
       {% if not caja_abierta and not ultimo_cierre %}
         <button class="cys-btn-action-cian" data-bs-toggle="modal" data-bs-target="#modalConteo">
@@ -80,7 +79,7 @@
     {% endfor %}
   {% endif %}
 
-  <!-- ── REJILLA PRINCIPAL DE VENTA EN PARALELO ── -->
+  <!-- ── REJILLA PRINCIPAL ── -->
   <div class="row g-4">
 
     <!-- COLUMNA IZQUIERDA: SELECCIÓN DE PRODUCTOS -->
@@ -94,34 +93,16 @@
         </div>
 
         <div class="p-4 flex-grow-1">
-          <!-- Buscador elegante -->
           <div class="mb-4 position-relative">
             <input type="text" id="buscadorProducto" class="form-control cys-input-dark" placeholder="Buscar producto por nombre...">
           </div>
 
           <!-- Vista de Categorías -->
           <div id="vistaCategorias">
-            <div class="row g-3">
-              {% for cat in categorias %}
-              <div class="col-6 col-md-4">
-                <div class="cys-cat-card-premium" data-cat-id="{{ cat.id }}" data-cat-nombre="{{ cat.nombre }}">
-                  <i class="bi bi-tag-fill d-block mb-2" style="font-size: 1.4rem; color: var(--cys-acento);"></i>
-                  <div style="font-weight: 700; font-size: .85rem; color: #fff;">{{ cat.nombre }}</div>
-                  <div style="font-size: .72rem; color: var(--cys-texto-muted); margin-top: 4px;">{{ cat.productos.count }} productos</div>
-                </div>
-              </div>
-              {% empty %}
-              <div class="col-12 text-center py-5">
-                <div style="border: 1px dashed var(--cys-borde); border-radius: 8px; padding: 3rem 1rem; color: var(--cys-texto-muted);">
-                  <i class="bi bi-tag d-block fs-2 mb-2" style="color: rgba(77,168,218,0.2);"></i>
-                  No hay categorías registradas.
-                </div>
-              </div>
-              {% endfor %}
-            </div>
+            <div class="row g-3" id="listaCategorias"></div>
           </div>
 
-          <!-- Vista de Productos (Se llena vía JS) -->
+          <!-- Vista de Productos -->
           <div id="vistaProductos" style="display:none;">
             <div class="d-flex align-items-center gap-2 mb-3">
               <button class="btn btn-sm cys-btn-action-dark" id="btnVolverCats" style="border-radius: 8px !important;">
@@ -132,7 +113,7 @@
             <div class="row g-3" id="productoLista"></div>
           </div>
 
-          <!-- Vista de Presentaciones (Se llena vía JS) -->
+          <!-- Vista de Presentaciones -->
           <div id="vistaPresentaciones" style="display:none;">
             <div class="d-flex align-items-center gap-2 mb-3">
               <button class="btn btn-sm cys-btn-action-dark" id="btnVolverProds" style="border-radius: 8px !important;">
@@ -143,11 +124,10 @@
             <div class="d-flex flex-column gap-2" id="presentacionLista"></div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- COLUMNA DERECHA: CARRITO DE VENTAS -->
+    <!-- COLUMNA DERECHA: CARRITO -->
     <div class="col-12 col-lg-5">
       <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; overflow: hidden;">
         
@@ -161,7 +141,6 @@
           <form method="POST" action="{% url 'nueva_venta' %}" id="formVenta">
             {% csrf_token %}
 
-            <!-- Input del Cliente -->
             <div class="mb-3 position-relative">
               <label style="color: var(--cys-texto-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; display: block; letter-spacing: 0.5px;">Cliente</label>
               <input type="text" name="cliente_nombre" id="inputClienteNombre" class="form-control cys-input-dark" placeholder="Nombre del cliente (opcional)">
@@ -178,21 +157,18 @@
               </div>
             </div>
 
-            <!-- Estado Vacío del Carrito -->
             <div id="carritoVacio" class="text-center py-5 mb-3 rounded-3" style="border: 1px dashed var(--cys-borde); background: rgba(77,168,218,0.01);">
               <i class="bi bi-cart3" style="font-size: 2.2rem; color: rgba(77, 168, 218, 0.15); display: block; margin-bottom: 0.5rem;"></i>
               <div style="font-size: .85rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Carrito vacío</div>
               <div style="font-size: .75rem; color: var(--cys-texto-muted);">Selecciona productos para comenzar</div>
             </div>
 
-            <!-- Items del Carrito dinámicos -->
             <div id="carritoItems" style="display:none;" class="mb-3">
               <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
             </div>
 
             <div id="camposOcultos"></div>
 
-            <!-- Porcentaje Descuento -->
             <div id="seccionDescuento" style="display:none;" class="mb-3">
               <div class="d-flex justify-content-between align-items-center rounded-3 p-2 px-3"
                    style="background: var(--cys-surface); border: 1px solid var(--cys-borde);">
@@ -202,7 +178,6 @@
               </div>
             </div>
 
-            <!-- Total de la Venta -->
             <div id="totalGeneral" style="display:none;" class="mb-3 rounded-3 p-3"
                  style="background: rgba(77,168,218,.06); border: 1px solid var(--cys-borde);">
               <div class="d-flex justify-content-between align-items-center">
@@ -211,7 +186,6 @@
               </div>
             </div>
 
-            <!-- Métodos de Pago Dinámicos -->
             <div id="seccionPagos" style="display:none;" class="mb-3 rounded-3 p-3"
                  style="background: var(--cys-surface); border: 1px solid var(--cys-borde);">
               <div style="color: var(--cys-texto-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Método de Pago</div>
@@ -243,7 +217,6 @@
               </div>
             </div>
 
-            <!-- Botonera de Enviar / Vaciar -->
             <div class="d-flex gap-2">
               <button type="submit" class="btn cys-btn-submit" id="btnRegistrar" disabled style="flex: 3 1 0%;">
                 <i class="bi bi-save me-1"></i> Registrar Venta
@@ -259,7 +232,7 @@
     </div>
   </div>
 
-  <!-- ── SECCIÓN HISTORIAL DE VENTAS ── -->
+  <!-- ── HISTORIAL DE VENTAS ── -->
   <section class="mt-4" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; overflow: hidden;">
     
     <div style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--cys-borde); background: rgba(77, 168, 218, 0.02);">
@@ -268,7 +241,6 @@
       </div>
     </div>
 
-    <!-- Filtros de fecha reestilizados -->
     <div class="px-4 py-3 d-flex flex-wrap align-items-center gap-3" style="border-bottom: 1px solid var(--cys-borde); background: rgba(7,18,26,0.2);">
       <span style="font-size: .72rem; font-weight: 700; color: var(--cys-texto-muted); text-transform: uppercase; letter-spacing: .06em;">Rango de fechas:</span>
       <input type="date" id="filtroDesde" class="form-control form-control-sm cys-input-dark" style="width:auto;">
@@ -279,7 +251,6 @@
       </button>
     </div>
 
-    <!-- Tabla Adaptada al estilo unificado -->
     <div class="table-responsive p-3">
       <table class="cys-inv-table w-100" id="tablaHistorial" style="color: #fff; font-size: 0.9rem;">
         <thead>
@@ -346,7 +317,7 @@
   </section>
 </div>
 
-<!-- ══ MODAL APERTURA DE CAJA (ADAPTADO) ══ -->
+<!-- ══ MODAL APERTURA DE CAJA ══ -->
 <div class="modal fade" id="modalConteo" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); color: #fff;">
@@ -393,7 +364,7 @@
   </div>
 </div>
 
-<!-- ══ MODAL CIERRE DE CAJA (ADAPTADO) ══ -->
+<!-- ══ MODAL CIERRE DE CAJA ══ -->
 <div class="modal fade" id="modalCierre" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); color: #fff;">
@@ -466,25 +437,16 @@
   </div>
 </div>
 
-<!-- Datos de categorías/productos (ocultos) -->
-{% for cat in categorias %}
-<div id="cat-data-{{ cat.id }}" style="display:none;" data-nombre="{{ cat.nombre }}">
-  {% for prod in cat.productos.all %}
-  <div class="prod-item"
-       data-id="{{ prod.id }}"
-       data-nombre="{{ prod.nombre }}"
-       data-stock="{{ prod.stock_total }}"
-       data-presentaciones='[{% for pr in prod.presentaciones.all %}{"id":{{ pr.pk }},"nombre":"{{ pr.nombre|escapejs }}","unidades":{{ pr.unidades }},"precio":{{ pr.precio }},"stock":{{ pr.stock_real }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
-  </div>
-  {% endfor %}
-</div>
-{% endfor %}
-
 {% endblock %}
 
 {% block extra_js %}
+<!-- Catálogo serializado de forma segura desde el servidor -->
 <script>
-// ══ NAVEGACIÓN Y LÓGICA DEL TPV ══
+const CATALOGO = {{ catalogo_json|safe }};
+</script>
+
+<script>
+// ══ NAVEGACIÓN TPV ══
 const vistaCats  = document.getElementById('vistaCategorias');
 const vistaProds = document.getElementById('vistaProductos');
 const vistaPresS = document.getElementById('vistaPresentaciones');
@@ -496,81 +458,88 @@ function mostrar(vista) {
   vista.style.display = 'block';
 }
 
-// ── Clic en categoría ──
-document.querySelectorAll('[data-cat-id]').forEach(card => {
-  card.addEventListener('click', function() {
-    const id     = this.dataset.catId;
-    const nombre = this.dataset.catNombre;
-    document.getElementById('catTitulo').textContent = nombre;
+// ── Renderizar categorías desde CATALOGO ──
+function renderCategorias() {
+  const lista = document.getElementById('listaCategorias');
+  lista.innerHTML = '';
 
-    const lista    = document.getElementById('productoLista');
-    const catData  = document.getElementById('cat-data-' + id);
-    const productos = catData ? catData.querySelectorAll('.prod-item') : [];
+  if (CATALOGO.length === 0) {
+    lista.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <div style="border:1px dashed var(--cys-borde); border-radius:8px; padding:3rem 1rem; color:var(--cys-texto-muted);">
+          <i class="bi bi-tag d-block fs-2 mb-2" style="color:rgba(77,168,218,0.2);"></i>
+          No hay categorías registradas.
+        </div>
+      </div>`;
+    return;
+  }
 
-    lista.innerHTML = '';
-
-    if (productos.length === 0) {
-      lista.innerHTML = `
-        <div class="col-12 text-center py-5">
-          <div style="border:1px dashed var(--cys-borde); border-radius:8px; padding:3rem 1rem; color:var(--cys-texto-muted);">
-            <i class="bi bi-box d-block fs-2 mb-2" style="color:rgba(77,168,218,0.2);"></i>
-            No hay productos en esta categoría.
-          </div>
-        </div>`;
-      mostrar(vistaProds);
-      return;
-    }
-
-    productos.forEach(p => {
-      let pres = [];
-      try { pres = JSON.parse(p.dataset.presentaciones || '[]'); } catch(e) {}
-      const minPrecio = pres.length ? Math.min(...pres.map(x => x.precio)) : 0;
-
-      const div = document.createElement('div');
-      div.className = 'col-6 col-md-4';
-      div.innerHTML = `
-        <div class="cys-cat-card-premium prod-card"
-             style="cursor:pointer;"
-             data-prod-id="${p.dataset.id}"
-             data-prod-nombre="${p.dataset.nombre}"
-             data-prod-stock="${p.dataset.stock}"
-             data-prod-presentaciones='${p.dataset.presentaciones}'>
-          <div style="font-weight:700; font-size:.85rem; color:#fff;">${p.dataset.nombre}</div>
-          <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
-            desde $${minPrecio.toLocaleString('es-CO')}
-          </div>
-          <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
-            Stock: ${p.dataset.stock} uds
-          </div>
-        </div>`;
-      lista.appendChild(div);
-    });
-
-    // Clic en producto → ver presentaciones
-    lista.querySelectorAll('.prod-card').forEach(card => {
-      card.addEventListener('click', function() {
-        abrirPresentaciones(
-          this.dataset.prodId,
-          this.dataset.prodNombre,
-          this.dataset.prodPresentaciones
-        );
-      });
-    });
-
-    mostrar(vistaProds);
+  CATALOGO.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'col-6 col-md-4';
+    div.innerHTML = `
+      <div class="cys-cat-card-premium" style="cursor:pointer;"
+           data-cat-id="${cat.id}">
+        <i class="bi bi-tag-fill d-block mb-2" style="font-size: 1.4rem; color: var(--cys-acento);"></i>
+        <div style="font-weight:700; font-size:.85rem; color:#fff;">${cat.nombre}</div>
+        <div style="font-size:.72rem; color:var(--cys-texto-muted); margin-top:4px;">${cat.productos.length} productos</div>
+      </div>`;
+    div.querySelector('[data-cat-id]').addEventListener('click', () => abrirCategoria(cat));
+    lista.appendChild(div);
   });
-});
+}
+
+// ── Abrir categoría ──
+function abrirCategoria(cat) {
+  document.getElementById('catTitulo').textContent = cat.nombre;
+  const lista = document.getElementById('productoLista');
+  lista.innerHTML = '';
+
+  if (cat.productos.length === 0) {
+    lista.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <div style="border:1px dashed var(--cys-borde); border-radius:8px; padding:3rem 1rem; color:var(--cys-texto-muted);">
+          <i class="bi bi-box d-block fs-2 mb-2" style="color:rgba(77,168,218,0.2);"></i>
+          No hay productos en esta categoría.
+        </div>
+      </div>`;
+    mostrar(vistaProds);
+    return;
+  }
+
+  cat.productos.forEach(prod => {
+    const minPrecio = prod.presentaciones.length
+      ? Math.min(...prod.presentaciones.map(p => p.precio))
+      : 0;
+
+    const div = document.createElement('div');
+    div.className = 'col-6 col-md-4';
+    div.innerHTML = `
+      <div class="cys-cat-card-premium" style="cursor:pointer;">
+        <div style="font-weight:700; font-size:.85rem; color:#fff;">${prod.nombre}</div>
+        <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
+          desde $${minPrecio.toLocaleString('es-CO')}
+        </div>
+        <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
+          Stock: ${prod.stock} uds
+        </div>
+      </div>`;
+    div.querySelector('.cys-cat-card-premium').addEventListener('click', () =>
+      abrirPresentaciones(prod)
+    );
+    lista.appendChild(div);
+  });
+
+  mostrar(vistaProds);
+}
 
 // ── Abrir presentaciones ──
-function abrirPresentaciones(prodId, prodNombre, presJson) {
-  document.getElementById('presTitulo').textContent = prodNombre;
+function abrirPresentaciones(prod) {
+  document.getElementById('presTitulo').textContent = prod.nombre;
   const lista = document.getElementById('presentacionLista');
   lista.innerHTML = '';
 
-  let pres = [];
-  try { pres = JSON.parse(presJson || '[]'); } catch(e) {}
-
-  if (pres.length === 0) {
+  if (!prod.presentaciones || prod.presentaciones.length === 0) {
     lista.innerHTML = `
       <div class="text-center py-4" style="border:1px dashed var(--cys-borde); border-radius:8px; color:var(--cys-texto-muted);">
         <i class="bi bi-exclamation-circle d-block fs-3 mb-2" style="color:rgba(255,193,7,0.4);"></i>
@@ -580,13 +549,14 @@ function abrirPresentaciones(prodId, prodNombre, presJson) {
     return;
   }
 
-  pres.forEach(pr => {
+  prod.presentaciones.forEach(pr => {
     const sinStock = pr.stock <= 0;
     const div = document.createElement('div');
     div.innerHTML = `
       <div class="d-flex justify-content-between align-items-center rounded-3 p-3"
-           style="background:rgba(77,168,218,0.05); border:1px solid var(--cys-borde); cursor:${sinStock ? 'not-allowed' : 'pointer'}; opacity:${sinStock ? '0.5' : '1'};"
-           ${sinStock ? '' : `onclick="agregarAlCarrito(${prodId}, '${prodNombre.replace(/'/g,"\\'")}', ${pr.id}, '${pr.nombre.replace(/'/g,"\\'")}', ${pr.precio}, ${pr.unidades})"`}>
+           style="background:rgba(77,168,218,0.05); border:1px solid var(--cys-borde);
+                  cursor:${sinStock ? 'not-allowed' : 'pointer'};
+                  opacity:${sinStock ? '0.5' : '1'};">
         <div>
           <div style="font-weight:700; color:#fff; font-size:.9rem;">${pr.nombre}</div>
           <div style="font-size:.72rem; color:var(--cys-texto-muted);">x${pr.unidades} unidades · Stock: ${pr.stock}</div>
@@ -595,6 +565,11 @@ function abrirPresentaciones(prodId, prodNombre, presJson) {
           ${sinStock ? 'Sin stock' : '$' + pr.precio.toLocaleString('es-CO')}
         </div>
       </div>`;
+    if (!sinStock) {
+      div.querySelector('div').addEventListener('click', () =>
+        agregarAlCarrito(prod.id, prod.nombre, pr.id, pr.nombre, pr.precio, pr.unidades)
+      );
+    }
     lista.appendChild(div);
   });
 
@@ -621,14 +596,14 @@ function agregarAlCarrito(prodId, prodNombre, presId, presNombre, precio, unidad
 }
 
 function renderCarrito() {
-  const listaEl    = document.getElementById('listaCarrito');
-  const camposEl   = document.getElementById('camposOcultos');
-  const vacioEl    = document.getElementById('carritoVacio');
-  const itemsEl    = document.getElementById('carritoItems');
-  const totalEl    = document.getElementById('totalGeneral');
-  const descEl     = document.getElementById('seccionDescuento');
-  const pagosEl    = document.getElementById('seccionPagos');
-  const btnReg     = document.getElementById('btnRegistrar');
+  const listaEl  = document.getElementById('listaCarrito');
+  const camposEl = document.getElementById('camposOcultos');
+  const vacioEl  = document.getElementById('carritoVacio');
+  const itemsEl  = document.getElementById('carritoItems');
+  const totalEl  = document.getElementById('totalGeneral');
+  const descEl   = document.getElementById('seccionDescuento');
+  const pagosEl  = document.getElementById('seccionPagos');
+  const btnReg   = document.getElementById('btnRegistrar');
 
   listaEl.innerHTML  = '';
   camposEl.innerHTML = '';
@@ -715,9 +690,7 @@ function calcularPagado() {
   });
   document.getElementById('totalPagado').textContent = '$' + Math.round(pagado).toLocaleString('es-CO');
 }
-document.querySelectorAll('.pago-input').forEach(inp => {
-  inp.addEventListener('input', calcularPagado);
-});
+document.querySelectorAll('.pago-input').forEach(inp => inp.addEventListener('input', calcularPagado));
 
 document.getElementById('btnCancelarVenta').addEventListener('click', function() {
   if (carrito.length === 0 || confirm('¿Vaciar el carrito?')) {
@@ -726,40 +699,38 @@ document.getElementById('btnCancelarVenta').addEventListener('click', function()
   }
 });
 
-// ── Buscador de productos ──
+// ── Buscador ──
 document.getElementById('buscadorProducto').addEventListener('input', function() {
   const term = this.value.toLowerCase().trim();
-  if (!term) return;
+  if (!term) { mostrar(vistaCats); return; }
 
   const lista = document.getElementById('productoLista');
   lista.innerHTML = '';
   let encontrados = 0;
 
-  document.querySelectorAll('[id^="cat-data-"] .prod-item').forEach(p => {
-    if (p.dataset.nombre.toLowerCase().includes(term)) {
-      encontrados++;
-      let pres = [];
-      try { pres = JSON.parse(p.dataset.presentaciones || '[]'); } catch(e) {}
-      const minPrecio = pres.length ? Math.min(...pres.map(x => x.precio)) : 0;
-
-      const div = document.createElement('div');
-      div.className = 'col-6 col-md-4';
-      div.innerHTML = `
-        <div class="cys-cat-card-premium prod-card" style="cursor:pointer;"
-             data-prod-id="${p.dataset.id}"
-             data-prod-nombre="${p.dataset.nombre}"
-             data-prod-stock="${p.dataset.stock}"
-             data-prod-presentaciones='${p.dataset.presentaciones}'>
-          <div style="font-weight:700; font-size:.85rem; color:#fff;">${p.dataset.nombre}</div>
-          <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
-            desde $${minPrecio.toLocaleString('es-CO')}
-          </div>
-          <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
-            Stock: ${p.dataset.stock} uds
-          </div>
-        </div>`;
-      lista.appendChild(div);
-    }
+  CATALOGO.forEach(cat => {
+    cat.productos.forEach(prod => {
+      if (prod.nombre.toLowerCase().includes(term)) {
+        encontrados++;
+        const minPrecio = prod.presentaciones.length
+          ? Math.min(...prod.presentaciones.map(p => p.precio))
+          : 0;
+        const div = document.createElement('div');
+        div.className = 'col-6 col-md-4';
+        div.innerHTML = `
+          <div class="cys-cat-card-premium" style="cursor:pointer;">
+            <div style="font-weight:700; font-size:.85rem; color:#fff;">${prod.nombre}</div>
+            <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
+              desde $${minPrecio.toLocaleString('es-CO')}
+            </div>
+            <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
+              Stock: ${prod.stock} uds
+            </div>
+          </div>`;
+        div.querySelector('.cys-cat-card-premium').addEventListener('click', () => abrirPresentaciones(prod));
+        lista.appendChild(div);
+      }
+    });
   });
 
   if (encontrados === 0) {
@@ -768,16 +739,6 @@ document.getElementById('buscadorProducto').addEventListener('input', function()
         <i class="bi bi-search d-block fs-2 mb-2"></i>No se encontraron productos.
       </div>`;
   }
-
-  lista.querySelectorAll('.prod-card').forEach(card => {
-    card.addEventListener('click', function() {
-      abrirPresentaciones(
-        this.dataset.prodId,
-        this.dataset.prodNombre,
-        this.dataset.prodPresentaciones
-      );
-    });
-  });
 
   document.getElementById('catTitulo').textContent = `Resultados: "${this.value}"`;
   mostrar(vistaProds);
@@ -807,18 +768,12 @@ document.getElementById('btnConfirmarConteo').addEventListener('click', function
 
   fetch("{% url 'ventas:registrar_conteo' %}", {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-    },
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
     body: JSON.stringify({ monto_contado: total, observacion: obs, denominaciones })
   })
   .then(r => r.json())
-  .then(data => {
-    if (data.ok) location.reload();
-    else alert('Error al abrir la caja: ' + (data.error || ''));
-  })
-  .catch(() => alert('Error de conexión al abrir la caja.'));
+  .then(data => { if (data.ok) location.reload(); else alert('Error: ' + (data.error || '')); })
+  .catch(() => alert('Error de conexión.'));
 });
 
 // ══ CIERRE DE CAJA ══
@@ -828,7 +783,7 @@ document.querySelectorAll('.denom-ci').forEach(inp => {
     document.querySelectorAll('.denom-ci').forEach(i => {
       total += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
     });
-    document.getElementById('totalCierre').textContent        = '$' + Math.round(total).toLocaleString('es-CO');
+    document.getElementById('totalCierre').textContent         = '$' + Math.round(total).toLocaleString('es-CO');
     document.getElementById('resumenTotalContado').textContent = '$' + Math.round(total).toLocaleString('es-CO');
     recalcCierre();
   });
@@ -860,18 +815,12 @@ document.getElementById('btnConfirmarCierre').addEventListener('click', function
 
   fetch("{% url 'ventas:cierre_caja' %}", {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-    },
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
     body: JSON.stringify({ total_contado: totalContado, monto_base_siguiente: base, denominaciones })
   })
   .then(r => r.json())
-  .then(data => {
-    if (data.ok) location.reload();
-    else alert('Error al cerrar la caja: ' + (data.error || ''));
-  })
-  .catch(() => alert('Error de conexión al cerrar la caja.'));
+  .then(data => { if (data.ok) location.reload(); else alert('Error: ' + (data.error || '')); })
+  .catch(() => alert('Error de conexión.'));
 });
 
 // ══ AUTOCOMPLETAR CLIENTE ══
@@ -901,7 +850,7 @@ document.addEventListener('click', e => {
   if (!inputCliente.contains(e.target)) sugerencias.style.display = 'none';
 });
 
-// ══ FILTRO HISTORIAL POR FECHA ══
+// ══ FILTRO HISTORIAL ══
 document.getElementById('filtroDesde').addEventListener('change', filtrarHistorial);
 document.getElementById('filtroHasta').addEventListener('change', filtrarHistorial);
 document.getElementById('btnLimpiarFiltro').addEventListener('click', () => {
@@ -923,9 +872,11 @@ function filtrarHistorial() {
     if (cumple) alguna = true;
   });
 
-  document.getElementById('sinResultadosFiltro').style.display = (alguna || (!desde && !hasta)) ? 'none' : 'block';
+  document.getElementById('sinResultadosFiltro').style.display =
+    (alguna || (!desde && !hasta)) ? 'none' : 'block';
 }
+
+// ── Inicializar categorías al cargar ──
+renderCategorias();
 </script>
 {% endblock %}
-ENDOFFILE
-echo "ok"
