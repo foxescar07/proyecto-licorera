@@ -752,7 +752,10 @@ def reporte_movimientos(request):
     paginator = Paginator(movimientos, 20)
     page_obj  = paginator.get_page(request.GET.get('page'))
 
-    return render(request, 'reportes/movimientos.html', {
+    context = {
         'form':        form,
         'movimientos': page_obj,
-    })
+    }
+    return render(request, 'reportes/reporte_movimientos.html', context)
+    
+    
