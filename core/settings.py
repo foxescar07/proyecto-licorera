@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +26,10 @@ INSTALLED_APPS = [
     'productos',
     'reportes',
 ]
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -88,3 +91,13 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 LOGIN_URL = '/usuarios/login/'
 LOGIN_REDIRECT_URL = '/'
+
+# ── EMAIL ─────────────────────────────────────────────────────────────────────
+EMAIL_BACKEND       = 'usuarios.email_backend.CertifiEmailBackend'
+EMAIL_HOST          = 'smtp.gmail.com'
+EMAIL_PORT          = 587
+EMAIL_USE_TLS       = True
+EMAIL_USE_SSL       = False
+EMAIL_HOST_USER     = 'licoreracys@gmail.com'
+EMAIL_HOST_PASSWORD = 'yjhwcdkgpqcdnebp'
+DEFAULT_FROM_EMAIL  = 'CYS Ltda <licoreracys@gmail.com>'
