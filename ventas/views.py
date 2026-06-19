@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404 # type: ignore
 from django.contrib import messages # type: ignore
 from django.http import JsonResponse # type: ignore
-from django.db import transaction # type: ignore
+from django.db import transaction 
+from django.db.models import Sum  # type: ignore
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from decimal import Decimal, InvalidOperation
@@ -360,19 +361,18 @@ def detalle_venta_devolucion(request, venta_id):
 
 @session_required
 def comprobante_devolucion(request, pk):
- Ventas
-    devolucion = get_object_or_404(Devolucion, pk=pk)
-    return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})
-
     devolucion = get_object_or_404(
         Devolucion.objects.select_related('venta').prefetch_related(
-            'detalles__producto', 'detalles__presentacion'
+            'detalles__producto',
+            'detalles__presentacion'
         ),
         pk=pk,
     )
+
     context = {
         'devolucion': devolucion,
     }
+
     return render(request, 'ventas/comprobante_devolucion.html', context)
 
 
@@ -711,4 +711,3 @@ def devoluciones_flujo(request):
         'metodo_pago_original':        request.session.get('dev_metodo_original', ''),
     }
     return render(request, 'ventas/devoluciones.html', context)
-     main
