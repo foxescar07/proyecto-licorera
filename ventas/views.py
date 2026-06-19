@@ -323,7 +323,7 @@ def cierre_caja(request):
 @session_required
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.prefetch_related('detalles__producto').order_by('-fecha')
-    return render(request, 'ventas/lista_devoluciones.html', {'devoluciones': devoluciones})
+    return render(request, 'ventas/devoluciones.html', {'devoluciones': devoluciones})
 
 
 @session_required
