@@ -1,42 +1,36 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash, get_user_model
+from django.contrib.auth import (
+    authenticate, login, logout,
+    update_session_auth_hash, get_user_model,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.utils import timezone
+from django.conf import settings
+from django.core.mail import send_mail
 from datetime import timedelta
 from django.http import JsonResponse
 from .forms import UsuarioForm
 import random
 import logging
-import ssl
-import smtplib
 import re
-
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 logger = logging.getLogger(__name__)
 
 Usuario = get_user_model()
 
-EMAIL_USER = 'ccanariasogamoso@gmail.com'
-EMAIL_PASS = 'jmcikwsvajdmbzab'
 
+# ── HELPERS PRIVADOS ───────────────────────────────────────────────────────────
 
 def _enviar_correo(destinatario, asunto, cuerpo):
-    mensaje = MIMEMultipart()
-    mensaje['Subject'] = asunto
-    mensaje['From'] = f'CYS Ltda <{EMAIL_USER}>'
-    mensaje['To'] = destinatario
-    mensaje.attach(MIMEText(cuerpo, 'plain'))
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    with smtplib.SMTP('smtp.gmail.com', 587) as s:
-        s.ehlo(); s.starttls(context=ctx); s.ehlo()
-        s.login(EMAIL_USER, EMAIL_PASS)
-        s.sendmail(EMAIL_USER, destinatario, mensaje.as_string())
+    send_mail(
+        subject=asunto,
+        message=cuerpo,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[destinatario],
+        fail_silently=False,
+    )
 
 
 def _validar_clave_segura(clave):
@@ -60,7 +54,20 @@ def _set_session(request, usuario):
     request.session['usuario_user']   = usuario.usuario
 
 
-# ── LOGIN ─────────────────────────────────────────────────────────────────────
+def _ctx_base(request):
+    """Contexto mínimo compartido: datos del usuario en sesión."""
+    u = request.user
+    if not u.is_authenticated:
+        return {}
+    return {
+        'session_nombre': u.nombre_completo,
+        'session_rol':    u.rol,
+        'session_usuario': u.usuario,
+    }
+
+
+# ── LOGIN ──────────────────────────────────────────────────────────────────────
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('principal')
@@ -81,17 +88,21 @@ def login_view(request):
                 return redirect('principal')
             else:
                 err = 'Número de identificación o contraseña incorrectos.'
-                if es_ajax: return JsonResponse({'ok': False, 'error': err})
+                if es_ajax:
+                    return JsonResponse({'ok': False, 'error': err})
                 messages.error(request, err)
         except Usuario.DoesNotExist:
             err = 'Número de identificación o contraseña incorrectos.'
-            if es_ajax: return JsonResponse({'ok': False, 'error': err})
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': err})
             messages.error(request, err)
 
-    return render(request, 'usuario.html')
+    ctx = {}
+    return render(request, 'usuario.html', ctx)
 
 
-# ── LOGOUT ────────────────────────────────────────────────────────────────────
+# ── LOGOUT ─────────────────────────────────────────────────────────────────────
+
 def logout_view(request):
     logout(request)
     request.session.flush()
@@ -102,35 +113,53 @@ def logout_view(request):
     return response
 
 
-# ── LISTA USUARIOS ────────────────────────────────────────────────────────────
+# ── LISTA USUARIOS ─────────────────────────────────────────────────────────────
+
 def lista_usuarios(request):
     if not request.user.is_authenticated:
         return redirect('login')
+
     list(messages.get_messages(request))
     usuarios = Usuario.objects.all().order_by('-date_joined')
-    return render(request, 'usuarios_lista.html', {'usuarios': usuarios})
+
+    ctx = {
+        **_ctx_base(request),
+        'usuarios': usuarios,
+        'total_usuarios': usuarios.count(),
+    }
+    return render(request, 'usuarios_lista.html', ctx)
 
 
-# ── CREAR USUARIO ─────────────────────────────────────────────────────────────
+# ── CREAR USUARIO ──────────────────────────────────────────────────────────────
+
 def crear_usuario(request):
     form = UsuarioForm()
+
     if request.method == 'POST':
         form = UsuarioForm(request.POST)
         if form.is_valid():
             usuario = form.save()
-            return render(request, 'crear_usuario.html', {
-                'form': form,
+            ctx = {
+                **_ctx_base(request),
+                'form':           form,
                 'usuario_creado': True,
-                'nuevo_usuario': usuario.usuario,
-            })
+                'nuevo_usuario':  usuario.usuario,
+            }
+            return render(request, 'crear_usuario.html', ctx)
         else:
             for campo, errores in form.errors.items():
                 for error in errores:
                     messages.error(request, error)
-    return render(request, 'crear_usuario.html', {'form': form})
+
+    ctx = {
+        **_ctx_base(request),
+        'form': form,
+    }
+    return render(request, 'crear_usuario.html', ctx)
 
 
-# ── EDITAR USUARIO ────────────────────────────────────────────────────────────
+# ── EDITAR USUARIO ─────────────────────────────────────────────────────────────
+
 def editar_usuario(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -139,12 +168,17 @@ def editar_usuario(request, pk):
 
     usuario = get_object_or_404(Usuario, pk=pk)
 
+    # GET AJAX → devuelve JSON con datos del usuario
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
-            'ok': True, 'pk': usuario.pk,
-            'nombre': usuario.nombre, 'apellidos': usuario.apellidos,
-            'email': usuario.email or '', 'usuario': usuario.usuario,
-            'rol': usuario.rol, 'activo': usuario.activo,
+            'ok':             True,
+            'pk':             usuario.pk,
+            'nombre':         usuario.nombre,
+            'apellidos':      usuario.apellidos,
+            'email':          usuario.email or '',
+            'usuario':        usuario.usuario,
+            'rol':            usuario.rol,
+            'activo':         usuario.activo,
             'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y'),
         })
 
@@ -173,9 +207,14 @@ def editar_usuario(request, pk):
             error = _validar_clave_segura(clave_nueva)
 
         if error:
-            if es_ajax: return JsonResponse({'ok': False, 'error': error})
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': error})
             messages.error(request, error)
-            return render(request, 'editar_usuario.html', {'perfil': usuario})
+            ctx = {
+                **_ctx_base(request),
+                'perfil': usuario,
+            }
+            return render(request, 'editar_usuario.html', ctx)
 
         usuario.first_name = nombre
         usuario.last_name  = apellidos
@@ -189,35 +228,46 @@ def editar_usuario(request, pk):
 
         if es_ajax:
             return JsonResponse({
-                'ok': True,
-                'mensaje': f'Usuario {usuario.usuario} actualizado.',
+                'ok':            True,
+                'mensaje':       f'Usuario {usuario.usuario} actualizado.',
                 'nombre_completo': usuario.nombre_completo,
-                'rol_label': usuario.get_rol_display(),
+                'rol_label':     usuario.get_rol_display(),
             })
 
         messages.success(request, f'Usuario {usuario.usuario} actualizado correctamente.')
         return redirect('usuario')
 
-    return render(request, 'editar_usuario.html', {'perfil': usuario})
+    ctx = {
+        **_ctx_base(request),
+        'perfil': usuario,
+    }
+    return render(request, 'editar_usuario.html', ctx)
 
 
-# ── PERFIL DATOS (JSON) ───────────────────────────────────────────────────────
+# ── PERFIL DATOS (JSON) ────────────────────────────────────────────────────────
+
 def perfil_datos(request):
     if not request.user.is_authenticated:
         return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
+
     u = request.user
     return JsonResponse({
-        'ok': True,
-        'nombre': u.nombre, 'apellidos': u.apellidos,
-        'usuario': u.usuario, 'email': u.email or '',
-        'tipo_id': u.tipo_id, 'tipo_id_label': u.get_tipo_id_display(),
+        'ok':           True,
+        'nombre':       u.nombre,
+        'apellidos':    u.apellidos,
+        'usuario':      u.usuario,
+        'email':        u.email or '',
+        'tipo_id':      u.tipo_id,
+        'tipo_id_label': u.get_tipo_id_display(),
         'identificacion': u.identificacion,
-        'rol': u.rol, 'rol_label': u.get_rol_display(),
+        'rol':          u.rol,
+        'rol_label':    u.get_rol_display(),
         'fecha_registro': u.fecha_registro.strftime('%d/%m/%Y'),
     })
 
 
-# ── PERFIL EDITAR (JSON) ──────────────────────────────────────────────────────
+# ── PERFIL EDITAR (JSON) ───────────────────────────────────────────────────────
+
 def perfil_editar(request):
     if not request.user.is_authenticated:
         return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
@@ -287,7 +337,8 @@ def perfil_editar(request):
     return JsonResponse({'ok': False, 'error': 'Acción no reconocida.'})
 
 
-# ── RECUPERAR CLAVE (CORREO) ──────────────────────────────────────────────────
+# ── RECUPERAR CLAVE (CORREO) ───────────────────────────────────────────────────
+
 def solicitar_recuperacion(request):
     if request.method == 'POST':
         es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -310,27 +361,33 @@ def solicitar_recuperacion(request):
         link   = request.build_absolute_uri(f'/usuarios/restablecer/{token}/')
         cuerpo = (
             f'Hola {usuario.nombre},\n\n'
-            f'Haz clic en el siguiente enlace:\n\n{link}\n\n'
-            f'El enlace expirará en 15 minutos.\n\nCYS Ltda'
+            f'Recibimos una solicitud para restablecer la contraseña de tu cuenta en CYS Ltda.\n\n'
+            f'Haz clic en el siguiente enlace para crear una nueva contraseña:\n\n{link}\n\n'
+            f'Este enlace expirará en 15 minutos.\n\n'
+            f'Si no solicitaste este cambio, ignora este mensaje.\n\n'
+            f'CYS Ltda'
         )
 
         try:
-            _enviar_correo(usuario.email, 'Recuperación de contraseña - CYS Ltda', cuerpo)
-            if es_ajax: return JsonResponse({'ok': True, 'mensaje': f'Enlace enviado a {usuario.email}'})
+            _enviar_correo(usuario.email, 'Recuperación de contraseña — CYS Ltda', cuerpo)
+            if es_ajax:
+                return JsonResponse({'ok': True, 'mensaje': f'Enlace enviado a {usuario.email}'})
             messages.success(request, f'Enlace enviado a {usuario.email}')
         except Exception as e:
-            if es_ajax: return JsonResponse({'ok': False, 'error': str(e)})
-            messages.error(request, str(e))
+            logger.error(f'[CYS EMAIL] Error al enviar correo a {usuario.email}: {e}')
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': 'No se pudo enviar el correo. Intenta más tarde.'})
+            messages.error(request, 'No se pudo enviar el correo. Intenta más tarde.')
 
     return redirect('login')
 
 
-# ── RECUPERAR CLAVE (TELÉFONO) ────────────────────────────────────────────────
+# ── RECUPERAR CLAVE (TELÉFONO) ─────────────────────────────────────────────────
+
 def recuperar_por_telefono(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
 
-    es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     telefono       = request.POST.get('telefono', '').strip()
     identificacion = request.POST.get('identificacion', '').strip()
 
@@ -341,36 +398,33 @@ def recuperar_por_telefono(request):
         usuario = Usuario.objects.get(
             telefono=telefono,
             identificacion=identificacion,
-            activo=True
+            activo=True,
         )
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con esos datos.'})
 
-    # Generar código de 6 dígitos
     codigo = str(random.randint(100000, 999999))
     expira = timezone.now() + timedelta(minutes=15)
 
-    # Reutilizamos reset_token para guardar el código
     usuario.reset_token        = codigo
     usuario.reset_token_expira = expira
     usuario.save(update_fields=['reset_token', 'reset_token_expira'])
 
-    # Imprimir en logs para que el admin lo vea y se lo comunique al usuario
     logger.warning(
         f'[CYS RESET] Código para {usuario.nombre_completo} '
         f'(ID: {usuario.identificacion}, Tel: {usuario.telefono}): {codigo} '
         f'— expira en 15 min'
     )
-    # También print para desarrollo
     print(f'\n🔑 CÓDIGO DE RECUPERACIÓN para {usuario.nombre_completo}: {codigo}\n')
 
     return JsonResponse({
-        'ok': True,
-        'mensaje': f'Código generado. El administrador te lo comunicará en breve.'
+        'ok':     True,
+        'mensaje': 'Código generado. El administrador te lo comunicará en breve.',
     })
 
 
-# ── VERIFICAR CÓDIGO TELÉFONO ─────────────────────────────────────────────────
+# ── VERIFICAR CÓDIGO TELÉFONO ──────────────────────────────────────────────────
+
 def verificar_codigo_telefono(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
@@ -387,7 +441,7 @@ def verificar_codigo_telefono(request):
             telefono=telefono,
             identificacion=identificacion,
             reset_token=codigo,
-            activo=True
+            activo=True,
         )
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Código incorrecto.'})
@@ -396,7 +450,6 @@ def verificar_codigo_telefono(request):
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
         return JsonResponse({'ok': False, 'error': 'El código expiró. Solicita uno nuevo.'})
 
-    # Código válido — generar token de sesión para restablecer
     token  = get_random_string(32)
     expira = timezone.now() + timedelta(minutes=10)
     usuario.reset_token        = token
@@ -406,16 +459,19 @@ def verificar_codigo_telefono(request):
     return JsonResponse({'ok': True, 'redirect': f'/usuarios/restablecer/{token}/'})
 
 
-# ── RESTABLECER CLAVE ─────────────────────────────────────────────────────────
+# ── RESTABLECER CLAVE ──────────────────────────────────────────────────────────
+
 def restablecer_clave(request, token):
     try:
         usuario = Usuario.objects.get(reset_token=token, activo=True)
     except Usuario.DoesNotExist:
-        return render(request, 'restablecer_clave.html', {'error': 'El enlace no es válido o ya fue utilizado.'})
+        ctx = {'error': 'El enlace no es válido o ya fue utilizado.'}
+        return render(request, 'restablecer_clave.html', ctx)
 
     if timezone.now() > usuario.reset_token_expira:
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        return render(request, 'restablecer_clave.html', {'error': 'El enlace expiró. Solicita uno nuevo.'})
+        ctx = {'error': 'El enlace expiró. Solicita uno nuevo.'}
+        return render(request, 'restablecer_clave.html', ctx)
 
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
@@ -423,65 +479,80 @@ def restablecer_clave(request, token):
         error     = _validar_clave_segura(nueva)
 
         if error:
-            return render(request, 'restablecer_clave.html', {'token': token, 'error': error})
+            ctx = {'token': token, 'error': error}
+            return render(request, 'restablecer_clave.html', ctx)
         if nueva != confirmar:
-            return render(request, 'restablecer_clave.html', {'token': token, 'error': 'Las contraseñas no coinciden.'})
+            ctx = {'token': token, 'error': 'Las contraseñas no coinciden.'}
+            return render(request, 'restablecer_clave.html', ctx)
 
         usuario.set_password(nueva)
         usuario.save(update_fields=['password'])
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        return render(request, 'restablecer_clave.html', {'exito': True})
+        ctx = {'exito': True}
+        return render(request, 'restablecer_clave.html', ctx)
 
-    return render(request, 'restablecer_clave.html', {'token': token})
+    ctx = {'token': token}
+    return render(request, 'restablecer_clave.html', ctx)
 
 
-# ── TOGGLE ACTIVO ─────────────────────────────────────────────────────────────
+# ── TOGGLE ACTIVO ──────────────────────────────────────────────────────────────
+
 def toggle_activo(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
-    usuario = get_object_or_404(Usuario, pk=pk)
+
+    usuario           = get_object_or_404(Usuario, pk=pk)
     usuario.activo    = not usuario.activo
     usuario.is_active = usuario.activo
     usuario.save()
     return JsonResponse({'ok': True, 'activo': usuario.activo})
 
 
-# ── ELIMINAR USUARIO ──────────────────────────────────────────────────────────
+# ── ELIMINAR USUARIO ───────────────────────────────────────────────────────────
+
 def eliminar_usuario(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
     usuario = get_object_or_404(Usuario, pk=pk)
     if usuario.pk == request.session.get('usuario_id'):
         return JsonResponse({'ok': False, 'error': 'No puedes eliminar tu propia cuenta.'})
+
     usuario.delete()
     return JsonResponse({'ok': True, 'mensaje': 'Usuario eliminado correctamente.'})
 
 
-# ── PERFIL PÁGINA ─────────────────────────────────────────────────────────────
+# ── PERFIL PÁGINA ──────────────────────────────────────────────────────────────
+
 @login_required
 def perfil_pagina(request):
     u = request.user
     ctx = {
-        'nombre':         u.first_name,
-        'apellidos':      u.last_name,
-        'usuario':        u.username,
-        'email':          u.email,
-        'rol':            u.rol,
-        'rol_label':      u.get_rol_display(),
-        'tipo_id':        u.tipo_id,
-        'tipo_id_label':  u.get_tipo_id_display(),
-        'fecha_registro': u.date_joined.strftime('%d/%m/%Y'),
-        'identificacion': u.identificacion,
-        'telefono':       u.telefono or '—',
+        **_ctx_base(request),
+        'nombre':          u.first_name,
+        'apellidos':       u.last_name,
+        'usuario':         u.username,
+        'email':           u.email,
+        'rol':             u.rol,
+        'rol_label':       u.get_rol_display(),
+        'tipo_id':         u.tipo_id,
+        'tipo_id_label':   u.get_tipo_id_display(),
+        'fecha_registro':  u.date_joined.strftime('%d/%m/%Y'),
+        'identificacion':  u.identificacion,
+        'telefono':        u.telefono or '—',
+        'tiene_foto':      bool(u.foto),
+        'foto_url':        u.foto.url if u.foto else None,
+        'avatar_name':     u.avatar_name,
     }
     return render(request, 'perfil.html', ctx)
 
 
-# ── ACTUALIZAR FOTO ───────────────────────────────────────────────────────────
+# ── ACTUALIZAR FOTO ────────────────────────────────────────────────────────────
+
 @login_required
 def actualizar_foto(request):
     if request.method != 'POST':
@@ -501,6 +572,7 @@ def actualizar_foto(request):
         return JsonResponse({'ok': False, 'error': 'Formato no permitido. Usa JPG, PNG o WEBP.'})
     if foto.size > 5 * 1024 * 1024:
         return JsonResponse({'ok': False, 'error': 'La imagen no debe superar 5 MB.'})
+
     if request.user.foto:
         request.user.foto.delete(save=False)
     request.user.foto = foto
