@@ -36,27 +36,16 @@ def session_required(view_func):
 # ════════════════════════════════════════
 
 def _descontar_stock_fefo(presentacion, cantidad_a_descontar, vendedor):
-    """
-    Descuenta `cantidad_a_descontar` unidades de `presentacion` usando FEFO
-    (First Expired, First Out) sobre Lote.stock_actual.
-
-    Retorna lista de dicts con los lotes tocados:
-        [{'lote': <Lote>, 'cantidad': <int>}, ...]
-
-    Lanza ValueError si el stock real es insuficiente.
-    """
-    # ① Validar contra stock_real de la presentación (no presentacion.cantidad)
     if presentacion.stock_real < cantidad_a_descontar:
         raise ValueError(
             f"Stock insuficiente para '{presentacion.nombre}': "
             f"hay {presentacion.stock_real} unidad(es), se pidieron {cantidad_a_descontar}."
         )
 
-    # ② Lotes vigentes ordenados por fecha de vencimiento (FEFO)
     lotes = (
         Lote.objects
         .filter(presentacion=presentacion, stock_actual__gt=0)
-        .order_by('fecha_vencimiento')   # el que vence antes primero
+        .order_by('fecha_vencimiento')
     )
 
     pendiente = cantidad_a_descontar
@@ -72,17 +61,12 @@ def _descontar_stock_fefo(presentacion, cantidad_a_descontar, vendedor):
         pendiente -= tomar
 
     if pendiente > 0:
-        # No debería ocurrir si stock_real estaba bien, pero por seguridad:
         raise ValueError("No se pudo completar el descuento FEFO; revisa la consistencia de lotes.")
 
     return tocados
 
 
 def _restaurar_stock_fefo(presentacion, lotes_info, vendedor):
-    """
-    Devuelve stock a cada lote individualmente (inverso de _descontar_stock_fefo).
-    `lotes_info` es una lista de dicts {'lote_id': int, 'cantidad': int}.
-    """
     for info in lotes_info:
         lote = Lote.objects.get(pk=info['lote_id'])
         lote.stock_actual += info['cantidad']
@@ -102,8 +86,9 @@ def ventas_lista(request):
     hoy        = timezone.localdate()
     total_dia  = int(sum(v.total_venta for v in Venta.objects.filter(fecha__date=hoy)))
 
-    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
-    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
+    usuario_id    = request.session.get('usuario_id')
+    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
+    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
 
     return render(request, 'ventas/ventas.html', {
         'ventas':          ventas,
@@ -160,7 +145,6 @@ def nueva_venta(request):
     if vendedor_id:
         vendedor = Usuario.objects.filter(pk=vendedor_id).first()
 
-    # ── Fase 1: validación ───────────────────────────────────────────────────
     items_validados = []
     subtotal_venta  = Decimal('0')
 
@@ -190,19 +174,12 @@ def nueva_venta(request):
                 messages.error(request, f"Presentación inválida para {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
 
-            # ① Validar contra stock_real (suma de Lote.stock_actual), no presentacion.cantidad
             if cantidad > presentacion.stock_real:
-                messages.error(
-                    request,
-                    f"Stock insuficiente: solo hay {presentacion.stock_real} de '{presentacion.nombre}'."
-                )
+                messages.error(request, f"Stock insuficiente: solo hay {presentacion.stock_real} de '{presentacion.nombre}'.")
                 return redirect('ventas:ventas_lista')
         else:
             if cantidad > producto.stock_total:
-                messages.error(
-                    request,
-                    f"Stock insuficiente: solo hay {producto.stock_total} unidades de {producto.nombre}."
-                )
+                messages.error(request, f"Stock insuficiente: solo hay {producto.stock_total} unidades de {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
 
         items_validados.append({
@@ -218,23 +195,13 @@ def nueva_venta(request):
     total_pagado    = pago_efectivo + pago_tarjeta + pago_transferencia + pago_nequi + pago_daviplata
 
     if total_pagado < total_final:
-        messages.error(
-            request,
-            f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.')
-        )
+        messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.'))
         return redirect('ventas:ventas_lista')
 
-    # ── Fase 2: guardar venta ────────────────────────────────────────────────
     venta = Venta.objects.create(
-        cliente=cliente,
-        vendedor=vendedor,
-        descuento_porcentaje=descuento_pct,
-        total_con_descuento=total_final,
-        pago_efectivo=pago_efectivo,
-        pago_tarjeta=pago_tarjeta,
-        pago_transferencia=pago_transferencia,
-        pago_nequi=pago_nequi,
-        pago_daviplata=pago_daviplata,
+        cliente=cliente, vendedor=vendedor, descuento_porcentaje=descuento_pct,
+        total_con_descuento=total_final, pago_efectivo=pago_efectivo, pago_tarjeta=pago_tarjeta,
+        pago_transferencia=pago_transferencia, pago_nequi=pago_nequi, pago_daviplata=pago_daviplata,
     )
 
     for item in items_validados:
@@ -243,43 +210,29 @@ def nueva_venta(request):
         cantidad     = item['cantidad']
         precio       = item['precio']
 
-        detalle = DetalleVenta.objects.create(
-            venta=venta,
-            producto=producto,
-            presentacion=presentacion,
-            cantidad=cantidad,
-            precio_unitario=precio,
+        DetalleVenta.objects.create(
+            venta=venta, producto=producto, presentacion=presentacion,
+            cantidad=cantidad, precio_unitario=precio,
         )
 
         if presentacion:
-            # ② Descontar stock vía FEFO sobre Lote.stock_actual
             try:
                 lotes_tocados = _descontar_stock_fefo(presentacion, cantidad, vendedor)
             except ValueError as e:
                 messages.error(request, str(e))
-                raise  # el @transaction.atomic hace rollback automático
+                raise 
 
-            # ③ Un Inventario por cada lote tocado sin producto=, sin ubicación=
             for lt in lotes_tocados:
                 Inventario.objects.create(
-                    presentacion=presentacion,
-                    lote=lt['lote'],
-                    registrado_por=vendedor,
-                    vendedor=vendedor,
-                    tipo='salida',
-                    cantidad=lt['cantidad'],
-                    motivo='Venta registrada',
+                    presentacion=presentacion, lote=lt['lote'], registrado_por=vendedor,
+                    tipo='salida', cantidad=lt['cantidad'], motivo='Venta registrada',
                 )
         else:
-            # Producto sin presentación: comportamiento anterior intacto
             producto.cantidad_disponible -= cantidad
             producto.save()
             Inventario.objects.create(
-                producto=producto,
-                registrado_por=vendedor,
-                tipo='salida',
-                cantidad=cantidad,
-                motivo='Venta registrada',
+                producto=producto, registrado_por=vendedor,
+                tipo='salida', cantidad=cantidad, motivo='Venta registrada',
             )
 
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
@@ -295,13 +248,9 @@ def eliminar_venta(request, pk):
 
     for det in venta.detalles.select_related('producto', 'presentacion').all():
         if det.presentacion:
-            # ⑤ Restaurar stock a los lotes que generó esta venta (movimientos tipo 'salida')
             movimientos_salida = Inventario.objects.filter(
-                presentacion=det.presentacion,
-                tipo='salida',
-                motivo='Venta registrada',
-                lote__presentacion=det.presentacion,
-                fecha__date=venta.fecha.date(),
+                presentacion=det.presentacion, tipo='salida', motivo='Venta registrada',
+                lote__presentacion=det.presentacion, fecha__date=venta.fecha.date(),
             )
 
             lotes_a_restaurar = {}
@@ -315,22 +264,15 @@ def eliminar_venta(request, pk):
                 lote.stock_actual += info['cantidad']
                 lote.save()
 
-                # Movimiento de entrada granular por lote
                 Inventario.objects.create(
-                    presentacion=det.presentacion,
-                    lote=lote,
-                    tipo='entrada',
-                    cantidad=info['cantidad'],
-                    motivo='Anulación de venta',
+                    presentacion=det.presentacion, lote=lote, tipo='entrada',
+                    cantidad=info['cantidad'], motivo='Anulación de venta',
                 )
         else:
             det.producto.cantidad_disponible += det.cantidad
             det.producto.save()
             Inventario.objects.create(
-                producto=det.producto,
-                tipo='entrada',
-                cantidad=det.cantidad,
-                motivo='Anulación de venta',
+                producto=det.producto, tipo='entrada', cantidad=det.cantidad, motivo='Anulación de venta',
             )
 
     venta.delete()
@@ -338,32 +280,24 @@ def eliminar_venta(request, pk):
     return redirect('ventas:ventas_lista')
 
 
-# ④ producto_stock_json devuelve stock_total y stock_real
 def producto_stock_json(request, pk):
-    producto = get_object_or_404(
-        Producto.objects.prefetch_related('presentaciones'),
-        pk=pk,
-    )
+    producto = get_object_or_404(Producto.objects.prefetch_related('presentaciones'), pk=pk)
     return JsonResponse({
-        'stock':  producto.stock_total,   # propiedad/campo del modelo Producto
+        'stock':  producto.stock_total,
         'precio': float(producto.precio_unitario),
-        'unidad': producto.unidad,
+        'unid':   producto.unidad,
         'presentaciones': [
             {
                 'id':         p.id,
                 'nombre':     p.nombre,
                 'unidades':   p.unidades,
-                'cantidad':   p.stock_real,   # stock real desde lotes
+                'cantidad':   p.stock_real,
                 'precio':     float(p.precio),
             }
             for p in producto.presentaciones.all()
         ],
     })
 
-
-# ════════════════════════════════════════
-# VENTAS DEL DÍA
-# ════════════════════════════════════════
 
 @session_required
 def ventas_del_dia(request):
@@ -376,66 +310,40 @@ def ventas_del_dia(request):
         'hoy':       hoy,
         'total_dia': total_dia,
     })
-# ════════════════════════════════════════
-# CONTROL DE CAJA
-# ════════════════════════════════════════
 
-@session_required
-def registrar_conteo(request):
-    # TODO: Implementar la lógica para registrar el conteo de caja
-    return render(request, 'ventas/registrar_conteo.html')
-@session_required
-def cierre_caja(request):
-    # TODO: Implementar la lógica para el cierre de caja
-    return render(request, 'ventas/cierre_caja.html')
-# ════════════════════════════════════════
-# DEVOLUCIONES
-# ════════════════════════════════════════
 
+# Control de caja y devoluciones (Pendientes de implementar lógicas personalizadas de plantillas)
+@session_required
+def registrar_conteo(request): return render(request, 'ventas/registrar_conteo.html')
+@session_required
+def cierre_caja(request): return render(request, 'ventas/cierre_caja.html')
 @session_required
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.prefetch_related('detalles__producto').order_by('-fecha')
-    return render(request, 'ventas/lista_devoluciones.html', {
-        'devoluciones': devoluciones
-    })
-
+    return render(request, 'ventas/lista_devoluciones.html', {'devoluciones': devoluciones})
 @session_required
 @transaction.atomic
 def registrar_devolucion(request):
-    # Por si acaso tu urls.py también tiene una ruta para registrar la devolución
-    if request.method == 'POST':
-        # TODO: Implementar lógica de reingreso de stock por devolución
-        pass
+    if request.method == 'POST': pass
     return redirect('ventas:lista_devoluciones')
 @session_required
 def seleccionar_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
-    # TODO: Implementar la lógica/renderizado de selección de ítems a devolver
     return render(request, 'ventas/seleccionar_venta_devolucion.html', {'venta': venta})
-
 @session_required
 def detalle_devolucion(request, pk):
     devolucion = get_object_or_404(Devolucion, pk=pk)
     return render(request, 'ventas/detalle_devolucion.html', {'devolucion': devolucion})
 @session_required
 def buscar_venta_devolucion(request):
-    # Lógica para buscar facturas o ventas aptas para devolución
     query = request.GET.get('q', '')
-    if query:
-        ventas = Venta.objects.filter(id__icontains=query).order_by('-fecha')[:10]
-    else:
-        ventas = Venta.objects.none()
-    return render(request, 'ventas/buscar_venta_devolucion.html', {
-        'ventas': ventas,
-        'query': query
-    })
+    ventas = Venta.objects.filter(id__icontains=query).order_by('-fecha')[:10] if query else Venta.objects.none()
+    return render(request, 'ventas/buscar_venta_devolucion.html', {'ventas': ventas, 'query': query})
 @session_required
 def detalle_venta_devolucion(request, venta_id):
-    # Obtiene la venta para mostrar el desglose de lo que se devolvió o se puede devolver
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
     return render(request, 'ventas/detalle_venta_devolucion.html', {'venta': venta})
 @session_required
 def comprobante_devolucion(request, pk):
-    # Lógica temporal para mostrar o descargar el comprobante de devolución
     devolucion = get_object_or_404(Devolucion, pk=pk)
     return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})
