@@ -68,7 +68,6 @@ class DetalleVenta(models.Model):
     venta           = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_venta', null=True, blank=True)
-    # Se corrige para usar directamente la clase importada
     presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
                                         related_name='detalles_venta', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
@@ -90,7 +89,7 @@ class DetalleVenta(models.Model):
 
 
 class AperturaCaja(models.Model):
-    fecha          = models.DateField(unique=True)
+    fecha          = models.DateField()
     monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
                                        null=True, blank=True, related_name='aperturas_caja')
@@ -102,15 +101,17 @@ class AperturaCaja(models.Model):
         verbose_name        = 'Apertura de Caja'
         verbose_name_plural = 'Aperturas de Caja'
         ordering            = ['-fecha']
+        unique_together     = ['fecha', 'usuario']
 
     def __str__(self):
-        return f'Apertura {self.fecha} — ${self.monto_base:,.0f}'
+        return f'Apertura {self.fecha} ({self.usuario}) — ${self.monto_base:,.0f}'
 
 
 class CierreCaja(models.Model):
-    fecha                = models.DateField(unique=True)
-    apertura             = models.OneToOneField(AperturaCaja, on_delete=models.PROTECT,
-                                                related_name='cierre')
+    fecha                = models.DateField()
+    apertura             = models.OneToOneField(AperturaCaja, on_delete=models.PROTECT, related_name='cierre')
+    usuario              = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                             null=True, blank=True, related_name='cierres_caja')
     total_contado        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     monto_base_siguiente = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_retirado       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -160,6 +161,9 @@ class Devolucion(models.Model):
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
                                           related_name='devoluciones',
                                           verbose_name='Venta original')
+    registrado_por    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                          related_name='devoluciones_procesadas',
+                                          verbose_name='Registrado por', null=True, blank=True)
     fecha             = models.DateTimeField(auto_now_add=True)
     motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
     tipo_reembolso    = models.CharField(max_length=20, choices=REEMBOLSO_CHOICES, default='cambio')
@@ -168,22 +172,18 @@ class Devolucion(models.Model):
     tiene_comprobante = models.BooleanField(default=True)
     total_devuelto    = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
-    # Nuevos campos
-    estado            = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
-    estado_retorno    = models.CharField(max_length=20, choices=ESTADO_RETORNO_CHOICES, default='pendiente')
+    estado             = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    estado_retorno     = models.CharField(max_length=20, choices=ESTADO_RETORNO_CHOICES, default='pendiente')
     numero_seguimiento = models.CharField(max_length=50, blank=True, null=True, unique=True)
 
-    # Para cambio de producto
     producto_cambio   = models.ForeignKey(Producto, on_delete=models.SET_NULL,
                                           null=True, blank=True, related_name='cambios_recibidos')
     cantidad_cambio   = models.PositiveIntegerField(null=True, blank=True)
 
-    # Para nota de crédito
-    saldo_credito     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    credito_aplicado  = models.BooleanField(default=False)
+    saldo_credito            = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    credito_aplicado         = models.BooleanField(default=False)
     fecha_aplicacion_credito = models.DateTimeField(null=True, blank=True)
 
-    # Para reembolso
     metodo_pago_devolucion = models.CharField(max_length=50, blank=True,
                                               choices=[
                                                   ('efectivo', 'Efectivo'),
@@ -192,7 +192,7 @@ class Devolucion(models.Model):
                                                   ('nequi', 'Nequi'),
                                                   ('daviplata', 'DaviPlata'),
                                               ])
-    fecha_reembolso   = models.DateTimeField(null=True, blank=True)
+    fecha_reembolso      = models.DateTimeField(null=True, blank=True)
     referencia_reembolso = models.CharField(max_length=100, blank=True)
 
     class Meta:
@@ -208,12 +208,10 @@ class Devolucion(models.Model):
         return f'DEV-{self.pk:04d}'
 
     def aprobar(self):
-        """Aprueba la devolución"""
         self.estado = 'aprobada'
         self.save()
 
     def procesar(self):
-        """Procesa la devolución según su tipo"""
         if self.tipo_reembolso == 'nota_credito':
             self.saldo_credito = self.total_devuelto
         self.estado = 'procesada'
@@ -224,7 +222,6 @@ class DetalleDevolucion(models.Model):
     devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE, related_name='detalles')
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
-    # Se corrige para usar directamente la clase importada
     presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
