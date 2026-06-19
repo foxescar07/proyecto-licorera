@@ -582,7 +582,6 @@ def index_reportes(request):
                 total_ent_pdf     = sum(e.cantidad for e in entradas_hoy_pdf)
                 total_sal_pdf     = sum(s.cantidad for s in salidas_hoy_pdf)
 
-                # Top productos del día para PDF
                 det_hoy = DetalleVenta.objects.filter(venta__fecha__date=hoy_pdf).select_related('producto')
                 top_h   = {}
                 for det in det_hoy:
@@ -699,7 +698,7 @@ def index_reportes(request):
         .replace('<!--',      r'<\!--')
     )
 
-    return render(request, 'reportes.html', {
+    context = {
         'ventas':             ventas_todas,
         'page_obj':           page_obj,
         'paginator':          paginator,
@@ -726,7 +725,8 @@ def index_reportes(request):
         'total_salidas_hoy':  total_salidas_hoy,
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
-    })
+    }
+    return render(request, 'reportes/reportes.html', context)
 
 
 # ═══════════════════════════════════════════════════════

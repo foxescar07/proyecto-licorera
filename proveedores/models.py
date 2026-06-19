@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from decimal import Decimal
 
 class Proveedor(models.Model):
     ESTADO_CHOICES = [
@@ -15,16 +16,9 @@ class Proveedor(models.Model):
     ]
 
     nombre_empresa = models.CharField(max_length=200, unique=True)
-    nombre_contacto = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     telefono = models.CharField(max_length=20, blank=True)
     tipo_proveedor = models.CharField(max_length=20, choices=TIPO_CHOICES, default='distribuidor')
-    categorias_surtidas = models.ManyToManyField(
-        'productos.Categoria',
-        blank=True,
-        related_name='proveedores',
-        verbose_name='Categorías que surte'
-    )
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='activo')
     motivo_sancion = models.TextField(blank=True, null=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -52,19 +46,100 @@ class Proveedor(models.Model):
     def __str__(self):
         return self.nombre_empresa
 
-    def get_tipo_proveedor_display(self):
-        return dict(self.TIPO_CHOICES).get(self.tipo_proveedor, self.tipo_proveedor)
 
-    def get_estado_display(self):
-        return dict(self.ESTADO_CHOICES).get(self.estado, self.estado)
-
-
-class Compra(models.Model):
-    """Modelo para registrar compras a proveedores"""
+class ProveedorCategoria(models.Model):
     proveedor = models.ForeignKey(
         Proveedor,
         on_delete=models.CASCADE,
-        related_name='compras'
+        related_name='categorias'
+    )
+    categoria = models.ForeignKey(
+        'productos.Categoria',
+        on_delete=models.CASCADE,
+        related_name='proveedores'
+    )
+
+    class Meta:
+        unique_together = ('proveedor', 'categoria')
+        verbose_name = 'Proveedor Categoría'
+        verbose_name_plural = 'Proveedor Categorías'
+
+    def __str__(self):
+        return f"{self.proveedor.nombre_empresa} - {self.categoria.nombre}"
+
+
+class OrdenCompra(models.Model):
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('confirmada', 'Confirmada'),
+        ('recibida', 'Recibida'),
+        ('cancelada', 'Cancelada'),
+    ]
+
+    proveedor = models.ForeignKey(
+        Proveedor,
+        on_delete=models.CASCADE,
+        related_name='ordenes_compra'
+    )
+    registrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ordenes_compra_registradas'
+    )
+    fecha = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Orden de Compra'
+        verbose_name_plural = 'Órdenes de Compra'
+
+    def __str__(self):
+        return f"Orden #{self.id} - {self.proveedor.nombre_empresa}"
+
+    def calcular_total(self):
+        self.total = sum(
+            detalle.cantidad * detalle.precio_unitario
+            for detalle in self.detalles.all()
+        )
+        self.save()
+
+
+class DetalleCompra(models.Model):
+    orden_compra = models.ForeignKey(
+        OrdenCompra,
+        on_delete=models.CASCADE,
+        related_name='detalles'
+    )
+    presentacion = models.ForeignKey(
+        'productos.PresentacionProducto',
+        on_delete=models.CASCADE,
+        related_name='detalles_compra'
+    )
+    cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'Detalle de Compra'
+        verbose_name_plural = 'Detalles de Compra'
+
+    def __str__(self):
+        return f"{self.presentacion.nombre} - {self.cantidad} uds"
+
+    @property
+    def subtotal(self):
+        return self.cantidad * self.precio_unitario
+
+
+class Compra(models.Model):
+    """Modelo para registrar compras a proveedores (heredado)"""
+    proveedor = models.ForeignKey(
+        Proveedor,
+        on_delete=models.CASCADE,
+        related_name='compras_legacy'
     )
     producto = models.ForeignKey(
         'productos.Producto',
@@ -95,7 +170,6 @@ class Compra(models.Model):
 
     @property
     def total(self):
-        """Calcula el total de la compra (cantidad × precio unitario)"""
         if self.precio_unitario:
             return self.cantidad * self.precio_unitario
         return None

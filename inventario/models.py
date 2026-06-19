@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.conf import settings # type: ignore
 from django.db import models
 from django.utils import timezone
 
@@ -10,6 +10,13 @@ class Lote(models.Model):
     presentacion      = models.ForeignKey(
         PresentacionProducto,
         on_delete=models.PROTECT,
+        related_name='lotes'
+    )
+    detalle_compra    = models.ForeignKey(
+        'proveedores.DetalleCompra',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='lotes'
     )
     stock_actual      = models.PositiveIntegerField(default=0)

@@ -96,7 +96,6 @@ def inventario_home(request):
             proveedores_labels.append('-')
             proveedores_data.append(0)
 
-    # =========================================================================
 
     context = {
         'movimientos':          movimientos,
