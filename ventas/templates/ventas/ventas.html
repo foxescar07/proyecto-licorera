@@ -766,7 +766,7 @@ document.getElementById('btnConfirmarConteo').addEventListener('click', function
   });
   const obs = document.getElementById('ctObservacion').value.trim();
 
-  fetch("{% url 'ventas:registrar_conteo' %}", {
+  fetch("{% url 'registrar_conteo' %}", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
     body: JSON.stringify({ monto_contado: total, observacion: obs, denominaciones })
@@ -813,7 +813,7 @@ document.getElementById('btnConfirmarCierre').addEventListener('click', function
   });
   const base = parseFloat(document.getElementById('baseSiguiente').value) || 0;
 
-  fetch("{% url 'ventas:cierre_caja' %}", {
+  fetch("{% url 'cierre_caja' %}", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
     body: JSON.stringify({ total_contado: totalContado, monto_base_siguiente: base, denominaciones })

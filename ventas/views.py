@@ -366,4 +366,76 @@ def producto_stock_json(request, pk):
 # ════════════════════════════════════════
 
 @session_required
-def ventas_
+def ventas_del_dia(request):
+    hoy       = timezone.localdate()
+    ventas    = Venta.objects.filter(fecha__date=hoy).prefetch_related('detalles__producto', 'detalles__presentacion').order_by('-fecha')
+    total_dia = int(sum(v.total_con_descuento for v in ventas))
+
+    return render(request, 'ventas/ventas_del_dia.html', {
+        'ventas':    ventas,
+        'hoy':       hoy,
+        'total_dia': total_dia,
+    })
+# ════════════════════════════════════════
+# CONTROL DE CAJA
+# ════════════════════════════════════════
+
+@session_required
+def registrar_conteo(request):
+    # TODO: Implementar la lógica para registrar el conteo de caja
+    return render(request, 'ventas/registrar_conteo.html')
+@session_required
+def cierre_caja(request):
+    # TODO: Implementar la lógica para el cierre de caja
+    return render(request, 'ventas/cierre_caja.html')
+# ════════════════════════════════════════
+# DEVOLUCIONES
+# ════════════════════════════════════════
+
+@session_required
+def lista_devoluciones(request):
+    devoluciones = Devolucion.objects.prefetch_related('detalles__producto').order_by('-fecha')
+    return render(request, 'ventas/lista_devoluciones.html', {
+        'devoluciones': devoluciones
+    })
+
+@session_required
+@transaction.atomic
+def registrar_devolucion(request):
+    # Por si acaso tu urls.py también tiene una ruta para registrar la devolución
+    if request.method == 'POST':
+        # TODO: Implementar lógica de reingreso de stock por devolución
+        pass
+    return redirect('ventas:lista_devoluciones')
+@session_required
+def seleccionar_venta_devolucion(request, venta_id):
+    venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
+    # TODO: Implementar la lógica/renderizado de selección de ítems a devolver
+    return render(request, 'ventas/seleccionar_venta_devolucion.html', {'venta': venta})
+
+@session_required
+def detalle_devolucion(request, pk):
+    devolucion = get_object_or_404(Devolucion, pk=pk)
+    return render(request, 'ventas/detalle_devolucion.html', {'devolucion': devolucion})
+@session_required
+def buscar_venta_devolucion(request):
+    # Lógica para buscar facturas o ventas aptas para devolución
+    query = request.GET.get('q', '')
+    if query:
+        ventas = Venta.objects.filter(id__icontains=query).order_by('-fecha')[:10]
+    else:
+        ventas = Venta.objects.none()
+    return render(request, 'ventas/buscar_venta_devolucion.html', {
+        'ventas': ventas,
+        'query': query
+    })
+@session_required
+def detalle_venta_devolucion(request, venta_id):
+    # Obtiene la venta para mostrar el desglose de lo que se devolvió o se puede devolver
+    venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
+    return render(request, 'ventas/detalle_venta_devolucion.html', {'venta': venta})
+@session_required
+def comprobante_devolucion(request, pk):
+    # Lógica temporal para mostrar o descargar el comprobante de devolución
+    devolucion = get_object_or_404(Devolucion, pk=pk)
+    return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})

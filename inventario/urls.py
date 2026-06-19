@@ -15,7 +15,6 @@ urlpatterns = [
     path('inventario/stock/',                       views.gestion_stock,              name='gestion_stock'),
     path('stock/status/',                            views.stock_status,              name='stock_status'),
     # ── Rutas de la rama antigua ──
-    path('gestion/salida/',                         views.gestion_salida,             name='gestion_salida'),
     path('gestion/producto/eliminar/<int:pk>/',     views.gestion_producto_eliminar,  name='gestion_producto_eliminar'),
     path('gestion/producto/editar/<int:pk>/',       views.gestion_producto_editar,    name='gestion_producto_editar'),
     path('gestion/categoria/crear/',                views.gestion_categoria_crear,    name='gestion_categoria_crear'),
