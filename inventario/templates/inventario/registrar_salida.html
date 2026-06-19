@@ -45,11 +45,11 @@
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div class="d-flex align-items-center gap-2">
           <div class="icon-box">
-            <i class="bi bi-box-arrow-up" style="color:#4DA8DA;font-size:1rem;"></i>
+            <i class="bi bi-box-arrow-up" style="color:#4DA8DA;font-size:2.0rem;"></i>
           </div>
           <div>
             <h6 class="mb-0 fw-bold text-uppercase"
-                style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.9rem;">
+                style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.1.1rem;">
               Datos de Salida
             </h6>
             <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
@@ -66,7 +66,7 @@
         </button>
       </div>
 
-      <form method="POST" action="{% url 'gestion_salida' %}" id="form-salida">
+      <form method="POST" action="{% url 'registrar_salida_view' %}" id="form-salida">
         {% csrf_token %}
 
         <!-- Presentación -->
@@ -171,9 +171,10 @@
           La cantidad supera el stock disponible.
         </div>
 
-        <button type="submit" class="inv-btn mt-2">
-          <i class="bi bi-box-arrow-up me-2"></i>Registrar Salida
-        </button>
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100"
+        style="background:#3b9ad6; color:#0d1b2a; border:none; font-size:0.9rem; white-space:nowrap;">
+  <i class="bi bi-box-arrow-up me-2"></i>Registrar Salida
+</button>
       </form>
 
     </div>
