@@ -13,30 +13,6 @@
 <div class="container-fluid p-0">
   <div class="cys-snap-section px-3 py-4">
 
-  <!-- ENCABEZADO -->
-  <div class="card card-dev p-4 mb-4">
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-      <div>
-        <div class="badge-module mb-2">
-          <i class="bi bi-arrow-left-right"></i> Módulo de devoluciones
-        </div>
-        <h1 style="font-size: 1.4rem; font-weight: 800; color: #FDFFFC; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-          <i class="bi bi-box-arrow-in-left" style="color: #4DA8DA; font-size: 1.3rem;"></i>
-          Solicitar Devolución
-        </h1>
-      </div>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <button class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="offcanvas" data-bs-target="#drawerHistorial">
-          <i class="bi bi-clock-history"></i> Historial
-          <span style="background: #4DA8DA; color: #011936; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 4px;">{{ devoluciones|length|default:"0" }}</span>
-        </button>
-        <a href="?nuevo" class="btn btn-sm btn-primary fw-bold">
-          <i class="bi bi-box-arrow-in-left"></i> Registrar devolución
-        </a>
-      </div>
-    </div>
-  </div>
-
   <div class="stats-grid mb-4">
     <!-- SOLICITUDES -->
     <div class="stat-card" style="border-left: 4px solid #4DA8DA;">
@@ -72,6 +48,30 @@
         <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-hi); margin-bottom: 0.5rem;">Nueva solicitud</div>
         <a href="?nuevo" class="btn btn-primary btn-sm fw-bold">
           <i class="bi bi-arrow-right me-1"></i>Iniciar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENCABEZADO -->
+  <div class="card card-dev p-4 mb-4">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div class="badge-module mb-2">
+          <i class="bi bi-arrow-left-right"></i> Módulo de devoluciones
+        </div>
+        <h1 style="font-size: 1.4rem; font-weight: 800; color: #FDFFFC; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+          <i class="bi bi-box-arrow-in-left" style="color: #4DA8DA; font-size: 1.3rem;"></i>
+          Solicitar Devolución
+        </h1>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="offcanvas" data-bs-target="#drawerHistorial">
+          <i class="bi bi-clock-history"></i> Historial
+          <span style="background: #4DA8DA; color: #011936; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 4px;">{{ devoluciones|length|default:"0" }}</span>
+        </button>
+        <a href="?nuevo" class="btn btn-sm btn-primary fw-bold">
+          <i class="bi bi-box-arrow-in-left"></i> Registrar devolución
         </a>
       </div>
     </div>
@@ -1044,7 +1044,7 @@
               <div class="fw-bold" style="color:var(--text-hi);">{{ dev.venta.cliente }}</div>
               <div class="small" style="color:var(--text-md);">{{ dev.fecha|date:"d/m/Y H:i" }}</div>
             </div>
-            <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" class="btn btn-link btn-sm p-0" style="color:var(--cyan);">
+            <a href="{% url 'comprobante_devolucion' dev.pk %}" class="btn btn-link btn-sm p-0" style="color:var(--cyan);">
               <i class="bi bi-eye"></i>
             </a>
           </div>
