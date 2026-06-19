@@ -4,40 +4,28 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.utils import timezone
+from django.conf import settings
+from django.core.mail import send_mail
 from datetime import timedelta
 from django.http import JsonResponse
 from .forms import UsuarioForm
 import random
 import logging
-import ssl
-import smtplib
 import re
-
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 logger = logging.getLogger(__name__)
 
 Usuario = get_user_model()
 
-EMAIL_USER = 'ccanariasogamoso@gmail.com'
-EMAIL_PASS = 'jmcikwsvajdmbzab'
-
 
 def _enviar_correo(destinatario, asunto, cuerpo):
-    mensaje = MIMEMultipart()
-    mensaje['Subject'] = asunto
-    mensaje['From'] = f'CYS Ltda <{EMAIL_USER}>'
-    mensaje['To'] = destinatario
-    mensaje.attach(MIMEText(cuerpo, 'plain'))
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    with smtplib.SMTP('smtp.gmail.com', 587) as s:
-        s.ehlo(); s.starttls(context=ctx); s.ehlo()
-        s.login(EMAIL_USER, EMAIL_PASS)
-        s.sendmail(EMAIL_USER, destinatario, mensaje.as_string())
-
+    send_mail(
+        subject=asunto,
+        message=cuerpo,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[destinatario],
+        fail_silently=False,
+    )
 
 def _validar_clave_segura(clave):
     if len(clave) < 6:
@@ -310,17 +298,23 @@ def solicitar_recuperacion(request):
         link   = request.build_absolute_uri(f'/usuarios/restablecer/{token}/')
         cuerpo = (
             f'Hola {usuario.nombre},\n\n'
-            f'Haz clic en el siguiente enlace:\n\n{link}\n\n'
-            f'El enlace expirará en 15 minutos.\n\nCYS Ltda'
+            f'Recibimos una solicitud para restablecer la contraseña de tu cuenta en CYS Ltda.\n\n'
+            f'Haz clic en el siguiente enlace para crear una nueva contraseña:\n\n{link}\n\n'
+            f'Este enlace expirará en 15 minutos.\n\n'
+            f'Si no solicitaste este cambio, ignora este mensaje.\n\n'
+            f'CYS Ltda'
         )
 
         try:
-            _enviar_correo(usuario.email, 'Recuperación de contraseña - CYS Ltda', cuerpo)
-            if es_ajax: return JsonResponse({'ok': True, 'mensaje': f'Enlace enviado a {usuario.email}'})
+            _enviar_correo(usuario.email, 'Recuperación de contraseña — CYS Ltda', cuerpo)
+            if es_ajax:
+                return JsonResponse({'ok': True, 'mensaje': f'Enlace enviado a {usuario.email}'})
             messages.success(request, f'Enlace enviado a {usuario.email}')
         except Exception as e:
-            if es_ajax: return JsonResponse({'ok': False, 'error': str(e)})
-            messages.error(request, str(e))
+            logger.error(f'[CYS EMAIL] Error al enviar correo a {usuario.email}: {e}')
+            if es_ajax:
+                return JsonResponse({'ok': False, 'error': 'No se pudo enviar el correo. Intenta más tarde.'})
+            messages.error(request, 'No se pudo enviar el correo. Intenta más tarde.')
 
     return redirect('login')
 
@@ -330,7 +324,6 @@ def recuperar_por_telefono(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
 
-    es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     telefono       = request.POST.get('telefono', '').strip()
     identificacion = request.POST.get('identificacion', '').strip()
 
@@ -346,27 +339,23 @@ def recuperar_por_telefono(request):
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con esos datos.'})
 
-    # Generar código de 6 dígitos
     codigo = str(random.randint(100000, 999999))
     expira = timezone.now() + timedelta(minutes=15)
 
-    # Reutilizamos reset_token para guardar el código
     usuario.reset_token        = codigo
     usuario.reset_token_expira = expira
     usuario.save(update_fields=['reset_token', 'reset_token_expira'])
 
-    # Imprimir en logs para que el admin lo vea y se lo comunique al usuario
     logger.warning(
         f'[CYS RESET] Código para {usuario.nombre_completo} '
         f'(ID: {usuario.identificacion}, Tel: {usuario.telefono}): {codigo} '
         f'— expira en 15 min'
     )
-    # También print para desarrollo
     print(f'\n🔑 CÓDIGO DE RECUPERACIÓN para {usuario.nombre_completo}: {codigo}\n')
 
     return JsonResponse({
         'ok': True,
-        'mensaje': f'Código generado. El administrador te lo comunicará en breve.'
+        'mensaje': 'Código generado. El administrador te lo comunicará en breve.'
     })
 
 
@@ -396,7 +385,6 @@ def verificar_codigo_telefono(request):
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
         return JsonResponse({'ok': False, 'error': 'El código expiró. Solicita uno nuevo.'})
 
-    # Código válido — generar token de sesión para restablecer
     token  = get_random_string(32)
     expira = timezone.now() + timedelta(minutes=10)
     usuario.reset_token        = token

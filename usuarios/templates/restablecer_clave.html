@@ -9,9 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
-  {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/usuario/restablecer_clave.css' %}">
-  {% endblock %}
 </head>
 <body>
   <div class="cys-wrap">
@@ -72,21 +70,27 @@
     const form = document.getElementById('formReset');
     if (form) {
       form.addEventListener('submit', function(e) {
-        const clave     = document.getElementById('nuevaClave').value;
-        const confirmar = document.getElementById('confirmarClave').value;
+        const clave        = document.getElementById('nuevaClave').value;
+        const confirmar    = document.getElementById('confirmarClave').value;
         const errClave     = document.getElementById('errClave');
         const errConfirmar = document.getElementById('errConfirmar');
         let ok = true;
-        errClave.style.display = 'none'; errConfirmar.style.display = 'none';
+        errClave.style.display = 'none';
+        errConfirmar.style.display = 'none';
+
         if (clave.length < 6) {
-          errClave.textContent = 'Mínimo 6 caracteres.'; errClave.style.display = 'block'; ok = false;
+          errClave.textContent = 'Mínimo 6 caracteres.';
+          errClave.style.display = 'block'; ok = false;
         } else if ((clave.match(/\d/g) || []).length < 2) {
-          errClave.textContent = 'Debe contener al menos 2 números.'; errClave.style.display = 'block'; ok = false;
+          errClave.textContent = 'Debe contener al menos 2 números.';
+          errClave.style.display = 'block'; ok = false;
         } else if (!/[A-Z]/.test(clave)) {
-          errClave.textContent = 'Debe contener al menos 1 mayúscula.'; errClave.style.display = 'block'; ok = false;
+          errClave.textContent = 'Debe contener al menos 1 mayúscula.';
+          errClave.style.display = 'block'; ok = false;
         }
         if (clave !== confirmar) {
-          errConfirmar.textContent = 'Las contraseñas no coinciden.'; errConfirmar.style.display = 'block'; ok = false;
+          errConfirmar.textContent = 'Las contraseñas no coinciden.';
+          errConfirmar.style.display = 'block'; ok = false;
         }
         if (!ok) e.preventDefault();
       });
