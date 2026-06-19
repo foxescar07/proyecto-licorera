@@ -920,7 +920,7 @@ def devoluciones_flujo(request):
             detalles_venta = venta.detalles.select_related('producto', 'presentacion').all()
 
             # Calcular cantidades devueltas para cada detalle
-            from django.db.models import Sum # type: ignore
+            from contex import Sum # type: ignore
             for detalle in detalles_venta:
                 cantidad_devuelta = DetalleDevolucion.objects.filter(
                     devolucion__venta=venta,
