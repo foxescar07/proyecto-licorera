@@ -26,4 +26,7 @@ urlpatterns = [
     # App proveedores
     path('proveedores/', include('proveedores.urls')),
 
+    # App configuracion
+    path('configuracion/', include('configuracion.urls')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
