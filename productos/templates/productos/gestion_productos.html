@@ -23,22 +23,21 @@
   </div>
   {% endif %}
 
- <div class="d-flex align-items-center gap-3 mb-3">
-  <div style="flex:1; min-width:0;">
-    {% include 'inventario/stock_widget.html' %}
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <div style="flex:1; min-width:0;">
+      {% include 'inventario/stock_widget.html' %}
+    </div>
+    <a href="{% url 'lista_productos' %}" class="btn rounded-pill fw-bold px-4 flex-shrink-0 align-self-center"
+       style="background: var(--azul-claro); color: var(--fondo); border: none;">
+      <i class="bi bi-arrow-left me-2"></i> Productos
+    </a>
   </div>
-  <a href="{% url 'lista_productos' %}" class="btn rounded-pill fw-bold px-4 flex-shrink-0 align-self-center"
-     style="background: var(--azul-claro); color: var(--fondo); border: none;">
-    <i class="bi bi-arrow-left me-2"></i> Productos
-  </a>
-</div>
 
   <div class="d-flex gap-3 align-items-start" style="margin-top:20px; flex-wrap:wrap;">
 
-    <!-- ══════════ COLUMNA IZQUIERDA: ESTADÍSTICAS ══════════ -->
+    <!-- ══ COLUMNA IZQUIERDA: ESTADÍSTICAS ══ -->
     <div style="width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
 
-      <!-- Categorías -->
       <div class="stat-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
@@ -47,7 +46,6 @@
         <div id="grafico-categorias" style="display:flex; flex-direction:column; gap:8px; max-height:100px; overflow-y:auto;"></div>
       </div>
 
-      <!-- Salud Stock -->
       <div class="stat-box">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
@@ -62,7 +60,6 @@
         </div>
       </div>
 
-      <!-- Alertas -->
       <div class="stat-box" style="border-color:rgba(255,193,7,0.25);">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
@@ -77,19 +74,17 @@
         </div>
       </div>
 
-      <!-- Total productos -->
       <div class="stat-box">
         <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
         <div class="stat-value">{{ productos|length }}</div>
         <div class="stat-sub mt-1">En inventario</div>
       </div>
 
-    </div><!-- fin columna izquierda -->
+    </div>
 
-    <!-- ══════════ COLUMNA DERECHA: BUSCADOR + TABLA ══════════ -->
+    <!-- ══ COLUMNA DERECHA: BUSCADOR + TABLA ══ -->
     <div style="flex:1; min-width:0;">
 
-      <!-- Buscador -->
       <div class="search-box">
         <label class="stat-label mb-2 d-block"><i class="bi bi-filter-left me-1"></i>Filtrar inventario</label>
         <div class="d-flex">
@@ -98,7 +93,6 @@
         </div>
       </div>
 
-      <!-- Accordions por categoría -->
       <div id="accordion-categorias">
         {% for cat in categorias %}
         {% if cat %}
@@ -119,12 +113,12 @@
                     <th>Código</th>
                     <th>Stock</th>
                     <th>Presentaciones</th>
+                    <th>Costo lote</th>
                     <th style="text-align:right; padding-right:16px;">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
 
-                  <!-- Productos directos de la categoría -->
                   {% for p in cat.productos.all %}
                   <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
                     <td>
@@ -146,6 +140,19 @@
                         {% endfor %}
                       </div>
                     </td>
+                    <!-- Costo unitario del lote más reciente -->
+                    <td>
+                      {% with ultimo_lote=p.presentaciones.first.lotes.last %}
+                        {% if ultimo_lote and ultimo_lote.costo_unitario %}
+                          <span style="color:#4DA8DA;font-weight:600;font-size:.85rem;">
+                            ${{ ultimo_lote.costo_unitario|floatformat:0 }}
+                          </span>
+                          <br><small style="color:rgba(226,232,240,.4);font-size:.7rem;">{{ ultimo_lote.numero_lote }}</small>
+                        {% else %}
+                          <span style="color:rgba(226,232,240,.3);font-size:.82rem;">—</span>
+                        {% endif %}
+                      {% endwith %}
+                    </td>
                     <td class="text-end">
                       <div class="dropdown">
                         <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -163,7 +170,6 @@
                   </tr>
                   {% endfor %}
 
-                  <!-- Productos de subcategorías -->
                   {% for sub in cat.subcategorias.all %}
                   {% for p in sub.productos.all %}
                   <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
@@ -186,6 +192,18 @@
                         <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
                         {% endfor %}
                       </div>
+                    </td>
+                    <td>
+                      {% with ultimo_lote=p.presentaciones.first.lotes.last %}
+                        {% if ultimo_lote and ultimo_lote.costo_unitario %}
+                          <span style="color:#4DA8DA;font-weight:600;font-size:.85rem;">
+                            ${{ ultimo_lote.costo_unitario|floatformat:0 }}
+                          </span>
+                          <br><small style="color:rgba(226,232,240,.4);font-size:.7rem;">{{ ultimo_lote.numero_lote }}</small>
+                        {% else %}
+                          <span style="color:rgba(226,232,240,.3);font-size:.82rem;">—</span>
+                        {% endif %}
+                      {% endwith %}
                     </td>
                     <td class="text-end">
                       <div class="dropdown">
@@ -224,14 +242,11 @@
         No se encontraron productos.
       </div>
 
-    </div><!-- fin columna derecha -->
-  </div><!-- fin d-flex -->
-</div><!-- fin container -->
+    </div>
+  </div>
+</div>
 
-
-<!-- ══════════════════════════════════════
-     MODALES POR PRODUCTO
-══════════════════════════════════════ -->
+<!-- ══ MODALES POR PRODUCTO ══ -->
 {% for p in productos %}
 
 <!-- Modal Detalle -->
@@ -261,18 +276,43 @@
               {{ p.stock_total }} uds
             </span>
           </div>
+          <div class="col-6">
+            <div class="small mb-1" style="color:rgba(226,232,240,0.5);">Costo unit. (último lote)</div>
+            {% with ul=p.presentaciones.first.lotes.last %}
+              {% if ul and ul.costo_unitario %}
+                <span class="fw-bold fs-5" style="color:#4DA8DA;">${{ ul.costo_unitario|floatformat:0 }}</span>
+              {% else %}
+                <span style="color:rgba(226,232,240,.35);">—</span>
+              {% endif %}
+            {% endwith %}
+          </div>
         </div>
-        <div class="small fw-semibold text-uppercase mb-2" style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">
+
+        <div class="small fw-semibold text-uppercase mb-2"
+             style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">
           <i class="bi bi-layers me-1"></i>Presentaciones
         </div>
         <div class="rounded-3 overflow-hidden" style="border:1px solid rgba(77,168,218,0.12);">
           {% for pr in p.presentaciones.all %}
-          <div class="d-flex justify-content-between align-items-center px-3 py-2" style="border-bottom:1px solid rgba(77,168,218,0.08); background:rgba(255,255,255,0.02);">
-            <div>
+          <div class="px-3 py-2" style="border-bottom:1px solid rgba(77,168,218,0.08); background:rgba(255,255,255,0.02);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="fw-semibold">{{ pr.nombre }}</span>
-              <small class="ms-2" style="color:rgba(226,232,240,0.45);">(x{{ pr.unidades }})</small>
+              <span class="fw-bold" style="color:#4DA8DA;">${{ pr.precio|floatformat:0 }}</span>
             </div>
-            <span class="fw-bold" style="color:#4DA8DA;">${{ pr.precio|floatformat:0 }}</span>
+            <!-- Lotes de esta presentación con su costo -->
+            {% for lote in pr.lotes.all %}
+            <div class="d-flex justify-content-between align-items-center"
+                 style="font-size:.75rem;color:rgba(226,232,240,.5);padding-top:3px;">
+              <span><i class="bi bi-tag me-1"></i>{{ lote.numero_lote }} · {{ lote.stock_actual }} uds</span>
+              <span>
+                {% if lote.costo_unitario %}
+                  Costo: <strong style="color:rgba(77,168,218,.8);">${{ lote.costo_unitario|floatformat:0 }}</strong>
+                {% else %}
+                  Sin costo
+                {% endif %}
+              </span>
+            </div>
+            {% endfor %}
           </div>
           {% empty %}
           <div class="px-3 py-2" style="color:rgba(226,232,240,0.4);">Sin presentaciones.</div>
@@ -280,7 +320,9 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn rounded-pill px-4" style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn rounded-pill px-4"
+                style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+                data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -328,8 +370,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn rounded-pill px-4" style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn rounded-pill fw-bold px-4" style="background:#ffc107; color:#1a1a1a; border:none;">Guardar Cambios</button>
+          <button type="button" class="btn rounded-pill px-4"
+                  style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+                  data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4"
+                  style="background:#ffc107; color:#1a1a1a; border:none;">Guardar Cambios</button>
         </div>
       </form>
     </div>
@@ -349,56 +394,83 @@
       <form method="POST" action="{% url 'producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
-          <div class="small fw-semibold text-uppercase mb-3" style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">Presentaciones Actuales</div>
+          <div class="small fw-semibold text-uppercase mb-3"
+               style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">Presentaciones Actuales</div>
           {% for pr in p.presentaciones.all %}
-          <div class="rounded-3 p-3 mb-2" style="background:rgba(77,168,218,0.05); border:1px solid rgba(77,168,218,0.12);">
+          <div class="rounded-3 p-3 mb-2"
+               style="background:rgba(77,168,218,0.05); border:1px solid rgba(77,168,218,0.12);">
             <div class="row g-2 align-items-center">
-              <div class="col-md-5">
+              <div class="col-md-4">
                 <label class="form-label small" style="color:rgba(226,232,240,0.5);">Nombre</label>
-                <input type="text" name="pres_nombre_{{ pr.pk }}" class="form-control form-control-sm prod-input" value="{{ pr.nombre }}" required>
+                <input type="text" name="pres_nombre_{{ pr.pk }}" class="form-control form-control-sm prod-input"
+                       value="{{ pr.nombre }}" required>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <label class="form-label small" style="color:rgba(226,232,240,0.5);">Unidades</label>
-                <input type="number" name="pres_unidades_{{ pr.pk }}" class="form-control form-control-sm prod-input" value="{{ pr.unidades }}" min="1" required>
+                <input type="number" name="pres_unidades_{{ pr.pk }}" class="form-control form-control-sm prod-input"
+                       value="{{ pr.unidades }}" min="1" required>
               </div>
               <div class="col-md-3">
-                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Precio</label>
-                <input type="number" name="pres_precio_{{ pr.pk }}" class="form-control form-control-sm prod-input" value="{{ pr.precio }}" min="0" step="0.01">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Precio venta ($)</label>
+                <input type="number" name="pres_precio_{{ pr.pk }}" class="form-control form-control-sm prod-input"
+                       value="{{ pr.precio }}" min="0" step="0.01">
               </div>
-              <div class="col-md-1 text-end mt-3">
-                <span class="tag-info" style="font-size:.7rem;">Actual</span>
+              <div class="col-md-3">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">
+                  Costo lote
+                  <i class="bi bi-info-circle ms-1" title="Último lote registrado" style="color:rgba(77,168,218,.5);"></i>
+                </label>
+                {% with ul=pr.lotes.last %}
+                  <div class="form-control form-control-sm prod-input d-flex align-items-center"
+                       style="cursor:default;opacity:.7;">
+                    {% if ul and ul.costo_unitario %}
+                      <span style="color:#4DA8DA;">${{ ul.costo_unitario|floatformat:0 }}</span>
+                      <small class="ms-1" style="color:rgba(226,232,240,.4);">({{ ul.numero_lote }})</small>
+                    {% else %}
+                      <span style="color:rgba(226,232,240,.35);">Sin costo</span>
+                    {% endif %}
+                  </div>
+                {% endwith %}
               </div>
             </div>
           </div>
           {% empty %}
-          <div class="rounded-3 p-3 mb-3 text-center" style="background:rgba(255,193,7,0.05); border:1px solid rgba(255,193,7,0.15); color:rgba(226,232,240,0.5);">
+          <div class="rounded-3 p-3 mb-3 text-center"
+               style="background:rgba(255,193,7,0.05); border:1px solid rgba(255,193,7,0.15); color:rgba(226,232,240,0.5);">
             Sin presentaciones. Agrega una abajo.
           </div>
           {% endfor %}
 
-          <div class="small fw-semibold text-uppercase mt-4 mb-3" style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">
+          <div class="small fw-semibold text-uppercase mt-4 mb-3"
+               style="color:rgba(226,232,240,0.5); letter-spacing:.05em;">
             <i class="bi bi-plus-circle me-1"></i>Nueva Presentación
           </div>
           <div class="rounded-3 p-3" style="background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.2);">
             <div class="row g-2">
               <div class="col-md-5">
                 <label class="form-label small" style="color:rgba(226,232,240,0.5);">Nombre</label>
-                <input type="text" name="nueva_pres_nombre[]" class="form-control form-control-sm prod-input" placeholder="Ej: Six-pack">
+                <input type="text" name="nueva_pres_nombre[]" class="form-control form-control-sm prod-input"
+                       placeholder="Ej: Six-pack">
               </div>
               <div class="col-md-3">
                 <label class="form-label small" style="color:rgba(226,232,240,0.5);">Unidades</label>
-                <input type="number" name="nueva_pres_unidades[]" class="form-control form-control-sm prod-input" placeholder="Ej: 6" min="1">
+                <input type="number" name="nueva_pres_unidades[]" class="form-control form-control-sm prod-input"
+                       placeholder="Ej: 6" min="1">
               </div>
               <div class="col-md-4">
-                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Precio</label>
-                <input type="number" name="nueva_pres_precio[]" class="form-control form-control-sm prod-input" placeholder="Ej: 19000" min="0" step="0.01">
+                <label class="form-label small" style="color:rgba(226,232,240,0.5);">Precio venta ($)</label>
+                <input type="number" name="nueva_pres_precio[]" class="form-control form-control-sm prod-input"
+                       placeholder="Ej: 19000" min="0" step="0.01">
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn rounded-pill px-4" style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn rounded-pill fw-bold px-4" style="background:#0dcaf0; color:#011936; border:none;">Guardar Presentaciones</button>
+          <button type="button" class="btn rounded-pill px-4"
+                  style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+                  data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4"
+                  style="background:#0dcaf0; color:#011936; border:none;">Guardar Presentaciones</button>
         </div>
       </form>
     </div>
@@ -407,28 +479,26 @@
 
 {% endfor %}
 
-<!-- Form oculto para eliminar -->
 <form id="form-eliminar" method="POST" style="display:none;">
   {% csrf_token %}
 </form>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const rows = document.querySelectorAll('.producto-row');
-  const total = rows.length;
+  const rows     = document.querySelectorAll('.producto-row');
+  const total    = rows.length;
   const criticos = parseInt('{{ total_criticos|default:0 }}') || 0;
-  const ok = Math.max(0, total - criticos);
-  let sinPres = 0;
+  const ok       = Math.max(0, total - criticos);
+  let sinPres    = 0;
   const conteoCats = {};
 
   rows.forEach(row => {
-    const badges = row.querySelectorAll('td:nth-child(4) .tag-warn');
-    if (badges.length > 0) sinPres++;
+    if (row.querySelectorAll('td:nth-child(4) .tag-warn').length > 0) sinPres++;
   });
 
   document.querySelectorAll('.categoria-item').forEach(item => {
     const nombre = item.querySelector('.acc-hdr').textContent.split('productos')[0].trim();
-    const cant = item.querySelectorAll('.producto-row').length;
+    const cant   = item.querySelectorAll('.producto-row').length;
     if (cant > 0) conteoCats[nombre] = cant;
   });
 
@@ -437,12 +507,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const pct = total > 0 ? Math.round((n / total) * 100) : 0;
     catWrap.innerHTML += `
       <div>
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:rgba(226,232,240,0.5); margin-bottom:2px;">
-          <span style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat}</span>
+        <div style="display:flex;justify-content:space-between;font-size:11px;
+                    color:rgba(226,232,240,0.5);margin-bottom:2px;">
+          <span style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cat}</span>
           <span>${n} (${pct}%)</span>
         </div>
         <div class="bar-track" style="height:4px;">
-          <div class="bar-fill" style="width:${pct}%; background:#4DA8DA;"></div>
+          <div class="bar-fill" style="width:${pct}%;background:#4DA8DA;"></div>
         </div>
       </div>`;
   });
@@ -453,43 +524,21 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('bar-ok').style.width = pctOk + '%';
   }
   document.getElementById('stat-ok').textContent = ok;
-
   document.getElementById('stat-sin-pres').textContent = sinPres;
-  if (total > 0) {
+  if (total > 0)
     document.getElementById('bar-sin-pres').style.width = Math.round((sinPres / total) * 100) + '%';
-  }
 });
 
 function toggleAcc(btn, bodyId) {
-  const body = document.getElementById(bodyId);
+  const body   = document.getElementById(bodyId);
   const isOpen = btn.getAttribute('aria-expanded') === 'true';
   btn.setAttribute('aria-expanded', String(!isOpen));
   body.style.display = isOpen ? 'none' : 'block';
 }
 
-function toggleDD(e, btn) {
-  e.stopPropagation();
-  const menu = btn.nextElementSibling;
-  const isOpen = menu.classList.contains('open');
-  closeAllDD();
-  if (!isOpen) {
-    const rect = btn.getBoundingClientRect();
-    menu.style.top  = (rect.bottom + 6) + 'px';
-    menu.style.left = (rect.right - 170) + 'px';
-    menu.classList.add('open');
-  }
-}
-
-function closeAllDD() {
-  document.querySelectorAll('.dd-menu.open').forEach(m => m.classList.remove('open'));
-}
-
-document.addEventListener('click', closeAllDD);
-
 function filtrarProductos(q) {
   const term = q.toLowerCase().trim();
   let alguno = false;
-
   document.querySelectorAll('.categoria-item').forEach(item => {
     let visibles = 0;
     item.querySelectorAll('.producto-row').forEach(row => {
@@ -498,21 +547,18 @@ function filtrarProductos(q) {
       if (match) visibles++;
     });
     item.style.display = visibles ? '' : 'none';
-
     if (term && visibles) {
-      const btn = item.querySelector('.acc-hdr');
+      const btn    = item.querySelector('.acc-hdr');
       const bodyId = btn.getAttribute('aria-controls');
       btn.setAttribute('aria-expanded', 'true');
       document.getElementById(bodyId).style.display = 'block';
     }
     if (visibles) alguno = true;
   });
-
   document.getElementById('noResultados').classList.toggle('d-none', alguno || !term);
 }
 
 function confirmarEliminar(url, nombre) {
-  closeAllDD();
   if (confirm('¿Eliminar "' + nombre + '"?')) {
     const form = document.getElementById('form-eliminar');
     form.action = url;

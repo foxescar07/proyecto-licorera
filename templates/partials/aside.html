@@ -134,17 +134,18 @@
   </button>
 </div>
 
-<div class="cys-sb-submenu" id="submenuInventario">
-  <a href="{% url 'gestion_inventario' %}?tab=salida" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
+ <div class="cys-sb-submenu" id="submenuInventario">
+  <a href="{% url 'registrar_salida_view' %}" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
     <i class="bi bi-box-arrow-up"></i> Registrar Salida
   </a>
-  <a href="{% url 'gestion_inventario' %}?tab=lote" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
+  <a href="{% url 'gestion_lotes_view' %}" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
     <i class="bi bi-tag-fill"></i> Gestión de Lotes
   </a>
   <a href="{% url 'gestion_stock' %}" class="cys-sb-sublink {% block nav_stock %}{% endblock %}">
     <i class="bi bi-layers"></i> Stock & Productos
   </a>
 </div>
+
       
 
         <!-- PROVEEDORES -->
