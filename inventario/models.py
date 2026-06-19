@@ -12,6 +12,13 @@ class Lote(models.Model):
         on_delete=models.PROTECT,
         related_name='lotes'
     )
+    detalle_compra    = models.ForeignKey(
+        'proveedores.DetalleCompra',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='lotes'
+    )
     stock_actual      = models.PositiveIntegerField(default=0)
     costo_unitario    = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_vencimiento = models.DateField(null=True, blank=True)

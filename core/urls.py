@@ -21,7 +21,7 @@ urlpatterns = [
     path('reportes/', include('reportes.urls')),
 
     # App ventas
-    path('ventas/', include('ventas.urls', namespace='ventas')),
+    path('ventas/', include('ventas.urls')),
 
     # App proveedores
     path('proveedores/', include('proveedores.urls')),
