@@ -66,13 +66,6 @@ def _descontar_stock_fefo(presentacion, cantidad_a_descontar, vendedor):
     return tocados
 
 
-def _restaurar_stock_fefo(presentacion, lotes_info, vendedor):
-    for info in lotes_info:
-        lote = Lote.objects.get(pk=info['lote_id'])
-        lote.stock_actual += info['cantidad']
-        lote.save()
-
-
 # ════════════════════════════════════════
 # VENTAS
 # ════════════════════════════════════════
@@ -312,37 +305,59 @@ def ventas_del_dia(request):
     })
 
 
-# Control de caja y devoluciones (Pendientes de implementar lógicas personalizadas de plantillas)
+# ════════════════════════════════════════
+# CONTROL DE CAJA Y DEVOLUCIONES
+# ════════════════════════════════════════
+
 @session_required
-def registrar_conteo(request): return render(request, 'ventas/registrar_conteo.html')
+def registrar_conteo(request): 
+    return render(request, 'ventas/registrar_conteo.html')
+
+
 @session_required
-def cierre_caja(request): return render(request, 'ventas/cierre_caja.html')
+def cierre_caja(request): 
+    return render(request, 'ventas/cierre_caja.html')
+
+
 @session_required
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.prefetch_related('detalles__producto').order_by('-fecha')
     return render(request, 'ventas/lista_devoluciones.html', {'devoluciones': devoluciones})
+
+
 @session_required
 @transaction.atomic
 def registrar_devolucion(request):
-    if request.method == 'POST': pass
+    if request.method == 'POST': 
+        pass
     return redirect('ventas:lista_devoluciones')
+
+
 @session_required
 def seleccionar_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
     return render(request, 'ventas/seleccionar_venta_devolucion.html', {'venta': venta})
+
+
 @session_required
 def detalle_devolucion(request, pk):
     devolucion = get_object_or_404(Devolucion, pk=pk)
     return render(request, 'ventas/detalle_devolucion.html', {'devolucion': devolucion})
+
+
 @session_required
 def buscar_venta_devolucion(request):
     query = request.GET.get('q', '')
     ventas = Venta.objects.filter(id__icontains=query).order_by('-fecha')[:10] if query else Venta.objects.none()
     return render(request, 'ventas/buscar_venta_devolucion.html', {'ventas': ventas, 'query': query})
+
+
 @session_required
 def detalle_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
     return render(request, 'ventas/detalle_venta_devolucion.html', {'venta': venta})
+
+
 @session_required
 def comprobante_devolucion(request, pk):
     devolucion = get_object_or_404(Devolucion, pk=pk)
