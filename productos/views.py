@@ -48,14 +48,16 @@ def lista_productos(request):
     total_criticos = sum(1 for p in productos_qs if getattr(p, 'stock_critico', False))
     form           = ProductoRegistroForm()
 
-    return render(request, 'productos/productos.html', {
-        'productos':          productos_qs,
-        'categorias':         categorias,
-        'todas_cats':         todas_cats,
+    context = {
+        'productos': productos_qs,
+        'categorias': categorias,
+        'todas_cats': todas_cats,
         'resumen_categorias': resumen_categorias,
-        'form':               form,
-        'total_criticos':     total_criticos,
-    })
+        'form': form,
+        'total_criticos': total_criticos,
+    }
+
+    return render(request, 'productos/productos.html', context)
 
 
 # ===============================
@@ -107,10 +109,12 @@ def crear_producto(request):
 def producto_detalle(request, pk):
     producto    = get_object_or_404(Producto, pk=pk)
     movimientos = Inventario.objects.filter(presentacion__producto=producto).order_by('-fecha_actualizada')
-    return render(request, 'productos/producto_detalle.html', {
-        'producto':    producto,
+    context = {
+        'producto': producto,
         'movimientos': movimientos,
-    })
+    }
+
+    return render(request, 'productos/productos.html', context)
 
 
 # ===============================
@@ -306,8 +310,11 @@ def producto_registro(request):
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Producto registrado correctamente.')
-            return redirect('producto_registro')
-    return render(request, 'productos/registro.html', {'form': form})
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'productos/productos.html', context)
 
 
 # ===============================
@@ -531,10 +538,11 @@ def categorias_lista(request):
         'productos', 'subcategorias__productos'
     ).filter(padre__isnull=True)
     todas_cats = Categoria.objects.all()
-    return render(request, 'productos/categorias.html', {
+    context = {
         'categorias': categorias,
         'todas_cats': todas_cats,
-    })
+    }
+    return render(request, 'productos/categorias.html', context)
 
 
 @login_required
@@ -607,7 +615,10 @@ def categoria_eliminar(request, pk):
 @login_required
 def agenda_lista(request):
     agendas = AgendaInventario.objects.all().order_by('fecha_programada')
-    return render(request, 'productos/agenda.html', {'agendas': agendas})
+    context = {
+        'agendas': agendas,
+    }
+    return render(request, 'inventario/inventario_home.html', context)
 
 
 @login_required
@@ -626,7 +637,9 @@ def agenda_eliminar(request, pk):
 def gestion_productos(request):
     productos  = Producto.objects.select_related('categoria').all()
     categorias = Categoria.objects.all()
-    return render(request, 'productos/gestion_productos.html', {
-        'productos':  productos,
+    context = {
+        'productos': productos,
         'categorias': categorias,
-    })
+    }
+
+    return render(request, 'productos/gestion_productos.html', context)

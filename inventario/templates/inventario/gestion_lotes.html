@@ -42,11 +42,11 @@
       <!-- Cabecera tarjeta -->
       <div class="d-flex align-items-center gap-2 mb-4">
         <div class="icon-box">
-          <i class="bi bi-plus-circle-fill" style="color:#4DA8DA;font-size:1rem;"></i>
+          <i class="bi bi-plus-circle-fill" style="color:#4DA8DA;font-size:2.1rem;"></i>
         </div>
         <div>
           <h6 class="mb-0 fw-bold text-uppercase"
-              style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.9rem;">
+              style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.1.1rem;">
             Registrar Nuevo Lote
           </h6>
           <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
@@ -125,9 +125,10 @@
           </div>
         </div>
 
-        <button type="submit" class="inv-btn">
-          <i class="bi bi-plus-circle me-2"></i>Crear Lote
-        </button>
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100"
+        style="background:#3b9ad6; color:#0d1b2a; border:none; font-size:0.9rem; white-space:nowrap;">
+  <i class="bi bi-plus-circle me-2"></i>Crear Lote
+</button>
       </form>
 
     </div>
@@ -198,8 +199,22 @@ new Chart(document.getElementById('chartProveedores').getContext('2d'), {
     datasets: [{
       label: 'Unidades en stock',
       data: {{ proveedores_data|safe }},
-      backgroundColor: 'rgba(77,168,218,0.85)',
-      borderColor: "#4DA8DA",
+      // Arreglo de colores fríos (Violeta, Morado, Rojo-Violeta, etc.) con opacidad para el fondo
+      backgroundColor: [
+        'rgba(62, 181, 229, 0.85)',  /* Violeta intenso */
+        'rgba(155, 89, 182, 0.85)',  /* Morado claro */
+        'rgba(214, 48, 117, 0.85)',  /* Rojo Violeta / Magenta */
+        'rgba(108, 92, 231, 0.85)',  /* Azul Violeta / Indigo */
+        'rgba(162, 155, 254, 0.85)'  /* Violeta pastel */
+      ],
+      // Bordes sólidos combinados con los fondos
+      borderColor: [
+        '#4195c9',
+        '#9b59b6',
+        '#d63017',
+        '#6c5ce7',
+        '#a29bfe'
+      ],
       borderWidth: 1,
       borderRadius: 5
     }]
