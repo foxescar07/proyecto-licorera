@@ -487,7 +487,7 @@
             {% for e in entradas %}
             <tr class="cys-tr">
               <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Producto"><strong>{{ e.presentacion.producto.nombre }}</strong></td>
+              <td data-label="Producto"><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
               <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
               <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y H:i" }}</td>
@@ -521,7 +521,7 @@
             {% for s in salidas %}
             <tr class="cys-tr">
               <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Producto"><strong>{{ s.presentacion.producto.nombre }}</strong></td>
+              <td data-label="Producto"><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
               <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
               <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y H:i" }}</td>
@@ -735,7 +735,7 @@
                 {% for e in entradas_hoy %}
                 <tr class="cys-tr">
                   <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                  <td data-label="Producto"><strong>{{ e.presentacion.producto.nombre }}</strong></td>
+                  <td data-label="Producto"><strong>{{ e.producto.nombre }}</strong></td>
                   <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
                   <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
                   <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
@@ -763,7 +763,7 @@
                 {% for s in salidas_hoy %}
                 <tr class="cys-tr">
                   <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                  <td data-label="Producto"><strong>{{ s.presentacion.producto.nombre }}</strong></td>
+                  <td data-label="Producto"><strong>{{ s.producto.nombre }}</strong></td>
                   <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
                   <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
                   <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>

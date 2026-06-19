@@ -46,25 +46,6 @@
 .cys-icon-circle--verde i { color: #2ed573; font-size: 0.6rem; }
 .cys-icon-circle--rojo  i { color: var(--cys-rojo); font-size: 1.1rem; }
 
-.cys-kpi-label {
-  font-size: 0.72rem;
-  color: var(--cys-texto-muted);
-  text-transform: uppercase;
-  font-weight: 700;
-  display: block;
-  letter-spacing: 0.5px;
-}
-.cys-kpi-value {
-  font-size: 1.1rem;
-  font-weight: 800;
-  line-height: 1.2;
-  display: block;
-}
-.cys-kpi-value--verde  { color: #2ed573; }
-.cys-kpi-value--rojo   { color: var(--cys-rojo); }
-.cys-kpi-value--acento { color: var(--cys-acento); }
-.cys-kpi-value--blanco { color: #fff; }
-
 .cys-kpi-value-lg {
   font-size: 1.8rem;
   font-weight: 700;
@@ -171,37 +152,63 @@
 }
 
 /* ══════════════════════════════════════
-   TARJETAS KPI (igual al diseño de referencia)
+   TARJETAS KPI — DASHBOARD ESTADO DE CAJA
 ══════════════════════════════════════ */
 .cys-kpi-card {
   background: var(--cys-bg-card);
   border: 1px solid var(--cys-borde);
+  border-left: 3px solid var(--cys-acento);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1.1rem 1.25rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.cys-kpi-card:hover {
+  transform: translateY(-2px);
+}
+
+.cys-kpi-card-top {
   display: flex;
   align-items: center;
-  position: relative;
-  height: 100%;
+  justify-content: space-between;
 }
-.cys-kpi-card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+
+.cys-kpi-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
   flex-shrink: 0;
 }
-.cys-kpi-card-icon--acento { background: rgba(77, 168, 218, 0.1); }
-.cys-kpi-card-icon--acento i { color: var(--cys-acento); font-size: 1.3rem; }
-.cys-kpi-card-icon--verde  { background: rgba(46, 204, 113, 0.1); }
-.cys-kpi-card-icon--verde  i { color: var(--cys-verde); font-size: 1.3rem; }
-.cys-kpi-card-icon--rojo   { background: rgba(231, 76, 60, 0.1); }
-.cys-kpi-card-icon--rojo   i { color: var(--cys-rojo); font-size: 1.3rem; }
 
-.cys-kpi-card-sublabel { font-size: 0.72rem; color: var(--cys-texto-muted); }
-.cys-kpi-card-sublabel--verde { font-size: 0.72rem; color: var(--cys-verde); font-weight: 500; }
+.cys-kpi-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 50px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.cys-kpi-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.cys-kpi-label {
+  font-size: 0.74rem;
+  color: var(--cys-texto-muted);
+  font-weight: 500;
+}
 
 /* ══════════════════════════════════════
    INPUTS OSCUROS

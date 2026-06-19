@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.db.models import Sum, Prefetch
 from django.db import transaction
 from django.utils import timezone
+from django.urls import reverse
 from datetime import timedelta
 
 from .models import Producto, Categoria, PresentacionProducto
@@ -42,7 +43,9 @@ def lista_productos(request):
         resumen_categorias.append({'pk': cat.pk, 'nombre': cat.nombre, 'total': total})
 
     todas_cats     = Categoria.objects.all()
-    total_criticos = sum(1 for p in productos_qs if p.stock_critico)
+    
+    # Se calcula usando la propiedad o agregando lógica alternativa segura si stock_critico es dinámico
+    total_criticos = sum(1 for p in productos_qs if getattr(p, 'stock_critico', False))
     form           = ProductoRegistroForm()
 
     return render(request, 'productos/productos.html', {
@@ -308,7 +311,7 @@ def producto_registro(request):
 
 
 # ===============================
-# STOCK STATUS (widget)
+# STOCK STATUS (Widget con URLs unificado)
 # ===============================
 @login_required
 def stock_status(request):
@@ -317,10 +320,22 @@ def stock_status(request):
 
     for p in productos:
         stock_total = p.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+        
+        # Tomamos la primera presentación para la URL de lotes
+        primera_pres = p.presentaciones.first()
+        pres_pk = primera_pres.pk if primera_pres else None
+        
+        entrada = {
+            'nombre':           p.nombre,
+            'cantidad':          stock_total,
+            'url_presentacion':  reverse('gestion_productos'),
+            'url_lote':          reverse('gestion_lotes') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
+        }
+        
         if stock_total == 0:
-            criticos.append({'nombre': p.nombre, 'cantidad': stock_total})
-        elif stock_total <= 10:
-            bajos.append({'nombre': p.nombre, 'cantidad': stock_total})
+            criticos.append(entrada)
+        elif stock_total <= 5:
+            bajos.append(entrada)
 
     if criticos:
         estado = 'rojo'
@@ -464,14 +479,16 @@ def rotacion_json(request):
     if rotacion_qs:
         top = rotacion_qs[0]
         try:
-            prod = Producto.objects.prefetch_related('presentaciones').get(
+            prod = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').get(
                 pk=top['presentacion__producto__pk']
             )
             estrella_nombre        = prod.nombre
             estrella_categoria     = prod.categoria.nombre if prod.categoria else ''
             estrella_vendido       = top['total_vendido']
-            estrella_stock         = prod.stock_total
-            estrella_stock_critico = prod.stock_critico
+            
+            # Cálculo seguro de stock total de presentaciones
+            estrella_stock         = prod.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+            estrella_stock_critico = getattr(prod, 'stock_critico', False)
 
             pres_top = (
                 Inventario.objects
@@ -601,6 +618,7 @@ def agenda_eliminar(request, pk):
         messages.success(request, '✅ Registro de agenda eliminado.')
     return redirect('agenda_lista')
 
+
 # ===============================
 # GESTIÓN DE PRODUCTOS
 # ===============================
@@ -611,45 +629,4 @@ def gestion_productos(request):
     return render(request, 'productos/gestion_productos.html', {
         'productos':  productos,
         'categorias': categorias,
-    })
-    # ===============================
-# STOCK STATUS (widget)
-# ===============================
-@login_required
-def stock_status(request):
-    from django.urls import reverse
-    productos = Producto.objects.prefetch_related('presentaciones__lotes').all()
-    criticos, bajos = [], []
-
-    for p in productos:
-        stock_total = p.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
-        
-        # Tomamos la primera presentación para la URL
-        primera_pres = p.presentaciones.first()
-        pres_pk = primera_pres.pk if primera_pres else None
-        
-        entrada = {
-            'nombre':            p.nombre,
-            'cantidad':          stock_total,
-            'url_presentacion':  reverse('gestion_productos'),
-            'url_lote':          reverse('gestion_lotes') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
-        }
-        
-        if stock_total == 0:
-            criticos.append(entrada)
-        elif stock_total <= 5:
-            bajos.append(entrada)
-
-    if criticos:
-        estado = 'rojo'
-    elif bajos:
-        estado = 'amarillo'
-    else:
-        estado = 'verde'
-
-    return JsonResponse({
-        'estado':        estado,
-        'total_alertas': len(criticos) + len(bajos),
-        'criticos':      criticos,
-        'bajos':         bajos,
     })

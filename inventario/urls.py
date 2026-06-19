@@ -4,7 +4,8 @@ from . import views
 
 urlpatterns = [
     path('',                                        views.inventario_home,            name='inventario_home'),
-    path('gestion-inventario/',                    views.gestion_inventario,          name='gestion_inventario'), 
+    path('gestion/salida/',                         views.registrar_salida_view,      name='registrar_salida_view'),
+    path('gestion/lotes/',                          views.gestion_lotes_view,         name='gestion_lotes_view'),
     path('agenda/<int:pk>/estado/',                 views.agenda_estado,              name='agenda_estado'),
     path('conteo/',                                 views.conteo_inventario,          name='conteo_inventario'),
     path('conteo/guardar/',                         views.guardar_conteo,             name='guardar_conteo'),
@@ -14,7 +15,6 @@ urlpatterns = [
     path('inventario/stock/',                       views.gestion_stock,              name='gestion_stock'),
     path('stock/status/',                            views.stock_status,              name='stock_status'),
     # ── Rutas de la rama antigua ──
-    path('gestion/salida/',                         views.gestion_salida,             name='gestion_salida'),
     path('gestion/producto/eliminar/<int:pk>/',     views.gestion_producto_eliminar,  name='gestion_producto_eliminar'),
     path('gestion/producto/editar/<int:pk>/',       views.gestion_producto_editar,    name='gestion_producto_editar'),
     path('gestion/categoria/crear/',                views.gestion_categoria_crear,    name='gestion_categoria_crear'),

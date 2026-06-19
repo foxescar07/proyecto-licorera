@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from ventas.models import Venta, DetalleVenta
 from productos.models import Producto
-from productos.models import Inventario
+from inventario.models import Inventario
 from .forms import FiltroReporteForm
 import json
 import zoneinfo
@@ -231,7 +231,7 @@ def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     filas_e = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, e in enumerate(entradas_qs, 1):
         filas_e.append([
-            str(i), e.producto.nombre, f'+{e.cantidad}',
+            str(i), e.presentacion.producto.nombre, f'+{e.cantidad}',
             e.motivo or '—',
             e.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
         ])
@@ -254,7 +254,7 @@ def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     filas_s = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, s in enumerate(salidas_qs, 1):
         filas_s.append([
-            str(i), s.producto.nombre, f'-{s.cantidad}',
+            str(i), s.presentacion.producto.nombre, f'-{s.cantidad}',
             s.motivo or '—',
             s.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
         ])
@@ -346,7 +346,7 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     seccion("Entradas del día", '#2ecc71')
     filas_e = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, e in enumerate(entradas_hoy, 1):
-        filas_e.append([str(i), e.producto.nombre, f'+{e.cantidad}',
+        filas_e.append([str(i), e.presentacion.producto.nombre, f'+{e.cantidad}',
                          e.motivo or '—',
                          e.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
     if len(filas_e) == 1:
@@ -360,7 +360,7 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     seccion("Salidas del día", '#e74c3c')
     filas_s = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, s in enumerate(salidas_hoy, 1):
-        filas_s.append([str(i), s.producto.nombre, f'-{s.cantidad}',
+        filas_s.append([str(i), s.presentacion.producto.nombre, f'-{s.cantidad}',
                          s.motivo or '—',
                          s.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
     if len(filas_s) == 1:
@@ -534,10 +534,10 @@ def index_reportes(request):
                             det.cantidad, det.subtotal(),
                             v.fecha.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
                         ])
-                mov_hoy = Inventario.objects.filter(fecha_actualizada__date=hoy_exp).select_related('producto')
+                mov_hoy = Inventario.objects.filter(fecha_actualizada__date=hoy_exp).select_related('presentacion__producto')
                 for m in mov_hoy:
                     writer.writerow([
-                        m.tipo.capitalize(), m.producto.nombre,
+                        m.tipo.capitalize(), m.presentacion.producto.nombre,
                         m.cantidad, m.motivo or '—',
                         m.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
                     ])
@@ -564,8 +564,8 @@ def index_reportes(request):
                 nombre = f"reporte_ventas_{timezone.now().strftime('%Y%m%d')}.pdf"
 
             elif tipo == 'inventario':
-                entradas_qs = Inventario.objects.filter(tipo='entrada').select_related('producto').order_by('-fecha_actualizada')
-                salidas_qs  = Inventario.objects.filter(tipo='salida').select_related('producto').order_by('-fecha_actualizada')
+                entradas_qs = Inventario.objects.filter(tipo='entrada').select_related('presentacion__producto').order_by('-fecha_actualizada')
+                salidas_qs  = Inventario.objects.filter(tipo='salida').select_related('presentacion__producto').order_by('-fecha_actualizada')
                 buffer = _pdf_inventario(productos_qs, entradas_qs, salidas_qs)
                 nombre = f"reporte_inventario_{timezone.now().strftime('%Y%m%d')}.pdf"
 
@@ -576,13 +576,12 @@ def index_reportes(request):
             elif tipo == 'resumen_diario':
                 ventas_hoy_pdf    = Venta.objects.prefetch_related('detalles__producto', 'detalles__presentacion').filter(fecha__date=hoy_pdf).order_by('-fecha')
                 ingresos_hoy_pdf  = sum(v.total_venta for v in ventas_hoy_pdf)
-                mov_hoy           = Inventario.objects.filter(fecha_actualizada__date=hoy_pdf).select_related('producto')
+                mov_hoy           = Inventario.objects.filter(fecha_actualizada__date=hoy_pdf).select_related('presentacion__producto')
                 entradas_hoy_pdf  = mov_hoy.filter(tipo='entrada')
                 salidas_hoy_pdf   = mov_hoy.filter(tipo='salida')
                 total_ent_pdf     = sum(e.cantidad for e in entradas_hoy_pdf)
                 total_sal_pdf     = sum(s.cantidad for s in salidas_hoy_pdf)
 
-                # Top productos del día para PDF
                 det_hoy = DetalleVenta.objects.filter(venta__fecha__date=hoy_pdf).select_related('producto')
                 top_h   = {}
                 for det in det_hoy:
@@ -641,8 +640,8 @@ def index_reportes(request):
     total_stock_bajo  = sum(1 for p in productos if 0 < getattr(p, 'cantidad_disponible', 0) <= 10)
     total_agotados    = sum(1 for p in productos if getattr(p, 'cantidad_disponible', 0) == 0)
 
-    entradas = Inventario.objects.filter(tipo='entrada').select_related('producto').order_by('-fecha_actualizada')
-    salidas  = Inventario.objects.filter(tipo='salida').select_related('producto').order_by('-fecha_actualizada')
+    entradas = Inventario.objects.filter(tipo='entrada').select_related('presentacion__producto').order_by('-fecha_actualizada')
+    salidas  = Inventario.objects.filter(tipo='salida').select_related('presentacion__producto').order_by('-fecha_actualizada')
 
     hoy = timezone.now().astimezone(ZONA_COLOMBIA).date()
 
@@ -652,7 +651,7 @@ def index_reportes(request):
 
     ingresos_hoy = sum(v.total_venta for v in ventas_hoy)
 
-    movimientos_hoy    = Inventario.objects.filter(fecha_actualizada__date=hoy).select_related('producto')
+    movimientos_hoy    = Inventario.objects.filter(fecha_actualizada__date=hoy).select_related('presentacion__producto')
     entradas_hoy       = movimientos_hoy.filter(tipo='entrada')
     salidas_hoy        = movimientos_hoy.filter(tipo='salida')
     total_entradas_hoy = sum(e.cantidad for e in entradas_hoy)
@@ -699,7 +698,7 @@ def index_reportes(request):
         .replace('<!--',      r'<\!--')
     )
 
-    return render(request, 'reportes.html', {
+    context = {
         'ventas':             ventas_todas,
         'page_obj':           page_obj,
         'paginator':          paginator,
@@ -726,7 +725,8 @@ def index_reportes(request):
         'total_salidas_hoy':  total_salidas_hoy,
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
-    })
+    }
+    return render(request, 'reportes/reportes.html', context)
 
 
 # ═══════════════════════════════════════════════════════
@@ -735,7 +735,7 @@ def index_reportes(request):
 
 def reporte_movimientos(request):
     form        = FiltroReporteForm(request.GET or None)
-    movimientos = Inventario.objects.select_related('producto').all().order_by('-fecha_actualizada')
+    movimientos = Inventario.objects.select_related('presentacion__producto').all().order_by('-fecha_actualizada')
 
     if form.is_valid():
         f_inicio = form.cleaned_data.get('fecha_inicio')
