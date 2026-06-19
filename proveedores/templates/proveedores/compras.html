@@ -23,127 +23,107 @@
     </div>
   {% endif %}
 
-  <!-- ====== HEADER PROVEEDOR ====== -->
-  <div class="card card-dev card-header-top mb-4">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-start gap-4 flex-wrap">
-        <div class="flex-grow-1">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div class="icon-bg-primary">
-              <i class="bi bi-truck icon-primary"></i>
-            </div>
-            <div>
-              <h2 class="h4 mb-0 fw-bold">
-                {% if proveedor %}{{ proveedor.nombre_empresa }}{% else %}Registrar Compra{% endif %}
-              </h2>
-            </div>
-          </div>
-          {% if proveedor %}
-          <div class="d-flex flex-column gap-1 ms-5">
-            <p class="small mb-0">
-              <i class="bi bi-person me-2 icon-muted"></i>
-              <span class="fw-bold">{{ proveedor.nombre_contacto|default:"Sin contacto" }}</span>
-            </p>
-            {% if proveedor.telefono %}
-            <p class="small mb-0">
-              <i class="bi bi-telephone me-2 icon-muted"></i>
-              <span class="telemetry-text">{{ proveedor.telefono }}</span>
-            </p>
-            {% endif %}
-            {% if proveedor.email %}
-            <p class="small mb-0">
-              <i class="bi bi-envelope me-2 icon-muted"></i>
-              {{ proveedor.email }}
-            </p>
-            {% endif %}
-          </div>
-          {% else %}
-          <p class="ms-5 small mb-0 text-muted">Selecciona un proveedor para comenzar a registrar compras</p>
-          {% endif %}
-        </div>
-        <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-arrow-left me-2"></i>Cambiar proveedor
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- ====== TARJETAS KPI (ESTILO REPORTES) ====== -->
-  <div class="row g-3 mb-4">
+  <!-- ====== TARJETAS KPI (ESTILO INVENTARIO) ====== -->
+  <div class="kpi-cards-grid mb-4">
     <!-- Gasto Total -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card card-dev card-kpi h-100">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-bg-primary">
-              <i class="bi bi-cash-coin icon-primary"></i>
-            </div>
-            <p class="small fw-bold mb-0 text-primary uppercase letter-space">Gasto</p>
-          </div>
-          <h3 class="h5 fw-bold mb-2">${{ total_gastado|default:0|floatformat:0 }}</h3>
-          <p class="small mb-3 text-muted flex-grow-1">Histórico acumulado</p>
-          <a href="#" class="small fw-bold link-primary">
-            Ver detalle <i class="bi bi-arrow-right ms-1"></i>
-          </a>
-        </div>
+    <div class="kpi-card kpi-card-cyan">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box cyan"><i class="bi bi-receipt"></i></div>
+        <span class="kpi-badge cyan">GASTO</span>
       </div>
+      <div class="kpi-value cyan">${{ total_gastado|default:0|floatformat:0 }}</div>
+      <p class="kpi-title">Gasto Total</p>
+      <p class="kpi-sub">Histórico acumulado</p>
+      <span class="kpi-link cyan">Ver detalle →</span>
     </div>
 
     <!-- Compras Mes -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card card-dev card-kpi h-100">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-bg-secondary">
-              <i class="bi bi-bag-check icon-secondary"></i>
-            </div>
-            <p class="small fw-bold mb-0 text-secondary uppercase letter-space">Mes</p>
-          </div>
-          <h3 class="h5 fw-bold mb-2">{{ count_mes|default:0 }} <span class="text-small-light">registros</span></h3>
-          <p class="small mb-3 text-muted flex-grow-1">${{ total_mes|default:0|floatformat:0 }} total</p>
-          <a href="#" class="small fw-bold link-secondary">
-            Ver detalle <i class="bi bi-arrow-right ms-1"></i>
-          </a>
-        </div>
+    <div class="kpi-card kpi-card-green">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box green"><i class="bi bi-bag"></i></div>
+        <span class="kpi-badge green">MES</span>
       </div>
+      <div class="kpi-value green">{{ count_mes|default:0 }}</div>
+      <p class="kpi-title">Compras Mes</p>
+      <p class="kpi-sub">${{ total_mes|default:0|floatformat:0 }} total</p>
+      <span class="kpi-link green">Ver detalle →</span>
     </div>
 
     <!-- Producto Top -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card card-dev card-kpi h-100">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-bg-tertiary">
-              <i class="bi bi-star icon-tertiary"></i>
-            </div>
-            <p class="small fw-bold mb-0 text-tertiary uppercase letter-space">Top</p>
-          </div>
-          <h6 class="fw-bold mb-2">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }}{% else %}Sin datos{% endif %}</h6>
-          <p class="small mb-3 text-muted flex-grow-1">{% if producto_top %}{{ producto_top.total_und }} unidades{% else %}Sin compras{% endif %}</p>
-          <a href="#" class="small fw-bold link-tertiary">
-            Ver detalle <i class="bi bi-arrow-right ms-1"></i>
-          </a>
-        </div>
+    <div class="kpi-card kpi-card-purple">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box purple"><i class="bi bi-star"></i></div>
+        <span class="kpi-badge purple">TOP</span>
       </div>
+      <div class="kpi-value purple">{% if producto_top %}{{ producto_top.total_und }}{% else %}0{% endif %}</div>
+      <p class="kpi-title">Producto Top</p>
+      <p class="kpi-sub">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }}{% else %}Sin compras{% endif %}</p>
+      <span class="kpi-link purple">Ver detalle →</span>
     </div>
 
     <!-- Nueva Compra (Acción) -->
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card card-dev card-kpi h-100" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-bg-quaternary">
-              <i class="bi bi-plus-circle icon-quaternary"></i>
-            </div>
-            <p class="small fw-bold mb-0 text-quaternary uppercase letter-space">Acción</p>
+    <div class="kpi-card kpi-card-pink">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box pink"><i class="bi bi-plus-circle"></i></div>
+        <span class="kpi-badge pink">ACCIÓN</span>
+      </div>
+      <div class="kpi-value pink">0</div>
+      <p class="kpi-title">Registrar</p>
+      <p class="kpi-sub">Nueva compra</p>
+      <span class="kpi-link pink">Abrir módulo →</span>
+    </div>
+  </div>
+  <!-- ====== FIN TARJETAS KPI ====== -->
+
+  <!-- ====== HEADER PROVEEDOR ====== -->
+  <div class="card card-dev card-header-top mb-4 card-proveedor-header">
+    <div class="card-body p-0">
+      {% if proveedor %}
+      <div class="proveedor-container">
+        <div class="proveedor-main">
+          <div class="proveedor-icon">
+            <i class="bi bi-truck"></i>
           </div>
-          <h6 class="fw-bold mb-2">Registrar</h6>
-          <p class="small mb-3 text-muted flex-grow-1">Nueva compra</p>
-          <a href="#" class="small fw-bold link-quaternary">
-            Abrir módulo <i class="bi bi-arrow-right ms-1"></i>
+          <div class="proveedor-info">
+            <h2 class="proveedor-nombre">{{ proveedor.nombre_empresa }}</h2>
+            <div class="proveedor-details">
+              {% if proveedor.tipo_proveedor %}
+              <span class="detail-badge">{{ proveedor.get_tipo_proveedor_display }}</span>
+              {% endif %}
+              {% if proveedor.email %}
+              <div class="detail-item">
+                <i class="bi bi-envelope-fill"></i>
+                <span>{{ proveedor.email }}</span>
+              </div>
+              {% endif %}
+              {% if proveedor.telefono %}
+              <div class="detail-item">
+                <i class="bi bi-telephone-fill"></i>
+                <span>{{ proveedor.telefono }}</span>
+              </div>
+              {% endif %}
+              <div class="detail-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span class="estado-badge {% if proveedor.estado == 'activo' %}estado-activo{% else %}estado-{{ proveedor.estado }}{% endif %}">{{ proveedor.get_estado_display }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="proveedor-actions">
+          <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-2"></i>Cambiar
           </a>
         </div>
       </div>
+      {% else %}
+      <div class="proveedor-empty">
+        <div class="proveedor-icon-empty">
+          <i class="bi bi-truck"></i>
+        </div>
+        <h3>Registrar Compra</h3>
+        <p>Selecciona un proveedor para comenzar a registrar compras</p>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -336,6 +316,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- ====== MODALES ====== -->
 
