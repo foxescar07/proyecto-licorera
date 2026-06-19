@@ -308,10 +308,75 @@ def gestion_productos(request):
 
 
 @login_required
-def gestion_inventario(request):
-    productos = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').all()
-    return render(request, 'inventario/gestion_inventario.html', {'productos': productos})
+def registrar_salida_view(request):
+    hoy         = timezone.now().date()
+    mes_actual  = timezone.now().month
+    anio_actual = timezone.now().year
 
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).all()
+
+    ordenes_mes = Lote.objects.filter(
+        fecha_registro__month=mes_actual,
+        fecha_registro__year=anio_actual
+    ).count()
+
+    salidas_por_motivo = Inventario.objects.filter(tipo='salida').values('motivo').annotate(total=Sum('cantidad'))
+    motivos_dict = {item['motivo'].lower(): item['total'] for item in salidas_por_motivo}
+    chart_motivos_data = [
+        motivos_dict.get('venta', 0),
+        motivos_dict.get('merma', 0),
+        motivos_dict.get('daño', 0),
+        motivos_dict.get('vencido', 0),
+    ]
+
+    context = {
+        'productos':          productos,
+        'ordenes_mes':        ordenes_mes,
+        'chart_motivos_data': chart_motivos_data,
+    }
+    return render(request, 'inventario/registrar_salida.html', context)
+
+
+@login_required
+def gestion_lotes_view(request):
+    hoy         = timezone.now().date()
+    mes_actual  = timezone.now().month
+    anio_actual = timezone.now().year
+
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).all()
+
+    ingresos_hoy = Lote.objects.filter(
+        fecha_registro__date=hoy
+    ).aggregate(total=Sum('stock_actual'))['total'] or 0
+
+    ordenes_mes = Lote.objects.filter(
+        fecha_registro__month=mes_actual,
+        fecha_registro__year=anio_actual
+    ).count()
+
+    top_productos = Lote.objects.values('presentacion__producto__nombre').annotate(
+        total_uds=Sum('stock_actual')
+    ).order_by('-total_uds')[:5]
+
+    proveedores_labels = [item['presentacion__producto__nombre'] for item in top_productos]
+    proveedores_data   = [item['total_uds'] for item in top_productos]
+
+    if not proveedores_labels:
+        proveedores_labels = ['Sin datos']
+        proveedores_data   = [0]
+
+    context = {
+        'productos':          productos,
+        'ingresos_hoy':       ingresos_hoy,
+        'ordenes_mes':        ordenes_mes,
+        'proveedores_labels': proveedores_labels,
+        'proveedores_data':   proveedores_data,
+    }
+    return render(request, 'inventario/gestion_lotes.html', context)
 
 @login_required
 def gestion_salida(request):
@@ -323,7 +388,7 @@ def gestion_salida(request):
 
         if not presentacion_id:
             messages.error(request, '⚠️ Debes seleccionar una presentación.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         try:
             cantidad = int(cantidad_raw)
@@ -331,23 +396,23 @@ def gestion_salida(request):
                 raise ValueError
         except (ValueError, TypeError):
             messages.error(request, '⚠️ La cantidad debe ser un número mayor a cero.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         if lote_id:
             lote = get_object_or_404(Lote, pk=lote_id)
             if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
                 messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido.')
-                return redirect('gestion_inventario')
+                return redirect('registrar_salida_view')
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
 
         if cantidad > presentacion.cantidad:
             messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         restante = cantidad
         lotes_qs = presentacion.lotes.filter(stock_actual__gt=0).order_by(
@@ -377,7 +442,7 @@ def gestion_salida(request):
         )
         messages.success(request, f'✅ Salida de {cantidad} unidades de "{presentacion.nombre}" registrada.')
 
-    return redirect('gestion_inventario')
+    return redirect('registrar_salida_view')
 
 
 @login_required
@@ -598,15 +663,15 @@ def registrar_lote(request):
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
-            return redirect('gestion_inventario')
+            return redirect('gestion_lotes_view')
 
         if not presentacion_id:
             messages.error(request, '⚠️ Debes seleccionar una presentación.')
-            return redirect('gestion_inventario')
+            return redirect('gestion_lotes_view')
 
         if Lote.objects.filter(numero_lote=numero_lote).exists():
             messages.error(request, f'⚠️ El lote "{numero_lote}" ya está registrado.')
-            return redirect('gestion_inventario')
+            return redirect('gestion_lotes_view')
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
 
@@ -629,7 +694,7 @@ def registrar_lote(request):
         else:
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}".')
 
-    return redirect('gestion_inventario')
+    return redirect('gestion_lotes_view')
 
 
 @login_required
@@ -724,6 +789,13 @@ def editar_lote_stock(request, pk):
         messages.info(request, f'ℹ️ El lote "{lote.numero_lote}" ya tiene {nuevo_stock} uds.')
         return redirect('gestion_stock')
 
+    costo_raw = request.POST.get('costo_unitario', '').strip()
+    if costo_raw:
+        try:
+            lote.costo_unitario = max(0, float(costo_raw))
+        except (ValueError, TypeError):
+            pass
+    
     lote.stock_actual = nuevo_stock
     lote.save()
 

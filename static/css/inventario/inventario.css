@@ -577,3 +577,166 @@
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,.28);
 }
+/*--- LOTES ---*/
+:root {
+    --l-card:   #1c3a56;
+    --l-input:  #1e3f5e;
+    --l-border: rgba(77,168,218,0.22);
+    --l-verde:  #4DA8DA;
+    --l-verde2: #3b9ad6;
+    --l-texto:  #dce8f2;
+    --l-muted:  rgba(220,232,242,0.55);
+  }
+  .inv-card {
+    background: var(--l-card);
+    border: 1px solid var(--l-border);
+    border-radius: 14px;
+  }
+  .inv-select, .inv-input {
+    background: var(--l-input) !important;
+    border: 1px solid var(--l-border) !important;
+    color: var(--l-texto) !important;
+    border-radius: 8px !important;
+  }
+  .inv-select:focus, .inv-input:focus {
+    border-color: var(--l-verde) !important;
+    box-shadow: 0 0 0 3px rgba(77,168,218,0.18) !important;
+    outline: none !important;
+  }
+  .inv-select option, .inv-select optgroup { background: #1c3a56; color: var(--l-texto); }
+  .inv-label {
+    font-size: .78rem;
+    color: var(--l-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 600;
+  }
+  .inv-btn {
+    background: var(--l-verde);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 11px 28px;
+    width: 100%;
+    font-size: .95rem;
+    letter-spacing: .03em;
+    transition: background .2s, transform .1s;
+  }
+  .inv-btn:hover  { background: var(--l-verde2); }
+  .inv-btn:active { transform: scale(.98); }
+  .stat-mini {
+    background: var(--l-card);
+    border-radius: 12px;
+    border: 1px solid var(--l-border);
+    min-height: 82px;
+  }
+  .icon-box {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: rgba(77,168,218,.14);
+    border: 1px solid rgba(77,168,218,.28);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .precio-hint {
+    font-size: .72rem;
+    color: rgba(220,232,242,0.45);
+    margin-top: 4px;
+  }
+  .section-divider {
+    border: none;
+    border-top: 1px solid rgba(39,174,96,0.14);
+    margin: 1rem 0;
+  }
+  .precio-prefix {
+    background: rgba(77,168,218,.14);
+    border: 1px solid var(--l-border);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    color: var(--l-verde);
+    padding: 0 12px;
+    font-weight: 600;
+    font-size: .9rem;
+    display: flex; align-items: center;
+  }
+  .inv-input-precio {
+    border-radius: 0 8px 8px 0 !important;
+    border-left: none !important;
+  }
+  .inv-card {
+    background: var(--s-card);
+    border: 1px solid var(--s-border);
+    border-radius: 14px;
+  }
+  .inv-select, .inv-input {
+    background: var(--s-input) !important;
+    border: 1px solid var(--s-border) !important;
+    color: var(--s-texto) !important;
+    border-radius: 8px !important;
+  }
+  .inv-select:focus, .inv-input:focus {
+    border-color: var(--s-azul) !important;
+    box-shadow: 0 0 0 3px rgba(77,168,218,0.18) !important;
+    outline: none !important;
+  }
+  .inv-select option, .inv-select optgroup { background: #1c3a56; color: var(--s-texto); }
+  .inv-label {
+    font-size: .78rem;
+    color: var(--s-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 600;
+  }
+  .inv-btn {
+    background: var(--s-azul2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 11px 28px;
+    width: 100%;
+    font-size: .95rem;
+    letter-spacing: .03em;
+    transition: background .2s, transform .1s;
+  }
+  .inv-btn:hover  { background: var(--s-azul); }
+  .inv-btn:active { transform: scale(.98); }
+  .stat-mini {
+    background: var(--s-card);
+    border-radius: 12px;
+    border: 1px solid var(--s-border);
+    min-height: 82px;
+  }
+  .icon-box {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: rgba(77,168,218,.14);
+    border: 1px solid rgba(77,168,218,.28);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .lotes-table th {
+    font-size: .72rem; color: var(--s-muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: .05em;
+    border-color: rgba(77,168,218,0.14) !important;
+    background: rgba(77,168,218,0.06);
+  }
+  .lotes-table td {
+    font-size: .82rem; color: var(--s-texto);
+    border-color: rgba(77,168,218,0.08) !important;
+  }
+  .collapse-panel {
+    background: #1e3f5e;
+    border: 1px solid rgba(77,168,218,0.18);
+    border-radius: 10px;
+  }
+  .section-divider {
+    border: none;
+    border-top: 1px solid rgba(77,168,218,0.14);
+    margin: 1rem 0;
+  }
