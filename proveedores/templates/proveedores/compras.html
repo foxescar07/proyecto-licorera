@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/proveedores/compras.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -61,8 +62,8 @@
       <span class="kpi-link purple">Ver detalle →</span>
     </div>
 
-    <!-- Nueva Compra (Acción) -->
-    <div class="kpi-card kpi-card-pink">
+    <!-- Nueva Compra (Acción → abre modal) -->
+    <div class="kpi-card kpi-card-pink" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra" style="cursor:pointer;">
       <div class="kpi-card-top">
         <div class="kpi-icon-box pink"><i class="bi bi-plus-circle"></i></div>
         <span class="kpi-badge pink">ACCIÓN</span>
@@ -127,101 +128,16 @@
     </div>
   </div>
 
-  <!-- ====== CONTENIDO PRINCIPAL ====== -->
+  <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
+  <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
   <div class="row g-3 align-items-stretch">
+    <div class="col-12">
+      <div class="card card-dev card-header-top">
 
-    <!-- PANEL: NUEVA COMPRA -->
-    <div class="col-12 col-lg-6">
-      <div class="card card-dev card-header-top h-100 d-flex flex-column">
-        <div class="card-header border-bottom gradient-header">
-          <div class="d-flex align-items-center gap-3">
-            <div class="icon-bg-primary">
-              <i class="bi bi-clipboard2-plus icon-primary"></i>
-            </div>
-            <div>
-              <h5 class="mb-0 fw-bold">Nueva Compra</h5>
-              <small class="text-muted">Completa los datos para registrar</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-body flex-grow-1 p-4">
-          <form method="POST" novalidate>
-            {% csrf_token %}
-
-            <!-- Proveedor -->
-            <div class="mb-4">
-              <label class="dev-form-label">Proveedor Seleccionado</label>
-              <button type="button" class="form-control btn-selector text-start d-flex align-items-center justify-content-between" data-bs-toggle="modal" data-bs-target="#modalProveedores">
-                  <i class="bi bi-truck"></i>
-                  {% if proveedor %}{{ proveedor.nombre_empresa }}{% else %}Selecciona proveedor{% endif %}
-                </span>
-                <i class="bi bi-chevron-down"></i>
-              </button>
-              <input type="hidden" id="proveedorSeleccionado" name="proveedor_id" value="{{ proveedor.id|default:'' }}" required>
-            </div>
-
-            <!-- Producto (Usando formulario) -->
-            <div class="mb-4">
-              <label for="{{ form.producto.id_for_label }}" class="dev-form-label">{{ form.producto.label }}</label>
-              {{ form.producto }}
-              {% if form.producto.errors %}
-                <div class="alert alert-danger-dev mt-2">
-                  {{ form.producto.errors }}
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Lote (Usando formulario) -->
-            <div class="mb-4">
-              <label for="{{ form.lote.id_for_label }}" class="dev-form-label">{{ form.lote.label }}</label>
-              {{ form.lote }}
-              {% if form.lote.errors %}
-                <div class="alert alert-danger-dev mt-2">
-                  {{ form.lote.errors }}
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Cantidad y Precio -->
-            <div class="row g-3 mb-4">
-              <div class="col-6">
-                <label for="{{ form.cantidad.id_for_label }}" class="dev-form-label">{{ form.cantidad.label }}</label>
-                {{ form.cantidad }}
-                {% if form.cantidad.errors %}
-                  <div class="alert alert-danger-dev mt-2">
-                    {{ form.cantidad.errors }}
-                  </div>
-                {% endif %}
-              </div>
-              <div class="col-6">
-                <label for="{{ form.precio_unitario.id_for_label }}" class="dev-form-label">{{ form.precio_unitario.label }}</label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  {{ form.precio_unitario }}
-                </div>
-                {% if form.precio_unitario.errors %}
-                  <div class="alert alert-danger-dev mt-2">
-                    {{ form.precio_unitario.errors }}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-
-            <!-- Botón -->
-            <button type="submit" class="btn btn-primary w-100 fw-bold">
-              <i class="bi bi-bag-check me-2"></i>Registrar compra
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- PANEL: HISTORIAL DE COMPRAS -->
-    <div class="col-12 col-lg-6">
-      <div class="card card-dev card-header-top h-100 d-flex flex-column">
-        <div class="card-header border-bottom gradient-header">
+        <!-- Header clicable para colapsar -->
+        <div class="card-header border-bottom gradient-header" style="cursor: pointer; padding: 1rem;">
           <div class="d-flex align-items-center justify-content-between">
+            <!-- Parte izquierda (solo información) -->
             <div class="d-flex align-items-center gap-3">
               <div class="icon-bg-primary">
                 <i class="bi bi-clock-history icon-primary"></i>
@@ -231,174 +147,333 @@
                 <small class="text-muted">Movimientos para este proveedor</small>
               </div>
             </div>
-            <span class="badge badge-cyan">{{ compras|length|default:0 }}</span>
+
+            <!-- Parte derecha (botón + y chevron) -->
+            <div class="d-flex align-items-center gap-2">
+              <button type="button"
+                      class="btn-nueva-compra"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalNuevaCompra"
+                      title="Nueva compra">
+                <i class="bi bi-plus-circle me-2"></i>Nueva compra
+              </button>
+              <span class="badge badge-cyan">{{ compras|length|default:0 }}</span>
+              <!-- Solo el chevron controla el collapse -->
+              <i class="bi bi-chevron-down"
+                 style="transition: transform 0.3s ease; font-size: 1.2rem; cursor: pointer;"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#collapseHistorial"
+                 aria-expanded="true"
+                 aria-controls="collapseHistorial"></i>
+            </div>
           </div>
         </div>
 
-        <div class="table-responsive table-scroll flex-grow-1">
-          <table class="table table-sm align-middle mb-0">
-            <thead>
-              <tr>
-                <th class="text-center small header-th">#</th>
-                <th class="small header-th">Producto</th>
-                <th class="text-center small header-th">Cant.</th>
-                <th class="text-end small header-th">Precio</th>
-                <th class="text-end small header-th">Total</th>
-                <th class="text-center small header-th">Fecha</th>
-                <th class="text-center small header-th">Ver</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for compra in compras %}
+        <!-- Contenido desplegable -->
+        <div class="collapse show" id="collapseHistorial">
+          <div class="table-responsive table-scroll">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
                 <tr>
-                  <td class="text-center small text-muted">{{ forloop.counter }}</td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-box icon-primary"></i>
-                      <div>
-                        <div class="fw-semibold small">{{ compra.producto.nombre }}</div>
-                        {% if compra.producto.categoria %}
-                          <small class="text-muted">{{ compra.producto.categoria.nombre }}</small>
-                        {% endif %}
+                  <th class="text-center small header-th">#</th>
+                  <th class="small header-th">Producto</th>
+                  <th class="text-center small header-th">Cant.</th>
+                  <th class="text-end small header-th">Precio</th>
+                  <th class="text-end small header-th">Total</th>
+                  <th class="text-center small header-th">Fecha</th>
+                  <th class="text-center small header-th">Ver</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for compra in compras %}
+                  <tr>
+                    <td class="text-center small text-muted">{{ forloop.counter }}</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-box icon-primary"></i>
+                        <div>
+                          <div class="fw-semibold small">{{ compra.producto.nombre }}</div>
+                          {% if compra.producto.categoria %}
+                            <small class="text-muted">{{ compra.producto.categoria.nombre }}</small>
+                          {% endif %}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td class="text-center">
-                    <span class="badge badge-cyan">{{ compra.cantidad }}</span>
-                  </td>
-                  <td class="text-end small">
-                    {% if compra.precio_unitario %}
-                      ${{ compra.precio_unitario|floatformat:0 }}
-                    {% else %}
-                      <span class="text-muted">—</span>
-                    {% endif %}
-                  </td>
-                  <td class="text-end small fw-bold text-success">
-                    {% if compra.precio_unitario %}
-                      ${{ compra.total|floatformat:0 }}
-                    {% else %}
-                      <span class="text-muted">—</span>
-                    {% endif %}
-                  </td>
-                  <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
-                  <td class="text-center">
-                    <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" data-bs-toggle="modal" data-bs-target="#detalleCompra{{ compra.id }}">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                  </td>
-                </tr>
-              {% empty %}
-                <tr>
-                  <td colspan="7" class="text-center py-5">
-                    <div class="d-flex flex-column align-items-center justify-content-center">
-                      <i class="bi bi-clock-history icon-empty"></i>
-                      <p class="fw-semibold mb-1">Sin compras registradas aun</p>
-                      <p class="small mb-0 text-muted">Registra la primera compra desde el formulario.</p>
-                    </div>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-            {% if compras %}
-              <tfoot class="tfoot-total">
-                <tr>
-                  <td colspan="4" class="text-end fw-bold text-uppercase small">
-                    <i class="bi bi-calculator me-1"></i>Subtotal
-                  </td>
-                  <td class="text-end fw-bold text-success">${{ subtotal_compras|default:0|floatformat:0 }}</td>
-                  <td colspan="2"></td>
-                </tr>
-              </tfoot>
-            {% endif %}
-          </table>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge badge-cyan">{{ compra.cantidad }}</span>
+                    </td>
+                    <td class="text-end small">
+                      {% if compra.precio_unitario %}
+                        ${{ compra.precio_unitario|floatformat:0 }}
+                      {% else %}
+                        <span class="text-muted">—</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end small fw-bold text-success">
+                      {% if compra.precio_unitario %}
+                        ${{ compra.total|floatformat:0 }}
+                      {% else %}
+                        <span class="text-muted">—</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2"
+                              data-bs-toggle="modal"
+                              data-bs-target="#detalleCompra{{ compra.id }}">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="7" class="text-center py-5">
+                      <div class="d-flex flex-column align-items-center justify-content-center">
+                        <i class="bi bi-clock-history icon-empty"></i>
+                        <p class="fw-semibold mb-1">Sin compras registradas aun</p>
+                        <p class="small mb-0 text-muted">Registra la primera compra desde el botón "Nueva compra".</p>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              {% if compras %}
+                <tfoot class="tfoot-total">
+                  <tr>
+                    <td colspan="4" class="text-end fw-bold text-uppercase small">
+                      <i class="bi bi-calculator me-1"></i>Subtotal
+                    </td>
+                    <td class="text-end fw-bold text-success">${{ subtotal_compras|default:0|floatformat:0 }}</td>
+                    <td colspan="2"></td>
+                  </tr>
+                </tfoot>
+              {% endif %}
+            </table>
+          </div>
         </div>
+        <!-- fin collapse -->
+
+      </div>
+    </div>
+  </div>
+  <!-- ====== FIN HISTORIAL ====== -->
+
+  <!-- ====== GRÁFICOS ====== -->
+  <div class="row g-3 align-items-stretch mt-4">
+    <div class="col-12 col-lg-4">
+      <div class="card card-dev card-header-top">
+        <div class="card-header border-bottom gradient-header">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi bi-graph-up me-2"></i>Compras por Mes
+          </h5>
+        </div>
+        <div class="card-body p-3">
+          <canvas id="chartComprasMes" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card card-dev card-header-top">
+        <div class="card-header border-bottom gradient-header">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi bi-bar-chart-fill me-2"></i>Productos Más Comprados
+          </h5>
+        </div>
+        <div class="card-body p-3">
+          <canvas id="chartProductosTop" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card card-dev card-header-top">
+        <div class="card-header border-bottom gradient-header">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi bi-pie-chart-fill me-2"></i>Gastos por Proveedor
+          </h5>
+        </div>
+        <div class="card-body p-3">
+          <canvas id="chartGastosProveedor" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ====== FIN GRÁFICOS ====== -->
+
+</div>
+
+<!-- ====== MODALES ====== -->
+
+<!-- MODAL: NUEVA COMPRA -->
+<div class="modal fade" id="modalNuevaCompra" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header gradient-header">
+        <div>
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-clipboard2-plus me-2"></i>Nueva Compra
+          </h5>
+          <small class="text-muted">Completa los datos para registrar</small>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form method="POST" novalidate id="formNuevaCompra">
+          {% csrf_token %}
+
+          <!-- Proveedor -->
+          <div class="mb-4">
+            <label class="dev-form-label">Proveedor Seleccionado</label>
+            <button type="button" class="form-control btn-selector text-start d-flex align-items-center justify-content-between" data-bs-toggle="modal" data-bs-target="#modalProveedores">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-truck"></i>
+                {% if proveedor %}{{ proveedor.nombre_empresa }}{% else %}Selecciona proveedor{% endif %}
+              </span>
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            <input type="hidden" id="proveedorSeleccionado" name="proveedor_id" value="{{ proveedor.id|default:'' }}" required>
+          </div>
+
+          <!-- Producto (Usando formulario) -->
+          <div class="mb-4">
+            <label for="{{ form.producto.id_for_label }}" class="dev-form-label">{{ form.producto.label }}</label>
+            {{ form.producto }}
+            {% if form.producto.errors %}
+              <div class="alert alert-danger-dev mt-2">
+                {{ form.producto.errors }}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Lote (Usando formulario) -->
+          <div class="mb-4">
+            <label for="{{ form.lote.id_for_label }}" class="dev-form-label">{{ form.lote.label }}</label>
+            {{ form.lote }}
+            {% if form.lote.errors %}
+              <div class="alert alert-danger-dev mt-2">
+                {{ form.lote.errors }}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Cantidad y Precio -->
+          <div class="row g-3 mb-2">
+            <div class="col-6">
+              <label for="{{ form.cantidad.id_for_label }}" class="dev-form-label">{{ form.cantidad.label }}</label>
+              {{ form.cantidad }}
+              {% if form.cantidad.errors %}
+                <div class="alert alert-danger-dev mt-2">
+                  {{ form.cantidad.errors }}
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-6">
+              <label for="{{ form.precio_unitario.id_for_label }}" class="dev-form-label">{{ form.precio_unitario.label }}</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ form.precio_unitario }}
+              </div>
+              {% if form.precio_unitario.errors %}
+                <div class="alert alert-danger-dev mt-2">
+                  {{ form.precio_unitario.errors }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer gradient-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="formNuevaCompra" class="btn btn-primary fw-bold">
+          <i class="bi bi-bag-check me-2"></i>Registrar compra
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- ====== MODALES ====== -->
-
 <!-- MODAL: DETALLE DE COMPRA -->
 {% for compra in compras %}
-  <div class="modal fade" id="detalleCompra{{ compra.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="detalleCompra{{ compra.id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header gradient-header">
-          <div>
-            <span class="badge badge-cyan mb-2">ID #{{ compra.id }}</span>
-            <h5 class="modal-title fw-bold">
-              <i class="bi bi-receipt me-2"></i>Detalle de compra
+      <div class="modal-content detalle-compra-modal">
+        <div class="modal-header detalle-compra-header">
+          <div class="detalle-compra-title-wrap">
+            <span class="detalle-compra-id">ID #{{ compra.id }}</span>
+            <h5 class="modal-title detalle-compra-title">
+              <i class="bi bi-receipt-cutoff"></i>Detalle de compra
             </h5>
+            <small>Resumen del movimiento registrado</small>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
-        <div class="modal-body p-4">
-          <div class="row g-3">
+        <div class="modal-body detalle-compra-body">
+          <div class="row g-3 detalle-compra-grid">
             <div class="col-12">
-              <div class="card card-inner">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Producto</p>
-                  <p class="mb-0 fw-semibold">{{ compra.producto.nombre }}</p>
+              <div class="detalle-card detalle-card-producto">
+                <div class="detalle-icon detalle-icon-producto">
+                  <i class="bi bi-box-seam"></i>
+                </div>
+                <div>
+                  <p class="detalle-label">Producto</p>
+                  <p class="detalle-value detalle-producto-nombre">{{ compra.producto.nombre }}</p>
                   {% if compra.producto.categoria %}
-                    <small class="text-muted">{{ compra.producto.categoria.nombre }}</small>
+                    <small class="detalle-subvalue">{{ compra.producto.categoria.nombre }}</small>
                   {% endif %}
                 </div>
               </div>
             </div>
 
             <div class="col-12 col-md-4">
-              <div class="card card-inner h-100">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Cantidad</p>
-                  <p class="mb-0 fw-semibold">{{ compra.cantidad }} und.</p>
-                </div>
+              <div class="detalle-card h-100">
+                <div class="detalle-icon"><i class="bi bi-stack"></i></div>
+                <p class="detalle-label">Cantidad</p>
+                <p class="detalle-value">{{ compra.cantidad }} und.</p>
               </div>
             </div>
 
             <div class="col-12 col-md-4">
-              <div class="card card-inner h-100">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Lote</p>
-                  <p class="mb-0 fw-semibold">{% if compra.lote %}{{ compra.lote.numero_lote }}{% else %}Sin lote{% endif %}</p>
-                </div>
+              <div class="detalle-card h-100">
+                <div class="detalle-icon"><i class="bi bi-tags"></i></div>
+                <p class="detalle-label">Lote</p>
+                <p class="detalle-value">{% if compra.lote %}{{ compra.lote.numero_lote }}{% else %}Sin lote{% endif %}</p>
               </div>
             </div>
 
             <div class="col-12 col-md-4">
-              <div class="card card-inner h-100">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Fecha</p>
-                  <p class="mb-0 fw-semibold fecha-text">{{ compra.fecha_registro|date:"d/m H:i" }}</p>
-                </div>
+              <div class="detalle-card h-100">
+                <div class="detalle-icon"><i class="bi bi-calendar2-check"></i></div>
+                <p class="detalle-label">Fecha</p>
+                <p class="detalle-value fecha-text">{{ compra.fecha_registro|date:"d/m H:i" }}</p>
               </div>
             </div>
 
             <div class="col-12 col-md-6">
-              <div class="card card-inner h-100">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Precio Unitario</p>
-                  <p class="mb-0 fw-semibold">{% if compra.precio_unitario %}${{ compra.precio_unitario|floatformat:0 }}{% else %}Sin precio{% endif %}</p>
-                </div>
+              <div class="detalle-card h-100">
+                <div class="detalle-icon"><i class="bi bi-cash-coin"></i></div>
+                <p class="detalle-label">Precio Unitario</p>
+                <p class="detalle-value">{% if compra.precio_unitario %}${{ compra.precio_unitario|floatformat:0 }}{% else %}Sin precio{% endif %}</p>
               </div>
             </div>
 
             <div class="col-12 col-md-6">
-              <div class="card card-inner card-highlight h-100">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Total Compra</p>
-                  <p class="mb-0 fw-semibold text-success">{% if compra.precio_unitario %}${{ compra.total|floatformat:0 }}{% else %}Sin precio{% endif %}</p>
-                </div>
+              <div class="detalle-card detalle-card-total h-100">
+                <div class="detalle-icon detalle-icon-total"><i class="bi bi-receipt"></i></div>
+                <p class="detalle-label">Total Compra</p>
+                <p class="detalle-value detalle-total">{% if compra.precio_unitario %}${{ compra.total|floatformat:0 }}{% else %}Sin precio{% endif %}</p>
               </div>
             </div>
 
             <div class="col-12">
-              <div class="card card-inner">
-                <div class="card-body">
-                  <p class="dev-form-label mb-1">Proveedor</p>
-                  <p class="mb-0 fw-semibold">{{ proveedor.nombre_empresa|default:"N/A" }}</p>
+              <div class="detalle-card detalle-card-proveedor">
+                <div class="detalle-icon"><i class="bi bi-truck"></i></div>
+                <div>
+                  <p class="detalle-label">Proveedor</p>
+                  <p class="detalle-value">{{ proveedor.nombre_empresa|default:"N/A" }}</p>
                   <small class="text-muted">{{ proveedor.nombre_contacto|default:"" }}{% if proveedor.telefono %} • {{ proveedor.telefono }}{% endif %}</small>
                 </div>
               </div>
@@ -406,7 +481,7 @@
           </div>
         </div>
 
-        <div class="modal-footer gradient-footer">
+        <div class="modal-footer detalle-compra-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
         </div>
       </div>
@@ -415,7 +490,7 @@
 {% endfor %}
 
 <!-- MODAL: SELECCIONAR PROVEEDOR -->
-<div class="modal fade" id="modalProveedores" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalProveedores" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header gradient-header">
@@ -529,6 +604,177 @@
         window.location.href = '?proveedor=' + this.dataset.id;
       });
     });
+
+    // ====== GRÁFICOS CON CHART.JS ======
+
+    // Colores para los gráficos
+    const colores = {
+      principal: '#4DA8DA',
+      secundario: '#00C9A7',
+      terciario: '#9B59B6',
+      cuartario: '#f0d080',
+      quinto: '#E05C7A'
+    };
+
+    // Datos dinámicos del servidor
+    const meseslabels = {{ meses_labels_json|safe }};
+    const mesesa = {{ meses_data_json|safe }};
+    const productosLabels = {{ productos_labels_json|safe }};
+    const productosData = {{ productos_data_json|safe }};
+    const gastosLabels = {{ gastos_labels_json|safe }};
+    const gastosData = {{ gastos_data_json|safe }};
+    const gastosPorcentajes = {{ gastos_porcentajes_json|safe }};
+
+    // Generar colores dinámicos para los gráficos
+    const coloresGraficos = [
+      colores.principal,
+      colores.secundario,
+      colores.terciario,
+      colores.cuartario,
+      colores.quinto
+    ];
+
+    // 1. Gráfico de línea: Compras por mes
+    const ctxComprasMes = document.getElementById('chartComprasMes');
+    if (ctxComprasMes && meseslabels.length > 0) {
+      new Chart(ctxComprasMes, {
+        type: 'line',
+        data: {
+          labels: meseslabels,
+          datasets: [{
+            label: 'Compras',
+            data: mesesa,
+            borderColor: colores.principal,
+            backgroundColor: 'rgba(77, 168, 218, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: colores.principal,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(77, 168, 218, 0.1)',
+                drawBorder: false
+              },
+              ticks: {
+                color: '#8FA3B1'
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: '#8FA3B1'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Gráfico de barras: Productos más comprados
+    const ctxProductosTop = document.getElementById('chartProductosTop');
+    if (ctxProductosTop && productosLabels.length > 0) {
+      new Chart(ctxProductosTop, {
+        type: 'bar',
+        data: {
+          labels: productosLabels,
+          datasets: [{
+            label: 'Cantidad',
+            data: productosData,
+            backgroundColor: coloresGraficos.slice(0, productosLabels.length),
+            borderRadius: 6,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(77, 168, 218, 0.1)',
+                drawBorder: false
+              },
+              ticks: {
+                color: '#8FA3B1'
+              }
+            },
+            y: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: '#8FA3B1'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. Gráfico de pastel: Gastos por proveedor
+    const ctxGastosProveedor = document.getElementById('chartGastosProveedor');
+    if (ctxGastosProveedor && gastosLabels.length > 0) {
+      // Crear labels con porcentajes
+      const gastosLabelsConPorcentaje = gastosLabels.map((label, idx) =>
+        `${label} - ${gastosPorcentajes[idx]}%`
+      );
+
+      new Chart(ctxGastosProveedor, {
+        type: 'doughnut',
+        data: {
+          labels: gastosLabelsConPorcentaje,
+          datasets: [{
+            data: gastosData,
+            backgroundColor: coloresGraficos.slice(0, gastosLabels.length),
+            borderColor: '#011936',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#8FA3B1',
+                padding: 15,
+                font: {
+                  size: 11
+                }
+              }
+            }
+          }
+        }
+      });
+    }
   });
 </script>
 
