@@ -2,13 +2,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db import models
+from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from .models import Proveedor, Compra
 from .forms import ProveedorForm, CompraForm
 from productos.models import Producto
 from inventario.models import Lote, Inventario
+import json
+from django.db.models.functions import TruncMonth
 
 @login_required
 def lista_proveedores(request):
@@ -256,6 +259,68 @@ def registrar_compra(request):
         .first()
     )
 
+    # ====== DATOS PARA GRÁFICOS ======
+
+    # 1. Compras por mes (últimos 12 meses)
+    desde = hoy - timedelta(days=365)
+    compras_por_mes = (
+        Compra.objects
+        .filter(fecha_registro__gte=desde)
+        .annotate(mes=TruncMonth('fecha_registro'))
+        .values('mes')
+        .annotate(total=Count('id'))
+        .order_by('mes')
+    )
+
+    meses_labels = []
+    meses_data = []
+    meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+    for item in compras_por_mes:
+        if item['mes']:
+            mes_num = item['mes'].month - 1
+            meses_labels.append(meses_nombres[mes_num])
+            meses_data.append(item['total'])
+
+    # 2. Productos más comprados (top 5)
+    productos_top = (
+        Compra.objects
+        .values('producto__nombre')
+        .annotate(cantidad=Sum('cantidad'))
+        .order_by('-cantidad')[:5]
+    )
+
+    productos_labels = [p['producto__nombre'] for p in productos_top]
+    productos_data = [p['cantidad'] for p in productos_top]
+
+    # 3. Gastos por proveedor
+    gastos_proveedor = (
+        Compra.objects
+        .values('proveedor__nombre_empresa')
+        .annotate(
+            gasto=Sum('cantidad', output_field=models.IntegerField()) *
+                   Sum('precio_unitario', output_field=models.DecimalField())
+        )
+        .order_by('-gasto')[:5]
+    )
+
+    # Calcular gastos totales por proveedor correctamente
+    gastos_proveedor_dict = {}
+    for c in Compra.objects.select_related('proveedor'):
+        total = (c.cantidad * c.precio_unitario) if c.precio_unitario else 0
+        nombre = c.proveedor.nombre_empresa
+        if nombre not in gastos_proveedor_dict:
+            gastos_proveedor_dict[nombre] = 0
+        gastos_proveedor_dict[nombre] += total
+
+    # Ordenar y tomar top 5
+    gastos_ordenados = sorted(gastos_proveedor_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+    gastos_labels = [item[0] for item in gastos_ordenados]
+    gastos_data = [int(item[1]) for item in gastos_ordenados]
+
+    # Calcular porcentajes para el gráfico de pastel
+    gastos_total = sum(gastos_data) if gastos_data else 1
+    gastos_porcentajes = [int((gasto / gastos_total * 100)) for gasto in gastos_data] if gastos_data else []
 
     productos = Producto.objects.all()
     lotes = Lote.objects.select_related('presentacion').all()
@@ -272,6 +337,14 @@ def registrar_compra(request):
         'producto_top': producto_top,
         'lotes': lotes,
         'form': form,
+        # Datos para gráficos
+        'meses_labels_json': json.dumps(meses_labels),
+        'meses_data_json': json.dumps(meses_data),
+        'productos_labels_json': json.dumps(productos_labels),
+        'productos_data_json': json.dumps(productos_data),
+        'gastos_labels_json': json.dumps(gastos_labels),
+        'gastos_data_json': json.dumps(gastos_data),
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
     }
 
     return render(request, 'proveedores/compras.html', context)

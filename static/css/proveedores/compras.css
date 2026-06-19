@@ -1018,6 +1018,7 @@ textarea:focus {
   background-color: var(--color-bg-card) !important;
   border: 1px solid rgba(239, 248, 226, 0.12) !important;
   color: var(--color-blanco) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45) !important;
 }
 
 .modal-header {
@@ -1043,6 +1044,92 @@ textarea:focus {
 
 .btn-close {
   filter: brightness(0) invert(1) !important;
+}
+
+/* Modal Backdrop Transparente — deja ver el fondo del proyecto detrás */
+.modal {
+  background: transparent !important;
+}
+
+.modal-backdrop {
+  background: transparent !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0 !important;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   COLLAPSE / ACCORDION
+   ──────────────────────────────────────────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────────────────────────
+   COLLAPSE / ACCORDION
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.btn-link[data-bs-toggle="collapse"] i {
+  transition: transform 0.3s ease;
+}
+
+.btn-link[data-bs-toggle="collapse"][aria-expanded="false"] i {
+  transform: rotate(-90deg);
+}
+
+.btn-link[data-bs-toggle="collapse"][aria-expanded="true"] i {
+  transform: rotate(0deg);
+}
+
+/* Botón "+" redondo azul — Nueva Compra en header del historial */
+.btn-nueva-compra-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #4DA8DA;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-nueva-compra-small:hover {
+  background: #3a93c4;
+  transform: scale(1.08);
+}
+
+.btn-nueva-compra-small:active {
+  transform: scale(0.95);
+}
+
+/* Botón Nueva Compra redondo con texto */
+.btn-nueva-compra {
+  background: #4DA8DA;
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.btn-nueva-compra:hover {
+  background: #3a93c4;
+  transform: translateY(-2px);
+}
+
+.btn-nueva-compra:active {
+  transform: translateY(0);
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -1139,19 +1226,11 @@ textarea:focus {
 
 /* ────────────────────────────────────────────────────────────────────────────
    ESTILOS PERSONALIZADOS PARA MODALES KPI
+   (NOTA: ya no se redefine .modal-content / .modal-header aquí.
+   El bloque único definido arriba en "MODALES" es el que manda para
+   que TODOS los modales sean consistentes y dejen ver el fondo del
+   proyecto a través del backdrop translúcido, como en el resto del sistema)
    ──────────────────────────────────────────────────────────────────────────── */
-
-.modal-content {
-  background: linear-gradient(135deg, var(--color-bg-card) 0%, rgba(3, 45, 96, 0.5) 100%) !important;
-  border: 1px solid rgba(77, 168, 218, 0.2) !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
-}
-
-.modal-header {
-  background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%) !important;
-  border-bottom: 2px solid rgba(77, 168, 218, 0.3) !important;
-  padding: 1.5rem !important;
-}
 
 .modal-header h5 {
   font-size: 1.5rem !important;
@@ -1306,8 +1385,184 @@ textarea:focus {
   border-radius: 8px !important;
 }
 
+/* Detalle de compra */
+.detalle-compra-modal {
+  overflow: hidden;
+  border-color: rgba(91, 200, 245, 0.22) !important;
+  background: #06264d !important;
+}
+
+.detalle-compra-header {
+  align-items: flex-start;
+  background:
+    linear-gradient(135deg, rgba(77, 168, 218, 0.16), rgba(1, 25, 54, 0.45)),
+    var(--color-surface) !important;
+  border-bottom: 1px solid rgba(91, 200, 245, 0.18) !important;
+  padding: 1.35rem 1.5rem !important;
+}
+
+.detalle-compra-title-wrap {
+  display: grid;
+  gap: .35rem;
+}
+
+.detalle-compra-id {
+  width: fit-content;
+  padding: .22rem .65rem;
+  border: 1px solid rgba(91, 200, 245, 0.22);
+  border-radius: 999px;
+  background: rgba(91, 200, 245, 0.12);
+  color: #d8f4ff;
+  font-size: .72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.detalle-compra-title {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  color: #5BC8F5 !important;
+  font-size: 1.75rem !important;
+  line-height: 1.1;
+}
+
+.detalle-compra-title i {
+  font-size: 1.45rem;
+}
+
+.detalle-compra-title-wrap small {
+  color: #8FA3B1 !important;
+  font-weight: 500;
+}
+
+.detalle-compra-body {
+  background:
+    radial-gradient(circle at top right, rgba(91, 200, 245, 0.08), transparent 34%),
+    var(--color-bg-card) !important;
+  padding: .85rem !important;
+}
+
+.detalle-compra-grid {
+  --bs-gutter-x: .55rem;
+  --bs-gutter-y: .55rem;
+}
+
+.detalle-card {
+  min-height: 66px;
+  height: 100%;
+  padding: .65rem .75rem;
+  border: 1px solid rgba(91, 200, 245, 0.18);
+  border-radius: 8px;
+  background: rgba(6, 38, 77, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  color: var(--color-blanco);
+}
+
+.detalle-card:hover {
+  border-color: rgba(91, 200, 245, 0.42);
+  background: rgba(8, 48, 96, 0.82);
+}
+
+.detalle-card-producto,
+.detalle-card-proveedor {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-height: 68px;
+}
+
+.detalle-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(91, 200, 245, 0.24);
+  border-radius: 8px;
+  background: rgba(91, 200, 245, 0.1);
+  color: #5BC8F5;
+  font-size: .86rem;
+  margin-bottom: .42rem;
+}
+
+.detalle-card-producto .detalle-icon,
+.detalle-card-proveedor .detalle-icon {
+  margin-bottom: 0;
+}
+
+.detalle-label {
+  margin: 0 0 .2rem !important;
+  color: #8FA3B1 !important;
+  font-size: .62rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+.detalle-value {
+  margin: 0 !important;
+  color: #eef8ff !important;
+  font-size: .86rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.detalle-card .fecha-text {
+  font-size: .86rem !important;
+}
+
+.detalle-producto-nombre,
+.detalle-total {
+  font-size: 1rem !important;
+}
+
+.detalle-subvalue,
+.detalle-card-proveedor .text-muted {
+  display: block;
+  margin-top: .12rem;
+  color: #8FA3B1 !important;
+  font-size: .74rem;
+}
+
+.detalle-card-total {
+  border-color: rgba(39, 174, 96, 0.32);
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.16), rgba(6, 38, 77, 0.78));
+}
+
+.detalle-icon-total {
+  border-color: rgba(39, 174, 96, 0.34);
+  background: rgba(39, 174, 96, 0.14);
+  color: #35d07f;
+}
+
+.detalle-total {
+  color: #35d07f !important;
+}
+
+.detalle-compra-footer {
+  background: var(--color-surface) !important;
+  border-top: 1px solid rgba(91, 200, 245, 0.16) !important;
+  padding: .65rem .85rem !important;
+}
+
 /* Responsive Modal */
 @media (max-width: 768px) {
+  .detalle-card {
+    min-height: auto;
+    padding: .7rem;
+  }
+
+  .detalle-card-producto,
+  .detalle-card-proveedor {
+    align-items: flex-start;
+  }
+
+  .detalle-compra-title {
+    font-size: 1.35rem !important;
+  }
+
   .modal-header {
     padding: 1rem !important;
   }
