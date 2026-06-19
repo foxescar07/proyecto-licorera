@@ -163,6 +163,7 @@
 
 .cys-report-card-icon--inv      { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--prov     { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--compras  { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--diario   { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--analisis { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--proxima  { background: rgba(77, 168, 218, 0.1);  color: #4DA8DA; }
@@ -181,6 +182,7 @@
 
 .cys-report-card__link-text--inv      { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--prov     { color: var(--verde-acento);   font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--compras  { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--diario   { color: var(--morado-acento);  font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--analisis { color: var(--naranja-acento); font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--proxima  { color: var(--dorado-acento);  font-size: .8rem; font-weight: 600; }
@@ -543,6 +545,7 @@
 
 .cys-card--inv,
 .cys-card--prov,
+.cys-card--compras,
 .cys-card--proxima,
 .cys-card--diario,
 .cys-card--analisis { border-top: 2px solid #4DA8DA !important; }

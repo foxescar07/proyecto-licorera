@@ -122,23 +122,32 @@
       </div>
     </div>
 
-    <!-- Tarjeta Productos por Proveedor -->
+    <!-- Tarjeta Compras -->
     <div class="col-12 col-md-6 col-xl-4">
-      <div class="cys-card cys-card--disabled cys-card--proxima h-100">
+      <div class="cys-card cys-card--interactive cys-card--compras h-100"
+           data-bs-toggle="modal" data-bs-target="#modalCompras">
         <div class="cys-report-card-layout">
-          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--proxima">
-            <i class="bi bi-list-ul"></i>
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--compras">
+            <i class="bi bi-cart3"></i>
           </div>
           <div class="flex-grow-1">
-            <div class="cys-report-card__title">Productos por proveedor</div>
-            <div class="cys-report-card__desc">Qué productos suministra cada uno</div>
+            <div class="cys-report-card__title">Compras</div>
+            <div class="cys-report-card__desc">Control de compras y abastecimiento</div>
             <div class="cys-report-card__stats-grid">
               <div class="cys-report-card__stat-item">
-                <span class="cys-report-card__stat-num text-muted">—</span>
-                <span class="cys-report-card__stat-label">Asociaciones</span>
+                <span class="cys-report-card__stat-num text-success">${{ total_compras|floatformat:0|default:"0" }}</span>
+                <span class="cys-report-card__stat-label">Valor</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">{{ total_ordenes|default:"0" }}</span>
+                <span class="cys-report-card__stat-label">Órdenes</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-primary">{{ proveedores|length }}</span>
+                <span class="cys-report-card__stat-label">Proveedores</span>
               </div>
             </div>
-            <span class="cys-report-card__link-text--proxima">Próximamente</span>
+            <span class="cys-report-card__link-text--compras">Ver reporte →</span>
           </div>
         </div>
       </div>
@@ -217,7 +226,7 @@
         <i class="bi bi-graph-up me-2" style="color: #4DA8DA;"></i>Historial de Ventas
       </div>
 
-      <!-- ── Barra de filtros ── -->
+      <!-- Barra de filtros -->
       <div class="cys-hv-filters">
 
         <!-- Desde -->
@@ -259,7 +268,7 @@
           </a>
         </div>
 
-        <!-- Dropdown Exportar (a la derecha) -->
+        <!-- Dropdown Exportar -->
         <div class="cys-hv-date-group ms-auto">
           <span class="cys-hv-date-label">&nbsp;</span>
           <div class="dropdown">
@@ -631,6 +640,109 @@
             <i class="bi bi-file-earmark-excel"></i> Exportar Excel
           </a>
           <a href="?export=pdf&tipo=proveedores" class="btn btn-sm btn-danger" download="reporte_proveedores.pdf" target="_blank">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          </a>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL — COMPRAS
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalCompras" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content cys-modal">
+
+      <div class="modal-header cys-modal__header">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon">
+            <i class="bi bi-cart3" style="color: #4DA8DA;"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Reporte de Compras</div>
+            <div class="cys-modal__subtitle">CYS Ltda · Control de compras y abastecimiento</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+        </div>
+      </div>
+
+      <div class="cys-modal__stats">
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
+          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Valor Total</span>
+            <span class="cys-summary-card__val">${{ total_compras|floatformat:0|default:"0" }}</span>
+          </div>
+        </div>
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
+          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Órdenes</span>
+            <span class="cys-summary-card__val">{{ total_ordenes|default:"0" }}</span>
+          </div>
+        </div>
+        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #5DCAA5;">
+          <div class="cys-summary-card__icon" style="background: rgba(93, 202, 165, 0.1); color: #5DCAA5;">
+            <i class="bi bi-truck"></i>
+          </div>
+          <div class="cys-summary-card__content">
+            <span class="cys-summary-card__label">Proveedores</span>
+            <span class="cys-summary-card__val">{{ proveedores|length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body p-0">
+        <div class="table-responsive">
+        <table id="tabla-modal-compras" class="cys-inv-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Proveedor</th><th>Producto</th><th>Cantidad</th><th>Valor</th><th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for compra in compras %}
+            <tr class="cys-tr">
+              <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+              <td data-label="Proveedor"><span class="cys-tag">{{ compra.proveedor }}</span></td>
+              <td class="cys-td" data-label="Producto">{{ compra.producto }}</td>
+              <td class="cys-td" data-label="Cantidad">{{ compra.cantidad }}</td>
+              <td class="cys-qty cys-qty--ok" data-label="Valor">${{ compra.valor|floatformat:0 }}</td>
+              <td class="cys-td" data-label="Fecha">{{ compra.fecha|date:"d/m/Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="cys-td--empty">
+                <div class="cys-empty-box">
+                  <i class="bi bi-cart3"></i>No hay compras registradas.
+                </div>
+              </td>
+              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
+              <td class="d-none"></td><td class="d-none"></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal__footer">
+        <div class="me-auto d-flex gap-2">
+          <a href="?export=excel&tipo=compras" class="btn btn-sm btn-success" download="reporte_compras.xlsx" target="_blank">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </a>
+          <a href="?export=pdf&tipo=compras" class="btn btn-sm btn-danger" download="reporte_compras.pdf" target="_blank">
             <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
           </a>
         </div>
