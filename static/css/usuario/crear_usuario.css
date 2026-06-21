@@ -706,3 +706,36 @@ form,
 #formNuevoUsuario { padding: 1.6rem 2rem 1.75rem; }
 .cys-divider { margin: 0 0 0; }
 .text-center { padding: .5rem 2rem 1.5rem; }
+
+/* ── FIX SCROLL GLOBAL ── */
+html {
+  height: 100%;
+  overflow-y: auto !important;
+}
+body {
+  min-height: 100%;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+.cys-wrap {
+  min-height: 100vh;
+  height: auto !important;
+  overflow: visible !important;
+  /* si tenía display:flex; align-items:center → esto bloquea el scroll en pantallas pequeñas */
+  align-items: flex-start;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* ── FIX AUTOCOMPLETADO (fondo blanco del navegador) ── */
+.cys-input:-webkit-autofill,
+.cys-input:-webkit-autofill:hover,
+.cys-input:-webkit-autofill:focus,
+.cys-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--texto) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--fondo-input) inset !important;
+  box-shadow: 0 0 0 1000px var(--fondo-input) inset !important;
+  border: 1px solid var(--azul-borde) !important;
+  caret-color: var(--texto);
+  transition: background-color 9999s ease-in-out 0s;
+}

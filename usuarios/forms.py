@@ -20,7 +20,10 @@ class UsuarioForm(forms.Form):
     apellidos      = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Apellidos', 'class': 'cys-input'}))
     email          = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'placeholder': 'correo@ejemplo.com', 'class': 'cys-input'}))
     telefono       = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={'placeholder': 'Ej: 3001234567', 'class': 'cys-input'}))
-    rol            = forms.ChoiceField(choices=Usuario.ROL_CHOICES, widget=forms.Select(attrs={'class': 'cys-input'}))
+    rol            = forms.ChoiceField(
+        choices=[c for c in Usuario.ROL_CHOICES if c[0] != 'admin'],
+        widget=forms.Select(attrs={'class': 'cys-input'})
+    )
     clave          = forms.CharField(min_length=6, widget=forms.PasswordInput(attrs={'placeholder': 'Mín. 6 caracteres, 2 números, 1 mayúscula', 'class': 'cys-input'}))
 
     def clean_identificacion(self):

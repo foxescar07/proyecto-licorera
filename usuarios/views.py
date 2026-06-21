@@ -77,30 +77,40 @@ def login_view(request):
         clave          = request.POST.get('clave_input', '')
         es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
+        usuario = None
+
+        # 1) Intenta como identificación, PERO solo cuenta si el username
+        #    sigue siendo el de fábrica (no lo ha personalizado todavía)
         try:
-            usuario = Usuario.objects.get(identificacion=identificacion, activo=True)
-            user    = authenticate(request, username=usuario.username, password=clave)
+            candidato = Usuario.objects.get(identificacion=identificacion, activo=True)
+            if candidato.username == candidato.identificacion:
+                usuario = candidato
+        except Usuario.DoesNotExist:
+            pass
+
+        # 2) Si no entró por identificación, intenta como username actual
+        if usuario is None:
+            try:
+                usuario = Usuario.objects.get(username__iexact=identificacion, activo=True)
+            except Usuario.DoesNotExist:
+                pass
+
+        if usuario:
+            user = authenticate(request, username=usuario.username, password=clave)
             if user:
                 login(request, user)
                 _set_session(request, usuario)
                 if es_ajax:
                     return JsonResponse({'ok': True, 'redirect': '/'})
                 return redirect('principal')
-            else:
-                err = 'Número de identificación o contraseña incorrectos.'
-                if es_ajax:
-                    return JsonResponse({'ok': False, 'error': err})
-                messages.error(request, err)
-        except Usuario.DoesNotExist:
-            err = 'Número de identificación o contraseña incorrectos.'
-            if es_ajax:
-                return JsonResponse({'ok': False, 'error': err})
-            messages.error(request, err)
+
+        err = 'Usuario o contraseña incorrectos.'
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': err})
+        messages.error(request, err)
 
     ctx = {}
     return render(request, 'usuario.html', ctx)
-
-
 # ── LOGOUT ─────────────────────────────────────────────────────────────────────
 
 def logout_view(request):

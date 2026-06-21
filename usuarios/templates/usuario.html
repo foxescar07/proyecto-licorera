@@ -29,7 +29,7 @@
         <div class="mb-3">
           <label class="cys-label" for="loginUser">Usuario</label>
           <input type="text" id="loginUser" class="cys-input"
-                 placeholder="Tu número de identificación" autocomplete="off">
+                 placeholder="Identificación o nombre de usuario" autocomplete="off">
         </div>
 
         <div class="mb-4">
@@ -171,7 +171,6 @@
 
     const SECCIONES = ['secLogin','secRecuperar','secRecCorreo','secRecTel','secCodigo'];
 
-    // Guardamos teléfono e identificación para reutilizar en la verificación
     let _telRecuperar = '';
     let _idRecuperar  = '';
 
@@ -337,10 +336,10 @@
     document.addEventListener('keydown', e => {
       if (e.key !== 'Enter') return;
       const visible = SECCIONES.find(s => document.getElementById(s).style.display !== 'none');
-      if (visible === 'secLogin')    hacerLogin();
+      if (visible === 'secLogin')     hacerLogin();
       if (visible === 'secRecCorreo') hacerRecuperar();
-      if (visible === 'secRecTel')   hacerRecuperarTel();
-      if (visible === 'secCodigo')   hacerVerificarCodigo();
+      if (visible === 'secRecTel')    hacerRecuperarTel();
+      if (visible === 'secCodigo')    hacerVerificarCodigo();
     });
 
   </script>

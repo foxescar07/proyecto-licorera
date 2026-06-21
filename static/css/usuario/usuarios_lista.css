@@ -638,8 +638,8 @@
 .usuario-btn            { border-radius: 8px; font-size: .78rem; font-family: 'Inter',sans-serif; transition: all .2s; }
 .usuario-btn-editar     { background: rgba(77,168,218,.08); border: 1px solid rgba(77,168,218,.25); color: #4DA8DA; }
 .usuario-btn-editar:hover { background: rgba(77,168,218,.2); }
-.usuario-btn-desactivar { background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.25); color: #e87070; }
-.usuario-btn-activar    { background: rgba(77,218,140,.08); border: 1px solid rgba(77,218,140,.25); color: #5edb97; }
+.usuario-btn-desactivar { background: rgba(192,57,43,.14); border: 1px solid rgba(192,57,43,.35); color: #e87070; }
+.usuario-btn-activar    { background: rgba(77,218,140,.14); border: 1px solid rgba(77,218,140,.35); color: #5edb97; }
 .usuario-btn-eliminar {
   display: flex; align-items: center; justify-content: center; gap: .35rem;
   border-radius: 8px; font-size: .73rem; font-family: 'Inter',sans-serif;
@@ -705,4 +705,17 @@
   .cards-view-3-4 .stats-grid-inner,
   .cards-view-5-6 .stats-grid-inner { flex-direction: column !important; }
   .btn-trigger-dropdown { display: flex !important; }
+}
+
+/* ── FIX AUTOCOMPLETADO (fondo blanco del navegador) ── */
+.cys-input:-webkit-autofill,
+.cys-input:-webkit-autofill:hover,
+.cys-input:-webkit-autofill:focus,
+.cys-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--texto) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--fondo-input) inset !important;
+  box-shadow: 0 0 0 1000px var(--fondo-input) inset !important;
+  border: 1px solid var(--azul-borde) !important;
+  caret-color: var(--texto);
+  transition: background-color 9999s ease-in-out 0s;
 }
