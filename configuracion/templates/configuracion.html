@@ -1,79 +1,83 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Gestión de Lotes — CYS Ltda{% endblock %}
-{% block page_title %}Gestión de Lotes{% endblock %}
+{% block title %}Configuración — CYS Ltda{% endblock %}
+{% block page_title %}Configuración{% endblock %}
 {% block nav_inventario %}active{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/configuracion/configuracion.css' %}">
 {% endblock %}
-<body class="cys-body">
 
-  {% include 'includes/aside.html' %}
+{% block content %}
 
-  <main class="cys-main">
+  <!-- ══════════════════════════════════════════════
+       BREADCRUMB
+  ══════════════════════════════════════════════ -->
+  <nav class="cys-breadcrumb" aria-label="breadcrumb">
+    <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
+      <i class="bi bi-house-door"></i>
+    </a>
+    <i class="bi bi-chevron-right cys-breadcrumb__sep"></i>
+    <span class="cys-breadcrumb__current">Configuración</span>
+  </nav>
 
-    <!-- ══════════════════════════════════════════════
-         BREADCRUMB
-    ══════════════════════════════════════════════ -->
-    <nav class="cys-breadcrumb" aria-label="breadcrumb">
-      <a href="{% url 'dashboard' %}" class="cys-breadcrumb__link">
-        <i class="bi bi-house-door"></i>
-      </a>
-      <i class="bi bi-chevron-right cys-breadcrumb__sep"></i>
-      <span class="cys-breadcrumb__current">Configuración</span>
-    </nav>
-
-    <!-- ══════════════════════════════════════════════
-         HEADER DE MÓDULO
-    ══════════════════════════════════════════════ -->
-    <header class="cys-cfg-header">
-      <div>
-        <h1 class="cys-cfg-header__title">Configuración</h1>
-        <p class="cys-cfg-header__subtitle">Gestiona los datos de la empresa, los parámetros del sistema y tu base de datos</p>
-      </div>
-    </header>
-
-    <!-- ══════════════════════════════════════════════
-         TABS
-    ══════════════════════════════════════════════ -->
-    <div class="cys-cfg-tabs" role="tablist">
-      <button type="button" class="cys-cfg-tab is-active" id="tab-empresa" data-target="panel-empresa" role="tab" aria-selected="true">
-        <i class="bi bi-building"></i>
-        <span>Empresa</span>
-      </button>
-      <button type="button" class="cys-cfg-tab" id="tab-parametros" data-target="panel-parametros" role="tab" aria-selected="false">
-        <i class="bi bi-sliders"></i>
-        <span>Parámetros</span>
-      </button>
-      <button type="button" class="cys-cfg-tab" id="tab-basedatos" data-target="panel-basedatos" role="tab" aria-selected="false">
-        <i class="bi bi-database"></i>
-        <span>Base de datos</span>
-      </button>
+  <!-- ══════════════════════════════════════════════
+       HEADER DE MÓDULO
+  ══════════════════════════════════════════════ -->
+  <header class="cys-cfg-header">
+    <div>
+      <h1 class="cys-cfg-header__title">Configuración</h1>
+      <p class="cys-cfg-header__subtitle">Personaliza la apariencia, gestiona los datos de tu empresa y administra el sistema</p>
     </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════
+       NAVEGACIÓN RÁPIDA ENTRE SECCIONES
+  ══════════════════════════════════════════════ -->
+  <nav class="cys-cfg-secnav" aria-label="Secciones de configuración">
+    <a href="#section-estetico" class="cys-cfg-secnav__link is-active" data-section="section-estetico">
+      <i class="bi bi-palette"></i><span>Estético</span>
+    </a>
+    <a href="#section-empresa" class="cys-cfg-secnav__link" data-section="section-empresa">
+      <i class="bi bi-building"></i><span>Empresa</span>
+    </a>
+    <a href="#section-parametros" class="cys-cfg-secnav__link" data-section="section-parametros">
+      <i class="bi bi-sliders"></i><span>Parámetros</span>
+    </a>
+    <a href="#section-basedatos" class="cys-cfg-secnav__link" data-section="section-basedatos">
+      <i class="bi bi-database"></i><span>Base de datos</span>
+    </a>
+  </nav>
+
+  <div class="cys-cfg-sections">
 
     <!-- ══════════════════════════════════════════════
-         PANEL 1 — EMPRESA (solo admin edita)
+         1. GESTIÓN DE LO ESTÉTICO
     ══════════════════════════════════════════════ -->
-    <section class="cys-cfg-panel is-active" id="panel-empresa" role="tabpanel" aria-labelledby="tab-empresa">
-
-      {% if not user.is_admin %}
-      <div class="cys-cfg-lockbar">
-        <i class="bi bi-lock-fill"></i>
-        <span>Solo un administrador puede editar los datos de la empresa. Estás viendo esta sección en modo lectura.</span>
+    <section class="cys-cfg-section" id="section-estetico">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-palette"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Gestión de lo estético</h2>
+          <p class="cys-cfg-section__hint">Logo, identidad visual y tema de color de la aplicación</p>
+        </div>
       </div>
-      {% endif %}
 
-      <div class="cys-cfg-grid">
+      <div class="cys-cfg-grid cys-cfg-grid--estetico">
 
         <!-- Logo -->
         <div class="cys-cfg-card cys-cfg-card--logo">
-          <h2 class="cys-cfg-card__title">Logo de la empresa</h2>
-          <p class="cys-cfg-card__hint">PNG o JPG, fondo transparente recomendado. Máx. 2MB</p>
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--logo"><i class="bi bi-image"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Logo de la empresa</h3>
+              <p class="cys-cfg-card__hint">PNG o JPG, fondo transparente recomendado. Máx. 2MB</p>
+            </div>
+          </div>
 
           <div class="cys-cfg-dropzone" id="logoDropzone">
-            <input type="file" id="logoInput" accept="image/png, image/jpeg" hidden {% if not user.is_admin %}disabled{% endif %}>
+            <input type="file" id="logoInput" accept="image/png, image/jpeg" hidden>
             <div class="cys-cfg-dropzone__empty" id="logoEmptyState">
               <i class="bi bi-cloud-arrow-up"></i>
               <p class="cys-cfg-dropzone__title">Arrastra tu logo aquí</p>
@@ -86,67 +90,141 @@
               </button>
             </div>
           </div>
+          <p class="cys-cfg-dropzone__error" id="logoError" hidden></p>
         </div>
 
-        <!-- Datos de empresa -->
-        <div class="cys-cfg-card cys-cfg-card--form">
-          <h2 class="cys-cfg-card__title">Datos generales</h2>
-
-          <fieldset {% if not user.is_admin %}disabled{% endif %}>
-            <div class="row g-3">
-              <div class="col-md-7">
-                <label class="cys-label" for="empNombre">Razón social</label>
-                <input type="text" class="cys-input" id="empNombre" value="CYS Distribuciones Ltda." placeholder="Nombre de la empresa">
-              </div>
-              <div class="col-md-5">
-                <label class="cys-label" for="empNit">NIT</label>
-                <input type="text" class="cys-input" id="empNit" value="900.123.456-7" placeholder="000.000.000-0">
-              </div>
-
-              <div class="col-md-7">
-                <label class="cys-label" for="empDireccion">Dirección</label>
-                <input type="text" class="cys-input" id="empDireccion" value="Cra 45 #12-30, Bogotá" placeholder="Dirección principal">
-              </div>
-              <div class="col-md-5">
-                <label class="cys-label" for="empTelefono">Teléfono</label>
-                <input type="tel" class="cys-input" id="empTelefono" value="601 234 5678" placeholder="Teléfono fijo">
-              </div>
-
-              <div class="col-md-7">
-                <label class="cys-label" for="empEmail">Correo de contacto</label>
-                <input type="email" class="cys-input" id="empEmail" value="contacto@cysltda.com" placeholder="correo@empresa.com">
-              </div>
-              <div class="col-md-5">
-                <label class="cys-label" for="empCiudad">Ciudad</label>
-                <input type="text" class="cys-input" id="empCiudad" value="Bogotá D.C." placeholder="Ciudad">
-              </div>
+        <!-- Tema de color -->
+        <div class="cys-cfg-card">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--theme"><i class="bi bi-droplet-half"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Tema de color</h3>
+              <p class="cys-cfg-card__hint">Elige la paleta con la que se ve todo el sistema</p>
             </div>
-          </fieldset>
+          </div>
 
-          {% if user.is_admin %}
-          <div class="cys-cfg-card__actions">
-            <button type="button" class="cys-btn-secondary">Cancelar</button>
-            <button type="button" class="cys-btn-primary">
-              <i class="bi bi-check2"></i>
-              Guardar cambios
+          <div class="cys-theme-grid" id="themeGrid">
+            <button type="button" class="cys-theme-swatch" data-theme="logo">
+              <span class="cys-theme-swatch__dots">
+                <span style="background:#211611"></span>
+                <span style="background:#b3402c"></span>
+                <span style="background:#e0a934"></span>
+              </span>
+              <span class="cys-theme-swatch__label">Logo CYS</span>
+              <i class="bi bi-check-circle-fill cys-theme-swatch__check"></i>
+            </button>
+
+            <button type="button" class="cys-theme-swatch" data-theme="mono">
+              <span class="cys-theme-swatch__dots">
+                <span style="background:#121212"></span>
+                <span style="background:#5c5c5c"></span>
+                <span style="background:#e5e5e5"></span>
+              </span>
+              <span class="cys-theme-swatch__label">Monocromo</span>
+              <i class="bi bi-check-circle-fill cys-theme-swatch__check"></i>
+            </button>
+
+            <button type="button" class="cys-theme-swatch is-active" data-theme="azul">
+              <span class="cys-theme-swatch__dots">
+                <span style="background:#0a1322"></span>
+                <span style="background:#101b2e"></span>
+                <span style="background:#38a1ff"></span>
+              </span>
+              <span class="cys-theme-swatch__label">Azul (actual)</span>
+              <i class="bi bi-check-circle-fill cys-theme-swatch__check"></i>
             </button>
           </div>
-          {% endif %}
+
+          <div class="cys-theme-preview">
+            <span class="cys-theme-preview__label">Vista previa</span>
+            <div class="cys-theme-preview__box">
+              <p class="cys-theme-preview__title">Tarjeta de ejemplo</p>
+              <p class="cys-theme-preview__text">Así se ven el texto y los botones con este tema.</p>
+              <div class="cys-theme-preview__actions">
+                <button type="button" class="cys-btn-secondary cys-btn-secondary--sm">Cancelar</button>
+                <button type="button" class="cys-btn-primary">Guardar</button>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════════
-         PANEL 2 — PARÁMETROS (todos editan)
+         2. INFORMACIÓN DE LA EMPRESA
     ══════════════════════════════════════════════ -->
-    <section class="cys-cfg-panel" id="panel-parametros" role="tabpanel" aria-labelledby="tab-parametros">
+    <section class="cys-cfg-section" id="section-empresa">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-building"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Información de la empresa</h2>
+          <p class="cys-cfg-section__hint">Datos generales que aparecen en facturas y reportes</p>
+        </div>
+      </div>
+
+      <div class="cys-cfg-card">
+        <div class="row g-3">
+          <div class="col-md-7">
+            <label class="cys-label" for="empNombre">Razón social</label>
+            <input type="text" class="cys-input" id="empNombre" value="CYS Distribuciones Ltda." placeholder="Nombre de la empresa">
+          </div>
+          <div class="col-md-5">
+            <label class="cys-label" for="empNit">NIT</label>
+            <input type="text" class="cys-input" id="empNit" value="900.123.456-7" placeholder="000.000.000-0">
+          </div>
+
+          <div class="col-md-7">
+            <label class="cys-label" for="empDireccion">Dirección</label>
+            <input type="text" class="cys-input" id="empDireccion" value="Cra 45 #12-30, Bogotá" placeholder="Dirección principal">
+          </div>
+          <div class="col-md-5">
+            <label class="cys-label" for="empTelefono">Teléfono</label>
+            <input type="tel" class="cys-input" id="empTelefono" value="601 234 5678" placeholder="Teléfono fijo">
+          </div>
+
+          <div class="col-md-7">
+            <label class="cys-label" for="empEmail">Correo de contacto</label>
+            <input type="email" class="cys-input" id="empEmail" value="contacto@cysltda.com" placeholder="correo@empresa.com">
+          </div>
+          <div class="col-md-5">
+            <label class="cys-label" for="empCiudad">Ciudad</label>
+            <input type="text" class="cys-input" id="empCiudad" value="Bogotá D.C." placeholder="Ciudad">
+          </div>
+        </div>
+
+        <div class="cys-cfg-card__actions">
+          <button type="button" class="cys-btn-secondary">Cancelar</button>
+          <button type="button" class="cys-btn-primary">
+            <i class="bi bi-check2"></i>
+            Guardar cambios
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         3. PARÁMETROS DEL SISTEMA
+    ══════════════════════════════════════════════ -->
+    <section class="cys-cfg-section" id="section-parametros">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-sliders"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Parámetros del sistema</h2>
+          <p class="cys-cfg-section__hint">Impuestos, moneda y unidades usadas en todo el sistema</p>
+        </div>
+      </div>
 
       <div class="cys-cfg-grid cys-cfg-grid--params">
 
         <div class="cys-cfg-card">
-          <h2 class="cys-cfg-card__title">Impuestos</h2>
-          <p class="cys-cfg-card__hint">Aplica a la generación de facturas y cotizaciones</p>
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--tax"><i class="bi bi-percent"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Impuestos</h3>
+              <p class="cys-cfg-card__hint">Aplica a la generación de facturas y cotizaciones</p>
+            </div>
+          </div>
 
           <div class="row g-3">
             <div class="col-md-6">
@@ -167,8 +245,13 @@
         </div>
 
         <div class="cys-cfg-card">
-          <h2 class="cys-cfg-card__title">Moneda</h2>
-          <p class="cys-cfg-card__hint">Moneda usada en todos los módulos del sistema</p>
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--currency"><i class="bi bi-cash-coin"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Moneda</h3>
+              <p class="cys-cfg-card__hint">Moneda usada en todos los módulos del sistema</p>
+            </div>
+          </div>
 
           <div class="row g-3">
             <div class="col-md-6">
@@ -189,9 +272,14 @@
           </div>
         </div>
 
-        <div class="cys-cfg-card">
-          <h2 class="cys-cfg-card__title">Unidades de medida</h2>
-          <p class="cys-cfg-card__hint">Unidades disponibles al registrar productos en el inventario</p>
+        <div class="cys-cfg-card cys-cfg-card--full">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--units"><i class="bi bi-rulers"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Unidades de medida</h3>
+              <p class="cys-cfg-card__hint">Unidades disponibles al registrar productos en el inventario</p>
+            </div>
+          </div>
 
           <div class="cys-cfg-tags" id="unidadesTags">
             <span class="cys-tag">Unidad <button type="button" class="cys-tag__remove" aria-label="Quitar"><i class="bi bi-x"></i></button></span>
@@ -221,9 +309,16 @@
     </section>
 
     <!-- ══════════════════════════════════════════════
-         PANEL 3 — BASE DE DATOS (solo estética)
+         4. BASE DE DATOS
     ══════════════════════════════════════════════ -->
-    <section class="cys-cfg-panel" id="panel-basedatos" role="tabpanel" aria-labelledby="tab-basedatos">
+    <section class="cys-cfg-section" id="section-basedatos">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-database"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Base de datos</h2>
+          <p class="cys-cfg-section__hint">Estado, respaldos e historial de tu base de datos</p>
+        </div>
+      </div>
 
       <div class="cys-cfg-dbstats">
         <div class="cys-cfg-stat">
@@ -252,8 +347,13 @@
       <div class="cys-cfg-grid cys-cfg-grid--db">
 
         <div class="cys-cfg-card">
-          <h2 class="cys-cfg-card__title">Copia de seguridad</h2>
-          <p class="cys-cfg-card__hint">Descarga una copia completa de la base de datos actual</p>
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--backup"><i class="bi bi-shield-plus"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Copia de seguridad</h3>
+              <p class="cys-cfg-card__hint">Descarga una copia completa de la base de datos actual</p>
+            </div>
+          </div>
 
           <div class="cys-cfg-backup-row">
             <div class="cys-cfg-backup-info">
@@ -276,8 +376,13 @@
         </div>
 
         <div class="cys-cfg-card">
-          <h2 class="cys-cfg-card__title">Historial de copias</h2>
-          <p class="cys-cfg-card__hint">Copias de seguridad generadas anteriormente</p>
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--history"><i class="bi bi-clock-history"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Historial de copias</h3>
+              <p class="cys-cfg-card__hint">Copias de seguridad generadas anteriormente</p>
+            </div>
+          </div>
 
           <ul class="cys-cfg-history">
             <li class="cys-cfg-history__item">
@@ -310,9 +415,10 @@
       </div>
     </section>
 
-  </main>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{% static 'js/configuracion.js' %}"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/configuracion/configuracion.js' %}"></script>
+{% endblock %}

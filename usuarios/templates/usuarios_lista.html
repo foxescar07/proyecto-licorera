@@ -183,7 +183,7 @@
       <!-- Sidebar bottom -->
       <div class="ul-sidebar-bottom" id="ul-sidebar-bottom-ref">
 
-        <!-- Stats: siempre visible en caso 2, colapsable en caso 1 -->
+        <!-- Stats -->
         <div class="sidebar-dropdown-wrapper" id="wrapperStats">
           <button class="btn-trigger-dropdown"
                   type="button"
@@ -239,16 +239,17 @@
           </div>
         </div>
 
-        <!-- Recientes: botón PRIMERO en el DOM para que collapse abra hacia abajo -->
+        <!-- Recientes -->
         <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
           <button class="btn-trigger-dropdown"
                   type="button"
-                  id="btnRecientes34"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseRecientes"
                   aria-expanded="false">
             <span><i class="bi bi-clock-history me-2"></i>Ver Registros Recientes</span>
             <i class="bi bi-chevron-down arrow-icon"></i>
           </button>
-          <div id="collapseRecientes34" style="display:none; overflow:hidden;">
+          <div class="collapse" id="collapseRecientes">
             <div class="ul-widget widget-recientes">
               <div class="ul-widget__title">
                 <i class="bi bi-clock-history"></i> Registros recientes
@@ -350,6 +351,7 @@
   </div>
 </div>
 {% endif %}
+
 <script>
 (function () {
 
@@ -383,49 +385,26 @@
     if (sr) sr.style.setProperty('display', vis === 0 ? 'block' : 'none', 'important');
   });
 
-  function sincronizarAltoCaso2() {
-    const main = $('ul-main-ref'), sb = $('ul-sidebar-ref');
-    if (!main || !sb) return;
-    // Si el panel de recientes está abierto, no fijar altura — que fluya naturalmente
-    const panel = $('collapseRecientes34');
-    if (panel && panel.style.display !== 'none') {
-      sb.style.height = '';
-      return;
-    }
-    sb.style.height = '';
-    const alturaMain  = main.offsetHeight;
-    const alturaMinSb = sb.scrollHeight;
-    sb.style.height = Math.max(alturaMain, alturaMinSb) + 'px';
-  }
+  function sincronizarAlturaRecientes() {
+    const layout = $('layout-principal');
+    if (!layout.classList.contains('cards-view-3-4')) return;
 
-  function escucharCollapseCaso2() {
-    ['shown.bs.collapse','hidden.bs.collapse'].forEach(ev =>
-      $('collapseStats')?.addEventListener(ev, () => {
-        if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-          requestAnimationFrame(sincronizarAltoCaso2);
-      })
-    );
-  }
+    const main    = $('ul-main-ref');
+    const sidebar = $('ul-sidebar-ref');
+    const widget  = document.querySelector('#wrapperRecientes .widget-recientes');
+    const scroll  = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
+    if (!main || !widget || !scroll) return;
 
-  function iniciarToggleRecientes() {
-    const btn = $('btnRecientes34');
-    btn?.addEventListener('click', function () {
-      const panel   = $('collapseRecientes34');
-      const abierto = panel.style.display !== 'none';
-      const sb      = $('ul-sidebar-ref');
-      const esCaso2 = $('layout-principal')?.classList.contains('cards-view-3-4');
+    // Calculamos cuánto espacio libre queda en el sidebar
+    // desde el top del wrapperRecientes hasta el fondo del ul-main-ref
+    const mainBottom     = main.getBoundingClientRect().bottom;
+    const wrapperTop     = $('wrapperRecientes').getBoundingClientRect().top;
+    const titleEl        = widget.querySelector('.ul-widget__title');
+    const titleH         = titleEl ? titleEl.offsetHeight + 12 : 32; // título + margen
+    const paddingWidget  = 22; // padding top+bottom del ul-widget (1.1rem ≈ 17.6px × 2 / 2)
 
-      // Siempre liberar altura antes de cambiar estado
-      if (esCaso2 && sb) sb.style.height = '';
-
-      panel.style.display = abierto ? 'none' : 'block';
-      this.setAttribute('aria-expanded', String(!abierto));
-      this.querySelector('.arrow-icon').style.transform = abierto ? '' : 'rotate(180deg)';
-
-      if (esCaso2) {
-        requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
-      }
-    });
+    const alturaDisponible = mainBottom - wrapperTop - titleH - paddingWidget * 2;
+    scroll.style.maxHeight = Math.max(alturaDisponible, 120) + 'px';
   }
 
   function reajustarLayout() {
@@ -433,50 +412,24 @@
       '#contenedor-tarjetas > div[style=""], #contenedor-tarjetas > div:not([style])'
     ).length;
     const layout = $('layout-principal');
-    const sb     = $('ul-sidebar-ref');
     const cS     = $('collapseStats');
+    const cR     = $('collapseRecientes');
 
     layout.classList.remove('cards-view-1-2','cards-view-3-4','cards-view-5-6','cards-view-dense');
-    if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
 
     const casos = [
       [2,        'cards-view-1-2',   false, false],
-      [4,        'cards-view-3-4',   true,  false],
+      [4,        'cards-view-3-4',   true,  true ],
       [6,        'cards-view-5-6',   true,  true ],
       [Infinity, 'cards-view-dense', true,  true ],
     ];
-    const [, cls, showS] = casos.find(([n]) => total <= n);
+    const [, cls, showS, showR] = casos.find(([n]) => total <= n);
     layout.classList.add(cls);
-    if (showS) cS?.classList.add('show'); else cS?.classList.remove('show');
+    cS?.classList[showS ? 'add' : 'remove']('show');
+    cR?.classList[showR ? 'add' : 'remove']('show');
 
-    const p34  = $('collapseRecientes34');
-    const b34  = $('btnRecientes34');
-    if (p34) p34.style.display = 'none';
-    if (b34) {
-      b34.setAttribute('aria-expanded', 'false');
-      const arrow = b34.querySelector('.arrow-icon');
-      if (arrow) arrow.style.transform = '';
-    }
-
-    // AJUSTE DINÁMICO INLINE PARA CASO 3 (Evita que se encimen los widgets)
-    if (cls === 'cards-view-5-6' && sb) {
-      requestAnimationFrame(() => {
-        sb.style.setProperty('display', 'flex', 'important');
-        sb.style.setProperty('flex-direction', 'column', 'important');
-        sb.style.setProperty('gap', '1.25rem', 'important');
-        sb.style.setProperty('height', 'auto', 'important');
-
-        const statsInner = sb.querySelector('.stats-grid-inner');
-        if (statsInner) {
-          statsInner.style.setProperty('display', 'flex', 'important');
-          statsInner.style.setProperty('flex-direction', 'row', 'important');
-          statsInner.style.setProperty('gap', '1rem', 'important');
-        }
-      });
-    }
-
-    if (cls === 'cards-view-3-4')
-      requestAnimationFrame(() => requestAnimationFrame(sincronizarAltoCaso2));
+    // Después de aplicar la clase y que el DOM se pinte, sincronizamos altura
+    requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
   }
 
   function calcularStats() {
@@ -503,20 +456,10 @@
 
   calcularStats();
   reajustarLayout();
-  escucharCollapseCaso2();
-  iniciarToggleRecientes();
 
-  window.addEventListener('load', () => {
-    if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-      requestAnimationFrame(sincronizarAltoCaso2);
-  });
-
+  // Re-sincronizar si la ventana cambia de tamaño
   window.addEventListener('resize', () => {
-    const sb = $('ul-sidebar-ref');
-    if (sb) { sb.style.height = sb.style.gap = sb.style.justifyContent = ''; }
-    reajustarLayout();
-    if ($('layout-principal')?.classList.contains('cards-view-3-4'))
-      requestAnimationFrame(sincronizarAltoCaso2);
+    requestAnimationFrame(sincronizarAlturaRecientes);
   });
 
   window.euMostrarMsg = (texto, tipo) => {
@@ -605,4 +548,5 @@
 
 })();
 </script>
+
 {% endblock %}
