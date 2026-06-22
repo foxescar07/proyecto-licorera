@@ -6,6 +6,7 @@
 {% block nav_stock %}active{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 {% block content %}
 
@@ -206,17 +207,7 @@
           </button>
         </td>
       </tr>
-      {% empty %}
-      <tr>
-        <td colspan="8" class="text-center py-5" style="color:rgba(226,232,240,.35);">
-          <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
-          No hay lotes con stock activo.
-          <br>
-          <a href="{% url 'gestion_lotes_view' %}" class="mt-2 d-inline-block"
-             style="color:#4DA8DA;font-size:.9rem;">Registrar un lote →</a>
-        </td>
-      </tr>
-      {% endfor %}
+    {% endfor %}
     </tbody>
   </table>
 </div>
@@ -283,49 +274,74 @@
   </div>
 </div>
 {% endfor %}
+{% endblock %}
 
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
-const buscarLoteInput = document.getElementById('buscarLote');
-const filtroEstado    = document.getElementById('filtroEstado');
-const filaLotes       = document.querySelectorAll('.lote-row');
-const sinResLotes     = document.getElementById('sinResultadosLotes');
-
-function filtrarLotes() {
-  const q      = buscarLoteInput.value.toLowerCase().trim();
-  const estado = filtroEstado.value;
-  let visibles = 0;
-  filaLotes.forEach(row => {
-    const matchTexto  = !q || row.dataset.nombre.includes(q) || row.dataset.lote.includes(q);
-    const matchEstado = estado === 'todos' || row.dataset.estado === estado;
-    const visible     = matchTexto && matchEstado;
-    row.style.display = visible ? '' : 'none';
-    if (visible) visibles++;
-  });
-  sinResLotes.classList.toggle('d-none', visibles > 0 || filaLotes.length === 0);
-  document.querySelector('#tablaLotes tbody').style.display =
-    visibles === 0 && filaLotes.length > 0 ? 'none' : '';
-}
-
-buscarLoteInput.addEventListener('input', filtrarLotes);
-filtroEstado.addEventListener('change', filtrarLotes);
-
-(function aplicarBusquedaDesdeURL() {
-  const params  = new URLSearchParams(window.location.search);
-  const termino = params.get('buscar');
-  if (!termino) return;
-  buscarLoteInput.value = termino;
-  filtrarLotes();
-  setTimeout(() => {
-    filaLotes.forEach(row => {
-      if (row.style.display !== 'none') {
-        row.style.transition = 'background-color 0.3s ease';
-        row.style.backgroundColor = 'rgba(77,168,218,0.18)';
-      }
+$(document).ready(function() {
+    // Prevent double init if already initialized
+    if ($.fn.DataTable.isDataTable('#tablaLotes')) {
+        $('#tablaLotes').DataTable().destroy();
+    }
+    
+    var table = $('#tablaLotes').DataTable({
+        paging: true,
+        searching: true,
+        info: true,
+        lengthChange: false,
+        pageLength: 10,
+        ordering: true,
+        responsive: true,
+        language: {
+            info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
+            infoEmpty: "Mostrando 0 a 0 de 0 lotes",
+            emptyTable: "No hay lotes con stock activo.",
+            zeroRecords: "Sin resultados para tu búsqueda.",
+            paginate: {
+                first:    '«',
+                previous: '‹',
+                next:     '›',
+                last:     '»'
+            }
+        },
+        dom: 'rt<"d-flex justify-content-between align-items-center mt-3"ip>'
     });
-    const primera = document.querySelector('.lote-row[style*="background-color"]');
-    if (primera) primera.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
-})();
-</script>
 
+    $('#buscarLote').on('input', function() {
+        table.search(this.value).draw();
+    });
+
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex, rowData, counter) {
+            var filterValue = $('#filtroEstado').val();
+            if (filterValue === 'todos') return true;
+            var node = table.row(dataIndex).node();
+            var estado = $(node).attr('data-estado');
+            return estado === filterValue;
+        }
+    );
+
+    $('#filtroEstado').on('change', function() {
+        table.draw();
+    });
+    
+    // Buscar param URL
+    const params = new URLSearchParams(window.location.search);
+    const termino = params.get('buscar');
+    if (termino) {
+        $('#buscarLote').val(termino);
+        table.search(termino).draw();
+        
+        setTimeout(() => {
+            const row = table.row({search: 'applied'}).node();
+            if (row) {
+                $(row).css({transition: 'background-color 0.3s ease', backgroundColor: 'rgba(77,168,218,0.18)'});
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
+    }
+});
+</script>
 {% endblock %}
