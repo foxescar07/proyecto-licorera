@@ -9,9 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
-  {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/usuario/restablecer_clave.css' %}">
-  {% endblock %}
 </head>
 <body>
   <div class="cys-wrap">
@@ -21,14 +19,14 @@
       {% if exito %}
         <div class="cys-title" style="color:#5edb97;">¡Listo!</div>
         <div class="cys-msg-ok">Tu contraseña fue actualizada correctamente.</div>
-        <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
+        <a href="{% url 'cerrar_sesion' %}" class="cys-btn d-block text-center text-decoration-none">
           <i class="bi bi-box-arrow-in-right me-1"></i> Ir al Inicio de Sesión
         </a>
 
       {% elif error %}
         <div class="cys-title">Enlace Inválido</div>
         <div class="cys-msg-err">{{ error }}</div>
-        <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
+        <a href="{% url 'cerrar_sesion' %}" class="cys-btn d-block text-center text-decoration-none">
           <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
         </a>
 
@@ -37,12 +35,18 @@
         <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
           Crea una contraseña segura para tu cuenta.
         </p>
-        <form method="POST" id="formReset">
+        <form method="POST" id="formReset" autocomplete="off">
           {% csrf_token %}
           <div class="mb-3">
             <label class="cys-label" for="nuevaClave">Nueva Contraseña</label>
-            <input type="password" name="nueva_clave" id="nuevaClave"
-                   class="cys-input" placeholder="Tu nueva contraseña" required>
+            <div class="cys-input-eye">
+              <input type="password" name="nueva_clave" id="nuevaClave"
+                     class="cys-input" placeholder="Tu nueva contraseña"
+                     autocomplete="new-password" required>
+              <button type="button" class="cys-eye-btn" id="btnToggleNueva" tabindex="-1">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
             <div class="cys-hint">
               <i class="bi bi-info-circle me-1"></i> Mínimo 6 caracteres, 2 números y 1 mayúscula.
             </div>
@@ -50,8 +54,14 @@
           </div>
           <div class="mb-4">
             <label class="cys-label" for="confirmarClave">Confirmar Contraseña</label>
-            <input type="password" name="confirmar" id="confirmarClave"
-                   class="cys-input" placeholder="Repite la contraseña" required>
+            <div class="cys-input-eye">
+              <input type="password" name="confirmar" id="confirmarClave"
+                     class="cys-input" placeholder="Repite la contraseña"
+                     autocomplete="new-password" required>
+              <button type="button" class="cys-eye-btn" id="btnToggleConfirmar" tabindex="-1">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
             <div id="errConfirmar" class="cys-err-inline"></div>
           </div>
           <button type="submit" class="cys-btn">
@@ -59,9 +69,11 @@
           </button>
         </form>
         <div class="cys-divider"></div>
-        <a href="{% url 'login' %}" class="cys-link">
-          <i class="bi bi-arrow-left me-1"></i> Volver al inicio
-        </a>
+        <div class="text-center">
+          <a href="{% url 'cerrar_sesion' %}" class="cys-btn-link">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+          </a>
+        </div>
       {% endif %}
 
     </div>
@@ -69,24 +81,49 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // ── Toggle ver/ocultar contraseña ──
+    function toggleEye(inputId, btn) {
+      const field = document.getElementById(inputId);
+      const icon  = btn.querySelector('i');
+      if (!field || !icon) return;
+      const isPassword = field.type === 'password';
+      field.type = isPassword ? 'text' : 'password';
+      icon.classList.toggle('bi-eye',       !isPassword);
+      icon.classList.toggle('bi-eye-slash',  isPassword);
+    }
+
+    document.getElementById('btnToggleNueva')?.addEventListener('click', function () {
+      toggleEye('nuevaClave', this);
+    });
+    document.getElementById('btnToggleConfirmar')?.addEventListener('click', function () {
+      toggleEye('confirmarClave', this);
+    });
+
+    // ── Validación de formulario ──
     const form = document.getElementById('formReset');
     if (form) {
       form.addEventListener('submit', function(e) {
-        const clave     = document.getElementById('nuevaClave').value;
-        const confirmar = document.getElementById('confirmarClave').value;
+        const clave        = document.getElementById('nuevaClave').value;
+        const confirmar    = document.getElementById('confirmarClave').value;
         const errClave     = document.getElementById('errClave');
         const errConfirmar = document.getElementById('errConfirmar');
         let ok = true;
-        errClave.style.display = 'none'; errConfirmar.style.display = 'none';
+        errClave.style.display = 'none';
+        errConfirmar.style.display = 'none';
+
         if (clave.length < 6) {
-          errClave.textContent = 'Mínimo 6 caracteres.'; errClave.style.display = 'block'; ok = false;
+          errClave.textContent = 'Mínimo 6 caracteres.';
+          errClave.style.display = 'block'; ok = false;
         } else if ((clave.match(/\d/g) || []).length < 2) {
-          errClave.textContent = 'Debe contener al menos 2 números.'; errClave.style.display = 'block'; ok = false;
+          errClave.textContent = 'Debe contener al menos 2 números.';
+          errClave.style.display = 'block'; ok = false;
         } else if (!/[A-Z]/.test(clave)) {
-          errClave.textContent = 'Debe contener al menos 1 mayúscula.'; errClave.style.display = 'block'; ok = false;
+          errClave.textContent = 'Debe contener al menos 1 mayúscula.';
+          errClave.style.display = 'block'; ok = false;
         }
         if (clave !== confirmar) {
-          errConfirmar.textContent = 'Las contraseñas no coinciden.'; errConfirmar.style.display = 'block'; ok = false;
+          errConfirmar.textContent = 'Las contraseñas no coinciden.';
+          errConfirmar.style.display = 'block'; ok = false;
         }
         if (!ok) e.preventDefault();
       });

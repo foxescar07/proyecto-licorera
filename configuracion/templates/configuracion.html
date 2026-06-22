@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configuración — CYS Ltda{% endblock %}
+{% block page_title %}Configuración{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/configuracion/configuracion.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <!-- ══════════════════════════════════════════════
+       BREADCRUMB
+  ══════════════════════════════════════════════ -->
+  <nav class="cys-breadcrumb" aria-label="breadcrumb">
+    <a href="{% url 'principal' %}" class="cys-breadcrumb__link">
+      <i class="bi bi-house-door"></i>
+    </a>
+    <i class="bi bi-chevron-right cys-breadcrumb__sep"></i>
+    <span class="cys-breadcrumb__current">Configuración</span>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════
+       HEADER DE MÓDULO
+  ══════════════════════════════════════════════ -->
+  <header class="cys-cfg-header">
+    <div>
+      <h1 class="cys-cfg-header__title">Configuración</h1>
+      <p class="cys-cfg-header__subtitle">Personaliza la apariencia, gestiona los datos de tu empresa y administra el sistema</p>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════
+       NAVEGACIÓN RÁPIDA ENTRE SECCIONES
+  ══════════════════════════════════════════════ -->
+  <nav class="cys-cfg-secnav" aria-label="Secciones de configuración">
+    <a href="#section-estetico" class="cys-cfg-secnav__link is-active" data-section="section-estetico">
+      <i class="bi bi-palette"></i><span>Estético</span>
+    </a>
+    <a href="#section-empresa" class="cys-cfg-secnav__link" data-section="section-empresa">
+      <i class="bi bi-building"></i><span>Empresa</span>
+    </a>
+    <a href="#section-parametros" class="cys-cfg-secnav__link" data-section="section-parametros">
+      <i class="bi bi-sliders"></i><span>Parámetros</span>
+    </a>
+    <a href="#section-basedatos" class="cys-cfg-secnav__link" data-section="section-basedatos">
+      <i class="bi bi-database"></i><span>Base de datos</span>
+    </a>
+  </nav>
+
+  <div class="cys-cfg-sections">
+
+    <!-- ══════════════════════════════════════════════
+         1. GESTIÓN DE LO ESTÉTICO
+    ══════════════════════════════════════════════ -->
+    <section class="cys-cfg-section" id="section-estetico">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-palette"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Gestión de lo estético</h2>
+          <p class="cys-cfg-section__hint">Logo, identidad visual y tema de color de la aplicación</p>
+        </div>
+      </div>
+
+      <div class="cys-cfg-grid cys-cfg-grid--estetico">
+
+        <!-- Logo -->
+        <div class="cys-cfg-card cys-cfg-card--logo">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--logo"><i class="bi bi-image"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Logo de la empresa</h3>
+              <p class="cys-cfg-card__hint">PNG o JPG, fondo transparente recomendado. Máx. 2MB</p>
+            </div>
+          </div>
+
+          <div class="cys-cfg-dropzone" id="logoDropzone">
+            <input type="file" id="logoInput" accept="image/png, image/jpeg" hidden>
+            <div class="cys-cfg-dropzone__empty" id="logoEmptyState">
+              <i class="bi bi-cloud-arrow-up"></i>
+              <p class="cys-cfg-dropzone__title">Arrastra tu logo aquí</p>
+              <p class="cys-cfg-dropzone__sub">o haz clic para seleccionar un archivo</p>
+            </div>
+            <div class="cys-cfg-dropzone__preview" id="logoPreview" hidden>
+              <img id="logoPreviewImg" src="" alt="Logo de la empresa">
+              <button type="button" class="cys-cfg-dropzone__remove" id="logoRemoveBtn" aria-label="Quitar logo">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+          <p class="cys-cfg-dropzone__error" id="logoError" hidden></p>
+        </div>
+
+        <!-- Tema de color -->
+        <div class="cys-cfg-card">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--theme"><i class="bi bi-droplet-half"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Tema de color</h3>
+              <p class="cys-cfg-card__hint">Elige la paleta con la que se ve todo el sistema</p>
+            </div>
+          </div>
+
+          <div class="cys-theme-grid" id="themeGrid">
+            <button type="button" class="cys-theme-swatch" data-theme="logo">
+              <span class="cys-theme-swatch__dots">
+                <span style="background:#211611"></span>
+                <span style="background:#b3402c"></span>
+                <span style="background:#e0a934"></span>
+              </span>
+              <span class="cys-theme-swatch__label">Logo CYS</span>
+              <i class="bi bi-check-circle-fill cys-theme-swatch__check"></i>
+            </button>
+
+            <button type="button" class="cys-theme-swatch" data-theme="mono">
+              <span class="cys-theme-swatch__dots">
+                <span style="background:#121212"></span>
+                <span style="background:#5c5c5c"></span>
+                <span style="background:#e5e5e5"></span>
+              </span>
+              <span class="cys-theme-swatch__label">Monocromo</span>
+              <i class="bi bi-check-circle-fill cys-theme-swatch__check"></i>
+            </button>
+
+            <button type="button" class="cys-theme-swatch is-active" data-theme="azul">
+              <span class="cys-theme-swatch__dots">
+                <span style="background:#0a1322"></span>
+                <span style="background:#101b2e"></span>
+                <span style="background:#38a1ff"></span>
+              </span>
+              <span class="cys-theme-swatch__label">Azul (actual)</span>
+              <i class="bi bi-check-circle-fill cys-theme-swatch__check"></i>
+            </button>
+          </div>
+
+          <div class="cys-theme-preview">
+            <span class="cys-theme-preview__label">Vista previa</span>
+            <div class="cys-theme-preview__box">
+              <p class="cys-theme-preview__title">Tarjeta de ejemplo</p>
+              <p class="cys-theme-preview__text">Así se ven el texto y los botones con este tema.</p>
+              <div class="cys-theme-preview__actions">
+                <button type="button" class="cys-btn-secondary cys-btn-secondary--sm">Cancelar</button>
+                <button type="button" class="cys-btn-primary">Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         2. INFORMACIÓN DE LA EMPRESA
+    ══════════════════════════════════════════════ -->
+    <section class="cys-cfg-section" id="section-empresa">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-building"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Información de la empresa</h2>
+          <p class="cys-cfg-section__hint">Datos generales que aparecen en facturas y reportes</p>
+        </div>
+      </div>
+
+      <div class="cys-cfg-card">
+        <div class="row g-3">
+          <div class="col-md-7">
+            <label class="cys-label" for="empNombre">Razón social</label>
+            <input type="text" class="cys-input" id="empNombre" value="CYS Distribuciones Ltda." placeholder="Nombre de la empresa">
+          </div>
+          <div class="col-md-5">
+            <label class="cys-label" for="empNit">NIT</label>
+            <input type="text" class="cys-input" id="empNit" value="900.123.456-7" placeholder="000.000.000-0">
+          </div>
+
+          <div class="col-md-7">
+            <label class="cys-label" for="empDireccion">Dirección</label>
+            <input type="text" class="cys-input" id="empDireccion" value="Cra 45 #12-30, Bogotá" placeholder="Dirección principal">
+          </div>
+          <div class="col-md-5">
+            <label class="cys-label" for="empTelefono">Teléfono</label>
+            <input type="tel" class="cys-input" id="empTelefono" value="601 234 5678" placeholder="Teléfono fijo">
+          </div>
+
+          <div class="col-md-7">
+            <label class="cys-label" for="empEmail">Correo de contacto</label>
+            <input type="email" class="cys-input" id="empEmail" value="contacto@cysltda.com" placeholder="correo@empresa.com">
+          </div>
+          <div class="col-md-5">
+            <label class="cys-label" for="empCiudad">Ciudad</label>
+            <input type="text" class="cys-input" id="empCiudad" value="Bogotá D.C." placeholder="Ciudad">
+          </div>
+        </div>
+
+        <div class="cys-cfg-card__actions">
+          <button type="button" class="cys-btn-secondary">Cancelar</button>
+          <button type="button" class="cys-btn-primary">
+            <i class="bi bi-check2"></i>
+            Guardar cambios
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         3. PARÁMETROS DEL SISTEMA
+    ══════════════════════════════════════════════ -->
+    <section class="cys-cfg-section" id="section-parametros">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-sliders"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Parámetros del sistema</h2>
+          <p class="cys-cfg-section__hint">Impuestos, moneda y unidades usadas en todo el sistema</p>
+        </div>
+      </div>
+
+      <div class="cys-cfg-grid cys-cfg-grid--params">
+
+        <div class="cys-cfg-card">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--tax"><i class="bi bi-percent"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Impuestos</h3>
+              <p class="cys-cfg-card__hint">Aplica a la generación de facturas y cotizaciones</p>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="cys-label" for="paramIva">IVA por defecto</label>
+              <div class="cys-input-group">
+                <input type="number" class="cys-input" id="paramIva" value="19" min="0" max="100">
+                <span class="cys-input-suffix">%</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="cys-label" for="paramRetencion">Retención en la fuente</label>
+              <div class="cys-input-group">
+                <input type="number" class="cys-input" id="paramRetencion" value="2.5" min="0" max="100" step="0.1">
+                <span class="cys-input-suffix">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cys-cfg-card">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--currency"><i class="bi bi-cash-coin"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Moneda</h3>
+              <p class="cys-cfg-card__hint">Moneda usada en todos los módulos del sistema</p>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="cys-label" for="paramMoneda">Moneda principal</label>
+              <select class="cys-input" id="paramMoneda">
+                <option selected>Peso colombiano (COP)</option>
+                <option>Dólar estadounidense (USD)</option>
+                <option>Euro (EUR)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="cys-label" for="paramFormato">Formato de número</label>
+              <select class="cys-input" id="paramFormato">
+                <option selected>1.234.567,89</option>
+                <option>1,234,567.89</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="cys-cfg-card cys-cfg-card--full">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--units"><i class="bi bi-rulers"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Unidades de medida</h3>
+              <p class="cys-cfg-card__hint">Unidades disponibles al registrar productos en el inventario</p>
+            </div>
+          </div>
+
+          <div class="cys-cfg-tags" id="unidadesTags">
+            <span class="cys-tag">Unidad <button type="button" class="cys-tag__remove" aria-label="Quitar"><i class="bi bi-x"></i></button></span>
+            <span class="cys-tag">Caja <button type="button" class="cys-tag__remove" aria-label="Quitar"><i class="bi bi-x"></i></button></span>
+            <span class="cys-tag">Paquete <button type="button" class="cys-tag__remove" aria-label="Quitar"><i class="bi bi-x"></i></button></span>
+            <span class="cys-tag">Botella <button type="button" class="cys-tag__remove" aria-label="Quitar"><i class="bi bi-x"></i></button></span>
+            <span class="cys-tag">Litro <button type="button" class="cys-tag__remove" aria-label="Quitar"><i class="bi bi-x"></i></button></span>
+          </div>
+          <div class="cys-cfg-tag-add">
+            <input type="text" class="cys-input" id="nuevaUnidadInput" placeholder="Agregar nueva unidad...">
+            <button type="button" class="cys-btn-secondary cys-btn-secondary--sm" id="addUnidadBtn">
+              <i class="bi bi-plus-lg"></i>
+              Agregar
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="cys-cfg-card__actions cys-cfg-card__actions--floating">
+        <button type="button" class="cys-btn-secondary">Cancelar</button>
+        <button type="button" class="cys-btn-primary">
+          <i class="bi bi-check2"></i>
+          Guardar parámetros
+        </button>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         4. BASE DE DATOS
+    ══════════════════════════════════════════════ -->
+    <section class="cys-cfg-section" id="section-basedatos">
+      <div class="cys-cfg-section__head">
+        <span class="cys-cfg-section__icon"><i class="bi bi-database"></i></span>
+        <div>
+          <h2 class="cys-cfg-section__title">Base de datos</h2>
+          <p class="cys-cfg-section__hint">Estado, respaldos e historial de tu base de datos</p>
+        </div>
+      </div>
+
+      <div class="cys-cfg-dbstats">
+        <div class="cys-cfg-stat">
+          <div class="cys-cfg-stat__icon"><i class="bi bi-hdd-stack"></i></div>
+          <div>
+            <p class="cys-cfg-stat__value">48.2 MB</p>
+            <p class="cys-cfg-stat__label">Tamaño de la base de datos</p>
+          </div>
+        </div>
+        <div class="cys-cfg-stat">
+          <div class="cys-cfg-stat__icon"><i class="bi bi-table"></i></div>
+          <div>
+            <p class="cys-cfg-stat__value">12</p>
+            <p class="cys-cfg-stat__label">Tablas registradas</p>
+          </div>
+        </div>
+        <div class="cys-cfg-stat">
+          <div class="cys-cfg-stat__icon"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <p class="cys-cfg-stat__value">Hace 2 días</p>
+            <p class="cys-cfg-stat__label">Última copia de seguridad</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cys-cfg-grid cys-cfg-grid--db">
+
+        <div class="cys-cfg-card">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--backup"><i class="bi bi-shield-plus"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Copia de seguridad</h3>
+              <p class="cys-cfg-card__hint">Descarga una copia completa de la base de datos actual</p>
+            </div>
+          </div>
+
+          <div class="cys-cfg-backup-row">
+            <div class="cys-cfg-backup-info">
+              <i class="bi bi-file-earmark-zip"></i>
+              <div>
+                <p class="cys-cfg-backup-name">backup_cys_2026-06-17.sqlite3</p>
+                <p class="cys-cfg-backup-meta">Generado automáticamente · 48.2 MB</p>
+              </div>
+            </div>
+            <button type="button" class="cys-btn-secondary cys-btn-secondary--sm">
+              <i class="bi bi-download"></i>
+              Descargar
+            </button>
+          </div>
+
+          <button type="button" class="cys-btn-primary cys-cfg-backup-create">
+            <i class="bi bi-shield-plus"></i>
+            Generar nueva copia de seguridad
+          </button>
+        </div>
+
+        <div class="cys-cfg-card">
+          <div class="cys-cfg-card__head">
+            <span class="cys-cfg-card__icon cys-cfg-card__icon--history"><i class="bi bi-clock-history"></i></span>
+            <div>
+              <h3 class="cys-cfg-card__title">Historial de copias</h3>
+              <p class="cys-cfg-card__hint">Copias de seguridad generadas anteriormente</p>
+            </div>
+          </div>
+
+          <ul class="cys-cfg-history">
+            <li class="cys-cfg-history__item">
+              <i class="bi bi-file-earmark-zip"></i>
+              <div class="cys-cfg-history__info">
+                <p>backup_cys_2026-06-17.sqlite3</p>
+                <span>17 jun 2026, 06:00 a.m.</span>
+              </div>
+              <button type="button" class="cys-cfg-history__action" aria-label="Descargar"><i class="bi bi-download"></i></button>
+            </li>
+            <li class="cys-cfg-history__item">
+              <i class="bi bi-file-earmark-zip"></i>
+              <div class="cys-cfg-history__info">
+                <p>backup_cys_2026-06-10.sqlite3</p>
+                <span>10 jun 2026, 06:00 a.m.</span>
+              </div>
+              <button type="button" class="cys-cfg-history__action" aria-label="Descargar"><i class="bi bi-download"></i></button>
+            </li>
+            <li class="cys-cfg-history__item">
+              <i class="bi bi-file-earmark-zip"></i>
+              <div class="cys-cfg-history__info">
+                <p>backup_cys_2026-06-03.sqlite3</p>
+                <span>3 jun 2026, 06:00 a.m.</span>
+              </div>
+              <button type="button" class="cys-cfg-history__action" aria-label="Descargar"><i class="bi bi-download"></i></button>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/configuracion/configuracion.js' %}"></script>
+{% endblock %}

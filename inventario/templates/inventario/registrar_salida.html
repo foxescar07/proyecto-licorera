@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar Salida — CYS Ltda{% endblock %}
+{% block page_title %}Registrar Salida{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mb-3">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3"
+     style="border-bottom:1px solid rgba(77,168,218,0.18);">
+  <div class="d-flex align-items-center gap-2">
+    
+  </div>
+ <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
+     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
+    <i class="bi bi-arrow-left me-1"></i> Inventario
+  </a>
+</div>
+
+<div class="row g-4">
+
+  <!-- ── Formulario ── -->
+  <div class="col-lg-7">
+    <div class="inv-card p-4 h-100">
+
+      <!-- Cabecera tarjeta -->
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center gap-2">
+          <div class="icon-box">
+            <i class="bi bi-box-arrow-up" style="color:#4DA8DA;font-size:2.0rem;"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 fw-bold text-uppercase"
+                style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.1.1rem;">
+              Datos de Salida
+            </h6>
+            <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
+              Completa todos los campos requeridos
+            </small>
+          </div>
+        </div>
+        <button type="button" id="btn-ver-lote"
+                class="btn btn-sm rounded-pill d-none"
+                data-bs-toggle="collapse" data-bs-target="#collapseLotes"
+                style="background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.3);
+                       color:#4DA8DA;font-size:.78rem;padding:5px 14px;">
+          <i class="bi bi-layers me-1"></i> Ver lotes
+        </button>
+      </div>
+
+      <form method="POST" action="{% url 'registrar_salida_view' %}" id="form-salida">
+        {% csrf_token %}
+
+        <!-- Presentación -->
+        <div class="mb-3">
+          <label class="inv-label">Presentación / Producto <span class="text-danger">*</span></label>
+          <select name="presentacion" id="select-presentacion" class="form-select inv-select" required>
+            <option value="">— Selecciona un producto —</option>
+            {% for p in productos %}
+              {% if p.presentaciones.all %}
+              <optgroup label="{{ p.nombre }} ({{ p.codigo }})">
+                {% for pr in p.presentaciones.all %}
+                <option value="{{ pr.pk }}" data-stock="{{ pr.cantidad }}">
+                  {{ pr.nombre }} — {{ pr.cantidad }} uds
+                </option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Badge stock -->
+        <div id="stock-badge-wrap" class="mb-3 d-none">
+          <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+               style="background:rgba(77,168,218,.1);border:1px solid rgba(77,168,218,.25);display:inline-flex!important;">
+            <i class="bi bi-layers" style="color:#4DA8DA;"></i>
+            <span style="color:#dce8f2;font-size:.85rem;">
+              Stock disponible: <strong id="stock-badge-val" style="color:#4DA8DA;">—</strong> unidades
+            </span>
+          </div>
+        </div>
+
+        <!-- Lotes colapsables -->
+        <div class="collapse mb-3" id="collapseLotes">
+          <div class="collapse-panel p-3">
+            <p class="mb-2 inv-label" id="lotes-producto-label">Lotes disponibles</p>
+            <div class="table-responsive rounded-3" style="border:1px solid rgba(77,168,218,0.14);">
+              <table class="table table-sm mb-0 lotes-table" style="background:transparent;">
+                <thead>
+                  <tr>
+                    <th class="ps-3">Lote</th>
+                    <th class="text-center">Cant.</th>
+                    <th>Vence</th>
+                  </tr>
+                </thead>
+                <tbody id="lotes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Lote select -->
+        <div class="mb-3">
+          <label class="inv-label">
+            Lote
+            <span style="color:rgba(220,232,242,0.38);font-size:.72rem;text-transform:none;
+                         letter-spacing:0;font-weight:400;">(Opcional)</span>
+          </label>
+          <select name="lote_id" id="select-lote-form" class="form-select inv-select">
+            <option value="">— Sin lote específico —</option>
+            {% for p in productos %}
+              {% for pr in p.presentaciones.all %}
+                {% for lote in pr.lotes.all %}
+                <option value="{{ lote.pk }}" data-presentacion="{{ pr.pk }}">
+                  {{ lote.numero_lote }} — {{ p.nombre }} ({{ pr.nombre }})
+                </option>
+                {% endfor %}
+              {% endfor %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Cantidad + Motivo -->
+        <div class="row g-3 mb-3">
+          <div class="col-sm-5">
+            <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+            <input type="number" name="cantidad" id="input-cantidad"
+                   class="form-control inv-input" min="1" placeholder="0" required>
+          </div>
+          <div class="col-sm-7">
+            <label class="inv-label">Motivo <span class="text-danger">*</span></label>
+            <select name="motivo" class="form-select inv-select" required>
+              <option value="">— Seleccionar —</option>
+              <option>Venta</option>
+              <option>Merma</option>
+              <option>Daño</option>
+              <option>Vencimiento</option>
+              <option>Consumo interno</option>
+              <option>Devolución</option>
+              <option>Otro</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Alerta exceso -->
+        <div id="alerta-exceso" class="d-none rounded-3 px-3 py-2 mb-3 d-flex align-items-center gap-2"
+             style="background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.28);
+                    color:#f39c12;font-size:.82rem;">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          La cantidad supera el stock disponible.
+        </div>
+
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100"
+        style="background:#3b9ad6; color:#0d1b2a; border:none; font-size:0.9rem; white-space:nowrap;">
+  <i class="bi bi-box-arrow-up me-2"></i>Registrar Salida
+</button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ── Panel derecho ── -->
+  <div class="col-lg-5 d-flex flex-column gap-4">
+
+    <!-- Mini stats -->
+    <div class="row g-3">
+      <div class="col-6">
+        <div class="stat-mini p-3 d-flex align-items-center justify-content-between">
+          <div>
+            <small class="d-block text-uppercase"
+                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+              Lotes Activos
+            </small>
+            <h4 class="mb-0 fw-bold mt-1" style="color:#4DA8DA;font-family:'Rajdhani',sans-serif;">
+              {{ ordenes_mes }}
+            </h4>
+          </div>
+          <i class="bi bi-box-seam fs-3" style="color:#4DA8DA;opacity:.7;"></i>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-mini p-3 d-flex align-items-center justify-content-between"
+             style="border-color:rgba(243,156,18,0.22)!important;">
+          <div>
+            <small class="d-block text-uppercase"
+                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+              Por Vencer
+            </small>
+            <h4 class="mb-0 fw-bold mt-1 text-warning" style="font-family:'Rajdhani',sans-serif;">0</h4>
+          </div>
+          <i class="bi bi-exclamation-circle fs-3 text-warning" style="opacity:.7;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico motivos -->
+    <div class="inv-card p-4 flex-grow-1 d-flex flex-column">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-pie-chart" style="color:#4DA8DA;"></i>
+        <h6 class="mb-0 fw-bold text-uppercase"
+            style="color:#dce8f2;font-size:.75rem;letter-spacing:.05em;">
+          Motivos de Salida
+        </h6>
+      </div>
+      <div class="mx-auto position-relative" style="max-height:155px;width:155px;">
+        <canvas id="chartMotivos"></canvas>
+      </div>
+      <div class="d-flex flex-wrap justify-content-center gap-3 mt-3 pt-2"
+           style="border-top:1px solid rgba(77,168,218,0.12);font-size:.75rem;">
+        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
+          <span class="rounded-circle" style="width:8px;height:8px;background:#4DA8DA;display:inline-block;"></span>Venta
+        </span>
+        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
+          <span class="rounded-circle" style="width:8px;height:8px;background:#f39c1c;display:inline-block;"></span>Merma
+        </span>
+        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
+          <span class="rounded-circle" style="width:8px;height:8px;background:#e74c3c;display:inline-block;"></span>Daño
+        </span>
+        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
+          <span class="rounded-circle" style="width:8px;height:8px;background:#9b59b6;display:inline-block;"></span>Vencido
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+new Chart(document.getElementById('chartMotivos').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Venta','Merma','Daño','Vencido'],
+    datasets: [{
+      data: {{ chart_motivos_data|safe }},
+      backgroundColor: ['#4DA8DA','#f39c1c','#e74c3c','#9b59b6'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    cutout: '74%'
+  }
+});
+
+const lotesData = {
+  {% for p in productos %}{% for pr in p.presentaciones.all %}
+  "{{ pr.pk }}": {
+    nombre: "{{ p.nombre }} — {{ pr.nombre }}",
+    stock: {{ pr.cantidad }},
+    lotes: [{% for lote in pr.lotes.all %}{
+      numero: "{{ lote.numero_lote }}",
+      cantidad: {{ lote.stock_actual|default:0 }},
+      vence: "{% if lote.fecha_vencimiento %}{{ lote.fecha_vencimiento|date:'d/m/Y' }}{% else %}—{% endif %}"
+    },{% endfor %}]
+  },
+  {% endfor %}{% endfor %}
+};
+
+const sel            = document.getElementById('select-presentacion');
+const selectLoteForm = document.getElementById('select-lote-form');
+const badgeWrap      = document.getElementById('stock-badge-wrap');
+const badgeVal       = document.getElementById('stock-badge-val');
+const inputQty       = document.getElementById('input-cantidad');
+const alertaExceso   = document.getElementById('alerta-exceso');
+const lotesBody      = document.getElementById('lotes-tbody');
+const lotesLabel     = document.getElementById('lotes-producto-label');
+const btnVerLote     = document.getElementById('btn-ver-lote');
+
+sel.addEventListener('change', function () {
+  const d = lotesData[this.value];
+  Array.from(selectLoteForm.options).forEach(opt => {
+    if (!opt.value) { opt.selected = true; return; }
+    opt.style.display = opt.dataset.presentacion === this.value ? '' : 'none';
+  });
+  if (!d) { badgeWrap.classList.add('d-none'); btnVerLote.classList.add('d-none'); return; }
+  badgeVal.textContent = d.stock;
+  badgeWrap.classList.remove('d-none');
+  btnVerLote.classList.remove('d-none');
+  lotesLabel.textContent = 'Lotes de: ' + d.nombre;
+  lotesBody.innerHTML = d.lotes.length
+    ? d.lotes.map(l => `<tr>
+        <td class="ps-3 fw-semibold">${l.numero}</td>
+        <td class="text-center">${l.cantidad}</td>
+        <td style="color:${l.vence!=='—'?'#f39c12':'rgba(220,232,242,0.4)'}">${l.vence}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="3" class="text-center py-3" style="color:rgba(220,232,242,0.38)">Sin lotes registrados</td></tr>';
+});
+
+inputQty.addEventListener('input', function () {
+  const d = lotesData[sel.value];
+  alertaExceso.classList.toggle('d-none', !(d && +this.value > d.stock));
+});
+</script>
+{% endblock %}

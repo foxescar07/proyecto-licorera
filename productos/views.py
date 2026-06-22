@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.db.models import Sum, Prefetch
 from django.db import transaction
 from django.utils import timezone
+from django.urls import reverse
 from datetime import timedelta
 
 from .models import Producto, Categoria, PresentacionProducto
@@ -42,17 +43,21 @@ def lista_productos(request):
         resumen_categorias.append({'pk': cat.pk, 'nombre': cat.nombre, 'total': total})
 
     todas_cats     = Categoria.objects.all()
-    total_criticos = sum(1 for p in productos_qs if p.stock_critico)
+    
+    # Se calcula usando la propiedad o agregando lógica alternativa segura si stock_critico es dinámico
+    total_criticos = sum(1 for p in productos_qs if getattr(p, 'stock_critico', False))
     form           = ProductoRegistroForm()
 
-    return render(request, 'productos/productos.html', {
-        'productos':          productos_qs,
-        'categorias':         categorias,
-        'todas_cats':         todas_cats,
+    context = {
+        'productos': productos_qs,
+        'categorias': categorias,
+        'todas_cats': todas_cats,
         'resumen_categorias': resumen_categorias,
-        'form':               form,
-        'total_criticos':     total_criticos,
-    })
+        'form': form,
+        'total_criticos': total_criticos,
+    }
+
+    return render(request, 'productos/productos.html', context)
 
 
 # ===============================
@@ -104,10 +109,12 @@ def crear_producto(request):
 def producto_detalle(request, pk):
     producto    = get_object_or_404(Producto, pk=pk)
     movimientos = Inventario.objects.filter(presentacion__producto=producto).order_by('-fecha_actualizada')
-    return render(request, 'productos/producto_detalle.html', {
-        'producto':    producto,
+    context = {
+        'producto': producto,
         'movimientos': movimientos,
-    })
+    }
+
+    return render(request, 'productos/productos.html', context)
 
 
 # ===============================
@@ -150,7 +157,7 @@ def producto_editar(request, pk):
 
         producto.save()
 
-        # Presentaciones existentes
+        # ── Presentaciones existentes ──────────────────────────────────
         for key, valor in request.POST.items():
             if key.startswith('pres_nombre_'):
                 pres_id = key.replace('pres_nombre_', '')
@@ -158,6 +165,7 @@ def producto_editar(request, pk):
                     pres            = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
                     nuevo_nombre    = valor.strip()
                     nuevas_unidades = request.POST.get(f'pres_unidades_{pres_id}', '').strip()
+                    nuevo_precio    = request.POST.get(f'pres_precio_{pres_id}', '').strip()
 
                     if nuevo_nombre and nuevo_nombre != pres.nombre:
                         cambios.append(f'📦 Presentación: "{pres.nombre}" → "{nuevo_nombre}"')
@@ -172,29 +180,50 @@ def producto_editar(request, pk):
                         except (ValueError, TypeError):
                             pass
 
+                    if nuevo_precio:
+                        try:
+                            np_ = float(nuevo_precio)
+                            if np_ != float(pres.precio):
+                                cambios.append(f'💲 Precio "{pres.nombre}": ${pres.precio} → ${np_}')
+                                pres.precio = np_
+                                pres.lotes.all().update(costo_unitario=np_)
+                        except (ValueError, TypeError):
+                            pass
+
                     pres.save()
+
                 except PresentacionProducto.DoesNotExist:
                     pass
 
-        # Nuevas presentaciones
+        # ── Nuevas presentaciones ──────────────────────────────────────
         nuevos_nombres  = request.POST.getlist('nueva_pres_nombre[]')
         nuevas_unidades = request.POST.getlist('nueva_pres_unidades[]')
+        nuevos_precios  = request.POST.getlist('nueva_pres_precio[]')
 
         for i, nombre_pres in enumerate(nuevos_nombres):
             nombre_pres = nombre_pres.strip()
             if not nombre_pres:
                 continue
+
             try:
                 unidades_pres = max(1, int(nuevas_unidades[i])) if i < len(nuevas_unidades) else 1
             except (ValueError, TypeError, IndexError):
                 unidades_pres = 1
 
-            PresentacionProducto.objects.create(
+            try:
+                precio_pres = float(nuevos_precios[i]) if i < len(nuevos_precios) and nuevos_precios[i].strip() else 0.0
+            except (ValueError, TypeError):
+                precio_pres = 0.0
+
+            nueva_pres = PresentacionProducto.objects.create(
                 producto=producto,
                 nombre=nombre_pres,
                 unidades=unidades_pres,
-                precio=0.0,
+                precio=precio_pres,
             )
+            if precio_pres > 0:
+                nueva_pres.lotes.all().update(costo_unitario=precio_pres)
+
             cambios.append(f'➕ Nueva presentación: "{nombre_pres}" · {unidades_pres} uds')
 
         if cambios:
@@ -281,12 +310,15 @@ def producto_registro(request):
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Producto registrado correctamente.')
-            return redirect('producto_registro')
-    return render(request, 'productos/registro.html', {'form': form})
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'productos/productos.html', context)
 
 
 # ===============================
-# STOCK STATUS (widget)
+# STOCK STATUS (Widget con URLs unificado)
 # ===============================
 @login_required
 def stock_status(request):
@@ -295,10 +327,22 @@ def stock_status(request):
 
     for p in productos:
         stock_total = p.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+        
+        # Tomamos la primera presentación para la URL de lotes
+        primera_pres = p.presentaciones.first()
+        pres_pk = primera_pres.pk if primera_pres else None
+        
+        entrada = {
+            'nombre':           p.nombre,
+            'cantidad':          stock_total,
+            'url_presentacion':  reverse('gestion_productos'),
+            'url_lote':          reverse('gestion_lotes') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
+        }
+        
         if stock_total == 0:
-            criticos.append({'nombre': p.nombre, 'cantidad': stock_total})
-        elif stock_total <= 10:
-            bajos.append({'nombre': p.nombre, 'cantidad': stock_total})
+            criticos.append(entrada)
+        elif stock_total <= 5:
+            bajos.append(entrada)
 
     if criticos:
         estado = 'rojo'
@@ -442,14 +486,16 @@ def rotacion_json(request):
     if rotacion_qs:
         top = rotacion_qs[0]
         try:
-            prod = Producto.objects.prefetch_related('presentaciones').get(
+            prod = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').get(
                 pk=top['presentacion__producto__pk']
             )
             estrella_nombre        = prod.nombre
             estrella_categoria     = prod.categoria.nombre if prod.categoria else ''
             estrella_vendido       = top['total_vendido']
-            estrella_stock         = prod.stock_total
-            estrella_stock_critico = prod.stock_critico
+            
+            # Cálculo seguro de stock total de presentaciones
+            estrella_stock         = prod.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+            estrella_stock_critico = getattr(prod, 'stock_critico', False)
 
             pres_top = (
                 Inventario.objects
@@ -492,10 +538,11 @@ def categorias_lista(request):
         'productos', 'subcategorias__productos'
     ).filter(padre__isnull=True)
     todas_cats = Categoria.objects.all()
-    return render(request, 'productos/categorias.html', {
+    context = {
         'categorias': categorias,
         'todas_cats': todas_cats,
-    })
+    }
+    return render(request, 'productos/categorias.html', context)
 
 
 @login_required
@@ -568,7 +615,10 @@ def categoria_eliminar(request, pk):
 @login_required
 def agenda_lista(request):
     agendas = AgendaInventario.objects.all().order_by('fecha_programada')
-    return render(request, 'productos/agenda.html', {'agendas': agendas})
+    context = {
+        'agendas': agendas,
+    }
+    return render(request, 'inventario/inventario_home.html', context)
 
 
 @login_required
@@ -578,3 +628,18 @@ def agenda_eliminar(request, pk):
         agenda.delete()
         messages.success(request, '✅ Registro de agenda eliminado.')
     return redirect('agenda_lista')
+
+
+# ===============================
+# GESTIÓN DE PRODUCTOS
+# ===============================
+@login_required
+def gestion_productos(request):
+    productos  = Producto.objects.select_related('categoria').all()
+    categorias = Categoria.objects.all()
+    context = {
+        'productos': productos,
+        'categorias': categorias,
+    }
+
+    return render(request, 'productos/gestion_productos.html', context)

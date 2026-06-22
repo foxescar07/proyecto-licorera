@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gestión de Lotes — CYS Ltda{% endblock %}
+{% block page_title %}Gestión de Lotes{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mb-3">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3"
+     style="border-bottom:1px solid rgba(77,168,218,0.18);">
+  <div class="d-flex align-items-center gap-2">
+  </div>
+   <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
+     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
+    <i class="bi bi-arrow-left me-1"></i> Inventario
+  </a>
+</div>
+
+<div class="row g-4">
+
+  <!-- ── Formulario ── -->
+  <div class="col-lg-7">
+    <div class="inv-card p-4 h-100">
+
+      <!-- Cabecera tarjeta -->
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <div class="icon-box">
+          <i class="bi bi-plus-circle-fill" style="color:#4DA8DA;font-size:2.1rem;"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 fw-bold text-uppercase"
+              style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.1.1rem;">
+            Registrar Nuevo Lote
+          </h6>
+          <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
+            El precio de costo se guarda en la presentación
+          </small>
+        </div>
+      </div>
+
+      <form method="POST" action="{% url 'registrar_lote' %}">
+        {% csrf_token %}
+
+        <!-- Presentación -->
+        <div class="mb-3">
+          <label class="inv-label">Presentación <span class="text-danger">*</span></label>
+          <select name="presentacion_lote" class="form-select inv-select" required>
+            <option value="">— Selecciona presentación —</option>
+            {% for p in productos %}
+              {% if p.presentaciones.all %}
+              <optgroup label="{{ p.nombre }}">
+                {% for pr in p.presentaciones.all %}
+                <option value="{{ pr.pk }}">{{ pr.nombre }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Nº Lote + Cantidad -->
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="inv-label">Nº de Lote <span class="text-danger">*</span></label>
+            <input type="text" name="numero_lote" class="form-control inv-input"
+                   placeholder="Ej: LOT-2024-01" required>
+          </div>
+          <div class="col-6">
+            <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+            <input type="number" name="cantidad_lote" class="form-control inv-input"
+                   min="1" placeholder="0" required>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Precio de costo -->
+        <div class="mb-3">
+          <label class="inv-label">
+            Precio de Costo
+            <span style="color:rgba(220,232,242,0.38);font-size:.72rem;text-transform:none;
+                         letter-spacing:0;font-weight:400;">(por unidad)</span>
+          </label>
+          <div class="d-flex">
+            <span class="precio-prefix">$</span>
+            <input type="number" name="costo_unitario"
+                   class="form-control inv-input inv-input-precio"
+                   min="0" step="1" placeholder="0"
+                   style="border-radius:0 8px 8px 0!important;border-left:none!important;">
+          </div>
+          <p class="precio-hint">
+            <i class="bi bi-info-circle me-1"></i>
+            Este valor se actualizará en la presentación y será visible en Stock y Gestión de Productos.
+          </p>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Fechas -->
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label class="inv-label">Fecha fabricación</label>
+            <input type="date" name="fecha_fabricacion" class="form-control inv-input">
+          </div>
+          <div class="col-6">
+            <label class="inv-label">Fecha vencimiento</label>
+            <input type="date" name="fecha_vencimiento" class="form-control inv-input">
+          </div>
+        </div>
+
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100"
+        style="background:#3b9ad6; color:#0d1b2a; border:none; font-size:0.9rem; white-space:nowrap;">
+  <i class="bi bi-plus-circle me-2"></i>Crear Lote
+</button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ── Panel derecho ── -->
+  <div class="col-lg-5 d-flex flex-column gap-4">
+
+    <!-- Mini stats -->
+    <div class="row g-3">
+      <div class="col-6">
+        <div class="stat-mini p-3 d-flex align-items-center justify-content-between">
+          <div>
+            <small class="d-block text-uppercase"
+                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+              Ingresos Hoy
+            </small>
+            <h4 class="mb-0 fw-bold mt-1 text-success" style="font-family:'Rajdhani',sans-serif;">
+              +{{ ingresos_hoy }} uds
+            </h4>
+          </div>
+          <i class="bi bi-box-arrow-in-down fs-3 text-success" style="opacity:.7;"></i>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-mini p-3 d-flex align-items-center justify-content-between"
+             style="border-color:rgba(77,168,218,0.22)!important;">
+          <div>
+            <small class="d-block text-uppercase"
+                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+              Lotes del Mes
+            </small>
+            <h4 class="mb-0 fw-bold mt-1" style="color:#4DA8DA;font-family:'Rajdhani',sans-serif;">
+              {{ ordenes_mes }}
+            </h4>
+          </div>
+          <i class="bi bi-cart-check fs-3" style="color:#4DA8DA;opacity:.7;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico proveedores -->
+    <div class="inv-card p-4 flex-grow-1 d-flex flex-column">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-shop" style="color:#4DA8DA;"></i>
+        <h6 class="mb-0 fw-bold text-uppercase"
+            style="color:#dce8f2;font-size:.75rem;letter-spacing:.05em;">
+          Top 5 Productos en Stock
+        </h6>
+      </div>
+      <div class="flex-grow-1 position-relative" style="min-height:175px;">
+        <canvas id="chartProveedores"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+new Chart(document.getElementById('chartProveedores').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: {{ proveedores_labels|safe }},
+    datasets: [{
+      label: 'Unidades en stock',
+      data: {{ proveedores_data|safe }},
+      // Arreglo de colores fríos (Violeta, Morado, Rojo-Violeta, etc.) con opacidad para el fondo
+      backgroundColor: [
+        'rgba(62, 181, 229, 0.85)',  /* Violeta intenso */
+        'rgba(155, 89, 182, 0.85)',  /* Morado claro */
+        'rgba(214, 48, 117, 0.85)',  /* Rojo Violeta / Magenta */
+        'rgba(108, 92, 231, 0.85)',  /* Azul Violeta / Indigo */
+        'rgba(162, 155, 254, 0.85)'  /* Violeta pastel */
+      ],
+      // Bordes sólidos combinados con los fondos
+      borderColor: [
+        '#4195c9',
+        '#9b59b6',
+        '#d63017',
+        '#6c5ce7',
+        '#a29bfe'
+      ],
+      borderWidth: 1,
+      borderRadius: 5
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        ticks: { color: '#dce8f2', font: { size: 10 } }
+      },
+      y: {
+        grid: { display: false },
+        ticks: { color: '#dce8f2', font: { size: 11, weight: '600' } }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

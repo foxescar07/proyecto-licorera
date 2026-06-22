@@ -1,8 +1,7 @@
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
+from django.db import models # type: ignore
+from django.conf import settings # type: ignore
+from django.utils import timezone # type: ignore
 from productos.models import Producto, PresentacionProducto
-from django.contrib.auth.models import User
 
 
 class Cliente(models.Model):
@@ -69,7 +68,7 @@ class DetalleVenta(models.Model):
     venta           = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_venta', null=True, blank=True)
-    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
+    presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
                                         related_name='detalles_venta', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
                                         null=True, blank=True, related_name='detalles_venta')
@@ -84,66 +83,117 @@ class DetalleVenta(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
+        nombre_prod = self.presentacion.producto.nombre if self.presentacion else (self.producto.nombre if self.producto else "Producto")
+        nombre_pres = f" ({self.presentacion.nombre})" if self.presentacion else ""
+        return f'{nombre_prod}{nombre_pres} x{self.cantidad}'
 
 
 class AperturaCaja(models.Model):
-    fecha_apertura = models.DateTimeField(default=timezone.now)
-    fecha          = models.DateField(default=timezone.localdate)
+    fecha          = models.DateField()
     monto_base     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
-                                       related_name='aperturas_caja',
-                                       verbose_name='Usuario',
-                                       null=True, blank=True)
-    observacion    = models.TextField(blank=True, default='')
+    usuario        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                       null=True, blank=True, related_name='aperturas_caja')
+    observacion    = models.TextField(blank=True)
     denominaciones = models.JSONField(default=dict, blank=True)
+    creado_en      = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
-        ordering            = ['-fecha_apertura']
-        verbose_name        = 'Apertura de caja'
-        verbose_name_plural = 'Aperturas de caja'
+        verbose_name        = 'Apertura de Caja'
+        verbose_name_plural = 'Aperturas de Caja'
+        ordering            = ['-fecha']
+        unique_together     = ['fecha', 'usuario']
 
     def __str__(self):
-        return f'Apertura {self.fecha} — ${self.monto_base:,.0f}'
+        return f'Apertura {self.fecha} ({self.usuario}) — ${self.monto_base:,.0f}'
 
 
 class CierreCaja(models.Model):
-    apertura             = models.ForeignKey(AperturaCaja, on_delete=models.SET_NULL,
-                                             null=True, blank=True, related_name='cierres')
-    fecha_cierre         = models.DateTimeField(default=timezone.now)
-    fecha                = models.DateField(default=timezone.localdate)
-    turno                = models.PositiveIntegerField(default=1)
+    fecha                = models.DateField()
+    apertura             = models.OneToOneField(AperturaCaja, on_delete=models.PROTECT, related_name='cierre')
+    usuario              = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                             null=True, blank=True, related_name='cierres_caja')
     total_contado        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    total_retirado       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     monto_base_siguiente = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_retirado       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     denominaciones       = models.JSONField(default=dict, blank=True)
+    creado_en            = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
-        ordering            = ['-fecha_cierre']
-        verbose_name        = 'Cierre de caja'
-        verbose_name_plural = 'Cierres de caja'
+        verbose_name        = 'Cierre de Caja'
+        verbose_name_plural = 'Cierres de Caja'
+        ordering            = ['-fecha']
 
     def __str__(self):
-        return f'Cierre {self.fecha} turno {self.turno} — contado ${self.total_contado:,.0f}'
+        return f'Cierre {self.fecha} — contado: ${self.total_contado:,.0f}'
 
 
 class Devolucion(models.Model):
     MOTIVO_CHOICES = [
         ('defectuoso',   'Producto defectuoso'),
-        ('equivocado',   'Producto equivocado'),
+        ('equivocado',   'Error en el pedido'),
         ('insatisfecho', 'Cliente insatisfecho'),
-        ('otro',         'Otro'),
+        ('calidad',      'Problema de calidad'),
+        ('empaque',      'Empaque dañado'),
+        ('otro',         'Otro motivo'),
+    ]
+
+    REEMBOLSO_CHOICES = [
+        ('cambio',       'Cambio de producto'),
+        ('nota_credito', 'Nota crédito'),
+        ('reembolso',    'Reembolso'),
+    ]
+
+    ESTADO_CHOICES = [
+        ('pendiente',    'Pendiente de aprobación'),
+        ('aprobada',     'Aprobada'),
+        ('procesada',    'Procesada'),
+        ('rechazada',    'Rechazada'),
+    ]
+
+    ESTADO_RETORNO_CHOICES = [
+        ('pendiente',    'Pendiente de retorno'),
+        ('en_transito',  'En tránsito'),
+        ('recibida',     'Recibida en almacén'),
+        ('verificada',   'Verificada'),
+        ('rechazada',    'Rechazada'),
     ]
 
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
                                           related_name='devoluciones',
                                           verbose_name='Venta original')
+    registrado_por    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                          related_name='devoluciones_procesadas',
+                                          verbose_name='Registrado por', null=True, blank=True)
     fecha             = models.DateTimeField(auto_now_add=True)
     motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
+    tipo_reembolso    = models.CharField(max_length=20, choices=REEMBOLSO_CHOICES, default='cambio')
     observaciones     = models.TextField(blank=True)
     restaurar_stock   = models.BooleanField(default=True)
     tiene_comprobante = models.BooleanField(default=True)
     total_devuelto    = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    estado             = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    estado_retorno     = models.CharField(max_length=20, choices=ESTADO_RETORNO_CHOICES, default='pendiente')
+    numero_seguimiento = models.CharField(max_length=50, blank=True, null=True, unique=True)
+
+    producto_cambio   = models.ForeignKey(Producto, on_delete=models.SET_NULL,
+                                          null=True, blank=True, related_name='cambios_recibidos')
+    cantidad_cambio   = models.PositiveIntegerField(null=True, blank=True)
+
+    saldo_credito            = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    credito_aplicado         = models.BooleanField(default=False)
+    fecha_aplicacion_credito = models.DateTimeField(null=True, blank=True)
+
+    metodo_pago_devolucion = models.CharField(max_length=50, blank=True,
+                                              choices=[
+                                                  ('efectivo', 'Efectivo'),
+                                                  ('tarjeta', 'Tarjeta'),
+                                                  ('transferencia', 'Transferencia'),
+                                                  ('nequi', 'Nequi'),
+                                                  ('daviplata', 'DaviPlata'),
+                                              ])
+    fecha_reembolso      = models.DateTimeField(null=True, blank=True)
+    referencia_reembolso = models.CharField(max_length=100, blank=True)
 
     class Meta:
         verbose_name        = 'Devolución'
@@ -151,19 +201,28 @@ class Devolucion(models.Model):
         ordering            = ['-fecha']
 
     def __str__(self):
-        return f'DEV-{self.pk:04d} | {self.venta.cliente.nombre} — {self.fecha:%d/%m/%Y %H:%M}'
+        return f'DEV-{self.pk:04d} | {self.venta.cliente.nombre} — {self.fecha:%d/%m/%Y %H:%M}' if self.pk else f'Nueva Devolución — {self.venta.cliente.nombre}'
 
     @property
     def numero(self):
         return f'DEV-{self.pk:04d}'
 
+    def aprobar(self):
+        self.estado = 'aprobada'
+        self.save()
+
+    def procesar(self):
+        if self.tipo_reembolso == 'nota_credito':
+            self.saldo_credito = self.total_devuelto
+        self.estado = 'procesada'
+        self.save()
+
 
 class DetalleDevolucion(models.Model):
-    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE,
-                                        related_name='detalles')
+    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE, related_name='detalles')
     producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
-    presentacion    = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE,
+    presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
                                         null=True, blank=True, related_name='detalles_devolucion')
@@ -178,4 +237,6 @@ class DetalleDevolucion(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        return f'{self.presentacion.producto.nombre} ({self.presentacion.nombre}) x{self.cantidad}'
+        nombre_prod = self.presentacion.producto.nombre if self.presentacion else (self.producto.nombre if self.producto else "Producto")
+        nombre_pres = f" ({self.presentacion.nombre})" if self.presentacion else ""
+        return f'{nombre_prod}{nombre_pres} x{self.cantidad}'

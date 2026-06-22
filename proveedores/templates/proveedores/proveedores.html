@@ -1,0 +1,702 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Proveedores{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  <div class="cys-snap-section px-3 py-4">
+
+  <!-- ENCABEZADO -->
+  <div class="card card-dev cys-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <span class="badge badge-cyan small mb-2 d-inline-block">
+          <i class="bi bi-building me-1"></i>GESTIÓN DE PROVEEDORES
+        </span>
+        <h1 class="cys-card__title mb-0" style="font-size: 1.8rem; color: var(--cyan);">
+          <i class="bi bi-truck"></i>Proveedores
+        </h1>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+          <i class="bi bi-plus-lg me-1"></i>Nuevo proveedor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS RESUMEN -->
+  <div class="row gx-2 gy-2 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--inv h-100 p-3">
+        <div class="cys-card__title small mb-2">Total</div>
+        <div class="h4 fw-bold mb-1 text-cyan">{{ total_proveedores }}</div>
+        <div class="text-muted text-sm">Registrados</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--prov h-100 p-3">
+        <div class="cys-card__title small mb-2">Activos</div>
+        <div class="h4 fw-bold mb-1 text-green-light">{{ proveedores_activos }}</div>
+        <div class="text-muted text-sm">{{ porcentaje_activos }}% del total</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--diario h-100 p-3">
+        <div class="cys-card__title small mb-2">Inactivos</div>
+        <div class="h4 fw-bold mb-1 text-yellow">{{ proveedores_inactivos }}</div>
+        <div class="text-muted text-sm">Desactivados</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cys-card cys-card--analisis h-100 p-3">
+        <div class="cys-card__title small mb-2">Sancionados</div>
+        <div class="h4 fw-bold mb-1 text-orange">{{ proveedores_sancionados }}</div>
+        <div class="text-muted text-sm">Bajo sanciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENSAJES -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %}-dev mb-4" role="alert">
+        <i class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- FILTROS -->
+  <div class="card card-dev p-4 mb-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <i class="bi bi-funnel" style="color: var(--cyan);"></i>
+      <h5 class="mb-0">Filtros</h5>
+    </div>
+
+    <!-- ✅ Así deben quedar -->
+<form method="GET" action="/proveedores/" class="row g-3">
+<a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+      <div class="col-12 col-md-4">
+        <label for="busqueda" class="form-label small fw-bold">Buscar por empresa o contacto</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" id="busqueda" class="form-control" placeholder="Nombre..." value="{{ request.GET.q }}">
+        </div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label for="filtroEstado" class="form-label small fw-bold">Estado</label>
+        <select name="estado" id="filtroEstado" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="activo" {% if request.GET.estado == 'activo' %}selected{% endif %}>Activos</option>
+          <option value="inactivo" {% if request.GET.estado == 'inactivo' %}selected{% endif %}>Inactivos</option>
+          <option value="sancionado" {% if request.GET.estado == 'sancionado' %}selected{% endif %}>Sancionados</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label for="filtroTipo" class="form-label small fw-bold">Tipo</label>
+        <select name="tipo" id="filtroTipo" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="distribuidor" {% if request.GET.tipo == 'distribuidor' %}selected{% endif %}>Distribuidor</option>
+          <option value="fabricante" {% if request.GET.tipo == 'fabricante' %}selected{% endif %}>Fabricante</option>
+          <option value="importador" {% if request.GET.tipo == 'importador' %}selected{% endif %}>Importador</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-2 d-flex gap-2 align-items-end">
+        <button type="submit" class="btn btn-sm btn-primary flex-grow-1">
+          <i class="bi bi-funnel me-1"></i>Filtrar
+        </button>
+         <a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- TABLA DE PROVEEDORES -->
+  <div class="card card-dev p-0 mb-4">
+    <div class="table-responsive" style="overflow-y: auto; overflow-x: auto; overflow: visible;">
+
+      <table class="table table-sm mb-0" id="tablaProveedores">
+        <thead style="background: rgba(77, 168, 218, 0.08);">
+          <tr>
+            <th class="fw-bold small text-cyan">Empresa</th>
+            <th class="fw-bold small text-cyan">Contacto</th>
+            <th class="fw-bold small text-cyan">Tipo</th>
+            <th class="fw-bold small text-cyan">Estado</th>
+            <th class="fw-bold small text-cyan">Responsable</th>
+            <th class="fw-bold small text-cyan">Fecha Registro</th>
+            <th class="fw-bold small text-center text-cyan">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+          {% for p in proveedores %}
+          <tr class="fila-proveedor" data-empresa="{{ p.nombre_empresa|lower }}" data-contacto="{{ p.nombre_contacto|lower }}" data-estado="{{ p.estado }}" data-tipo="{{ p.tipo_proveedor }}">
+            <td class="fw-bold small">
+              {{ p.nombre_empresa }}<br>
+              <span class="text-sm text-md">{{ p.email }}</span>
+            </td>
+            <td class="small">{{ p.nombre_contacto }}</td>
+            <td>
+              <span class="badge badge-cyan-bg">
+                {{ p.get_tipo_proveedor_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge 
+                {% if p.estado == 'activo' %}badge-status-activo
+                {% elif p.estado == 'inactivo' %}badge-status-inactivo
+                {% else %}badge-status-sancionado{% endif %}">
+                {{ p.get_estado_display|upper }}
+              </span>
+            </td>
+            <td class="small text-md">{{ p.registrado_por.email|default:"Admin" }}</td>
+            <td class="small">
+              <div class="fw-bold">{{ p.fecha_registro|date:"d/m/Y" }}</div>
+              <span class="text-sm">{{ p.fecha_registro|date:"H:i" }}</span>
+            </td>
+            <td class="text-center">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-link text-cyan p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Acciones" style="text-decoration: none; font-size: 1.2rem;">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" style="overflow: visible; max-height: none;">
+                  <li>
+                    <a class="dropdown-item" href="/proveedores/detalle/{{ p.id }}/">
+                      <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/proveedores/editar/{{ p.id }}/">
+                      <i class="bi bi-pencil me-2 text-warning"></i>Editar
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if p.estado == 'activo' %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDesactivar{{ p.id }}" style="border: none; background: none; cursor: pointer;">
+                      <i class="bi bi-pause-circle me-2 text-warning"></i>Desactivar
+                    </button>
+                  </li>
+                  {% elif p.estado == 'inactivo' %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalActivar{{ p.id }}" style="border: none; background: none; cursor: pointer;">
+                      <i class="bi bi-play-circle me-2 text-success"></i>Activar
+                    </button>
+                  </li>
+                  {% endif %}
+                  {% if p.estado != 'sancionado' %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalSancionar{{ p.id }}" style="border: none; background: none; cursor: pointer;">
+                      <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Sancionar
+                    </button>
+                  </li>
+                  {% else %}
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalVerSancion{{ p.id }}" style="border: none; background: none; cursor: pointer;">
+                      <i class="bi bi-info-circle me-2 text-info"></i>Ver causa
+                    </button>
+                  </li>
+                  {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEliminarProveedor{{ p.id }}" style="border: none; background: none; cursor: pointer;">
+                      <i class="bi bi-trash me-2 text-danger"></i>Eliminar
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <i class="bi bi-building d-block mb-2 text-lo" style="font-size: 2rem;"></i>
+              <small class="text-md">No hay proveedores registrados</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+{% for p in proveedores %}
+<!-- MODAL ELIMINAR PROVEEDOR -->
+<div class="modal fade" id="modalEliminarProveedor{{ p.id }}" tabindex="-1" aria-labelledby="modalEliminarProveedorLabel{{ p.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(232, 131, 74, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-sancionado mb-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>ELIMINAR
+          </span>
+          <h5 class="modal-title fw-bold" id="modalEliminarProveedorLabel{{ p.id }}" style="color: var(--orange);">
+            <i class="bi bi-trash me-2"></i>Eliminar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger-dev mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Esta acción no se puede deshacer.
+        </div>
+        <p class="mb-3">¿Estás seguro de que deseas eliminar este proveedor?</p>
+        <div style="background: rgba(232, 131, 74, 0.06); border-left: 4px solid var(--orange); padding: 1rem; border-radius: 6px;">
+          <div class="mb-2">
+            <small class="text-muted">Empresa</small>
+            <div class="fw-bold" style="color: var(--cyan);">{{ p.nombre_empresa }}</div>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Contacto</small>
+            <div class="fw-bold">{{ p.nombre_contacto }}</div>
+          </div>
+          <div>
+            <small class="text-muted">Email</small>
+            <div class="fw-bold">{{ p.email }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" action="{% url 'eliminar_proveedor' p.id %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm fw-bold">
+            <i class="bi bi-trash me-1"></i>Eliminar proveedor
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESACTIVAR PROVEEDOR -->
+<div class="modal fade" id="modalDesactivar{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(240, 208, 128, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-inactivo mb-2">
+            <i class="bi bi-pause-circle me-1"></i>DESACTIVAR
+          </span>
+          <h5 class="modal-title fw-bold" style="color: var(--yellow);">
+            <i class="bi bi-pause-circle me-2"></i>Desactivar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">¿Deseas desactivar a <strong style="color: var(--cyan);">{{ p.nombre_empresa }}</strong>?</p>
+        <div style="background: rgba(240, 208, 128, 0.06); border-left: 4px solid var(--yellow); padding: 1rem; border-radius: 6px;">
+          <div class="fw-bold">{{ p.nombre_empresa }}</div>
+          <small class="text-muted">{{ p.nombre_contacto }}</small>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" action="{% url 'desactivar_proveedor' p.id %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning btn-sm fw-bold">
+            <i class="bi bi-pause-circle me-1"></i>Desactivar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACTIVAR PROVEEDOR -->
+<div class="modal fade" id="modalActivar{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(76, 175, 80, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-activo mb-2">
+            <i class="bi bi-play-circle me-1"></i>ACTIVAR
+          </span>
+          <h5 class="modal-title fw-bold" style="color: #4caf50;">
+            <i class="bi bi-play-circle me-2"></i>Activar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">¿Deseas activar a <strong style="color: var(--cyan);">{{ p.nombre_empresa }}</strong>?</p>
+        <div style="background: rgba(76, 175, 80, 0.06); border-left: 4px solid #4caf50; padding: 1rem; border-radius: 6px;">
+          <div class="fw-bold">{{ p.nombre_empresa }}</div>
+          <small class="text-muted">{{ p.nombre_contacto }}</small>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" action="{% url 'activar_proveedor' p.id %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-sm fw-bold">
+            <i class="bi bi-play-circle me-1"></i>Activar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SANCIONAR PROVEEDOR -->
+<div class="modal fade" id="modalSancionar{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(232, 131, 74, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-sancionado mb-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>SANCIONAR
+          </span>
+          <h5 class="modal-title fw-bold" style="color: var(--orange);">
+            <i class="bi bi-exclamation-triangle me-2"></i>Sancionar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Registra la causa por la cual sancionas a <strong style="color: var(--cyan);">{{ p.nombre_empresa }}</strong>:</p>
+        <form id="formSancionar{{ p.id }}" method="POST" action="{% url 'sancionar_proveedor' p.id %}">
+          {% csrf_token %}
+          <div style="background: rgba(232, 131, 74, 0.06); border-left: 4px solid var(--orange); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <div class="fw-bold">{{ p.nombre_empresa }}</div>
+            <small class="text-muted">{{ p.nombre_contacto }}</small>
+          </div>
+          <div class="mb-3">
+            <label for="causaSancion{{ p.id }}" class="form-label fw-bold">Causa de sanción *</label>
+            <textarea
+              id="causaSancion{{ p.id }}"
+              name="motivo_sancion"
+              class="form-control"
+              rows="4"
+              placeholder="Describe el motivo de la sanción..."
+              style="background: var(--color-surface); border-color: rgba(232, 131, 74, 0.2); color: var(--text-hi);"
+              required></textarea>
+            <small class="text-muted mt-2 d-block">Sé específico sobre el motivo de la sanción</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <button type="submit" form="formSancionar{{ p.id }}" class="btn btn-danger btn-sm fw-bold">
+          <i class="bi bi-exclamation-triangle me-1"></i>Sancionar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER CAUSA DE SANCIÓN -->
+<div class="modal fade" id="modalVerSancion{{ p.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(77, 168, 218, 0.35);">
+      <div class="modal-header border-0">
+        <div>
+          <span class="badge badge-status-sancionado mb-2">
+            <i class="bi bi-info-circle me-1"></i>INFORMACIÓN
+          </span>
+          <h5 class="modal-title fw-bold" style="color: var(--cyan);">
+            <i class="bi bi-info-circle me-2"></i>Causa de sanción
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(77, 168, 218, 0.06); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <div class="fw-bold text-cyan">{{ p.nombre_empresa }}</div>
+          <small class="text-muted">{{ p.nombre_contacto }}</small>
+        </div>
+        <div class="mb-3">
+          <small class="text-muted text-uppercase fw-bold">Motivo de sanción</small>
+          <p class="mt-2 mb-0">{{ p.motivo_sancion|default:"No especificado" }}</p>
+        </div>
+        <hr style="border-color: rgba(77, 168, 218, 0.2);">
+        <small class="text-muted">
+          <i class="bi bi-calendar me-1"></i>Registrado: {{ p.fecha_registro|date:"d/m/Y H:i" }}<br>
+          <i class="bi bi-pencil me-1"></i>Última modificación: {{ p.ultima_modificacion|date:"d/m/Y H:i" }}
+        </small>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- MODAL NUEVO PROVEEDOR -->
+<div class="modal fade" id="modalNuevoProveedor" tabindex="-1" role="dialog" aria-labelledby="modalNuevoProveedorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(77, 168, 218, 0.2);">
+      <div class="modal-header border-0">
+        <div>
+          <h5 class="modal-title fw-bold" id="modalNuevoProveedorLabel" style="color: var(--cyan);">
+            <i class="bi bi-plus-circle me-2"></i>Nuevo Proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNuevoProveedor" method="POST" action="{% url 'crear_proveedor' %}">
+          {% csrf_token %}
+
+          <!-- INFORMACIÓN BÁSICA -->
+          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.2rem;">
+            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-building me-2"></i>Información Básica</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="id_nombre_empresa" class="form-label fw-bold" style="color: var(--cyan);">Empresa *</label>
+                <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control" placeholder="Ej: ABC Distribuciones" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="id_nombre_contacto" class="form-label fw-bold" style="color: var(--cyan);">Responsable/Contacto *</label>
+                <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control" placeholder="Ej: Juan Pérez" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTACTO -->
+          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.2rem;">
+            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-telephone me-2"></i>Datos de Contacto</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="id_email" class="form-label fw-bold" style="color: var(--cyan);">Correo *</label>
+                <input type="email" name="email" id="id_email" class="form-control" placeholder="contacto@empresa.com" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="id_telefono" class="form-label fw-bold" style="color: var(--cyan);">Número de Teléfono</label>
+                <input type="text" name="telefono" id="id_telefono" class="form-control" placeholder="+56 9 1234 5678" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;">
+              </div>
+            </div>
+          </div>
+
+          <!-- CLASIFICACIÓN -->
+          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px;">
+            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-tag me-2"></i>Clasificación</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="id_tipo_proveedor" class="form-label fw-bold" style="color: var(--cyan);">Tipo de Proveedor *</label>
+                <select name="tipo_proveedor" id="id_tipo_proveedor" class="form-select" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+                  <option value="">-- Selecciona un tipo --</option>
+                  <option value="distribuidor">Distribuidor</option>
+                  <option value="fabricante">Fabricante</option>
+                  <option value="importador">Importador</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="id_estado" class="form-label fw-bold" style="color: var(--cyan);">Estado *</label>
+                <select name="estado" id="id_estado" class="form-select" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
+                  <option value="">-- Selecciona un estado --</option>
+                  <option value="activo">✓ Activo</option>
+                  <option value="inactivo">⏸ Inactivo</option>
+                  <option value="sancionado">⚠ Sancionado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <button type="submit" form="formNuevoProveedor" class="btn btn-primary btn-sm fw-bold">
+          <i class="bi bi-check-circle me-1"></i>Guardar Proveedor
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESACTIVAR PROVEEDOR (Mejorado) -->
+<div class="modal fade" id="modalDesactivarGeneral" tabindex="-1" role="dialog" aria-labelledby="modalDesactivarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(240, 208, 128, 0.35);">
+      <div class="modal-header border-0" style="background: linear-gradient(135deg, rgba(240, 208, 128, 0.1) 0%, rgba(240, 208, 128, 0.05) 100%);">
+        <div>
+          <span class="badge badge-status-inactivo mb-2">
+            <i class="bi bi-pause-circle me-1"></i>DESACTIVAR
+          </span>
+          <h5 class="modal-title fw-bold" id="modalDesactivarLabel" style="color: var(--yellow);">
+            <i class="bi bi-pause-circle me-2"></i>Desactivar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>¿Deseas desactivar este proveedor?</strong><br>
+          <small>Los registros históricos se conservarán.</small>
+        </div>
+        <div style="background: rgba(240, 208, 128, 0.06); border-left: 4px solid var(--yellow); padding: 1rem; border-radius: 6px;">
+          <div class="fw-bold" id="proveedorDesactivarNombre">Nombre del proveedor</div>
+          <small class="text-muted" id="proveedorDesactivarContacto">Contacto</small>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" id="formDesactivarProveedor" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning btn-sm fw-bold">
+            <i class="bi bi-pause-circle me-1"></i>Desactivar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ELIMINAR PROVEEDOR (Mejorado) -->
+<div class="modal fade" id="modalEliminarGeneral" tabindex="-1" role="dialog" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(232, 131, 74, 0.35);">
+      <div class="modal-header border-0" style="background: linear-gradient(135deg, rgba(232, 131, 74, 0.1) 0%, rgba(232, 131, 74, 0.05) 100%);">
+        <div>
+          <span class="badge bg-danger mb-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>ELIMINAR
+          </span>
+          <h5 class="modal-title fw-bold" id="modalEliminarLabel" style="color: var(--orange);">
+            <i class="bi bi-trash me-2"></i>Eliminar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger mb-3" role="alert">
+          <i class="bi bi-exclamation-octagon me-2"></i>
+          <strong>Esta acción es irreversible</strong><br>
+          <small>Se eliminarán todos los datos asociados al proveedor.</small>
+        </div>
+        <div style="background: rgba(232, 131, 74, 0.06); border-left: 4px solid var(--orange); padding: 1rem; border-radius: 6px;">
+          <div class="fw-bold" id="proveedorEliminarNombre">Nombre del proveedor</div>
+          <small class="text-muted" id="proveedorEliminarContacto">Contacto</small>
+          <div class="mt-2" id="proveedorEliminarEmail"><small class="text-muted">Email</small></div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="POST" id="formEliminarProveedor" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm fw-bold">
+            <i class="bi bi-trash me-1"></i>Eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SANCIONAR PROVEEDOR (Mejorado) -->
+<div class="modal fade" id="modalSancionarGeneral" tabindex="-1" role="dialog" aria-labelledby="modalSancionarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(232, 131, 74, 0.35);">
+      <div class="modal-header border-0" style="background: linear-gradient(135deg, rgba(232, 131, 74, 0.1) 0%, rgba(232, 131, 74, 0.05) 100%);">
+        <div>
+          <span class="badge bg-danger mb-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>SANCIONAR
+          </span>
+          <h5 class="modal-title fw-bold" id="modalSancionarLabel" style="color: var(--orange);">
+            <i class="bi bi-exclamation-triangle me-2"></i>Sancionar proveedor
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(232, 131, 74, 0.06); border-left: 4px solid var(--orange); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <div class="fw-bold" id="proveedorSancionarNombre">Nombre del proveedor</div>
+          <small class="text-muted" id="proveedorSancionarContacto">Contacto</small>
+        </div>
+        <form id="formSancionarProveedor" method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="causaSancion" class="form-label fw-bold">Causa de sanción *</label>
+            <textarea
+              id="causaSancion"
+              name="motivo_sancion"
+              class="form-control"
+              rows="4"
+              placeholder="Describe el motivo de la sanción..."
+              style="background: var(--color-surface); border-color: rgba(232, 131, 74, 0.2); color: var(--text-hi);"
+              required></textarea>
+            <small class="text-muted mt-2 d-block">Sé específico sobre el motivo de la sanción</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <button type="submit" form="formSancionarProveedor" class="btn btn-danger btn-sm fw-bold">
+          <i class="bi bi-exclamation-triangle me-1"></i>Sancionar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER SANCIÓN (Mejorado) -->
+<div class="modal fade" id="modalVerSancionGeneral" tabindex="-1" role="dialog" aria-labelledby="modalVerSancionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--color-bg-card); border: 1px solid rgba(77, 168, 218, 0.35);">
+      <div class="modal-header border-0" style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%);">
+        <div>
+          <span class="badge bg-danger mb-2">
+            <i class="bi bi-info-circle me-1"></i>SANCIÓN
+          </span>
+          <h5 class="modal-title fw-bold" id="modalVerSancionLabel" style="color: var(--cyan);">
+            <i class="bi bi-info-circle me-2"></i>Causa de sanción
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(77, 168, 218, 0.06); border-left: 4px solid var(--cyan); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <div class="fw-bold text-cyan" id="proveedorVerSancionNombre">Nombre del proveedor</div>
+          <small class="text-muted" id="proveedorVerSancionContacto">Contacto</small>
+        </div>
+        <div class="mb-3">
+          <small class="text-muted text-uppercase fw-bold">Motivo de sanción</small>
+          <p class="mt-2 mb-0" id="proveedorVerSancionMotivo">No especificado</p>
+        </div>
+        <hr style="border-color: rgba(77, 168, 218, 0.2);">
+        <small class="text-muted">
+          <i class="bi bi-calendar me-1"></i>Registrado: <span id="proveedorVerSancionFecha">--</span><br>
+          <i class="bi bi-pencil me-1"></i>Última modificación: <span id="proveedorVerSancionModif">--</span>
+        </small>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

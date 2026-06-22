@@ -25,40 +25,89 @@
     {% endfor %}
   {% endif %}
 
-{% include 'productos/stock_widget.html' %}
+{% include 'inventario/stock_widget.html' %}
 {% include 'productos/busqueda_producto.html' %}
 
-  <!-- INVENTARIO POR CATEGORÍA -->
-  <div class="card prod-card mb-4">
-    <div class="card-header prod-card-header d-flex justify-content-between align-items-center">
-      <span class="fw-semibold">
-        <i class="bi bi-box-seam me-2 text-info"></i>Inventario por Categoría
-      </span>
-      <button class="btn prod-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
-        <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
-      </button>
-    </div>
-    <div class="card-body">
-      <div class="row g-3">
+ <!-- INVENTARIO POR CATEGORÍA -->
+<div class="row g-3 mb-4">
+
+  <!-- CUADRO CATEGORÍAS -->
+  <div class="col-md-3">
+    <div class="card h-100 prod-card shadow-sm" style="border-radius:14px; border-top:3px solid #4DA8DA !important; min-height:320px;">
+      <div class="card-header prod-card-header d-flex justify-content-between align-items-center px-4 py-3">
+        <span class="fw-semibold fs-6">
+          <i class="bi bi-tags-fill me-2" style="color:#4DA8DA;"></i>Categorías
+        </span>
+        <button class="btn btn-sm prod-btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                style="width:32px;height:32px;"
+                data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
+          <i class="bi bi-plus-lg" style="font-size:.8rem;"></i>
+        </button>
+      </div>
+      <div class="card-body px-4 pt-0 pb-4">
+        <p class="text-uppercase prod-label mb-3" style="letter-spacing:.08em;">Selecciona una categoria</p>
         {% for cat in resumen_categorias %}
-          <div class="col-md-4">
-            <div class="prod-stat-card text-center"
-                 data-bs-toggle="modal" data-bs-target="#modalProductosCategoria"
-                 data-cat-pk="{{ cat.pk }}" data-cat-nombre="{{ cat.nombre }}"
-                 role="button" style="cursor:pointer;">
-              <div class="text-muted small">{{ cat.nombre }}</div>
-              <div class="fw-bold fs-4 text-info">{{ cat.total }}</div>
-              <div class="text-muted" style="font-size:.7rem;">productos</div>
-            </div>
-          </div>
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
+                data-cat-pk="{{ cat.pk }}"
+                data-cat-nombre="{{ cat.nombre }}"
+                ondblclick="filtrarCategoria(this)"
+                style="font-size:.9rem; border-radius:8px;">
+          <span class="text-truncate me-2" style="max-width:120px;">{{ cat.nombre }}</span>
+          <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ cat.total }}</span>
+        </button>
         {% empty %}
-          <div class="col-12 text-center py-4 text-muted small">
-            No hay categorías registradas.
-          </div>
+        <p class="prod-label small px-1 mb-0">Sin categorías registradas.</p>
         {% endfor %}
       </div>
     </div>
   </div>
+
+  <!-- CUADRO TABLA -->
+  <div class="col-md-9">
+    <div class="card h-100 prod-card shadow-sm" style="border-radius:14px; border-top:3px solid #27ae60 !important; min-height:320px;">
+      <div class="card-header prod-card-header d-flex justify-content-between align-items-center px-4 py-3">
+        <span class="fw-semibold fs-6">
+          <i class="bi bi-box-seam me-2 text-success"></i>
+          <span id="cat-titulo">Productos por categoría</span>
+        </span>
+        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline px-3" style="font-size:.82rem;">
+          <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
+        </a>
+      </div>
+      <div class="card-body p-0" style="position:relative; min-height:280px;">
+
+        <!-- Estado vacío -->
+        <div id="cat-empty-state"
+             class="d-flex flex-column align-items-center justify-content-center py-5"
+             style="position:absolute; inset:0; transition:opacity .35s ease; opacity:1; pointer-events:auto;">
+          <i class="bi bi-hand-index-thumb fs-1 mb-3" style="color:#4DA8DA; opacity:.4;"></i>
+          <span class="small prod-label">Selecciona una categoría para ver sus productos</span>
+        </div>
+
+        <!-- Tabla -->
+        <div id="cat-tabla-wrap"
+             style="position:absolute; inset:0; transition:opacity .35s ease; opacity:0; pointer-events:none; overflow-y:auto;">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead>
+                <tr style="font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;">
+                  <th class="px-4 py-3 fw-normal prod-label">#</th>
+                  <th class="py-3 fw-normal prod-label">Nombre</th>
+                  <th class="py-3 fw-normal prod-label">Código</th>
+                  <th class="py-3 text-center fw-normal prod-label">Stock</th>
+                  <th class="py-3 fw-normal prod-label">Presentaciones</th>
+                </tr>
+              </thead>
+              <tbody id="cat-tbody" style="font-size:.88rem;"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
 
   <!-- ANALÍTICA: ROTACIÓN -->
   <div class="card prod-card mb-4" id="seccion-analitica" style="display:none;">
@@ -174,28 +223,22 @@
             </div>
             <div class="col-md-12">
               <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
-             <select name="categoria" id="crear-categoria" class="form-select prod-input">
-  <option value="">— Seleccionar —</option>
-  {% for main_cat in categorias %}   {# ← cambia categorias_arbol por categorias #}
-    <optgroup label="{{ main_cat.nombre }}">
-      <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
-      {% for sub_cat in main_cat.subcategorias.all %}
-        <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
-      {% endfor %}
-    </optgroup>
-  {% endfor %}
-</select>
+              <select name="categoria" id="crear-categoria" class="form-select prod-input">
+                <option value="">— Seleccionar —</option>
+                {% for main_cat in categorias %}
+                  <optgroup label="{{ main_cat.nombre }}">
+                    <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
+                    {% for sub_cat in main_cat.subcategorias.all %}
+                      <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
             </div>
             <div class="col-12">
               <label class="form-label prod-label">Descripción (opcional)</label>
               <textarea name="descripcion" id="crear-descripcion" class="form-control prod-input"
                         rows="2" placeholder="Descripción breve…"></textarea>
-            </div>
-            <div class="col-12 text-center">
-              <button type="button" class="btn prod-btn-outline" id="btn-guardar-presentaciones"
-                      onclick="crearProductoYPresentaciones()">
-                <i class="bi bi-layers me-1"></i> Definir Presentaciones
-              </button>
             </div>
           </div>
         </form>
@@ -388,7 +431,61 @@ const todoProductos = [
   }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
+let ultimaCatPk = null;
 
+function filtrarCategoria(btn) {
+  const pk     = btn.dataset.catPk;
+  const nombre = btn.dataset.catNombre;
+  const empty  = document.getElementById('cat-empty-state');
+  const tabla  = document.getElementById('cat-tabla-wrap');
+
+  if (ultimaCatPk === pk) {
+    ultimaCatPk = null;
+    btn.classList.remove('active');
+    document.getElementById('cat-titulo').textContent = 'Productos por categoría';
+    empty.style.opacity = '1'; empty.style.pointerEvents = 'auto';
+    tabla.style.opacity = '0'; tabla.style.pointerEvents = 'none';
+    return;
+  }
+
+  ultimaCatPk = pk;
+  document.querySelectorAll('.prod-cat-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const filtrados = todoProductos.filter(p => p.categoria_pk == pk);
+  document.getElementById('cat-titulo').textContent =
+    nombre + ' — ' + filtrados.length + ' producto' + (filtrados.length !== 1 ? 's' : '');
+
+  empty.style.opacity = '0'; empty.style.pointerEvents = 'none';
+  tabla.style.opacity = '1'; tabla.style.pointerEvents = 'auto';
+
+  const tbody = document.getElementById('cat-tbody');
+
+  if (!filtrados.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 prod-label">
+      <i class="bi bi-box-seam d-block mb-2 fs-4"></i>No hay productos en esta categoría.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map((p, i) => {
+    const pres = p.presentaciones.length
+      ? p.presentaciones.map(pr =>
+          `<span class="badge me-1" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.72rem; padding:3px 7px; border-radius:6px;">
+            ${pr.nombre} · ${pr.unidades} uds · $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
+          </span>`).join('')
+      : `<span class="prod-label" style="font-size:.82rem;">Sin definir</span>`;
+
+    return `<tr>
+      <td class="px-4 prod-label">${i + 1}</td>
+      <td class="fw-semibold" style="color:var(--prod-texto);">${p.nombre}</td>
+      <td style="color:#4DA8DA; font-family:monospace;">${p.codigo || '—'}</td>
+      <td class="text-center">
+        <span class="fw-bold" style="color:${p.stock_critico ? '#e74c3c' : '#4DA8DA'};">${p.stock_total} uds</span>
+      </td>
+      <td>${pres}</td>
+    </tr>`;
+  }).join('');
+}
 // ── MODAL CATEGORÍA ───────────────────────────────────────────────────────────
 document.getElementById('modalProductosCategoria').addEventListener('show.bs.modal', function(e) {
   const btn = e.relatedTarget;
@@ -671,5 +768,6 @@ function guardarPresentacionesModal() {
         '<p class="text-muted small">Error al cargar datos.</p>';
     });
 })();
+
 </script>
 {% endblock %}

@@ -22,122 +22,200 @@
   {% endif %}
 
   <!-- ACCESO RÁPIDO -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button">
-        <i class="bi bi-calendar-plus"></i>
-        <div>
-          <div class="inv-quick-card__title">Agendar Inventario</div>
-          <div class="inv-quick-card__sub">Programar fecha y hora del conteo</div>
+<div class="row g-3 mb-4">
+
+  <div class="col-md-3">
+    <!-- Agendar — aguamarina -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button"
+     style="border-left: 3px solid #2dd4bf;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2" style="background:rgba(77,168,218,.15);">
+          <i class="bi bi-calendar-plus fs-4" style="color:#2dd4bf;"></i>
         </div>
+        <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#2dd4bf;font-size:.65rem;">ACCIÓN</span>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button">
-        <i class="bi bi-clipboard2-check"></i>
-        <div>
-          <div class="inv-quick-card__title">Iniciar Conteo</div>
-          <div class="inv-quick-card__sub">Ingresar cantidades físicas</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button">
-        <i class="bi bi-upc-scan"></i>
-        <div>
-          <div class="inv-quick-card__title">Registrar Códigos</div>
-          <div class="inv-quick-card__sub">Asignar códigos de barras</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button">
-        <i class="bi bi-arrow-left-right"></i>
-        <div>
-          <div class="inv-quick-card__title">Comparar Inventario</div>
-          <div class="inv-quick-card__sub">Ver discrepancias físico vs sistema</div>
-        </div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#2dd4bf;line-height:1;">{{ agendas|length|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Agendar Inventario</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Programar fecha y hora del conteo</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
+        <span style="font-size:.7rem;color:#2dd4bf;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#2dd4bf;"></i>
       </div>
     </div>
   </div>
 
-  <!-- ENLACE GESTIÓN DE PRODUCTOS -->
-  <div class="mb-4">
-    <a href="{% url 'gestion_productos' %}" class="inv-gestion-link text-decoration-none d-flex align-items-center justify-content-between gap-3 flex-wrap">
-      <div class="d-flex align-items-center gap-3">
-        <div class="inv-gestion-link__icon">
-          <i class="bi bi-box-seam-fill"></i>
+  <div class="col-md-3">
+   <!-- Conteo — verde -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button"
+     style="border-left: 3px solid #27ae60;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2" style="background:rgba(39,174,96,.15);">
+          <i class="bi bi-clipboard2-check fs-4" style="color:#27ae60;"></i>
         </div>
-        <div>
-          <div class="inv-gestion-link__title">Gestión de Productos</div>
-          <div class="inv-gestion-link__sub">Productos, salidas, categorías y subcategorías</div>
-        </div>
+        <span class="badge rounded-pill" style="background:rgba(39,174,96,.15);color:#27ae60;font-size:.65rem;">CONTEO</span>
       </div>
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="badge inv-badge-salida"><i class="bi bi-box-arrow-up me-1"></i>Registrar salida</span>
-        <span class="badge inv-badge-cat"><i class="bi bi-tags me-1"></i>Categorías</span>
-        <i class="bi bi-arrow-right-circle-fill inv-arrow-icon"></i>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#27ae60;line-height:1;">{{ conteos|length|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Iniciar Conteo</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Ingresar cantidades físicas</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(39,174,96,.15);">
+        <span style="font-size:.7rem;color:#27ae60;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#27ae60;"></i>
       </div>
-    </a>
+    </div>
   </div>
 
-  <!-- INVENTARIOS PROGRAMADOS -->
-  <div class="card inv-card mb-4">
-    <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
-         data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
-      <span class="fw-semibold">
-        <i class="bi bi-calendar2-week me-2 text-info"></i>
-        Inventarios Programados
-        {% if agendas %}
-          <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
-        {% endif %}
-      </span>
-      <i class="bi bi-chevron-down"></i>
+  <div class="col-md-3">
+    <!-- Códigos — morado -->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
+     style="border-left: 3px solid #9b5de5;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2"style="background:rgba(155,93,229,.15);">
+          <i class="bi bi-upc-scan fs-4" style="color:#9b5de5;"></i>
+        </div>
+        <span class="badge rounded-pill" style="background:rgba(155,93,229,.15);color:#9b5de5;font-size:.65rem;">CÓDIGOS</span>
+      </div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#9b5de5;line-height:1;">{{ sin_codigo|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Registrar Códigos</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Asignar códigos de barras</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(155,93,229,.15);">
+        <span style="font-size:.7rem;color:#9b5de5;">Sin código: {{ sin_codigo|default:"0" }}</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#9b5de5;"></i>
+      </div>
     </div>
-    <div class="collapse" id="agendaBody">
-      <div class="card-body">
+  </div>
+
+  <div class="col-md-3">
+   <!-- Comparar — azul-->
+<div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button"
+    style="border-left: 3px solid #4DA8DA;">
+      <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+        <div class="rounded-3 p-2"  style="background:rgba(77,168,218,.15);">
+          <i class="bi bi-arrow-left-right fs-4" style="color:#4DA8DA;"></i>
+        </div>
+        <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#4DA8DA;font-size:.65rem;">COMPARAR</span>
+      </div>
+      <div class="fw-bold mt-1" style="font-size:1.5rem;color:#4DA8DA;line-height:1;">{{ discrepancias|length|default:"0" }}</div>
+      <div class="fw-semibold mt-1" style="font-size:.88rem;">Comparar Inventario</div>
+      <div class="text-muted small mt-1" style="font-size:.72rem;">Ver discrepancias físico vs sistema</div>
+      <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
+        <span style="font-size:.7rem;color:#4DA8DA;">Abrir módulo</span>
+        <i class="bi bi-arrow-right" style="font-size:.7rem;color:#4DA8DA;"></i>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+ <!-- INVENTARIOS PROGRAMADOS -->
+<div class="card inv-card mb-4">
+  <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
+       data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
+    <span class="fw-semibold">
+      <i class="bi bi-calendar2-week me-2 text-info"></i>
+      Inventarios Programados
+      {% if agendas %}
+        <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
+      {% endif %}
+    </span>
+      </div>
+
+  <div class="collapse show" id="agendaBody">
+    <div class="card-body">
+
+<!-- TABS -->
+<div class="d-flex gap-2 mb-3">
+  <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn active" data-tab="activos"
+          style="background: var(--inv-azul-dim); color: var(--inv-azul); border: 1px solid var(--inv-azul-borde); font-size:.78rem;">
+    <i class="bi bi-clock me-1"></i>Activos
+  </button>
+  <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn" data-tab="historial"
+          style="background: transparent; color: var(--inv-texto); border: 1px solid var(--inv-azul-borde); font-size:.78rem; opacity:.6;">
+    <i class="bi bi-archive me-1"></i>Historial
+  </button>
+</div>
+
+      <div class="d-flex flex-column gap-3" id="lista-agendas">
+
         {% for agenda in agendas %}
-        <div class="inv-agenda-item mb-3 p-3 rounded">
-          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-            <div>
-              <div class="fw-semibold">{{ agenda.titulo }}</div>
-              <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}</div>
-              {% if agenda.descripcion %}
-                <div class="text-muted small mt-1">{{ agenda.descripcion }}</div>
+          {% with estado=agenda.estado %}
+          <div class="agenda-item p-3 rounded-3
+                      {% if estado == 'completada' or estado == 'cancelada' %}agenda-historial{% else %}agenda-activo{% endif %}"
+               style="background: var(--inv-card2); border: 1px solid var(--inv-azul-borde);
+                      {% if estado == 'completada' or estado == 'cancelada' %}display:none;{% endif %}">
+
+            <!-- Cabecera -->
+            <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
+              <div>
+                <div class="fw-semibold" style="color: var(--inv-texto);">{{ agenda.titulo }}</div>
+                <div class="text-muted small mt-1">
+                  <i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}
+                </div>
+                {% if agenda.descripcion %}
+                  <div class="text-muted small mt-1">{{ agenda.descripcion }}</div>
+                {% endif %}
+              </div>
+              <span class="badge rounded-pill inv-estado-{{ estado }} flex-shrink-0">
+                {{ agenda.get_estado_display }}
+              </span>
+            </div>
+
+            <!-- Stepper clicable -->
+            <div class="d-flex align-items-center gap-2 flex-wrap my-3">
+              {% for val, label in agenda.ESTADO_CHOICES %}
+                {% if estado == 'completada' or estado == 'cancelada' %}
+                  <span class="badge rounded-pill px-3 py-2
+                    {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %}"
+                    style="font-size:.75rem;">
+                    {{ label }}
+                  </span>
+                {% else %}
+                  <form method="POST" action="{% url 'agenda_estado' agenda.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="estado" value="{{ val }}">
+                    <button type="submit"
+                            class="badge rounded-pill px-3 py-2 border-0
+                              {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %}"
+                            style="font-size:.75rem; cursor:pointer;"
+                            {% if agenda.estado == val %}disabled{% endif %}>
+                      {{ label }}
+                    </button>
+                  </form>
+                {% endif %}
+                {% if not forloop.last %}
+                  <i class="bi bi-arrow-right text-muted" style="font-size:.75rem;"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- Pie -->
+            <div class="pt-2 border-top" style="border-color: var(--inv-azul-borde) !important;">
+              {% if estado == 'completada' %}
+                <small class="text-muted">Inventario finalizado · sin acciones disponibles</small>
+              {% elif estado == 'cancelada' %}
+                <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
+              {% else %}
+                <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
               {% endif %}
             </div>
-            <span class="badge inv-estado-{{ agenda.estado }}">{{ agenda.get_estado_display }}</span>
+
           </div>
-          <!-- Tracker de estado -->
-          <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
-            {% for estado_val, estado_label in agenda.ESTADO_CHOICES %}
-            <form method="POST" action="{% url 'agenda_estado' agenda.pk %}" class="d-inline">
-              {% csrf_token %}
-              <input type="hidden" name="estado" value="{{ estado_val }}">
-              <button type="submit"
-                class="btn btn-sm {% if agenda.estado == estado_val %}inv-tracker-active{% else %}inv-tracker-inactive{% endif %}">
-                {{ estado_label }}
-              </button>
-            </form>
-            {% if not forloop.last %}
-              <i class="bi bi-arrow-right text-muted small"></i>
-            {% endif %}
-            {% endfor %}
-          </div>
-        </div>
+          {% endwith %}
         {% empty %}
-        <div class="text-center py-3 text-muted">
-          <i class="bi bi-calendar-x d-block mb-1 fs-4"></i>
-          No hay inventarios programados.
-        </div>
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-calendar-x d-block mb-2 fs-3"></i>
+            No hay inventarios programados.
+          </div>
         {% endfor %}
+
       </div>
     </div>
   </div>
+</div>
 
   <!-- MOVIMIENTOS DE INVENTARIO -->
   <div class="card inv-card">
-    <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
+    data-bs-toggle="collapse" data-bs-target="#movBody" role="button">
       <span class="fw-semibold">
         <i class="bi bi-clock-history me-2 text-info"></i>
         Movimientos de Inventario
@@ -160,6 +238,7 @@
         </select>
       </div>
     </div>
+    <div class="collapse show" id="movBody">
     <div class="card-body p-0">
       <div class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom inv-meta">
         <span class="small text-muted">
@@ -202,11 +281,13 @@
                 <div class="text-info" style="font-size:.7rem; font-family:monospace;">{{ mov.lote.presentacion.producto.codigo|default:"Sin código" }}</div>
               </td>
               <td class="text-muted small">{{ mov.lote.presentacion.producto.categoria.nombre }}</td>
+              {% with stock_mostrado=mov.stock_resultante|default_if_none:mov.lote.stock_actual %}
               <td class="text-center">
-                <span class="badge {% if mov.lote.stock_actual <= 5 %}bg-danger{% else %}inv-badge-stock{% endif %}">
-                  {{ mov.lote.stock_actual }}
-                </span>
-              </td>
+            <span class="badge {% if stock_mostrado <= 5 %}bg-danger{% else %}inv-badge-stock{% endif %}">
+              {{ stock_mostrado }}
+            </span>
+         </td>
+         {% endwith %}
               <td class="text-center">
                 {% if mov.tipo == 'entrada' %}
                   <span class="badge inv-badge-entrada"><i class="bi bi-arrow-up-short"></i> Entrada</span>
@@ -215,7 +296,13 @@
                 {% endif %}
               </td>
               <td class="text-center fw-bold {% if mov.tipo == 'entrada' %}text-success{% else %}text-danger{% endif %}">
-                {% if mov.tipo == 'entrada' %}+{% else %}−{% endif %}{{ mov.cantidad }}
+                {% if mov.tipo == 'entrada' %}
+              +{{ mov.cantidad }}
+              {% elif mov.tipo == 'salida' %}
+              −{{ mov.cantidad }}
+              {% else %}
+              {{ mov.cantidad }}
+              {% endif %}
               </td>
               <td class="text-muted small">{{ mov.motivo|default:"—" }}</td>
               <td class="text-center">
@@ -274,8 +361,8 @@
             </div>
             <div class="d-flex gap-2 justify-content-end">
               <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn inv-btn-primary">
-                <i class="bi bi-calendar-check me-1"></i>Agendar
+               <button type="submit" name="Agendar" class="btn inv-btn-outline btn-sm">
+                <i class="bi bi-calendar-check me-2"></i>Agendar
               </button>
             </div>
           </form>
@@ -310,7 +397,7 @@
             </div>
             <form method="POST" action="{% url 'conteo_inventario' %}">
               {% csrf_token %}
-              <button type="submit" name="iniciar_sesion" class="btn inv-btn-primary btn-sm">
+              <button type="submit" name="iniciar_sesion" class="btn inv-btn-outline btn-sm">
                 <i class="bi bi-play-fill me-1"></i>
                 {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
               </button>
@@ -486,94 +573,117 @@
     </div>
   </div>
 
-  <!-- MODAL REGISTRAR CÓDIGOS -->
-  <div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content inv-modal">
-        <div class="modal-header inv-modal-header">
-          <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3 mb-3">
-            <div class="col-md-4">
-              <div class="inv-stat-card text-center">
-                <div class="text-muted small">Total Productos</div>
-                <div class="fw-bold fs-4 text-info">{{ productos|length }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="inv-stat-card text-center">
-                <div class="text-muted small">Con Código</div>
-                <div class="fw-bold fs-4 text-success">{{ con_codigo }}</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="inv-stat-card text-center">
-                <div class="text-muted small">Sin Código</div>
-                <div class="fw-bold fs-4 text-danger">{{ sin_codigo }}</div>
-              </div>
+ <!-- MODAL REGISTRAR CÓDIGOS -->
+<div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content inv-modal">
+      <div class="modal-header inv-modal-header">
+        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- STATS -->
+        <div class="row g-3 mb-3">
+          <div class="col-4">
+            <div class="inv-stat-card text-center">
+              <div class="text-muted small">Total Productos</div>
+              <div class="fw-bold fs-4 text-info">{{ productos|length }}</div>
             </div>
           </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle inv-table mb-0">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Estado</th>
-                  <th>Código actual</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for p in productos %}
-                <tr>
-                  <td class="text-muted small">{{ forloop.counter }}</td>
-                  <td class="fw-semibold small">{{ p.nombre }}</td>
-                  <td class="text-muted small">{{ p.categoria.nombre }}</td>
-                  <td>
-                    {% if p.codigo %}
-                      <span class="badge bg-success">Registrado</span>
-                    {% else %}
-                      <span class="badge bg-danger">Sin código</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <span style="font-family:monospace; font-size:.82rem;"
-                          class="{% if p.codigo %}text-info{% else %}text-muted{% endif %}">
-                      {{ p.codigo|default:"—" }}
-                    </span>
-                  </td>
-                  <td>
-                    <form method="POST" action="{% url 'guardar_codigo' p.pk %}">
-                      {% csrf_token %}
-                      <div class="input-group input-group-sm">
-                        <input type="text" name="codigo" class="form-control inv-input"
-                               value="{{ p.codigo|default:'' }}" placeholder="Escanear..." style="max-width:150px;">
-                        <button type="submit" class="btn inv-btn-primary btn-sm">
-                          <i class="bi bi-save"></i>
-                        </button>
-                      </div>
-                    </form>
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="6" class="text-center py-4 text-muted">No hay productos registrados.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="col-4">
+            <div class="inv-stat-card text-center">
+              <div class="text-muted small">Con Código</div>
+              <div class="fw-bold fs-4 text-success">{{ con_codigo }}</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="inv-stat-card text-center">
+              <div class="text-muted small">Sin Código</div>
+              <div class="fw-bold fs-4 text-danger">{{ sin_codigo }}</div>
+            </div>
           </div>
         </div>
-        <div class="modal-footer inv-modal-footer">
-          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+
+        <!-- ZONA ESCANEO -->
+        <div class="p-3 mb-3 rounded-3 d-flex align-items-center gap-3"
+             style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);">
+          <div class="text-center" style="min-width:48px;">
+            <i class="bi bi-upc-scan fs-2" style="color:var(--inv-azul);"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="inv-label mb-1">Producto seleccionado</div>
+            <div id="scan-producto-nombre" class="fw-semibold" style="color:var(--inv-texto); min-height:1.2rem;">
+              — Haz clic en una fila para seleccionar —
+            </div>
+          </div>
+          <div style="flex:0 0 280px;">
+            <input type="text" id="scan-input"
+                   class="form-control inv-input"
+                   placeholder="Escanea o escribe el código…"
+                   style="font-family:monospace; font-size:.95rem;"
+                   disabled>
+          </div>
+          <button id="scan-guardar" class="btn inv-btn-primary px-4" disabled>
+            <i class="bi bi-save2 me-1"></i>Guardar
+          </button>
         </div>
+
+        <!-- TABLA -->
+        <div class="table-responsive">
+          <table class="table align-middle mb-0 inv-table" id="tabla-codigos">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="text-center">Estado</th>
+                <th>Código registrado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in productos %}
+              <tr class="scan-row"
+                  data-pk="{{ p.pk }}"
+                  data-nombre="{{ p.nombre }}"
+                  data-codigo="{{ p.codigo|default:'' }}"
+                  data-url="{% url 'guardar_codigo' p.pk %}"
+                  style="cursor:pointer;">
+                <td class="text-muted small">{{ forloop.counter }}</td>
+                <td class="fw-semibold small">{{ p.nombre }}</td>
+                <td class="text-muted small">{{ p.categoria.nombre }}</td>
+                <td class="text-center">
+                  {% if p.codigo %}
+                    <span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>
+                  {% else %}
+                    <span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>
+                  {% endif %}
+                </td>
+                <td>
+                 <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %}"
+      style="font-family:monospace; font-size:.82rem;">
+  {{ p.codigo|default:"—" }}
+</span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">
+                  <i class="bi bi-inbox d-block mb-1 fs-3"></i>No hay productos registrados.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer inv-modal-footer">
+        <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- MODAL EDITAR MOVIMIENTO -->
   <div class="modal fade" id="modalEditarMovimiento" tabindex="-1">
@@ -606,21 +716,134 @@
         </div>
         <div class="modal-footer inv-modal-footer">
           <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn inv-btn-warning"
-                  onclick="document.getElementById('form-editar-movimiento').submit()">
-            <i class="bi bi-save me-1"></i>Guardar cambios
-          </button>
+          <button type="button" class="btn inv-btn-primary"
+        onclick="document.getElementById('form-editar-movimiento').submit()">
+        <i class="bi bi-save me-1"></i>Guardar cambios
+      </button>
         </div>
       </div>
     </div>
   </div>
+  <!-- CATÁLOGO DE PRODUCTOS -->
+<div class="card inv-card mt-4">
+  <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <span class="fw-semibold">
+      <i class="bi bi-grid me-2 text-info"></i>Catálogo de Productos
+    </span>
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+      <input type="text" id="cat-buscar" class="form-control form-control-sm inv-input"
+             style="width:190px;" placeholder="Buscar producto...">
+      <select id="cat-categoria" class="form-select form-select-sm inv-select" style="width:170px;">
+        <option value="">Todas las categorías</option>
+        {% for cat in categorias %}
+          <option value="{{ cat.nombre }}">{{ cat.nombre }}</option>
+        {% endfor %}
+      </select>
+      <div class="btn-group btn-group-sm">
+        <button id="cat-btn-grid" class="btn inv-btn-primary px-2" title="Cuadrícula">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+        </button>
+        <button id="cat-btn-list" class="btn inv-btn-outline px-2" title="Lista">
+          <i class="bi bi-list-ul"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
+  <div class="card-body p-3">
+
+    <!-- GRID -->
+    <div id="cat-grid" class="row g-3">
+      {% for p in productos %}
+        {% with stock=p.lotes.first.stock_actual|default:0 precio=p.presentaciones.first.precio|default:0 unidad=p.presentaciones.first.nombre|default:"Unidad" %}
+        <div class="col-6 col-md-4 col-lg-3 cat-item"
+             data-nombre="{{ p.nombre|lower }}"
+             data-cat="{{ p.categoria.nombre }}">
+          <div class="cat-card p-3 rounded-3 h-100 position-relative"
+               style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);">
+            <!-- categoría + alerta -->
+<div class="d-flex justify-content-between align-items-start mb-2">
+  <span class="badge rounded-pill" style="background:var(--inv-azul-dim);color:var(--inv-azul);border:1px solid var(--inv-azul-borde);font-size:.62rem;">
+    {{ p.categoria.nombre }}
+  </span>
+  {% if p.stock_sum|default:0 <= 5 %}
+    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:.75rem;" title="Stock crítico"></i>
+  {% endif %}
+</div>
+            <!-- nombre -->
+            <div class="fw-bold small mb-2" style="color:var(--inv-texto);line-height:1.2;">{{ p.nombre }}</div>
+            <!-- stock -->
+<div class="fw-bold" style="font-size:2rem;line-height:1;
+  color:{% if p.stock_sum|default:0 == 0 %}var(--inv-rojo){% elif p.stock_sum|default:0 <= 5 %}var(--inv-amarillo){% else %}var(--inv-verde){% endif %};">
+  {{ p.stock_sum|default:0 }}
+</div>
+            <!-- meta -->
+            <div class="text-muted mt-1" style="font-size:.7rem;">
+              {{ unidad }}{% if precio %} · ${{ precio|floatformat:"0" }}{% endif %}
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+      {% empty %}
+        <div class="col-12 text-center py-4 text-muted">
+          <i class="bi bi-inbox d-block mb-1 fs-3"></i>No hay productos.
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- LISTA -->
+    <div id="cat-list" class="d-none">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0 inv-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Producto</th><th>Categoría</th>
+              <th class="text-center">Stock</th><th>Código</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in productos %}
+  <tr class="cat-item" data-nombre="{{ p.nombre|lower }}" data-cat="{{ p.categoria.nombre }}">
+    <td class="text-muted small">{{ forloop.counter }}</td>
+    <td>
+      {% if p.stock_sum|default:0 <= 5 %}
+        <i class="bi bi-exclamation-triangle-fill text-danger me-1" style="font-size:.7rem;"></i>
+      {% endif %}
+      <span class="fw-semibold small">{{ p.nombre }}</span>
+    </td>
+                <td>
+                  <span class="badge rounded-pill" style="background:var(--inv-azul-dim);color:var(--inv-azul);border:1px solid var(--inv-azul-borde);font-size:.62rem;">
+                    {{ p.categoria.nombre }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span class="badge {% if p.stock_sum|default:0 == 0 %}bg-danger{% elif p.stock_sum|default:0 <= 5 %}bg-warning text-dark{% else %}inv-badge-stock{% endif %}">
+  {{ p.stock_sum|default:0 }}
+</span>
+                </td>
+                <td class="text-muted small" style="font-family:monospace;">{{ p.codigo|default:"—" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center py-4 text-muted">No hay productos.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sin resultados -->
+    <div id="cat-empty" class="d-none text-center py-4 text-muted">
+      <i class="bi bi-search d-block mb-1 fs-3"></i>Sin resultados.
+    </div>
+
+  </div>
+</div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Solo llenado del modal editar movimiento con datos del botón
+// ── EDITAR MOVIMIENTO ──
 document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
   const btn = e.relatedTarget;
   if (!btn) return;
@@ -631,5 +854,133 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
   document.getElementById('form-editar-movimiento').action =
     '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
 });
+
+// ── REGISTRAR CÓDIGOS ──
+(function () {
+  let filaActiva = null;
+  const modal      = document.getElementById('modalRegistrarCodigos');
+  const scanInput  = document.getElementById('scan-input');
+  const scanBtn    = document.getElementById('scan-guardar');
+  const scanNombre = document.getElementById('scan-producto-nombre');
+
+  function resetUI() {
+    filaActiva = null;
+    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
+    scanNombre.textContent = '— Haz clic en una fila para seleccionar —';
+    scanInput.value        = '';
+    scanInput.disabled     = true;
+    scanBtn.disabled       = true;
+  }
+
+  function guardarCodigo(fila, codigo) {
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const fd   = new FormData();
+    fd.append('codigo', codigo);
+    fd.append('csrfmiddlewaretoken', csrf);
+
+    fetch(fila.dataset.url, { method: 'POST', body: fd })
+      .then(r => {
+        if (r.ok || r.redirected) {
+          fila.dataset.codigo = codigo;
+          fila.querySelector('.codigo-display').textContent = codigo || '—';
+          fila.querySelector('td:nth-child(4)').innerHTML = codigo
+            ? '<span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>'
+            : '<span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>';
+          fila.classList.add('scan-row--saved');
+          setTimeout(() => { fila.classList.remove('scan-row--saved'); resetUI(); }, 1200);
+        }
+      })
+      .catch(() => alert('Error al guardar. Intenta de nuevo.'));
+  }
+
+  // Delegación de eventos en la tabla — un solo listener, nunca se duplica
+  document.getElementById('tabla-codigos').addEventListener('click', function (e) {
+    const fila = e.target.closest('.scan-row');
+    if (!fila) return;
+    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
+    filaActiva = fila;
+    fila.classList.add('scan-row--active');
+    scanNombre.textContent = fila.dataset.nombre;
+    scanInput.value        = fila.dataset.codigo;
+    scanInput.disabled     = false;
+    scanBtn.disabled       = false;
+    scanInput.focus();
+  });
+
+  scanBtn.addEventListener('click', () => {
+    if (filaActiva) guardarCodigo(filaActiva, scanInput.value.trim());
+  });
+
+  scanInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && filaActiva) {
+      e.preventDefault();
+      guardarCodigo(filaActiva, scanInput.value.trim());
+    }
+  });
+
+  // Limpiar selección al cerrar el modal
+  modal.addEventListener('hidden.bs.modal', resetUI);
+})();
+// ── TABS AGENDAS ──
+document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.agenda-tab-btn').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.opacity    = '0.6';
+    });
+    this.style.background = 'var(--inv-azul-dim)';
+    this.style.opacity    = '1';
+    this.classList.add('active');
+
+    const tab = this.dataset.tab;
+    document.querySelectorAll('.agenda-item').forEach(item => {
+      if (tab === 'activos') {
+        item.style.display = item.classList.contains('agenda-activo') ? '' : 'none';
+      } else {
+        item.style.display = item.classList.contains('agenda-historial') ? '' : 'none';
+      }
+    });
+  });
+});
+// ── CATÁLOGO ──
+(function () {
+  const buscar   = document.getElementById('cat-buscar');
+  const catSel   = document.getElementById('cat-categoria');
+  const grid     = document.getElementById('cat-grid');
+  const list     = document.getElementById('cat-list');
+  const empty    = document.getElementById('cat-empty');
+  const btnGrid  = document.getElementById('cat-btn-grid');
+  const btnList  = document.getElementById('cat-btn-list');
+
+  function filtrar() {
+    const q   = buscar.value.toLowerCase().trim();
+    const cat = catSel.value;
+    let vis   = 0;
+    document.querySelectorAll('.cat-item').forEach(el => {
+      const ok = (!q || el.dataset.nombre.includes(q))
+              && (!cat || el.dataset.cat === cat);
+      el.style.display = ok ? '' : 'none';
+      if (ok) vis++;
+    });
+    empty.classList.toggle('d-none', vis > 0);
+  }
+
+  buscar.addEventListener('input', filtrar);
+  catSel.addEventListener('change', filtrar);
+
+  btnGrid.addEventListener('click', () => {
+    grid.classList.remove('d-none');
+    list.classList.add('d-none');
+    btnGrid.classList.replace('inv-btn-outline', 'inv-btn-primary');
+    btnList.classList.replace('inv-btn-primary', 'inv-btn-outline');
+  });
+
+  btnList.addEventListener('click', () => {
+    list.classList.remove('d-none');
+    grid.classList.add('d-none');
+    btnList.classList.replace('inv-btn-outline', 'inv-btn-primary');
+    btnGrid.classList.replace('inv-btn-primary', 'inv-btn-outline');
+  });
+})();
 </script>
 {% endblock %}

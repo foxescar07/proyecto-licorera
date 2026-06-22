@@ -8,6 +8,7 @@ from django.db.models import Prefetch, Sum
 
 from .models import Inventario, AgendaInventario, SesionConteo, ConteoProducto, Lote
 from productos.models import Producto, PresentacionProducto, Categoria
+from django.urls import reverse
 
 
 @login_required
@@ -32,10 +33,17 @@ def inventario_home(request):
     ).filter(fecha_actualizada__date=fecha_filtro).order_by('-fecha_actualizada')
 
     dias_con_movimientos = Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30]
-    agendas   = AgendaInventario.objects.order_by('fecha_programada')
-    sesion    = SesionConteo.objects.filter(estado='activa').first()
-    conteos   = ConteoProducto.objects.filter(sesion=sesion).select_related('presentacion__producto') if sesion else []
-    productos = Producto.objects.all()
+    agendas  = AgendaInventario.objects.order_by('fecha_programada')
+    sesion   = SesionConteo.objects.filter(estado='activa').first()
+    conteos  = ConteoProducto.objects.filter(sesion=sesion).select_related('presentacion__producto') if sesion else []
+
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).annotate(
+        stock_sum=Sum('presentaciones__lotes__stock_actual')
+    ).all()
+
+    categorias = Categoria.objects.all()
 
     discrepancias = []
     if sesion:
@@ -50,31 +58,22 @@ def inventario_home(request):
             })
 
     # =========================================================================
-    # LÓGICA DE DATOS REALES PARA KPIs Y GRÁFICOS (LICORERA)
+    # KPIs Y GRÁFICOS
     # =========================================================================
-    
-    # 1. Ingresos Hoy: Suma de stock_actual (o inicial) de lotes creados hoy
+
     ingresos_hoy = Lote.objects.filter(fecha_registro__date=hoy).aggregate(
         total=Sum('stock_actual')
     )['total'] or 0
 
-    # 2. Órdenes del Mes (Lotes totales registrados en el mes actual)
-    mes_actual = timezone.now().month
+    mes_actual  = timezone.now().month
     anio_actual = timezone.now().year
     ordenes_mes = Lote.objects.filter(
-        fecha_registro__month=mes_actual, 
+        fecha_registro__month=mes_actual,
         fecha_registro__year=anio_actual
     ).count()
 
-    # 3. Gráfico de Dona: Motivos de Salida (Venta, Merma, Daño, Vencido)
-    # Filtramos por tipo='salida' en el modelo Inventario
     salidas_por_motivo = Inventario.objects.filter(tipo='salida').values('motivo').annotate(total=Sum('cantidad'))
-    
-    # Convertimos los datos de la consulta a un diccionario para mapearlos fácilmente
     motivos_dict = {item['motivo'].lower(): item['total'] for item in salidas_por_motivo}
-    
-    # Armamos la lista ordenada exactamente igual a las etiquetas de tu frontend
-    # labels: ['Venta', 'Merma', 'Daño', 'Vencido']
     chart_motivos_data = [
         motivos_dict.get('venta', 0),
         motivos_dict.get('merma', 0),
@@ -82,27 +81,21 @@ def inventario_home(request):
         motivos_dict.get('vencido', 0)
     ]
 
-    # 4. Gráfico de Barras Horizontales: Top Productos con más Lotes (Simulando proveedores/marcas con más stock)
-    # Como tu modelo Lote se asocia a PresentacionProducto, agrupamos las unidades por Producto
     top_productos = Lote.objects.values('presentacion__producto__nombre').annotate(
         total_uds=Sum('stock_actual')
     ).order_by('-total_uds')[:5]
 
-    # Separamos en dos listas para Chart.js (Etiquetas y Datos)
     proveedores_labels = [item['presentacion__producto__nombre'] for item in top_productos]
-    proveedores_data = [item['total_uds'] for item in top_productos]
+    proveedores_data   = [item['total_uds'] for item in top_productos]
 
-    # Si la base de datos está vacía, rellenamos con valores por defecto para que no se rompa el diseño
     if not proveedores_labels:
         proveedores_labels = ['Sin datos', '-', '-', '-', '-']
-        proveedores_data = [0, 0, 0, 0, 0]
+        proveedores_data   = [0, 0, 0, 0, 0]
     else:
-        # Si hay menos de 5 productos, rellenamos el resto para mantener la simetría visual
         while len(proveedores_labels) < 5:
             proveedores_labels.append('-')
             proveedores_data.append(0)
 
-    # =========================================================================
 
     context = {
         'movimientos':          movimientos,
@@ -113,11 +106,10 @@ def inventario_home(request):
         'sesion':               sesion,
         'conteos':              conteos,
         'productos':            productos,
+        'categorias':           categorias,
         'discrepancias':        discrepancias,
         'con_codigo':           Producto.objects.exclude(codigo='').exclude(codigo=None).count(),
         'sin_codigo':           Producto.objects.filter(codigo=None).count() + Producto.objects.filter(codigo='').count(),
-        
-        # Nuevas variables enviadas al HTML:
         'ingresos_hoy':         ingresos_hoy,
         'ordenes_mes':          ordenes_mes,
         'chart_motivos_data':   chart_motivos_data,
@@ -167,10 +159,85 @@ def guardar_conteo(request):
 
 
 @login_required
-def ajustar_stock(request, pk):
-    if request.method == 'POST':
-        messages.success(request, 'Ajuste de stock registrado.')
-    return redirect('inventario_home')
+def ajustar_stock_presentacion(request, pk):
+    presentacion = get_object_or_404(PresentacionProducto, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('gestion_stock')
+
+    stock_deseado_raw = request.POST.get('stock_deseado', '').strip()
+    motivo = request.POST.get('motivo', '').strip() or 'Ajuste manual'
+
+    try:
+        stock_deseado = int(stock_deseado_raw)
+        if stock_deseado < 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        messages.error(request, '⚠️ Stock deseado inválido.')
+        return redirect('gestion_stock')
+
+    stock_real = presentacion.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
+    diff = stock_deseado - stock_real
+
+    if diff == 0:
+        messages.info(request, f'ℹ️ El stock de "{presentacion.nombre}" ya es {stock_real} uds.')
+        return redirect('gestion_stock')
+
+    if diff > 0:
+        import uuid
+        numero_lote = f"AJU-{uuid.uuid4().hex[:8].upper()}"
+        lote = Lote.objects.create(
+            numero_lote=numero_lote,
+            presentacion=presentacion,
+            costo_unitario=0,
+            stock_actual=diff,
+            fecha_vencimiento=None,
+            registrado_por=request.user,
+        )
+        Inventario.objects.create(
+            presentacion=presentacion,
+            lote=lote,
+            registrado_por=request.user,
+            tipo='ajuste',
+            cantidad=diff,
+            motivo=motivo,
+            stock_resultante=lote.stock_actual,
+        )
+        messages.success(request, f'✅ Ajuste: +{diff} uds a "{presentacion.nombre}" (lote {numero_lote}).')
+
+    else:
+        restante = abs(diff)
+        if restante > stock_real:
+            messages.error(request, f'⚠️ No hay suficiente stock para ese ajuste (stock real: {stock_real} uds).')
+            return redirect('gestion_stock')
+
+        lotes_qs = presentacion.lotes.filter(stock_actual__gt=0).order_by(
+            db_models.F('fecha_vencimiento').asc(nulls_last=True), 'id'
+        )
+        lote_principal = None
+        for lote in lotes_qs:
+            if restante <= 0:
+                break
+            if lote_principal is None:
+                lote_principal = lote
+            descuento = min(lote.stock_actual, restante)
+            lote.stock_actual -= descuento
+            lote.save()
+            restante -= descuento
+
+        if lote_principal:
+            Inventario.objects.create(
+                presentacion=presentacion,
+                lote=lote_principal,
+                registrado_por=request.user,
+                tipo='ajuste',
+                cantidad=abs(diff),
+                motivo=motivo,
+                stock_resultante=lote_principal.stock_actual,
+            )
+        messages.success(request, f'✅ Ajuste: {diff} uds de "{presentacion.nombre}".')
+
+    return redirect('gestion_stock')
 
 
 @login_required
@@ -188,12 +255,35 @@ def editar_movimiento(request, pk):
     if request.method == 'POST':
         mov = get_object_or_404(Inventario, pk=pk)
         try:
-            mov.tipo     = request.POST.get('tipo', mov.tipo)
-            mov.cantidad = int(request.POST.get('cantidad', mov.cantidad))
-            mov.motivo   = request.POST.get('motivo', mov.motivo)
-            mov.ubicacion = request.POST.get('ubicacion', getattr(mov, 'ubicacion', ''))
+            tipo_nuevo     = request.POST.get('tipo', mov.tipo)
+            cantidad_nueva = abs(int(request.POST.get('cantidad', mov.cantidad)))
+            motivo_nuevo   = request.POST.get('motivo', mov.motivo)
+
+            lote = mov.lote
+            cantidad_anterior = abs(mov.cantidad)
+
+            if mov.tipo == 'entrada' or mov.tipo == 'ajuste':
+                lote.stock_actual -= cantidad_anterior
+            else:
+                lote.stock_actual += cantidad_anterior
+
+            if tipo_nuevo == 'entrada' or tipo_nuevo == 'ajuste':
+                lote.stock_actual += cantidad_nueva
+            else:
+                if lote.stock_actual < cantidad_nueva:
+                    messages.error(request, f'⚠️ Stock insuficiente ({lote.stock_actual} uds disponibles).')
+                    return redirect('inventario_home')
+                lote.stock_actual -= cantidad_nueva
+
+            lote.save()
+
+            mov.tipo             = tipo_nuevo
+            mov.cantidad         = cantidad_nueva
+            mov.motivo           = motivo_nuevo
+            mov.stock_resultante = lote.stock_actual
             mov.save()
-            messages.success(request, f'✅ Movimiento de "{mov.presentacion.producto.nombre}" actualizado.')
+
+            messages.success(request, '✅ Movimiento actualizado y stock corregido.')
         except (ValueError, TypeError):
             messages.error(request, '❌ Cantidad inválida.')
     return redirect('inventario_home')
@@ -217,10 +307,75 @@ def gestion_productos(request):
 
 
 @login_required
-def gestion_inventario(request):
-    productos = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').all()
-    return render(request, 'inventario/gestion_inventario.html', {'productos': productos})
+def registrar_salida_view(request):
+    hoy         = timezone.now().date()
+    mes_actual  = timezone.now().month
+    anio_actual = timezone.now().year
 
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).all()
+
+    ordenes_mes = Lote.objects.filter(
+        fecha_registro__month=mes_actual,
+        fecha_registro__year=anio_actual
+    ).count()
+
+    salidas_por_motivo = Inventario.objects.filter(tipo='salida').values('motivo').annotate(total=Sum('cantidad'))
+    motivos_dict = {item['motivo'].lower(): item['total'] for item in salidas_por_motivo}
+    chart_motivos_data = [
+        motivos_dict.get('venta', 0),
+        motivos_dict.get('merma', 0),
+        motivos_dict.get('daño', 0),
+        motivos_dict.get('vencido', 0),
+    ]
+
+    context = {
+        'productos':          productos,
+        'ordenes_mes':        ordenes_mes,
+        'chart_motivos_data': chart_motivos_data,
+    }
+    return render(request, 'inventario/registrar_salida.html', context)
+
+
+@login_required
+def gestion_lotes_view(request):
+    hoy         = timezone.now().date()
+    mes_actual  = timezone.now().month
+    anio_actual = timezone.now().year
+
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).all()
+
+    ingresos_hoy = Lote.objects.filter(
+        fecha_registro__date=hoy
+    ).aggregate(total=Sum('stock_actual'))['total'] or 0
+
+    ordenes_mes = Lote.objects.filter(
+        fecha_registro__month=mes_actual,
+        fecha_registro__year=anio_actual
+    ).count()
+
+    top_productos = Lote.objects.values('presentacion__producto__nombre').annotate(
+        total_uds=Sum('stock_actual')
+    ).order_by('-total_uds')[:5]
+
+    proveedores_labels = [item['presentacion__producto__nombre'] for item in top_productos]
+    proveedores_data   = [item['total_uds'] for item in top_productos]
+
+    if not proveedores_labels:
+        proveedores_labels = ['Sin datos']
+        proveedores_data   = [0]
+
+    context = {
+        'productos':          productos,
+        'ingresos_hoy':       ingresos_hoy,
+        'ordenes_mes':        ordenes_mes,
+        'proveedores_labels': proveedores_labels,
+        'proveedores_data':   proveedores_data,
+    }
+    return render(request, 'inventario/gestion_lotes.html', context)
 
 @login_required
 def gestion_salida(request):
@@ -232,7 +387,7 @@ def gestion_salida(request):
 
         if not presentacion_id:
             messages.error(request, '⚠️ Debes seleccionar una presentación.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         try:
             cantidad = int(cantidad_raw)
@@ -240,26 +395,24 @@ def gestion_salida(request):
                 raise ValueError
         except (ValueError, TypeError):
             messages.error(request, '⚠️ La cantidad debe ser un número mayor a cero.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
-            return redirect('gestion_inventario')
+            return redirect('registrar_salida_view')
 
         if lote_id:
             lote = get_object_or_404(Lote, pk=lote_id)
             if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
-                messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido desde el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
-                return redirect('gestion_inventario')
+                messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido.')
+                return redirect('registrar_salida_view')
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
-        producto     = presentacion.producto
 
         if cantidad > presentacion.cantidad:
-            messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades de "{presentacion.nombre}".')
-            return redirect('gestion_inventario')
+            messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades.')
+            return redirect('registrar_salida_view')
 
-        # Descontar lotes por FEFO
         restante = cantidad
         lotes_qs = presentacion.lotes.filter(stock_actual__gt=0).order_by(
             db_models.F('fecha_vencimiento').asc(nulls_last=True), 'id'
@@ -276,17 +429,19 @@ def gestion_salida(request):
                 lote.stock_actual = 0
                 lote.save()
 
+        lote_referencia = presentacion.lotes.order_by('fecha_vencimiento').first()
         Inventario.objects.create(
             presentacion=presentacion,
-            lote=presentacion.lotes.order_by('fecha_vencimiento').first(),
+            lote=lote_referencia,
             registrado_por=request.user,
             tipo='salida',
             cantidad=cantidad,
             motivo=motivo,
+            stock_resultante=lote_referencia.stock_actual if lote_referencia else None,
         )
-        messages.success(request, f'✅ Salida de {cantidad} × "{presentacion.nombre}" registrada para {producto.nombre}.')
+        messages.success(request, f'✅ Salida de {cantidad} unidades de "{presentacion.nombre}" registrada.')
 
-    return redirect('gestion_inventario')
+    return redirect('registrar_salida_view')
 
 
 @login_required
@@ -381,6 +536,8 @@ def gestion_producto_editar(request, pk):
             nombre_pres = nombre_pres.strip()
             if not nombre_pres:
                 continue
+            if PresentacionProducto.objects.filter(producto=producto, nombre__iexact=nombre_pres).exists():
+                continue
             try:
                 precio_pres   = max(0, float(nuevos_precios[i]))   if i < len(nuevos_precios)    else 0
                 cantidad_pres = max(0, int(nuevas_cantidades[i]))   if i < len(nuevas_cantidades) else 0
@@ -399,11 +556,14 @@ def gestion_producto_editar(request, pk):
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
-                'ok':         True,
-                'cambios':    cambios if cambios else [],
+                'ok':          True,
+                'cambios':     cambios if cambios else [],
                 'sin_cambios': len(cambios) == 0,
             })
 
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect('gestion_productos')
 
 
@@ -485,38 +645,173 @@ def gestion_categoria_eliminar(request, pk):
 @login_required
 def registrar_lote(request):
     if request.method == 'POST':
-        numero_lote       = request.POST.get('numero_lote', '').strip()
-        presentacion_id   = request.POST.get('presentacion')
-        costo_unitario    = request.POST.get('costo_unitario', 0)
-        stock_inicial     = request.POST.get('stock_inicial', 0)
-        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
+        numero_lote           = request.POST.get('numero_lote', '').strip()
+        presentacion_id       = request.POST.get('presentacion_lote')
+        costo_unitario        = request.POST.get('costo_unitario', 0)
+        stock_inicial         = request.POST.get('cantidad_lote', 0)
+        fecha_vencimiento_str = request.POST.get('fecha_vencimiento', '').strip()
+
+        if fecha_vencimiento_str:
+            from datetime import date
+            try:
+                fecha_vencimiento = date.fromisoformat(fecha_vencimiento_str)
+            except ValueError:
+                fecha_vencimiento = None
+        else:
+            fecha_vencimiento = None
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
-            return redirect('gestion_inventario')
+            return redirect('gestion_lotes_view')
 
         if not presentacion_id:
             messages.error(request, '⚠️ Debes seleccionar una presentación.')
-            return redirect('gestion_inventario')
+            return redirect('gestion_lotes_view')
 
         if Lote.objects.filter(numero_lote=numero_lote).exists():
             messages.error(request, f'⚠️ El lote "{numero_lote}" ya está registrado.')
-            return redirect('gestion_inventario')
+            return redirect('gestion_lotes_view')
 
         presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
+
+        try:
+            stock_inicial_int = int(stock_inicial)
+        except (ValueError, TypeError):
+            stock_inicial_int = 0
 
         lote = Lote.objects.create(
             numero_lote=numero_lote,
             presentacion=presentacion,
             costo_unitario=costo_unitario,
-            stock_actual=stock_inicial,
+            stock_actual=stock_inicial_int,
             fecha_vencimiento=fecha_vencimiento,
             registrado_por=request.user,
         )
 
         if fecha_vencimiento:
-            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}" — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
         else:
-            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}" (sin fecha de vencimiento).')
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{presentacion.producto.nombre}".')
 
-    return redirect('gestion_inventario')
+    return redirect('gestion_lotes_view')
+
+
+@login_required
+def gestion_stock(request):
+    productos = Producto.objects.select_related('categoria').prefetch_related(
+        'presentaciones__lotes'
+    ).all()
+
+    categorias    = Categoria.objects.filter(padre=None).prefetch_related('subcategorias', 'productos__presentaciones')
+    todas_cats    = Categoria.objects.all()
+
+    lotes_activos = Lote.objects.select_related(
+        'presentacion__producto__categoria',
+        'registrado_por'
+    ).filter(stock_actual__gt=0).order_by(
+        db_models.F('fecha_vencimiento').asc(nulls_last=True)
+    )
+
+    hoy               = timezone.now().date()
+    lotes_por_vencer = [l for l in lotes_activos if l.proximo_a_vencer]
+    lotes_vencidos   = [l for l in lotes_activos if l.esta_vencido]
+
+    context = {
+        'productos':        productos,
+        'categorias':       categorias,
+        'todas_cats':       todas_cats,
+        'lotes_activos':    lotes_activos,
+        'lotes_por_vencer': lotes_por_vencer,
+        'lotes_vencidos':   lotes_vencidos,
+        'total_criticos':   0,
+        'hoy':              hoy,
+    }
+    return render(request, 'inventario/gestion_stock.html', context)
+
+
+@login_required
+def stock_status(request):
+    UMBRAL_CRITICO = 5
+    UMBRAL_BAJO    = 15
+
+    presentaciones = PresentacionProducto.objects.select_related('producto').annotate(
+        stock_lotes=Sum('lotes__stock_actual')
+    )
+
+    criticos, bajos = [], []
+    for pr in presentaciones:
+        stock = pr.stock_lotes or 0
+        entrada = {
+            'nombre':           f"{pr.producto.nombre} — {pr.nombre}",
+            'cantidad':         stock,
+            'url_presentacion': f'/inventario/inventario/stock/?buscar={pr.producto.nombre}',
+            'url_lote':         '/inventario/lote/registrar/',
+        }
+        if stock <= UMBRAL_CRITICO:
+            criticos.append(entrada)
+        elif stock <= UMBRAL_BAJO:
+            bajos.append(entrada)
+
+    total  = len(criticos) + len(bajos)
+    estado = 'verde' if total == 0 else ('rojo' if criticos else 'amarillo')
+
+    return JsonResponse({
+        'estado':        estado,
+        'total_alertas': total,
+        'criticos':      criticos,
+        'bajos':         bajos,
+    })
+
+
+@login_required
+def editar_lote_stock(request, pk):
+    lote = get_object_or_404(Lote, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('gestion_stock')
+
+    nuevo_stock_raw = request.POST.get('nuevo_stock', '').strip()
+    motivo = request.POST.get('motivo', '').strip() or 'Corrección de lote'
+
+    try:
+        nuevo_stock = int(nuevo_stock_raw)
+        if nuevo_stock < 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        messages.error(request, '⚠️ Stock inválido.')
+        return redirect('gestion_stock')
+
+    stock_anterior = lote.stock_actual
+    diff = nuevo_stock - stock_anterior
+
+    if diff == 0:
+        messages.info(request, f'ℹ️ El lote "{lote.numero_lote}" ya tiene {nuevo_stock} uds.')
+        return redirect('gestion_stock')
+
+    costo_raw = request.POST.get('costo_unitario', '').strip()
+    if costo_raw:
+        try:
+            lote.costo_unitario = max(0, float(costo_raw))
+        except (ValueError, TypeError):
+            pass
+    
+    lote.stock_actual = nuevo_stock
+    lote.save()
+
+    Inventario.objects.create(
+        presentacion=lote.presentacion,
+        lote=lote,
+        registrado_por=request.user,
+        tipo='ajuste',
+        cantidad=abs(diff),
+        motivo=motivo,
+        stock_resultante=lote.stock_actual,
+    )
+
+    signo = f'+{diff}' if diff > 0 else str(diff)
+    messages.success(
+        request,
+        f'✅ Lote "{lote.numero_lote}" actualizado: {stock_anterior} → {nuevo_stock} uds ({signo}).'
+    )
+
+    return redirect('gestion_stock')

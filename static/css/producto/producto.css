@@ -260,3 +260,228 @@
   .page-header {
     border-bottom: 1px solid rgba(128,128,128,0.15);
   }
+  .prod-cat-chip {
+  background: transparent;
+  border: 1px solid rgba(77,168,218,.15);
+  color: #c8dce8 !important;          /* siempre visible */
+}
+.prod-cat-chip:hover {
+  background: rgba(77,168,218,.15) !important;
+  border-color: rgba(77,168,218,.4) !important;
+  color: #fff !important;
+}
+.prod-cat-chip.active {
+  background: rgba(77,168,218,.22) !important;
+  border-color: #4DA8DA !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+  
+.prod-cat-chip:hover {
+  background: rgba(77,168,218,.2) !important;
+  border-color: rgba(77,168,218,.5) !important;
+  color: #ffffff !important;
+}
+.prod-cat-chip.active {
+  background: rgba(77,168,218,.25) !important;
+  border-color: #4DA8DA !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+/* === TABLA CATEGORÍA === */
+#cat-tabla-wrap,
+#cat-tabla-wrap .table-responsive,
+#cat-tabla-wrap table,
+#cat-tabla-wrap thead,
+#cat-tabla-wrap tbody,
+#cat-tabla-wrap tr,
+#cat-tabla-wrap th,
+#cat-tabla-wrap td {
+  background: transparent !important;
+  background-color: transparent !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-color: #c8dce8 !important;
+  color: #c8dce8 !important;
+  border-color: rgba(77, 168, 218, 0.1) !important;
+}
+
+#cat-tabla-wrap tr:hover td {
+  background: rgba(77, 168, 218, 0.06) !important;
+  background-color: rgba(77, 168, 218, 0.06) !important;
+}
+/* === FIX cards categorías y tabla — heredan prod-card, no fondo hardcoded === */
+.prod-card {
+  background: var(--prod-card) !important;
+  color: var(--prod-texto) !important;
+}
+
+.prod-card .card-header {
+  background: rgba(0,0,0,.15) !important;
+  color: var(--prod-texto) !important;
+}
+
+/* Filas del tbody generadas por JS — fondo consistente con la card */
+#cat-tbody tr td {
+  background-color: transparent !important;
+  color: var(--prod-texto) !important;
+  border-color: rgba(77,168,218,.1) !important;
+}
+#cat-tbody tr:hover td {
+  background-color: rgba(77,168,218,.06) !important;
+}
+
+/*----─ PRODUCTOS: GESTIÓN ──*/
+  /* ── SIDEBAR STATS ── */
+  .stat-box {
+    background: #0a2240;
+    border: 1px solid rgba(77,168,218,0.2);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: rgba(226,232,240,0.6);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e2e8f0;
+    line-height: 1.1;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: rgba(226,232,240,0.45);
+  }
+  .bar-track { background: rgba(0,0,0,0.35); border-radius:6px; height:10px; overflow:hidden; }
+  .bar-fill  { height:100%; border-radius:6px; }
+
+  /* ── BUSCADOR ── */
+  .search-box {
+    background: #0a2240;
+    border: 1px solid rgba(77,168,218,0.15);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  #buscadorProductos {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(77,168,218,0.2);
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    color: #e2e8f0;
+    font-size: 14px;
+    padding: 9px 14px;
+    outline: none;
+    width: 100%;
+  }
+  #buscadorProductos::placeholder { color: rgba(226,232,240,0.3); }
+  #buscadorProductos:focus { border-color:#4DA8DA; background:rgba(255,255,255,0.07); box-shadow:none; }
+  .search-prefix {
+    background: rgba(77,168,218,0.1);
+    border: 1px solid rgba(77,168,218,0.2);
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+    padding: 9px 12px;
+    color: #4DA8DA;
+  }
+
+  /* ── ACCORDION ── */
+.acc-item { background:#0a2240; border:1px solid rgba(77,168,218,0.15); border-radius:12px; margin-bottom:10px; overflow:visible; }
+.acc-body { overflow:visible; }
+.tbl-wrap { overflow-x:auto; overflow-y:visible; }
+  .acc-hdr  { display:flex; align-items:center; gap:10px; padding:14px 18px; cursor:pointer; color:#e2e8f0; font-weight:600; font-size:14px; border:none; background:none; width:100%; text-align:left; }
+  .acc-hdr i.chevron { margin-left:auto; color:rgba(226,232,240,0.4); transition:transform .2s; }
+  .acc-hdr[aria-expanded="true"] i.chevron { transform:rotate(180deg); }
+
+  /* ── TABLA ── */
+  .tbl-wrap { overflow-x:auto; }
+  .prod-table { width:100%; border-collapse:collapse; }
+  .prod-table thead th {
+    background: rgba(77,168,218,0.07);
+    color: #4DA8DA;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(77,168,218,0.12);
+    white-space: nowrap;
+  }
+  .prod-table tbody tr { border-bottom:1px solid rgba(77,168,218,0.07); transition:background .15s; }
+  .prod-table tbody tr:last-child { border-bottom:none; }
+  .prod-table tbody tr:hover { background:rgba(77,168,218,0.04); }
+  .prod-table tbody td { padding:13px 16px; color:#e2e8f0; font-size:13.5px; vertical-align:middle; }
+
+  /* ── TAGS ── */
+  .tag-info { background:rgba(77,168,218,0.12); color:#4DA8DA; border:1px solid rgba(77,168,218,0.25); font-size:12px; padding:3px 9px; border-radius:6px; font-weight:600; }
+  .tag-ok   { background:rgba(39,174,96,0.15);  color:#27ae60; border:1px solid rgba(39,174,96,0.3);   font-size:12px; padding:3px 9px; border-radius:6px; font-weight:600; }
+  .tag-crit { background:rgba(220,53,69,0.15);  color:#dc3545; border:1px solid rgba(220,53,69,0.3);   font-size:12px; padding:3px 9px; border-radius:6px; font-weight:600; }
+  .tag-warn { background:rgba(255,193,7,0.12);  color:#ffc107; border:1px solid rgba(255,193,7,0.25);  font-size:12px; padding:3px 9px; border-radius:6px; font-weight:600; }
+
+  /* ── BOTÓN ACCIONES (reemplaza los 3 puntos) ── */
+  .dd-wrap { position:relative; display:inline-block; }
+  .dd-btn  {
+    background: rgba(77,168,218,0.1);
+    border: 1px solid rgba(77,168,218,0.25);
+    color: #4DA8DA;
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .dd-btn:hover { background:rgba(77,168,218,0.22); }
+.dd-menu {
+    display: none;
+    position: fixed;  /* fixed en lugar de absolute */
+    background: #0d2d50;
+    border: 1px solid rgba(77,168,218,0.25);
+    border-radius: 12px;
+    min-width: 170px;
+    z-index: 9999;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+  .dd-menu.open { display:block; }
+  .dd-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    font-size: 13px;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: background .12s;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .dd-item:hover { background:rgba(77,168,218,0.1); color:#e2e8f0; }
+  .dd-item.danger { color:#dc3545; }
+  .dd-item.danger:hover { background:rgba(220,53,69,0.1); }
+  .dd-sep { height:1px; background:rgba(77,168,218,0.12); margin:4px 0; }
+  .dd-item i { font-size:15px; width:18px; text-align:center; }
+
+  /* ── MODALES ── */
+  .modal-content { background:#0a2240 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.2); }
+  .modal-header, .modal-footer { background:rgba(0,0,0,0.15) !important; border-color:rgba(77,168,218,0.12) !important; }
+  .prod-input { background:rgba(255,255,255,0.05) !important; border:1px solid rgba(77,168,218,0.2) !important; color:#e2e8f0 !important; border-radius:8px; }
+  .prod-input:focus { background:rgba(255,255,255,0.08) !important; border-color:#4DA8DA !important; box-shadow:0 0 0 .2rem rgba(77,168,218,0.15) !important; color:#e2e8f0 !important; }
+  .prod-input::placeholder { color:rgba(226,232,240,0.3); }
+  .prod-input option { background:#0a2240; color:#e2e8f0; }
+
+  #grafico-categorias::-webkit-scrollbar { width:4px; }
+  #grafico-categorias::-webkit-scrollbar-thumb { background:rgba(77,168,218,0.3); border-radius:4px; }
+
+.prod-dropdown-menu { background:#0d2d50; border:1px solid rgba(77,168,218,.25); }
+.prod-dropdown-menu .dropdown-item { color:#e2e8f0; }
+.prod-dropdown-menu .dropdown-item:hover { background:rgba(77,168,218,.12); color:#fff; }
+.prod-dropdown-menu .dropdown-item.text-danger:hover { background:rgba(220,53,69,.12); }
+
+

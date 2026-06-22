@@ -1,8 +1,17 @@
 from django import forms
 from django.contrib.auth import get_user_model
 import re
+import unicodedata
 
 Usuario = get_user_model()
+
+
+def _normalizar(texto):
+    """Quita tildes y caracteres especiales, deja solo a-z0-9."""
+    nfkd = unicodedata.normalize('NFKD', texto)
+    solo_ascii = nfkd.encode('ascii', 'ignore').decode('ascii')
+    return re.sub(r'[^a-z0-9]', '', solo_ascii.lower())
+
 
 class UsuarioForm(forms.Form):
     tipo_id        = forms.ChoiceField(choices=Usuario.TIPO_ID_CHOICES, widget=forms.Select(attrs={'class': 'cys-input'}))
@@ -11,7 +20,10 @@ class UsuarioForm(forms.Form):
     apellidos      = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Apellidos', 'class': 'cys-input'}))
     email          = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'placeholder': 'correo@ejemplo.com', 'class': 'cys-input'}))
     telefono       = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={'placeholder': 'Ej: 3001234567', 'class': 'cys-input'}))
-    rol            = forms.ChoiceField(choices=Usuario.ROL_CHOICES, widget=forms.Select(attrs={'class': 'cys-input'}))
+    rol            = forms.ChoiceField(
+        choices=[c for c in Usuario.ROL_CHOICES if c[0] != 'admin'],
+        widget=forms.Select(attrs={'class': 'cys-input'})
+    )
     clave          = forms.CharField(min_length=6, widget=forms.PasswordInput(attrs={'placeholder': 'Mín. 6 caracteres, 2 números, 1 mayúscula', 'class': 'cys-input'}))
 
     def clean_identificacion(self):
@@ -46,13 +58,28 @@ class UsuarioForm(forms.Form):
             raise forms.ValidationError('La contraseña debe contener al menos 1 letra mayúscula.')
         return clave
 
-    def save(self):
-        data = self.cleaned_data
-        identificacion = data['identificacion']
+    def _generar_username(self, nombre, apellidos):
+        """
+        Genera username como nombre.apellido, sin tildes ni espacios.
+        Si ya existe, agrega sufijo numérico: nombre.apellido2, nombre.apellido3 ...
+        """
+        primer_nombre   = _normalizar(nombre.strip().split()[0])
+        primer_apellido = _normalizar(apellidos.strip().split()[0])
+        base     = f"{primer_nombre}.{primer_apellido}"
+        username = base
+        contador = 2
+        while Usuario.objects.filter(username=username).exists():
+            username = f"{base}{contador}"
+            contador += 1
+        return username
 
-        # Guardar directamente como instancia del nuevo modelo unificado Usuario
+    def save(self):
+        data           = self.cleaned_data
+        identificacion = data['identificacion']
+        username       = self._generar_username(data['nombre'], data['apellidos'])
+
         usuario = Usuario.objects.create_user(
-            username=identificacion,
+            username=username,
             password=data['clave'],
             first_name=data['nombre'],
             last_name=data['apellidos'],

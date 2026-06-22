@@ -10,24 +10,69 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" style="max-width:900px;">
+<div class="container-fluid p-0">
+  <div class="cys-snap-section px-3 py-4">
+
+  <div class="stats-grid mb-4">
+    <!-- SOLICITUDES -->
+    <div class="stat-card" style="border-left: 4px solid #4DA8DA;">
+      <div class="stat-icon" style="background: rgba(77, 168, 218, 0.15);">
+        <i class="bi bi-clock-history" style="color: #4DA8DA;"></i>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" style="color: #4DA8DA;">Solicitudes</div>
+        <div class="stat-value">{{ devoluciones|length|default:"0" }}</div>
+        <div class="stat-sub">Total en historial</div>
+      </div>
+    </div>
+
+    <!-- PRODUCTOS SELECCIONADOS -->
+    <div class="stat-card" style="border-left: 4px solid #4caf50;">
+      <div class="stat-icon" style="background: rgba(76, 175, 80, 0.15);">
+        <i class="bi bi-box-seam" style="color: #4caf50;"></i>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" style="color: #4caf50;">Productos</div>
+        <div class="stat-value">{{ detalles_venta|length|default:"0" }}</div>
+        <div class="stat-sub">Seleccionados</div>
+      </div>
+    </div>
+
+    <!-- REGISTRAR NUEVA -->
+    <div class="stat-card" style="border-left: 4px solid #912F40;">
+      <div class="stat-icon" style="background: rgba(145, 47, 64, 0.15);">
+        <i class="bi bi-plus-circle" style="color: #912F40;"></i>
+      </div>
+      <div class="stat-body">
+        <div class="stat-label" style="color: #912F40;">Registrar</div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-hi); margin-bottom: 0.5rem;">Nueva solicitud</div>
+        <a href="?nuevo" class="btn btn-primary btn-sm fw-bold">
+          <i class="bi bi-arrow-right me-1"></i>Iniciar
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- ENCABEZADO -->
   <div class="card card-dev p-4 mb-4">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
       <div>
-        <span class="badge badge-cyan small mb-2 d-inline-block">
-          <i class="bi bi-arrow-left-right me-1"></i>MÓDULO DE DEVOLUCIONES
-        </span>
-        <h1 class="h5 fw-bold mb-0">
-          <i class="bi bi-box-arrow-in-left me-2" style="color:var(--cyan);"></i>Solicitar Devolución
+        <div class="badge-module mb-2">
+          <i class="bi bi-arrow-left-right"></i> Módulo de devoluciones
+        </div>
+        <h1 style="font-size: 1.4rem; font-weight: 800; color: #FDFFFC; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+          <i class="bi bi-box-arrow-in-left" style="color: #4DA8DA; font-size: 1.3rem;"></i>
+          Solicitar Devolución
         </h1>
       </div>
-      <div class="d-flex gap-2 flex-wrap">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <button class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="offcanvas" data-bs-target="#drawerHistorial">
-          <i class="bi bi-clock-history me-1"></i>Historial
-          <span class="ms-2 badge rounded-pill" style="background:var(--blue);font-size:.65rem;">{{ devoluciones|length|default:"0" }}</span>
+          <i class="bi bi-clock-history"></i> Historial
+          <span style="background: #4DA8DA; color: #011936; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 4px;">{{ devoluciones|length|default:"0" }}</span>
         </button>
+        <a href="?nuevo" class="btn btn-sm btn-primary fw-bold">
+          <i class="bi bi-box-arrow-in-left"></i> Registrar devolución
+        </a>
       </div>
     </div>
   </div>
@@ -42,401 +87,841 @@
     {% endfor %}
   {% endif %}
 
-  <form method="post" action="{% url 'registrar_devolucion' %}" enctype="multipart/form-data" class="needs-validation">
-    {% csrf_token %}
-
-    <!-- ALERTA DE VALIDACIÓN -->
-    <div id="alertaMotivo" class="alert alert-danger-dev d-none mb-4" role="alert">
-      <i class="bi bi-exclamation-circle me-2"></i>
-      <strong>Atención:</strong> Debes seleccionar un motivo de devolución antes de guardar.
-    </div>
-
-    <!-- ALERTA SIN COMPROBANTE -->
-    <div id="alertaSinComprobante" class="alert alert-warning-dev d-none mb-4" role="alert">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      <strong>Advertencia:</strong> El cliente no tiene comprobante de compra. ¿Deseas continuar?
-      <div class="mt-2">
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" id="confirmarSinComprobante" value="si">
-          <label class="form-check-label" for="confirmarSinComprobante">
-            Confirmar devolución sin comprobante
-          </label>
+  <!-- MODAL SELECCIONAR VENTA (Paso 1) -->
+  <div class="modal fade" id="modalSeleccionarVenta" tabindex="-1" {% if paso == 1 %}data-bs-backdrop="static" data-bs-keyboard="false"{% endif %}>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content dev-modal-premium">
+        <div class="modal-header dev-modal-header-premium">
+          <div class="d-flex align-items-center gap-3">
+            <div class="dev-modal-icon">
+              <i class="bi bi-receipt"></i>
+            </div>
+            <div>
+              <h5 class="modal-title fw-bold mb-0">Seleccionar Venta</h5>
+              <p class="dev-modal-subtitle mb-0">Busca la venta del cliente para procesar la devolución</p>
+            </div>
+          </div>
+          {% if paso != 1 %}<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>{% endif %}
         </div>
+
+        <form method="post" id="formSeleccionarVenta">
+          {% csrf_token %}
+          <div class="modal-body p-0">
+            <div class="dev-modal-select p-4">
+              <label class="dev-form-label">
+                <i class="bi bi-hand-index me-2"></i>Selecciona una venta
+              </label>
+              <select name="venta_id" required class="form-select dev-select-premium">
+                <option value="">-- Selecciona una venta --</option>
+                {% for v in ventas %}
+                  <option value="{{ v.pk }}">{{ v.cliente.nombre }} - {{ v.fecha|date:"d/m/Y H:i" }} - ${{ v.total_venta|floatformat:0 }}</option>
+                {% endfor %}
+              </select>
+              <small class="text-muted d-block mt-2">
+                <i class="bi bi-info-circle me-1"></i>Selecciona la venta del cliente para procesar
+              </small>
+            </div>
+          </div>
+
+          <div class="modal-footer dev-modal-footer-premium">
+            {% if paso != 1 %}<button type="button" class="btn btn-outline-secondary dev-btn-cancel" data-bs-dismiss="modal">
+              <i class="bi bi-x me-2"></i>Cancelar
+            </button>{% endif %}
+            <button type="submit" class="btn btn-primary dev-btn-confirm fw-bold">
+              <i class="bi bi-check2 me-2"></i>Cargar venta
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- PASO 1: DATOS DEL PEDIDO -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <span class="step-badge">1</span>
+  <!-- Script para abrir modal si es Paso 1 -->
+  {% if paso == 1 %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = new bootstrap.Modal(document.getElementById('modalSeleccionarVenta'), {
+        backdrop: 'static',
+        keyboard: false
+      });
+      modal.show();
+    });
+  </script>
+  {% endif %}
+
+  {% if paso == 2 %}
+  <!-- PASO 2: PRODUCTOS -->
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+    <div class="section-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(239, 248, 226, 0.1);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span class="step-badge">2</span>
           <div>
-            <div class="fw-bold">
-              <i class="bi bi-receipt me-2" style="color:var(--cyan);"></i>Datos del pedido
-            </div>
-            <div id="resumenPedido" class="small" style="color:var(--text-md);">Sin completar</div>
+            <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #FDFFFC;">Productos a devolver</h3>
+            <p style="margin: 0; font-size: 0.75rem; color: #AF8D86;">Selecciona los productos que deseas devolver</p>
           </div>
         </div>
-        <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="modal" data-bs-target="#modalDatosPedido">
-          <i class="bi bi-pencil me-1"></i>Editar
-        </button>
-      </div>
-    </div>
-
-    <!-- PASO 2: PRODUCTOS -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
-        <span class="step-badge">2</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-box-seam me-2"></i>Productos a devolver
-        </span>
+        {% if venta and venta.detalles.all %}
+          <span style="background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.25); color: #7ecfef; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px;">{{ venta.detalles.all|length }} producto{{ venta.detalles.all|length|pluralize }}</span>
+        {% endif %}
       </div>
 
-      {% if detalles_venta %}
-        <div class="table-responsive card card-dev-inner">
-          <table class="table table-sm mb-0">
+      {% if venta and detalles_con_estado %}
+        <div class="table-responsive" style="margin-bottom: 2rem;">
+          <table style="width: 100%; border-collapse: collapse;">
             <thead>
-              <tr>
-                <th class="fw-bold text-uppercase small" style="color:var(--text-lo);border:none;width:5%;"></th>
-                <th class="fw-bold text-uppercase small" style="color:var(--text-lo);border:none;width:40%;">Producto</th>
-                <th class="fw-bold text-uppercase small" style="color:var(--text-lo);border:none;width:15%;">Cantidad</th>
-                <th class="fw-bold text-uppercase small" style="color:var(--text-lo);border:none;width:20%;">Precio</th>
-                <th class="fw-bold text-uppercase small" style="color:var(--text-lo);border:none;width:20%;">Subtotal</th>
+              <tr style="border-bottom: 2px solid rgba(77, 168, 218, 0.3);">
+                <th style="padding: 1rem; text-align: center; width: 5%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">✓</th>
+                <th style="padding: 1rem; text-align: left; width: 30%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Producto</th>
+                <th style="padding: 1rem; text-align: center; width: 10%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Original</th>
+                <th style="padding: 1rem; text-align: center; width: 10%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Devuelto</th>
+                <th style="padding: 1rem; text-align: center; width: 10%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pendiente</th>
+                <th style="padding: 1rem; text-align: center; width: 12%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">A Devolver</th>
+                <th style="padding: 1rem; text-align: right; width: 16%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Precio</th>
+                <th style="padding: 1rem; text-align: right; width: 17%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Subtotal</th>
               </tr>
             </thead>
             <tbody>
-              {% for detalle in detalles_venta %}
-                <tr class="{% if detalle.ya_devuelto %}product-row-disabled{% endif %}">
-                  <td style="padding:.35rem .5rem;">
-                    <input type="checkbox" name="producto_id" value="{{ detalle.producto_id }}" class="form-check-input"
-                      data-presentacion="{{ detalle.presentacion_id }}" {% if detalle.ya_devuelto %}disabled{% endif %}>
+              {% for item in detalles_con_estado %}
+                {% with detalle=item.detalle %}
+                <tr style="border-bottom: 1px solid rgba(239, 248, 226, 0.08); {% if not item.puede_devolver %}opacity: 0.5; background: rgba(145,47,64,0.1);{% endif %}">
+                  <td style="padding: 1rem; text-align: center; width: 5%;">
+                    <input type="checkbox"
+                           name="producto_id"
+                           value="{{ detalle.id }}"
+                           class="form-check-input producto-checkbox"
+                           onchange="updateSubtotal(this)"
+                           {% if not item.puede_devolver %}disabled title="Ya fue completamente devuelto"{% endif %}>
                   </td>
-                  <td style="padding:.35rem .5rem;">
-                    <div class="fw-bold">{{ detalle.producto }}</div>
+                  <td style="padding: 1rem; width: 30%;">
+                    <div style="font-weight: 600; color: #FDFFFC;">{{ detalle.producto.nombre }}</div>
                     {% if detalle.presentacion %}
-                      <div class="small" style="color:var(--text-md);">{{ detalle.presentacion }}</div>
+                      <div style="font-size: 0.8rem; color: #AF8D86;">{{ detalle.presentacion.nombre }}</div>
                     {% endif %}
-                    {% if detalle.ya_devuelto %}
-                      <span class="badge" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(255,79,106,.3);font-size:.65rem;">
-                        <i class="bi bi-check me-1"></i>Ya devuelto
-                      </span>
+                    {% if not item.puede_devolver %}
+                      <div style="font-size: 0.75rem; color: #912F40; margin-top: 0.25rem; font-weight: 700;">
+                        <i class="bi bi-check-circle"></i> Completamente devuelto
+                      </div>
                     {% endif %}
                   </td>
-                  <td style="padding:.35rem .5rem;">{{ detalle.cantidad }}</td>
-                  <td style="padding:.35rem .5rem;text-align:right;">${{ detalle.precio|floatformat:0 }}</td>
-                  <td style="padding:.35rem .5rem;text-align:right;color:var(--cyan);font-weight:bold;">${{ detalle.subtotal|floatformat:0 }}</td>
+                  <td style="padding: 1rem; text-align: center; width: 10%; color: #FDFFFC; font-weight: 600;">{{ detalle.cantidad }}</td>
+                  <td style="padding: 1rem; text-align: center; width: 10%; color: {% if item.cantidad_devuelta > 0 %}#4caf50{% else %}#AF8D86{% endif %}; font-weight: 600;">{{ item.cantidad_devuelta }}</td>
+                  <td style="padding: 1rem; text-align: center; width: 10%; color: {% if item.cantidad_pendiente > 0 %}#E8834A{% else %}#4caf50{% endif %}; font-weight: 700;">{{ item.cantidad_pendiente }}</td>
+                  <td style="padding: 1rem; text-align: center; width: 12%;">
+                    <input type="number"
+                           name="cantidad_devolucion_{{ detalle.id }}"
+                           min="0"
+                           max="{{ item.cantidad_pendiente }}"
+                           value="0"
+                           class="form-control cantidad-input"
+                           style="background: #031e3e; border: 1px solid rgba(77,168,218,0.25); color: #FDFFFC; border-radius: 6px; padding: 0.5rem; font-size: 0.9rem; text-align: center; font-weight: 600;"
+                           onchange="updateCheckboxAndSubtotal(this, {{ detalle.id }})"
+                           {% if not item.puede_devolver %}disabled{% endif %}>
+                  </td>
+                  <td style="padding: 1rem; text-align: right; width: 16%; color: #FDFFFC; font-weight: 600;">${{ detalle.precio_unitario|floatformat:0 }}</td>
+                  <td style="padding: 1rem; text-align: right; width: 17%; color: #4DA8DA; font-weight: 700; subtotal-{{ detalle.id }}">${{ detalle.subtotal|floatformat:0 }}</td>
                 </tr>
+                {% endwith %}
               {% endfor %}
             </tbody>
           </table>
         </div>
-      {% else %}
-        <div class="text-center py-4">
-          <i class="bi bi-inbox d-block mb-2 h4" style="color:var(--text-lo);"></i>
-          <p class="small" style="color:var(--text-md);">Selecciona una venta para ver sus productos.</p>
-        </div>
-      {% endif %}
-    </div>
 
-    <!-- PASO 3: MOTIVO DE DEVOLUCIÓN -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
-        <span class="step-badge">3</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-question-circle me-2"></i>Motivo de devolución
-        </span>
-      </div>
-
-      <div class="row g-3 mb-4" id="motivoGrid">
-        <div class="col-lg-6">
-          <input type="radio" id="motivo_defectuoso" name="motivo" value="defectuoso" class="d-none">
-          <label for="motivo_defectuoso" class="motivo-item card card-dev-inner p-3 d-flex gap-2 mb-0">
-            <span class="motivo-number step-badge flex-shrink-0" style="width:32px;height:32px;">1</span>
-            <div class="flex-grow-1">
-              <div class="fw-bold" style="color:var(--text-hi);">Producto defectuoso</div>
-              <div class="small" style="color:var(--text-md);">Fuga, sello roto o deteriorado</div>
+        <!-- Resumen de devolución -->
+        <div style="background: linear-gradient(135deg, rgba(77,168,218,0.1), rgba(77,168,218,0.05)); border: 1px solid rgba(77,168,218,0.2); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
+            <div>
+              <div style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Productos seleccionados</div>
+              <div style="color: #4DA8DA; font-size: 1.5rem; font-weight: 900;" id="productosCount">0</div>
             </div>
-          </label>
-        </div>
-        <div class="col-lg-6">
-          <input type="radio" id="motivo_equivocado" name="motivo" value="equivocado" class="d-none">
-          <label for="motivo_equivocado" class="motivo-item card card-dev-inner p-3 d-flex gap-2 mb-0">
-            <span class="motivo-number step-badge flex-shrink-0" style="width:32px;height:32px;">2</span>
-            <div class="flex-grow-1">
-              <div class="fw-bold" style="color:var(--text-hi);">Error en el pedido</div>
-              <div class="small" style="color:var(--text-md);">Referencia o cantidad incorrecta</div>
+            <div>
+              <div style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Cantidad total</div>
+              <div style="color: #4DA8DA; font-size: 1.5rem; font-weight: 900;" id="cantidadTotal">0</div>
             </div>
-          </label>
-        </div>
-        <div class="col-lg-6">
-          <input type="radio" id="motivo_insatisfecho" name="motivo" value="insatisfecho" class="d-none">
-          <label for="motivo_insatisfecho" class="motivo-item card card-dev-inner p-3 d-flex gap-2 mb-0">
-            <span class="motivo-number step-badge flex-shrink-0" style="width:32px;height:32px;">3</span>
-            <div class="flex-grow-1">
-              <div class="fw-bold" style="color:var(--text-hi);">Cliente insatisfecho</div>
-              <div class="small" style="color:var(--text-md);">Motivos de insatisfacción</div>
+            <div>
+              <div style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Monto a devolver</div>
+              <div style="color: #4DA8DA; font-size: 1.5rem; font-weight: 900;" id="montoTotal">$0</div>
             </div>
-          </label>
-        </div>
-        <div class="col-lg-6">
-          <input type="radio" id="motivo_otro1" name="motivo" value="otro" class="d-none">
-          <label for="motivo_otro1" class="motivo-item card card-dev-inner p-3 d-flex gap-2 mb-0">
-            <span class="motivo-number step-badge flex-shrink-0" style="width:32px;height:32px;">4</span>
-            <div class="flex-grow-1">
-              <div class="fw-bold" style="color:var(--text-hi);">Problema de calidad</div>
-              <div class="small" style="color:var(--text-md);">Defectos o daños en transporte</div>
-            </div>
-          </label>
-        </div>
-        <div class="col-lg-6">
-          <input type="radio" id="motivo_otro2" name="motivo" value="otro" class="d-none">
-          <label for="motivo_otro2" class="motivo-item card card-dev-inner p-3 d-flex gap-2 mb-0">
-            <span class="motivo-number step-badge flex-shrink-0" style="width:32px;height:32px;">5</span>
-            <div class="flex-grow-1">
-              <div class="fw-bold" style="color:var(--text-hi);">Empaque dañado</div>
-              <div class="small" style="color:var(--text-md);">Caja, estuche o etiqueta</div>
-            </div>
-          </label>
-        </div>
-        <div class="col-lg-6">
-          <input type="radio" id="motivo_otro3" name="motivo" value="otro" class="d-none">
-          <label for="motivo_otro3" class="motivo-item card card-dev-inner p-3 d-flex gap-2 mb-0">
-            <span class="motivo-number step-badge flex-shrink-0" style="width:32px;height:32px;">6</span>
-            <div class="flex-grow-1">
-              <div class="fw-bold" style="color:var(--text-hi);">Otro motivo</div>
-              <div class="small" style="color:var(--text-md);">Especificar en observaciones</div>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label fw-bold text-uppercase small" style="letter-spacing:.08em;color:var(--text-md);">
-          <i class="bi bi-file-text me-2"></i>Observaciones adicionales
-        </label>
-        <textarea class="form-control form-control-sm" id="observaciones" name="observaciones" rows="3" placeholder="Describe el problema con detalle para agilizar el proceso…"></textarea>
-      </div>
-    </div>
-
-    <!-- PASO 4: TIPO DE REEMBOLSO -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
-        <span class="step-badge">4</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-cash-coin me-2"></i>Tipo de reembolso
-        </span>
-      </div>
-
-      <div class="row g-3" id="reembolsoGrid">
-        <div class="col-md-4">
-          <input type="radio" id="reembolso_cambio" name="tipo_reembolso" value="cambio" class="d-none">
-          <label for="reembolso_cambio" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block">
-            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:var(--text-lo);">Opción 1</div>
-            <div style="font-size:1.8rem;color:var(--text-md);margin-bottom:.5rem;"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="fw-bold" style="color:var(--text-hi);">Cambio de producto</div>
-            <div class="small" style="color:var(--text-md);">Misma referencia u otra</div>
-          </label>
-        </div>
-        <div class="col-md-4">
-          <input type="radio" id="reembolso_nota_credito" name="tipo_reembolso" value="nota_credito" class="d-none">
-          <label for="reembolso_nota_credito" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block">
-            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:var(--text-lo);">Opción 2</div>
-            <div style="font-size:1.8rem;color:var(--text-md);margin-bottom:.5rem;"><i class="bi bi-file-earmark-text"></i></div>
-            <div class="fw-bold" style="color:var(--text-hi);">Nota crédito</div>
-            <div class="small" style="color:var(--text-md);">Abono a próxima factura</div>
-          </label>
-        </div>
-        <div class="col-md-4">
-          <input type="radio" id="reembolso_reembolso" name="tipo_reembolso" value="reembolso" class="d-none">
-          <label for="reembolso_reembolso" class="card card-dev-inner p-4 text-center motivo-item cursor-pointer mb-0 d-block">
-            <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.08em;color:var(--text-lo);">Opción 3</div>
-            <div style="font-size:1.8rem;color:var(--text-md);margin-bottom:.5rem;"><i class="bi bi-bank"></i></div>
-            <div class="fw-bold" style="color:var(--text-hi);">Reembolso</div>
-            <div class="small" style="color:var(--text-md);">Devolución al método de pago</div>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- PASO 5: EVIDENCIA FOTOGRÁFICA -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
-        <span class="step-badge">5</span>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">
-          <i class="bi bi-camera me-2"></i>Evidencia fotográfica
-        </span>
-      </div>
-
-      <div class="card card-dev-inner p-4 text-center cursor-pointer border-2 border-dashed" id="dropZone" style="border-color:var(--border);">
-        <i class="bi bi-cloud-arrow-up d-block mb-3" style="font-size:2rem;color:var(--text-lo);"></i>
-        <div class="fw-bold mb-2" style="color:var(--text-hi);">Arrastra fotos o haz clic para adjuntar</div>
-        <div class="small" style="color:var(--text-md);">JPG, PNG o PDF — máx. 10 MB por archivo</div>
-        <input type="file" id="evidencia" name="evidencia" multiple accept="image/*,.pdf" style="display:none;">
-      </div>
-
-      <div class="alert alert-info-dev mt-3" role="alert">
-        <i class="bi bi-lightbulb me-2"></i>
-        <strong>Recomendado:</strong> foto del lote, sello y etiqueta del producto.
-      </div>
-    </div>
-
-    <!-- POLÍTICA DE DEVOLUCIONES -->
-    <div class="card card-dev p-4 mb-4">
-      <div class="d-flex align-items-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-          <i class="bi bi-shield-check" style="color:var(--green);font-size:1.3rem;"></i>
-          <div>
-            <div class="fw-bold" style="color:var(--text-hi);">Política de devoluciones</div>
-            <div class="small" style="color:var(--text-md);">Antes de enviar, revisa nuestras políticas</div>
           </div>
         </div>
-        <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="modal" data-bs-target="#modalProceso">
-          <i class="bi bi-list-ol me-1"></i>Ver política
+
+        <script>
+          function updateCheckboxAndSubtotal(input, detalleId) {
+            const cantidad = parseInt(input.value) || 0;
+            const checkbox = document.querySelector(`input[type="checkbox"][value="${detalleId}"]`);
+
+            if (cantidad > 0) {
+              checkbox.checked = true;
+            } else {
+              checkbox.checked = false;
+            }
+
+            updateSubtotal(checkbox);
+          }
+
+          function updateSubtotal(checkbox) {
+            const detalleId = checkbox.value;
+            const cantidadInput = document.querySelector(`input[name="cantidad_devolucion_${detalleId}"]`);
+            const row = checkbox.closest('tr');
+            const precioUnitario = parseFloat(row.cells[4].textContent.replace('$', '').replace(',', ''));
+
+            if (checkbox.checked) {
+              cantidadInput.disabled = false;
+              if (cantidadInput.value === '0') {
+                cantidadInput.value = cantidadInput.max;
+              }
+            } else {
+              cantidadInput.disabled = true;
+              cantidadInput.value = 0;
+            }
+
+            const cantidad = parseInt(cantidadInput.value) || 0;
+            const subtotal = cantidad * precioUnitario;
+            row.querySelector(`[class*="subtotal"]`).textContent = `$${subtotal.toLocaleString('es-CO', {maximumFractionDigits: 0})}`;
+
+            calculateTotals();
+          }
+
+          function calculateTotals() {
+            let productosCount = 0;
+            let cantidadTotal = 0;
+            let montoTotal = 0;
+
+            document.querySelectorAll('.cantidad-input:not([disabled])').forEach(input => {
+              const cantidad = parseInt(input.value) || 0;
+              if (cantidad > 0) {
+                productosCount++;
+                cantidadTotal += cantidad;
+                const precioUnitario = parseFloat(input.closest('tr').cells[4].textContent.replace('$', '').replace(',', ''));
+                montoTotal += cantidad * precioUnitario;
+              }
+            });
+
+            document.getElementById('productosCount').textContent = productosCount;
+            document.getElementById('cantidadTotal').textContent = cantidadTotal;
+            document.getElementById('montoTotal').textContent = `$${montoTotal.toLocaleString('es-CO', {maximumFractionDigits: 0})}`;
+          }
+        </script>
+      {% else %}
+        <div style="text-align: center; padding: 3rem 1rem;">
+          <i class="bi bi-inbox" style="font-size: 2.5rem; color: #6b7280; display: block; margin-bottom: 1rem;"></i>
+          <p style="color: #AF8D86; font-size: 0.9rem;">No hay productos. Selecciona una venta.</p>
+        </div>
+      {% endif %}
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 24px; color: #7ecfef; border-color: rgba(77,168,218,0.25); border: 1px solid rgba(77,168,218,0.25);" formnovalidate>
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 24px;">
+          <i class="bi bi-arrow-right me-1"></i>Siguiente
         </button>
       </div>
     </div>
+  </form>
+  {% endif %}
 
-    <!-- BOTONES DE ACCIÓN -->
-    <div class="d-grid gap-2">
-      <button type="submit" class="btn btn-lg btn-primary fw-bold text-white text-uppercase">
-        <i class="bi bi-send-check me-2"></i>Enviar solicitud de devolución
-      </button>
-    </div>
-
-    <p class="text-center mt-3 small" style="color:var(--text-md);">
-      Al enviar, aceptas la política de devoluciones de CYS Ltda
-    </p>
-
-    <!-- AYUDA RÁPIDA -->
-    <div class="card card-dev p-4 mt-4">
-      <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom border-1" style="border-color:var(--border);">
-        <div class="step-badge" style="background-color: var(--blue-dim);">
-          <i class="bi bi-info" style="color:var(--cyan);"></i>
-        </div>
-        <span class="text-uppercase fw-bold small" style="letter-spacing:.12em;color:var(--cyan);">Ayuda rápida</span>
+  {% if paso == 3 %}
+  <!-- PASO 3: MOTIVO DE DEVOLUCIÓN -->
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">3</span>
+        <span class="section-title"><i class="bi bi-question-circle" style="color: #4DA8DA;"></i> Motivo de devolución</span>
       </div>
-      <div class="row g-3 text-center">
-        <div class="col-md-4">
-          <div class="card card-dev-inner p-3 rounded-3">
-            <i class="bi bi-telephone-fill mb-2 d-block" style="color:var(--cyan);font-size:1.3rem;"></i>
-            <div class="fw-bold small" style="color:var(--text-hi);">Soporte</div>
-            <div class="small" style="color:var(--text-md);">01 800 000 1234</div>
+
+      <div class="motivo-grid mb-4" id="motivoGrid">
+        <input type="radio" id="motivo_defectuoso" name="motivo" value="defectuoso" class="d-none">
+        <label for="motivo_defectuoso" class="motivo-item">
+          <span class="motivo-num">1</span>
+          <div>
+            <div class="motivo-title">Producto defectuoso</div>
+            <div class="motivo-sub">Fuga, sello roto o deteriorado</div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card card-dev-inner p-3 rounded-3">
-            <i class="bi bi-envelope-fill mb-2 d-block" style="color:var(--cyan);font-size:1.3rem;"></i>
-            <div class="fw-bold small" style="color:var(--text-hi);">Correo</div>
-            <div class="small" style="color:var(--text-md);">devoluciones@cysltda.co</div>
+        </label>
+
+        <input type="radio" id="motivo_equivocado" name="motivo" value="equivocado" class="d-none">
+        <label for="motivo_equivocado" class="motivo-item">
+          <span class="motivo-num">2</span>
+          <div>
+            <div class="motivo-title">Error en el pedido</div>
+            <div class="motivo-sub">Referencia o cantidad incorrecta</div>
           </div>
+        </label>
+
+        <input type="radio" id="motivo_insatisfecho" name="motivo" value="insatisfecho" class="d-none">
+        <label for="motivo_insatisfecho" class="motivo-item">
+          <span class="motivo-num">3</span>
+          <div>
+            <div class="motivo-title">Cliente insatisfecho</div>
+            <div class="motivo-sub">Motivos de insatisfacción</div>
+          </div>
+        </label>
+
+        <input type="radio" id="motivo_otro1" name="motivo" value="otro" class="d-none">
+        <label for="motivo_otro1" class="motivo-item">
+          <span class="motivo-num">4</span>
+          <div>
+            <div class="motivo-title">Problema de calidad</div>
+            <div class="motivo-sub">Defectos o daños en transporte</div>
+          </div>
+        </label>
+
+        <input type="radio" id="motivo_otro2" name="motivo" value="otro" class="d-none">
+        <label for="motivo_otro2" class="motivo-item">
+          <span class="motivo-num">5</span>
+          <div>
+            <div class="motivo-title">Empaque dañado</div>
+            <div class="motivo-sub">Caja, estuche o etiqueta</div>
+          </div>
+        </label>
+
+        <input type="radio" id="motivo_otro3" name="motivo" value="otro" class="d-none">
+        <label for="motivo_otro3" class="motivo-item">
+          <span class="motivo-num">6</span>
+          <div>
+            <div class="motivo-title">Otro motivo</div>
+            <div class="motivo-sub">Especificar en observaciones</div>
+          </div>
+        </label>
+      </div>
+
+      <textarea placeholder="Describe el problema con detalle…" name="observaciones" style="width:100%;background:#031e3e;border:1px solid rgba(239,248,226,.12);color:#FDFFFC;border-radius:8px;padding:.65rem .85rem;font-size:.85rem;resize:vertical;margin-bottom:2rem;min-height:70px;outline:none;"></textarea>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 24px; color: #7ecfef; border-color: rgba(77,168,218,0.25); border: 1px solid rgba(77,168,218,0.25);" formnovalidate>
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 24px;">
+          <i class="bi bi-arrow-right me-1"></i>Siguiente
+        </button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+
+  {% if paso == 4 %}
+  <!-- PASO 4: TIPO DE REEMBOLSO -->
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">4</span>
+        <span class="section-title"><i class="bi bi-cash-coin" style="color: #4DA8DA;"></i> Tipo de reembolso</span>
+      </div>
+
+      <div class="reembolso-grid" style="margin-bottom: 2rem;">
+        <input type="radio" id="reembolso_cambio" name="tipo_reembolso" value="cambio" class="d-none">
+        <label for="reembolso_cambio" class="reembolso-card" style="border-color: rgba(77,168,218,.25); border-top: 4px solid #4DA8DA;">
+          <div class="r-opt" style="color: #4DA8DA;">Opción 1</div>
+          <i class="bi bi-arrow-repeat r-icon" style="color: #4DA8DA;"></i>
+          <div class="r-title">Cambio de producto</div>
+          <div class="r-sub">Misma referencia u otra</div>
+        </label>
+
+        <input type="radio" id="reembolso_nota_credito" name="tipo_reembolso" value="nota_credito" class="d-none">
+        <label for="reembolso_nota_credito" class="reembolso-card" style="border-color: rgba(29,158,117,.25); border-top: 4px solid #1D9E75;">
+          <div class="r-opt" style="color: #1D9E75;">Opción 2</div>
+          <i class="bi bi-file-earmark-text r-icon" style="color: #1D9E75;"></i>
+          <div class="r-title">Nota crédito</div>
+          <div class="r-sub">Abono a próxima factura</div>
+        </label>
+
+        <input type="radio" id="reembolso_reembolso" name="tipo_reembolso" value="reembolso" class="d-none">
+        <label for="reembolso_reembolso" class="reembolso-card" style="border-color: rgba(232,131,74,.25); border-top: 4px solid #E8834A;">
+          <div class="r-opt" style="color: #E8834A;">Opción 3</div>
+          <i class="bi bi-bank r-icon" style="color: #E8834A;"></i>
+          <div class="r-title">Reembolso</div>
+          <div class="r-sub">Devolución al método de pago</div>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 24px; color: #7ecfef; border-color: rgba(77,168,218,0.25); border: 1px solid rgba(77,168,218,0.25);" formnovalidate>
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 24px;">
+          <i class="bi bi-arrow-right me-1"></i>Siguiente
+        </button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+
+  {% if paso == 5 %}
+  <!-- PASO 5: DETALLES ESPECÍFICOS SEGÚN TIPO -->
+
+  {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
+  <!-- PASO 5A: CAMBIO DE PRODUCTO -->
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">5</span>
+        <span class="section-title"><i class="bi bi-arrow-repeat" style="color: #4DA8DA;"></i> Producto de reemplazo</span>
+      </div>
+
+      <!-- Contenedor principal con grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+
+        <!-- Columna 1: Producto y Cantidad -->
+        <div>
+          <label class="dev-form-label" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4DA8DA; margin-bottom: 0.75rem; display: block;">
+            <i class="bi bi-box" style="margin-right: 0.5rem;"></i>Producto a recibir
+          </label>
+          <select name="producto_cambio" required class="form-select dev-select-premium" style="background: #031e3e; border: 2px solid rgba(77,168,218,0.25); color: #FDFFFC; border-radius: 8px; padding: 0.85rem; font-size: 0.95rem; transition: all 0.2s;">
+            <option value="">-- Selecciona un producto --</option>
+            {% for prod in productos %}
+              <option value="{{ prod.pk }}">{{ prod.nombre }} - ${{ prod.precio_unitario|floatformat:0 }}</option>
+            {% endfor %}
+          </select>
+          <small style="color: #AF8D86; display: block; margin-top: 0.5rem; font-size: 0.8rem;">
+            <i class="bi bi-info-circle me-1"></i>Elige el producto que prefieres recibir
+          </small>
         </div>
-        <div class="col-md-4">
-          <div class="card card-dev-inner p-3 rounded-3">
-            <i class="bi bi-clock-fill mb-2 d-block" style="color:var(--cyan);font-size:1.3rem;"></i>
-            <div class="fw-bold small" style="color:var(--text-hi);">Horario</div>
-            <div class="small" style="color:var(--text-md);">Lun – Vie 8am–5pm</div>
+
+        <!-- Columna 2: Cantidad -->
+        <div>
+          <label class="dev-form-label" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4DA8DA; margin-bottom: 0.75rem; display: block;">
+            <i class="bi bi-stack" style="margin-right: 0.5rem;"></i>Cantidad
+          </label>
+          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control" style="background: #031e3e; border: 2px solid rgba(77,168,218,0.25); color: #FDFFFC; border-radius: 8px; padding: 0.85rem; font-size: 0.95rem; transition: all 0.2s; font-weight: 600;" onchange="this.style.borderColor = 'rgba(77,168,218,0.5)'">
+          <small style="color: #AF8D86; display: block; margin-top: 0.5rem; font-size: 0.8rem;">
+            <i class="bi bi-info-circle me-1"></i>Cantidad a enviar
+          </small>
+        </div>
+      </div>
+
+      <!-- Alert Box - Resumen -->
+      <div style="background: linear-gradient(135deg, rgba(77,168,218,0.1), rgba(77,168,218,0.05)); border-left: 4px solid #4DA8DA; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; border: 1px solid rgba(77,168,218,0.2);">
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <i class="bi bi-info-circle" style="color: #4DA8DA; font-size: 1.2rem; flex-shrink: 0; margin-top: 2px;"></i>
+          <div style="flex: 1;">
+            <div style="margin-bottom: 0.75rem;">
+              <span style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Monto a devolver</span>
+              <div style="color: #4DA8DA; font-size: 1.4rem; font-weight: 800; margin-top: 0.25rem;">${{ total_devolver|floatformat:0 }}</div>
+            </div>
+            <div style="border-top: 1px solid rgba(77,168,218,0.2); padding-top: 0.75rem;">
+              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500;">
+                <i class="bi bi-clock me-1" style="color: #4DA8DA;"></i>
+                <strong>Plazo:</strong> 3-5 días hábiles para recibir el cambio
+              </div>
+              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500; margin-top: 0.5rem;">
+                <i class="bi bi-truck me-1" style="color: #4DA8DA;"></i>
+                <strong>Devolución:</strong> Esperamos retorno del producto original
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
+      <!-- Botones de acción -->
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid rgba(77,168,218,0.15);">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 28px; color: #7ecfef; border-color: rgba(77,168,218,0.3); border: 1px solid rgba(77,168,218,0.3); font-weight: 600; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.1)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+          <i class="bi bi-arrow-left me-2"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 28px; background: linear-gradient(135deg, #4DA8DA, #2E8DAB); border: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(77,168,218,0.3);" onmouseover="this.style.boxShadow='0 6px 16px rgba(77,168,218,0.5)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(77,168,218,0.3)'">
+          <i class="bi bi-arrow-right me-2"></i>Siguiente
+        </button>
+      </div>
+    </div>
   </form>
 
-  <!-- PANTALLA DE ÉXITO -->
-  <div id="successView" class="d-none">
-    <div class="card card-dev p-5 text-center">
-      <div class="mb-4">
-        <div class="mx-auto d-inline-flex align-items-center justify-content-center" style="width:80px;height:80px;border-radius:50%;background:var(--green-dim);border:2px solid var(--green);font-size:2.5rem;color:var(--green);">
-          <i class="bi bi-check-lg"></i>
-        </div>
+  {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
+  <!-- PASO 5B: REEMBOLSO -->
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">5</span>
+        <span class="section-title"><i class="bi bi-bank" style="color: #E8834A;"></i> Método de devolución</span>
       </div>
 
-      <h2 class="h4 fw-bold mb-1" id="ticketNum" style="color:var(--green);">RAD-2026-0042</h2>
-      <p class="lead mb-4" style="color:var(--text-hi);">Solicitud radicada correctamente</p>
+      <!-- Etiqueta superior -->
+      <label style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #E8834A; margin-bottom: 1.25rem; display: block;">
+        <i class="bi bi-credit-card" style="margin-right: 0.5rem;"></i>Elige cómo deseas recibir tu reembolso
+      </label>
 
-      <div class="card card-dev-inner p-4 mb-4 text-start">
-        <div class="d-flex align-items-start gap-3">
-          <i class="bi bi-info-circle" style="color:var(--cyan);font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
-          <div style="font-size:.95rem;color:var(--text-md);">
-            Un asesor revisará tu caso y te contactará en <strong style="color:var(--text-hi);">2–5 días hábiles</strong>.
-            Conserva el número de radicado para seguimiento.
+      <!-- Grid de opciones de pago -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+
+        <!-- Efectivo -->
+        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
+          <input type="radio" name="metodo_pago_devolucion" value="efectivo" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
+            <i class="bi bi-cash-coin" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Efectivo</div>
+            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">Retira en nuestro local</div>
+          </div>
+        </label>
+
+        <!-- Tarjeta -->
+        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
+          <input type="radio" name="metodo_pago_devolucion" value="tarjeta" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
+            <i class="bi bi-credit-card" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Tarjeta</div>
+            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu tarjeta de débito</div>
+          </div>
+        </label>
+
+        <!-- Transferencia -->
+        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
+          <input type="radio" name="metodo_pago_devolucion" value="transferencia" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
+            <i class="bi bi-bank2" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Transferencia</div>
+            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu cuenta bancaria</div>
+          </div>
+        </label>
+
+        <!-- Nequi -->
+        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
+          <input type="radio" name="metodo_pago_devolucion" value="nequi" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
+            <i class="bi bi-phone" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Nequi</div>
+            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu billetera Nequi</div>
+          </div>
+        </label>
+
+        <!-- DaviPlata -->
+        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
+          <input type="radio" name="metodo_pago_devolucion" value="daviplata" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
+            <i class="bi bi-wallet2" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">DaviPlata</div>
+            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu billetera DaviPlata</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Alert Box - Resumen -->
+      <div style="background: linear-gradient(135deg, rgba(232,131,74,0.1), rgba(232,131,74,0.05)); border-left: 4px solid #E8834A; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; border: 1px solid rgba(232,131,74,0.2);">
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <i class="bi bi-info-circle" style="color: #E8834A; font-size: 1.2rem; flex-shrink: 0; margin-top: 2px;"></i>
+          <div style="flex: 1;">
+            <div style="margin-bottom: 0.75rem;">
+              <span style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Monto del reembolso</span>
+              <div style="color: #E8834A; font-size: 1.4rem; font-weight: 800; margin-top: 0.25rem;">${{ total_devolver|floatformat:0 }}</div>
+            </div>
+            <div style="border-top: 1px solid rgba(232,131,74,0.2); padding-top: 0.75rem;">
+              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500;">
+                <i class="bi bi-clock me-1" style="color: #E8834A;"></i>
+                <strong>Plazo:</strong> 3-7 días hábiles según método
+              </div>
+              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500; margin-top: 0.5rem;">
+                <i class="bi bi-check-circle me-1" style="color: #E8834A;"></i>
+                <strong>Requiere:</strong> Devolución del producto original
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="card card-dev-inner p-3 text-center">
-            <i class="bi bi-file-earmark-pdf" style="color:var(--cyan);font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>
-            <div class="fw-bold small" style="color:var(--text-hi);">Comprobante</div>
-            <button class="btn btn-link btn-sm p-0 mt-1" style="color:var(--cyan);">
-              <i class="bi bi-download me-1"></i>Descargar
+      <!-- Botones de acción -->
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid rgba(232,131,74,0.15);">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 28px; color: #E8834A; border-color: rgba(232,131,74,0.3); border: 1px solid rgba(232,131,74,0.3); font-weight: 600; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(232,131,74,0.1)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+          <i class="bi bi-arrow-left me-2"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 28px; background: linear-gradient(135deg, #E8834A, #D46E36); border: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(232,131,74,0.3);" onmouseover="this.style.boxShadow='0 6px 16px rgba(232,131,74,0.5)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(232,131,74,0.3)'">
+          <i class="bi bi-arrow-right me-2"></i>Siguiente
+        </button>
+      </div>
+    </div>
+  </form>
+
+  {% endif %}
+  {% endif %}
+
+  {% if paso == 6 %}
+  <!-- PASO 6: EVIDENCIA FOTOGRÁFICA -->
+  <form method="post" class="needs-validation" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">6</span>
+        <span class="section-title"><i class="bi bi-camera" style="color: #4DA8DA;"></i> Evidencia fotográfica</span>
+      </div>
+
+      <!-- Zona de carga de archivos mejorada -->
+      <div id="dropZone" style="border: 2px dashed rgba(77,168,218,0.5); border-radius: 12px; padding: 3rem 2rem; text-align: center; background: rgba(77,168,218,0.05); cursor: pointer; transition: all 0.3s; margin-bottom: 2rem;"
+           onmouseover="this.style.background='rgba(77,168,218,0.1)'; this.style.borderColor='rgba(77,168,218,0.8)'"
+           onmouseout="this.style.background='rgba(77,168,218,0.05)'; this.style.borderColor='rgba(77,168,218,0.5)'">
+        <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #4DA8DA; display: block; margin-bottom: 1rem;"></i>
+        <div style="font-size: 1.1rem; font-weight: 700; color: #FDFFFC; margin-bottom: 0.5rem;">Arrastra fotos aquí</div>
+        <div style="font-size: 0.9rem; color: #AF8D86; margin-bottom: 1.5rem;">o haz clic para seleccionar archivos</div>
+        <input type="file" id="evidencia" name="evidencia" multiple accept="image/*,.pdf" style="display: none;">
+        <small style="color: #7ecfef; display: block;">JPG, PNG o PDF — máx. 10 MB por archivo</small>
+      </div>
+
+      <!-- Vista previa de archivos subidos -->
+      <div id="previewContainer" style="display: none; margin-bottom: 2rem;">
+        <div style="font-size: 0.9rem; font-weight: 700; color: #4DA8DA; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          <i class="bi bi-check-circle me-2"></i>Archivos seleccionados
+        </div>
+        <div id="fileList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem;"></div>
+      </div>
+
+      <!-- Recomendaciones -->
+      <div style="background: linear-gradient(135deg, rgba(77,168,218,0.1), rgba(77,168,218,0.05)); border-left: 4px solid #4DA8DA; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; border: 1px solid rgba(77,168,218,0.2);">
+        <div style="display: flex; gap: 1rem;">
+          <i class="bi bi-lightbulb" style="color: #4DA8DA; font-size: 1.2rem; flex-shrink: 0;"></i>
+          <div>
+            <div style="color: #FDFFFC; font-weight: 700; margin-bottom: 0.75rem;">Recomendaciones para fotos:</div>
+            <ul style="color: #AF8D86; font-size: 0.9rem; margin: 0; padding-left: 1.5rem; line-height: 1.6;">
+              <li>📦 Foto del producto en su empaque original</li>
+              <li>🔢 Foto clara del lote y fecha de vencimiento</li>
+              <li>🔒 Foto del sello o cierre (si aplica)</li>
+              <li>📋 Foto de la etiqueta/referencia del producto</li>
+              <li>❌ Si hay daño, foto del defecto específico</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 2px solid rgba(77,168,218,0.15);">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 12px 32px; color: #7ecfef; border-color: rgba(77,168,218,0.3); border: 1.5px solid rgba(77,168,218,0.3); font-weight: 600; transition: all 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+          <i class="bi bi-arrow-left me-2"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 12px 32px; background: linear-gradient(135deg, #4DA8DA, #2E8DAB); border: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(77,168,218,0.3); font-size: 0.95rem;" onmouseover="this.style.boxShadow='0 6px 16px rgba(77,168,218,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(77,168,218,0.3)'; this.style.transform='translateY(0)'">
+          <i class="bi bi-arrow-right me-2"></i>Siguiente
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    // Configurar drag & drop
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('evidencia');
+    const previewContainer = document.getElementById('previewContainer');
+    const fileList = document.getElementById('fileList');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.background = 'rgba(77,168,218,0.1)';
+      dropZone.style.borderColor = 'rgba(77,168,218,0.8)';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.background = 'rgba(77,168,218,0.05)';
+      dropZone.style.borderColor = 'rgba(77,168,218,0.5)';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileInput.files = e.dataTransfer.files;
+      updatePreview();
+    });
+
+    fileInput.addEventListener('change', updatePreview);
+
+    function updatePreview() {
+      fileList.innerHTML = '';
+      if (fileInput.files.length > 0) {
+        previewContainer.style.display = 'block';
+        Array.from(fileInput.files).forEach((file, index) => {
+          const fileItem = document.createElement('div');
+          fileItem.style.cssText = `
+            padding: 1rem;
+            background: rgba(77,168,218,0.1);
+            border: 1px solid rgba(77,168,218,0.25);
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+          `;
+
+          const icon = file.type.includes('image') ? 'image' : 'file-pdf';
+          const size = (file.size / 1024 / 1024).toFixed(2);
+
+          fileItem.innerHTML = `
+            <i class="bi bi-${icon}" style="color: #4DA8DA; font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+            <div style="font-size: 0.75rem; color: #FDFFFC; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
+            <div style="font-size: 0.7rem; color: #AF8D86; margin-top: 0.25rem;">${size} MB</div>
+            <button type="button" onclick="this.closest('div').remove(); if(document.querySelectorAll('#fileList > div').length === 0) document.getElementById('previewContainer').style.display='none';" style="position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.2); border: none; color: #FDFFFC; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-x" style="font-size: 0.9rem;"></i>
             </button>
+          `;
+          fileList.appendChild(fileItem);
+        });
+      } else {
+        previewContainer.style.display = 'none';
+      }
+    }
+  </script>
+  {% endif %}
+
+  {% if paso == 7 %}
+  <!-- PASO 7: CONFIRMACIÓN Y ENVÍO SOLICITUD -->
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">7</span>
+        <span class="section-title"><i class="bi bi-check-circle" style="color: #4DA8DA;"></i> Confirmar solicitud</span>
+      </div>
+
+      <!-- Tarjeta de Resumen Principal -->
+      <div style="background: linear-gradient(135deg, rgba(77,168,218,0.08), rgba(77,168,218,0.02)); border: 2px solid rgba(77,168,218,0.25); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(77,168,218,0.1);">
+
+        <!-- Encabezado -->
+        <div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid rgba(77,168,218,0.2);">
+          <div style="font-size: 0.75rem; color: #4DA8DA; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 1rem;">Resumen de tu devolución</div>
+          <div style="font-size: 2.5rem; font-weight: 900; color: #4DA8DA; margin-bottom: 0.5rem;">${{ total_devolver|floatformat:0 }}</div>
+          <div style="font-size: 0.9rem; color: #AF8D86;">Monto total a devolver</div>
+        </div>
+
+        <!-- Detalles según tipo -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+
+          <!-- Columna 1: Información del tipo -->
+          <div style="padding: 1.25rem; background: rgba(77,168,218,0.05); border-radius: 8px; border: 1px solid rgba(77,168,218,0.15);">
+            {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
+              <div style="color: #4DA8DA; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                <i class="bi bi-arrow-repeat me-2"></i>Tipo de reembolso
+              </div>
+              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Cambio de Producto</div>
+              <div style="color: #AF8D86; font-size: 0.85rem;">Recibirás un producto de reemplazo en lugar del que devuelves</div>
+            {% elif tipo_reembolso_seleccionado == 'Nota crédito' %}
+              <div style="color: #1D9E75; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                <i class="bi bi-file-earmark-text me-2"></i>Tipo de reembolso
+              </div>
+              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Nota de Crédito</div>
+              <div style="color: #AF8D86; font-size: 0.85rem;">Este monto estará disponible para tu próxima compra</div>
+            {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
+              <div style="color: #E8834A; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                <i class="bi bi-bank me-2"></i>Tipo de reembolso
+              </div>
+              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Reembolso en Efectivo</div>
+              <div style="color: #AF8D86; font-size: 0.85rem;">Se devolverá el dinero a tu cuenta</div>
+            {% endif %}
+          </div>
+
+          <!-- Columna 2: Timeline -->
+          <div style="padding: 1.25rem; background: rgba(77,168,218,0.05); border-radius: 8px; border: 1px solid rgba(77,168,218,0.15);">
+            <div style="color: #4DA8DA; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              <i class="bi bi-calendar-event me-2"></i>Plazo estimado
+            </div>
+            {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
+              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">3-5 días hábiles</div>
+              <div style="color: #AF8D86; font-size: 0.85rem;">Después de validar la devolución</div>
+            {% elif tipo_reembolso_seleccionado == 'Nota crédito' %}
+              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Inmediato</div>
+              <div style="color: #AF8D86; font-size: 0.85rem;">Disponible ahora en tu cuenta</div>
+            {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
+              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">3-7 días hábiles</div>
+              <div style="color: #AF8D86; font-size: 0.85rem;">Según el método de pago</div>
+            {% endif %}
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card card-dev-inner p-3 text-center">
-            <i class="bi bi-clock-history" style="color:var(--yellow);font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>
-            <div class="fw-bold small" style="color:var(--text-hi);">Seguimiento</div>
-            <button class="btn btn-link btn-sm p-0 mt-1" style="color:var(--cyan);" data-bs-toggle="offcanvas" data-bs-target="#drawerHistorial">
-              <i class="bi bi-eye me-1"></i>Ver historial
-            </button>
+
+        <!-- Proceso de validación -->
+        <div style="background: rgba(77,168,218,0.1); border-radius: 8px; padding: 1rem; border-left: 4px solid #4DA8DA;">
+          <div style="color: #4DA8DA; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+            <i class="bi bi-info-circle me-1"></i>¿Qué sucede después?
+          </div>
+          <div style="color: #FDFFFC; font-size: 0.9rem; line-height: 1.6;">
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <span style="background: #4DA8DA; color: #011936; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 0.75rem; font-weight: 700;">1</span>
+              <div>Tu solicitud se registra inmediatamente</div>
+            </div>
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <span style="background: #4DA8DA; color: #011936; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 0.75rem; font-weight: 700;">2</span>
+              <div>Un asesor la revisará en 2-5 días hábiles</div>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+              <span style="background: #4DA8DA; color: #011936; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 0.75rem; font-weight: 700;">3</span>
+              <div>Te contactaremos para confirmar los detalles</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <a href="{% url 'lista_devoluciones' %}" class="btn btn-lg btn-primary fw-bold text-white px-4 py-2">
-        <i class="bi bi-arrow-left me-2"></i>Volver a Devoluciones
-      </a>
+      <!-- Checklist de confirmación -->
+      <div style="background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.2); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
+        <div style="color: #4caf50; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 1rem;">
+          <i class="bi bi-check-all me-1"></i>Confirma que todo esté correcto
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; color: #FDFFFC; font-size: 0.9rem;">
+            <i class="bi bi-check-circle" style="color: #4caf50; font-size: 1.1rem;"></i>
+            <span>He seleccionado el tipo de reembolso correcto</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; color: #FDFFFC; font-size: 0.9rem;">
+            <i class="bi bi-check-circle" style="color: #4caf50; font-size: 1.1rem;"></i>
+            <span>Entiendo que debo devolver el producto original</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; color: #FDFFFC; font-size: 0.9rem;">
+            <i class="bi bi-check-circle" style="color: #4caf50; font-size: 1.1rem;"></i>
+            <span>He aceptado los términos de la política de devoluciones</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 2px solid rgba(77,168,218,0.15);">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 12px 32px; color: #7ecfef; border-color: rgba(77,168,218,0.3); border: 1.5px solid rgba(77,168,218,0.3); font-weight: 600; transition: all 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+          <i class="bi bi-arrow-left me-2"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-success" style="border-radius: 20px; padding: 12px 32px; background: linear-gradient(135deg, #4caf50, #388e3c); border: none; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 14px rgba(76,175,80,0.3); font-size: 0.95rem;" onmouseover="this.style.boxShadow='0 6px 20px rgba(76,175,80,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 14px rgba(76,175,80,0.3)'; this.style.transform='translateY(0)'">
+          <i class="bi bi-check-circle me-2"></i>Enviar Solicitud
+        </button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+
+  <!-- POLÍTICA DE DEVOLUCIONES -->
+  <div class="card card-dev p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-shield-check" style="color:var(--green);font-size:1.3rem;"></i>
+        <div>
+          <div class="fw-bold" style="color:var(--text-hi);">Política de devoluciones</div>
+          <div class="small" style="color:var(--text-md);">Antes de enviar, revisa nuestras políticas</div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="modal" data-bs-target="#modalProceso">
+        <i class="bi bi-list-ol me-1"></i>Ver política
+      </button>
     </div>
   </div>
 
-</div>
-
-
-<!-- MODAL — DATOS DEL PEDIDO -->
-<div class="modal fade" id="modalDatosPedido" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-receipt me-2" style="color:var(--cyan);"></i>Seleccionar Venta
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <!-- AYUDA RÁPIDA -->
+  <div class="section-card" style="margin-bottom: 0;">
+    <div class="section-head section-sep">
+      <span class="step-badge" style="background: #031e3e; border: 1px solid rgba(77,168,218,.3);">
+        <i class="bi bi-info" style="color: #4DA8DA; font-weight: 700;"></i>
+      </span>
+      <span style="font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #4DA8DA;">Ayuda rápida</span>
+    </div>
+    <div class="help-grid">
+      <div class="help-item">
+        <i class="bi bi-telephone-fill help-icon"></i>
+        <div class="help-title">Soporte</div>
+        <div class="help-sub">01 800 000 1234</div>
       </div>
-      <form method="get" action="{% url 'lista_devoluciones' %}" id="formSeleccionarVenta">
-        <div class="modal-body p-4">
-          <div class="mb-3">
-            <label class="form-label fw-bold text-uppercase small" style="letter-spacing:.08em;color:var(--text-md);">Búsqueda de Venta</label>
-            <input type="text" class="form-control" id="busquedaVenta" placeholder="Buscar por cliente o número de venta..." required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-bold text-uppercase small" style="letter-spacing:.08em;color:var(--text-md);">Selecciona una venta</label>
-            <select id="ventaSeleccionadaModal" name="venta_id" class="form-select" required>
-              <option value="">-- Busca una venta arriba --</option>
-            </select>
-          </div>
-
-          <div id="ventaPreview" class="card card-dev-inner p-3 d-none">
-            <div class="small" style="color:var(--text-md);">Cliente: <span id="previewCliente" class="fw-bold" style="color:var(--cyan);"></span></div>
-            <div class="small" style="color:var(--text-md);">Fecha: <span id="previewFecha" class="fw-bold" style="color:var(--text-hi);"></span></div>
-            <div class="small" style="color:var(--text-md);">Total: <span id="previewTotal" class="fw-bold" style="color:var(--green);"></span></div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-dismiss="modal">
-            <i class="bi bi-x me-1"></i>Cancelar
-          </button>
-          <button type="submit" class="btn btn-sm btn-primary fw-bold">
-            <i class="bi bi-check2 me-1"></i>Cargar
-          </button>
-        </div>
-      </form>
+      <div class="help-item">
+        <i class="bi bi-envelope-fill help-icon"></i>
+        <div class="help-title">Correo</div>
+        <div class="help-sub">devoluciones@cysltda.co</div>
+      </div>
+      <div class="help-item">
+        <i class="bi bi-clock-fill help-icon"></i>
+        <div class="help-title">Horario</div>
+        <div class="help-sub">Lun – Vie 8am–5pm</div>
+      </div>
     </div>
   </div>
-</div>
 
+  </div>
+</div>
 
 <!-- MODAL — PROCESO Y POLÍTICA -->
 <div class="modal fade" id="modalProceso" tabindex="-1">
@@ -449,31 +934,41 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
-        {% for step in "12345" %}
-        <div class="d-flex gap-3 mb-4 {% if not forloop.last %}pb-4{% endif %}" style="{% if not forloop.last %}border-bottom:1px solid var(--border);{% endif %}">
-          <div class="step-badge flex-shrink-0">
-            {{ forloop.counter }}
-          </div>
+        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+          <div class="step-badge flex-shrink-0">1</div>
           <div class="flex-grow-1">
-            {% if forloop.counter == 1 %}
-              <div class="fw-bold" style="color:var(--text-hi);">Completa el formulario</div>
-              <div class="small" style="color:var(--text-md);">Datos del pedido, productos y motivo</div>
-            {% elif forloop.counter == 2 %}
-              <div class="fw-bold" style="color:var(--text-hi);">Adjunta evidencia</div>
-              <div class="small" style="color:var(--text-md);">Fotos del producto y embalaje</div>
-            {% elif forloop.counter == 3 %}
-              <div class="fw-bold" style="color:var(--text-hi);">Revisión del caso</div>
-              <div class="small" style="color:var(--text-md);">Un asesor analizará tu solicitud</div>
-            {% elif forloop.counter == 4 %}
-              <div class="fw-bold" style="color:var(--text-hi);">Aprobación</div>
-              <div class="small" style="color:var(--text-md);">Recibirás confirmación en 2–5 días hábiles</div>
-            {% else %}
-              <div class="fw-bold" style="color:var(--text-hi);">Reembolso o cambio</div>
-              <div class="small" style="color:var(--text-md);">Según la opción seleccionada</div>
-            {% endif %}
+            <div class="fw-bold" style="color:var(--text-hi);">Completa el formulario</div>
+            <div class="small" style="color:var(--text-md);">Datos del pedido, productos y motivo</div>
           </div>
         </div>
-        {% endfor %}
+        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+          <div class="step-badge flex-shrink-0">2</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="color:var(--text-hi);">Adjunta evidencia</div>
+            <div class="small" style="color:var(--text-md);">Fotos del producto y embalaje</div>
+          </div>
+        </div>
+        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+          <div class="step-badge flex-shrink-0">3</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="color:var(--text-hi);">Revisión del caso</div>
+            <div class="small" style="color:var(--text-md);">Un asesor analizará tu solicitud</div>
+          </div>
+        </div>
+        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+          <div class="step-badge flex-shrink-0">4</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="color:var(--text-hi);">Aprobación</div>
+            <div class="small" style="color:var(--text-md);">Recibirás confirmación en 2–5 días hábiles</div>
+          </div>
+        </div>
+        <div class="d-flex gap-3 mb-4">
+          <div class="step-badge flex-shrink-0">5</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="color:var(--text-hi);">Reembolso o cambio</div>
+            <div class="small" style="color:var(--text-md);">Según la opción seleccionada</div>
+          </div>
+        </div>
 
         <div class="mt-4 pt-4" style="border-top:1px solid var(--border);">
           <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.12em;color:var(--cyan);">
@@ -508,7 +1003,6 @@
   </div>
 </div>
 
-
 <!-- OFFCANVAS — HISTORIAL DE DEVOLUCIONES -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="drawerHistorial" style="max-width:400px;">
   <div class="offcanvas-header">
@@ -538,10 +1032,6 @@
           <div class="text-uppercase fw-bold small" style="color:var(--text-md);">Aprobadas</div>
         </div>
       </div>
-    </div>
-
-    <div class="mb-4">
-      <input type="text" class="form-control form-control-sm" id="buscarDevolucion" placeholder="Buscar por nombre o radicado…">
     </div>
 
     <div id="listaDevolucionesContainer">

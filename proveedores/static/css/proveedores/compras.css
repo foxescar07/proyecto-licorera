@@ -1,0 +1,337 @@
+/* ══════════════════════════════════════════
+   COMPRAS.CSS — TEMA OSCURO TOTAL (IMPARABLE)
+   ══════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   RESET ABSOLUTO — ELIMINAR TODO BLANCO
+   ════════════════════════════════════════ */
+
+html,
+body,
+.container-fluid,
+main,
+[class*="container"],
+[class*="content"] {
+  background-color: #011936 !important;
+  color: #E2E8F0 !important;
+}
+
+/* ════════════════════════════════════════
+   CARD — LA CAUSA PRINCIPAL
+   ════════════════════════════════════════ */
+
+.card {
+  background-color: #02224a !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  border-left: 4px solid #4DA8DA !important;
+  color: #E2E8F0 !important;
+}
+
+.card-dev {
+  background-color: #02224a !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #E2E8F0 !important;
+}
+
+.card-body {
+  background-color: #02224a !important;
+  color: #E2E8F0 !important;
+}
+
+.card-header {
+  background-color: #031e3e !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #E2E8F0 !important;
+}
+
+/* Bootstrap override — card default */
+.card,
+.card-body,
+.card-header {
+  --bs-card-bg: #02224a !important;
+  --bs-card-border-color: rgba(77, 168, 218, 0.2) !important;
+  --bs-card-color: #E2E8F0 !important;
+}
+
+/* ════════════════════════════════════════
+   TABLAS
+   ════════════════════════════════════════ */
+
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: #E2E8F0 !important;
+  --bs-table-border-color: rgba(77, 168, 218, 0.08) !important;
+  background-color: transparent !important;
+  color: #E2E8F0 !important;
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: #E2E8F0 !important;
+  border-bottom-color: rgba(77, 168, 218, 0.08) !important;
+}
+
+.table thead th {
+  background-color: #031e3e !important;
+  color: #4DA8DA !important;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+.table tbody tr {
+  background-color: transparent !important;
+  color: #E2E8F0 !important;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(77, 168, 218, 0.08) !important;
+  color: #E2E8F0 !important;
+}
+
+.table tbody td {
+  background-color: transparent !important;
+  color: #E2E8F0 !important;
+  border-bottom-color: rgba(77, 168, 218, 0.08) !important;
+}
+
+/* ════════════════════════════════════════
+   FORMULARIOS E INPUTS
+   ════════════════════════════════════════ */
+
+.form-control,
+.form-select,
+textarea,
+input,
+select {
+  --bs-form-control-bg: #031e3e !important;
+  --bs-form-control-color: #E2E8F0 !important;
+  --bs-form-control-border-color: rgba(77, 168, 218, 0.2) !important;
+  background-color: #031e3e !important;
+  color: #E2E8F0 !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  border-radius: 8px !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus,
+input:focus {
+  background-color: #031e3e !important;
+  color: #E2E8F0 !important;
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 0 2px rgba(77, 168, 218, 0.2) !important;
+}
+
+.form-control::placeholder,
+textarea::placeholder {
+  color: #8FA3B1 !important;
+}
+
+.form-select option {
+  background-color: #031e3e !important;
+  color: #E2E8F0 !important;
+}
+
+.form-label {
+  color: #8FA3B1 !important;
+}
+
+.input-group-text {
+  background-color: #031e3e !important;
+  color: #8FA3B1 !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  border-right: none !important;
+}
+
+/* ════════════════════════════════════════
+   BADGES
+   ════════════════════════════════════════ */
+
+.badge {
+  --bs-badge-bg: rgba(77, 168, 218, 0.15) !important;
+  --bs-badge-color: #4DA8DA !important;
+  background-color: rgba(77, 168, 218, 0.15) !important;
+  color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.3) !important;
+  border-radius: 8px !important;
+}
+
+/* ════════════════════════════════════════
+   BOTONES
+   ════════════════════════════════════════ */
+
+.btn {
+  --bs-btn-color: #E2E8F0 !important;
+}
+
+.btn-primary {
+  --bs-btn-bg: #4DA8DA !important;
+  --bs-btn-border-color: #4DA8DA !important;
+  background-color: #4DA8DA !important;
+  border-color: #4DA8DA !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover {
+  background-color: #3a93c4 !important;
+  border-color: #3a93c4 !important;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: #E2E8F0 !important;
+  --bs-btn-border-color: rgba(77, 168, 218, 0.2) !important;
+  background-color: transparent !important;
+  color: #E2E8F0 !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: rgba(77, 168, 218, 0.15) !important;
+  border-color: #4DA8DA !important;
+  color: #E2E8F0 !important;
+}
+
+.btn-link {
+  color: #4DA8DA !important;
+}
+
+.btn-link:hover {
+  color: #7ecfef !important;
+}
+
+/* ════════════════════════════════════════
+   ALERTAS
+   ════════════════════════════════════════ */
+
+.alert {
+  --bs-alert-bg: #031e3e !important;
+  --bs-alert-color: #E2E8F0 !important;
+  --bs-alert-border-color: rgba(77, 168, 218, 0.2) !important;
+  background-color: #031e3e !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #E2E8F0 !important;
+}
+
+.alert-success-dev {
+  background-color: rgba(39, 174, 96, 0.15) !important;
+  border-color: rgba(39, 174, 96, 0.3) !important;
+  color: #27ae60 !important;
+}
+
+.alert-danger-dev {
+  background-color: rgba(231, 76, 60, 0.15) !important;
+  border-color: rgba(231, 76, 60, 0.3) !important;
+  color: #e74c3c !important;
+}
+
+.alert-info-dev {
+  background-color: rgba(77, 168, 218, 0.15) !important;
+  border-color: rgba(77, 168, 218, 0.3) !important;
+  color: #4DA8DA !important;
+}
+
+/* ════════════════════════════════════════
+   MODALES
+   ════════════════════════════════════════ */
+
+.modal-content {
+  --bs-modal-bg: #02224a !important;
+  --bs-modal-border-color: rgba(77, 168, 218, 0.2) !important;
+  background-color: #02224a !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #E2E8F0 !important;
+}
+
+.modal-header {
+  background-color: #031e3e !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #E2E8F0 !important;
+}
+
+.modal-body {
+  background-color: #02224a !important;
+  color: #E2E8F0 !important;
+}
+
+.modal-footer {
+  background-color: #031e3e !important;
+  border-top: 1px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+.modal-title {
+  color: #E2E8F0 !important;
+}
+
+.btn-close {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* ════════════════════════════════════════
+   TIPOGRAFÍA
+   ════════════════════════════════════════ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: #E2E8F0 !important;
+}
+
+p, span, div, label, small {
+  color: inherit !important;
+}
+
+.text-muted {
+  color: #8FA3B1 !important;
+}
+
+a {
+  color: #4DA8DA !important;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #7ecfef !important;
+}
+
+/* ════════════════════════════════════════
+   DROPDOWN
+   ════════════════════════════════════════ */
+
+.dropdown-menu {
+  --bs-dropdown-bg: #02224a !important;
+  --bs-dropdown-border-color: rgba(77, 168, 218, 0.2) !important;
+  background-color: #02224a !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+.dropdown-item {
+  color: #E2E8F0 !important;
+  background-color: transparent !important;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(77, 168, 218, 0.15) !important;
+  color: #E2E8F0 !important;
+}
+
+.dropdown-divider {
+  border-top: 1px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+/* ════════════════════════════════════════
+   OVERRIDE DEFINITIVO - ELIMINAR TODO BLANCO
+   ════════════════════════════════════════ */
+
+.bg-white,
+[style*="background: white"],
+[style*="background-color: white"],
+[style*="background: #fff"],
+[style*="background-color: #fff"],
+[style*="background: #ffffff"],
+[style*="background-color: #ffffff"] {
+  background-color: #02224a !important;
+  background: #02224a !important;
+  color: #E2E8F0 !important;
+}
+
+/* Eliminar cualquier blanco restante */
+[style*="white"] {
+  color: #E2E8F0 !important;
+}

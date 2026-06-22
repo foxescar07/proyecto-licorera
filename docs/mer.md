@@ -1,28 +1,25 @@
 erDiagram
 
-  User {
+  %% ── USUARIOS ───────────────────────────────────────────
+  Usuario {
     int id PK
-    string username
-    string email
+    string username UK
+    string email UK
     string password
-  }
-  Perfil {
-    int id PK
-    int user_id FK
+    string first_name
+    string last_name
     string tipo_id
     string identificacion UK
     string telefono
     string rol
     bool activo
-  }
-  Cliente {
-    int id PK
-    string nombre
-    string identificacion
-    string telefono
-    string email
+    string reset_token
+    datetime reset_token_expira
+    image foto
+    datetime date_joined
   }
 
+  %% ── PRODUCTOS ──────────────────────────────────────────
   Categoria {
     int id PK
     string codigo UK
@@ -30,35 +27,48 @@ erDiagram
     text descripcion
     int padre_id FK
   }
+
   Producto {
     int id PK
     string codigo UK
     string nombre
     text descripcion
+    int cantidad_disponible
+    decimal precio_unitario
     string unidad
     int categoria_id FK
   }
+
   PresentacionProducto {
     int id PK
     int producto_id FK
     string nombre
     int unidades
+    int cantidad
     decimal precio
   }
 
+  %% ── PROVEEDORES ────────────────────────────────────────
   Proveedor {
     int id PK
-    string nombre_empresa
+    string nombre_empresa UK
     string email UK
     string telefono
     string tipo_proveedor
     string estado
+    text motivo_sancion
+    datetime fecha_registro
+    datetime ultima_modificacion
     int registrado_por_id FK
+    int modificado_por_id FK
   }
+
   ProveedorCategoria {
+    int id PK
     int proveedor_id FK
     int categoria_id FK
   }
+
   OrdenCompra {
     int id PK
     int proveedor_id FK
@@ -67,6 +77,7 @@ erDiagram
     string estado
     decimal total
   }
+
   DetalleCompra {
     int id PK
     int orden_compra_id FK
@@ -75,6 +86,18 @@ erDiagram
     decimal precio_unitario
   }
 
+  Compra {
+    int id PK
+    int proveedor_id FK
+    int producto_id FK
+    int lote_id FK
+    int cantidad
+    decimal precio_unitario
+    datetime fecha_registro
+    bool recibida
+  }
+
+  %% ── INVENTARIO ─────────────────────────────────────────
   Lote {
     int id PK
     string numero_lote UK
@@ -83,8 +106,10 @@ erDiagram
     int stock_actual
     decimal costo_unitario
     date fecha_vencimiento
+    datetime fecha_registro
     int registrado_por_id FK
   }
+
   Inventario {
     int id PK
     int presentacion_id FK
@@ -93,8 +118,10 @@ erDiagram
     string tipo
     int cantidad
     string motivo
+    int stock_resultante
     datetime fecha_actualizada
   }
+
   SesionConteo {
     int id PK
     datetime fecha_inicio
@@ -102,6 +129,7 @@ erDiagram
     datetime fecha_fin
     int responsable_id FK
   }
+
   ConteoProducto {
     int id PK
     int sesion_id FK
@@ -109,6 +137,7 @@ erDiagram
     int cantidad_contada
     datetime actualizado_en
   }
+
   ResultadoInventario {
     int id PK
     int sesion_id FK
@@ -117,13 +146,27 @@ erDiagram
     int cantidad_fisica
     int diferencia
   }
+
   AgendaInventario {
     int id PK
     string titulo
+    text descripcion
     datetime fecha_programada
     string estado
     int creado_por_id FK
     int responsable_id FK
+  }
+
+  %% ── VENTAS ─────────────────────────────────────────────
+  Cliente {
+    int id PK
+    string tipo_id
+    string identificacion UK
+    string nombre
+    string telefono
+    string email
+    string direccion
+    datetime fecha_registro
   }
 
   Venta {
@@ -139,52 +182,72 @@ erDiagram
     decimal pago_nequi
     decimal pago_daviplata
   }
+
   DetalleVenta {
     int id PK
     int venta_id FK
-    int presentacion_id FK
-    int lote_id FK
-    int cantidad
-    decimal precio_unitario
-  }
-  AperturaCaja {
-    int id PK
-    int usuario_id FK
-    datetime fecha_apertura
-    decimal monto_base
-    json denominaciones
-  }
-  CierreCaja {
-    int id PK
-    int apertura_id FK
-    int usuario_id FK
-    datetime fecha_cierre
-    int turno
-    decimal total_contado
-    decimal total_retirado
-    decimal monto_base_siguiente
-    json denominaciones
-  }
-  Devolucion {
-    int id PK
-    int venta_id FK
-    int registrado_por_id FK
-    datetime fecha
-    string motivo
-    text observaciones
-    bool restaurar_stock
-    bool tiene_comprobante
-    decimal total_devuelto
-  }
-  DetalleDevolucion {
-    int id PK
-    int devolucion_id FK
+    int producto_id FK
     int presentacion_id FK
     int lote_id FK
     int cantidad
     decimal precio_unitario
   }
 
+  AperturaCaja {
+    int id PK
+    date fecha UK
+    decimal monto_base
+    int usuario_id FK
+    text observacion
+    json denominaciones
+    datetime creado_en
+  }
+
+  CierreCaja {
+    int id PK
+    date fecha UK
+    int apertura_id FK
+    decimal total_contado
+    decimal monto_base_siguiente
+    decimal total_retirado
+    json denominaciones
+    datetime creado_en
+  }
+
+  Devolucion {
+    int id PK
+    int venta_id FK
+    datetime fecha
+    string motivo
+    string tipo_reembolso
+    text observaciones
+    bool restaurar_stock
+    bool tiene_comprobante
+    decimal total_devuelto
+    string estado
+    string estado_retorno
+    string numero_seguimiento UK
+    int producto_cambio_id FK
+    int cantidad_cambio
+    decimal saldo_credito
+    bool credito_aplicado
+    datetime fecha_aplicacion_credito
+    string metodo_pago_devolucion
+    datetime fecha_reembolso
+    string referencia_reembolso
+  }
+
+  DetalleDevolucion {
+    int id PK
+    int devolucion_id FK
+    int producto_id FK
+    int presentacion_id FK
+    int lote_id FK
+    int cantidad
+    decimal precio_unitario
+  }
+
+  %% ── REPORTES ───────────────────────────────────────────
   ReporteVenta {
     int id PK
     int venta_id FK
@@ -195,6 +258,7 @@ erDiagram
     datetime fecha
     datetime generado_en
   }
+
   ReporteInventario {
     int id PK
     int presentacion_id FK
@@ -207,6 +271,7 @@ erDiagram
     date fecha_vencimiento
     datetime generado_en
   }
+
   ReporteCaja {
     int id PK
     int apertura_id FK
@@ -218,6 +283,7 @@ erDiagram
     decimal diferencia
     datetime generado_en
   }
+
   ReporteCompra {
     int id PK
     int orden_compra_id FK
@@ -228,6 +294,7 @@ erDiagram
     datetime fecha
     datetime generado_en
   }
+
   ReporteDevolucion {
     int id PK
     int devolucion_id FK
@@ -238,6 +305,7 @@ erDiagram
     datetime fecha
     datetime generado_en
   }
+
   ReporteLote {
     int id PK
     int lote_id FK
@@ -250,72 +318,70 @@ erDiagram
     datetime generado_en
   }
 
-  %% ── USUARIOS ───────────────────────────────────────────
-  User ||--|| Perfil : "extiende"
-  User ||--o{ Proveedor : "registra"
-  User ||--o{ Lote : "registra"
-  User ||--o{ Inventario : "registra"
-  User ||--o{ SesionConteo : "responsable"
-  User ||--o{ AgendaInventario : "crea"
-  User ||--o{ OrdenCompra : "registra"
-  User ||--o{ Venta : "vendedor"
-  User ||--o{ AperturaCaja : "abre"
-  User ||--o{ CierreCaja : "cierra"
-  User ||--o{ Devolucion : "registra"
+  %% ── RELACIONES: USUARIOS ───────────────────────────────
+  Usuario ||--o{ Proveedor : "registra"
+  Usuario ||--o{ Proveedor : "modifica"
+  Usuario ||--o{ Lote : "registra"
+  Usuario ||--o{ Inventario : "registra"
+  Usuario ||--o{ SesionConteo : "responsable"
+  Usuario ||--o{ AgendaInventario : "crea"
+  Usuario ||--o{ AgendaInventario : "responsable"
+  Usuario ||--o{ OrdenCompra : "registra"
+  Usuario ||--o{ Venta : "vendedor"
+  Usuario ||--o{ AperturaCaja : "abre"
+  Usuario ||--o{ ReporteCaja : "en"
 
-  %% ── PRODUCTOS ──────────────────────────────────────────
+  %% ── RELACIONES: PRODUCTOS ──────────────────────────────
   Categoria ||--o{ Categoria : "subcategoria"
   Categoria ||--o{ Producto : "clasifica"
   Categoria ||--o{ ProveedorCategoria : "en"
   Producto ||--o{ PresentacionProducto : "tiene"
+  Producto ||--o{ Compra : "en"
+  Producto ||--o{ DetalleVenta : "en"
+  Producto ||--o{ DetalleDevolucion : "en"
+  Producto ||--o{ Devolucion : "cambio"
 
-  %% ── COMPRAS ────────────────────────────────────────────
+  %% ── RELACIONES: PROVEEDORES ────────────────────────────
   Proveedor ||--o{ ProveedorCategoria : "surte"
   Proveedor ||--o{ OrdenCompra : "en"
+  Proveedor ||--o{ Compra : "realiza"
+  Proveedor ||--o{ ReporteCompra : "en"
   OrdenCompra ||--o{ DetalleCompra : "contiene"
+  OrdenCompra ||--o{ ReporteCompra : "en"
   DetalleCompra ||--o{ Lote : "genera"
   PresentacionProducto ||--o{ DetalleCompra : "en"
 
-  %% ── INVENTARIO ─────────────────────────────────────────
+  %% ── RELACIONES: INVENTARIO ─────────────────────────────
   PresentacionProducto ||--o{ Lote : "tiene"
   PresentacionProducto ||--o{ Inventario : "mueve"
   PresentacionProducto ||--o{ ConteoProducto : "contada"
   PresentacionProducto ||--o{ ResultadoInventario : "resultado"
+  PresentacionProducto ||--o{ ReporteInventario : "en"
+  PresentacionProducto ||--o{ ReporteCompra : "en"
+  PresentacionProducto ||--o{ ReporteLote : "en"
   Lote ||--o{ Inventario : "afecta"
+  Lote ||--o{ Compra : "referencia"
+  Lote ||--o{ ReporteInventario : "en"
+  Lote ||--o{ ReporteLote : "en"
   SesionConteo ||--o{ ConteoProducto : "contiene"
   SesionConteo ||--o{ ResultadoInventario : "genera"
-
-  %% ── VENTAS ─────────────────────────────────────────────
-  PresentacionProducto ||--o{ DetalleVenta : "vendida"
-  PresentacionProducto ||--o{ DetalleDevolucion : "devuelta"
-  Lote ||--o{ DetalleVenta : "de lote"
-  Lote ||--o{ DetalleDevolucion : "de lote"
-  Cliente ||--o{ Venta : "realiza"
-  Venta ||--o{ DetalleVenta : "contiene"
-  Venta ||--o{ Devolucion : "origina"
-  Devolucion ||--o{ DetalleDevolucion : "contiene"
-  AperturaCaja ||--o{ CierreCaja : "cierra"
-
-  %% ── REPORTES ───────────────────────────────────────────
-  Venta ||--o{ ReporteVenta : "alimenta"
-  Cliente ||--o{ ReporteVenta : "en"
-  PresentacionProducto ||--o{ ReporteVenta : "en"
-
-  Lote ||--o{ ReporteInventario : "en"
-  PresentacionProducto ||--o{ ReporteInventario : "en"
   SesionConteo ||--o{ ReporteInventario : "en"
 
+  %% ── RELACIONES: VENTAS ─────────────────────────────────
+  Cliente ||--o{ Venta : "realiza"
+  Cliente ||--o{ ReporteVenta : "en"
+  Cliente ||--o{ ReporteDevolucion : "en"
+  Venta ||--o{ DetalleVenta : "contiene"
+  Venta ||--o{ Devolucion : "origina"
+  Venta ||--o{ ReporteVenta : "alimenta"
+  Venta ||--o{ ReporteDevolucion : "en"
+  PresentacionProducto ||--o{ DetalleVenta : "vendida"
+  PresentacionProducto ||--o{ DetalleDevolucion : "devuelta"
+  PresentacionProducto ||--o{ ReporteVenta : "en"
+  Lote ||--o{ DetalleVenta : "de lote"
+  Lote ||--o{ DetalleDevolucion : "de lote"
+  Devolucion ||--o{ DetalleDevolucion : "contiene"
+  Devolucion ||--o{ ReporteDevolucion : "en"
+  AperturaCaja ||--|| CierreCaja : "cierra"
   AperturaCaja ||--o{ ReporteCaja : "en"
   CierreCaja ||--o{ ReporteCaja : "en"
-
-  OrdenCompra ||--o{ ReporteCompra : "en"
-  Proveedor ||--o{ ReporteCompra : "en"
-  PresentacionProducto ||--o{ ReporteCompra : "en"
-
-  Devolucion ||--o{ ReporteDevolucion : "en"
-  Venta ||--o{ ReporteDevolucion : "en"
-  Cliente ||--o{ ReporteDevolucion : "en"
-
-  Lote ||--o{ ReporteLote : "en"
-  PresentacionProducto ||--o{ ReporteLote : "en"
-

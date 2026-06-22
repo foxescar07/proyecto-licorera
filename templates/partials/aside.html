@@ -30,7 +30,14 @@
       <div class="cys-sb-user-row">
         <a href="{% url 'perfil_pagina' %}" class="cys-sb-user-info-btn">
           <div class="cys-sb-avatar">
-            <i class="bi bi-person-fill cys-sb-avatar__icon"></i>
+            {% if request.user.foto %}
+              <img src="{{ request.user.foto.url }}"
+                   alt="Foto"
+                   loading="eager"
+                   onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'bi bi-person-fill cys-sb-avatar__icon\'></i>';">
+            {% else %}
+              <i class="bi bi-person-fill cys-sb-avatar__icon"></i>
+            {% endif %}
           </div>
           <div class="cys-sb-user-info">
             <div class="cys-sb-user-name">
@@ -60,20 +67,26 @@
       <div class="cys-sb-label">Navegación</div>
       <nav class="cys-sb-nav">
 
-        <!-- TABLERO -->
         <a href="{% url 'principal' %}"
            class="cys-sb-link {% block nav_tablero %}{% endblock %}">
           <i class="bi bi-grid-1x2-fill"></i>
           <span>Tablero</span>
         </a>
 
-        <!-- VENTAS -->
-        <button class="cys-sb-link cys-sb-link--parent"
-                onclick="toggleSubmenu(event, this, 'submenuVentas')">
-          <i class="bi bi-receipt"></i>
-          <span class="flex-grow-1">Ventas</span>
-          <i class="bi bi-chevron-down cys-chevron"></i>
-        </button>
+        <!-- VENTAS: link directo + chevron para submenú -->
+        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+          <a href="{% url 'ventas_lista' %}"
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
+             style="color:inherit; padding:10px 14px;">
+            <i class="bi bi-receipt"></i>
+            <span class="flex-grow-1">Ventas</span>
+          </a>
+          <button id="btnVentas"
+                  onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuVentas')"
+                  style="background:none; border:none; color:inherit; padding:10px 14px; cursor:pointer;">
+            <i class="bi bi-chevron-down cys-chevron"></i>
+          </button>
+        </div>
         <div class="cys-sb-submenu" id="submenuVentas">
           <a href="{% url 'reportes' %}" class="cys-sb-sublink">
             <i class="bi bi-bar-chart-fill"></i> Reportes
@@ -84,49 +97,69 @@
         </div>
 
         <!-- PRODUCTOS -->
-        <button class="cys-sb-link cys-sb-link--parent"
-                onclick="toggleSubmenu(event, this, 'submenuProductos')">
-          <i class="bi bi-box-seam-fill"></i>
-          <span class="flex-grow-1">Productos</span>
-          <i class="bi bi-chevron-down cys-chevron"></i>
-        </button>
-        <div class="cys-sb-submenu" id="submenuProductos">
-          <a href="{% url 'lista_productos' %}" class="cys-sb-sublink">
-            <i class="bi bi-box-seam"></i> Lista de Productos
-          </a>
-          <a href="{% url 'gestion_productos' %}" class="cys-sb-sublink">
-            <i class="bi bi-sliders"></i> Gestión de Productos
-          </a>
-          <a href="{% url 'categorias_lista' %}" class="cys-sb-sublink">
-            <i class="bi bi-tags-fill"></i> Categorías
-          </a>
-        </div>
 
-        <!-- INVENTARIO -->
-        <button class="cys-sb-link cys-sb-link--parent"
-                onclick="toggleSubmenu(event, this, 'submenuInventario')">
-          <i class="bi bi-clipboard-data-fill"></i>
-          <span class="flex-grow-1">Inventario</span>
-          <i class="bi bi-chevron-down cys-chevron"></i>
-        </button>
-        <div class="cys-sb-submenu" id="submenuInventario">
-          <a href="{% url 'inventario_home' %}" class="cys-sb-sublink">
-            <i class="bi bi-house-fill"></i> Inicio Inventario
-          </a>
-          <a href="{% url 'gestion_inventario' %}" class="cys-sb-sublink">
-            <i class="bi bi-boxes"></i> Gestión de Inventario
-          </a>
-        </div>
+    <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+  <a href="{% url 'lista_productos' %}" 
+     class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
+     style="color:inherit; padding:10px 14px;">
+    <i class="bi bi-box-seam-fill"></i>
+    <span class="flex-grow-1">Productos</span>
+  </a>
+  <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuProductos')"
+          style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+    <i class="bi bi-chevron-down cys-chevron"></i>
+  </button>
+</div>
+<div class="cys-sb-submenu" id="submenuProductos">
+  <a href="{% url 'gestion_productos' %}" class="cys-sb-sublink">
+    <i class="bi bi-box-seam"></i> Gestión de Productos
+  </a>
+  <a href="{% url 'categorias_lista' %}" class="cys-sb-sublink">
+    <i class="bi bi-tags-fill"></i> Categorías
+  </a>
+</div>
+     
+
+<!-- INVENTARIO -->
+<div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+  <a href="{% url 'inventario_home' %}" 
+     class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
+     style="color:inherit; padding:10px 14px;">
+    <i class="bi bi-clipboard-data-fill"></i>
+    <span class="flex-grow-1">Inventario</span>
+  </a>
+  <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuInventario')"
+          style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+    <i class="bi bi-chevron-down cys-chevron"></i>
+  </button>
+</div>
+
+ <div class="cys-sb-submenu" id="submenuInventario">
+  <a href="{% url 'registrar_salida_view' %}" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
+    <i class="bi bi-box-arrow-up"></i> Registrar Salida
+  </a>
+  <a href="{% url 'gestion_lotes_view' %}" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
+    <i class="bi bi-tag-fill"></i> Gestión de Lotes
+  </a>
+  <a href="{% url 'gestion_stock' %}" class="cys-sb-sublink {% block nav_stock %}{% endblock %}">
+    <i class="bi bi-layers"></i> Stock & Productos
+  </a>
+</div>
+
+      
 
         <!-- PROVEEDORES -->
-        <button class="cys-sb-link cys-sb-link--parent"
+        <button id="btnProveedores" class="cys-sb-link cys-sb-link--parent"
                 onclick="toggleSubmenu(event, this, 'submenuProveedores')">
           <i class="bi bi-truck"></i>
           <span class="flex-grow-1">Proveedores</span>
           <i class="bi bi-chevron-down cys-chevron"></i>
         </button>
         <div class="cys-sb-submenu" id="submenuProveedores">
-          <a href="#" class="cys-sb-sublink">
+          <a href="{% url 'lista_proveedores' %}" class="cys-sb-sublink">
+            <i class="bi bi-truck"></i> Lista de Proveedores
+          </a>
+          <a href="{% url 'registrar_compra' %}" class="cys-sb-sublink">
             <i class="bi bi-cart-plus-fill"></i> Compras
           </a>
         </div>
@@ -136,7 +169,6 @@
 
     <hr class="cys-sb-divider">
 
-    <!-- ESTADÍSTICAS -->
     <div class="cys-sb-section">
       <div class="cys-sb-label">Resumen</div>
       <div class="cys-sb-stats">
@@ -175,7 +207,7 @@
 
     <hr class="cys-sb-divider">
 
-    <a href="#" class="cys-sb-link cys-sb-link--config">
+    <a href="{% url 'configuracion:index' %}" class="cys-sb-link cys-sb-link--config">
       <i class="bi bi-sliders"></i>
       <span>Configuración</span>
     </a>
@@ -193,7 +225,6 @@
 <script>
 (function () {
 
-  // Toggle clicked submenu without closing other submenus
   window.toggleSubmenu = function (e, btn, id) {
     e.stopPropagation();
     const sub = document.getElementById(id);
@@ -201,61 +232,51 @@
     btn.classList.toggle('abierto');
   };
 
-  // Auto-highlight active links and auto-open their parent submenus
   const normalizePath = p => p.replace(/\/+$/, '') || '/';
   const currentPath = normalizePath(window.location.pathname);
   const links = document.querySelectorAll('.cys-sb-link, .cys-sb-sublink, .cys-sb-user-drop-link');
-  
-  let bestMatch = null;
-  let maxLength = -1;
 
+  let bestMatch = null, maxLength = -1;
   links.forEach(link => {
     const href = link.getAttribute('href');
     if (href && href !== '#') {
       const normalizedHref = normalizePath(href);
-      const isExactMatch = currentPath === normalizedHref;
-      const isPrefixMatch = currentPath.startsWith(normalizedHref + '/') || (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
-      
-      if (isExactMatch || isPrefixMatch) {
-        // Choose the most specific (longest) matching path
-        if (normalizedHref.length > maxLength) {
-          maxLength = normalizedHref.length;
-          bestMatch = link;
-        }
+      const isExact  = currentPath === normalizedHref;
+      const isPrefix = currentPath.startsWith(normalizedHref + '/') ||
+                       (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
+      if ((isExact || isPrefix) && normalizedHref.length > maxLength) {
+        maxLength = normalizedHref.length; bestMatch = link;
       }
     }
   });
 
   if (bestMatch) {
     bestMatch.classList.add('active');
-    
-    // If it's a sublink, find its parent submenu and auto-open it
     if (bestMatch.classList.contains('cys-sb-sublink')) {
       const parentSubmenu = bestMatch.closest('.cys-sb-submenu');
       if (parentSubmenu) {
         parentSubmenu.classList.add('abierto');
         const parentBtn = parentSubmenu.previousElementSibling;
-        if (parentBtn && parentBtn.classList.contains('cys-sb-link--parent')) {
-          parentBtn.classList.add('abierto');
-          parentBtn.classList.add('active');
+        if (parentBtn?.classList.contains('cys-sb-link--parent')) {
+          parentBtn.classList.add('abierto', 'active');
         }
       }
     }
   }
 
-  const sidebar = document.getElementById('sidebarRight');
-  if (!sidebar) return;
-
-  sidebar.addEventListener('show.bs.offcanvas', () => {
-    document.body.classList.add('sidebar-open');
-  });
-  sidebar.addEventListener('hide.bs.offcanvas', () => {
-    document.body.classList.remove('sidebar-open');
-  });
-
-  if (sidebar.classList.contains('show')) {
-    document.body.classList.add('sidebar-open');
+  // Abrir submenú de ventas automáticamente si estamos en /ventas/
+  if (currentPath.startsWith('/ventas')) {
+    document.getElementById('submenuVentas')?.classList.add('abierto');
+  }
+  if (currentPath.startsWith('/proveedores') || currentPath.startsWith('/compra')) {
+    document.getElementById('submenuProveedores')?.classList.add('abierto');
   }
 
+  const sidebar = document.getElementById('sidebarRight');
+  if (!sidebar) return;
+  sidebar.addEventListener('show.bs.offcanvas', () => document.body.classList.add('sidebar-open'));
+  sidebar.addEventListener('hide.bs.offcanvas', () => document.body.classList.remove('sidebar-open'));
+  if (sidebar.classList.contains('show')) document.body.classList.add('sidebar-open');
+
 })();
-</script>  
+</script>

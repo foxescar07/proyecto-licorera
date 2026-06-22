@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.conf import settings # type: ignore
 from django.db import models
 from django.utils import timezone
 
@@ -10,6 +10,13 @@ class Lote(models.Model):
     presentacion      = models.ForeignKey(
         PresentacionProducto,
         on_delete=models.PROTECT,
+        related_name='lotes'
+    )
+    detalle_compra    = models.ForeignKey(
+        'proveedores.DetalleCompra',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='lotes'
     )
     stock_actual      = models.PositiveIntegerField(default=0)
@@ -34,7 +41,6 @@ class Lote(models.Model):
     def dias_para_vencer(self):
         if not self.fecha_vencimiento:
             return None
-        from django.utils import timezone
         return (self.fecha_vencimiento - timezone.now().date()).days
 
     @property
@@ -73,6 +79,7 @@ class Inventario(models.Model):
     tipo              = models.CharField(max_length=20, choices=TIPO_CHOICES)
     cantidad          = models.IntegerField()
     motivo            = models.CharField(max_length=255, blank=True)
+    stock_resultante  = models.PositiveIntegerField(null=True, blank=True)
     fecha_actualizada = models.DateTimeField(auto_now_add=True)
 
     class Meta:

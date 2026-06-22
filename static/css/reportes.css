@@ -5,22 +5,20 @@
 
 /* ── Variables ── */
 :root {
-  /* Paleta principal */
   --color-bg:         #011936;
   --color-bg-card:    #02224a;
   --color-bg-hover:   #032d60;
   --color-surface:    #031e3e;
-  --color-carmesi:    #912F40;
-  --color-mauve:      #AF8D86;
-  --color-menta:      #EFF8E2;
+  --color-carmesi:    #4DA8DA;
+  --color-mauve:      #8FA3B1;
+  --color-menta:      #4DA8DA;
   --color-blanco:     #FDFFFC;
 
-  /* Acentos semánticos (mapeados a la paleta) */
   --azul-borde:        rgba(239, 248, 226, 0.1);
-  --texto-muted:       #AF8D86;
-  --azul-acento:       #EFF8E2;
-  --verde-acento:      #c8e6a0;
-  --morado-acento:     #c9b8f0;
+  --texto-muted:       #8FA3B1;
+  --azul-acento:       #4DA8DA;
+  --verde-acento:      #4DA8DA;
+  --morado-acento:     #4DA8DA;
   --naranja-acento:    #e8a87c;
   --amarillo-acento:   #f0d080;
   --rojo-acento:       #912F40;
@@ -28,7 +26,7 @@
 }
 
 /* ────────────────────────────────────
-   MODAL BASE (fondo oscuro navy)
+   MODAL BASE
 ──────────────────────────────────── */
 .cys-modal {
   background-color: var(--color-bg) !important;
@@ -134,6 +132,14 @@
   font-size: .85rem;
 }
 
+.cys-td--empty {
+  width: 100% !important;
+  display: table-cell !important;
+  text-align: center !important;
+  padding: 40px 20px !important;
+  background: transparent !important;
+}
+
 .cys-empty-box i {
   display: block;
   font-size: 2.2rem;
@@ -155,13 +161,13 @@
   margin-bottom: .75rem;
 }
 
-.cys-report-card-icon--inv      { background: rgba(239,248,226,.12); color: var(--azul-acento); }
-.cys-report-card-icon--prov     { background: rgba(200,230,160,.12); color: var(--verde-acento); }
-.cys-report-card-icon--diario   { background: rgba(201,184,240,.12); color: var(--morado-acento); }
-.cys-report-card-icon--analisis { background: rgba(232,168,124,.12); color: var(--naranja-acento); }
-.cys-report-card-icon--proxima  { background: rgba(201,144,64,.1);   color: var(--dorado-acento); }
+.cys-report-card-icon--inv      { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--prov     { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--compras  { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--diario   { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--analisis { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--proxima  { background: rgba(77, 168, 218, 0.1);  color: #4DA8DA; }
 
-/* ── Tarjeta — textos ── */
 .cys-report-card__title {
   font-weight: 700;
   font-size: .97rem;
@@ -176,6 +182,7 @@
 
 .cys-report-card__link-text--inv      { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--prov     { color: var(--verde-acento);   font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--compras  { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--diario   { color: var(--morado-acento);  font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--analisis { color: var(--naranja-acento); font-size: .8rem; font-weight: 600; }
 .cys-report-card__link-text--proxima  { color: var(--dorado-acento);  font-size: .8rem; font-weight: 600; }
@@ -185,41 +192,127 @@
 ──────────────────────────────────── */
 .cys-inv-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: .84rem;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: .88rem;
+  background: transparent;
 }
 
-.cys-inv-table thead tr {
-  border-bottom: 1px solid var(--azul-borde);
-  background-color: rgba(239,248,226,0.03);
-}
-
-.cys-inv-table th {
-  padding: 10px 14px;
-  color: var(--texto-muted);
-  font-weight: 600;
-  font-size: .75rem;
+.cys-inv-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  color: #4DA8DA;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .04em;
-  white-space: nowrap;
+  letter-spacing: 0.1em;
+  padding: 14px 16px;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.3);
 }
 
 .cys-inv-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(239,248,226,.07);
-  vertical-align: middle;
-  color: var(--color-blanco);
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.01);
 }
+
+.cys-inv-table tbody tr:hover td {
+  background: rgba(77, 168, 218, 0.08);
+  color: #fff;
+  border-bottom-color: rgba(77, 168, 218, 0.2);
+}
+
+.cys-inv-table .cys-qty {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--azul-acento);
+}
+
+/* ────────────────────────────────────
+   MODAL KPI
+──────────────────────────────────── */
+.cys-modal-kpi {
+  padding: 1.25rem !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-bottom: 3px solid #4DA8DA !important;
+  background: var(--color-bg-card) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  margin: 0 !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.cys-modal-kpi .cys-summary-card__icon {
+  width: 42px;
+  height: 42px;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.cys-modal-kpi .cys-summary-card__val {
+  font-size: 1.4rem;
+}
+
+.cys-modal .dt-container {
+  padding: 1rem;
+}
+
+.cys-modal .dt-search input {
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
+.cys-modal-kpi .cys-summary-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ────────────────────────────────────
+   TABLA HISTORIAL DE VENTAS
+──────────────────────────────────── */
+#reportes-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  margin-top: 1rem !important;
+  border: 1px solid rgba(77, 168, 218, 0.1) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#reportes-table thead th {
+  background: rgba(77, 168, 218, 0.08) !important;
+  border-bottom: 2px solid var(--azul-acento) !important;
+  padding: 14px 10px !important;
+  color: var(--azul-claro) !important;
+}
+
+#reportes-table th:nth-child(1),
+#reportes-table td:nth-child(1):not([colspan]) { text-align: center; width: 60px; }
+
+#reportes-table th:nth-child(4), #reportes-table td:nth-child(4):not([colspan]),
+#reportes-table th:nth-child(5), #reportes-table td:nth-child(5):not([colspan]),
+#reportes-table th:nth-child(6), #reportes-table td:nth-child(6):not([colspan]) { text-align: right; }
+
+#reportes-table tbody tr:hover {
+  background-color: rgba(77, 168, 218, 0.05) !important;
+}
+
+.cys-qty, .cys-td--green { text-align: right; }
 
 .cys-inv-table tbody tr:last-child td { border-bottom: none; }
 .cys-inv-table tbody tr:hover         { background: rgba(239,248,226,.04); }
 
-/* ── Modificadores de celda ── */
 .cys-td--muted { color: var(--texto-muted); }
 .cys-td--bold  { font-weight: 600; color: var(--color-blanco); }
 .cys-td--green { color: var(--verde-acento); }
 
-/* ── Estado de cantidad ── */
 .cys-qty--ok  { color: var(--verde-acento);    font-weight: 700; }
 .cys-qty--low { color: var(--amarillo-acento); font-weight: 700; }
 .cys-qty--out { color: var(--rojo-acento);     font-weight: 700; }
@@ -240,7 +333,7 @@
 .cys-badge--rojo     { background: rgba(145,47,64,.2);     color: #e87a8a; }
 
 /* ────────────────────────────────────
-   STATS MINI (modales)
+   STATS MINI
 ──────────────────────────────────── */
 .cys-modal__stats {
   display: grid;
@@ -276,7 +369,7 @@
 }
 
 /* ────────────────────────────────────
-   SECCIÓN ENTRADAS / SALIDAS (encabezados)
+   SECCIÓN ENTRADAS / SALIDAS
 ──────────────────────────────────── */
 .cys-inv-section-header {
   padding: 14px 16px 6px;
@@ -330,39 +423,6 @@
 .cys-modal-meta__accent--prov    { color: var(--verde-acento);  font-weight: 600; }
 
 /* ────────────────────────────────────
-   RESUMEN DIARIO — STATS
-──────────────────────────────────── */
-.cys-rd-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  padding: 16px;
-  background-color: var(--color-bg);
-}
-
-.cys-rd-stat {
-  text-align: center;
-  background: rgba(239,248,226,.05);
-  border-radius: 10px;
-  padding: 14px 8px;
-  border: 1px solid rgba(239,248,226,.1);
-}
-
-.cys-rd-stat__val            { font-size: 1.55rem; font-weight: 800; line-height: 1; }
-.cys-rd-stat__val--verde     { color: var(--verde-acento); }
-.cys-rd-stat__val--azul      { color: var(--azul-acento); }
-.cys-rd-stat__val--amarillo  { color: var(--amarillo-acento); }
-.cys-rd-stat__val--rojo      { color: #e87a8a; }
-
-.cys-rd-stat__label {
-  font-size: .65rem;
-  color: var(--texto-muted);
-  margin-top: 6px;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-
-/* ────────────────────────────────────
    ANÁLISIS DE VENTAS — tabla card
 ──────────────────────────────────── */
 .cys-av-table-card {
@@ -388,7 +448,7 @@
 }
 
 /* ────────────────────────────────────
-   BÚSQUEDA ACTIVA (indicador de filtros)
+   BÚSQUEDA ACTIVA
 ──────────────────────────────────── */
 .cys-busqueda-activa {
   padding: 8px 16px 0;
@@ -401,7 +461,7 @@
 }
 
 /* ────────────────────────────────────
-   TABS (nav-tabs dentro de modales)
+   TABS
 ──────────────────────────────────── */
 .cys-modal .nav-tabs {
   border-bottom: 1px solid rgba(239,248,226,.12);
@@ -434,15 +494,12 @@
   background-color: var(--color-bg);
 }
 
-/* ────────────────────────────────────
-   MODAL BODY
-──────────────────────────────────── */
 .cys-modal .modal-body {
   background-color: var(--color-bg);
 }
 
 /* ────────────────────────────────────
-   TARJETAS RESUMEN — altura uniforme y estilo
+   TARJETAS RESUMEN
 ──────────────────────────────────── */
 .cys-reporte-label {
   font-size: .72rem;
@@ -465,7 +522,7 @@
 
 /* ────────────────────────────────────
    TARJETAS DE REPORTE INTERACTIVAS
-   ──────────────────────────────────── */
+──────────────────────────────────── */
 .cys-card--interactive {
   cursor: pointer !important;
   display: flex !important;
@@ -486,14 +543,13 @@
   flex-direction: column !important;
 }
 
-/* Modificadores de color para bordes de reportes */
-.cys-card--inv { border-top: 2px solid #4DA8DA !important; }
-.cys-card--prov { border-top: 2px solid #1D9E75 !important; }
-.cys-card--proxima { border-top: 2px solid #BA7517 !important; }
-.cys-card--diario { border-top: 2px solid #7F77DD !important; }
-.cys-card--analisis { border-top: 2px solid #E8834A !important; }
+.cys-card--inv,
+.cys-card--prov,
+.cys-card--compras,
+.cys-card--proxima,
+.cys-card--diario,
+.cys-card--analisis { border-top: 2px solid #4DA8DA !important; }
 
-/* ── Stats Grid dentro de la tarjeta ── */
 .cys-report-card__stats-grid {
   display: flex;
   gap: 4px;
@@ -532,7 +588,6 @@
   margin-top: 2px;
 }
 
-/* ── Dos columnas dentro de las tarjetas ── */
 .cys-report-card-layout {
   display: grid;
   grid-template-columns: 80px 1fr;
@@ -571,8 +626,8 @@
 }
 
 /* ────────────────────────────────────
-   SCROLL SNAP (Efecto Imán)
-   ──────────────────────────────────── */
+   SCROLL SNAP
+──────────────────────────────────── */
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
@@ -590,7 +645,7 @@ html {
 
 @media (max-width: 992px) {
   html {
-    scroll-snap-type: none; /* Desactivar efecto imán en pantallas pequeñas */
+    scroll-snap-type: none;
   }
   .cys-snap-section {
     min-height: auto;
@@ -599,9 +654,8 @@ html {
 }
 
 /* ────────────────────────────────────
-   DATATABLES DARK THEME INTEGRATION
-   ──────────────────────────────────── */
-/* Quitar fondo blanco de la tabla */
+   DATATABLES DARK THEME
+──────────────────────────────────── */
 table.dataTable,
 table.dataTable th,
 table.dataTable td,
@@ -616,7 +670,6 @@ table.dataTable tbody tr:hover td {
   background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
-/* Estilo para el buscador (input) */
 .dt-search input {
   background-color: var(--fondo-card2, #111f33) !important;
   border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
@@ -637,29 +690,6 @@ table.dataTable tbody tr:hover td {
   font-weight: 600 !important;
 }
 
-/* Estilo para el selector de longitud (length select) */
-.dt-length select {
-  background-color: var(--fondo-card2, #111f33) !important;
-  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
-  color: var(--texto, #E8EDF2) !important;
-  border-radius: 8px !important;
-  padding: 4px 24px 4px 10px !important;
-  outline: none !important;
-}
-
-.dt-length label {
-  color: var(--texto-muted, #AF8D86) !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-}
-
-/* Estilos de información e indicadores */
-.dt-info {
-  color: var(--texto-muted, #AF8D86) !important;
-  font-size: 0.8rem !important;
-}
-
-/* Paginación de DataTables */
 .dt-paging .pagination .page-link {
   background-color: var(--fondo-card2, #111f33) !important;
   border-color: var(--azul-borde, rgba(77,168,218,.35)) !important;
@@ -686,37 +716,25 @@ table.dataTable tbody tr:hover td {
   color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* ── Estilos de Campos de Fecha del Historial ── */
-#filtro-fecha-inicio,
-#filtro-fecha-fin {
-  background-color: var(--fondo-card2, #111f33) !important;
-  border: 1px solid var(--azul-borde, rgba(77,168,218,.35)) !important;
-  color: var(--texto, #E8EDF2) !important;
-  border-radius: 8px !important;
-  padding: 4px 10px !important;
-  outline: none !important;
-  color-scheme: dark !important; /* Selector de fecha oscuro nativo */
-  font-size: 0.85rem !important;
-  transition: border-color 0.2s, box-shadow 0.2s;
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(100%) saturate(5) hue-rotate(175deg);
+  cursor: pointer;
 }
 
-#filtro-fecha-inicio:focus,
-#filtro-fecha-fin:focus {
-  border-color: var(--azul-claro, #4DA8DA) !important;
-  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+.cys-pagination .page-link {
+  background-color: #031e3e !important;
+  color: #4DA8DA !important;
+  border: 1px solid #4DA8DA !important;
 }
 
-.cys-table-filters-container {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  padding: 10px 14px;
-  border-radius: 10px;
-  margin-top: 10px;
+.cys-pagination .page-item.active .page-link {
+  background-color: #4DA8DA !important;
+  color: #011936 !important;
 }
 
 /* ────────────────────────────────────
-   TARJETAS DE RESUMEN KPI MEJORADAS
-   ──────────────────────────────────── */
+   TARJETAS DE RESUMEN KPI
+──────────────────────────────────── */
 .cys-summary-card {
   display: flex !important;
   flex-direction: row !important;
@@ -772,6 +790,52 @@ table.dataTable tbody tr:hover td {
   letter-spacing: 0.02em;
 }
 
+/* ────────────────────────────────────
+   RESPONSIVE TABLES
+──────────────────────────────────── */
+@media (max-width: 768px) {
+  .cys-inv-table thead { display: none; }
+  .cys-inv-table, .cys-inv-table tbody, .cys-inv-table tr, .cys-inv-table td {
+    display: block;
+    width: 100%;
+  }
+  .cys-inv-table tr {
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--azul-borde);
+    border-radius: 12px;
+    padding: 10px;
+    background: var(--color-bg-card);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  .cys-inv-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    text-align: right !important;
+  }
+  .cys-inv-table td[colspan], .cys-td--empty {
+    display: block !important;
+    text-align: center !important;
+    border: none !important;
+  }
+  .cys-inv-table td[colspan]::before, .cys-td--empty::before { display: none !important; }
+  .cys-inv-table td:last-child { border-bottom: none !important; }
+  .cys-inv-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--texto-muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-right: 1rem;
+    text-align: left;
+  }
+  .cys-inv-table td[colspan] { display: block; text-align: center; border: none !important; }
+  .cys-inv-table td[colspan]::before { display: none; }
+}
+
 .cys-summary-card__sub {
   font-size: 0.65rem;
   color: var(--texto-muted);
@@ -779,48 +843,377 @@ table.dataTable tbody tr:hover td {
   letter-spacing: 0.02em;
 }
 
-/* Modificadores Semánticos de Resumen */
-.cys-summary-card--ventas {
-  border-left: 4px solid #2ecc71 !important;
-}
-.cys-summary-card__icon--ventas {
-  background: rgba(46, 204, 113, 0.12);
-  color: #2ecc71;
-}
-.cys-summary-card--ventas .cys-summary-card__label {
-  color: #6ee7b7;
-}
-.cys-summary-card--ventas .cys-summary-card__val {
-  color: #2ecc71;
-  text-shadow: 0 0 12px rgba(46, 204, 113, 0.25);
+.cys-summary-card--ventas    { border-left: 4px solid #4DA8DA !important; }
+.cys-summary-card__icon--ventas { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-summary-card--ventas .cys-summary-card__label { color: #7ecfef; }
+.cys-summary-card--ventas .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
+
+.cys-summary-card--productos { border-left: 4px solid #4DA8DA !important; }
+.cys-summary-card__icon--productos { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-summary-card--productos .cys-summary-card__label { color: #7ecfef; }
+.cys-summary-card--productos .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
+
+.cys-summary-card--clientes  { border-left: 4px solid #4DA8DA !important; }
+.cys-summary-card__icon--clientes { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-summary-card--clientes .cys-summary-card__label { color: #7ecfef; }
+.cys-summary-card--clientes .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
+
+/* ════════════════════════════════════════════════════════════
+   HISTORIAL DE VENTAS — SECCIÓN COMPLETA (DISEÑO FINAL)
+   ════════════════════════════════════════════════════════════ */
+
+/* CONTENEDOR */
+.cys-card:has(#reportes-table) {
+  background: #041d3d;
+  border: 1px solid rgba(77,168,218,.08);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.cys-summary-card--productos {
-  border-left: 4px solid #4DA8DA !important;
-}
-.cys-summary-card__icon--productos {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
-}
-.cys-summary-card--productos .cys-summary-card__label {
-  color: #7ecfef;
-}
-.cys-summary-card--productos .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+/* -----------------------------------
+   FILTROS — alineación perfecta
+----------------------------------- */
+.cys-hv-filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px 20px;
 }
 
-.cys-summary-card--clientes {
-  border-left: 4px solid #a18df2 !important;
+.cys-hv-date-group {
+  display: flex;
+  flex-direction: column;
 }
-.cys-summary-card__icon--clientes {
-  background: rgba(161, 141, 242, 0.12);
-  color: #a18df2;
+
+.cys-hv-date-label {
+  color: #7dbce6;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 6px;
 }
-.cys-summary-card--clientes .cys-summary-card__label {
-  color: #c4b5fd;
+
+.cys-hv-date-input-wrap {
+  position: relative;
 }
-.cys-summary-card--clientes .cys-summary-card__val {
-  color: #a18df2;
-  text-shadow: 0 0 12px rgba(161, 141, 242, 0.25);
+
+.cys-hv-date-input {
+  box-sizing: border-box !important;
+  width: 160px !important;
+  flex: none !important;
+  height: 40px !important;
+  padding: 0 36px 0 14px;
+  background: #071b3a !important;
+  border: 1px solid #1f4f80 !important;
+  border-radius: 10px !important;
+  color: #fff !important;
+  font-size: .88rem;
+  color-scheme: dark;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.cys-hv-date-input:focus {
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 0 3px rgba(77,168,218,.18);
+  outline: none;
+}
+
+.cys-hv-cal-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4DA8DA;
+  pointer-events: none;
+  font-size: .9rem;
+}
+
+/* -----------------------------------
+   BOTONES — mismo tamaño exacto que los inputs de fecha
+   width: 160px  |  height: 40px  |  border-radius: 10px
+----------------------------------- */
+.cys-hv-btn-filtrar,
+.cys-hv-btn-eliminar,
+.cys-hv-btn-limpiar,
+.cys-hv-btn-exportar {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 50px !important;
+
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+  font-family: inherit !important;
+  font-size: .88rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  transition: background .2s, border-color .2s, color .2s !important;
+  border: 1px solid #1f4f80 !important;
+  background: #071b3a !important;
+  color: #4DA8DA !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.cys-hv-btn-filtrar:hover,
+.cys-hv-btn-limpiar:hover,
+.cys-hv-btn-eliminar:hover {
+  background: rgba(77,168,218,.14) !important;
+  color: #7cd4ff !important;
+  border-color: #4DA8DA !important;
+}
+
+/* Exportar: texto blanco, mismo tamaño */
+.cys-hv-btn-exportar {
+  color: #fff !important;
+}
+
+.cys-hv-btn-exportar:hover {
+  background: #0b274d !important;
+  color: #fff !important;
+  border-color: #4DA8DA !important;
+}
+
+.cys-hv-btn-exportar::after {
+  vertical-align: 0 !important;
+}
+
+/* Dropdown */
+.cys-hv-dropdown {
+  background: #071b3a;
+  border: 1px solid rgba(77,168,218,.25);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cys-hv-dropdown-item {
+  color: #fff;
+  padding: 10px 14px;
+}
+
+.cys-hv-dropdown-item:hover {
+  background: rgba(77,168,218,.12);
+  color: #fff;
+}
+
+/* -----------------------------------
+   TABLA INTERNA
+----------------------------------- */
+#reportes-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+#reportes-table thead th {
+  background: #0c2b54 !important;
+  color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .92rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  padding: 16px 14px !important;
+  border-bottom: 2px solid #4DA8DA !important;
+}
+
+#reportes-table tbody td {
+  background: transparent !important;
+  color: #EAF3FA !important;
+  padding: 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+#reportes-table tbody tr {
+  background: transparent !important;
+}
+
+#reportes-table tbody tr:hover td {
+  background: rgba(77,168,218,.05) !important;
+}
+
+#reportes-table th:nth-child(1),
+#reportes-table td:nth-child(1) {
+  width: 60px;
+  text-align: center;
+}
+
+#reportes-table th:nth-child(4),
+#reportes-table td:nth-child(4),
+#reportes-table th:nth-child(5),
+#reportes-table td:nth-child(5),
+#reportes-table th:nth-child(6),
+#reportes-table td:nth-child(6) {
+  text-align: right;
+}
+
+/* Estado vacío dentro de la tabla */
+.cys-td--empty {
+  padding: 80px 20px !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.cys-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8aa6bf;
+  font-size: 1rem;
+}
+
+.cys-empty-box i {
+  font-size: 3rem;
+  color: rgba(77,168,218,.25);
+  margin-bottom: 12px;
+}
+
+/* -----------------------------------
+   FOOTER — paginación + info bien separados
+----------------------------------- */
+.cys-hv-table-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 20px 24px 24px !important;
+  border-top: 1px solid rgba(255,255,255,.05) !important;
+  margin-top: 0 !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Info "Mostrando X a X de X ventas" */
+.cys-hv-table-footer .dt-info,
+.cys-hv-table-footer .dataTables_info {
+  color: #7dbce6 !important;
+  font-size: .82rem !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* Paginación a la derecha */
+.cys-hv-table-footer .dt-paging,
+.cys-hv-table-footer .dataTables_paginate {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* -----------------------------------
+   PAGINACIÓN — botones
+----------------------------------- */
+.cys-hv-pagination-wrap .page-link,
+.cys-hv-table-footer .page-link,
+.pagination .page-link {
+  background: #0a2348 !important;
+  border: 1px solid rgba(77,168,218,.2) !important;
+  color: #4DA8DA !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: .85rem !important;
+  transition: background .2s, color .2s !important;
+}
+
+.cys-hv-pagination-wrap .active .page-link,
+.cys-hv-table-footer .active .page-link,
+.pagination .active .page-link {
+  background: #4DA8DA !important;
+  color: #03152d !important;
+  border-color: #4DA8DA !important;
+  font-weight: 700 !important;
+}
+
+.cys-hv-pagination-wrap .page-link:hover,
+.cys-hv-table-footer .page-link:hover,
+.pagination .page-link:hover {
+  background: rgba(77,168,218,.2) !important;
+  color: #7cd4ff !important;
+  border-color: #4DA8DA !important;
+}
+
+.cys-hv-pagination-wrap .disabled .page-link,
+.cys-hv-table-footer .disabled .page-link,
+.pagination .disabled .page-link {
+  background: rgba(255,255,255,.02) !important;
+  border-color: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.2) !important;
+}
+
+/* -----------------------------------
+   DATATABLES — contenedor limpio
+----------------------------------- */
+.dataTables_wrapper,
+.dt-container {
+  background: transparent !important;
+}
+
+.dataTables_info,
+.dt-info {
+  color: #7dbce6 !important;
+}
+
+.dataTables_paginate,
+.dt-paging {
+  margin-top: 0 !important;
+}
+
+.cys-inv-table {
+  border-spacing: 0 !important;
+}
+
+table.dataTable {
+  border-spacing: 0 !important;
+}
+
+/* Inputs de fecha legacy (por si se usan fuera del historial) */
+#filtro-fecha-inicio,
+#filtro-fecha-fin {
+  background-color: #011936 !important;
+  border: 1px solid #4DA8DA !important;
+  color: #FDFFFC !important;
+  color-scheme: dark !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  outline: none !important;
+  font-size: 0.85rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#filtro-fecha-inicio:focus,
+#filtro-fecha-fin:focus {
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+}
+
+.cys-table-filters-container {
+  background: #02224a !important;
+  border: none !important;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 10px rgba(77, 168, 218, 0.1);
 }
