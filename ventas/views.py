@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404 # type: ignore
-from django.contrib import messages # type: ignore
-from django.http import JsonResponse # type: ignore
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import JsonResponse
 from django.db import transaction 
-from django.db.models import Sum  # type: ignore
+from django.db.models import Sum
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from decimal import Decimal, InvalidOperation
@@ -84,20 +84,49 @@ def ventas_lista(request):
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
 
-    context={
-    
-        'ventas':          ventas,
-        'form':            form,
-        'categorias':      categorias,
-        'clientes':        clientes,
-        'total_dia':       total_dia,
-        'hoy':             hoy,
-        'caja_abierta':    caja_abierta,
-        'ultimo_cierre':   ultimo_cierre,
-        'billetes_denom':  BILLETES_DENOM,
-        'monedas_denom':   MONEDAS_DENOM,
+    # Catálogo serializado para el TPV
+    catalogo = []
+    for cat in categorias:
+        productos_list = []
+        for prod in cat.productos.all():
+            presentaciones_list = []
+            for pr in prod.presentaciones.all():
+                presentaciones_list.append({
+                    'id':       pr.id,
+                    'nombre':   pr.nombre,
+                    'precio':   float(pr.precio),
+                    'unidades': pr.unidades,
+                    'stock':    pr.stock_real,
+                })
+            productos_list.append({
+                'id':             prod.id,
+                'nombre':         prod.nombre,
+                'stock':          prod.stock_total,
+                'presentaciones': presentaciones_list,
+            })
+        catalogo.append({
+            'id':       cat.id,
+            'nombre':   cat.nombre,
+            'productos': productos_list,
+        })
+
+    import json as _json
+    catalogo_json = _json.dumps(catalogo, ensure_ascii=False)
+
+    context = {
+        'ventas':         ventas,
+        'form':           form,
+        'categorias':     categorias,
+        'clientes':       clientes,
+        'total_dia':      total_dia,
+        'hoy':            hoy,
+        'caja_abierta':   caja_abierta,
+        'ultimo_cierre':  ultimo_cierre,
+        'billetes_denom': BILLETES_DENOM,
+        'monedas_denom':  MONEDAS_DENOM,
+        'catalogo_json':  catalogo_json,
     }
-    return render(request,'ventas/devoluciones.html ',context)
+    return render(request, 'ventas/ventas.html', context)
 
 
 @session_required
@@ -216,7 +245,7 @@ def nueva_venta(request):
                 lotes_tocados = _descontar_stock_fefo(presentacion, cantidad, vendedor)
             except ValueError as e:
                 messages.error(request, str(e))
-                raise 
+                raise
 
             for lt in lotes_tocados:
                 Inventario.objects.create(
@@ -284,15 +313,16 @@ def producto_stock_json(request, pk):
         'unid':   producto.unidad,
         'presentaciones': [
             {
-                'id':         p.id,
-                'nombre':     p.nombre,
-                'unidades':   p.unidades,
-                'cantidad':   p.stock_real,
-                'precio':     float(p.precio),
+                'id':       p.id,
+                'nombre':   p.nombre,
+                'unidades': p.unidades,
+                'cantidad': p.stock_real,
+                'precio':   float(p.precio),
             }
             for p in producto.presentaciones.all()
         ],
     })
+
 
 @session_required
 def ventas_del_dia(request):
@@ -305,43 +335,94 @@ def ventas_del_dia(request):
         'hoy':       hoy,
         'total_dia': total_dia,
     }
-
     return render(request, 'ventas/ventas_del_dia.html', context)
 
 
 # ════════════════════════════════════════
-# CONTROL DE CAJA Y DEVOLUCIONES
+# CONTROL DE CAJA
 # ════════════════════════════════════════
+
 @session_required
+@require_POST
 def registrar_conteo(request):
-    context = {
-      
-    }
-    return render(request, 'ventas/registrar_conteo.html', context)
+    try:
+        data           = json.loads(request.body)
+        monto_contado  = data.get('monto_contado', 0)
+        observacion    = data.get('observacion', '')
+        denominaciones = data.get('denominaciones', {})
+
+        hoy        = timezone.localdate()
+        usuario_id = request.session.get('usuario_id')
+
+        if AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).exists():
+            return JsonResponse({'ok': False, 'error': 'Ya hay una caja abierta hoy.'})
+
+        AperturaCaja.objects.create(
+            fecha=hoy,
+            usuario_id=usuario_id,
+            monto_base=monto_contado,
+            observacion=observacion,
+            denominaciones=denominaciones,
+        )
+        return JsonResponse({'ok': True})
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)})
 
 
 @session_required
+@require_POST
 def cierre_caja(request):
-    context = {
-    }
-    return render(request, 'ventas/cierre_caja.html', context)
+    try:
+        data                 = json.loads(request.body)
+        total_contado        = data.get('total_contado', 0)
+        monto_base_siguiente = data.get('monto_base_siguiente', 0)
+        denominaciones       = data.get('denominaciones', {})
 
+        hoy        = timezone.localdate()
+        usuario_id = request.session.get('usuario_id')
+
+        apertura = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
+        if not apertura:
+            return JsonResponse({'ok': False, 'error': 'No hay caja abierta.'})
+
+        if hasattr(apertura, 'cierre'):
+            return JsonResponse({'ok': False, 'error': 'La caja ya fue cerrada hoy.'})
+
+        total_retirado = max(0, float(total_contado) - float(monto_base_siguiente))
+
+        CierreCaja.objects.create(
+            fecha=hoy,
+            apertura=apertura,
+            usuario_id=usuario_id,
+            total_contado=total_contado,
+            monto_base_siguiente=monto_base_siguiente,
+            total_retirado=total_retirado,
+            denominaciones=denominaciones,
+        )
+        return JsonResponse({'ok': True})
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)})
+
+
+# ════════════════════════════════════════
+# DEVOLUCIONES
+# ════════════════════════════════════════
 
 @session_required
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.prefetch_related('detalles__producto').order_by('-fecha')
-
     context = {
         'devoluciones': devoluciones,
     }
-
     return render(request, 'ventas/devoluciones.html', context)
 
 
 @session_required
 @transaction.atomic
 def registrar_devolucion(request):
-    if request.method == 'POST': 
+    if request.method == 'POST':
         pass
     return redirect('ventas:lista_devoluciones')
 
@@ -349,46 +430,40 @@ def registrar_devolucion(request):
 @session_required
 def seleccionar_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
-
     context = {
         'venta': venta,
     }
-
     return render(request, 'ventas/seleccionar_venta_devolucion.html', context)
 
 
 @session_required
 def detalle_devolucion(request, pk):
     devolucion = get_object_or_404(Devolucion, pk=pk)
-
     context = {
         'devolucion': devolucion,
     }
-
     return render(request, 'ventas/devolucion.html', context)
+
 
 @session_required
 def buscar_venta_devolucion(request):
     query  = request.GET.get('q', '')
     ventas = Venta.objects.filter(id__icontains=query).order_by('-fecha')[:10] if query else Venta.objects.none()
-
     context = {
         'ventas': ventas,
         'query':  query,
     }
-
     return render(request, 'ventas/buscar_venta_devolucion.html', context)
 
 
 @session_required
 def detalle_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
-
     context = {
         'venta': venta,
     }
-
     return render(request, 'ventas/detalle_venta_devolucion.html', context)
+
 
 @session_required
 def comprobante_devolucion(request, pk):
@@ -399,11 +474,9 @@ def comprobante_devolucion(request, pk):
         ),
         pk=pk,
     )
-
     context = {
         'devolucion': devolucion,
     }
-
     return render(request, 'ventas/comprobante_devolucion.html', context)
 
 
@@ -412,7 +485,6 @@ def comprobante_devolucion(request, pk):
 # ════════════════════════════════════════
 
 def _sesion_dev_limpiar(session):
-    """Elimina todas las claves dev_* de la sesión."""
     for key in list(session.keys()):
         if key.startswith('dev_'):
             del session[key]
@@ -420,13 +492,8 @@ def _sesion_dev_limpiar(session):
 
 
 def _sesion_dev_productos_normalizados(session, venta):
-    """
-    Devuelve el diccionario {detalle_id: cantidad} guardado en sesión,
-    con claves convertidas a int. Si no hay nada, devuelve {}.
-    """
     raw = session.get('dev_productos', {})
     if isinstance(raw, list):
-        # Migración desde formato antiguo
         raw = {
             pid: (venta.detalles.get(pk=pid).cantidad
                   if venta.detalles.filter(pk=pid).exists() else 1)
@@ -441,17 +508,14 @@ def _sesion_dev_productos_normalizados(session, venta):
 
 @session_required
 def devoluciones_flujo(request):
-    """Maneja todo el flujo de devoluciones en un único HTML sin JavaScript."""
     paso     = request.session.get('dev_paso', 1)
     venta_id = request.session.get('dev_venta_id')
 
-    # ── Botón «Atrás» (cualquier paso) ──────────────────────────────────────
     if request.method == 'POST' and request.POST.get('action') == 'atras':
         request.session['dev_paso'] = max(1, paso - 1)
         request.session.modified = True
         return redirect('ventas:lista_devoluciones')
 
-    # ── PASO 1: seleccionar venta ────────────────────────────────────────────
     if request.method == 'POST' and paso == 1:
         venta_id_post = request.POST.get('venta_id', '').strip()
         if venta_id_post:
@@ -466,7 +530,6 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, ' Debes seleccionar una venta.')
 
-    # ── PASO 2: seleccionar productos ────────────────────────────────────────
     elif request.method == 'POST' and paso == 2:
         if not venta_id:
             messages.error(request, ' Primero debes seleccionar una venta.')
@@ -476,15 +539,10 @@ def devoluciones_flujo(request):
 
         productos_ids = request.POST.getlist('producto_id')
         if not productos_ids:
-
             messages.error(request, ' Debes seleccionar al menos un producto para devolver.')
             return redirect('ventas:lista_devoluciones')
 
-            messages.error(request, '⚠️ Debes seleccionar al menos un producto para devolver.')
-            return redirect('lista_devoluciones')
-
-
-        venta_actual          = Venta.objects.get(pk=venta_id)
+        venta_actual           = Venta.objects.get(pk=venta_id)
         productos_con_cantidad = {}
 
         for detalle_id in productos_ids:
@@ -494,7 +552,6 @@ def devoluciones_flujo(request):
                 detalle        = venta_actual.detalles.get(pk=detalle_id_int)
 
                 if cantidad <= 0 or cantidad > detalle.cantidad:
-
                     messages.error(
                         request,
                         f' Cantidad inválida para {detalle.producto.nombre}. '
@@ -502,20 +559,11 @@ def devoluciones_flujo(request):
                     )
                     return redirect('ventas:lista_devoluciones')
 
-                    messages.error(request, f'⚠️ Cantidad inválida para {detalle.producto.nombre}. Debe ser entre 1 y {detalle.cantidad}.')
-                    return redirect('lista_devoluciones')
-
-
                 productos_con_cantidad[detalle_id_int] = cantidad
 
             except (ValueError, TypeError, DetalleVenta.DoesNotExist):
-
                 messages.error(request, ' Error al procesar las cantidades. Intenta nuevamente.')
                 return redirect('ventas:lista_devoluciones')
-
-                messages.error(request, '⚠️ Error al procesar las cantidades. Intenta nuevamente.')
-                return redirect('lista_devoluciones')
-
 
         if productos_con_cantidad:
             request.session['dev_productos'] = productos_con_cantidad
@@ -525,14 +573,13 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, ' Debes especificar al menos 1 unidad para devolver.')
 
-    # ── PASO 3: motivo ───────────────────────────────────────────────────────
     elif request.method == 'POST' and paso == 3:
-        motivo         = request.POST.get('motivo', '').strip()
-        observaciones  = request.POST.get('observaciones', '').strip()
+        motivo          = request.POST.get('motivo', '').strip()
+        observaciones   = request.POST.get('observaciones', '').strip()
         motivos_validos = [c[0] for c in Devolucion.MOTIVO_CHOICES]
 
         if motivo in motivos_validos:
-            request.session['dev_motivo']       = motivo
+            request.session['dev_motivo']        = motivo
             request.session['dev_observaciones'] = observaciones
             request.session['dev_paso']          = 4
             request.session.modified = True
@@ -540,10 +587,9 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, ' Selecciona un motivo válido.')
 
-    # ── PASO 4: tipo de reembolso ────────────────────────────────────────────
     elif request.method == 'POST' and paso == 4:
-        tipo_reembolso  = request.POST.get('tipo_reembolso', '').strip()
-        tipos_validos   = [c[0] for c in Devolucion.REEMBOLSO_CHOICES]
+        tipo_reembolso = request.POST.get('tipo_reembolso', '').strip()
+        tipos_validos  = [c[0] for c in Devolucion.REEMBOLSO_CHOICES]
 
         if tipo_reembolso in tipos_validos:
             request.session['dev_tipo_reembolso'] = tipo_reembolso
@@ -553,7 +599,6 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, ' Selecciona un tipo de reembolso válido.')
 
-    # ── PASO 5: detalles según tipo ──────────────────────────────────────────
     elif request.method == 'POST' and paso == 5:
         tipo_reembolso = request.session.get('dev_tipo_reembolso')
 
@@ -583,13 +628,11 @@ def devoluciones_flujo(request):
             else:
                 messages.error(request, ' Selecciona un método de devolución válido.')
 
-    # ── PASO 6: evidencia fotográfica ────────────────────────────────────────
     elif request.method == 'POST' and paso == 6:
         request.session['dev_paso'] = 7
         request.session.modified = True
         return redirect('lista_devoluciones')
 
-    # ── PASO 7: confirmación y creación ─────────────────────────────────────
     elif request.method == 'POST' and paso == 7:
         try:
             venta          = Venta.objects.get(pk=venta_id)
@@ -633,7 +676,7 @@ def devoluciones_flujo(request):
                 cantidad_cambio    = request.session.get('dev_cantidad_cambio')
                 if producto_cambio_id:
                     try:
-                        producto_cambio        = Producto.objects.get(pk=producto_cambio_id)
+                        producto_cambio            = Producto.objects.get(pk=producto_cambio_id)
                         devolucion.producto_cambio = producto_cambio
                         devolucion.cantidad_cambio = cantidad_cambio or 1
                         devolucion.save()
@@ -647,8 +690,8 @@ def devoluciones_flujo(request):
                 messages.info(request, f' Nota de crédito por ${total_devuelto:,.0f} generada'.replace(',', '.'))
 
             elif tipo_reembolso == 'reembolso':
-                metodo_devolucion                  = request.session.get('dev_metodo_devolucion')
-                devolucion.metodo_pago_devolucion   = metodo_devolucion
+                metodo_devolucion                = request.session.get('dev_metodo_devolucion')
+                devolucion.metodo_pago_devolucion = metodo_devolucion
                 devolucion.save()
                 messages.info(request, f' Reembolso programado: ${total_devuelto:,.0f} a {metodo_devolucion}'.replace(',', '.'))
 
@@ -671,24 +714,11 @@ def devoluciones_flujo(request):
             request.session.modified = True
             return redirect('lista_devoluciones')
 
-
-    # ════════════════════════════════════════
-    # CONSTRUCCIÓN DEL CONTEXTO PARA EL RENDER
-    # ════════════════════════════════════════
-
-    # Botón atrás
-    if request.method == 'POST' and request.POST.get('action') == 'atras':
-        nuevo_paso = max(1, paso - 1)
-        request.session['dev_paso'] = nuevo_paso
-        request.session.modified = True
-        return redirect('lista_devoluciones')
-
-
     ventas       = Venta.objects.select_related('cliente').prefetch_related('detalles').order_by('-fecha')
     devoluciones = Devolucion.objects.select_related('venta').prefetch_related('detalles').order_by('-fecha')
 
-    venta              = None
-    detalles_venta     = []
+    venta               = None
+    detalles_venta      = []
     detalles_con_estado = []
 
     if venta_id:
@@ -705,15 +735,14 @@ def devoluciones_flujo(request):
 
                 cantidad_pendiente = detalle.cantidad - cantidad_devuelta
                 detalles_con_estado.append({
-                    'detalle':           detalle,
-                    'cantidad_devuelta': cantidad_devuelta,
+                    'detalle':            detalle,
+                    'cantidad_devuelta':  cantidad_devuelta,
                     'cantidad_pendiente': cantidad_pendiente,
-                    'puede_devolver':    cantidad_pendiente > 0,
+                    'puede_devolver':     cantidad_pendiente > 0,
                 })
         except Venta.DoesNotExist:
             venta = None
 
-    # Total a devolver según los productos ya guardados en sesión
     total_devolver = Decimal('0')
     if venta:
         productos_data = _sesion_dev_productos_normalizados(request.session, venta)
@@ -723,9 +752,9 @@ def devoluciones_flujo(request):
                 cantidad       = productos_data.get(d.pk, d.cantidad)
                 total_devolver += Decimal(str(cantidad)) * d.precio_unitario
 
-    motivo_dict  = dict(Devolucion.MOTIVO_CHOICES)
-    tipo_dict    = dict(Devolucion.REEMBOLSO_CHOICES)
-    productos    = Producto.objects.all() if paso >= 5 else []
+    motivo_dict = dict(Devolucion.MOTIVO_CHOICES)
+    tipo_dict   = dict(Devolucion.REEMBOLSO_CHOICES)
+    productos   = Producto.objects.all() if paso >= 5 else []
 
     context = {
         'ventas':                      ventas,
