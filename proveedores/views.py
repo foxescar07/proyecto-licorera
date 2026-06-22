@@ -107,7 +107,10 @@ def eliminar_proveedor(request, id):
 @login_required
 def detalle_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
-    return render(request, 'proveedores/detalle_proveedor.html', {'proveedor': proveedor})
+    context = {
+        'proveedor': proveedor
+    }
+    return render(request, 'proveedores/detalle_proveedor.html', context)
 
 @login_required
 def activar_proveedor(request, id):
@@ -152,7 +155,8 @@ def sancionar_proveedor(request, id):
 
 @login_required
 def lista_compras(request):
-    return render(request, 'proveedores/compras.html', {})
+    context = {}
+    return render(request, 'proveedores/compras.html', context)
 
 @login_required
 def registrar_compra(request):

@@ -84,7 +84,8 @@ def ventas_lista(request):
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
 
-    return render(request, 'ventas/ventas.html', {
+    context={
+    
         'ventas':          ventas,
         'form':            form,
         'categorias':      categorias,
@@ -95,7 +96,8 @@ def ventas_lista(request):
         'ultimo_cierre':   ultimo_cierre,
         'billetes_denom':  BILLETES_DENOM,
         'monedas_denom':   MONEDAS_DENOM,
-    })
+    }
+    return render(request,'ventas/devoluciones.html ',context)
 
 
 @session_required
@@ -292,38 +294,48 @@ def producto_stock_json(request, pk):
         ],
     })
 
-
 @session_required
 def ventas_del_dia(request):
     hoy       = timezone.localdate()
     ventas    = Venta.objects.filter(fecha__date=hoy).prefetch_related('detalles__producto', 'detalles__presentacion').order_by('-fecha')
     total_dia = int(sum(v.total_con_descuento for v in ventas))
 
-    return render(request, 'ventas/ventas_del_dia.html', {
+    context = {
         'ventas':    ventas,
         'hoy':       hoy,
         'total_dia': total_dia,
-    })
+    }
+
+    return render(request, 'ventas/ventas_del_dia.html', context)
 
 
 # ════════════════════════════════════════
 # CONTROL DE CAJA Y DEVOLUCIONES
 # ════════════════════════════════════════
+@session_required
+def registrar_conteo(request):
+    context = {
+      
+    }
+    return render(request, 'ventas/registrar_conteo.html', context)
+
 
 @session_required
-def registrar_conteo(request): 
-    return render(request, 'ventas/registrar_conteo.html')
-
-
-@session_required
-def cierre_caja(request): 
-    return render(request, 'ventas/cierre_caja.html')
+def cierre_caja(request):
+    context = {
+    }
+    return render(request, 'ventas/cierre_caja.html', context)
 
 
 @session_required
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.prefetch_related('detalles__producto').order_by('-fecha')
-    return render(request, 'ventas/devoluciones.html', {'devoluciones': devoluciones})
+
+    context = {
+        'devoluciones': devoluciones,
+    }
+
+    return render(request, 'ventas/devoluciones.html', context)
 
 
 @session_required
@@ -337,27 +349,46 @@ def registrar_devolucion(request):
 @session_required
 def seleccionar_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
-    return render(request, 'ventas/seleccionar_venta_devolucion.html', {'venta': venta})
+
+    context = {
+        'venta': venta,
+    }
+
+    return render(request, 'ventas/seleccionar_venta_devolucion.html', context)
 
 
 @session_required
 def detalle_devolucion(request, pk):
     devolucion = get_object_or_404(Devolucion, pk=pk)
-    return render(request, 'ventas/detalle_devolucion.html', {'devolucion': devolucion})
 
+    context = {
+        'devolucion': devolucion,
+    }
+
+    return render(request, 'ventas/devolucion.html', context)
 
 @session_required
 def buscar_venta_devolucion(request):
-    query = request.GET.get('q', '')
+    query  = request.GET.get('q', '')
     ventas = Venta.objects.filter(id__icontains=query).order_by('-fecha')[:10] if query else Venta.objects.none()
-    return render(request, 'ventas/buscar_venta_devolucion.html', {'ventas': ventas, 'query': query})
+
+    context = {
+        'ventas': ventas,
+        'query':  query,
+    }
+
+    return render(request, 'ventas/buscar_venta_devolucion.html', context)
 
 
 @session_required
 def detalle_venta_devolucion(request, venta_id):
     venta = get_object_or_404(Venta.objects.prefetch_related('detalles__producto'), pk=venta_id)
-    return render(request, 'ventas/detalle_venta_devolucion.html', {'venta': venta})
 
+    context = {
+        'venta': venta,
+    }
+
+    return render(request, 'ventas/detalle_venta_devolucion.html', context)
 
 @session_required
 def comprobante_devolucion(request, pk):

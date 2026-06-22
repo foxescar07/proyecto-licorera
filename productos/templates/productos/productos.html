@@ -46,6 +46,16 @@
       </div>
       <div class="card-body px-4 pt-0 pb-4">
         <p class="text-uppercase prod-label mb-3" style="letter-spacing:.08em;">Selecciona una categoria</p>
+        
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
+                data-cat-pk="todos"
+                data-cat-nombre="Todos los productos"
+                ondblclick="filtrarCategoria(this)"
+                style="font-size:.9rem; border-radius:8px;">
+          <span class="text-truncate me-2" style="max-width:120px; font-weight: 600;">Todos</span>
+          <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ productos|length }}</span>
+        </button>
+
         {% for cat in resumen_categorias %}
         <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
                 data-cat-pk="{{ cat.pk }}"
@@ -109,94 +119,7 @@
 
 </div>
 
-  <!-- ANALÍTICA: ROTACIÓN -->
-  <div class="card prod-card mb-4" id="seccion-analitica" style="display:none;">
-    <div class="card-header prod-card-header">
-      <i class="bi bi-arrow-left-right me-2 text-info"></i>
-      <span class="fw-semibold">Rotación de Productos — Últimos 30 días</span>
-    </div>
-    <div class="card-body">
-      <!-- PRODUCTO ESTRELLA -->
-      <div id="bloque-estrella" class="mb-4" style="display:none;">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <i class="bi bi-trophy-fill text-warning"></i>
-          <span class="fw-semibold small text-uppercase text-muted">Producto Estrella del Mes</span>
-          <span class="badge prod-badge-mes ms-auto" id="estrella-mes-label"></span>
-        </div>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <div class="prod-stat-card">
-              <div class="text-muted small mb-1">Producto</div>
-              <div class="fw-bold" id="estrella-nombre"></div>
-              <div class="text-muted small" id="estrella-categoria"></div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="prod-stat-card text-center">
-              <div class="text-muted small mb-1">Unidades vendidas</div>
-              <div class="fw-bold fs-3 text-info" id="estrella-vendido"></div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="prod-stat-card text-center">
-              <div class="text-muted small mb-1">Ingresos generados</div>
-              <div class="fw-bold fs-3 text-success" id="estrella-ingresos"></div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="prod-stat-card">
-              <div class="text-muted small mb-1">Presentación más vendida</div>
-              <div class="fw-semibold small" id="estrella-presentacion">—</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="prod-stat-card">
-              <div class="text-muted small mb-1">Índice de rotación</div>
-              <div class="fw-semibold small" id="estrella-rotacion">—</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="prod-stat-card">
-              <div class="text-muted small mb-1">Stock actual</div>
-              <div class="fw-semibold small" id="estrella-stock"></div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- GRÁFICA -->
-      <div id="rotacion-loading" class="text-center py-4 text-muted small">
-        <span class="spinner-border spinner-border-sm me-2"></span> Cargando datos…
-      </div>
-      <div style="position:relative; width:100%; min-height:300px;">
-        <canvas id="chartRotacion" style="display:none;"></canvas>
-      </div>
-
-      <!-- TABLAS ALTA / BAJA -->
-      <div class="row g-3 mt-2" id="tablas-rotacion" style="display:none;">
-        <div class="col-md-6">
-          <div class="prod-stat-card">
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <i class="bi bi-graph-up-arrow text-success"></i>
-              <span class="fw-bold small text-success text-uppercase">Alta Rotación</span>
-            </div>
-            <div id="lista-alta-rotacion"></div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="prod-stat-card">
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <i class="bi bi-graph-down-arrow text-danger"></i>
-              <span class="fw-bold small text-danger text-uppercase">Baja Rotación</span>
-            </div>
-            <div id="lista-baja-rotacion"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
 
 <!-- ═══════ MODAL: CREAR PRODUCTO ═══════ -->
 <div class="modal fade" id="modalCrearProducto" tabindex="-1">
@@ -396,13 +319,13 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
 <script>
 const GESTION_URL  = "{% url 'gestion_productos' %}";
 const CREAR_URL    = "{% url 'crear_producto' %}";
 const PRES_URL     = "{% url 'presentaciones_guardar' 0 %}";
 const CSRF_TOKEN   = "{{ csrf_token }}";
-const ROTACION_URL = "{% url 'rotacion_json' %}";
+
 
 // stock_total viene de la property del modelo (suma lotes__stock_actual)
 // pres.stock_actual viene del JSON que retorna la view
@@ -452,7 +375,7 @@ function filtrarCategoria(btn) {
   document.querySelectorAll('.prod-cat-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  const filtrados = todoProductos.filter(p => p.categoria_pk == pk);
+  const filtrados = pk === 'todos' ? todoProductos : todoProductos.filter(p => p.categoria_pk == pk);
   document.getElementById('cat-titulo').textContent =
     nombre + ' — ' + filtrados.length + ' producto' + (filtrados.length !== 1 ? 's' : '');
 
@@ -663,111 +586,7 @@ function guardarPresentacionesModal() {
   document.getElementById('form-presentaciones-modal').submit();
 }
 
-// ── ANALÍTICA / ROTACIÓN ──────────────────────────────────────────────────────
-(function () {
-  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-  function fmtCOP(v) {
-    if (v >= 1000000) return '$' + (v/1000000).toFixed(1).replace('.0','') + 'M';
-    if (v >= 1000)    return '$' + Math.round(v/1000) + 'k';
-    return '$' + v.toLocaleString('es-CO');
-  }
-
-  function calcRotacion(uds) {
-    if (uds >= 100) return '<span class="text-success fw-bold">Alta</span> — reposición cada 3 días';
-    if (uds >= 30)  return '<span class="text-warning fw-bold">Media</span> — reposición cada semana';
-    if (uds > 0)    return '<span class="text-danger fw-bold">Baja</span> — poca salida';
-    return '<span class="text-danger fw-bold">Sin movimiento</span>';
-  }
-
-  function itemFila(nombre, cantidad, sinMov) {
-    const color = sinMov ? '#e74c3c' : (cantidad >= 50 ? '#27ae60' : '#f39c12');
-    return `<div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
-      <span>${nombre}</span>
-      <span class="fw-bold" style="color:${color};">${cantidad} uds</span>
-    </div>`;
-  }
-
-  fetch(ROTACION_URL)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('seccion-analitica').style.display = 'block';
-
-      // Estrella
-      if (data.estrella_nombre) {
-        const ahora = new Date();
-        document.getElementById('estrella-mes-label').textContent =
-          MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
-        document.getElementById('estrella-nombre').textContent       = data.estrella_nombre;
-        document.getElementById('estrella-categoria').textContent    = 'Categoría: ' + (data.estrella_categoria || '—');
-        document.getElementById('estrella-vendido').textContent      = data.estrella_vendido;
-        document.getElementById('estrella-ingresos').textContent     = data.estrella_ingresos > 0 ? fmtCOP(data.estrella_ingresos) : '—';
-        document.getElementById('estrella-presentacion').textContent = data.estrella_presentacion || '—';
-        document.getElementById('estrella-rotacion').innerHTML       = calcRotacion(data.estrella_vendido || 0);
-        const critico = data.estrella_stock_critico;
-        document.getElementById('estrella-stock').innerHTML =
-          `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
-        document.getElementById('bloque-estrella').style.display = 'block';
-      }
-
-      // Gráfica
-      const rotacion      = data.rotacion || [];
-      const sinMovimiento = data.sin_movimiento || [];
-      const todos         = [...rotacion, ...sinMovimiento];
-
-      if (todos.length) {
-        document.getElementById('rotacion-loading').style.display = 'none';
-        const canvas = document.getElementById('chartRotacion');
-        canvas.style.display = 'block';
-        canvas.parentElement.style.height = Math.max(300, todos.length * 40) + 'px';
-
-        new Chart(canvas, {
-          type: 'bar',
-          data: {
-            labels: todos.map(p => p.nombre),
-            datasets: [{
-              label: 'Unidades vendidas',
-              data:  todos.map(p => p.cantidad),
-              backgroundColor: todos.map((_, i) => i < rotacion.length ? '#4DA8DA' : '#e74c3c'),
-              borderRadius: 5,
-              borderSkipped: false,
-            }]
-          },
-          options: {
-            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#8899aa' } },
-              y: { grid: { display: false }, ticks: { color: '#c8d6e5', autoSkip: false } }
-            }
-          }
-        });
-
-        // Tablas
-        const alta = rotacion.filter(p => p.cantidad >= 50);
-        const baja = rotacion.filter(p => p.cantidad > 0 && p.cantidad < 50);
-        document.getElementById('lista-alta-rotacion').innerHTML =
-          alta.length
-            ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
-            : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
-        document.getElementById('lista-baja-rotacion').innerHTML =
-          [...baja, ...sinMovimiento].length
-            ? [...baja.map(p => itemFila(p.nombre, p.cantidad, false)),
-               ...sinMovimiento.map(p => itemFila(p.nombre, 0, true))].join('')
-            : '<p class="text-muted small text-center py-2">Todos tienen movimiento.</p>';
-        document.getElementById('tablas-rotacion').style.display = 'flex';
-      } else {
-        document.getElementById('rotacion-loading').innerHTML =
-          '<p class="text-muted small text-center py-3">No hay datos de ventas en los últimos 30 días.</p>';
-      }
-    })
-    .catch(() => {
-      document.getElementById('seccion-analitica').style.display = 'block';
-      document.getElementById('rotacion-loading').innerHTML =
-        '<p class="text-muted small">Error al cargar datos.</p>';
-    });
-})();
 
 </script>
 {% endblock %}
