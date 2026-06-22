@@ -739,3 +739,34 @@ body {
   caret-color: var(--texto);
   transition: background-color 9999s ease-in-out 0s;
 }
+
+/* ══ PASSWORD RULES ══ */
+.cys-password-rules {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cys-rule {
+  font-size: 0.72rem;
+  color: var(--texto-sub);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.2s ease;
+}
+
+.cys-rule i {
+  font-size: 0.8rem;
+  color: var(--rojo);
+  transition: color 0.2s ease;
+}
+
+.cys-rule.valid {
+  color: var(--texto);
+}
+
+.cys-rule.valid i {
+  color: var(--verde);
+}
