@@ -547,7 +547,7 @@
                     </td>
                     <td class="text-center">
                       {% if d.estado != 'ok' %}
-                        <form method="POST" action="{% url 'ajustar_stock' d.presentacion.pk %}">
+                        <form method="POST" action="{% url 'ajustar_stock_presentacion' d.presentacion.pk %}">
                           {% csrf_token %}
                           <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
                           <button type="submit" class="btn btn-sm inv-btn-primary"

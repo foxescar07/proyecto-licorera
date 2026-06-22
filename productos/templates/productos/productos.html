@@ -46,6 +46,16 @@
       </div>
       <div class="card-body px-4 pt-0 pb-4">
         <p class="text-uppercase prod-label mb-3" style="letter-spacing:.08em;">Selecciona una categoria</p>
+        
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
+                data-cat-pk="todos"
+                data-cat-nombre="Todos los productos"
+                ondblclick="filtrarCategoria(this)"
+                style="font-size:.9rem; border-radius:8px;">
+          <span class="text-truncate me-2" style="max-width:120px; font-weight: 600;">Todos</span>
+          <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ productos|length }}</span>
+        </button>
+
         {% for cat in resumen_categorias %}
         <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
                 data-cat-pk="{{ cat.pk }}"
@@ -452,7 +462,7 @@ function filtrarCategoria(btn) {
   document.querySelectorAll('.prod-cat-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  const filtrados = todoProductos.filter(p => p.categoria_pk == pk);
+  const filtrados = pk === 'todos' ? todoProductos : todoProductos.filter(p => p.categoria_pk == pk);
   document.getElementById('cat-titulo').textContent =
     nombre + ' — ' + filtrados.length + ' producto' + (filtrados.length !== 1 ? 's' : '');
 
