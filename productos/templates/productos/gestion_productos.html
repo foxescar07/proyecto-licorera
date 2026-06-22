@@ -163,7 +163,7 @@
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
                           <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
                         </ul>
                       </div>
                     </td>
@@ -215,7 +215,7 @@
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
                           <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
                         </ul>
                       </div>
                     </td>
@@ -338,7 +338,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto_editar' p.pk %}">
+      <form method="POST" action="{% url 'gestion_producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="row g-3">
@@ -391,7 +391,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto_editar' p.pk %}">
+      <form method="POST" action="{% url 'gestion_producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="small fw-semibold text-uppercase mb-3"

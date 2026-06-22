@@ -457,19 +457,6 @@ def categoria_eliminar(request, pk):
 
 
 # ===============================
-# GESTIÓN DE PRODUCTOS
-# ===============================
-@login_required
-def gestion_productos(request):
-    productos  = Producto.objects.select_related('categoria').all()
-    categorias = Categoria.objects.all()
-    context = {
-        'productos': productos,
-        'categorias': categorias,
-    }
-
-    return render(request, 'productos/gestion_productos.html', context)
-# ===============================
 # FUNCIONES MOVIDAS DESDE INVENTARIO
 # ===============================
 @login_required
