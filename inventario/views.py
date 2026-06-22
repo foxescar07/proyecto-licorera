@@ -599,7 +599,7 @@ def stock_status(request):
             'nombre':           p.nombre,
             'cantidad':          stock_total,
             'url_presentacion':  reverse('gestion_productos'),
-            'url_lote':          reverse('gestion_lotes') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
+            'url_lote':          reverse('gestion_lotes_view') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
         }
         
         if stock_total == 0:
