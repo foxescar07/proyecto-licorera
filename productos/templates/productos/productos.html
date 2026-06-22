@@ -7,6 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -50,7 +51,7 @@
         <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
                 data-cat-pk="todos"
                 data-cat-nombre="Todos los productos"
-                ondblclick="filtrarCategoria(this)"
+                onclick="filtrarCategoria(this)"
                 style="font-size:.9rem; border-radius:8px;">
           <span class="text-truncate me-2" style="max-width:120px; font-weight: 600;">Todos</span>
           <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ productos|length }}</span>
@@ -60,7 +61,7 @@
         <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
                 data-cat-pk="{{ cat.pk }}"
                 data-cat-nombre="{{ cat.nombre }}"
-                ondblclick="filtrarCategoria(this)"
+                onclick="filtrarCategoria(this)"
                 style="font-size:.9rem; border-radius:8px;">
           <span class="text-truncate me-2" style="max-width:120px;">{{ cat.nombre }}</span>
           <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ cat.total }}</span>
@@ -98,18 +99,17 @@
         <div id="cat-tabla-wrap"
              style="position:absolute; inset:0; transition:opacity .35s ease; opacity:0; pointer-events:none; overflow-y:auto;">
           <div class="table-responsive">
-            <table class="table align-middle mb-0">
-              <thead>
-                <tr style="font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;">
-                  <th class="px-4 py-3 fw-normal prod-label">#</th>
-                  <th class="py-3 fw-normal prod-label">Nombre</th>
-                  <th class="py-3 fw-normal prod-label">Código</th>
-                  <th class="py-3 text-center fw-normal prod-label">Stock</th>
-                  <th class="py-3 fw-normal prod-label">Presentaciones</th>
-                </tr>
-              </thead>
-              <tbody id="cat-tbody" style="font-size:.88rem;"></tbody>
-            </table>
+            <table class="table align-middle mb-0" id="tablaProductosCat">
+  <thead>
+    <tr style="font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;">
+      <th class="px-4 py-3 fw-normal prod-label text-center">#</th>
+      <th class="py-3 fw-normal prod-label text-center">Nombre</th>
+      <th class="py-3 fw-normal prod-label text-center">Código</th>
+      <th class="py-3 fw-normal prod-label text-center">Presentaciones</th>
+    </tr>
+  </thead>
+  <tbody id="cat-tbody" style="font-size:.88rem;"></tbody>
+</table>
           </div>
         </div>
 
@@ -320,6 +320,8 @@
 
 {% block extra_js %}
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
 const GESTION_URL  = "{% url 'gestion_productos' %}";
 const CREAR_URL    = "{% url 'crear_producto' %}";
@@ -399,15 +401,31 @@ function filtrarCategoria(btn) {
       : `<span class="prod-label" style="font-size:.82rem;">Sin definir</span>`;
 
     return `<tr>
-      <td class="px-4 prod-label">${i + 1}</td>
+      <td class="px-4 prod-label text-center">${i + 1}</td>
       <td class="fw-semibold" style="color:var(--prod-texto);">${p.nombre}</td>
-      <td style="color:#4DA8DA; font-family:monospace;">${p.codigo || '—'}</td>
-      <td class="text-center">
-        <span class="fw-bold" style="color:${p.stock_critico ? '#e74c3c' : '#4DA8DA'};">${p.stock_total} uds</span>
-      </td>
+      <td style="color:#4DA8DA; font-family:monospace;" class="text-center">${p.codigo || '—'}</td>
       <td>${pres}</td>
     </tr>`;
   }).join('');
+
+  inicializarTablaCategoria();
+}
+
+function inicializarTablaCategoria() {
+  if ($.fn.DataTable.isDataTable('#tablaProductosCat')) {
+    $('#tablaProductosCat').DataTable().destroy();
+  }
+  $('#tablaProductosCat').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    language: {
+      zeroRecords: "Sin resultados.",
+      emptyTable: "No hay productos en esta categoría."
+    }
+  });
 }
 // ── MODAL CATEGORÍA ───────────────────────────────────────────────────────────
 document.getElementById('modalProductosCategoria').addEventListener('show.bs.modal', function(e) {
@@ -421,7 +439,7 @@ document.getElementById('modalProductosCategoria').addEventListener('show.bs.mod
   const tbody     = document.getElementById('cuerpo-categoria');
 
   if (!filtrados.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">
       <i class="bi bi-box-seam d-block mb-2 fs-3"></i>No hay productos en esta categoría.</td></tr>`;
     return;
   }
