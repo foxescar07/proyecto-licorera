@@ -97,7 +97,7 @@ def ventas_lista(request):
         'billetes_denom':  BILLETES_DENOM,
         'monedas_denom':   MONEDAS_DENOM,
     }
-    return render=(request,'ventas/devoluciones.html ',context)
+    return render(request,'ventas/devoluciones.html ',context)
 
 
 @session_required
@@ -335,7 +335,7 @@ def lista_devoluciones(request):
         'devoluciones': devoluciones,
     }
 
-    return render(request, 'ventas/devoluciones.html', context))
+    return render(request, 'ventas/devoluciones.html', context)
 
 
 @session_required
