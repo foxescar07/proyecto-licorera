@@ -7,6 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -251,7 +252,7 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 inv-table">
+        <table class="table table-hover align-middle mb-0 inv-table" id="tablaMovimientos">
           <thead>
             <tr>
               <th>#</th>
@@ -360,9 +361,12 @@
               <textarea name="descripcion" class="form-control inv-input" rows="3" placeholder="Notas adicionales..."></textarea>
             </div>
             <div class="d-flex gap-2 justify-content-end">
-              <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-               <button type="submit" name="Agendar" class="btn inv-btn-outline btn-sm">
-                <i class="bi bi-calendar-check me-2"></i>Agendar
+                    <button type="button" class="btn rounded-pill px-4"
+                  style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+                  data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" name="Agendar" class="btn rounded-pill fw-bold px-4"
+                  style="background: #4DA8DA; color: #0d1b2a; border: none;">
+                  <i class="bi bi-calendar-check me-2"></i>Agendar
               </button>
             </div>
           </form>
@@ -397,10 +401,11 @@
             </div>
             <form method="POST" action="{% url 'conteo_inventario' %}">
               {% csrf_token %}
-              <button type="submit" name="iniciar_sesion" class="btn inv-btn-outline btn-sm">
-                <i class="bi bi-play-fill me-1"></i>
-                {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
-              </button>
+                <button type="submit" name="iniciar_sesion" class="btn rounded-pill fw-bold px-4"
+          style="background: #4DA8DA; color: #0d1b2a; border: none;">
+         <i class="bi bi-play-fill me-1"></i>
+        {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
+                </button>
             </form>
           </div>
 
@@ -461,7 +466,10 @@
           {% endif %}
         </div>
         <div class="modal-footer inv-modal-footer">
-          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn rounded-pill px-4"
+          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+          data-bs-dismiss="modal">Cerrar
+            </button>
         </div>
       </div>
     </div>
@@ -567,8 +575,9 @@
           {% endif %}
         </div>
         <div class="modal-footer inv-modal-footer">
-          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
-        </div>
+          <button type="button" class="btn rounded-pill px-4"
+          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+          data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -624,9 +633,10 @@
                    style="font-family:monospace; font-size:.95rem;"
                    disabled>
           </div>
-          <button id="scan-guardar" class="btn inv-btn-primary px-4" disabled>
-            <i class="bi bi-save2 me-1"></i>Guardar
-          </button>
+              <button type="button" id="scan-guardar" class="btn rounded-pill fw-bold px-4" disabled
+  style="background: #4DA8DA; color: #0d1b2a; border: none; opacity: 1;">
+  <i class="bi bi-save2 me-1"></i>Guardar
+</button>
         </div>
 
         <!-- TABLA -->
@@ -679,11 +689,12 @@
 
       </div>
       <div class="modal-footer inv-modal-footer">
-        <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn rounded-pill px-4"
+          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+          data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
-</div>
 
   <!-- MODAL EDITAR MOVIMIENTO -->
   <div class="modal fade" id="modalEditarMovimiento" tabindex="-1">
@@ -715,11 +726,14 @@
           </form>
         </div>
         <div class="modal-footer inv-modal-footer">
-          <button type="button" class="btn inv-btn-outline" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn inv-btn-primary"
-        onclick="document.getElementById('form-editar-movimiento').submit()">
-        <i class="bi bi-save me-1"></i>Guardar cambios
-      </button>
+        <button type="button" class="btn rounded-pill px-4"
+          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+          data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn rounded-pill fw-bold px-4"
+          style="background: #4DA8DA; color: #0d1b2a; border: none;"
+          onclick="document.getElementById('form-editar-movimiento').submit()">
+          <i class="bi bi-save me-1"></i>Guardar cambios
+        </button>
         </div>
       </div>
     </div>
@@ -929,6 +943,10 @@
 {% endblock %}
 
 {% block extra_js %}
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+
 <script>
 // ── EDITAR MOVIMIENTO ──
 document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
@@ -957,6 +975,7 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     scanInput.value        = '';
     scanInput.disabled     = true;
     scanBtn.disabled       = true;
+    scanBtn.style.opacity  = '0.45';
   }
 
   function guardarCodigo(fila, codigo) {
@@ -991,6 +1010,7 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     scanInput.value        = fila.dataset.codigo;
     scanInput.disabled     = false;
     scanBtn.disabled       = false;
+    scanBtn.style.opacity  = '1';
     scanInput.focus();
   });
 
@@ -1176,5 +1196,25 @@ const ROTACION_URL = "{% url 'rotacion_json' %}";
         '<p class="text-muted small">Error al cargar datos.</p>';
     });
 })();
+// ── DATATABLE MOVIMIENTOS ──
+$(document).ready(function () {
+  if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
+    $('#tablaMovimientos').DataTable().destroy();
+  }
+  $('#tablaMovimientos').DataTable({
+    paging: false,          // ya tienes filtro por fecha, no paginar
+    searching: false,       // ya tienes el select de fecha
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [8] }  // columna Acciones no ordenable
+    ],
+    language: {
+      emptyTable: "No hay movimientos para este día."
+    },
+    dom: 'rt'               // solo tabla, sin controles extra
+  });
+});
 </script>
 {% endblock %}
