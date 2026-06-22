@@ -137,27 +137,6 @@ class Devolucion(models.Model):
         ('otro',         'Otro motivo'),
     ]
 
-    REEMBOLSO_CHOICES = [
-        ('cambio',       'Cambio de producto'),
-        ('nota_credito', 'Nota crédito'),
-        ('reembolso',    'Reembolso'),
-    ]
-
-    ESTADO_CHOICES = [
-        ('pendiente',    'Pendiente de aprobación'),
-        ('aprobada',     'Aprobada'),
-        ('procesada',    'Procesada'),
-        ('rechazada',    'Rechazada'),
-    ]
-
-    ESTADO_RETORNO_CHOICES = [
-        ('pendiente',    'Pendiente de retorno'),
-        ('en_transito',  'En tránsito'),
-        ('recibida',     'Recibida en almacén'),
-        ('verificada',   'Verificada'),
-        ('rechazada',    'Rechazada'),
-    ]
-
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
                                           related_name='devoluciones',
                                           verbose_name='Venta original')
@@ -166,34 +145,10 @@ class Devolucion(models.Model):
                                           verbose_name='Registrado por', null=True, blank=True)
     fecha             = models.DateTimeField(auto_now_add=True)
     motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
-    tipo_reembolso    = models.CharField(max_length=20, choices=REEMBOLSO_CHOICES, default='cambio')
     observaciones     = models.TextField(blank=True)
     restaurar_stock   = models.BooleanField(default=True)
     tiene_comprobante = models.BooleanField(default=True)
     total_devuelto    = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
-    estado             = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
-    estado_retorno     = models.CharField(max_length=20, choices=ESTADO_RETORNO_CHOICES, default='pendiente')
-    numero_seguimiento = models.CharField(max_length=50, blank=True, null=True, unique=True)
-
-    producto_cambio   = models.ForeignKey(Producto, on_delete=models.SET_NULL,
-                                          null=True, blank=True, related_name='cambios_recibidos')
-    cantidad_cambio   = models.PositiveIntegerField(null=True, blank=True)
-
-    saldo_credito            = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    credito_aplicado         = models.BooleanField(default=False)
-    fecha_aplicacion_credito = models.DateTimeField(null=True, blank=True)
-
-    metodo_pago_devolucion = models.CharField(max_length=50, blank=True,
-                                              choices=[
-                                                  ('efectivo', 'Efectivo'),
-                                                  ('tarjeta', 'Tarjeta'),
-                                                  ('transferencia', 'Transferencia'),
-                                                  ('nequi', 'Nequi'),
-                                                  ('daviplata', 'DaviPlata'),
-                                              ])
-    fecha_reembolso      = models.DateTimeField(null=True, blank=True)
-    referencia_reembolso = models.CharField(max_length=100, blank=True)
 
     class Meta:
         verbose_name        = 'Devolución'
@@ -207,21 +162,9 @@ class Devolucion(models.Model):
     def numero(self):
         return f'DEV-{self.pk:04d}'
 
-    def aprobar(self):
-        self.estado = 'aprobada'
-        self.save()
-
-    def procesar(self):
-        if self.tipo_reembolso == 'nota_credito':
-            self.saldo_credito = self.total_devuelto
-        self.estado = 'procesada'
-        self.save()
-
 
 class DetalleDevolucion(models.Model):
     devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE, related_name='detalles')
-    producto        = models.ForeignKey(Producto, on_delete=models.CASCADE,
-                                        related_name='detalles_devolucion', null=True, blank=True)
     presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.CASCADE,
                                         related_name='detalles_devolucion', null=True, blank=True)
     lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL,
@@ -237,6 +180,6 @@ class DetalleDevolucion(models.Model):
         return self.cantidad * self.precio_unitario
 
     def __str__(self):
-        nombre_prod = self.presentacion.producto.nombre if self.presentacion else (self.producto.nombre if self.producto else "Producto")
+        nombre_prod = self.presentacion.producto.nombre if self.presentacion else "Producto"
         nombre_pres = f" ({self.presentacion.nombre})" if self.presentacion else ""
         return f'{nombre_prod}{nombre_pres} x{self.cantidad}'

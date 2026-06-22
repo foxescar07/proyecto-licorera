@@ -33,27 +33,17 @@ class DevolucionForm(forms.ModelForm):
     class Meta:
         model = Devolucion
         fields = [
-            'motivo', 'tipo_reembolso', 'observaciones', 
-            'producto_cambio', 'cantidad_cambio', 'metodo_pago_devolucion'
+            'motivo', 'observaciones', 'restaurar_stock', 'tiene_comprobante'
         ]
         widgets = {
-            'motivo': forms.RadioSelect(attrs={'class': 'd-none'}),
-            'tipo_reembolso': forms.RadioSelect(attrs={'class': 'd-none'}),
+            'motivo': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe el problema con detalle...'}),
-            'producto_cambio': forms.Select(attrs={'class': 'form-select dev-select-premium'}),
-            'cantidad_cambio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '1', 'min': '1'}),
-            'metodo_pago_devolucion': forms.Select(attrs={'class': 'form-select dev-select-premium'}),
+            'restaurar_stock': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'tiene_comprobante': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
-            'motivo': 'Motivo de devolución', 'tipo_reembolso': 'Tipo de reembolso', 'observaciones': 'Observaciones adicionales',
-            'producto_cambio': 'Producto de reemplazo', 'cantidad_cambio': 'Cantidad de cambio', 'metodo_pago_devolucion': 'Método de reembolso',
+            'motivo': 'Motivo de devolución',
+            'observaciones': 'Observaciones adicionales',
+            'restaurar_stock': 'Restaurar stock',
+            'tiene_comprobante': 'Tiene comprobante',
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['producto_cambio'].required = False
-        self.fields['cantidad_cambio'].required = False
-        self.fields['metodo_pago_devolucion'].required = False
-        self.fields['metodo_pago_devolucion'].choices = [('', '-- Selecciona método --')] + list(
-            self.instance._meta.get_field('metodo_pago_devolucion').choices
-        )

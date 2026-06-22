@@ -11,54 +11,51 @@
 <div class="container-fluid p-0">
   <div class="cys-snap-section px-3 py-4">
 
-  <!-- ENCABEZADO -->
-  <div class="card card-dev cys-card p-4 mb-4">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-      <div>
-        <span class="badge badge-cyan small mb-2 d-inline-block">
-          <i class="bi bi-building me-1"></i>GESTIÓN DE PROVEEDORES
-        </span>
-        <h1 class="cys-card__title mb-0" style="font-size: 1.8rem; color: var(--cyan);">
-          <i class="bi bi-truck"></i>Proveedores
-        </h1>
-      </div>
-      <div class="d-flex gap-2 flex-wrap">
-        <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
-          <i class="bi bi-plus-lg me-1"></i>Nuevo proveedor
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- MÉTRICAS RESUMEN -->
-  <div class="row gx-2 gy-2 mb-4">
-    <div class="col-6 col-lg-3">
-      <div class="cys-card cys-card--inv h-100 p-3">
-        <div class="cys-card__title small mb-2">Total</div>
-        <div class="h4 fw-bold mb-1 text-cyan">{{ total_proveedores }}</div>
-        <div class="text-muted text-sm">Registrados</div>
+  <div class="kpi-cards-grid mb-4">
+    <!-- Total -->
+    <div class="kpi-card kpi-card-cyan">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box cyan"><i class="bi bi-building"></i></div>
+        <span class="kpi-badge cyan">TOTAL</span>
       </div>
+      <div class="kpi-value cyan">{{ total_proveedores }}</div>
+      <p class="kpi-title">Proveedores</p>
+      <p class="kpi-sub">Registrados en el sistema</p>
     </div>
-    <div class="col-6 col-lg-3">
-      <div class="cys-card cys-card--prov h-100 p-3">
-        <div class="cys-card__title small mb-2">Activos</div>
-        <div class="h4 fw-bold mb-1 text-green-light">{{ proveedores_activos }}</div>
-        <div class="text-muted text-sm">{{ porcentaje_activos }}% del total</div>
+
+    <!-- Activos -->
+    <div class="kpi-card kpi-card-green">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box green"><i class="bi bi-check-circle"></i></div>
+        <span class="kpi-badge green">ACTIVOS</span>
       </div>
+      <div class="kpi-value green">{{ proveedores_activos }}</div>
+      <p class="kpi-title">Proveedores Activos</p>
+      <p class="kpi-sub">{{ porcentaje_activos }}% del total</p>
     </div>
-    <div class="col-6 col-lg-3">
-      <div class="cys-card cys-card--diario h-100 p-3">
-        <div class="cys-card__title small mb-2">Inactivos</div>
-        <div class="h4 fw-bold mb-1 text-yellow">{{ proveedores_inactivos }}</div>
-        <div class="text-muted text-sm">Desactivados</div>
+
+    <!-- Inactivos -->
+    <div class="kpi-card kpi-card-yellow">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box yellow"><i class="bi bi-pause-circle"></i></div>
+        <span class="kpi-badge yellow">INACTIVOS</span>
       </div>
+      <div class="kpi-value yellow">{{ proveedores_inactivos }}</div>
+      <p class="kpi-title">Proveedores Inactivos</p>
+      <p class="kpi-sub">Desactivados temporalmente</p>
     </div>
-    <div class="col-6 col-lg-3">
-      <div class="cys-card cys-card--analisis h-100 p-3">
-        <div class="cys-card__title small mb-2">Sancionados</div>
-        <div class="h4 fw-bold mb-1 text-orange">{{ proveedores_sancionados }}</div>
-        <div class="text-muted text-sm">Bajo sanciones</div>
+
+    <!-- Sancionados -->
+    <div class="kpi-card kpi-card-orange">
+      <div class="kpi-card-top">
+        <div class="kpi-icon-box orange"><i class="bi bi-exclamation-circle"></i></div>
+        <span class="kpi-badge orange">SANCIONADOS</span>
       </div>
+      <div class="kpi-value orange">{{ proveedores_sancionados }}</div>
+      <p class="kpi-title">Proveedores Sancionados</p>
+      <p class="kpi-sub">Bajo sanciones activas</p>
     </div>
   </div>
 
@@ -73,48 +70,49 @@
   {% endif %}
 
   <!-- FILTROS -->
-  <div class="card card-dev p-4 mb-4">
-    <div class="d-flex align-items-center gap-3 mb-4">
-      <i class="bi bi-funnel" style="color: var(--cyan);"></i>
-      <h5 class="mb-0">Filtros</h5>
-    </div>
+  <div class="card card-dev p-3 mb-2">
+    <form method="GET" action="/proveedores/" class="d-flex gap-2 align-items-end flex-wrap">
+      <!-- Botón Nuevo Proveedor -->
+      <div>
+        <button type="button" class="btn btn-nuevo-proveedor" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+          <i class="bi bi-plus-lg me-2"></i>Nuevo proveedor
+        </button>
+      </div>
 
-    <!-- ✅ Así deben quedar -->
-<form method="GET" action="/proveedores/" class="row g-3">
-<a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar</a>
-      <div class="col-12 col-md-4">
-        <label for="busqueda" class="form-label small fw-bold">Buscar por empresa o contacto</label>
+      <!-- Búsqueda -->
+      <div style="flex: 1; min-width: 250px;">
         <div class="input-group input-group-sm">
           <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" name="q" id="busqueda" class="form-control" placeholder="Nombre..." value="{{ request.GET.q }}">
+          <input type="text" name="q" class="form-control" placeholder="Buscar por empresa o contacto..." value="{{ request.GET.q }}">
         </div>
       </div>
 
-      <div class="col-12 col-md-3">
-        <label for="filtroEstado" class="form-label small fw-bold">Estado</label>
-        <select name="estado" id="filtroEstado" class="form-select form-select-sm">
-          <option value="">Todos</option>
-          <option value="activo" {% if request.GET.estado == 'activo' %}selected{% endif %}>Activos</option>
-          <option value="inactivo" {% if request.GET.estado == 'inactivo' %}selected{% endif %}>Inactivos</option>
-          <option value="sancionado" {% if request.GET.estado == 'sancionado' %}selected{% endif %}>Sancionados</option>
+      <!-- Estado -->
+      <div style="min-width: 180px;">
+        <select name="estado" class="form-select form-select-sm">
+          <option value="">Estado: Todos</option>
+          <option value="activo" {% if request.GET.estado == 'activo' %}selected{% endif %}>Estado: Activos</option>
+          <option value="inactivo" {% if request.GET.estado == 'inactivo' %}selected{% endif %}>Estado: Inactivos</option>
+          <option value="sancionado" {% if request.GET.estado == 'sancionado' %}selected{% endif %}>Estado: Sancionados</option>
         </select>
       </div>
 
-      <div class="col-12 col-md-3">
-        <label for="filtroTipo" class="form-label small fw-bold">Tipo</label>
-        <select name="tipo" id="filtroTipo" class="form-select form-select-sm">
-          <option value="">Todos</option>
-          <option value="distribuidor" {% if request.GET.tipo == 'distribuidor' %}selected{% endif %}>Distribuidor</option>
-          <option value="fabricante" {% if request.GET.tipo == 'fabricante' %}selected{% endif %}>Fabricante</option>
-          <option value="importador" {% if request.GET.tipo == 'importador' %}selected{% endif %}>Importador</option>
+      <!-- Tipo -->
+      <div style="min-width: 180px;">
+        <select name="tipo" class="form-select form-select-sm">
+          <option value="">Tipo: Todos</option>
+          <option value="distribuidor" {% if request.GET.tipo == 'distribuidor' %}selected{% endif %}>Tipo: Distribuidor</option>
+          <option value="fabricante" {% if request.GET.tipo == 'fabricante' %}selected{% endif %}>Tipo: Fabricante</option>
+          <option value="importador" {% if request.GET.tipo == 'importador' %}selected{% endif %}>Tipo: Importador</option>
         </select>
       </div>
 
-      <div class="col-12 col-md-2 d-flex gap-2 align-items-end">
-        <button type="submit" class="btn btn-sm btn-primary flex-grow-1">
-          <i class="bi bi-funnel me-1"></i>Filtrar
+      <!-- Botones Filtrar y Limpiar -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-primary">
+          <i class="bi bi-search me-1"></i>Filtrar
         </button>
-         <a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+        <a href="/proveedores/" class="btn btn-sm btn-outline-secondary">Limpiar filtros</a>
       </div>
     </form>
   </div>
@@ -149,7 +147,7 @@
               </span>
             </td>
             <td>
-              <span class="badge 
+              <span class="badge
                 {% if p.estado == 'activo' %}badge-status-activo
                 {% elif p.estado == 'inactivo' %}badge-status-inactivo
                 {% else %}badge-status-sancionado{% endif %}">

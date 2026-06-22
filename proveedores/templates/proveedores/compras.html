@@ -35,7 +35,6 @@
       <div class="kpi-value cyan">${{ total_gastado|default:0|floatformat:0 }}</div>
       <p class="kpi-title">Gasto Total</p>
       <p class="kpi-sub">Histórico acumulado</p>
-      <span class="kpi-link cyan">Ver detalle →</span>
     </div>
 
     <!-- Compras Mes -->
@@ -47,7 +46,6 @@
       <div class="kpi-value green">{{ count_mes|default:0 }}</div>
       <p class="kpi-title">Compras Mes</p>
       <p class="kpi-sub">${{ total_mes|default:0|floatformat:0 }} total</p>
-      <span class="kpi-link green">Ver detalle →</span>
     </div>
 
     <!-- Producto Top -->
@@ -59,7 +57,6 @@
       <div class="kpi-value purple">{% if producto_top %}{{ producto_top.total_und }}{% else %}0{% endif %}</div>
       <p class="kpi-title">Producto Top</p>
       <p class="kpi-sub">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }}{% else %}Sin compras{% endif %}</p>
-      <span class="kpi-link purple">Ver detalle →</span>
     </div>
 
     <!-- Nueva Compra (Acción → abre modal) -->
@@ -71,7 +68,6 @@
       <div class="kpi-value pink">0</div>
       <p class="kpi-title">Registrar</p>
       <p class="kpi-sub">Nueva compra</p>
-      <span class="kpi-link pink">Abrir módulo →</span>
     </div>
   </div>
   <!-- ====== FIN TARJETAS KPI ====== -->
