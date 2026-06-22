@@ -17,8 +17,8 @@ class DetalleVentaInline(admin.TabularInline):
 class DetalleDevolucionInline(admin.TabularInline):
     model = DetalleDevolucion
     extra = 0
-    raw_id_fields = ['producto', 'presentacion', 'lote']
-    fields = ['producto', 'presentacion', 'lote', 'cantidad', 'precio_unitario', 'subtotal_display']
+    raw_id_fields = ['presentacion', 'lote']
+    fields = ['presentacion', 'lote', 'cantidad', 'precio_unitario', 'subtotal_display']
     readonly_fields = ['subtotal_display']
 
     def subtotal_display(self, obj):
@@ -67,13 +67,7 @@ class CierreCajaAdmin(admin.ModelAdmin):
 
 @admin.register(Devolucion)
 class DevolucionAdmin(admin.ModelAdmin):
-    list_display = ['numero', 'venta', 'registrado_por', 'fecha', 'estado', 'total_devuelto']
-    list_filter = ['estado', 'motivo']
+    list_display = ['numero', 'venta', 'registrado_por', 'fecha', 'total_devuelto']
+    list_filter = ['motivo', 'fecha']
     inlines = [DetalleDevolucionInline]
-    raw_id_fields = ['venta', 'producto_cambio']
-    actions = ['aprobar_devoluciones']
-
-    @admin.action(description="Aprobar devoluciones seleccionadas")
-    def aprobar_devoluciones(self, request, queryset):
-        for d in queryset: d.aprobar()
-        self.message_user(request, "Devoluciones aprobadas.")
+    raw_id_fields = ['venta']
