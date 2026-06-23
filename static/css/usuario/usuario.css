@@ -254,3 +254,39 @@ body {
   caret-color: var(--texto);
   transition: background-color 9999s ease-in-out 0s;
 }
+
+/* ── HINT DINÁMICO CAMPO USUARIO ── */
+.cys-login-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+  margin-top: .45rem;
+  padding: .45rem .7rem;
+  border-radius: 8px;
+  font-size: .72rem;
+  line-height: 1.5;
+  animation: hintFadeIn .18s ease;
+}
+
+@keyframes hintFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cys-login-hint--doc {
+  background: rgba(77,168,218,.08);
+  border: 1px solid rgba(77,168,218,.22);
+  color: #7ec8e3;
+}
+
+.cys-login-hint--user {
+  background: rgba(94,219,151,.07);
+  border: 1px solid rgba(94,219,151,.22);
+  color: #5edb97;
+}
+
+.cys-login-hint i {
+  margin-top: .1rem;
+  flex-shrink: 0;
+  font-size: .8rem;
+}

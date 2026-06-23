@@ -79,8 +79,7 @@ def login_view(request):
 
         usuario = None
 
-        # 1) Intenta como identificación, PERO solo cuenta si el username
-        #    sigue siendo el de fábrica (no lo ha personalizado todavía)
+        # Intento A: documento de identidad — solo válido si aún no ha personalizado el username
         try:
             candidato = Usuario.objects.get(identificacion=identificacion, activo=True)
             if candidato.username == candidato.identificacion:
@@ -88,7 +87,7 @@ def login_view(request):
         except Usuario.DoesNotExist:
             pass
 
-        # 2) Si no entró por identificación, intenta como username actual
+        # Intento B: username personalizado (el documento ya no sirve si llegamos aquí)
         if usuario is None:
             try:
                 usuario = Usuario.objects.get(username__iexact=identificacion, activo=True)

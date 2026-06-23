@@ -30,6 +30,7 @@
           <label class="cys-label" for="loginUser">Usuario</label>
           <input type="text" id="loginUser" class="cys-input"
                  placeholder="Identificación o nombre de usuario" autocomplete="off">
+          <div id="loginHint" style="display:none;"></div>
         </div>
 
         <div class="mb-4">
@@ -183,11 +184,47 @@
       icon.classList.toggle('bi-eye-slash', isPass);
     });
 
+    // ── Hint dinámico campo usuario ──
+    document.getElementById('loginUser').addEventListener('input', function () {
+      const val  = this.value.trim();
+      const hint = document.getElementById('loginHint');
+
+      if (!val) {
+        hint.style.display = 'none';
+        hint.innerHTML = '';
+        return;
+      }
+
+      const soloNumeros = /^\d+$/.test(val);
+
+      if (soloNumeros) {
+        hint.className = 'cys-login-hint cys-login-hint--doc';
+        hint.innerHTML = `
+          <i class="bi bi-card-text"></i>
+          <span>Estás ingresando tu <strong>número de documento</strong>.
+          Funciona si aún no has personalizado tu usuario desde el perfil.</span>
+        `;
+      } else {
+        hint.className = 'cys-login-hint cys-login-hint--user';
+        hint.innerHTML = `
+          <i class="bi bi-person-badge"></i>
+          <span>Estás ingresando tu <strong>nombre de usuario personalizado</strong>.
+          Si nunca lo cambiaste, usa tu número de documento.</span>
+        `;
+      }
+
+      hint.style.display = 'flex';
+    });
+
     function mostrar(id) {
       SECCIONES.forEach(s => {
         document.getElementById(s).style.display = 'none';
       });
       document.getElementById(id).style.display = 'block';
+      // Limpiar hint al cambiar de sección
+      const hint = document.getElementById('loginHint');
+      if (hint) { hint.style.display = 'none'; hint.innerHTML = ''; }
+      document.getElementById('loginUser').value = '';
       limpiarMsg();
     }
 
