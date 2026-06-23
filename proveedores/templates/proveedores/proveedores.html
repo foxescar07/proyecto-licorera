@@ -214,9 +214,15 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="6" class="text-center py-5">
-              <i class="bi bi-building d-block mb-2 text-lo" style="font-size: 2rem;"></i>
-              <small class="text-md">No hay proveedores registrados</small>
+            <td colspan="7" class="text-center py-5">
+              <i class="bi bi-search d-block mb-2" style="font-size: 2rem; color: var(--text-md); opacity: 0.5;"></i>
+              <small class="text-md">
+                {% if request.GET.q or request.GET.estado or request.GET.tipo %}
+                  No se encontraron proveedores con los filtros aplicados
+                {% else %}
+                  No hay proveedores registrados
+                {% endif %}
+              </small>
             </td>
           </tr>
           {% endfor %}
