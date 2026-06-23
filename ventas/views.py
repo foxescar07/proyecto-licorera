@@ -335,7 +335,7 @@ def ventas_del_dia(request):
         'hoy':       hoy,
         'total_dia': total_dia,
     }
-    return render(request, 'ventas/ventas_del_dia.html', context)
+    return render(request, 'ventas/ventas_dia.html', context)
 
 
 # ════════════════════════════════════════
