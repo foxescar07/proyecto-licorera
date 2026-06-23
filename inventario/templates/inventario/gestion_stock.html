@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}Stock & Productos — CYS Ltda{% endblock %}
 {% block page_title %}Stock & Productos{% endblock %}
@@ -38,39 +38,39 @@
 <!-- KPI Cards -->
 <div class="row g-3 mb-4">
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:rgba(77,168,218,.07);border-color:rgba(77,168,218,.22);">
+    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #00a0f6;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
       <div>
         <div class="kpi-label">Productos</div>
         <div class="kpi-value" style="color:#e2e8f0;">{{ productos|length }}</div>
       </div>
-      <i class="bi bi-box kpi-icon" style="color:#4DA8DA;"></i>
+      <i class="bi bi-box kpi-icon" style="color:rgb(41, 62, 222)"></i>
     </div>
   </div>
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:rgba(39,174,96,.07);border-color:rgba(39,174,96,.22);">
+    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #54ebb8;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
       <div>
         <div class="kpi-label">Lotes activos</div>
-        <div class="kpi-value" style="color:#27ae60;">{{ lotes_activos|length }}</div>
+        <div class="kpi-value" style="color:#e2e8f0;">{{ lotes_activos|length }}</div>
       </div>
-      <i class="bi bi-box-seam kpi-icon" style="color:#27ae60;"></i>
+      <i class="bi bi-box-seam kpi-icon"  style="color:rgb(0, 255, 106);"></i>
     </div>
   </div>
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:rgba(243,156,18,.07);border-color:rgba(243,156,18,.22);">
+    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #6090d7;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
       <div>
         <div class="kpi-label">Por vencer</div>
-        <div class="kpi-value" style="color:#f39c12;">{{ lotes_por_vencer|length }}</div>
+        <div class="kpi-value" style="color:#e2e8f0;">{{ lotes_por_vencer|length }}</div>
       </div>
-      <i class="bi bi-exclamation-circle kpi-icon" style="color:#f39c12;"></i>
+      <i class="bi bi-exclamation-circle kpi-icon" style="color:rgb(12, 157, 180);"></i>
     </div>
   </div>
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:rgba(231,76,60,.07);border-color:rgba(231,76,60,.22);">
+    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #6b5dff;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
       <div>
         <div class="kpi-label">Vencidos</div>
-        <div class="kpi-value" style="color:#e74c3c;">{{ lotes_vencidos|length }}</div>
+        <div class="kpi-value" style="color:#e2e8f0;">{{ lotes_vencidos|length }}</div>
       </div>
-      <i class="bi bi-x-circle kpi-icon" style="color:#e74c3c;"></i>
+      <i class="bi bi-x-circle kpi-icon" style="color:rgb(130, 79, 226);"></i>
     </div>
   </div>
 </div>
@@ -92,8 +92,8 @@
            placeholder="Buscar producto, lote…"
            style="background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#e2e8f0;">
   </div>
-  <select id="filtroEstado" class="form-select"
-          style="max-width:170px;background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#e2e8f0;">
+  <select id="filtroEstado" class="form-select prod-input-select"
+          style="max-width:170px;background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#9fc9ec;">
     <option value="todos">Todos</option>
     <option value="ok">En orden</option>
     <option value="por_vencer">Por vencer</option>
@@ -251,7 +251,7 @@
             </label>
             <input type="number" name="costo_unitario" class="form-control"
                    style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;"
-                   min="0" step="1" value="{{ lote.costo_unitario|default:0 }}"
+                   min="0" step="1" value="{{ lote.costo_unitario|unlocalize|default:0 }}"
                    placeholder="0">
           </div>
           <div class="mb-1">
@@ -315,9 +315,12 @@ $(document).ready(function() {
 
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex, rowData, counter) {
+            if (settings.sTableId !== 'tablaLotes') {
+                return true;
+            }
             var filterValue = $('#filtroEstado').val();
             if (filterValue === 'todos') return true;
-            var node = table.row(dataIndex).node();
+            var node = settings.aoData[dataIndex].nTr;
             var estado = $(node).attr('data-estado');
             return estado === filterValue;
         }

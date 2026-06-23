@@ -517,9 +517,9 @@
    que rompía los estilos de ambas páginas)
    ══════════════════════════════════════════ */
 :root {
-  --pg-card:   #19314e;
-  --pg-input:  #1e3f5e;
-  --pg-border: rgba(38, 164, 232, 0.22);
+  --pg-card:   #112b4c;
+  --pg-input:  #103354;
+  --pg-border: rgba(28, 123, 175, 0.22);
   --pg-azul:   #4DA8DA;
   --pg-azul2:  #3b9ad6;
   --pg-texto:  #dce8f2;
@@ -704,4 +704,24 @@ div.dt-container div.dt-info {
   color: rgba(226,232,240,0.6) !important;
   font-size: 0.85rem;
   padding-top: 0 !important;
+}
+.prod-input-select,
+.prod-input-select option {
+  background-color: #0d2240 !important;
+  color: #9fc9ec !important;
+}
+
+.prod-input-select option:checked,
+.prod-input-select option:hover,
+.prod-input-select option:focus {
+  background: #1d4e6e !important;
+  color: #ffffff !important;
+}
+
+.prod-input-select:focus {
+  background-color: rgba(13,26,64,.8) !important;
+  border-color: #4DA8DA;
+  color: #e2e8f0 !important;
+  box-shadow: 0 0 0 .2rem rgba(77,168,218,.15);
+  outline: none;
 }
