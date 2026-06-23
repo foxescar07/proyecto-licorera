@@ -7,7 +7,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
-<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -688,13 +687,14 @@
         </div>
 
       </div>
-      <div class="modal-footer inv-modal-footer">
+          <div class="modal-footer inv-modal-footer">
           <button type="button" class="btn rounded-pill px-4"
           style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
           data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- MODAL EDITAR MOVIMIENTO -->
   <div class="modal fade" id="modalEditarMovimiento" tabindex="-1">
@@ -946,8 +946,22 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Limpiar modal atascado
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.querySelectorAll('.modal.show').forEach(function(m) {
+      m.classList.remove('show');
+      m.style.display = 'none';
+    });
+    document.querySelectorAll('.modal-backdrop').forEach(function(b) { b.remove(); });
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }, 100);
+});
+
 // ── EDITAR MOVIMIENTO ──
 document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
   const btn = e.relatedTarget;
@@ -983,7 +997,6 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     const fd   = new FormData();
     fd.append('codigo', codigo);
     fd.append('csrfmiddlewaretoken', csrf);
-
     fetch(fila.dataset.url, { method: 'POST', body: fd })
       .then(r => {
         if (r.ok || r.redirected) {
@@ -999,7 +1012,6 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
       .catch(() => alert('Error al guardar. Intenta de nuevo.'));
   }
 
-  // Delegación de eventos en la tabla — un solo listener, nunca se duplica
   document.getElementById('tabla-codigos').addEventListener('click', function (e) {
     const fila = e.target.closest('.scan-row');
     if (!fila) return;
@@ -1025,9 +1037,9 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     }
   });
 
-  // Limpiar selección al cerrar el modal
   modal.addEventListener('hidden.bs.modal', resetUI);
 })();
+
 // ── TABS AGENDAS ──
 document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
   btn.addEventListener('click', function () {
@@ -1037,8 +1049,6 @@ document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
     });
     this.style.background = 'var(--inv-azul-dim)';
     this.style.opacity    = '1';
-    this.classList.add('active');
-
     const tab = this.dataset.tab;
     document.querySelectorAll('.agenda-item').forEach(item => {
       if (tab === 'activos') {
@@ -1049,15 +1059,16 @@ document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
     });
   });
 });
+
 // ── CATÁLOGO ──
 (function () {
-  const buscar   = document.getElementById('cat-buscar');
-  const catSel   = document.getElementById('cat-categoria');
-  const grid     = document.getElementById('cat-grid');
-  const list     = document.getElementById('cat-list');
-  const empty    = document.getElementById('cat-empty');
-  const btnGrid  = document.getElementById('cat-btn-grid');
-  const btnList  = document.getElementById('cat-btn-list');
+  const buscar  = document.getElementById('cat-buscar');
+  const catSel  = document.getElementById('cat-categoria');
+  const grid    = document.getElementById('cat-grid');
+  const list    = document.getElementById('cat-list');
+  const empty   = document.getElementById('cat-empty');
+  const btnGrid = document.getElementById('cat-btn-grid');
+  const btnList = document.getElementById('cat-btn-list');
 
   function filtrar() {
     const q   = buscar.value.toLowerCase().trim();
@@ -1090,7 +1101,7 @@ document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
   });
 })();
 
-// ── ANALÍTICA / ROTACIÓN ──────────────────────────────────────────────────────
+// ── ANALÍTICA / ROTACIÓN ──
 const ROTACION_URL = "{% url 'rotacion_json' %}";
 (function () {
   const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -1121,12 +1132,9 @@ const ROTACION_URL = "{% url 'rotacion_json' %}";
     .then(r => r.json())
     .then(data => {
       document.getElementById('seccion-analitica').style.display = 'block';
-
-      // Estrella
       if (data.estrella_nombre) {
         const ahora = new Date();
-        document.getElementById('estrella-mes-label').textContent =
-          MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
+        document.getElementById('estrella-mes-label').textContent = MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
         document.getElementById('estrella-nombre').textContent       = data.estrella_nombre;
         document.getElementById('estrella-categoria').textContent    = 'Categoría: ' + (data.estrella_categoria || '—');
         document.getElementById('estrella-vendido').textContent      = data.estrella_vendido;
@@ -1134,33 +1142,24 @@ const ROTACION_URL = "{% url 'rotacion_json' %}";
         document.getElementById('estrella-presentacion').textContent = data.estrella_presentacion || '—';
         document.getElementById('estrella-rotacion').innerHTML       = calcRotacion(data.estrella_vendido || 0);
         const critico = data.estrella_stock_critico;
-        document.getElementById('estrella-stock').innerHTML =
-          `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
+        document.getElementById('estrella-stock').innerHTML = `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
         document.getElementById('bloque-estrella').style.display = 'block';
       }
-
-      // Gráfica
       const rotacion      = data.rotacion || [];
       const sinMovimiento = data.sin_movimiento || [];
       const todos         = [...rotacion, ...sinMovimiento];
-
       if (todos.length) {
         document.getElementById('rotacion-loading').style.display = 'none';
         const canvas = document.getElementById('chartRotacion');
         canvas.style.display = 'block';
         canvas.parentElement.style.height = Math.max(300, todos.length * 40) + 'px';
-
         new Chart(canvas, {
           type: 'bar',
           data: {
             labels: todos.map(p => p.nombre),
-            datasets: [{
-              label: 'Unidades vendidas',
-              data:  todos.map(p => p.cantidad),
+            datasets: [{ label: 'Unidades vendidas', data: todos.map(p => p.cantidad),
               backgroundColor: todos.map((_, i) => i < rotacion.length ? '#4DA8DA' : '#e74c3c'),
-              borderRadius: 5,
-              borderSkipped: false,
-            }]
+              borderRadius: 5, borderSkipped: false }]
           },
           options: {
             indexAxis: 'y', responsive: true, maintainAspectRatio: false,
@@ -1171,50 +1170,23 @@ const ROTACION_URL = "{% url 'rotacion_json' %}";
             }
           }
         });
-
-        // Tablas
         const alta = rotacion.filter(p => p.cantidad >= 50);
         const baja = rotacion.filter(p => p.cantidad > 0 && p.cantidad < 50);
-        document.getElementById('lista-alta-rotacion').innerHTML =
-          alta.length
-            ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
-            : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
-        document.getElementById('lista-baja-rotacion').innerHTML =
-          [...baja, ...sinMovimiento].length
-            ? [...baja.map(p => itemFila(p.nombre, p.cantidad, false)),
-               ...sinMovimiento.map(p => itemFila(p.nombre, 0, true))].join('')
-            : '<p class="text-muted small text-center py-2">Todos tienen movimiento.</p>';
+        document.getElementById('lista-alta-rotacion').innerHTML = alta.length
+          ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
+          : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
+        document.getElementById('lista-baja-rotacion').innerHTML = [...baja, ...sinMovimiento].length
+          ? [...baja.map(p => itemFila(p.nombre, p.cantidad, false)), ...sinMovimiento.map(p => itemFila(p.nombre, 0, true))].join('')
+          : '<p class="text-muted small text-center py-2">Todos tienen movimiento.</p>';
         document.getElementById('tablas-rotacion').style.display = 'flex';
       } else {
-        document.getElementById('rotacion-loading').innerHTML =
-          '<p class="text-muted small text-center py-3">No hay datos de ventas en los últimos 30 días.</p>';
+        document.getElementById('rotacion-loading').innerHTML = '<p class="text-muted small text-center py-3">No hay datos de ventas en los últimos 30 días.</p>';
       }
     })
     .catch(() => {
       document.getElementById('seccion-analitica').style.display = 'block';
-      document.getElementById('rotacion-loading').innerHTML =
-        '<p class="text-muted small">Error al cargar datos.</p>';
+      document.getElementById('rotacion-loading').innerHTML = '<p class="text-muted small">Error al cargar datos.</p>';
     });
 })();
-// ── DATATABLE MOVIMIENTOS ──
-$(document).ready(function () {
-  if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
-    $('#tablaMovimientos').DataTable().destroy();
-  }
-  $('#tablaMovimientos').DataTable({
-    paging: false,          // ya tienes filtro por fecha, no paginar
-    searching: false,       // ya tienes el select de fecha
-    info: false,
-    ordering: true,
-    responsive: true,
-    columnDefs: [
-      { orderable: false, targets: [8] }  // columna Acciones no ordenable
-    ],
-    language: {
-      emptyTable: "No hay movimientos para este día."
-    },
-    dom: 'rt'               // solo tabla, sin controles extra
-  });
-});
 </script>
 {% endblock %}
