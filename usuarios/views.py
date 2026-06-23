@@ -72,9 +72,13 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('principal')
 
+    seccion = request.GET.get('action', 'login')
+    usuario_input = ''
+
     if request.method == 'POST':
         identificacion = request.POST.get('usuario_input', '').strip()
         clave          = request.POST.get('clave_input', '')
+        usuario_input  = identificacion
         es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         usuario = None
@@ -107,8 +111,12 @@ def login_view(request):
         if es_ajax:
             return JsonResponse({'ok': False, 'error': err})
         messages.error(request, err)
+        seccion = 'login'
 
-    ctx = {}
+    ctx = {
+        'seccion': seccion,
+        'usuario_input': usuario_input,
+    }
     return render(request, 'usuario.html', ctx)
 # ── LOGOUT ─────────────────────────────────────────────────────────────────────
 
@@ -359,7 +367,7 @@ def solicitar_recuperacion(request):
             if es_ajax:
                 return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con ese correo.'})
             messages.error(request, 'No existe una cuenta activa con ese correo.')
-            return redirect('login')
+            return redirect('/usuarios/login/?action=correo')
 
         token  = get_random_string(32)
         expira = timezone.now() + timedelta(minutes=15)
@@ -388,20 +396,29 @@ def solicitar_recuperacion(request):
                 return JsonResponse({'ok': False, 'error': 'No se pudo enviar el correo. Intenta más tarde.'})
             messages.error(request, 'No se pudo enviar el correo. Intenta más tarde.')
 
+        return redirect('/usuarios/login/?action=correo')
+
     return redirect('login')
 
 
 # ── RECUPERAR CLAVE (TELÉFONO) ─────────────────────────────────────────────────
 
 def recuperar_por_telefono(request):
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+        return redirect('login')
 
     telefono       = request.POST.get('telefono', '').strip()
     identificacion = request.POST.get('identificacion', '').strip()
 
     if not telefono or not identificacion:
-        return JsonResponse({'ok': False, 'error': 'Ingresa tu número de teléfono e identificación.'})
+        err = 'Ingresa tu número de teléfono e identificación.'
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': err})
+        messages.error(request, err)
+        return redirect('/usuarios/login/?action=telefono')
 
     try:
         usuario = Usuario.objects.get(
@@ -410,7 +427,11 @@ def recuperar_por_telefono(request):
             activo=True,
         )
     except Usuario.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con esos datos.'})
+        err = 'No existe una cuenta activa con esos datos.'
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': err})
+        messages.error(request, err)
+        return redirect('/usuarios/login/?action=telefono')
 
     codigo = str(random.randint(100000, 999999))
     expira = timezone.now() + timedelta(minutes=15)
@@ -426,24 +447,38 @@ def recuperar_por_telefono(request):
     )
     print(f'\n🔑 CÓDIGO DE RECUPERACIÓN para {usuario.nombre_completo}: {codigo}\n')
 
-    return JsonResponse({
-        'ok':     True,
-        'mensaje': 'Código generado. El administrador te lo comunicará en breve.',
-    })
+    request.session['tel_recuperar'] = telefono
+    request.session['id_recuperar']  = identificacion
+
+    msg = 'Código generado. El administrador te lo comunicará en breve.'
+    if es_ajax:
+        return JsonResponse({
+            'ok':     True,
+            'mensaje': msg,
+        })
+    messages.success(request, msg)
+    return redirect('/usuarios/login/?action=codigo')
 
 
 # ── VERIFICAR CÓDIGO TELÉFONO ──────────────────────────────────────────────────
 
 def verificar_codigo_telefono(request):
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+        return redirect('login')
 
-    telefono       = request.POST.get('telefono', '').strip()
-    identificacion = request.POST.get('identificacion', '').strip()
+    telefono       = request.POST.get('telefono', '').strip() or request.session.get('tel_recuperar', '')
+    identificacion = request.POST.get('identificacion', '').strip() or request.session.get('id_recuperar', '')
     codigo         = request.POST.get('codigo', '').strip()
 
     if not telefono or not identificacion or not codigo:
-        return JsonResponse({'ok': False, 'error': 'Datos incompletos.'})
+        err = 'Datos incompletos.'
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': err})
+        messages.error(request, err)
+        return redirect('/usuarios/login/?action=codigo')
 
     try:
         usuario = Usuario.objects.get(
@@ -453,11 +488,21 @@ def verificar_codigo_telefono(request):
             activo=True,
         )
     except Usuario.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Código incorrecto.'})
+        err = 'Código incorrecto.'
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': err})
+        messages.error(request, err)
+        return redirect('/usuarios/login/?action=codigo')
 
     if timezone.now() > usuario.reset_token_expira:
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        return JsonResponse({'ok': False, 'error': 'El código expiró. Solicita uno nuevo.'})
+        request.session.pop('tel_recuperar', None)
+        request.session.pop('id_recuperar', None)
+        err = 'El código expiró. Solicita uno nuevo.'
+        if es_ajax:
+            return JsonResponse({'ok': False, 'error': err})
+        messages.error(request, err)
+        return redirect('/usuarios/login/?action=telefono')
 
     token  = get_random_string(32)
     expira = timezone.now() + timedelta(minutes=10)
@@ -465,7 +510,12 @@ def verificar_codigo_telefono(request):
     usuario.reset_token_expira = expira
     usuario.save(update_fields=['reset_token', 'reset_token_expira'])
 
-    return JsonResponse({'ok': True, 'redirect': f'/usuarios/restablecer/{token}/'})
+    request.session.pop('tel_recuperar', None)
+    request.session.pop('id_recuperar', None)
+
+    if es_ajax:
+        return JsonResponse({'ok': True, 'redirect': f'/usuarios/restablecer/{token}/'})
+    return redirect(f'/usuarios/restablecer/{token}/')
 
 
 # ── RESTABLECER CLAVE ──────────────────────────────────────────────────────────
