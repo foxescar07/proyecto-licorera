@@ -725,3 +725,67 @@ div.dt-container div.dt-info {
   box-shadow: 0 0 0 .2rem rgba(77,168,218,.15);
   outline: none;
 }
+/* Opciones del dropdown */
+#cat-categoria option,
+.inv-select option {
+  background-color: #0d1b2a;
+  color: #c8d6e5;
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: rgba(77,168,218,.15) !important;
+  color: #4DA8DA !important;
+}
+
+.dropdown-item.active {
+  background: rgba(77,168,218,.2) !important;
+  color: #4DA8DA !important;
+}
+/* 1) El popup del calendario se ve en tema claro */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  color-scheme: light;
+}
+
+/* 2) El ícono del calendario dentro del input se invierte a blanco
+      para que se vea bien sobre el fondo oscuro de .inv-input */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+#buscarLote::placeholder {
+  color: rgba(226, 232, 240, .45);
+}
+/* Buscador y dropdown "Todos" en Stock por Lote — mismo estilo que Catálogo/Movimientos */
+#buscarLote-grupo .input-group-text,
+#buscarLote,
+#filtroEstado-btn {
+  height: 38px;
+  font-size: .85rem;
+  background-color: rgba(77,168,218,0.1) !important;
+  border-color: rgba(77, 168, 218, 0.35) !important;
+  color: #c8d6e5 !important;
+}
+
+#buscarLote-grupo .input-group-text {
+  border-radius: 8px 0 0 8px !important;
+  color: #4DA8DA !important; /* el ícono de lupa se mantiene en azul */
+}
+
+#buscarLote {
+  border-radius: 0 8px 8px 0 !important;
+}
+
+#buscarLote::placeholder {
+  color: rgba(226, 232, 240, .45);
+}
+
+#filtroEstado-btn {
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
