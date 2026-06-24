@@ -327,7 +327,7 @@
           <!-- Venta -->
           <div class="info-block">
             <div class="info-block-title"><i class="bi bi-receipt me-1"></i>Venta Original</div>
-            <div class="info-block-value">#{{ devolucion.venta.numero_venta }}</div>
+            <div class="info-block-value">#{{ devolucion.venta.pk }}</div>
             <div class="info-block-sub">
               {{ devolucion.venta.fecha|date:"d/m/Y H:i" }}
             </div>
@@ -381,7 +381,7 @@
                   <span class="cantidad-badge">{{ detalle.cantidad }}</span>
                 </td>
                 <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
-                <td class="precio-total">${{ detalle|dictsort:"precio_unitario"|length|default:0 }}</td>
+                <td class="precio-total">${{ detalle.subtotal|floatformat:2 }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -405,9 +405,9 @@
               <div class="resumen-valor">{{ devolucion.detalles.count }}</div>
             </div>
             <div class="resumen-item">
-              <div class="resumen-label">Cantidad</div>
+              <div class="resumen-label">Cantidad Total</div>
               <div class="resumen-valor">
-                {% widthratio devolucion.detalles.count 1 1 %}
+                {% for detalle in devolucion.detalles.all %}{{ detalle.cantidad }}{% if not forloop.last %}+{% endif %}{% endfor %}
               </div>
             </div>
             <div class="resumen-item">
@@ -429,7 +429,7 @@
             <button class="btn-print" onclick="window.print()">
               <i class="bi bi-printer me-2"></i>Imprimir Comprobante
             </button>
-            <a href="{% url 'lista_devoluciones' %}" class="btn-volver">
+            <a href="{% url 'ventas:lista_devoluciones' %}" class="btn-volver">
               <i class="bi bi-arrow-left me-1"></i>Volver a Devoluciones
             </a>
           </div>
