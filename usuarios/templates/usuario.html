@@ -9,9 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/usuario/usuario.css' %}">
-  {% endblock %}
 </head>
 <body>
 
@@ -20,7 +18,6 @@
 
       <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
 
-      <!-- Mensajes Globales de Django -->
       {% if messages %}
         {% for message in messages %}
           <div class="cys-msg cys-msg--{% if message.tags == 'error' %}err{% else %}ok{% endif %}" role="alert" style="display:block;">
@@ -74,17 +71,24 @@
       {% if seccion == 'recuperar' %}
       <div id="secRecuperar">
         <div class="cys-title">Recuperar Acceso</div>
-
         <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
           ¿Cómo quieres recuperar tu contraseña?
         </p>
 
-        <a href="?action=correo" class="cys-btn-primary mb-3 text-decoration-none d-flex align-items-center justify-content-center">
-          <i class="bi bi-envelope me-1"></i> Por correo electrónico
+        <a href="?action=correo" class="cys-btn-primary mb-3 text-decoration-none d-flex align-items-center justify-content-center gap-2">
+          <i class="bi bi-link-45deg"></i>
+          <div>
+            <div style="font-size:.85rem; font-weight:600;">Enlace por correo</div>
+            <div style="font-size:.72rem; opacity:.75;">Te enviamos un enlace directo</div>
+          </div>
         </a>
 
-        <a href="?action=telefono" class="cys-btn-primary mb-3 text-decoration-none d-flex align-items-center justify-content-center">
-          <i class="bi bi-phone me-1"></i> Por número de teléfono
+        <a href="?action=otp" class="cys-btn-primary mb-3 text-decoration-none d-flex align-items-center justify-content-center gap-2">
+          <i class="bi bi-shield-lock"></i>
+          <div>
+            <div style="font-size:.85rem; font-weight:600;">Código por correo</div>
+            <div style="font-size:.72rem; opacity:.75;">Te enviamos un código de 6 dígitos</div>
+          </div>
         </a>
 
         <div class="text-center mt-2">
@@ -95,20 +99,26 @@
       </div>
       {% endif %}
 
-      <!-- ── RECUPERAR POR CORREO ── -->
+      <!-- ── RECUPERAR POR ENLACE ── -->
       {% if seccion == 'correo' %}
       <form id="secRecCorreo" method="POST" action="{% url 'recuperar_clave' %}">
         {% csrf_token %}
-        <div class="cys-title">Recuperar por Correo</div>
-
-        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
-          Ingresa tu correo registrado y te enviaremos un enlace para crear una nueva contraseña.
+        <div class="cys-title">Recuperar por Enlace</div>
+        <p class="text-center mb-3" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña.
         </p>
+        <div class="cys-method-badge mb-4">
+          <i class="bi bi-link-45deg"></i> Método: enlace directo
+        </div>
 
         <div class="mb-4">
           <label class="cys-label" for="recCorreo">Correo Electrónico</label>
-          <input type="email" name="correo" id="recCorreo" class="cys-input"
-                 placeholder="correo@ejemplo.com" autocomplete="off" required>
+          <div class="cys-input-eye">
+            <input type="email" name="correo" id="recCorreo" class="cys-input"
+                   placeholder="correo@ejemplo.com" autocomplete="off" required
+                   style="padding-left: 2.6rem !important;">
+            <i class="bi bi-envelope cys-field-icon"></i>
+          </div>
         </div>
 
         <button type="submit" class="cys-btn-primary mb-3">
@@ -123,30 +133,30 @@
       </form>
       {% endif %}
 
-      <!-- ── RECUPERAR POR TELÉFONO ── -->
-      {% if seccion == 'telefono' %}
-      <form id="secRecTel" method="POST" action="{% url 'recuperar_por_telefono' %}">
+      <!-- ── RECUPERAR POR CÓDIGO OTP ── -->
+      {% if seccion == 'otp' %}
+      <form id="secRecOtp" method="POST" action="{% url 'recuperar_otp_correo' %}">
         {% csrf_token %}
-        <div class="cys-title">Recuperar por Teléfono</div>
-
-        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
-          Ingresa tu número de teléfono y número de identificación. El administrador te dará un código de verificación.
+        <div class="cys-title">Recuperar por Código</div>
+        <p class="text-center mb-3" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+          Ingresa tu correo y te enviaremos un código de 6 dígitos que expira en 10 minutos.
         </p>
-
-        <div class="mb-3">
-          <label class="cys-label" for="telTelefono">Número de Teléfono</label>
-          <input type="tel" name="telefono" id="telTelefono" class="cys-input"
-                 placeholder="Ej: 3001234567" autocomplete="off" required>
+        <div class="cys-method-badge cys-method-badge--otp mb-4">
+          <i class="bi bi-shield-lock"></i> Método: código de verificación
         </div>
 
         <div class="mb-4">
-          <label class="cys-label" for="telIdentificacion">Número de Identificación</label>
-          <input type="text" name="identificacion" id="telIdentificacion" class="cys-input"
-                 placeholder="Tu número de identificación" autocomplete="off" required>
+          <label class="cys-label" for="otpCorreo">Correo Electrónico</label>
+          <div class="cys-input-eye">
+            <input type="email" name="correo" id="otpCorreo" class="cys-input"
+                   placeholder="correo@ejemplo.com" autocomplete="off" required
+                   style="padding-left: 2.6rem !important;">
+            <i class="bi bi-envelope cys-field-icon"></i>
+          </div>
         </div>
 
         <button type="submit" class="cys-btn-primary mb-3">
-          <i class="bi bi-shield-lock me-1"></i> Solicitar Código
+          <i class="bi bi-send me-1"></i> Enviar Código
         </button>
 
         <div class="text-center">
@@ -157,62 +167,62 @@
       </form>
       {% endif %}
 
-      <!-- ── VERIFICAR CÓDIGO ── -->
-      {% if seccion == 'codigo' %}
-      <form id="secCodigo" method="POST" action="{% url 'verificar_codigo_telefono' %}">
-        {% csrf_token %}
-        <div class="cys-title">Ingresar Código</div>
+      <!-- ── VERIFICAR CÓDIGO OTP ── -->
+{% if seccion == 'otp_verificar' %}
+<form id="secOtpVerificar" method="POST" action="{% url 'verificar_otp_correo' %}">
+  {% csrf_token %}
+  <input type="hidden" name="correo" value="{{ request.session.otp_correo }}">
 
-        <p class="text-center mb-4" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
-          Ingresa el código de 6 dígitos que te proporcionó el administrador. Expira en 15 minutos.
-        </p>
+  <div class="cys-title">Ingresa el Código</div>
+  <p class="text-center mb-3" style="font-size:.78rem; color:var(--texto-muted); line-height:1.6;">
+    Revisa tu correo y escribe el código de 6 dígitos que te enviamos.
+  </p>
 
-        <div class="mb-4">
-          <label class="cys-label" for="inputCodigo">Código de Verificación</label>
-          <input type="text" name="codigo" id="inputCodigo" class="cys-input"
-                 placeholder="Ej: 483920" maxlength="6" autocomplete="off" required
-                 style="letter-spacing:.2rem; font-size:1.1rem; text-align:center;">
-        </div>
+  <div class="cys-method-badge cys-method-badge--otp mb-4" id="badgeTimer">
+    <i class="bi bi-clock"></i> Expira en <span id="cuentaRegresiva" style="font-weight:700; margin-left:.25rem;">10:00</span>
+  </div>
 
-        <button type="submit" class="cys-btn-primary mb-3">
-          <i class="bi bi-check-circle me-1"></i> Verificar Código
-        </button>
+  <div class="mb-4">
+    <label class="cys-label" for="inputOtp">Código de Verificación</label>
+    <input type="text" name="codigo" id="inputOtp" class="cys-input"
+           placeholder="• • • • • •"
+           maxlength="6" autocomplete="off" required
+           style="letter-spacing:.5rem; font-size:1.4rem; text-align:center; font-weight:700;">
+  </div>
 
-        <div class="text-center">
-          <a href="?action=telefono" class="cys-btn-link mx-auto text-decoration-none">
-            <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver
-          </a>
-        </div>
-      </form>
-      {% endif %}
+  <button type="submit" class="cys-btn-primary mb-3" id="btnVerificar">
+    <i class="bi bi-check-circle me-1"></i> Verificar Código
+  </button>
+
+  <div class="text-center">
+    <a href="?action=otp" class="cys-btn-link mx-auto text-decoration-none"
+       id="enlaceReenviar" style="display:none;">
+      <i class="bi bi-arrow-counterclockwise" style="font-size:.75rem;"></i> Reenviar código
+    </a>
+  </div>
+ </form>
+ {% endif %}
 
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // ── Sacudir tarjeta si hay errores ──
     function sacudir() {
       const t = document.getElementById('tarjeta');
-      if (t) {
-        t.classList.remove('shake');
-        void t.offsetWidth;
-        t.classList.add('shake');
-      }
+      if (t) { t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
     }
-
-    // Ejecutar sacudir si hay mensajes de Django
     {% if messages %}
-      window.addEventListener('DOMContentLoaded', () => {
-        sacudir();
-      });
+      window.addEventListener('DOMContentLoaded', () => sacudir());
     {% endif %}
 
-    // ── Toggle mostrar contraseña ──
+    // ── Toggle password login ──
     const btnToggleLogin = document.getElementById('btnToggleLogin');
     if (btnToggleLogin) {
       btnToggleLogin.addEventListener('click', function () {
-        const field  = document.getElementById('loginPass');
-        const icon   = this.querySelector('i');
+        const field = document.getElementById('loginPass');
+        const icon  = this.querySelector('i');
         if (field && icon) {
           const isPass = field.type === 'password';
           field.type = isPass ? 'text' : 'password';
@@ -228,34 +238,89 @@
       loginUser.addEventListener('input', function () {
         const val  = this.value.trim();
         const hint = document.getElementById('loginHint');
-
         if (!hint) return;
-
-        if (!val) {
-          hint.style.display = 'none';
-          hint.innerHTML = '';
-          return;
-        }
-
+        if (!val) { hint.style.display = 'none'; hint.innerHTML = ''; return; }
         const soloNumeros = /^\d+$/.test(val);
-
         if (soloNumeros) {
           hint.className = 'cys-login-hint cys-login-hint--doc';
-          hint.innerHTML = `
-            <i class="bi bi-card-text"></i>
-            <span>Estás ingresando tu <strong>número de documento</strong>.
-            Funciona si aún no has personalizado tu usuario desde el perfil.</span>
-          `;
+          hint.innerHTML = `<i class="bi bi-card-text"></i>
+            <span>Estás ingresando tu <strong>número de documento</strong>.</span>`;
         } else {
           hint.className = 'cys-login-hint cys-login-hint--user';
-          hint.innerHTML = `
-            <i class="bi bi-person-badge"></i>
-            <span>Estás ingresando tu <strong>nombre de usuario personalizado</strong>.
-            Si nunca lo cambiaste, usa tu número de documento.</span>
-          `;
+          hint.innerHTML = `<i class="bi bi-person-badge"></i>
+            <span>Estás ingresando tu <strong>nombre de usuario personalizado</strong>.</span>`;
         }
-
         hint.style.display = 'flex';
+      });
+    }
+
+    // ── Solo números en OTP ──
+    const inputOtp = document.getElementById('inputOtp');
+    if (inputOtp) {
+      inputOtp.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 6);
+      });
+    }
+
+    // ── Cuenta regresiva 10 min (persistente con sessionStorage) ──
+    const spanTimer  = document.getElementById('cuentaRegresiva');
+    const badgeTimer = document.getElementById('badgeTimer');
+    const btnVerif   = document.getElementById('btnVerificar');
+
+    if (spanTimer) {
+      const STORAGE_KEY = 'cys_otp_expira';
+      const DURACION    = 10 * 60 * 1000; // 10 min en ms
+
+      // Si no hay timestamp guardado o ya expiró más de 10 min, crear uno nuevo
+      let expiraEn = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0');
+      if (!expiraEn || Date.now() > expiraEn + 1000) {
+        expiraEn = Date.now() + DURACION;
+        sessionStorage.setItem(STORAGE_KEY, expiraEn);
+      }
+
+      function mostrarExpirado() {
+        spanTimer.textContent   = '00:00';
+        spanTimer.style.color   = '#e87070';
+        if (badgeTimer) {
+          badgeTimer.innerHTML  = '<i class="bi bi-x-circle me-1"></i> Código expirado';
+          badgeTimer.style.color       = '#e87070';
+          badgeTimer.style.background  = 'rgba(192,57,43,.1)';
+          badgeTimer.style.borderColor = 'rgba(192,57,43,.35)';
+        }
+        if (btnVerif) {
+          btnVerif.disabled    = true;
+          btnVerif.style.opacity    = '.45';
+          btnVerif.style.cursor     = 'not-allowed';
+          btnVerif.innerHTML   = '<i class="bi bi-x-circle me-1"></i> Código expirado';
+        }
+        // Mostrar enlace de reenvío
+        const reenviar = document.getElementById('enlaceReenviar');
+        if (reenviar) reenviar.style.display = 'inline-flex';
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+
+      function actualizarTimer() {
+        const restante = expiraEn - Date.now();
+        if (restante <= 0) {
+          clearInterval(intervalo);
+          mostrarExpirado();
+          return;
+        }
+        const m = String(Math.floor(restante / 60000)).padStart(2, '0');
+        const s = String(Math.floor((restante % 60000) / 1000)).padStart(2, '0');
+        spanTimer.textContent = `${m}:${s}`;
+        if (restante <= 60000) spanTimer.style.color = '#e87070';
+      }
+
+      actualizarTimer();
+      const intervalo = setInterval(actualizarTimer, 1000);
+    }
+
+    // ── Limpiar timer al reenviar ──
+    const enlaceReenviar = document.getElementById('enlaceReenviar');
+    if (enlaceReenviar) {
+      enlaceReenviar.addEventListener('click', () => {
+        sessionStorage.removeItem('cys_otp_expira');
       });
     }
   </script>
