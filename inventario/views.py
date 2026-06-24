@@ -25,15 +25,21 @@ def inventario_home(request):
         messages.success(request, 'Inventario agendado correctamente.')
         return redirect('inventario_home')
 
-    hoy          = timezone.now().date()
-    fecha_filtro = request.GET.get('fecha_mov', str(hoy))
+    hoy = timezone.now().date()
+
+    # Primero calculamos los días que SÍ tienen movimientos registrados...
+    dias_con_movimientos = Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30]
+
+    # ...y usamos el más reciente como valor por defecto (en vez de "hoy" a ciegas,
+    # que puede no tener ningún movimiento todavía y dejar el selector vacío).
+    fecha_default = str(dias_con_movimientos[0]) if dias_con_movimientos else str(hoy)
+    fecha_filtro  = request.GET.get('fecha_mov', fecha_default)
 
     movimientos = Inventario.objects.select_related(
         'lote__presentacion__producto__categoria',
         'registrado_por'
     ).filter(fecha_actualizada__date=fecha_filtro).order_by('-fecha_actualizada')
 
-    dias_con_movimientos = Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30]
     agendas  = AgendaInventario.objects.order_by('fecha_programada')
     sesion   = SesionConteo.objects.filter(estado='activa').first()
     conteos  = ConteoProducto.objects.filter(sesion=sesion).select_related('presentacion__producto') if sesion else []
@@ -762,4 +768,3 @@ def agenda_eliminar(request, pk):
         agenda.delete()
         messages.success(request, '✅ Registro de agenda eliminado.')
     return redirect('agenda_lista')
-
