@@ -518,7 +518,7 @@
    ══════════════════════════════════════════ */
 :root {
   --pg-card:   #112b4c;
-  --pg-input:  #103354;
+  --pg-input:  #0a1e38;
   --pg-border: rgba(28, 123, 175, 0.22);
   --pg-azul:   #4DA8DA;
   --pg-azul2:  #3b9ad6;
@@ -803,4 +803,133 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .dropdown-item.active {
   background-color: rgba(77,168,218,.15) !important;
   color: #4DA8DA !important;
+}
+  /* ── Flechitas DataTables para tema oscuro ── */
+  #tablaMovimientos thead > tr > th,
+  #cat-list table thead > tr > th {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Flechitas color azul como en stock */
+  #tablaMovimientos thead > tr > th .dt-column-order:before,
+  #tablaMovimientos thead > tr > th .dt-column-order:after,
+  #cat-list table thead > tr > th .dt-column-order:before,
+  #cat-list table thead > tr > th .dt-column-order:after {
+    color: #4DA8DA;
+    opacity: 0.4;
+  }
+
+  #tablaMovimientos thead > tr > th.dt-ordering-asc .dt-column-order:before,
+  #tablaMovimientos thead > tr > th.dt-ordering-desc .dt-column-order:after,
+  #cat-list table thead > tr > th.dt-ordering-asc .dt-column-order:before,
+  #cat-list table thead > tr > th.dt-ordering-desc .dt-column-order:after {
+    opacity: 1;
+    color: #4DA8DA;
+  }
+
+  /* Hover en cabeceras */
+  #tablaMovimientos thead > tr > th.dt-orderable-asc:hover,
+  #tablaMovimientos thead > tr > th.dt-orderable-desc:hover,
+  #cat-list table thead > tr > th.dt-orderable-asc:hover,
+  #cat-list table thead > tr > th.dt-orderable-desc:hover {
+    outline: 2px solid rgba(77, 168, 218, 0.15);
+    outline-offset: -2px;
+  }
+  /* ── Flechas DataTables: todas alineadas a la derecha ── */
+table.dataTable thead > tr > th div.dt-column-header,
+table.dataTable thead > tr > td div.dt-column-header {
+  display: flex !important;
+  flex-direction: row !important;        /* título → flecha */
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* Forzar que el título ocupe el espacio y la flecha quede al extremo derecho */
+table.dataTable thead > tr > th div.dt-column-header .dt-column-title,
+table.dataTable thead > tr > td div.dt-column-header .dt-column-title {
+  flex: 1 !important;
+}
+
+table.dataTable thead > tr > th div.dt-column-header .dt-column-order,
+table.dataTable thead > tr > td div.dt-column-header .dt-column-order {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Columnas numéricas (Stock, Cantidad) — también derecha */
+table.dataTable thead > tr > th.dt-type-numeric div.dt-column-header,
+table.dataTable thead > tr > td.dt-type-numeric div.dt-column-header {
+  flex-direction: row !important;   /* anula el row-reverse que pone DataTables */
+}
+/* ── Movimientos: flecha con espacio y pegada a la orilla derecha ── */
+#tablaMovimientos thead > tr > th div.dt-column-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+#tablaMovimientos thead > tr > th div.dt-column-header .dt-column-title {
+  flex: 1 !important;
+  white-space: nowrap !important;
+}
+
+#tablaMovimientos thead > tr > th div.dt-column-header .dt-column-order {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── Catálogo lista: columna Código centrada ── */
+#cat-list table thead > tr > th:last-child,
+#cat-list table tbody > tr > td:last-child {
+  text-align: center !important;
+}
+
+#cat-list table thead > tr > th:last-child div.dt-column-header {
+  justify-content: center !important;
+}
+/* ── Unificar color de todos los dropdowns de formulario ── */
+.btn#presentacion-btn,
+.btn#lote-btn,
+.btn#motivo-btn,
+.btn#presentacion-lote-btn,
+button#presentacion-btn,
+button#lote-btn,
+button#motivo-btn,
+button#presentacion-lote-btn {
+  background-color: #0a1e38 !important;
+  background-image: none !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
+  color: #c8d6e5 !important;
+  font-size: .9rem !important;
+  border-radius: 8px !important;
+  padding: .55rem 1rem !important;
+  box-shadow: none !important;
+}
+
+.btn#presentacion-btn:hover,
+.btn#lote-btn:hover,
+.btn#motivo-btn:hover,
+.btn#presentacion-lote-btn:hover,
+.btn#presentacion-btn:focus,
+.btn#lote-btn:focus,
+.btn#motivo-btn:focus,
+.btn#presentacion-lote-btn:focus,
+.btn#presentacion-btn:active,
+.btn#lote-btn:active,
+.btn#motivo-btn:active,
+.btn#presentacion-lote-btn:active,
+.btn#presentacion-btn.show,
+.btn#lote-btn.show,
+.btn#motivo-btn.show,
+.btn#presentacion-lote-btn.show {
+  background-color: #0a1e38 !important;
+  background-image: none !important;
+  border-color: #4DA8DA !important;
+  color: #c8d6e5 !important;
+  box-shadow: 0 0 0 2px rgba(77, 168, 218, .2) !important;
 }

@@ -6,6 +6,7 @@
 {% block nav_inventario %}active{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
 {% endblock %}
 
@@ -940,6 +941,45 @@
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // ── DATATABLE MOVIMIENTOS ──
+$(document).ready(function () {
+
+  // Tabla movimientos
+  if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
+    $('#tablaMovimientos').DataTable().destroy();
+  }
+  $('#tablaMovimientos').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [8] }  // Acciones no ordenable
+    ],
+    language: {
+      emptyTable: "No hay movimientos para este día."
+    },
+    dom: 'rt'
+  });
+
+  // Tabla catálogo lista
+  if ($.fn.DataTable.isDataTable('#cat-list table')) {
+    $('#cat-list table').DataTable().destroy();
+  }
+  var tablaCatalogo = $('#cat-list table').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [0] }  // # no ordenable
+    ],
+    dom: 'rt'
+  });
+
+});
 // Limpiar backdrop huérfano SOLO si no hay modal abriendo
 window.addEventListener('load', function() {
   setTimeout(function() {
