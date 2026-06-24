@@ -1,6 +1,9 @@
 // Función de búsqueda personalizada para rango de fechas en DataTables
 $.fn.dataTable.ext.search.push(
     function(settings, data, dataIndex) {
+        if (settings.sTableId !== 'reportes-table') {
+            return true;
+        }
         var minVal = $('#filtro-fecha-inicio').val();
         var maxVal = $('#filtro-fecha-fin').val();
         

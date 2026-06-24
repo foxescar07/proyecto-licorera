@@ -30,20 +30,26 @@ class DetalleVentaForm(forms.ModelForm):
 
 
 class DevolucionForm(forms.ModelForm):
+    motivo = forms.CharField(
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Motivo de devolución'
+    )
+    observaciones = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe el problema con detalle...'}),
+        label='Observaciones adicionales',
+        required=False
+    )
+    restaurar_stock = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Restaurar stock',
+        required=False
+    )
+    tiene_comprobante = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Tiene comprobante',
+        required=False
+    )
+
     class Meta:
         model = Devolucion
-        fields = [
-            'motivo', 'observaciones', 'restaurar_stock', 'tiene_comprobante'
-        ]
-        widgets = {
-            'motivo': forms.Select(attrs={'class': 'form-select'}),
-            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe el problema con detalle...'}),
-            'restaurar_stock': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'tiene_comprobante': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-        labels = {
-            'motivo': 'Motivo de devolución',
-            'observaciones': 'Observaciones adicionales',
-            'restaurar_stock': 'Restaurar stock',
-            'tiene_comprobante': 'Tiene comprobante',
-        }
+        fields = ['motivo', 'observaciones', 'restaurar_stock', 'tiene_comprobante']

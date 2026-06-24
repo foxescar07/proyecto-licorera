@@ -1044,7 +1044,7 @@
               <div class="fw-bold" style="color:var(--text-hi);">{{ dev.venta.cliente }}</div>
               <div class="small" style="color:var(--text-md);">{{ dev.fecha|date:"d/m/Y H:i" }}</div>
             </div>
-            <a href="{% url 'comprobante_devolucion' dev.pk %}" class="btn btn-link btn-sm p-0" style="color:var(--cyan);">
+            <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" class="btn btn-link btn-sm p-0" style="color:var(--cyan);">
               <i class="bi bi-eye"></i>
             </a>
           </div>

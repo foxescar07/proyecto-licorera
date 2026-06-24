@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}Stock & Productos — CYS Ltda{% endblock %}
 {% block page_title %}Stock & Productos{% endblock %}
@@ -251,7 +251,7 @@
             </label>
             <input type="number" name="costo_unitario" class="form-control"
                    style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;"
-                   min="0" step="1" value="{{ lote.costo_unitario|default:0 }}"
+                   min="0" step="1" value="{{ lote.costo_unitario|unlocalize|default:0 }}"
                    placeholder="0">
           </div>
           <div class="mb-1">
@@ -315,9 +315,12 @@ $(document).ready(function() {
 
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex, rowData, counter) {
+            if (settings.sTableId !== 'tablaLotes') {
+                return true;
+            }
             var filterValue = $('#filtroEstado').val();
             if (filterValue === 'todos') return true;
-            var node = table.row(dataIndex).node();
+            var node = settings.aoData[dataIndex].nTr;
             var estado = $(node).attr('data-estado');
             return estado === filterValue;
         }
