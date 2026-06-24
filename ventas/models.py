@@ -137,6 +137,20 @@ class Devolucion(models.Model):
         ('otro',         'Otro motivo'),
     ]
 
+    REEMBOLSO_CHOICES = [
+        ('cambio',       'Cambio de producto'),
+        ('nota_credito', 'Nota crédito'),
+        ('reembolso',    'Reembolso'),
+    ]
+
+    METODO_PAGO_CHOICES = [
+        ('efectivo',     'Efectivo'),
+        ('tarjeta',      'Tarjeta'),
+        ('transferencia', 'Transferencia'),
+        ('nequi',        'Nequi'),
+        ('daviplata',    'DaviPlata'),
+    ]
+
     venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
                                           related_name='devoluciones',
                                           verbose_name='Venta original')
@@ -145,6 +159,8 @@ class Devolucion(models.Model):
                                           verbose_name='Registrado por', null=True, blank=True)
     fecha             = models.DateTimeField(auto_now_add=True)
     motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
+    tipo_reembolso    = models.CharField(max_length=20, choices=REEMBOLSO_CHOICES, default='cambio')
+    metodo_pago_devolucion = models.CharField(max_length=50, choices=METODO_PAGO_CHOICES, blank=True)
     observaciones     = models.TextField(blank=True)
     restaurar_stock   = models.BooleanField(default=True)
     tiene_comprobante = models.BooleanField(default=True)
