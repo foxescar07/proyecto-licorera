@@ -223,7 +223,7 @@
     ══════════════════════════════════════ -->
     <section class="cys-card mb-4">
       <div class="cys-card__title">
-        <i class="bi bi-graph-up me-2" style="color: #4DA8DA;"></i>Historial de Ventas
+        <i class="bi bi-graph-up cys-card__title-icon"></i>Historial de Ventas
       </div>
 
       <!-- Barra de filtros -->
@@ -263,7 +263,7 @@
         <!-- Botón Limpiar -->
         <div class="cys-hv-date-group">
           <span class="cys-hv-date-label">&nbsp;</span>
-          <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar" style="text-decoration: none;">
+          <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar cys-link-plain">
             <i class="bi bi-trash"></i>Limpiar
           </a>
         </div>
@@ -309,11 +309,10 @@
         <i class="bi bi-funnel"></i>
         <span>Filtros activos:</span>
         <strong>{{ fecha_inicio|default:"…" }} → {{ fecha_fin|default:"…" }}</strong>
-        <span style="color: var(--texto-muted, #8FA3B1);">
+        <span class="cys-busqueda-activa__count">
           — {{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize:",s" }}
         </span>
-        <a href="{% url 'reportes' %}"
-           style="color: var(--texto-muted, #8FA3B1); font-size: .75rem; margin-left: 4px; text-decoration: none;">
+        <a href="{% url 'reportes' %}" class="cys-busqueda-activa__clear">
           ✕ Limpiar
         </a>
       </div>
@@ -382,182 +381,197 @@
   <div class="modal-dialog modal-dialog-scrollable modal-xl">
     <div class="modal-content cys-modal">
 
+      <!-- HEADER -->
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon"><i class="bi bi-box-seam"></i></div>
+          <div class="cys-modal__icon cys-modal__icon--inv">
+            <i class="bi bi-box-seam"></i>
+          </div>
           <div>
             <div class="cys-modal__title">Reporte de Inventario</div>
             <div class="cys-modal__subtitle">CYS Ltda · {{ productos|length }} productos registrados</div>
           </div>
         </div>
-        <div class="d-flex align-items-center">
-          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
-        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div class="cys-modal__stats">
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
-          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
+      <!-- KPIs -->
+      <div class="cys-modal__stats cys-modal__stats--4col">
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--azul">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--azul">
             <i class="bi bi-list-check"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Registrados</span>
-            <span class="cys-summary-card__val">{{ total_registrados }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">REGISTRADOS</div>
+          <div class="cys-modal-kpi-v2__val">{{ total_registrados }}</div>
+          <div class="cys-modal-kpi-v2__sub">Total productos</div>
         </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
-          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--verde">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--verde">
             <i class="bi bi-check-circle"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">En stock</span>
-            <span class="cys-summary-card__val">{{ total_en_stock }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">EN STOCK</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--verde">{{ total_en_stock }}</div>
+          <div class="cys-modal-kpi-v2__sub">Disponible</div>
         </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #f1c40f;">
-          <div class="cys-summary-card__icon" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--amarillo">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--amarillo">
             <i class="bi bi-exclamation-triangle"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Bajo</span>
-            <span class="cys-summary-card__val">{{ total_stock_bajo }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">BAJO</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--amarillo">{{ total_stock_bajo }}</div>
+          <div class="cys-modal-kpi-v2__sub">Stock bajo</div>
         </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #e74c3c;">
-          <div class="cys-summary-card__icon" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--rojo">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--rojo">
             <i class="bi bi-x-circle"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Agotados</span>
-            <span class="cys-summary-card__val">{{ total_agotados }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">AGOTADOS</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--rojo">{{ total_agotados }}</div>
+          <div class="cys-modal-kpi-v2__sub">Sin disponibilidad</div>
         </div>
+
       </div>
 
-      <div class="modal-body p-0">
+      <!-- BODY -->
+      <div class="modal-body p-0 cys-modal__body">
 
-        <div class="table-responsive">
-        <table id="tabla-modal-stock" class="cys-inv-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Producto</th><th>Stock</th><th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in productos %}
-              {% if p.cantidad_disponible == 0 %}
-              <tr class="cys-tr">
-                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                <td data-label="Producto"><strong>{{ p.nombre }}</strong></td>
-                <td class="cys-qty cys-qty--out" data-label="Stock">{{ p.cantidad_disponible }}</td>
-                <td data-label="Estado"><span class="cys-badge cys-badge--rojo">Agotado</span></td>
-              </tr>
-              {% elif p.cantidad_disponible <= 10 %}
-              <tr class="cys-tr">
-                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                <td data-label="Producto"><strong>{{ p.nombre }}</strong></td>
-                <td class="cys-qty cys-qty--low" data-label="Stock">{{ p.cantidad_disponible }}</td>
-                <td data-label="Estado"><span class="cys-badge cys-badge--amarillo">Stock bajo</span></td>
-              </tr>
-              {% else %}
-              <tr class="cys-tr">
-                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                <td data-label="Producto"><strong>{{ p.nombre }}</strong></td>
-                <td class="cys-qty cys-qty--ok" data-label="Stock">{{ p.cantidad_disponible }}</td>
-                <td data-label="Estado"><span class="cys-badge cys-badge--verde">En stock</span></td>
-              </tr>
-              {% endif %}
-            {% empty %}
-            <tr>
-              <td colspan="4" class="cys-td--empty">
-                <div class="cys-empty-box">
-                  <i class="bi bi-box-seam"></i>No hay productos registrados.
-                </div>
-              </td>
-              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <!-- Tabla productos con búsqueda interna -->
+        <div class="cys-modal-section">
+          <div class="cys-modal-section__header">
+            <span class="cys-modal-section__label">
+              PRODUCTOS REGISTRADOS
+            </span>
+            <div class="cys-search-box">
+              <input type="text" id="buscar-inventario" placeholder="Buscar producto..."
+                class="cys-search-box__input"
+                oninput="filtrarTablaInv(this.value)">
+              <i class="bi bi-search cys-search-box__icon"></i>
+            </div>
+          </div>
         </div>
 
-        <div class="cys-inv-section-header">
+        <div class="table-responsive cys-modal-table-wrap">
+          <table class="cys-inv-table" id="tabla-modal-stock">
+            <thead>
+              <tr>
+                <th class="cys-col-num">#</th>
+                <th>PRODUCTO</th>
+                <th class="cys-col-stock">STOCK</th>
+                <th class="cys-col-estado">ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in productos %}
+              <tr class="cys-tr inv-row">
+                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                <td data-label="Producto" class="cys-td cys-td--bold">{{ p.nombre }}</td>
+                <td data-label="Stock">
+                  {% if p.cantidad_disponible == 0 %}
+                    <span class="cys-qty cys-qty--out">{{ p.cantidad_disponible }}</span>
+                  {% elif p.cantidad_disponible <= 10 %}
+                    <span class="cys-qty cys-qty--low">{{ p.cantidad_disponible }}</span>
+                  {% else %}
+                    <span class="cys-qty cys-qty--ok">{{ p.cantidad_disponible }}</span>
+                  {% endif %}
+                </td>
+                <td data-label="Estado">
+                  {% if p.cantidad_disponible == 0 %}
+                    <span class="cys-badge cys-badge--rojo">Agotado</span>
+                  {% elif p.cantidad_disponible <= 10 %}
+                    <span class="cys-badge cys-badge--amarillo">Stock bajo</span>
+                  {% else %}
+                    <span class="cys-badge cys-badge--verde">En stock</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-box-seam"></i>No hay productos registrados.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Entradas -->
+        <div class="cys-inv-section-header cys-modal-subsection-header">
           <div class="cys-inv-section-title">
             <span class="cys-inv-section-dot cys-inv-section-dot--entradas"></span>
-            Entradas de productos
+            ENTRADAS DE PRODUCTOS
           </div>
         </div>
-        <div class="table-responsive">
-        <table id="tabla-modal-entradas" class="cys-inv-table">
-          <thead>
-            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
-          </thead>
-          <tbody>
-            {% for e in entradas %}
-            <tr class="cys-tr">
-              <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Producto"><strong>{{ e.producto.nombre }}</strong></td>
-              <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
-              <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
-              <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5" class="cys-td--empty">
-                <div class="cys-empty-box">
-                  <i class="bi bi-inbox"></i>No hay entradas registradas.
-                </div>
-              </td>
-              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive cys-modal-table-wrap--noTop">
+          <table class="cys-inv-table" id="tabla-modal-entradas">
+            <thead>
+              <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+            </thead>
+            <tbody>
+              {% for e in entradas %}
+              <tr class="cys-tr">
+                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                <td data-label="Producto" class="cys-td cys-td--bold">{{ e.producto.nombre }}</td>
+                <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
+                <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
+                <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y H:i" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay entradas registradas.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
 
-        <div class="cys-inv-section-header">
+        <!-- Salidas -->
+        <div class="cys-inv-section-header cys-modal-subsection-header">
           <div class="cys-inv-section-title">
             <span class="cys-inv-section-dot cys-inv-section-dot--salidas"></span>
-            Salidas de productos
+            SALIDAS DE PRODUCTOS
           </div>
         </div>
-        <div class="table-responsive">
-        <table id="tabla-modal-salidas" class="cys-inv-table">
-          <thead>
-            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
-          </thead>
-          <tbody>
-            {% for s in salidas %}
-            <tr class="cys-tr">
-              <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Producto"><strong>{{ s.producto.nombre }}</strong></td>
-              <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
-              <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
-              <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5" class="cys-td--empty">
-                <div class="cys-empty-box">
-                  <i class="bi bi-inbox"></i>No hay salidas registradas.
-                </div>
-              </td>
-              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive cys-modal-table-wrap--bottom">
+          <table class="cys-inv-table" id="tabla-modal-salidas">
+            <thead>
+              <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+            </thead>
+            <tbody>
+              {% for s in salidas %}
+              <tr class="cys-tr">
+                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                <td data-label="Producto" class="cys-td cys-td--bold">{{ s.producto.nombre }}</td>
+                <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
+                <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
+                <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y H:i" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay salidas registradas.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
 
       </div><!-- /modal-body -->
 
       <div class="modal-footer cys-modal__footer">
-        <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=inventario" class="btn btn-sm btn-success" download="reporte_inventario.xlsx" target="_blank">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        <div class="me-auto cys-modal__footer-actions">
+          <a href="?export=excel&tipo=inventario" class="cys-btn-export cys-btn-export--excel" download="reporte_inventario.xlsx" target="_blank" title="Exportar Excel">
+            <i class="bi bi-file-earmark-excel"></i>
           </a>
-          <a href="?export=pdf&tipo=inventario" class="btn btn-sm btn-danger" download="reporte_inventario.pdf" target="_blank">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          <a href="?export=pdf&tipo=inventario" class="cys-btn-export cys-btn-export--pdf" download="reporte_inventario.pdf" target="_blank" title="Exportar PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
           </a>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -575,72 +589,118 @@
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content cys-modal">
 
+      <!-- HEADER -->
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon">
-            <i class="bi bi-truck" style="color: #5DCAA5;"></i>
+          <div class="cys-modal__icon cys-modal__icon--prov">
+            <i class="bi bi-truck"></i>
           </div>
           <div>
             <div class="cys-modal__title">Reporte de Proveedores</div>
             <div class="cys-modal__subtitle">CYS Ltda · {{ proveedores|length }} proveedores registrados</div>
           </div>
         </div>
-        <div class="d-flex align-items-center">
-          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
-        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div class="cys-modal__stats">
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #5DCAA5;">
-          <div class="cys-summary-card__icon" style="background: rgba(93, 202, 165, 0.1); color: #5DCAA5;">
+      <!-- KPI único centrado -->
+      <div class="cys-modal__kpi-single-wrap">
+        <div class="cys-modal__kpi-single">
+          <div class="cys-modal__kpi-single-icon">
             <i class="bi bi-truck"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Total Proveedores Registrados</span>
-            <span class="cys-summary-card__val">{{ proveedores|length }}</span>
+          <div>
+            <div class="cys-modal__kpi-single-label">
+              TOTAL PROVEEDORES REGISTRADOS
+            </div>
+            <div class="cys-modal__kpi-single-val">
+              {{ proveedores|length }}
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="modal-body p-0">
-        <div class="table-responsive">
-        <table id="tabla-modal-proveedores" class="cys-inv-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Nombre</th><th>Empresa</th><th>Teléfono</th><th>Correo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for prov in proveedores %}
-            <tr class="cys-tr">
-              <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Nombre"><strong>{{ prov.nombre_contacto }}</strong></td>
-              <td data-label="Empresa"><span class="cys-tag">{{ prov.nombre_empresa }}</span></td>
-              <td class="cys-td" data-label="Teléfono">{{ prov.telefono }}</td>
-              <td class="cys-td" data-label="Correo">{{ prov.email }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5" class="cys-td--empty">
-                <div class="cys-empty-box">
-                  <i class="bi bi-truck"></i>No hay proveedores registrados.
-                </div>
-              </td>
-              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <!-- BODY -->
+      <div class="modal-body p-0 cys-modal__body">
+
+        <div class="cys-modal-section--padded">
+          <!-- Título lista + búsqueda -->
+          <div class="cys-modal-list-header">
+            <div class="cys-modal-list-header__left">
+              <div class="cys-modal-list-header__icon">
+                <i class="bi bi-list-ul"></i>
+              </div>
+              <span class="cys-modal-list-header__title">LISTA DE PROVEEDORES</span>
+            </div>
+            <div class="cys-search-box">
+              <input type="text" id="buscar-proveedores" placeholder="Buscar proveedor..."
+                class="cys-search-box__input cys-search-box__input--dark"
+                oninput="filtrarTablaProv(this.value)">
+              <i class="bi bi-search cys-search-box__icon"></i>
+            </div>
+          </div>
+
+          <table class="cys-inv-table cys-table--noTopMargin" id="tabla-modal-proveedores">
+            <thead>
+              <tr>
+                <th class="cys-col-num">#</th>
+                <th>NOMBRE</th>
+                <th>EMPRESA</th>
+                <th>TELÉFONO</th>
+                <th>CORREO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for prov in proveedores %}
+              <tr class="cys-tr prov-row">
+                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                <td data-label="Nombre">
+                  <div class="cys-prov-name">
+                    <div class="cys-avatar-initials">
+                      {{ prov.nombre_contacto|slice:':2'|upper }}
+                    </div>
+                    <strong>{{ prov.nombre_contacto }}</strong>
+                  </div>
+                </td>
+                <td data-label="Empresa">
+                  <span class="cys-tag cys-tag--prov">{{ prov.nombre_empresa }}</span>
+                </td>
+                <td class="cys-td" data-label="Teléfono">
+                  <i class="bi bi-telephone cys-td-icon"></i>
+                  {{ prov.telefono }}
+                </td>
+                <td class="cys-td" data-label="Correo">
+                  <i class="bi bi-envelope cys-td-icon"></i>
+                  {{ prov.email }}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-truck"></i>No hay proveedores registrados.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <!-- Paginación simple -->
+          <div class="cys-prov-pagination">
+            <button class="cys-pag-btn" onclick="pagProv(-1)"><i class="bi bi-chevron-left"></i></button>
+            <span id="prov-pag-indicator" class="cys-prov-pagination__indicator">1</span>
+            <button class="cys-pag-btn" onclick="pagProv(1)"><i class="bi bi-chevron-right"></i></button>
+          </div>
         </div>
+
       </div>
 
       <div class="modal-footer cys-modal__footer">
-        <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=proveedores" class="btn btn-sm btn-success" download="reporte_proveedores.xlsx" target="_blank">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        <div class="me-auto cys-modal__footer-actions">
+          <a href="?export=excel&tipo=proveedores" class="cys-btn-export cys-btn-export--excel" download="reporte_proveedores.xlsx" target="_blank" title="Exportar Excel">
+            <i class="bi bi-file-earmark-excel"></i>
           </a>
-          <a href="?export=pdf&tipo=proveedores" class="btn btn-sm btn-danger" download="reporte_proveedores.pdf" target="_blank">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          <a href="?export=pdf&tipo=proveedores" class="cys-btn-export cys-btn-export--pdf" download="reporte_proveedores.pdf" target="_blank" title="Exportar PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
           </a>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -660,90 +720,78 @@
 
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon">
-            <i class="bi bi-cart3" style="color: #4DA8DA;"></i>
+          <div class="cys-modal__icon cys-modal__icon--inv">
+            <i class="bi bi-cart3"></i>
           </div>
           <div>
             <div class="cys-modal__title">Reporte de Compras</div>
             <div class="cys-modal__subtitle">CYS Ltda · Control de compras y abastecimiento</div>
           </div>
         </div>
-        <div class="d-flex align-items-center">
-          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
-        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div class="cys-modal__stats">
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
-          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+      <div class="cys-modal__stats cys-modal__stats--3col">
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--verde">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--verde">
             <i class="bi bi-cash-stack"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Valor Total</span>
-            <span class="cys-summary-card__val">${{ total_compras|floatformat:0|default:"0" }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">VALOR TOTAL</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--verde">${{ total_compras|floatformat:0|default:"0" }}</div>
         </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
-          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--azul">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--azul">
             <i class="bi bi-receipt"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Órdenes</span>
-            <span class="cys-summary-card__val">{{ total_ordenes|default:"0" }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">ÓRDENES</div>
+          <div class="cys-modal-kpi-v2__val">{{ total_ordenes|default:"0" }}</div>
         </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #5DCAA5;">
-          <div class="cys-summary-card__icon" style="background: rgba(93, 202, 165, 0.1); color: #5DCAA5;">
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--menta">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--menta">
             <i class="bi bi-truck"></i>
           </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Proveedores</span>
-            <span class="cys-summary-card__val">{{ proveedores|length }}</span>
-          </div>
+          <div class="cys-modal-kpi-v2__label">PROVEEDORES</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--menta">{{ proveedores|length }}</div>
         </div>
       </div>
 
-      <div class="modal-body p-0">
-        <div class="table-responsive">
-        <table id="tabla-modal-compras" class="cys-inv-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Proveedor</th><th>Producto</th><th>Cantidad</th><th>Valor</th><th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for compra in compras %}
-            <tr class="cys-tr">
-              <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Proveedor"><span class="cys-tag">{{ compra.proveedor }}</span></td>
-              <td class="cys-td" data-label="Producto">{{ compra.producto }}</td>
-              <td class="cys-td" data-label="Cantidad">{{ compra.cantidad }}</td>
-              <td class="cys-qty cys-qty--ok" data-label="Valor">${{ compra.valor|floatformat:0 }}</td>
-              <td class="cys-td" data-label="Fecha">{{ compra.fecha|date:"d/m/Y" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="cys-td--empty">
-                <div class="cys-empty-box">
-                  <i class="bi bi-cart3"></i>No hay compras registradas.
-                </div>
-              </td>
-              <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-              <td class="d-none"></td><td class="d-none"></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="modal-body p-0 cys-modal__body">
+        <div class="table-responsive cys-modal-table-wrap--padded">
+          <table class="cys-inv-table" id="tabla-modal-compras">
+            <thead>
+              <tr>
+                <th>#</th><th>PROVEEDOR</th><th>PRODUCTO</th><th>CANTIDAD</th><th>VALOR</th><th>FECHA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for compra in compras %}
+              <tr class="cys-tr">
+                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                <td data-label="Proveedor"><span class="cys-tag">{{ compra.proveedor }}</span></td>
+                <td class="cys-td" data-label="Producto">{{ compra.producto }}</td>
+                <td class="cys-td" data-label="Cantidad">{{ compra.cantidad }}</td>
+                <td class="cys-qty cys-qty--ok" data-label="Valor">${{ compra.valor|floatformat:0 }}</td>
+                <td class="cys-td" data-label="Fecha">{{ compra.fecha|date:"d/m/Y" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-cart3"></i>No hay compras registradas.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div class="modal-footer cys-modal__footer">
-        <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=compras" class="btn btn-sm btn-success" download="reporte_compras.xlsx" target="_blank">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        <div class="me-auto cys-modal__footer-actions">
+          <a href="?export=excel&tipo=compras" class="cys-btn-export cys-btn-export--excel" download="reporte_compras.xlsx" target="_blank" title="Exportar Excel">
+            <i class="bi bi-file-earmark-excel"></i>
           </a>
-          <a href="?export=pdf&tipo=compras" class="btn btn-sm btn-danger" download="reporte_compras.pdf" target="_blank">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          <a href="?export=pdf&tipo=compras" class="cys-btn-export cys-btn-export--pdf" download="reporte_compras.pdf" target="_blank" title="Exportar PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
           </a>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -761,211 +809,227 @@
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content cys-modal">
 
+      <!-- HEADER -->
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon">
-            <i class="bi bi-calendar-day" style="color: #AFA9EC;"></i>
+          <div class="cys-modal__icon cys-modal__icon--diario">
+            <i class="bi bi-calendar-check"></i>
           </div>
           <div>
             <div class="cys-modal__title">Resumen Diario</div>
             <div class="cys-modal__subtitle">CYS Ltda · {{ hoy }}</div>
           </div>
         </div>
-        <div class="d-flex align-items-center">
-          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
-        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div class="cys-modal__stats">
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
-          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
-            <i class="bi bi-cash-stack"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Ingresos hoy</span>
-            <span class="cys-summary-card__val">${{ ingresos_hoy|floatformat:0 }}</span>
-          </div>
-        </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
-          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
-            <i class="bi bi-cart-check"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Ventas hoy</span>
-            <span class="cys-summary-card__val">{{ ventas_hoy|length }}</span>
-          </div>
-        </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #f1c40f;">
-          <div class="cys-summary-card__icon" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">
-            <i class="bi bi-box-arrow-in-down"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Und. Entrada</span>
-            <span class="cys-summary-card__val">{{ total_entradas_hoy }}</span>
-          </div>
-        </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #e74c3c;">
-          <div class="cys-summary-card__icon" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
-            <i class="bi bi-box-arrow-up"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Und. Salida</span>
-            <span class="cys-summary-card__val">{{ total_salidas_hoy }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- BODY: 2 columnas -->
+      <div class="modal-body p-0 cys-modal__body">
+        <div class="cys-rd-grid">
 
-      <div class="modal-body p-0">
+          <!-- Columna izquierda: stats -->
+          <div class="cys-rd-sidebar">
+            <div class="cys-rd-sidebar__title">
+              Resumen del día
+            </div>
 
-        <ul class="nav nav-tabs px-3 pt-3" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-entradas" data-bs-toggle="tab"
-                    data-bs-target="#rdPanelEntradas" type="button" role="tab"
-                    aria-controls="rdPanelEntradas" aria-selected="true">Entradas</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-salidas" data-bs-toggle="tab"
-                    data-bs-target="#rdPanelSalidas" type="button" role="tab"
-                    aria-controls="rdPanelSalidas" aria-selected="false">Salidas</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-ventas" data-bs-toggle="tab"
-                    data-bs-target="#rdPanelVentas" type="button" role="tab"
-                    aria-controls="rdPanelVentas" aria-selected="false">Ventas</button>
-          </li>
-        </ul>
+            <!-- Ingresos hoy -->
+            <div class="cys-rd-stat-card cys-rd-stat-card--verde">
+              <div class="cys-rd-stat-card__icon cys-rd-stat-card__icon--verde">
+                <i class="bi bi-cash-stack"></i>
+              </div>
+              <div>
+                <div class="cys-rd-stat-card__label">Ingresos hoy</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--verde">${{ ingresos_hoy|floatformat:0 }}</div>
+              </div>
+            </div>
 
-        <div class="tab-content">
+            <!-- Ventas hoy -->
+            <div class="cys-rd-stat-card cys-rd-stat-card--azul">
+              <div class="cys-rd-stat-card__icon cys-rd-stat-card__icon--azul">
+                <i class="bi bi-cart-check"></i>
+              </div>
+              <div>
+                <div class="cys-rd-stat-card__label">Ventas hoy</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--azul">{{ ventas_hoy|length }}</div>
+              </div>
+            </div>
 
-          <div class="tab-pane fade show active" id="rdPanelEntradas" role="tabpanel" aria-labelledby="tab-entradas">
-            <div class="table-responsive">
-            <table id="tabla-modal-rd-entradas" class="cys-inv-table">
-              <thead>
-                <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
-              </thead>
-              <tbody>
-                {% for e in entradas_hoy %}
-                <tr class="cys-tr">
-                  <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                  <td data-label="Producto"><strong>{{ e.producto.nombre }}</strong></td>
-                  <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
-                  <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
-                  <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="5" class="cys-td--empty">
-                    <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay entradas hoy.</div>
-                  </td>
-                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+            <!-- Und. Entrada -->
+            <div class="cys-rd-stat-card cys-rd-stat-card--amarillo">
+              <div class="cys-rd-stat-card__icon cys-rd-stat-card__icon--amarillo">
+                <i class="bi bi-box-arrow-in-down"></i>
+              </div>
+              <div>
+                <div class="cys-rd-stat-card__label">Und. entrada</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--amarillo">{{ total_entradas_hoy }}</div>
+              </div>
+            </div>
+
+            <!-- Und. Salida -->
+            <div class="cys-rd-stat-card cys-rd-stat-card--rojo">
+              <div class="cys-rd-stat-card__icon cys-rd-stat-card__icon--rojo">
+                <i class="bi bi-box-arrow-up"></i>
+              </div>
+              <div>
+                <div class="cys-rd-stat-card__label">Und. salida</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--rojo">{{ total_salidas_hoy }}</div>
+              </div>
             </div>
           </div>
 
-          <div class="tab-pane fade" id="rdPanelSalidas" role="tabpanel" aria-labelledby="tab-salidas">
-            <div class="table-responsive">
-            <table id="tabla-modal-rd-salidas" class="cys-inv-table">
-              <thead>
-                <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
-              </thead>
-              <tbody>
-                {% for s in salidas_hoy %}
-                <tr class="cys-tr">
-                  <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                  <td data-label="Producto"><strong>{{ s.producto.nombre }}</strong></td>
-                  <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
-                  <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
-                  <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="5" class="cys-td--empty">
-                    <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay salidas hoy.</div>
-                  </td>
-                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-            </div>
-          </div>
+          <!-- Columna derecha: tabs + top -->
+          <div class="cys-rd-main">
 
-          <div class="tab-pane fade" id="rdPanelVentas" role="tabpanel" aria-labelledby="tab-ventas">
-            <div class="table-responsive">
-            <table id="tabla-modal-rd-ventas" class="cys-inv-table">
-              <thead>
-                <tr>
-                  <th>#</th><th>Cliente</th><th>Producto</th>
-                  <th>Cantidad</th><th>Total</th><th>Fecha</th><th>Hora</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for v in ventas_hoy %}
-                  {% for det in v.detalles.all %}
+            <!-- Tabs -->
+            <ul class="nav nav-tabs cys-rd-tabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-entradas" data-bs-toggle="tab"
+                        data-bs-target="#rdPanelEntradas" type="button" role="tab">Entradas</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-salidas" data-bs-toggle="tab"
+                        data-bs-target="#rdPanelSalidas" type="button" role="tab">Salidas</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-ventas" data-bs-toggle="tab"
+                        data-bs-target="#rdPanelVentas" type="button" role="tab">Ventas</button>
+              </li>
+            </ul>
+
+            <div class="tab-content cys-rd-tab-content">
+
+              <!-- Tab Entradas -->
+              <div class="tab-pane fade show active" id="rdPanelEntradas" role="tabpanel">
+                <div class="table-responsive cys-rd-table-wrap">
+                  <table class="cys-inv-table" id="tabla-modal-rd-entradas">
+                    <thead>
+                      <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+                    </thead>
+                    <tbody>
+                      {% for e in entradas_hoy %}
+                      <tr class="cys-tr">
+                        <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                        <td data-label="Producto" class="cys-td cys-td--bold">{{ e.producto.nombre }}</td>
+                        <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
+                        <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
+                        <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="5" class="cys-td--empty">
+                          <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay entradas hoy.</div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Tab Salidas -->
+              <div class="tab-pane fade" id="rdPanelSalidas" role="tabpanel">
+                <div class="table-responsive cys-rd-table-wrap">
+                  <table class="cys-inv-table" id="tabla-modal-rd-salidas">
+                    <thead>
+                      <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+                    </thead>
+                    <tbody>
+                      {% for s in salidas_hoy %}
+                      <tr class="cys-tr">
+                        <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                        <td data-label="Producto" class="cys-td cys-td--bold">{{ s.producto.nombre }}</td>
+                        <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
+                        <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
+                        <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="5" class="cys-td--empty">
+                          <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay salidas hoy.</div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Tab Ventas -->
+              <div class="tab-pane fade" id="rdPanelVentas" role="tabpanel">
+                <div class="table-responsive cys-rd-table-wrap">
+                  <table class="cys-inv-table" id="tabla-modal-rd-ventas">
+                    <thead>
+                      <tr>
+                        <th>#</th><th>CLIENTE</th><th>PRODUCTO</th>
+                        <th>CANTIDAD</th><th>TOTAL</th><th>FECHA</th><th>HORA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for v in ventas_hoy %}
+                        {% for det in v.detalles.all %}
+                        <tr class="cys-tr">
+                          <td class="cys-td cys-td--muted" data-label="#">{{ forloop.parentloop.counter }}</td>
+                          <td data-label="Cliente"><strong>{{ v.cliente }}</strong></td>
+                          <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
+                          <td class="cys-td" data-label="Cantidad">{{ det.cantidad }}</td>
+                          <td class="cys-qty cys-qty--ok" data-label="Total">${{ det.subtotal|floatformat:0 }}</td>
+                          <td class="cys-td" data-label="Fecha">{{ v.fecha|date:"d/m/Y" }}</td>
+                          <td class="cys-td" data-label="Hora">{{ v.fecha|date:"H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                      {% empty %}
+                      <tr>
+                        <td colspan="7" class="cys-td--empty">
+                          <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay ventas hoy.</div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div><!-- /tab-content -->
+
+            <!-- Top productos del día -->
+            {% if top_productos_hoy %}
+            <div class="cys-rd-top-wrap">
+              <div class="cys-rd-top-header">
+                <span class="cys-rd-top-header__dot"></span>
+                <span class="cys-rd-top-header__label">Top productos del día</span>
+              </div>
+              <table class="cys-inv-table" id="tabla-modal-rd-top">
+                <thead>
+                  <tr><th>#</th><th>PRODUCTO</th><th>UNIDADES VENDIDAS</th><th>TOTAL GENERADO</th></tr>
+                </thead>
+                <tbody>
+                  {% for nombre, datos in top_productos_hoy %}
                   <tr class="cys-tr">
-                    <td class="cys-td cys-td--muted" data-label="#">{{ forloop.parentloop.counter }}</td>
-                    <td data-label="Cliente"><strong>{{ v.cliente }}</strong></td>
-                    <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
-                    <td class="cys-td" data-label="Cantidad">{{ det.cantidad }}</td>
-                    <td class="cys-qty cys-qty--ok" data-label="Total">${{ det.subtotal|floatformat:0 }}</td>
-                    <td class="cys-td" data-label="Fecha">{{ v.fecha|date:"d/m/Y" }}</td>
-                    <td class="cys-td" data-label="Hora">{{ v.fecha|date:"H:i" }}</td>
+                    <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                    <td data-label="Producto"><strong>{{ nombre }}</strong></td>
+                    <td class="cys-td" data-label="Unidades">{{ datos.cantidad }}</td>
+                    <td class="cys-td cys-td--green" data-label="Total">${{ datos.subtotal|floatformat:0 }}</td>
                   </tr>
                   {% endfor %}
-                {% empty %}
-                <tr>
-                  <td colspan="7" class="cys-td--empty">
-                    <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay ventas hoy.</div>
-                  </td>
-                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-                  <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
             </div>
-          </div>
+            {% endif %}
 
-        </div><!-- /tab-content -->
-
-        {% if top_productos_hoy %}
-        <div class="cys-inv-section-header mt-2">
-          <div class="cys-inv-section-title">
-            <span class="cys-inv-section-dot" style="background: #7F77DD;"></span>
-            Top productos del día
-          </div>
-        </div>
-        <div class="table-responsive">
-        <table id="tabla-modal-rd-top" class="cys-inv-table mb-3">
-          <thead>
-            <tr><th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th></tr>
-          </thead>
-          <tbody>
-            {% for nombre, datos in top_productos_hoy %}
-            <tr class="cys-tr">
-              <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-              <td data-label="Producto"><strong>{{ nombre }}</strong></td>
-              <td class="cys-td" data-label="Unidades">{{ datos.cantidad }}</td>
-              <td class="cys-td cys-td--green" data-label="Total">${{ datos.subtotal|floatformat:0 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        </div>
-        {% endif %}
-
+          </div><!-- /col derecha -->
+        </div><!-- /grid -->
       </div><!-- /modal-body -->
 
       <div class="modal-footer cys-modal__footer">
-        <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-success" download="resumen_diario.xlsx" target="_blank">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        <div class="me-auto cys-modal__footer-actions">
+          <a href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}"
+             class="cys-btn-export cys-btn-export--excel" download="resumen_diario.xlsx" target="_blank" title="Exportar Excel">
+            <i class="bi bi-file-earmark-excel"></i>
           </a>
-          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-danger" download="resumen_diario.pdf" target="_blank">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}"
+             class="cys-btn-export cys-btn-export--pdf" download="resumen_diario.pdf" target="_blank" title="Exportar PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
           </a>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -983,131 +1047,256 @@
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content cys-modal">
 
+      <!-- HEADER -->
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon">
-            <i class="bi bi-graph-up-arrow" style="color: #F0A870;"></i>
+          <div class="cys-modal__icon cys-modal__icon--analisis">
+            <i class="bi bi-graph-up-arrow"></i>
           </div>
           <div>
             <div class="cys-modal__title">Análisis de Ventas</div>
             <div class="cys-modal__subtitle">CYS Ltda · Resumen y top productos</div>
           </div>
         </div>
-        <div class="d-flex align-items-center">
-          <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
-        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div class="cys-modal__stats">
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #2ecc71;">
-          <div class="cys-summary-card__icon" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71;">
-            <i class="bi bi-graph-up"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Ventas Totales</span>
-            <span class="cys-summary-card__val">${{ total_ventas|floatformat:0 }}</span>
-          </div>
-        </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #4DA8DA;">
-          <div class="cys-summary-card__icon" style="background: rgba(77, 168, 218, 0.1); color: #4DA8DA;">
-            <i class="bi bi-bag-check"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Uds. Vendidas</span>
-            <span class="cys-summary-card__val">{{ total_productos }}</span>
-          </div>
-        </div>
-        <div class="cys-card cys-summary-card cys-modal-kpi" style="border-left-color: #f1c40f;">
-          <div class="cys-summary-card__icon" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">
-            <i class="bi bi-people"></i>
-          </div>
-          <div class="cys-summary-card__content">
-            <span class="cys-summary-card__label">Clientes</span>
-            <span class="cys-summary-card__val">{{ total_clientes }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- BODY: sidebar izquierda + contenido -->
+      <div class="modal-body p-0 cys-modal__body">
+        <div class="cys-av-grid">
 
-      <div class="modal-body p-0">
+          <!-- Sidebar nav -->
+          <div class="cys-av-sidebar">
 
-        <div class="cys-av-table-card">
-          <div class="cys-av-table-title">
-            <span style="width:8px;height:8px;border-radius:50%;background:#E8834A;display:inline-block;"></span>
-            Ventas por fecha
-          </div>
-          <div class="table-responsive">
-          <table id="tabla-modal-av-ventas" class="cys-inv-table">
-            <thead>
-              <tr>
-                <th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for venta in ventas %}
-                {% for det in venta.detalles.all %}
-                <tr class="cys-tr">
-                  <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
-                  <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente }}</td>
-                  <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
-                  <td class="cys-td" data-label="Cantidad">{{ det.cantidad }}</td>
-                  <td class="cys-qty cys-qty--ok" data-label="Total">${{ det.subtotal|floatformat:0 }}</td>
-                </tr>
-                {% endfor %}
-              {% empty %}
-              <tr>
-                <td colspan="5" class="cys-td--empty">
-                  <div class="cys-empty-box"><i class="bi bi-bar-chart"></i>Sin ventas registradas.</div>
-                </td>
-                <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          </div>
-        </div>
+            <button class="cys-av-nav-btn active" id="avNav-resumen"
+                    onclick="avSetTab('resumen')">
+              <div class="cys-av-nav-btn__icon">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <span>Resumen</span>
+            </button>
 
-        <div class="cys-av-table-card">
-          <div class="cys-av-table-title">
-            <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
-            Top productos del día más vendidos
-          </div>
-          <div class="table-responsive">
-          <table id="tabla-modal-av-top" class="cys-inv-table">
-            <thead>
-              <tr>
-                <th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for nombre, datos in top_productos_hoy %}
-              <tr class="cys-tr">
-                <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                <td data-label="Producto"><strong>{{ nombre }}</strong></td>
-                <td class="cys-qty cys-qty--ok" data-label="Unidades">{{ datos.cantidad }}</td>
-                <td class="cys-td cys-td--green" data-label="Total">${{ datos.subtotal|floatformat:0 }}</td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="4" class="cys-td--empty">
-                  <div class="cys-empty-box"><i class="bi bi-bar-chart"></i>Sin datos de productos.</div>
-                </td>
-                <td class="d-none"></td><td class="d-none"></td><td class="d-none"></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          </div>
-        </div>
+            <button class="cys-av-nav-btn" id="avNav-fecha"
+                    onclick="avSetTab('fecha')">
+              <div class="cys-av-nav-btn__icon">
+                <i class="bi bi-calendar3"></i>
+              </div>
+              <span>Por fecha</span>
+            </button>
 
+            <button class="cys-av-nav-btn" id="avNav-top"
+                    onclick="avSetTab('top')">
+              <div class="cys-av-nav-btn__icon">
+                <i class="bi bi-star"></i>
+              </div>
+              <span>Top productos</span>
+            </button>
+
+            <div class="cys-av-sidebar__divider"></div>
+
+            <button class="cys-av-nav-btn" id="avNav-reportes"
+                    onclick="avSetTab('reportes')">
+              <div class="cys-av-nav-btn__icon">
+                <i class="bi bi-download"></i>
+              </div>
+              <span>Reportes</span>
+            </button>
+
+          </div>
+
+          <!-- Contenido principal -->
+          <div class="cys-av-content">
+
+            <!-- Panel: Resumen -->
+            <div id="avPanel-resumen" class="av-panel">
+              <!-- KPI cards -->
+              <div class="cys-av-kpi-grid">
+
+                <div class="cys-av-kpi-card cys-av-kpi-card--verde">
+                  <div class="cys-av-kpi-card__icon">
+                    <i class="bi bi-graph-up"></i>
+                  </div>
+                  <div class="cys-av-kpi-card__label">VENTAS TOTALES</div>
+                  <div class="cys-av-kpi-card__val">${{ total_ventas|floatformat:0 }}</div>
+                </div>
+
+                <div class="cys-av-kpi-card cys-av-kpi-card--azul">
+                  <div class="cys-av-kpi-card__icon">
+                    <i class="bi bi-bag-check"></i>
+                  </div>
+                  <div class="cys-av-kpi-card__label">UDS. VENDIDAS</div>
+                  <div class="cys-av-kpi-card__val">{{ total_productos }}</div>
+                </div>
+
+                <div class="cys-av-kpi-card cys-av-kpi-card--amarillo">
+                  <div class="cys-av-kpi-card__icon">
+                    <i class="bi bi-people"></i>
+                  </div>
+                  <div class="cys-av-kpi-card__label">CLIENTES</div>
+                  <div class="cys-av-kpi-card__val">{{ total_clientes }}</div>
+                </div>
+
+              </div>
+
+              <!-- Ventas por fecha (resumen) -->
+              <div class="cys-av-table-card">
+                <div class="cys-av-table-card__header">
+                  <span class="cys-av-table-card__dot cys-av-table-card__dot--morado"></span>
+                  <span class="cys-av-table-card__title">VENTAS POR FECHA</span>
+                </div>
+                <table class="cys-inv-table">
+                  <thead>
+                    <tr><th>FECHA</th><th>CLIENTE</th><th>PRODUCTO</th><th>CANTIDAD</th><th>TOTAL</th></tr>
+                  </thead>
+                  <tbody>
+                    {% for venta in ventas %}
+                      {% for det in venta.detalles.all %}
+                      <tr class="cys-tr">
+                        <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
+                        <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente }}</td>
+                        <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
+                        <td class="cys-td" data-label="Cantidad">{{ det.cantidad }}</td>
+                        <td class="cys-qty cys-qty--ok" data-label="Total">${{ det.subtotal|floatformat:0 }}</td>
+                      </tr>
+                      {% endfor %}
+                    {% empty %}
+                    <tr>
+                      <td colspan="5" class="cys-td--empty">
+                        <div class="cys-empty-box"><i class="bi bi-bar-chart"></i>Sin ventas registradas.</div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Top productos (resumen) -->
+              <div class="cys-av-table-card cys-av-table-card--last">
+                <div class="cys-av-table-card__header">
+                  <i class="bi bi-star-fill cys-av-table-card__star"></i>
+                  <span class="cys-av-table-card__title">TOP PRODUCTOS DEL DÍA MÁS VENDIDOS</span>
+                </div>
+                <table class="cys-inv-table">
+                  <thead>
+                    <tr><th>#</th><th>PRODUCTO</th><th>UNIDADES VENDIDAS</th><th>TOTAL GENERADO</th></tr>
+                  </thead>
+                  <tbody>
+                    {% for nombre, datos in top_productos_hoy %}
+                    <tr class="cys-tr">
+                      <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                      <td data-label="Producto"><strong>{{ nombre }}</strong></td>
+                      <td class="cys-qty cys-qty--ok" data-label="Unidades">{{ datos.cantidad }}</td>
+                      <td class="cys-td cys-td--green" data-label="Total">${{ datos.subtotal|floatformat:0 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" class="cys-td--empty">
+                        <div class="cys-empty-box"><i class="bi bi-bar-chart"></i>Sin datos.</div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div><!-- /avPanel-resumen -->
+
+            <!-- Panel: Por fecha -->
+            <div id="avPanel-fecha" class="av-panel cys-av-panel--hidden">
+              <div class="cys-av-table-card">
+                <div class="cys-av-table-card__header">
+                  <span class="cys-av-table-card__dot cys-av-table-card__dot--azul"></span>
+                  <span class="cys-av-table-card__title">VENTAS POR FECHA</span>
+                </div>
+                <table class="cys-inv-table" id="tabla-modal-av-ventas">
+                  <thead>
+                    <tr><th>FECHA</th><th>CLIENTE</th><th>PRODUCTO</th><th>CANTIDAD</th><th>TOTAL</th></tr>
+                  </thead>
+                  <tbody>
+                    {% for venta in ventas %}
+                      {% for det in venta.detalles.all %}
+                      <tr class="cys-tr">
+                        <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
+                        <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente }}</td>
+                        <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
+                        <td class="cys-td" data-label="Cantidad">{{ det.cantidad }}</td>
+                        <td class="cys-qty cys-qty--ok" data-label="Total">${{ det.subtotal|floatformat:0 }}</td>
+                      </tr>
+                      {% endfor %}
+                    {% empty %}
+                    <tr>
+                      <td colspan="5" class="cys-td--empty">
+                        <div class="cys-empty-box"><i class="bi bi-bar-chart"></i>Sin ventas registradas.</div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div><!-- /avPanel-fecha -->
+
+            <!-- Panel: Top productos -->
+            <div id="avPanel-top" class="av-panel cys-av-panel--hidden">
+              <div class="cys-av-table-card">
+                <div class="cys-av-table-card__header">
+                  <i class="bi bi-star-fill cys-av-table-card__star"></i>
+                  <span class="cys-av-table-card__title">TOP PRODUCTOS MÁS VENDIDOS</span>
+                </div>
+                <table class="cys-inv-table" id="tabla-modal-av-top">
+                  <thead>
+                    <tr><th>#</th><th>PRODUCTO</th><th>UNIDADES VENDIDAS</th><th>TOTAL GENERADO</th></tr>
+                  </thead>
+                  <tbody>
+                    {% for nombre, datos in top_productos_hoy %}
+                    <tr class="cys-tr">
+                      <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+                      <td data-label="Producto"><strong>{{ nombre }}</strong></td>
+                      <td class="cys-qty cys-qty--ok" data-label="Unidades">{{ datos.cantidad }}</td>
+                      <td class="cys-td cys-td--green" data-label="Total">${{ datos.subtotal|floatformat:0 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" class="cys-td--empty">
+                        <div class="cys-empty-box"><i class="bi bi-bar-chart"></i>Sin datos de productos.</div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div><!-- /avPanel-top -->
+
+            <!-- Panel: Reportes -->
+            <div id="avPanel-reportes" class="av-panel cys-av-panel--hidden">
+              <div class="cys-av-export-card">
+                <div class="cys-av-export-card__title">
+                  Exportar reportes de ventas
+                </div>
+                <div class="cys-av-export-card__actions">
+                  <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}"
+                     class="cys-btn-export cys-btn-export--excel cys-btn-export--lg" download="analisis_ventas.xlsx" target="_blank" title="Exportar Excel">
+                    <i class="bi bi-file-earmark-excel"></i>
+                  </a>
+                  <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}"
+                     class="cys-btn-export cys-btn-export--pdf cys-btn-export--lg" download="analisis_ventas.pdf" target="_blank" title="Exportar PDF">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                  </a>
+                </div>
+              </div>
+            </div><!-- /avPanel-reportes -->
+
+          </div><!-- /contenido -->
+        </div><!-- /grid -->
       </div><!-- /modal-body -->
 
       <div class="modal-footer cys-modal__footer">
-        <div class="me-auto d-flex gap-2">
-          <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-success" download="analisis_ventas.xlsx" target="_blank">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        <div class="me-auto cys-modal__footer-actions">
+          <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}"
+             class="cys-btn-export cys-btn-export--excel" download="analisis_ventas.xlsx" target="_blank" title="Exportar Excel">
+            <i class="bi bi-file-earmark-excel"></i>
           </a>
-          <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}" class="btn btn-sm btn-danger" download="analisis_ventas.pdf" target="_blank">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+          <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}"
+             class="cys-btn-export cys-btn-export--pdf" download="analisis_ventas.pdf" target="_blank" title="Exportar PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
           </a>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -1125,6 +1314,7 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
+/* ── DataTable Historial de Ventas ── */
 $(document).ready(function() {
     var table = $('#reportes-table').DataTable({
         paging: true,
@@ -1137,39 +1327,80 @@ $(document).ready(function() {
         language: {
             info: "Mostrando _START_ a _END_ de _TOTAL_ ventas",
             infoEmpty: "Mostrando 0 a 0 de 0 ventas",
-            paginate: {
-                first:    '«',
-                previous: '‹',
-                next:     '›',
-                last:     '»'
-            }
+            paginate: { first:'«', previous:'‹', next:'›', last:'»' }
         },
         dom: 'rt<"cys-hv-table-footer"ip>'
     });
 
     function syncExportLinks() {
-        const fechaInicio = $('#filtro-fecha-inicio').val() || '';
-        const fechaFin = $('#filtro-fecha-fin').val() || '';
-        const params = `&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-        $('#btn-export-excel').attr('href', `?export=excel&tipo=ventas${params}`);
-        $('#btn-export-pdf').attr('href', `?export=pdf&tipo=ventas${params}`);
-        $('#btn-export-print').attr('href', `?export=pdf&tipo=ventas&print=true${params}`);
+        const fi = $('#filtro-fecha-inicio').val() || '';
+        const ff = $('#filtro-fecha-fin').val()    || '';
+        const p  = `&fecha_inicio=${fi}&fecha_fin=${ff}`;
+        $('#btn-export-excel').attr('href', `?export=excel&tipo=ventas${p}`);
+        $('#btn-export-pdf').attr('href',   `?export=pdf&tipo=ventas${p}`);
+        $('#btn-export-print').attr('href', `?export=pdf&tipo=ventas&print=true${p}`);
     }
-
-    $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', function() {
-        syncExportLinks();
-    });
-
+    $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', syncExportLinks);
     syncExportLinks();
 });
 
 function aplicarFiltro() {
-    const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
-    const fechaFin    = document.getElementById('filtro-fecha-fin').value;
-    let url = window.location.pathname + '?';
-    if (fechaInicio) url += 'fecha_inicio=' + fechaInicio + '&';
-    if (fechaFin)    url += 'fecha_fin='    + fechaFin;
+    const fi = document.getElementById('filtro-fecha-inicio').value;
+    const ff = document.getElementById('filtro-fecha-fin').value;
+    let url  = window.location.pathname + '?';
+    if (fi) url += 'fecha_inicio=' + fi + '&';
+    if (ff) url += 'fecha_fin='    + ff;
     window.location.href = url;
+}
+
+/* ── Búsqueda inventario ── */
+function filtrarTablaInv(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#tabla-modal-stock .inv-row').forEach(function(row) {
+        const txt = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        row.style.display = txt.includes(q) ? '' : 'none';
+    });
+}
+
+/* ── Búsqueda proveedores ── */
+function filtrarTablaProv(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#tabla-modal-proveedores .prov-row').forEach(function(row) {
+        const nombre  = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const empresa = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        row.style.display = (nombre.includes(q) || empresa.includes(q)) ? '' : 'none';
+    });
+}
+
+/* ── Paginación simple proveedores ── */
+var provPagActual = 1;
+function pagProv(dir) {
+    var rows = document.querySelectorAll('#tabla-modal-proveedores .prov-row');
+    var perPage = 5;
+    var total   = Math.ceil(rows.length / perPage);
+    provPagActual = Math.max(1, Math.min(provPagActual + dir, total));
+    rows.forEach(function(r, i) {
+        var page = Math.floor(i / perPage) + 1;
+        r.style.display = page === provPagActual ? '' : 'none';
+    });
+    document.getElementById('prov-pag-indicator').textContent = provPagActual;
+}
+document.addEventListener('DOMContentLoaded', function() { pagProv(0); });
+
+/* ── Análisis de ventas — sidebar nav ── */
+function avSetTab(tab) {
+    ['resumen','fecha','top','reportes'].forEach(function(t) {
+        var panel = document.getElementById('avPanel-'  + t);
+        var btn   = document.getElementById('avNav-'    + t);
+        if (!panel || !btn) return;
+        if (t === tab) {
+            panel.classList.remove('cys-av-panel--hidden');
+            btn.classList.add('active');
+        } else {
+            panel.classList.add('cys-av-panel--hidden');
+            btn.classList.remove('active');
+        }
+    });
 }
 </script>
 {% endblock %}
