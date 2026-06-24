@@ -150,7 +150,7 @@ def nueva_venta(request):
     pago_efectivo      = to_decimal('pago_efectivo')
     pago_tarjeta       = to_decimal('pago_tarjeta')
     pago_transferencia = to_decimal('pago_transferencia')
-    pago_nequi         = to_decimal('pago_nequi')
+    pago_nequi        = to_decimal('pago_nequi')
     pago_daviplata     = to_decimal('pago_daviplata')
 
     if not producto_ids:
@@ -326,14 +326,23 @@ def producto_stock_json(request, pk):
 
 @session_required
 def ventas_del_dia(request):
-    hoy       = timezone.localdate()
-    ventas    = Venta.objects.filter(fecha__date=hoy).prefetch_related('detalles__producto', 'detalles__presentacion').order_by('-fecha')
-    total_dia = int(sum(v.total_con_descuento for v in ventas))
+    hoy    = timezone.localdate()
+    ventas = Venta.objects.filter(fecha__date=hoy).prefetch_related(
+        'detalles__producto', 'detalles__presentacion'
+    ).order_by('-fecha')
+
+    total_dia       = int(sum(v.total_con_descuento for v in ventas))
+    total_productos = sum(
+        det.cantidad
+        for v in ventas
+        for det in v.detalles.all()
+    )
 
     context = {
-        'ventas':    ventas,
-        'hoy':       hoy,
-        'total_dia': total_dia,
+        'ventas':          ventas,
+        'hoy':             hoy,
+        'total_dia':       total_dia,
+        'total_productos': total_productos,
     }
     return render(request, 'ventas/ventas_dia.html', context)
 
