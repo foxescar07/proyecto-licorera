@@ -18,5 +18,6 @@ urlpatterns = [
     path('ordenes/<int:pk>/', views.detalle_orden, name='detalle_orden'),
     path('ordenes/<int:pk>/detalle/', views.agregar_detalle_orden, name='agregar_detalle_orden'),
     path('ordenes/<int:pk>/cambiar-estado/', views.cambiar_estado_orden, name='cambiar_estado_orden'),
+    path('ordenes/<int:pk>/cambiar-estado-rapido/', views.cambiar_estado_orden_rapido, name='cambiar_estado_orden_rapido'),
     path('ordenes/<int:pk>/recibir/', views.recibir_compra, name='recibir_compra'),
 ]
