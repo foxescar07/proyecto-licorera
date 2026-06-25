@@ -721,3 +721,116 @@
   caret-color: var(--texto);
   transition: background-color 9999s ease-in-out 0s;
 }
+
+/* ══════════════════════════════════════════════
+   ROL CONTROL INLINE
+   ══════════════════════════════════════════════ */
+
+.usuario-rol-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;          /* nunca se encoge empujando el nombre */
+}
+
+/* Badge clickable */
+.usuario-rol--clickable {
+  cursor: pointer;
+  transition: opacity .15s, filter .15s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+}
+.usuario-rol--clickable:hover {
+  filter: brightness(1.2);
+  opacity: .9;
+}
+.usuario-rol__edit-icon {
+  font-size: .5rem;
+  opacity: .55;
+  flex-shrink: 0;
+}
+
+/* ── Selector inline: se despliega DEBAJO del badge como popover ── */
+.usuario-rol-selector {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  background: #0d1b2e;
+  border: 1px solid rgba(77,168,218,.45);
+  border-radius: 10px;
+  padding: .35rem .45rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,.55);
+  animation: rolFadeIn .15s ease;
+  white-space: nowrap;
+}
+
+@keyframes rolFadeIn {
+  from { opacity: 0; transform: translateY(-4px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+
+/* Select de rol — solo 2 opciones, ancho justo */
+.usuario-rol-select {
+  background: rgba(13,27,46,.9);
+  border: 1px solid rgba(77,168,218,.35);
+  border-radius: 6px;
+  color: #e8edf2;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .22rem .4rem;
+  outline: none;
+  cursor: pointer;
+  width: auto;
+  max-width: 96px;
+  transition: border-color .15s;
+}
+.usuario-rol-select:focus {
+  border-color: rgba(77,168,218,.85);
+  box-shadow: 0 0 0 2px rgba(77,168,218,.12);
+}
+.usuario-rol-select option {
+  background: #0d1b2e;
+  color: #e8edf2;
+}
+
+/* Botones ok / cancel */
+.usuario-rol-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-size: .7rem;
+  transition: background .15s, border-color .15s, transform .1s;
+  flex-shrink: 0;
+  padding: 0;
+}
+.usuario-rol-btn:active  { transform: scale(.88); }
+.usuario-rol-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.usuario-rol-btn--ok {
+  color: #2ecc71;
+  border-color: rgba(46,204,113,.4);
+}
+.usuario-rol-btn--ok:hover {
+  background: rgba(46,204,113,.15);
+  border-color: rgba(46,204,113,.7);
+}
+.usuario-rol-btn--cancel {
+  color: #e87070;
+  border-color: rgba(232,112,112,.4);
+}
+.usuario-rol-btn--cancel:hover {
+  background: rgba(232,112,112,.15);
+  border-color: rgba(232,112,112,.7);
+}

@@ -78,13 +78,58 @@
                   <div class="usuario-user">@{{ u.usuario }}</div>
                 </div>
               </div>
-              <span id="rol-badge-{{ u.pk }}"
-                    class="badge usuario-rol
-                    {% if u.rol == 'admin' %}usuario-rol--admin
-                    {% elif u.rol == 'cajero' %}usuario-rol--cajero
-                    {% else %}usuario-rol--empleado{% endif %}">
+
+              <!-- ── ROL CONTROL (badge + selector inline) ── -->
+              {% if request.session.usuario_rol == 'admin' %}
+              <div class="usuario-rol-control" id="rol-control-{{ u.pk }}">
+
+                <span id="rol-badge-{{ u.pk }}"
+                      class="badge usuario-rol
+                      {% if u.rol == 'admin' %}usuario-rol--admin
+                      {% elif u.rol == 'cajero' %}usuario-rol--cajero
+                      {% else %}usuario-rol--empleado{% endif %}
+                      {% if u.rol != 'admin' %}usuario-rol--clickable{% endif %}"
+                      {% if u.rol != 'admin' %}
+                      onclick="abrirSelectorRol({{ u.pk }}, '{{ u.rol }}')"
+                      title="Cambiar rol"
+                      {% endif %}>
+                  {{ u.get_rol_display }}
+                  {% if u.rol != 'admin' %}
+                  <i class="bi bi-pencil-fill usuario-rol__edit-icon"></i>
+                  {% endif %}
+                </span>
+
+                {% if u.rol != 'admin' %}
+                <div id="rol-selector-{{ u.pk }}" class="usuario-rol-selector" style="display:none;">
+                  <select id="rol-select-{{ u.pk }}" class="usuario-rol-select">
+                    <option value="cajero"   {% if u.rol == 'cajero'   %}selected{% endif %}>Cajero</option>
+                    <option value="empleado" {% if u.rol == 'empleado' %}selected{% endif %}>Empleado</option>
+                  </select>
+                  <button class="usuario-rol-btn usuario-rol-btn--ok"
+                          onclick="guardarRol({{ u.pk }})"
+                          title="Guardar rol">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button class="usuario-rol-btn usuario-rol-btn--cancel"
+                          onclick="cancelarRol({{ u.pk }})"
+                          title="Cancelar">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+                {% endif %}
+
+              </div>
+              {% else %}
+              <!-- Vista solo lectura para no-admin -->
+              <span class="badge usuario-rol
+                {% if u.rol == 'admin' %}usuario-rol--admin
+                {% elif u.rol == 'cajero' %}usuario-rol--cajero
+                {% else %}usuario-rol--empleado{% endif %}">
                 {{ u.get_rol_display }}
               </span>
+              {% endif %}
+              <!-- ── FIN ROL CONTROL ── -->
+
             </div>
 
             <hr class="usuario-divider">
@@ -325,7 +370,6 @@
           <div class="col-6">
             <label class="eu-label">Rol</label>
             <select id="euRol" class="eu-input">
-              <option value="admin">Administrador</option>
               <option value="cajero">Cajero</option>
               <option value="empleado">Empleado</option>
             </select>
@@ -372,6 +416,7 @@
     return fd;
   }
 
+  // ── BÚSQUEDA ──────────────────────────────────────────────────────────────
   $('inputBuscarUsuario')?.addEventListener('input', function () {
     const q    = this.value.trim().toLowerCase();
     const cols = document.querySelectorAll('#contenedor-tarjetas > div[id^="col-"]');
@@ -385,23 +430,21 @@
     if (sr) sr.style.setProperty('display', vis === 0 ? 'block' : 'none', 'important');
   });
 
+  // ── LAYOUT ────────────────────────────────────────────────────────────────
   function sincronizarAlturaRecientes() {
     const layout = $('layout-principal');
     if (!layout.classList.contains('cards-view-3-4')) return;
 
     const main    = $('ul-main-ref');
-    const sidebar = $('ul-sidebar-ref');
     const widget  = document.querySelector('#wrapperRecientes .widget-recientes');
     const scroll  = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
     if (!main || !widget || !scroll) return;
 
-    // Calculamos cuánto espacio libre queda en el sidebar
-    // desde el top del wrapperRecientes hasta el fondo del ul-main-ref
-    const mainBottom     = main.getBoundingClientRect().bottom;
-    const wrapperTop     = $('wrapperRecientes').getBoundingClientRect().top;
-    const titleEl        = widget.querySelector('.ul-widget__title');
-    const titleH         = titleEl ? titleEl.offsetHeight + 12 : 32; // título + margen
-    const paddingWidget  = 22; // padding top+bottom del ul-widget (1.1rem ≈ 17.6px × 2 / 2)
+    const mainBottom    = main.getBoundingClientRect().bottom;
+    const wrapperTop    = $('wrapperRecientes').getBoundingClientRect().top;
+    const titleEl       = widget.querySelector('.ul-widget__title');
+    const titleH        = titleEl ? titleEl.offsetHeight + 12 : 32;
+    const paddingWidget = 22;
 
     const alturaDisponible = mainBottom - wrapperTop - titleH - paddingWidget * 2;
     scroll.style.maxHeight = Math.max(alturaDisponible, 120) + 'px';
@@ -428,10 +471,10 @@
     cS?.classList[showS ? 'add' : 'remove']('show');
     cR?.classList[showR ? 'add' : 'remove']('show');
 
-    // Después de aplicar la clase y que el DOM se pinte, sincronizamos altura
     requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
   }
 
+  // ── STATS ─────────────────────────────────────────────────────────────────
   function calcularStats() {
     let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
     document.querySelectorAll('[id^="fila-"]').forEach(card => {
@@ -457,11 +500,11 @@
   calcularStats();
   reajustarLayout();
 
-  // Re-sincronizar si la ventana cambia de tamaño
   window.addEventListener('resize', () => {
     requestAnimationFrame(sincronizarAlturaRecientes);
   });
 
+  // ── MODAL EDITAR ──────────────────────────────────────────────────────────
   window.euMostrarMsg = (texto, tipo) => {
     const el = $('euMsg');
     el.textContent = texto;
@@ -506,6 +549,91 @@
     });
   };
 
+  // ── SELECTOR DE ROL INLINE ────────────────────────────────────────────────
+  const ROL_LABELS = { cajero: 'Cajero', empleado: 'Empleado' };
+  const ROL_CLASES = {
+    cajero:   'usuario-rol--cajero',
+    empleado: 'usuario-rol--empleado',
+  };
+
+  window.abrirSelectorRol = (pk, rolActual) => {
+    // Cerrar cualquier otro selector abierto primero
+    document.querySelectorAll('.usuario-rol-selector').forEach(s => {
+      if (s.id !== 'rol-selector-' + pk) s.style.display = 'none';
+    });
+    document.querySelectorAll('.usuario-rol--clickable').forEach(b => {
+      if (b.id !== 'rol-badge-' + pk) b.style.display = '';
+    });
+
+    $('rol-badge-'    + pk).style.display = 'none';
+    $('rol-selector-' + pk).style.display = 'flex';
+    $('rol-select-'   + pk).value = rolActual;
+    $('rol-select-'   + pk).focus();
+  };
+
+  window.cancelarRol = pk => {
+    $('rol-selector-' + pk).style.display = 'none';
+    $('rol-badge-'    + pk).style.display = '';
+  };
+
+  window.guardarRol = pk => {
+    const nuevoRol = $('rol-select-' + pk).value;
+    const btnOk    = document.querySelector(`#rol-selector-${pk} .usuario-rol-btn--ok`);
+
+    btnOk.disabled = true;
+    btnOk.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;border-width:2px;"></span>';
+
+    const card      = $('fila-' + pk);
+    const nombreEl  = card.querySelector('.usuario-nombre');
+    const partes    = nombreEl ? nombreEl.textContent.trim().split(' ') : ['', ''];
+    const nombre    = partes.slice(0, Math.ceil(partes.length / 2)).join(' ');
+    const apellidos = partes.slice(Math.ceil(partes.length / 2)).join(' ') || nombre;
+
+    const emailEl = card.querySelector('.usuario-email');
+    const email   = emailEl ? emailEl.textContent.trim().replace('—', '') : '';
+
+    apiFetch(`/usuarios/editar/${pk}/`, mkFd({
+      nombre,
+      apellidos,
+      email,
+      rol: nuevoRol,
+      clave_nueva: '',
+    })).then(d => {
+      btnOk.disabled = false;
+      btnOk.innerHTML = '<i class="bi bi-check-lg"></i>';
+
+      if (!d.ok) {
+        const badge = $('rol-badge-' + pk);
+        const prev  = badge.textContent;
+        badge.style.display = '';
+        $('rol-selector-' + pk).style.display = 'none';
+        badge.textContent = '⚠ ' + (d.error || 'Error');
+        setTimeout(() => { badge.textContent = prev; }, 2000);
+        return;
+      }
+
+      // Actualizar badge visualmente sin recargar
+      const badge = $('rol-badge-' + pk);
+      badge.className = `badge usuario-rol ${ROL_CLASES[nuevoRol]} usuario-rol--clickable`;
+      badge.innerHTML = `${ROL_LABELS[nuevoRol]} <i class="bi bi-pencil-fill usuario-rol__edit-icon"></i>`;
+      badge.onclick   = () => abrirSelectorRol(pk, nuevoRol);
+
+      $('rol-selector-' + pk).style.display = 'none';
+      badge.style.display = '';
+
+      // Actualizar data-rol de la columna para que la búsqueda funcione
+      const col = $('col-' + pk);
+      if (col) col.dataset.rol = ROL_LABELS[nuevoRol].toLowerCase();
+
+      calcularStats();
+    }).catch(() => {
+      btnOk.disabled = false;
+      btnOk.innerHTML = '<i class="bi bi-check-lg"></i>';
+      cancelarRol(pk);
+    });
+  };
+
+  // ── TOGGLE ACTIVO ─────────────────────────────────────────────────────────
   window.toggleActivo = (pk, activo) =>
     apiFetch(`/usuarios/toggle/${pk}/`, mkFd()).then(d => {
       if (!d.ok) return;
@@ -530,6 +658,7 @@
       calcularStats();
     });
 
+  // ── ELIMINAR ──────────────────────────────────────────────────────────────
   window.eliminarUsuario = pk => {
     if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
     apiFetch(`/usuarios/eliminar/${pk}/`, mkFd()).then(d => {
