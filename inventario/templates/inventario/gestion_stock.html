@@ -183,25 +183,23 @@
           {% endif %}
         </td>
 
-        <!-- Costo unitario -->
         <td class="text-center">
           {% if lote.costo_unitario %}
             <span class="fw-semibold" style="color:#4DA8DA;">
               ${{ lote.costo_unitario|floatformat:0 }}
             </span>
           {% else %}
-            <span style="color:rgba(226,232,240,.3);">—</span>
+            <span style="color:rgba(226,232,240,.35);">—</span>
           {% endif %}
         </td>
 
-        <!-- Valor total del lote -->
         <td class="text-center">
           {% if lote.costo_unitario %}
             <span style="color:rgba(226,232,240,.7);font-size:.85rem;">
               ${% widthratio lote.stock_actual 1 lote.costo_unitario %}
             </span>
           {% else %}
-            <span style="color:rgba(226,232,240,.3);">—</span>
+            <span style="color:rgba(226,232,240,.35);">—</span>
           {% endif %}
         </td>
 
@@ -213,8 +211,7 @@
           </button>
         </td>
       </tr>
-    {% endfor %}
-    </tbody>
+      {% endfor %} </tbody>
   </table>
 </div>
 
@@ -286,6 +283,11 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
+  function formatMiles(n) {
+    var num = parseInt(String(n).replace(/\D/g, ''), 10);
+    if (isNaN(num)) return n;
+    return num.toLocaleString('es-CO');
+}
 $(document).ready(function() {
     // Prevent double init if already initialized
     if ($.fn.DataTable.isDataTable('#tablaLotes')) {
@@ -293,27 +295,42 @@ $(document).ready(function() {
     }
     
     var table = $('#tablaLotes').DataTable({
-        paging: true,
-        searching: true,
-        info: true,
-        lengthChange: false,
-        pageLength: 10,
-        ordering: true,
-        responsive: true,
-        language: {
-            info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
-            infoEmpty: "Mostrando 0 a 0 de 0 lotes",
-            emptyTable: "No hay lotes con stock activo.",
-            zeroRecords: "Sin resultados para tu búsqueda.",
-            paginate: {
-                first:    '«',
-                previous: '‹',
-                next:     '›',
-                last:     '»'
-            }
-        },
-        dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>'
-    });
+    paging: true,
+    searching: true,
+    info: true,
+    lengthChange: false,
+    pageLength: 10,
+    ordering: true,
+    responsive: true,
+    language: {
+        info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
+        infoEmpty: "Mostrando 0 a 0 de 0 lotes",
+        emptyTable: "No hay lotes con stock activo.",
+        zeroRecords: "Sin resultados para tu búsqueda.",
+        paginate: {
+            first:    '«',
+            previous: '‹',
+            next:     '›',
+            last:     '»'
+        }
+    },
+    dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>',
+    drawCallback: function() {
+        $('#tablaLotes tbody tr').each(function() {
+            [5, 6].forEach(function(idx) {
+                var $td = $(this).find('td').eq(idx);
+                var $span = $td.find('span');
+                if ($span.length) {
+                    var texto = $span.text().trim();
+                    var num = texto.replace('$', '').replace(/\./g, '').trim();
+                    if (num && !isNaN(num) && parseInt(num) > 0) {
+                        $span.text('$' + formatMiles(num));
+                    }
+                }
+            }.bind(this));
+        });
+    }
+});
 
     $('#buscarLote').on('input', function() {
         table.search(this.value).draw();

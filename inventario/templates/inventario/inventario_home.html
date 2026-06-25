@@ -398,7 +398,7 @@
                 {{ p.stock_sum|default:0 }}
               </div>
               <div class="text-muted mt-1" style="font-size:.7rem;">
-                {{ unidad }}{% if precio %} · ${{ precio|floatformat:"0" }}{% endif %}
+              {{ unidad }}{% if precio %} · <span class="precio-fmt">${{ precio|floatformat:"0" }}</span>{% endif %}
               </div>
             </div>
           </div>
@@ -991,7 +991,19 @@ window.addEventListener('load', function() {
     }
   }, 300);
 });
-
+// ── FORMATO DE PRECIOS (puntos de miles, es-CO) ──
+function formatMiles(n) {
+  var num = parseInt(String(n).replace(/\D/g, ''), 10);
+  if (isNaN(num)) return n;
+  return num.toLocaleString('es-CO');
+}
+document.querySelectorAll('.precio-fmt').forEach(function (el) {
+  var texto = el.textContent.trim();
+  var num = texto.replace('$', '').replace(/\./g, '').trim();
+  if (num && !isNaN(num) && parseInt(num) > 0) {
+    el.textContent = '$' + formatMiles(num);
+  }
+});
 // ── EDITAR MOVIMIENTO ──
 document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
   const btn = e.relatedTarget;

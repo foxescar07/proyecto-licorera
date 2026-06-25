@@ -36,24 +36,35 @@ body {
   background: var(--fondo);
   color: var(--texto);
   min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
-body.offcanvas-open,
-body.sidebar-open {
+html {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+body.modal-open,
+body.offcanvas-open {
   overflow: auto !important;
   padding-right: 0 !important;
+  margin-right: 0 !important;
 }
-
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 99px; }
 
 /* ============================================================
    HEADER
    ============================================================ */
 .cys-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1030;
   height: var(--header-h);
   background: var(--azul-oscuro);
@@ -63,7 +74,7 @@ body.sidebar-open {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  transition: margin-right .3s ease;
+  transition: right .3s ease;
 }
 
 .cys-header__brand {
@@ -143,7 +154,6 @@ body.sidebar-open {
   text-shadow: 0 0 10px rgba(255,255,255,.25);
   opacity: .9;
 }
-
 /* ============================================================
    SUBNAV
    ============================================================ */
@@ -309,15 +319,9 @@ body.sidebar-open {
 }
 
 body.sidebar-open .cys-header,
-body.sidebar-open .cys-subnav {
-  margin-right: 290px;
-}
-
+body.sidebar-open .cys-subnav,
 body.sidebar-open .cys-main {
   margin-right: 290px;
-  max-width: 100%;
-  margin-left: 0;
-  padding-right: 1rem;
 }
 
 /* ============================================================
@@ -747,4 +751,17 @@ body.sidebar-open .cys-main .container-fluid {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+
+}
+/* ============================================================
+   FIX ESPACIO NEGRO SIDEBAR
+   ============================================================ */
+body {
+  position: relative;
+}
+
+#sidebarRight {
+  position: fixed !important;
+  top: 0 !important;
+  height: 100vh !important;
 }
