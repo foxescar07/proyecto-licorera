@@ -602,3 +602,35 @@ def recibir_compra(request, pk):
 
     context = {'orden': orden}
     return render(request, 'proveedores/recibir_compra.html', context)
+
+
+@login_required
+def cambiar_estado_orden_rapido(request, pk):
+    """Cambiar estado de orden desde la tabla (sin página separada)."""
+    orden = get_object_or_404(OrdenCompra, pk=pk)
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+
+        # Validar transición de estados
+        transiciones_validas = {
+            'pendiente': ['confirmada', 'cancelada'],
+            'confirmada': ['recibida', 'cancelada'],
+            'recibida': [],
+            'cancelada': [],
+        }
+
+        if nuevo_estado in transiciones_validas.get(orden.estado, []):
+            orden_anterior = orden.estado
+            orden.estado = nuevo_estado
+            orden.save()
+
+            messages.success(
+                request,
+                f'Estado de orden #{orden.id} cambió de {orden_anterior} a {nuevo_estado}'
+            )
+        else:
+            messages.error(request, f'No se puede cambiar de {orden.estado} a {nuevo_estado}.')
+
+    # Redirige a la lista de órdenes (o a la página anterior)
+    return redirect('listar_ordenes')
