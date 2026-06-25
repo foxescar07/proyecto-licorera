@@ -267,7 +267,8 @@
   border-spacing: 0;
   font-size: .88rem;
   background: transparent;
-  table-layout: fixed;
+  table-layout: auto;
+  box-sizing: border-box;
 }
 
 .cys-table--noTopMargin { margin-top: 0; }
@@ -279,7 +280,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 14px 16px;
+  padding: 12px 10px;
   border-bottom: 2px solid rgba(77, 168, 218, 0.3);
   text-align: center;
   vertical-align: middle;
@@ -297,6 +298,7 @@
   vertical-align: middle;
   height: 44px;
   box-sizing: border-box;
+  padding: 12px 10px;
 }
 
 .cys-inv-table tbody tr:hover td {
@@ -314,119 +316,134 @@
   display: block;
 }
 
-.cys-col-num    { width: 50px; }
-.cys-col-stock  { width: 100px; }
-.cys-col-estado { width: 130px; }
+.cys-col-num{
+    width:50px;
+}
+
+.cys-col-stock{
+    width:90px;
+}
+
+.cys-col-estado{
+    width:140px;
+}
+/* COLUMNA PRODUCTO */
+#tabla-modal-stock th:nth-child(2),
+#tabla-modal-stock td:nth-child(2){
+    text-align:left;
+    padding-left:18px;
+}
+/* COLUMNA STOCK */
+#tabla-modal-stock th:nth-child(3),
+#tabla-modal-stock td:nth-child(3){
+    text-align:center;
+}
+/* COLUMNA ESTADO */
+#tabla-modal-stock th:nth-child(4),
+#tabla-modal-stock td:nth-child(4){
+    text-align:center;
+}
 
 .cys-td-icon {
   color: #4DA8DA;
   margin-right: 6px;
   font-size: .8rem;
 }
+/* La columna PRODUCTO ocupa solo el espacio necesario */
+#tabla-modal-stock th:nth-child(2),
+#tabla-modal-stock td:nth-child(2){
+    width: 55%;
+    text-align: left;
+}
+
+#tabla-modal-stock th:nth-child(3),
+#tabla-modal-stock td:nth-child(3){
+    width: 90px;
+}
+
+#tabla-modal-stock th:nth-child(4),
+#tabla-modal-stock td:nth-child(4){
+    width: 120px;
+}
 
 /* ────────────────────────────────────
    MODAL KPI (genérico, tarjeta simple)
 ──────────────────────────────────── */
-.cys-modal-kpi {
-  padding: 1.25rem !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-bottom: 3px solid #4DA8DA !important;
-  background: var(--color-bg-card) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
-  margin: 0 !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
-  text-align: center !important;
+
+.cys-modal-kpi-v2{
+    background:linear-gradient(180deg,#0b2a54 0%,#082248 100%);
+    border:1px solid rgba(77,168,218,.35);
+    border-radius:14px;
+    padding:16px 12px;
+    min-height:165px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    transition:.25s;
+    position:relative;
+    overflow:hidden;
 }
 
-.cys-modal-kpi .cys-summary-card__icon {
-  width: 42px;
-  height: 42px;
-  font-size: 1.2rem;
-  margin-bottom: 0.75rem;
+.cys-modal-kpi-v2:hover{
+    transform:translateY(-3px);
+    border-color:#4DA8DA;
+    box-shadow:0 12px 25px rgba(0,0,0,.30);
+}
+.cys-modal-kpi-v2::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:4px;
+    background:#4DA8DA;
 }
 
-.cys-modal-kpi .cys-summary-card__val {
-  font-size: 1.4rem;
+/* TODAS LAS TARJETAS IGUALES */
+
+
+/* ICONO */
+
+.cys-modal-kpi-v2__icon{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    margin-bottom:14px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        inset 0 2px 8px rgba(255,255,255,.05),
+        0 4px 12px rgba(0,0,0,.20);
+}
+/* TEXTO */
+
+.cys-modal-kpi-v2__label{
+    color:#8FA3B1;
+    font-size:.82rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    margin-bottom:8px;
 }
 
-.cys-modal .dt-container {
-  padding: 1rem;
+.cys-modal-kpi-v2__val{
+    font-size:2.2rem;
+    font-weight:800;
+    line-height:1;
 }
 
-.cys-modal .dt-search input {
-  width: 100% !important;
-  margin-left: 0 !important;
+.cys-modal-kpi-v2__sub{
+    margin-top:8px;
+    color:#8FA3B1;
+    font-size:.82rem;
 }
-
-.cys-modal-kpi .cys-summary-card__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* ────────────────────────────────────
-   MODAL KPI v2 (Inventario / Compras)
-──────────────────────────────────── */
-.cys-modal-kpi-v2 {
-  background: #02224a;
-  border: 1px solid rgba(77,168,218,.1);
-  border-bottom: 3px solid #4DA8DA;
-  border-radius: 14px;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-}
-
-.cys-modal-kpi-v2__icon {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem;
-  background: rgba(77,168,218,0.12);
-  color: #4DA8DA;
-  margin-bottom: 4px;
-}
-
-.cys-modal-kpi-v2__label {
-  font-size: .68rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .08em; color: #8FA3B1;
-}
-
-.cys-modal-kpi-v2__val {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.9rem; font-weight: 800; line-height: 1.1; color: #4DA8DA;
-}
-
-.cys-modal-kpi-v2__sub {
-  font-size: .7rem; color: #8FA3B1;
-}
-
-.cys-modal-kpi-v2--azul     { border-bottom-color: #4DA8DA; }
-.cys-modal-kpi-v2--verde    { border-bottom-color: #2ecc71; }
-.cys-modal-kpi-v2--amarillo { border-bottom-color: #f1c40f; background: rgba(241,196,15,0.05); }
-.cys-modal-kpi-v2--rojo     { border-bottom-color: #e74c3c; background: rgba(231,76,60,0.05); }
-.cys-modal-kpi-v2--menta    { border-bottom-color: #5DCAA5; }
-
-.cys-modal-kpi-v2__icon--azul     { background: rgba(77,168,218,0.12);  color: #4DA8DA; }
-.cys-modal-kpi-v2__icon--verde    { background: rgba(46,204,113,0.12);  color: #2ecc71; }
-.cys-modal-kpi-v2__icon--amarillo { background: rgba(241,196,15,0.12);  color: #f1c40f; }
-.cys-modal-kpi-v2__icon--rojo     { background: rgba(231,76,60,0.12);   color: #e74c3c; }
-.cys-modal-kpi-v2__icon--menta    { background: rgba(93,202,165,0.12);  color: #5DCAA5; }
-
-.cys-modal-kpi-v2__val--verde    { color: #2ecc71; }
-.cys-modal-kpi-v2__val--amarillo { color: #f1c40f; }
-.cys-modal-kpi-v2__val--rojo     { color: #e74c3c; }
-.cys-modal-kpi-v2__val--menta    { color: #5DCAA5; }
-
-.cys-modal__stats--3col { grid-template-columns: repeat(3, 1fr); }
-.cys-modal__stats--4col { grid-template-columns: repeat(4, 1fr); }
-
 /* ────────────────────────────────────
    SECCIONES INTERNAS DE MODAL
 ──────────────────────────────────── */
@@ -1389,6 +1406,95 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   letter-spacing: 0.02em;
 }
 
+/* ════════════════════════════════════════════════════════════
+   CORRECCIÓN TABLA MODAL STOCK — ALINEACIÓN PERFECTA
+   ════════════════════════════════════════════════════════════ */
+
+#tabla-modal-stock {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+#tabla-modal-stock thead {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+#tabla-modal-stock thead th {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  padding: 14px 8px !important;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.3) !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  height: 48px !important;
+  box-sizing: border-box !important;
+  word-wrap: break-word !important;
+}
+
+#tabla-modal-stock tbody td {
+  padding: 12px 8px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
+  word-wrap: break-word !important;
+}
+
+#tabla-modal-stock tbody tr:hover td {
+  background: rgba(77, 168, 218, 0.08) !important;
+  color: #fff !important;
+  border-bottom-color: rgba(77, 168, 218, 0.2) !important;
+}
+
+#tabla-modal-stock th:nth-child(1),
+#tabla-modal-stock td:nth-child(1) {
+  width: 50px !important;
+  min-width: 50px !important;
+  max-width: 50px !important;
+}
+
+#tabla-modal-stock th:nth-child(2),
+#tabla-modal-stock td:nth-child(2) {
+  width: calc(100% - 360px) !important;
+  min-width: auto !important;
+}
+
+#tabla-modal-stock th:nth-child(3),
+#tabla-modal-stock td:nth-child(3) {
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+#tabla-modal-stock th:nth-child(4),
+#tabla-modal-stock td:nth-child(4) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+}
+
+#tabla-modal-stock .cys-qty {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  color: var(--azul-acento) !important;
+  text-align: center !important;
+  display: block !important;
+}
+
+#tabla-modal-stock .cys-prov-name {
+  justify-content: center !important;
+}
+
 /* ────────────────────────────────────
    RESPONSIVE TABLES
 ──────────────────────────────────── */
@@ -1821,21 +1927,7 @@ table.dataTable {
 }
 
 /* ════════════════════════════════════════════════════════════
-   CORRECCIÓN 1 — CENTRADO TABLA INVENTARIO (modal stock)
-   Fuerza centrado en todas las celdas y encabezados
-   ════════════════════════════════════════════════════════════ */
-#tabla-modal-stock th,
-#tabla-modal-stock td {
-  text-align: center !important;
-  vertical-align: middle !important;
-}
-
-#tabla-modal-stock .cys-prov-name {
-  justify-content: center;
-}
-
-/* ════════════════════════════════════════════════════════════
-   CORRECCIÓN 2 — BOTÓN "CERRAR" OVALADO EN TODOS LOS MODALES
+   BOTÓN "CERRAR" OVALADO EN TODOS LOS MODALES
    ════════════════════════════════════════════════════════════ */
 .modal-footer .btn-outline-secondary {
   border-radius: 50px !important;
