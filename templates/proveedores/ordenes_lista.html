@@ -1,144 +1,253 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ordenes_compra.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>📋 Órdenes de Compra</h1>
-        <a href="{% url 'crear_orden' %}" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-circle"></i> Nueva Orden
+<div class="container-fluid" style="padding: 30px;">
+
+    <!-- HEADER -->
+    <div class="ordenes-header">
+        <h1>
+            <i class="bi bi-clipboard-check"></i>
+            Órdenes de Compra
+        </h1>
+        <a href="{% url 'crear_orden' %}" class="btn-nueva-orden">
+            <i class="bi bi-plus-circle-fill"></i>
+            Nueva Orden
         </a>
     </div>
 
-    <!-- Mensajes -->
+    <!-- MENSAJES -->
     {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     {% endfor %}
     {% endif %}
 
-    <!-- Estadísticas -->
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <h2 class="text-primary">{{ total_ordenes }}</h2>
-                    <p class="text-muted mb-0">Total Órdenes</p>
-                </div>
+    <!-- ESTADÍSTICAS -->
+    <div class="ordenes-stats">
+        <!-- Total Órdenes -->
+        <a href="{% url 'listar_ordenes' %}" class="stat-card total stat-card-link">
+            <div class="stat-card__icon-wrapper">
+                <i class="bi bi-list-check"></i>
             </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm bg-primary text-white">
-                <div class="card-body text-center">
-                    <h2>{{ ordenes_pendientes }}</h2>
-                    <p class="mb-0">Pendientes</p>
-                </div>
+            <div class="stat-card__number">{{ total_ordenes }}</div>
+            <div class="stat-card__label">Total Órdenes</div>
+            <div class="stat-card__description">Todas las órdenes registradas</div>
+            <div class="stat-card__footer">
+                <span>Ver listado</span>
+                <i class="bi bi-arrow-right"></i>
             </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm bg-warning text-white">
-                <div class="card-body text-center">
-                    <h2>{{ ordenes_confirmadas }}</h2>
-                    <p class="mb-0">Confirmadas</p>
-                </div>
+        </a>
+
+        <!-- Pendientes -->
+        <a href="{% url 'listar_ordenes' %}?estado=pendiente" class="stat-card pendiente stat-card-link">
+            <div class="stat-card__icon-wrapper">
+                <i class="bi bi-hourglass-split"></i>
             </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm bg-success text-white">
-                <div class="card-body text-center">
-                    <h2>{{ ordenes_recibidas }}</h2>
-                    <p class="mb-0">Recibidas</p>
-                </div>
+            <div class="stat-card__number">{{ ordenes_pendientes }}</div>
+            <div class="stat-card__label">Pendientes</div>
+            <div class="stat-card__description">Esperando confirmación</div>
+            <div class="stat-card__footer">
+                <span>Revisar órdenes</span>
+                <i class="bi bi-arrow-right"></i>
             </div>
-        </div>
+        </a>
+
+        <!-- Confirmadas -->
+        <a href="{% url 'listar_ordenes' %}?estado=confirmada" class="stat-card confirmada stat-card-link">
+            <div class="stat-card__icon-wrapper">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-card__number">{{ ordenes_confirmadas }}</div>
+            <div class="stat-card__label">Confirmadas</div>
+            <div class="stat-card__description">Listas para recibir</div>
+            <div class="stat-card__footer">
+                <span>Procesar recepción</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+        <!-- Recibidas -->
+        <a href="{% url 'listar_ordenes' %}?estado=recibida" class="stat-card recibida stat-card-link">
+            <div class="stat-card__icon-wrapper">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-card__number">{{ ordenes_recibidas }}</div>
+            <div class="stat-card__label">Recibidas</div>
+            <div class="stat-card__description">Con lotes creados</div>
+            <div class="stat-card__footer">
+                <span>Ver inventario</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
     </div>
 
-    <!-- Tabla de órdenes -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Listado de Órdenes</h5>
+    <!-- TABLA DE ÓRDENES -->
+    <div class="ordenes-table-wrapper">
+        <div class="ordenes-table-header">
+            <h3>
+                <i class="bi bi-list-check"></i>
+                Listado de Órdenes
+            </h3>
         </div>
+
+        {% if ordenes %}
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-dark">
+            <table class="ordenes-table">
+                <thead>
                     <tr>
-                        <th style="width: 10%">#ID</th>
-                        <th style="width: 25%">Proveedor</th>
-                        <th style="width: 15%">Fecha</th>
-                        <th style="width: 15%">Estado</th>
-                        <th style="width: 15%">Total</th>
-                        <th style="width: 20%">Acciones</th>
+                        <th>#ID</th>
+                        <th>Proveedor</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for orden in ordenes %}
                     <tr>
-                        <td><strong>#{{ orden.id }}</strong></td>
-                        <td>{{ orden.proveedor.nombre_empresa }}</td>
-                        <td>{{ orden.fecha|date:"d/m/Y H:i" }}</td>
+                        <!-- ID -->
+                        <td class="ordenes-table__id">#{{ orden.id }}</td>
+
+                        <!-- Proveedor -->
+                        <td class="ordenes-table__proveedor">
+                            {{ orden.proveedor.nombre_empresa }}
+                        </td>
+
+                        <!-- Fecha -->
+                        <td class="ordenes-table__fecha">
+                            {{ orden.fecha|date:"d/m/Y H:i" }}
+                        </td>
+
+                        <!-- Estado -->
                         <td>
                             {% if orden.estado == 'pendiente' %}
-                                <span class="badge bg-primary">Pendiente</span>
+                                <span class="ordenes-badge ordenes-badge-pendiente">
+                                    <i class="bi bi-hourglass-split"></i> Pendiente
+                                </span>
                             {% elif orden.estado == 'confirmada' %}
-                                <span class="badge bg-warning text-dark">Confirmada</span>
+                                <span class="ordenes-badge ordenes-badge-confirmada">
+                                    <i class="bi bi-check-circle"></i> Confirmada
+                                </span>
                             {% elif orden.estado == 'recibida' %}
-                                <span class="badge bg-success">Recibida</span>
+                                <span class="ordenes-badge ordenes-badge-recibida">
+                                    <i class="bi bi-box-seam"></i> Recibida
+                                </span>
                             {% else %}
-                                <span class="badge bg-danger">Cancelada</span>
+                                <span class="ordenes-badge ordenes-badge-cancelada">
+                                    <i class="bi bi-x-circle"></i> Cancelada
+                                </span>
                             {% endif %}
                         </td>
-                        <td><strong>${{ orden.total|floatformat:0|default:"0" }}</strong></td>
-                        <td>
-                            <a href="{% url 'detalle_orden' pk=orden.id %}" class="btn btn-sm btn-info">
-                                <i class="bi bi-eye"></i> Ver
-                            </a>
-                            <a href="{% url 'cambiar_estado_orden' pk=orden.id %}" class="btn btn-sm btn-warning">
-                                <i class="bi bi-pencil"></i> Estado
-                            </a>
+
+                        <!-- Total -->
+                        <td class="ordenes-table__total">
+                            ${{ orden.total|floatformat:0|default:"0" }}
                         </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center py-4">
-                            <p class="text-muted">No hay órdenes registradas</p>
+
+                        <!-- Acciones -->
+                        <td>
+                            <div class="ordenes-actions-menu">
+                                <button class="btn-menu-toggle" title="Acciones">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <div class="ordenes-menu-dropdown">
+                                    <!-- Ver detalles -->
+                                    <a href="{% url 'detalle_orden' pk=orden.id %}" class="ordenes-menu-item">
+                                        <i class="bi bi-eye"></i>
+                                        <span>Ver detalles</span>
+                                    </a>
+
+                                    {% if orden.estado == 'pendiente' %}
+                                    <!-- Confirmar orden -->
+                                    <form method="POST" action="{% url 'cambiar_estado_orden_rapido' pk=orden.id %}" style="display: contents;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estado" value="confirmada">
+                                        <button type="submit" class="ordenes-menu-item">
+                                            <i class="bi bi-check-circle"></i>
+                                            <span>Confirmar orden</span>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                    {% if orden.estado == 'confirmada' %}
+                                    <!-- Recibir compra -->
+                                    <form method="POST" action="{% url 'cambiar_estado_orden_rapido' pk=orden.id %}" style="display: contents;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estado" value="recibida">
+                                        <button type="submit" class="ordenes-menu-item">
+                                            <i class="bi bi-box-seam"></i>
+                                            <span>Recibir compra</span>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                    {% if orden.estado != 'recibida' and orden.estado != 'cancelada' %}
+                                    <!-- Cancelar orden -->
+                                    <form method="POST" action="{% url 'cambiar_estado_orden_rapido' pk=orden.id %}" style="display: contents;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estado" value="cancelada">
+                                        <button type="submit" class="ordenes-menu-item ordenes-menu-item-danger">
+                                            <i class="bi bi-x-circle"></i>
+                                            <span>Cancelar orden</span>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <!-- Paginación -->
-    {% if page_obj.has_other_pages %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
+        <!-- PAGINACIÓN -->
+        {% if page_obj.has_other_pages %}
+        <div class="ordenes-pagination">
             {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1">Primera</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
-                </li>
+                <a href="?page=1" class="pagination-item">« Primera</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="pagination-item">‹ Anterior</a>
+            {% else %}
+                <span class="pagination-item disabled">« Primera</span>
+                <span class="pagination-item disabled">‹ Anterior</span>
             {% endif %}
 
-            <li class="page-item active">
-                <span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-            </li>
+            <span class="pagination-item" style="background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3);">
+                {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
 
             {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
-                </li>
+                <a href="?page={{ page_obj.next_page_number }}" class="pagination-item">Siguiente ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-item">Última »</a>
+            {% else %}
+                <span class="pagination-item disabled">Siguiente ›</span>
+                <span class="pagination-item disabled">Última »</span>
             {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- EMPTY STATE -->
+        <div class="ordenes-empty">
+            <i class="bi bi-inbox"></i>
+            <p>No hay órdenes registradas</p>
+            <p style="font-size: 13px; margin-top: 8px;">
+                <a href="{% url 'crear_orden' %}" style="color: #3b82f6; text-decoration: underline;">
+                    Crea la primera orden aquí
+                </a>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
