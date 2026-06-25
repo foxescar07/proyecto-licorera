@@ -7,8 +7,8 @@ from django.db import models
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from .models import Proveedor, Compra
-from .forms import ProveedorForm, CompraForm
+from .models import Proveedor, Compra, OrdenCompra, DetalleCompra
+from .forms import ProveedorForm, CompraForm, OrdenCompraForm, DetalleCompraForm
 from productos.models import Producto
 from inventario.models import Lote, Inventario
 import json
@@ -380,3 +380,225 @@ def registrar_compra(request):
     }
 
     return render(request, 'proveedores/compras.html', context)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# VISTAS PARA ÓRDENES DE COMPRA (US-010, US-011, US-012)
+# ════════════════════════════════════════════════════════════════════════════
+
+@login_required
+def listar_ordenes(request):
+    """US-010: Listar órdenes de compra con filtros."""
+    ordenes = OrdenCompra.objects.all().select_related('proveedor', 'registrado_por')
+
+    # Filtros
+    q = request.GET.get('q', '')
+    estado = request.GET.get('estado', '')
+
+    if q:
+        ordenes = ordenes.filter(
+            proveedor__nombre_empresa__icontains=q
+        ) | ordenes.filter(id__icontains=q)
+
+    if estado:
+        ordenes = ordenes.filter(estado=estado)
+
+    # Ordenar por fecha descendente
+    ordenes = ordenes.order_by('-fecha')
+
+    # Paginación
+    paginator = Paginator(ordenes, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Estadísticas
+    total_ordenes = OrdenCompra.objects.count()
+    ordenes_pendientes = OrdenCompra.objects.filter(estado='pendiente').count()
+    ordenes_confirmadas = OrdenCompra.objects.filter(estado='confirmada').count()
+    ordenes_recibidas = OrdenCompra.objects.filter(estado='recibida').count()
+
+    context = {
+        'ordenes': page_obj.object_list,
+        'page_obj': page_obj,
+        'total_ordenes': total_ordenes,
+        'ordenes_pendientes': ordenes_pendientes,
+        'ordenes_confirmadas': ordenes_confirmadas,
+        'ordenes_recibidas': ordenes_recibidas,
+    }
+
+    return render(request, 'proveedores/ordenes_lista.html', context)
+
+
+@login_required
+def crear_orden(request):
+    """US-010: Crear nueva orden de compra."""
+    if request.method == 'POST':
+        form = OrdenCompraForm(request.POST)
+        if form.is_valid():
+            orden = form.save(commit=False)
+            orden.registrado_por = request.user
+            orden.estado = 'pendiente'
+            orden.save()
+
+            messages.success(
+                request,
+                f'Orden #{orden.id} creada exitosamente para {orden.proveedor.nombre_empresa}'
+            )
+            return redirect('detalle_orden', pk=orden.id)
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+
+    else:
+        form = OrdenCompraForm()
+
+    context = {'form': form}
+    return render(request, 'proveedores/crear_orden.html', context)
+
+
+@login_required
+def detalle_orden(request, pk):
+    """Mostrar detalle de una orden con sus detalles."""
+    orden = get_object_or_404(OrdenCompra, pk=pk)
+    detalles = orden.detalles.all()
+
+    context = {
+        'orden': orden,
+        'detalles': detalles,
+    }
+
+    return render(request, 'proveedores/detalle_orden.html', context)
+
+
+@login_required
+def agregar_detalle_orden(request, pk):
+    """Agregar un detalle (línea) a una orden existente."""
+    orden = get_object_or_404(OrdenCompra, pk=pk)
+
+    # No permitir agregar detalles si la orden ya fue recibida
+    if orden.estado == 'recibida':
+        messages.error(request, 'No se pueden agregar detalles a una orden recibida.')
+        return redirect('detalle_orden', pk=pk)
+
+    if request.method == 'POST':
+        form = DetalleCompraForm(request.POST)
+        if form.is_valid():
+            detalle = form.save(commit=False)
+            detalle.orden_compra = orden
+            detalle.save()
+
+            # Recalcular total
+            orden.calcular_total()
+
+            messages.success(request, 'Detalle agregado exitosamente.')
+            return redirect('detalle_orden', pk=pk)
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+
+    else:
+        form = DetalleCompraForm()
+
+    context = {
+        'orden': orden,
+        'form': form,
+    }
+
+    return render(request, 'proveedores/agregar_detalle.html', context)
+
+
+@login_required
+def cambiar_estado_orden(request, pk):
+    """US-011: Cambiar estado de una orden (pendiente → confirmada → recibida)."""
+    orden = get_object_or_404(OrdenCompra, pk=pk)
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('nuevo_estado')
+
+        # Validar transición de estados
+        transiciones_validas = {
+            'pendiente': ['confirmada', 'cancelada'],
+            'confirmada': ['recibida', 'cancelada'],
+            'recibida': [],
+            'cancelada': [],
+        }
+
+        if nuevo_estado not in transiciones_validas.get(orden.estado, []):
+            messages.error(request, f'No se puede cambiar de {orden.estado} a {nuevo_estado}.')
+            return redirect('detalle_orden', pk=pk)
+
+        orden_anterior = orden.estado
+        orden.estado = nuevo_estado
+        orden.save()
+
+        messages.success(
+            request,
+            f'Estado de orden #{orden.id} cambió de {orden_anterior} a {nuevo_estado}'
+        )
+
+        return redirect('detalle_orden', pk=pk)
+
+    context = {
+        'orden': orden,
+        'transiciones': {
+            'pendiente': ['confirmada', 'cancelada'],
+            'confirmada': ['recibir', 'cancelada'],
+            'recibida': [],
+            'cancelada': [],
+        }.get(orden.estado, [])
+    }
+
+    return render(request, 'proveedores/cambiar_estado_orden.html', context)
+
+
+@login_required
+def recibir_compra(request, pk):
+    """US-012: Recibir una orden y crear automáticamente los lotes."""
+    from django.db import transaction
+    from inventario.models import Lote
+
+    orden = get_object_or_404(OrdenCompra, pk=pk)
+
+    # Validar que la orden esté en estado confirmada
+    if orden.estado != 'confirmada':
+        messages.error(request, 'Solo se pueden recibir órdenes en estado "confirmada".')
+        return redirect('detalle_orden', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                # Cambiar estado a recibida
+                orden.estado = 'recibida'
+                orden.save()
+
+                # Crear lotes automáticamente para cada detalle
+                lotes_creados = 0
+                for detalle in orden.detalles.all():
+                    numero_lote = f"LOT-{orden.id}-{detalle.id}-{timezone.now().strftime('%Y%m%d')}"
+
+                    lote = Lote.objects.create(
+                        numero_lote=numero_lote,
+                        presentacion=detalle.presentacion,
+                        stock_actual=detalle.cantidad,
+                        costo_unitario=detalle.precio_unitario,
+                        fecha_vencimiento=None,
+                        registrado_por=request.user,
+                        detalle_compra=detalle,
+                    )
+
+                    lotes_creados += 1
+
+                messages.success(
+                    request,
+                    f'Orden #{orden.id} recibida correctamente. {lotes_creados} lote(s) creado(s).'
+                )
+
+        except Exception as e:
+            messages.error(request, f'Error al recibir la orden: {str(e)}')
+
+        return redirect('detalle_orden', pk=pk)
+
+    context = {'orden': orden}
+    return render(request, 'proveedores/recibir_compra.html', context)
