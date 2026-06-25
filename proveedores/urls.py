@@ -11,4 +11,12 @@ urlpatterns = [
     path('sancionar/<int:id>/', views.sancionar_proveedor, name='sancionar_proveedor'),
     path('eliminar/<int:id>/', views.eliminar_proveedor, name='eliminar_proveedor'),
     path('compras/', views.registrar_compra, name='registrar_compra'),
+
+    # Órdenes de Compra (US-010, US-011, US-012)
+    path('ordenes/', views.listar_ordenes, name='listar_ordenes'),
+    path('ordenes/crear/', views.crear_orden, name='crear_orden'),
+    path('ordenes/<int:pk>/', views.detalle_orden, name='detalle_orden'),
+    path('ordenes/<int:pk>/detalle/', views.agregar_detalle_orden, name='agregar_detalle_orden'),
+    path('ordenes/<int:pk>/cambiar-estado/', views.cambiar_estado_orden, name='cambiar_estado_orden'),
+    path('ordenes/<int:pk>/recibir/', views.recibir_compra, name='recibir_compra'),
 ]
