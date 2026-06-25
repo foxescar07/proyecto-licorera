@@ -3,9 +3,9 @@
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-  --cys-bg-card:       #0b1a24;
-  --cys-surface:       #07121a;
-  --cys-borde:         rgba(77, 168, 218, 0.15);
+  --cys-bg-card:       #11233f;   /* antes #0b1a24 */
+  --cys-surface:       #0d1c33;   /* antes #07121a */
+  --cys-borde:         rgba(77, 168, 218, 0.25); /* antes 0.15, más visible como inventario */
   --cys-borde-focus:   #4da8da;
   --cys-texto-muted:   #6b8296;
   --cys-acento:        #4da8da;
@@ -16,7 +16,7 @@
 
 /* ── CONTENEDOR GENERAL ── */
 .cys-page-wrapper {
-  background-color: #040a0f;
+  background-color: #0a1628;   /* antes #040a0f */
   min-height: 100vh;
   font-family: sans-serif;
 }

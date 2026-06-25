@@ -732,8 +732,9 @@ div.dt-container div.dt-info {
   color: #c8d6e5;
 }
 .dropdown-item:hover,
-.dropdown-item:focus {
-  background: rgba(77,168,218,.15) !important;
+.dropdown-item:focus,
+.dropdown-item:active {
+  background: rgba(0, 166, 255, 0.15) !important;
   color: #4DA8DA !important;
 }
 
@@ -788,4 +789,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.dropdown-menu {
+  --bs-dropdown-link-hover-bg: rgba(77,168,218,.15);
+  --bs-dropdown-link-hover-color: #4DA8DA;
+  --bs-dropdown-link-active-bg: rgba(77,168,218,.2);
+  --bs-dropdown-link-active-color: #4DA8DA;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active,
+.dropdown-item.active {
+  background-color: rgba(77,168,218,.15) !important;
+  color: #4DA8DA !important;
 }
