@@ -142,11 +142,13 @@ def lista_usuarios(request):
         **_ctx_base(request),
         'usuarios':       usuarios,
         'total_usuarios': usuarios.count(),
+        'tipo_id_choices': Usuario.TIPO_ID_CHOICES,
+        'rol_choices':     Usuario.ROL_CHOICES,
     }
     return render(request, 'usuarios_lista.html', ctx)
 
 
-# ── CREAR USUARIO ──────────────────────────────────────────────────────────────
+# ── CREAR USUARIO (página pública) ────────────────────────────────────────────
 
 def crear_usuario(request):
     form = UsuarioForm()
@@ -172,6 +174,43 @@ def crear_usuario(request):
         'form': form,
     }
     return render(request, 'crear_usuario.html', ctx)
+
+
+# ── CREAR USUARIO AJAX (desde modal en lista) ─────────────────────────────────
+
+def crear_usuario_ajax(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Sin sesión.'}, status=403)
+    if not _solo_admin(request):
+        return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
+    form = UsuarioForm(request.POST)
+    if form.is_valid():
+        usuario = form.save()
+        return JsonResponse({
+            'ok':      True,
+            'mensaje': f'Usuario {usuario.usuario} creado correctamente.',
+            'usuario': {
+                'pk':             usuario.pk,
+                'nombre_completo': usuario.nombre_completo,
+                'usuario':        usuario.usuario,
+                'email':          usuario.email or '',
+                'rol':            usuario.rol,
+                'rol_label':      usuario.get_rol_display(),
+                'identificacion': usuario.identificacion,
+                'tipo_id_label':  usuario.get_tipo_id_display(),
+                'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y'),
+                'activo':         usuario.activo,
+            }
+        })
+    else:
+        errores = []
+        for campo, lista in form.errors.items():
+            for e in lista:
+                errores.append(e)
+        return JsonResponse({'ok': False, 'error': errores[0] if errores else 'Error de validación.'})
 
 
 # ── EDITAR USUARIO ─────────────────────────────────────────────────────────────
@@ -347,7 +386,6 @@ def perfil_editar(request):
 # ── RECUPERAR CLAVE (ENLACE POR CORREO) ───────────────────────────────────────
 
 def solicitar_recuperacion(request):
-    """Método clásico: envía un enlace único al correo."""
     if request.method == 'POST':
         correo = request.POST.get('correo', '').strip().lower()
 
@@ -388,7 +426,6 @@ def solicitar_recuperacion(request):
 # ── RECUPERAR CLAVE (CÓDIGO OTP POR CORREO) ───────────────────────────────────
 
 def solicitar_otp_correo(request):
-    """Método OTP: envía un código de 6 dígitos al correo, expira en 10 minutos."""
     if request.method != 'POST':
         return redirect('login')
 
@@ -401,7 +438,6 @@ def solicitar_otp_correo(request):
     try:
         usuario = Usuario.objects.get(email__iexact=correo, activo=True)
     except Usuario.DoesNotExist:
-        # No revelamos si el correo existe (seguridad)
         messages.success(request, 'Si el correo está registrado, recibirás un código en breve.')
         return redirect('/usuarios/login/?action=otp')
 
@@ -428,14 +464,12 @@ def solicitar_otp_correo(request):
         messages.error(request, 'No se pudo enviar el correo. Intenta más tarde.')
         return redirect('/usuarios/login/?action=otp')
 
-    # Guardamos el correo en session para el paso 2
     request.session['otp_correo'] = correo
     messages.success(request, f'Código enviado a {correo}')
     return redirect('/usuarios/login/?action=otp_verificar')
 
 
 def verificar_otp_correo(request):
-    """Paso 2 OTP: verifica el código y redirige a restablecer contraseña."""
     if request.method != 'POST':
         return redirect('login')
 
@@ -462,7 +496,6 @@ def verificar_otp_correo(request):
         messages.error(request, 'El código expiró. Solicita uno nuevo.')
         return redirect('/usuarios/login/?action=otp')
 
-    # Código correcto → generamos token de un solo uso para restablecer
     token  = get_random_string(32)
     expira = timezone.now() + timedelta(minutes=10)
     usuario.reset_token        = token
@@ -479,13 +512,11 @@ def restablecer_clave(request, token):
     try:
         usuario = Usuario.objects.get(reset_token=token, activo=True)
     except Usuario.DoesNotExist:
-        ctx = {'error': 'El enlace o código no es válido o ya fue utilizado.'}
-        return render(request, 'restablecer_clave.html', ctx)
+        return render(request, 'restablecer_clave.html', {'error': 'El enlace o código no es válido o ya fue utilizado.'})
 
     if timezone.now() > usuario.reset_token_expira:
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        ctx = {'error': 'El enlace o código expiró. Solicita uno nuevo.'}
-        return render(request, 'restablecer_clave.html', ctx)
+        return render(request, 'restablecer_clave.html', {'error': 'El enlace o código expiró. Solicita uno nuevo.'})
 
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
@@ -493,20 +524,16 @@ def restablecer_clave(request, token):
         error     = _validar_clave_segura(nueva)
 
         if error:
-            ctx = {'token': token, 'error': error}
-            return render(request, 'restablecer_clave.html', ctx)
+            return render(request, 'restablecer_clave.html', {'token': token, 'error': error})
         if nueva != confirmar:
-            ctx = {'token': token, 'error': 'Las contraseñas no coinciden.'}
-            return render(request, 'restablecer_clave.html', ctx)
+            return render(request, 'restablecer_clave.html', {'token': token, 'error': 'Las contraseñas no coinciden.'})
 
         usuario.set_password(nueva)
         usuario.save(update_fields=['password'])
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        ctx = {'exito': True}
-        return render(request, 'restablecer_clave.html', ctx)
+        return render(request, 'restablecer_clave.html', {'exito': True})
 
-    ctx = {'token': token}
-    return render(request, 'restablecer_clave.html', ctx)
+    return render(request, 'restablecer_clave.html', {'token': token})
 
 
 # ── TOGGLE ACTIVO ──────────────────────────────────────────────────────────────
