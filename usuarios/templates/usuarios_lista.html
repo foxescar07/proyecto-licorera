@@ -42,9 +42,10 @@
     >
     {% if request.session.usuario_rol == 'admin' %}
     <div class="ul-searchbar__div"></div>
-    <a href="{% url 'crear_usuario' %}" class="ul-searchbar__btn">
+    <!-- CAMBIO: abre modal en vez de ir a otra página -->
+    <button type="button" class="ul-searchbar__btn" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
       <i class="bi bi-person-plus"></i> Nuevo Usuario
-    </a>
+    </button>
     {% endif %}
   </div>
 
@@ -162,10 +163,9 @@
     <!-- SIDEBAR -->
     <div class="ul-sidebar" id="ul-sidebar-ref">
 
-      <!-- Widget Usuarios Totales -->
       <div class="ul-widget widget-total">
         <div class="ul-big-stat">
-          <div class="ul-big-stat__num">{{ usuarios|length }}</div>
+          <div class="ul-big-stat__num" id="total-usuarios-num">{{ usuarios|length }}</div>
           <div class="ul-big-stat__label">Usuarios totales</div>
           <div class="ul-big-stat__sub">Sesión activa incluida</div>
         </div>
@@ -180,10 +180,8 @@
         </div>
       </div>
 
-      <!-- Sidebar bottom -->
       <div class="ul-sidebar-bottom" id="ul-sidebar-bottom-ref">
 
-        <!-- Stats -->
         <div class="sidebar-dropdown-wrapper" id="wrapperStats">
           <button class="btn-trigger-dropdown"
                   type="button"
@@ -239,7 +237,6 @@
           </div>
         </div>
 
-        <!-- Recientes -->
         <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
           <button class="btn-trigger-dropdown"
                   type="button"
@@ -254,10 +251,10 @@
               <div class="ul-widget__title">
                 <i class="bi bi-clock-history"></i> Registros recientes
               </div>
-              <div class="ul-recientes-scroll">
+              <div class="ul-recientes-scroll" id="recientes-scroll">
                 {% for u in usuarios %}
                 {% if u.pk != request.session.usuario_id %}
-                <div class="ul-activity-item">
+                <div class="ul-activity-item" id="reciente-{{ u.pk }}">
                   <div class="ul-activity-avatar">
                     {% if u.foto %}
                       <img src="{{ u.foto.url }}" alt="{{ u.nombre|slice:':1'|upper }}"
@@ -286,6 +283,9 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     MODAL EDITAR USUARIO (existente)
+══════════════════════════════════════════ -->
 {% if request.session.usuario_rol == 'admin' %}
 <div class="modal fade" id="modalEditarUsuario" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
@@ -350,7 +350,133 @@
     </div>
   </div>
 </div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL CREAR USUARIO (nuevo, solo admin)
+══════════════════════════════════════════ -->
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-editar" style="max-width:540px;">
+    <div class="modal-content modal-editar-content">
+
+      <div class="modal-header modal-editar-header">
+        <div class="d-flex align-items-center gap-3">
+          <div style="
+            width:40px;height:40px;border-radius:12px;
+            background:linear-gradient(135deg,rgba(77,168,218,.18),rgba(77,168,218,.06));
+            border:1px solid rgba(77,168,218,.45);
+            display:flex;align-items:center;justify-content:center;
+            font-size:1.1rem;color:#4DA8DA;flex-shrink:0;">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+          <div>
+            <div style="font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#4DA8DA;opacity:.7;margin-bottom:.15rem;">
+              Panel Admin
+            </div>
+            <span class="modal-editar-title">Nuevo Usuario</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-auto"
+                data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <!-- Mensaje de error/éxito -->
+      <div id="cuMsg" class="eu-msg"></div>
+
+      <div class="modal-body modal-editar-body">
+
+        <!-- Sección: Identificación -->
+        <div class="cu-section-label">
+          <i class="bi bi-person-badge"></i> Identificación
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-5">
+            <label class="eu-label">Tipo ID <span class="cu-required">*</span></label>
+            <select id="cuTipoId" class="eu-input">
+              <option value="">Seleccionar…</option>
+              <option value="CC">Cédula de Ciudadanía</option>
+              <option value="TI">Tarjeta de Identidad</option>
+              <option value="CE">Cédula de Extranjería</option>
+              <option value="PA">Pasaporte</option>
+              <option value="NIT">NIT</option>
+            </select>
+          </div>
+          <div class="col-7">
+            <label class="eu-label">Número de Identificación <span class="cu-required">*</span></label>
+            <input type="text" id="cuIdentificacion" class="eu-input" placeholder="Número de documento">
+          </div>
+        </div>
+
+        <!-- Sección: Datos Personales -->
+        <div class="cu-section-label">
+          <i class="bi bi-person"></i> Datos Personales
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="eu-label">Nombres <span class="cu-required">*</span></label>
+            <input type="text" id="cuNombre" class="eu-input" placeholder="Nombres completos">
+          </div>
+          <div class="col-6">
+            <label class="eu-label">Apellidos <span class="cu-required">*</span></label>
+            <input type="text" id="cuApellidos" class="eu-input" placeholder="Apellidos completos">
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="eu-label">Correo Electrónico</label>
+            <input type="email" id="cuEmail" class="eu-input" placeholder="usuario@correo.com">
+          </div>
+          <div class="col-6">
+            <label class="eu-label">Teléfono</label>
+            <input type="text" id="cuTelefono" class="eu-input" placeholder="300 000 0000">
+          </div>
+        </div>
+
+        <!-- Sección: Acceso -->
+        <div class="cu-section-label">
+          <i class="bi bi-shield-lock"></i> Acceso al Sistema
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="eu-label">Rol</label>
+            <!-- Rol fijo: no editable -->
+            <div class="cu-rol-badge-wrap">
+              <span class="badge usuario-rol usuario-rol--empleado cu-rol-badge">
+                <i class="bi bi-person-fill me-1"></i> Empleado
+              </span>
+              <div class="cu-rol-hint">
+                <i class="bi bi-info-circle me-1"></i>
+                El rol puede cambiarse después desde <strong>Editar</strong>.
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <label class="eu-label">Contraseña <span class="cu-required">*</span></label>
+            <div style="position:relative;display:flex;align-items:center;">
+              <input type="password" id="cuClave" class="eu-input"
+                     placeholder="Mín. 6 car., 2 núm., 1 may."
+                     style="padding-right:2.6rem;">
+              <button type="button" id="cuToggleClave"
+                      style="position:absolute;right:.75rem;background:none;border:none;
+                             color:rgba(77,168,218,.4);cursor:pointer;font-size:.95rem;
+                             padding:0;line-height:1;transition:color .2s;">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="cuBtnGuardar" class="btn w-100 modal-btn-guardar mt-2">
+          <i class="bi bi-person-check-fill me-2"></i> Crear Usuario
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
 {% endif %}
+
 
 <script>
 (function () {
@@ -372,6 +498,7 @@
     return fd;
   }
 
+  /* ── BÚSQUEDA ── */
   $('inputBuscarUsuario')?.addEventListener('input', function () {
     const q    = this.value.trim().toLowerCase();
     const cols = document.querySelectorAll('#contenedor-tarjetas > div[id^="col-"]');
@@ -385,53 +512,7 @@
     if (sr) sr.style.setProperty('display', vis === 0 ? 'block' : 'none', 'important');
   });
 
-  function sincronizarAlturaRecientes() {
-    const layout = $('layout-principal');
-    if (!layout.classList.contains('cards-view-3-4')) return;
-
-    const main    = $('ul-main-ref');
-    const sidebar = $('ul-sidebar-ref');
-    const widget  = document.querySelector('#wrapperRecientes .widget-recientes');
-    const scroll  = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
-    if (!main || !widget || !scroll) return;
-
-    // Calculamos cuánto espacio libre queda en el sidebar
-    // desde el top del wrapperRecientes hasta el fondo del ul-main-ref
-    const mainBottom     = main.getBoundingClientRect().bottom;
-    const wrapperTop     = $('wrapperRecientes').getBoundingClientRect().top;
-    const titleEl        = widget.querySelector('.ul-widget__title');
-    const titleH         = titleEl ? titleEl.offsetHeight + 12 : 32; // título + margen
-    const paddingWidget  = 22; // padding top+bottom del ul-widget (1.1rem ≈ 17.6px × 2 / 2)
-
-    const alturaDisponible = mainBottom - wrapperTop - titleH - paddingWidget * 2;
-    scroll.style.maxHeight = Math.max(alturaDisponible, 120) + 'px';
-  }
-
-  function reajustarLayout() {
-    const total  = document.querySelectorAll(
-      '#contenedor-tarjetas > div[style=""], #contenedor-tarjetas > div:not([style])'
-    ).length;
-    const layout = $('layout-principal');
-    const cS     = $('collapseStats');
-    const cR     = $('collapseRecientes');
-
-    layout.classList.remove('cards-view-1-2','cards-view-3-4','cards-view-5-6','cards-view-dense');
-
-    const casos = [
-      [2,        'cards-view-1-2',   false, false],
-      [4,        'cards-view-3-4',   true,  true ],
-      [6,        'cards-view-5-6',   true,  true ],
-      [Infinity, 'cards-view-dense', true,  true ],
-    ];
-    const [, cls, showS, showR] = casos.find(([n]) => total <= n);
-    layout.classList.add(cls);
-    cS?.classList[showS ? 'add' : 'remove']('show');
-    cR?.classList[showR ? 'add' : 'remove']('show');
-
-    // Después de aplicar la clase y que el DOM se pinte, sincronizamos altura
-    requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
-  }
-
+  /* ── STATS ── */
   function calcularStats() {
     let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
     document.querySelectorAll('[id^="fila-"]').forEach(card => {
@@ -454,14 +535,246 @@
     $('bar-activos').style.width  = pct + '%';
   }
 
+  /* ── LAYOUT ── */
+  function sincronizarAlturaRecientes() {
+    const layout = $('layout-principal');
+    if (!layout.classList.contains('cards-view-3-4')) return;
+    const main   = $('ul-main-ref');
+    const widget = document.querySelector('#wrapperRecientes .widget-recientes');
+    const scroll = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
+    if (!main || !widget || !scroll) return;
+    const mainBottom = main.getBoundingClientRect().bottom;
+    const wrapperTop = $('wrapperRecientes').getBoundingClientRect().top;
+    const titleEl    = widget.querySelector('.ul-widget__title');
+    const titleH     = titleEl ? titleEl.offsetHeight + 12 : 32;
+    const alturaDisponible = mainBottom - wrapperTop - titleH - 44;
+    scroll.style.maxHeight = Math.max(alturaDisponible, 120) + 'px';
+  }
+
+  function reajustarLayout() {
+    const total  = document.querySelectorAll(
+      '#contenedor-tarjetas > div[style=""], #contenedor-tarjetas > div:not([style])'
+    ).length;
+    const layout = $('layout-principal');
+    const cS     = $('collapseStats');
+    const cR     = $('collapseRecientes');
+    layout.classList.remove('cards-view-1-2','cards-view-3-4','cards-view-5-6','cards-view-dense');
+    const casos = [
+      [2,        'cards-view-1-2',   false, false],
+      [4,        'cards-view-3-4',   true,  true ],
+      [6,        'cards-view-5-6',   true,  true ],
+      [Infinity, 'cards-view-dense', true,  true ],
+    ];
+    const [, cls, showS, showR] = casos.find(([n]) => total <= n);
+    layout.classList.add(cls);
+    cS?.classList[showS ? 'add' : 'remove']('show');
+    cR?.classList[showR ? 'add' : 'remove']('show');
+    requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
+  }
+
   calcularStats();
   reajustarLayout();
+  window.addEventListener('resize', () => requestAnimationFrame(sincronizarAlturaRecientes));
 
-  // Re-sincronizar si la ventana cambia de tamaño
-  window.addEventListener('resize', () => {
-    requestAnimationFrame(sincronizarAlturaRecientes);
-  });
+  /* ═══════════════════════════════════════
+     MODAL CREAR USUARIO
+  ═══════════════════════════════════════ */
+  const modalCrearEl = $('modalCrearUsuario');
 
+  if (modalCrearEl) {
+
+    // Limpiar al abrir
+    modalCrearEl.addEventListener('show.bs.modal', () => {
+      ['cuTipoId','cuIdentificacion','cuNombre','cuApellidos','cuEmail','cuTelefono','cuClave']
+        .forEach(id => { if ($(id)) $(id).value = ''; });
+      const msg = $('cuMsg');
+      msg.style.display = 'none';
+      msg.className = 'eu-msg';
+      // Resetear inputs inválidos
+      modalCrearEl.querySelectorAll('.eu-input').forEach(el => el.classList.remove('eu-input--invalid'));
+    });
+
+    // Toggle ojo contraseña
+    $('cuToggleClave')?.addEventListener('click', function () {
+      const field = $('cuClave');
+      const icon  = this.querySelector('i');
+      const isPwd = field.type === 'password';
+      field.type = isPwd ? 'text' : 'password';
+      icon.classList.toggle('bi-eye',       !isPwd);
+      icon.classList.toggle('bi-eye-slash',  isPwd);
+    });
+
+    // Guardar
+    $('cuBtnGuardar')?.addEventListener('click', function () {
+      const btn = this;
+
+      // Limpiar estados inválidos previos
+      modalCrearEl.querySelectorAll('.eu-input').forEach(el => el.classList.remove('eu-input--invalid'));
+
+      const tipo_id        = $('cuTipoId').value;
+      const identificacion = $('cuIdentificacion').value.trim();
+      const nombre         = $('cuNombre').value.trim();
+      const apellidos      = $('cuApellidos').value.trim();
+      const email          = $('cuEmail').value.trim();
+      const telefono       = $('cuTelefono').value.trim();
+      const clave          = $('cuClave').value;
+
+      // Validación frontend básica
+      let hayError = false;
+      const marcar = (id) => { $(id)?.classList.add('eu-input--invalid'); hayError = true; };
+
+      if (!tipo_id)        marcar('cuTipoId');
+      if (!identificacion) marcar('cuIdentificacion');
+      if (!nombre)         marcar('cuNombre');
+      if (!apellidos)      marcar('cuApellidos');
+      if (!clave)          marcar('cuClave');
+
+      if (hayError) {
+        mostrarMsgCrear('Completa todos los campos obligatorios (*).', 'err');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando usuario…';
+
+      apiFetch("{% url 'crear_usuario_admin' %}", mkFd({
+        tipo_id, identificacion, nombre, apellidos, email, telefono, clave
+      })).then(d => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-person-check-fill me-2"></i> Crear Usuario';
+
+        if (d.ok) {
+          mostrarMsgCrear('✅ Usuario creado correctamente.', 'ok');
+          agregarTarjetaAlDOM(d);
+          // Limpiar formulario tras éxito
+          setTimeout(() => {
+            ['cuTipoId','cuIdentificacion','cuNombre','cuApellidos','cuEmail','cuTelefono','cuClave']
+              .forEach(id => { if ($(id)) $(id).value = ''; });
+            $('cuMsg').style.display = 'none';
+          }, 1800);
+        } else {
+          mostrarMsgCrear(d.error || 'Error al crear el usuario.', 'err');
+        }
+      }).catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-person-check-fill me-2"></i> Crear Usuario';
+        mostrarMsgCrear('Error de conexión.', 'err');
+      });
+    });
+  }
+
+  function mostrarMsgCrear(texto, tipo) {
+    const el = $('cuMsg');
+    el.textContent = texto;
+    el.className   = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
+    el.style.display = 'block';
+  }
+
+  /* Inserta la nueva tarjeta en el DOM sin recargar */
+  function agregarTarjetaAlDOM(d) {
+    const contenedor = $('contenedor-tarjetas');
+    if (!contenedor) return;
+
+    const hoy = new Date();
+    const fecha = hoy.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+    const colDiv = document.createElement('div');
+    colDiv.className = 'col-12 col-md-6';
+    colDiv.id = 'col-' + d.pk;
+    colDiv.dataset.nombre  = (d.nombre_completo || '').toLowerCase();
+    colDiv.dataset.usuario = (d.usuario || '').toLowerCase();
+    colDiv.dataset.rol     = 'empleado';
+
+    colDiv.innerHTML = `
+      <div id="fila-${d.pk}" class="usuario-card h-100" style="opacity:0;transform:scale(.95);transition:opacity .35s,transform .35s;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <div class="usuario-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
+            <div>
+              <div class="usuario-nombre">${d.nombre_completo}</div>
+              <div class="usuario-user">@${d.usuario}</div>
+            </div>
+          </div>
+          <span id="rol-badge-${d.pk}" class="badge usuario-rol usuario-rol--empleado">Empleado</span>
+        </div>
+        <hr class="usuario-divider">
+        <div class="row g-2 mb-3 usuario-datos">
+          <div class="col-6">
+            <div class="usuario-label">Identificación</div>
+            <div class="usuario-value">${d.identificacion}</div>
+            <div class="usuario-sub">${d.tipo_id_display || ''}</div>
+          </div>
+          <div class="col-6">
+            <div class="usuario-label">Correo</div>
+            <div class="usuario-email">${d.email || '—'}</div>
+          </div>
+          <div class="col-6">
+            <div class="usuario-label">Miembro desde</div>
+            <div class="usuario-muted">${fecha}</div>
+          </div>
+          <div class="col-6">
+            <div class="usuario-label">Estado</div>
+            <span id="estado-badge-${d.pk}" class="usuario-estado usuario-estado--activo">
+              <span class="usuario-dot"></span> Activo
+            </span>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button onclick="abrirEditar(${d.pk})" class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
+            <i class="bi bi-pencil me-1"></i> Editar
+          </button>
+          <div id="wrap-toggle-${d.pk}" class="flex-fill d-flex flex-column gap-1">
+            <button id="btn-toggle-${d.pk}"
+                    onclick="toggleActivo(${d.pk}, true)"
+                    class="btn btn-sm w-100 usuario-btn usuario-btn-desactivar">
+              <i class="bi bi-person-dash me-1"></i> Desactivar
+            </button>
+            <button id="btn-eliminar-${d.pk}"
+                    onclick="eliminarUsuario(${d.pk})"
+                    class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
+                    style="display:none;">
+              <i class="bi bi-trash3 me-1"></i> Eliminar
+            </button>
+          </div>
+        </div>
+      </div>`;
+
+    contenedor.appendChild(colDiv);
+
+    // Animación de entrada
+    requestAnimationFrame(() => {
+      const card = colDiv.querySelector('.usuario-card');
+      card.style.opacity   = '1';
+      card.style.transform = 'scale(1)';
+    });
+
+    // Agregar al panel de recientes
+    const recientesScroll = $('recientes-scroll');
+    if (recientesScroll) {
+      const item = document.createElement('div');
+      item.className = 'ul-activity-item';
+      item.id = 'reciente-' + d.pk;
+      item.innerHTML = `
+        <div class="ul-activity-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
+        <div class="ul-activity-body">
+          <div class="ul-activity-name">${d.nombre_completo}</div>
+          <div class="ul-activity-meta">Empleado</div>
+        </div>
+        <div class="ul-activity-time">${fecha}</div>`;
+      recientesScroll.insertBefore(item, recientesScroll.firstChild);
+    }
+
+    // Actualizar contador total
+    const totalEl = $('total-usuarios-num');
+    if (totalEl) totalEl.textContent = parseInt(totalEl.textContent || '0') + 1;
+
+    calcularStats();
+    reajustarLayout();
+  }
+
+  /* ═══════════════════════════════════════
+     MODAL EDITAR USUARIO (existente)
+  ═══════════════════════════════════════ */
   window.euMostrarMsg = (texto, tipo) => {
     const el = $('euMsg');
     el.textContent = texto;
@@ -539,6 +852,10 @@
         card.classList.add('usuario-card--removing');
         setTimeout(() => {
           $('col-' + pk)?.remove();
+          // Quitar del panel recientes también
+          $('reciente-' + pk)?.remove();
+          const totalEl = $('total-usuarios-num');
+          if (totalEl) totalEl.textContent = Math.max(0, parseInt(totalEl.textContent) - 1);
           calcularStats();
           reajustarLayout();
         }, 380);

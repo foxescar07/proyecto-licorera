@@ -13,7 +13,7 @@ urlpatterns = [
     path('codigos/<int:pk>/guardar/',               views.guardar_codigo,             name='guardar_codigo'),
     path('movimiento/<int:pk>/editar/',             views.editar_movimiento,          name='editar_movimiento'),
     path('inventario/stock/',                       views.gestion_stock,              name='gestion_stock'),
-    path('stock/status/',                            views.stock_status,              name='stock_status'),
+    path('stock/status/',                           views.stock_status,               name='stock_status'),
     # ── Rutas de la rama antigua ──
     path('gestion/producto/eliminar/<int:pk>/',     views.gestion_producto_eliminar,  name='gestion_producto_eliminar'),
     path('gestion/producto/editar/<int:pk>/',       views.gestion_producto_editar,    name='gestion_producto_editar'),

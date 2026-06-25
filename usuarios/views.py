@@ -588,3 +588,69 @@ def actualizar_foto(request):
     request.user.foto = foto
     request.user.save(update_fields=['foto'])
     return JsonResponse({'ok': True, 'url': request.user.foto.url})
+
+
+# ── CREAR USUARIO DESDE ADMIN (AJAX) ──────────────────────────────────────────
+
+def crear_usuario_admin(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Sin sesión.'}, status=401)
+    if request.user.rol != 'admin':
+        return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'}, status=405)
+
+    tipo_id        = request.POST.get('tipo_id', '').strip()
+    identificacion = request.POST.get('identificacion', '').strip()
+    nombre         = request.POST.get('nombre', '').strip()
+    apellidos      = request.POST.get('apellidos', '').strip()
+    email          = request.POST.get('email', '').strip().lower()
+    telefono       = request.POST.get('telefono', '').strip()
+    clave          = request.POST.get('clave', '').strip()
+
+    if not all([tipo_id, identificacion, nombre, apellidos, clave]):
+        return JsonResponse({'ok': False, 'error': 'Completa todos los campos obligatorios.'})
+    if any(c.isdigit() for c in nombre):
+        return JsonResponse({'ok': False, 'error': 'El nombre no debe contener números.'})
+    if any(c.isdigit() for c in apellidos):
+        return JsonResponse({'ok': False, 'error': 'Los apellidos no deben contener números.'})
+
+    err_clave = _validar_clave_segura(clave)
+    if err_clave:
+        return JsonResponse({'ok': False, 'error': err_clave})
+
+    if Usuario.objects.filter(identificacion=identificacion).exists():
+        return JsonResponse({'ok': False, 'error': 'Ya existe un usuario con esa identificación.'})
+    if email and Usuario.objects.filter(email__iexact=email).exists():
+        return JsonResponse({'ok': False, 'error': 'Ese correo ya está en uso.'})
+
+    TIPOS_VALIDOS = ['CC', 'TI', 'CE', 'PA', 'NIT']
+    if tipo_id not in TIPOS_VALIDOS:
+        return JsonResponse({'ok': False, 'error': 'Tipo de identificación inválido.'})
+
+    usuario = Usuario(
+        username       = identificacion,
+        first_name     = nombre,
+        last_name      = apellidos,
+        email          = email or '',
+        identificacion = identificacion,
+        tipo_id        = tipo_id,
+        telefono       = telefono or None,
+        rol            = 'empleado',
+        activo         = True,
+        is_active      = True,
+    )
+    usuario.set_password(clave)
+    usuario.save()
+
+    return JsonResponse({
+        'ok':             True,
+        'pk':             usuario.pk,
+        'nombre_completo': usuario.nombre_completo,
+        'usuario':        usuario.username,
+        'email':          usuario.email,
+        'identificacion': usuario.identificacion,
+        'tipo_id_display': usuario.get_tipo_id_display(),
+        'fecha_registro': usuario.date_joined.strftime('%d/%m/%Y'),
+        'foto_url':       None,
+    })
