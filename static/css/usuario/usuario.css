@@ -17,11 +17,9 @@ body {
   color: var(--texto);
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
   background-color: #060c16;
 }
 
-/* ── Capa 1: degradado base oscuro ── */
 body::before {
   content: '';
   position: fixed;
@@ -35,7 +33,6 @@ body::before {
   z-index: 0;
 }
 
-/* ── Capa 2: brillo radial azul sutil ── */
 body::after {
   content: '';
   position: fixed;
@@ -47,12 +44,25 @@ body::after {
   pointer-events: none;
 }
 
+html {
+  height: 100%;
+  overflow-y: auto !important;
+}
+
+body {
+  min-height: 100%;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
 .cys-wrap {
   position: relative;
   z-index: 2;
   min-height: 100vh;
+  height: auto !important;
+  overflow: visible !important;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 2rem 1rem;
 }
@@ -65,6 +75,9 @@ body::after {
   width: 100%;
   max-width: 420px;
   padding: 2.5rem;
+  margin-top: auto;
+  margin-bottom: auto;
+  align-self: center;
 }
 
 .cys-logo {
@@ -145,6 +158,17 @@ body::after {
 
 .cys-eye-btn:hover { color: var(--azul-claro); }
 
+/* ── Ícono dentro del input (izquierda) ── */
+.cys-field-icon {
+  position: absolute;
+  left: .85rem;
+  color: rgba(77,168,218,.5);
+  font-size: .9rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Botón primario ── */
 .cys-btn-primary {
   background: var(--azul-claro);
   color: var(--azul-oscuro);
@@ -160,6 +184,10 @@ body::after {
   cursor: pointer;
   transition: all .22s ease;
   box-shadow: 0 4px 14px rgba(77,168,218,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
 }
 
 .cys-btn-primary:hover { background: #6dc0e8; transform: translateY(-2px); }
@@ -192,6 +220,7 @@ body::after {
   color: var(--azul-claro);
 }
 
+/* ── Mensajes de alerta ── */
 .cys-msg {
   border-radius: 8px;
   padding: .65rem .9rem;
@@ -200,7 +229,7 @@ body::after {
   display: none;
 }
 
-.cys-msg--ok  {
+.cys-msg--ok {
   background: rgba(46,204,113,.1);
   border: 1px solid rgba(46,204,113,.35);
   color: #5edb97;
@@ -212,6 +241,7 @@ body::after {
   color: #e87070;
 }
 
+/* ── Shake ── */
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   20%      { transform: translateX(-8px); }
@@ -222,27 +252,7 @@ body::after {
 
 .shake { animation: shake .4s ease; }
 
-/* ── FIX SCROLL GLOBAL ── */
-html {
-  height: 100%;
-  overflow-y: auto !important;
-}
-body {
-  min-height: 100%;
-  height: auto !important;
-  overflow-y: auto !important;
-}
-.cys-wrap {
-  min-height: 100vh;
-  height: auto !important;
-  overflow: visible !important;
-  /* si tenía display:flex; align-items:center → esto bloquea el scroll en pantallas pequeñas */
-  align-items: flex-start;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-}
-
-/* ── FIX AUTOCOMPLETADO (fondo blanco del navegador) ── */
+/* ── Autocompletado ── */
 .cys-input:-webkit-autofill,
 .cys-input:-webkit-autofill:hover,
 .cys-input:-webkit-autofill:focus,
@@ -253,4 +263,64 @@ body {
   border: 1px solid var(--azul-borde) !important;
   caret-color: var(--texto);
   transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ── Hint dinámico ── */
+.cys-login-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+  margin-top: .45rem;
+  padding: .45rem .7rem;
+  border-radius: 8px;
+  font-size: .72rem;
+  line-height: 1.5;
+  animation: hintFadeIn .18s ease;
+}
+
+@keyframes hintFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cys-login-hint--doc {
+  background: rgba(77,168,218,.08);
+  border: 1px solid rgba(77,168,218,.22);
+  color: #7ec8e3;
+}
+
+.cys-login-hint--user {
+  background: rgba(94,219,151,.07);
+  border: 1px solid rgba(94,219,151,.22);
+  color: #5edb97;
+}
+
+.cys-login-hint i {
+  margin-top: .1rem;
+  flex-shrink: 0;
+  font-size: .8rem;
+}
+
+/* ── Badge de método ── */
+.cys-method-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  font-size: .73rem;
+  font-weight: 600;
+  color: var(--azul-claro);
+  background: rgba(77,168,218,.08);
+  border: 1px solid rgba(77,168,218,.22);
+  border-radius: 20px;
+  padding: .35rem 1rem;
+  width: auto;
+  margin: 0 auto;
+  display: flex;
+}
+
+.cys-method-badge--otp {
+  color: #5edb97;
+  background: rgba(94,219,151,.08);
+  border-color: rgba(94,219,151,.22);
 }

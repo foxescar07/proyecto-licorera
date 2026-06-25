@@ -129,21 +129,18 @@
         </div>
 
         <div class="row g-3 mb-4">
-          <div class="col-6">
-            <label class="cys-label">Rol</label>
-            <div class="cys-input-icon-wrap">
-              <i class="bi bi-tags cys-input-icon"></i>
-              {{ form.rol }}
-            </div>
-            {% if form.rol.errors %}<div class="cys-form-error"><i class="bi bi-x-circle me-1"></i>{{ form.rol.errors|join:", " }}</div>{% endif %}
-          </div>
-          <div class="col-6">
+          <div class="col-12">
             <label class="cys-label">Contraseña</label>
             <div class="cys-input-eye">
               {{ form.clave }}
               <button type="button" class="cys-eye-btn" id="btnToggleClave" tabindex="-1">
                 <i class="bi bi-eye"></i>
               </button>
+            </div>
+            <div class="cys-password-rules" id="passwordRules">
+              <div class="cys-rule" id="rule-length"><i class="bi bi-x-circle-fill"></i> Mín. 6 caracteres</div>
+              <div class="cys-rule" id="rule-numbers"><i class="bi bi-x-circle-fill"></i> 2 números</div>
+              <div class="cys-rule" id="rule-uppercase"><i class="bi bi-x-circle-fill"></i> 1 mayúscula</div>
             </div>
             {% if form.clave.errors %}<div class="cys-form-error"><i class="bi bi-x-circle me-1"></i>{{ form.clave.errors|join:", " }}</div>{% endif %}
           </div>
@@ -345,16 +342,46 @@
 
       // ── Botón Continuar: valida campos y abre modal ──
       document.getElementById('btnContinuar')?.addEventListener('click', () => {
-        const campos = ['tipo_id','identificacion','nombre','apellidos','email','telefono','rol','clave'];
+        const campos = ['tipo_id','identificacion','nombre','apellidos','email','telefono','clave'];
         let valido = true;
 
         campos.forEach(nombre => {
           const el = document.querySelector(`[name="${nombre}"]`) || document.getElementById(`id_${nombre}`);
           if (el) {
             el.classList.remove('cys-input-invalid');
-            if (!el.value?.trim()) {
-              el.classList.add('cys-input-invalid');
-              valido = false;
+            const v = el.value?.trim() || '';
+            
+            if (!v) {
+              // Permitir vacío temporalmente si es email o telefono y no son requeridos,
+              // pero en tu formulario original todos parecen obligatorios visualmente,
+              // excepto email y telefono que en Django dicen required=False, 
+              // pero mantendremos la validación estricta general.
+              if (nombre !== 'email' && nombre !== 'telefono') {
+                el.classList.add('cys-input-invalid');
+                valido = false;
+              }
+            } else if (nombre === 'email') {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(v)) {
+                el.classList.add('cys-input-invalid');
+                valido = false;
+              }
+            } else if (nombre === 'nombre' || nombre === 'apellidos') {
+              if (/\d/.test(v)) { // No puede contener números
+                el.classList.add('cys-input-invalid');
+                valido = false;
+              }
+            } else if (nombre === 'telefono') {
+              if (!/^\d+$/.test(v)) { // Solo números
+                el.classList.add('cys-input-invalid');
+                valido = false;
+              }
+            } else if (nombre === 'clave') {
+              const numCount = (v.match(/\d/g) || []).length;
+              if (v.length < 6 || numCount < 2 || !/[A-Z]/.test(v)) {
+                el.classList.add('cys-input-invalid');
+                valido = false;
+              }
             }
           }
         });
@@ -418,6 +445,36 @@
 
       document.getElementById('btnToggleClave')?.addEventListener('click', function () { handlerToggle('id_clave',       this); });
       document.getElementById('btnToggleConf')?.addEventListener('click',  function () { handlerToggle('confirmar_clave', this); });
+
+      // ── Validación de contraseña en tiempo real ──
+      const claveInput = document.getElementById('id_clave');
+      if (claveInput) {
+        claveInput.addEventListener('input', function() {
+          const val = this.value;
+          
+          const ruleLength = document.getElementById('rule-length');
+          if (val.length >= 6) {
+            ruleLength.classList.add('valid'); ruleLength.querySelector('i').className = 'bi bi-check-circle-fill';
+          } else {
+            ruleLength.classList.remove('valid'); ruleLength.querySelector('i').className = 'bi bi-x-circle-fill';
+          }
+          
+          const ruleNumbers = document.getElementById('rule-numbers');
+          const numCount = (val.match(/\d/g) || []).length;
+          if (numCount >= 2) {
+            ruleNumbers.classList.add('valid'); ruleNumbers.querySelector('i').className = 'bi bi-check-circle-fill';
+          } else {
+            ruleNumbers.classList.remove('valid'); ruleNumbers.querySelector('i').className = 'bi bi-x-circle-fill';
+          }
+          
+          const ruleUppercase = document.getElementById('rule-uppercase');
+          if (/[A-Z]/.test(val)) {
+            ruleUppercase.classList.add('valid'); ruleUppercase.querySelector('i').className = 'bi bi-check-circle-fill';
+          } else {
+            ruleUppercase.classList.remove('valid'); ruleUppercase.querySelector('i').className = 'bi bi-x-circle-fill';
+          }
+        });
+      }
     });
   </script>
 </body>

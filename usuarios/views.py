@@ -55,13 +55,12 @@ def _set_session(request, usuario):
 
 
 def _ctx_base(request):
-    """Contexto mínimo compartido: datos del usuario en sesión."""
     u = request.user
     if not u.is_authenticated:
         return {}
     return {
-        'session_nombre': u.nombre_completo,
-        'session_rol':    u.rol,
+        'session_nombre':  u.nombre_completo,
+        'session_rol':     u.rol,
         'session_usuario': u.usuario,
     }
 
@@ -72,15 +71,17 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('principal')
 
+    seccion       = request.GET.get('action', 'login')
+    usuario_input = ''
+
     if request.method == 'POST':
         identificacion = request.POST.get('usuario_input', '').strip()
         clave          = request.POST.get('clave_input', '')
+        usuario_input  = identificacion
         es_ajax        = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         usuario = None
 
-        # 1) Intenta como identificación, PERO solo cuenta si el username
-        #    sigue siendo el de fábrica (no lo ha personalizado todavía)
         try:
             candidato = Usuario.objects.get(identificacion=identificacion, activo=True)
             if candidato.username == candidato.identificacion:
@@ -88,7 +89,6 @@ def login_view(request):
         except Usuario.DoesNotExist:
             pass
 
-        # 2) Si no entró por identificación, intenta como username actual
         if usuario is None:
             try:
                 usuario = Usuario.objects.get(username__iexact=identificacion, activo=True)
@@ -108,9 +108,15 @@ def login_view(request):
         if es_ajax:
             return JsonResponse({'ok': False, 'error': err})
         messages.error(request, err)
+        seccion = 'login'
 
-    ctx = {}
+    ctx = {
+        'seccion':       seccion,
+        'usuario_input': usuario_input,
+    }
     return render(request, 'usuario.html', ctx)
+
+
 # ── LOGOUT ─────────────────────────────────────────────────────────────────────
 
 def logout_view(request):
@@ -134,7 +140,7 @@ def lista_usuarios(request):
 
     ctx = {
         **_ctx_base(request),
-        'usuarios': usuarios,
+        'usuarios':       usuarios,
         'total_usuarios': usuarios.count(),
     }
     return render(request, 'usuarios_lista.html', ctx)
@@ -178,7 +184,6 @@ def editar_usuario(request, pk):
 
     usuario = get_object_or_404(Usuario, pk=pk)
 
-    # GET AJAX → devuelve JSON con datos del usuario
     if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'ok':             True,
@@ -220,11 +225,7 @@ def editar_usuario(request, pk):
             if es_ajax:
                 return JsonResponse({'ok': False, 'error': error})
             messages.error(request, error)
-            ctx = {
-                **_ctx_base(request),
-                'perfil': usuario,
-            }
-            return render(request, 'editar_usuario.html', ctx)
+            return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
 
         usuario.first_name = nombre
         usuario.last_name  = apellidos
@@ -238,20 +239,16 @@ def editar_usuario(request, pk):
 
         if es_ajax:
             return JsonResponse({
-                'ok':            True,
-                'mensaje':       f'Usuario {usuario.usuario} actualizado.',
+                'ok':              True,
+                'mensaje':         f'Usuario {usuario.usuario} actualizado.',
                 'nombre_completo': usuario.nombre_completo,
-                'rol_label':     usuario.get_rol_display(),
+                'rol_label':       usuario.get_rol_display(),
             })
 
         messages.success(request, f'Usuario {usuario.usuario} actualizado correctamente.')
         return redirect('usuario')
 
-    ctx = {
-        **_ctx_base(request),
-        'perfil': usuario,
-    }
-    return render(request, 'editar_usuario.html', ctx)
+    return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
 
 
 # ── PERFIL DATOS (JSON) ────────────────────────────────────────────────────────
@@ -262,16 +259,16 @@ def perfil_datos(request):
 
     u = request.user
     return JsonResponse({
-        'ok':           True,
-        'nombre':       u.nombre,
-        'apellidos':    u.apellidos,
-        'usuario':      u.usuario,
-        'email':        u.email or '',
-        'tipo_id':      u.tipo_id,
-        'tipo_id_label': u.get_tipo_id_display(),
+        'ok':             True,
+        'nombre':         u.nombre,
+        'apellidos':      u.apellidos,
+        'usuario':        u.usuario,
+        'email':          u.email or '',
+        'tipo_id':        u.tipo_id,
+        'tipo_id_label':  u.get_tipo_id_display(),
         'identificacion': u.identificacion,
-        'rol':          u.rol,
-        'rol_label':    u.get_rol_display(),
+        'rol':            u.rol,
+        'rol_label':      u.get_rol_display(),
         'fecha_registro': u.fecha_registro.strftime('%d/%m/%Y'),
     })
 
@@ -347,20 +344,18 @@ def perfil_editar(request):
     return JsonResponse({'ok': False, 'error': 'Acción no reconocida.'})
 
 
-# ── RECUPERAR CLAVE (CORREO) ───────────────────────────────────────────────────
+# ── RECUPERAR CLAVE (ENLACE POR CORREO) ───────────────────────────────────────
 
 def solicitar_recuperacion(request):
+    """Método clásico: envía un enlace único al correo."""
     if request.method == 'POST':
-        es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        correo  = request.POST.get('correo', '').strip().lower()
+        correo = request.POST.get('correo', '').strip().lower()
 
         try:
             usuario = Usuario.objects.get(email__iexact=correo, activo=True)
         except Usuario.DoesNotExist:
-            if es_ajax:
-                return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con ese correo.'})
             messages.error(request, 'No existe una cuenta activa con ese correo.')
-            return redirect('login')
+            return redirect('/usuarios/login/?action=correo')
 
         token  = get_random_string(32)
         expira = timezone.now() + timedelta(minutes=15)
@@ -380,93 +375,102 @@ def solicitar_recuperacion(request):
 
         try:
             _enviar_correo(usuario.email, 'Recuperación de contraseña — CYS Ltda', cuerpo)
-            if es_ajax:
-                return JsonResponse({'ok': True, 'mensaje': f'Enlace enviado a {usuario.email}'})
             messages.success(request, f'Enlace enviado a {usuario.email}')
         except Exception as e:
             logger.error(f'[CYS EMAIL] Error al enviar correo a {usuario.email}: {e}')
-            if es_ajax:
-                return JsonResponse({'ok': False, 'error': 'No se pudo enviar el correo. Intenta más tarde.'})
             messages.error(request, 'No se pudo enviar el correo. Intenta más tarde.')
+
+        return redirect('/usuarios/login/?action=correo')
 
     return redirect('login')
 
 
-# ── RECUPERAR CLAVE (TELÉFONO) ─────────────────────────────────────────────────
+# ── RECUPERAR CLAVE (CÓDIGO OTP POR CORREO) ───────────────────────────────────
 
-def recuperar_por_telefono(request):
+def solicitar_otp_correo(request):
+    """Método OTP: envía un código de 6 dígitos al correo, expira en 10 minutos."""
     if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+        return redirect('login')
 
-    telefono       = request.POST.get('telefono', '').strip()
-    identificacion = request.POST.get('identificacion', '').strip()
+    correo = request.POST.get('correo', '').strip().lower()
 
-    if not telefono or not identificacion:
-        return JsonResponse({'ok': False, 'error': 'Ingresa tu número de teléfono e identificación.'})
+    if not correo:
+        messages.error(request, 'Ingresa tu correo electrónico.')
+        return redirect('/usuarios/login/?action=otp')
 
     try:
-        usuario = Usuario.objects.get(
-            telefono=telefono,
-            identificacion=identificacion,
-            activo=True,
-        )
+        usuario = Usuario.objects.get(email__iexact=correo, activo=True)
     except Usuario.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con esos datos.'})
+        # No revelamos si el correo existe (seguridad)
+        messages.success(request, 'Si el correo está registrado, recibirás un código en breve.')
+        return redirect('/usuarios/login/?action=otp')
 
     codigo = str(random.randint(100000, 999999))
-    expira = timezone.now() + timedelta(minutes=15)
+    expira = timezone.now() + timedelta(minutes=10)
 
     usuario.reset_token        = codigo
     usuario.reset_token_expira = expira
     usuario.save(update_fields=['reset_token', 'reset_token_expira'])
 
-    logger.warning(
-        f'[CYS RESET] Código para {usuario.nombre_completo} '
-        f'(ID: {usuario.identificacion}, Tel: {usuario.telefono}): {codigo} '
-        f'— expira en 15 min'
+    cuerpo = (
+        f'Hola {usuario.nombre},\n\n'
+        f'Tu código de verificación para restablecer tu contraseña en CYS Ltda es:\n\n'
+        f'        {codigo}\n\n'
+        f'Este código expira en 10 minutos.\n'
+        f'Si no solicitaste esto, ignora este mensaje.\n\n'
+        f'CYS Ltda'
     )
-    print(f'\n🔑 CÓDIGO DE RECUPERACIÓN para {usuario.nombre_completo}: {codigo}\n')
 
-    return JsonResponse({
-        'ok':     True,
-        'mensaje': 'Código generado. El administrador te lo comunicará en breve.',
-    })
+    try:
+        _enviar_correo(usuario.email, f'Código de verificación: {codigo} — CYS Ltda', cuerpo)
+    except Exception as e:
+        logger.error(f'[CYS OTP] Error al enviar código a {usuario.email}: {e}')
+        messages.error(request, 'No se pudo enviar el correo. Intenta más tarde.')
+        return redirect('/usuarios/login/?action=otp')
+
+    # Guardamos el correo en session para el paso 2
+    request.session['otp_correo'] = correo
+    messages.success(request, f'Código enviado a {correo}')
+    return redirect('/usuarios/login/?action=otp_verificar')
 
 
-# ── VERIFICAR CÓDIGO TELÉFONO ──────────────────────────────────────────────────
-
-def verificar_codigo_telefono(request):
+def verificar_otp_correo(request):
+    """Paso 2 OTP: verifica el código y redirige a restablecer contraseña."""
     if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+        return redirect('login')
 
-    telefono       = request.POST.get('telefono', '').strip()
-    identificacion = request.POST.get('identificacion', '').strip()
-    codigo         = request.POST.get('codigo', '').strip()
+    correo = request.POST.get('correo', '').strip().lower() or request.session.get('otp_correo', '')
+    codigo = request.POST.get('codigo', '').strip()
 
-    if not telefono or not identificacion or not codigo:
-        return JsonResponse({'ok': False, 'error': 'Datos incompletos.'})
+    if not correo or not codigo:
+        messages.error(request, 'Datos incompletos.')
+        return redirect('/usuarios/login/?action=otp_verificar')
 
     try:
         usuario = Usuario.objects.get(
-            telefono=telefono,
-            identificacion=identificacion,
+            email__iexact=correo,
             reset_token=codigo,
             activo=True,
         )
     except Usuario.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Código incorrecto.'})
+        messages.error(request, 'Código incorrecto. Verifica e intenta de nuevo.')
+        return redirect('/usuarios/login/?action=otp_verificar')
 
     if timezone.now() > usuario.reset_token_expira:
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        return JsonResponse({'ok': False, 'error': 'El código expiró. Solicita uno nuevo.'})
+        request.session.pop('otp_correo', None)
+        messages.error(request, 'El código expiró. Solicita uno nuevo.')
+        return redirect('/usuarios/login/?action=otp')
 
+    # Código correcto → generamos token de un solo uso para restablecer
     token  = get_random_string(32)
     expira = timezone.now() + timedelta(minutes=10)
     usuario.reset_token        = token
     usuario.reset_token_expira = expira
     usuario.save(update_fields=['reset_token', 'reset_token_expira'])
 
-    return JsonResponse({'ok': True, 'redirect': f'/usuarios/restablecer/{token}/'})
+    request.session.pop('otp_correo', None)
+    return redirect(f'/usuarios/restablecer/{token}/')
 
 
 # ── RESTABLECER CLAVE ──────────────────────────────────────────────────────────
@@ -475,12 +479,12 @@ def restablecer_clave(request, token):
     try:
         usuario = Usuario.objects.get(reset_token=token, activo=True)
     except Usuario.DoesNotExist:
-        ctx = {'error': 'El enlace no es válido o ya fue utilizado.'}
+        ctx = {'error': 'El enlace o código no es válido o ya fue utilizado.'}
         return render(request, 'restablecer_clave.html', ctx)
 
     if timezone.now() > usuario.reset_token_expira:
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        ctx = {'error': 'El enlace expiró. Solicita uno nuevo.'}
+        ctx = {'error': 'El enlace o código expiró. Solicita uno nuevo.'}
         return render(request, 'restablecer_clave.html', ctx)
 
     if request.method == 'POST':

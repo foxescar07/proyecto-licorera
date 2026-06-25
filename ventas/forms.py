@@ -30,30 +30,26 @@ class DetalleVentaForm(forms.ModelForm):
 
 
 class DevolucionForm(forms.ModelForm):
+    motivo = forms.CharField(
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Motivo de devolución'
+    )
+    observaciones = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe el problema con detalle...'}),
+        label='Observaciones adicionales',
+        required=False
+    )
+    restaurar_stock = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Restaurar stock',
+        required=False
+    )
+    tiene_comprobante = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Tiene comprobante',
+        required=False
+    )
+
     class Meta:
         model = Devolucion
-        fields = [
-            'motivo', 'tipo_reembolso', 'observaciones', 
-            'producto_cambio', 'cantidad_cambio', 'metodo_pago_devolucion'
-        ]
-        widgets = {
-            'motivo': forms.RadioSelect(attrs={'class': 'd-none'}),
-            'tipo_reembolso': forms.RadioSelect(attrs={'class': 'd-none'}),
-            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe el problema con detalle...'}),
-            'producto_cambio': forms.Select(attrs={'class': 'form-select dev-select-premium'}),
-            'cantidad_cambio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '1', 'min': '1'}),
-            'metodo_pago_devolucion': forms.Select(attrs={'class': 'form-select dev-select-premium'}),
-        }
-        labels = {
-            'motivo': 'Motivo de devolución', 'tipo_reembolso': 'Tipo de reembolso', 'observaciones': 'Observaciones adicionales',
-            'producto_cambio': 'Producto de reemplazo', 'cantidad_cambio': 'Cantidad de cambio', 'metodo_pago_devolucion': 'Método de reembolso',
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['producto_cambio'].required = False
-        self.fields['cantidad_cambio'].required = False
-        self.fields['metodo_pago_devolucion'].required = False
-        self.fields['metodo_pago_devolucion'].choices = [('', '-- Selecciona método --')] + list(
-            self.instance._meta.get_field('metodo_pago_devolucion').choices
-        )
+        fields = ['motivo', 'observaciones', 'restaurar_stock', 'tiene_comprobante']

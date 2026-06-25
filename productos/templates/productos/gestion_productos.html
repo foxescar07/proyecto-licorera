@@ -39,6 +39,12 @@
     <div style="width:260px; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
 
       <div class="stat-box">
+        <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA; py-4"></i>Productos</div>
+        <div class="stat-value">{{ productos|length }}</div>
+        <div class="stat-sub mt-1">En inventario</div>
+      </div>
+
+      <div class="stat-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <span class="stat-label"><i class="bi bi-tags-fill me-1" style="color:#4DA8DA;"></i>Categorías</span>
           <span class="tag-info fs-6 px-3 py-1">{{ categorias|length }}</span>
@@ -48,36 +54,31 @@
 
       <div class="stat-box">
         <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="stat-label"><i class="bi bi-pie-chart-fill me-1" style="color:#27ae60;"></i>Salud stock</span>
-          <span id="txt-pct-salud" class="fw-bold" style="color:#27ae60; font-size:18px;">0%</span>
+          <span class="stat-label"><i class="bi bi-layers-half me-1" style="color:#0dcaf0;"></i>Presentaciones</span>
+          <span id="txt-prom-pres" class="fw-bold" style="color:#0dcaf0; font-size:18px;">0</span>
         </div>
+        <div class="stat-sub mt-2">Promedio por producto</div>
         <div class="bar-track my-2">
-          <div id="bar-ok" class="bar-fill" style="background:#27ae60; width:0%;"></div>
+          <div id="bar-prom-pres" class="bar-fill" style="background:#0dcaf0; width:0%;"></div>
         </div>
         <div class="d-flex justify-content-between stat-sub mt-1">
-          <span>OK: <strong id="stat-ok" style="color:#27ae60;">0</strong></span>
-          <span>Crítico: <strong style="color:#dc3545;">{{ total_criticos|default:0 }}</strong></span>
+          <span>Min: <strong id="stat-pres-min" style="color:#0dcaf0;">0</strong></span>
+          <span>Max: <strong id="stat-pres-max" style="color:#0dcaf0;">0</strong></span>
         </div>
       </div>
 
       <div class="stat-box" style="border-color:rgba(255,193,7,0.25);">
         <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Alertas</span>
+          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Sin presentación</span>
           <span class="stat-sub">Total: {{ productos|length }}</span>
         </div>
-        <div class="d-flex justify-content-between align-items-center my-2">
-          <span class="stat-sub">Sin presentación</span>
-          <span style="color:#ffc107; font-weight:700; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
+        <div class="d-flex justify-content-between align-items-center py-4">
+          <span class="stat-sub">Productos incompletos</span>
+          <span style="color:#ffc107; font-weight:900; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
         </div>
         <div class="bar-track">
           <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
         </div>
-      </div>
-
-      <div class="stat-box">
-        <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA;"></i>Productos</div>
-        <div class="stat-value">{{ productos|length }}</div>
-        <div class="stat-sub mt-1">En inventario</div>
       </div>
 
     </div>
@@ -111,10 +112,8 @@
                   <tr>
                     <th style="min-width:160px;">Nombre</th>
                     <th>Código</th>
-                    <th>Stock</th>
                     <th>Presentaciones</th>
-                    <th>Costo lote</th>
-                    <th style="text-align:right; padding-right:16px;">Acciones</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,9 +128,6 @@
                     </td>
                     <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
                     <td>
-                      <span class="{% if p.stock_critico %}tag-crit{% else %}tag-ok{% endif %}">{{ p.stock_total }} uds</span>
-                    </td>
-                    <td>
                       <div class="d-flex flex-wrap gap-1">
                         {% for pr in p.presentaciones.all %}
                         <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
@@ -140,22 +136,10 @@
                         {% endfor %}
                       </div>
                     </td>
-                    <!-- Costo unitario del lote más reciente -->
-                    <td>
-                      {% with ultimo_lote=p.presentaciones.first.lotes.last %}
-                        {% if ultimo_lote and ultimo_lote.costo_unitario %}
-                          <span style="color:#4DA8DA;font-weight:600;font-size:.85rem;">
-                            ${{ ultimo_lote.costo_unitario|floatformat:0 }}
-                          </span>
-                          <br><small style="color:rgba(226,232,240,.4);font-size:.7rem;">{{ ultimo_lote.numero_lote }}</small>
-                        {% else %}
-                          <span style="color:rgba(226,232,240,.3);font-size:.82rem;">—</span>
-                        {% endif %}
-                      {% endwith %}
-                    </td>
                     <td class="text-end">
                       <div class="dropdown">
-                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" data-bs-strategy="fixed">
                           <i class="bi bi-three-dots"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
@@ -163,7 +147,7 @@
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
                           <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
                         </ul>
                       </div>
                     </td>
@@ -182,9 +166,6 @@
                     </td>
                     <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
                     <td>
-                      <span class="{% if p.stock_critico %}tag-crit{% else %}tag-ok{% endif %}">{{ p.stock_total }} uds</span>
-                    </td>
-                    <td>
                       <div class="d-flex flex-wrap gap-1">
                         {% for pr in p.presentaciones.all %}
                         <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
@@ -193,21 +174,10 @@
                         {% endfor %}
                       </div>
                     </td>
-                    <td>
-                      {% with ultimo_lote=p.presentaciones.first.lotes.last %}
-                        {% if ultimo_lote and ultimo_lote.costo_unitario %}
-                          <span style="color:#4DA8DA;font-weight:600;font-size:.85rem;">
-                            ${{ ultimo_lote.costo_unitario|floatformat:0 }}
-                          </span>
-                          <br><small style="color:rgba(226,232,240,.4);font-size:.7rem;">{{ ultimo_lote.numero_lote }}</small>
-                        {% else %}
-                          <span style="color:rgba(226,232,240,.3);font-size:.82rem;">—</span>
-                        {% endif %}
-                      {% endwith %}
-                    </td>
                     <td class="text-end">
                       <div class="dropdown">
-                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" data-bs-strategy="fixed">
                           <i class="bi bi-three-dots"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
@@ -215,7 +185,7 @@
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
                           <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
                         </ul>
                       </div>
                     </td>
@@ -334,11 +304,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          <i class="bi bi-pencil-square me-2" style="color:#ffc107;"></i>Editar Producto
+          <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>Editar Producto
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto_editar' p.pk %}">
+      <form method="POST" action="{% url 'gestion_producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="row g-3">
@@ -374,7 +344,7 @@
                   style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
                   data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn rounded-pill fw-bold px-4"
-                  style="background:#ffc107; color:#1a1a1a; border:none;">Guardar Cambios</button>
+                  style="background:#4DA8DA; color:#011936; border:none;">Guardar Cambios</button>
         </div>
       </form>
     </div>
@@ -391,7 +361,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'producto_editar' p.pk %}">
+      <form method="POST" action="{% url 'gestion_producto_editar' p.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="small fw-semibold text-uppercase mb-3"
@@ -485,16 +455,25 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const rows     = document.querySelectorAll('.producto-row');
-  const total    = rows.length;
-  const criticos = parseInt('{{ total_criticos|default:0 }}') || 0;
-  const ok       = Math.max(0, total - criticos);
-  let sinPres    = 0;
+  const rows  = document.querySelectorAll('.producto-row');
+  const total = rows.length;
+  let sinPres = 0;
+  let totalPres = 0;
+  let maxPres = 0;
+  let minPres = total > 0 ? Infinity : 0;
   const conteoCats = {};
 
   rows.forEach(row => {
-    if (row.querySelectorAll('td:nth-child(4) .tag-warn').length > 0) sinPres++;
+    const cantPres = row.querySelectorAll('td:nth-child(3) .tag-info').length;
+    if (cantPres === 0) {
+      sinPres++;
+    } else {
+      totalPres += cantPres;
+      if (cantPres > maxPres) maxPres = cantPres;
+      if (cantPres < minPres) minPres = cantPres;
+    }
   });
+  if (minPres === Infinity) minPres = 0;
 
   document.querySelectorAll('.categoria-item').forEach(item => {
     const nombre = item.querySelector('.acc-hdr').textContent.split('productos')[0].trim();
@@ -518,12 +497,15 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>`;
   });
 
-  if (total > 0) {
-    const pctOk = Math.round((ok / total) * 100);
-    document.getElementById('txt-pct-salud').textContent = pctOk + '%';
-    document.getElementById('bar-ok').style.width = pctOk + '%';
-  }
-  document.getElementById('stat-ok').textContent = ok;
+  // Promedio de presentaciones por producto (solo productos con al menos 1 presentación)
+  const conPres = total - sinPres;
+  const promedio = conPres > 0 ? (totalPres / conPres) : 0;
+  document.getElementById('txt-prom-pres').textContent = promedio.toFixed(1);
+  document.getElementById('stat-pres-min').textContent = minPres;
+  document.getElementById('stat-pres-max').textContent = maxPres;
+  const pctBarra = maxPres > 0 ? Math.round((promedio / maxPres) * 100) : 0;
+  document.getElementById('bar-prom-pres').style.width = pctBarra + '%';
+
   document.getElementById('stat-sin-pres').textContent = sinPres;
   if (total > 0)
     document.getElementById('bar-sin-pres').style.width = Math.round((sinPres / total) * 100) + '%';

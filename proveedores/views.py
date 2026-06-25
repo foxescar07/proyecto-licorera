@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Sum, Count
 from django.utils import timezone
@@ -42,8 +43,15 @@ def lista_proveedores(request):
         if total_proveedores > 0 else 0
     )
 
+    # Paginación
+    paginator = Paginator(proveedores, 10)  # 10 proveedores por página
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'proveedores': proveedores,
+        'proveedores': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
         'total_proveedores': total_proveedores,
         'proveedores_activos': proveedores_activos,
         'proveedores_inactivos': proveedores_inactivos,
@@ -107,7 +115,10 @@ def eliminar_proveedor(request, id):
 @login_required
 def detalle_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
-    return render(request, 'proveedores/detalle_proveedor.html', {'proveedor': proveedor})
+    context = {
+        'proveedor': proveedor
+    }
+    return render(request, 'proveedores/detalle_proveedor.html', context)
 
 @login_required
 def activar_proveedor(request, id):
@@ -152,7 +163,8 @@ def sancionar_proveedor(request, id):
 
 @login_required
 def lista_compras(request):
-    return render(request, 'proveedores/compras.html', {})
+    context = {}
+    return render(request, 'proveedores/compras.html', context)
 
 @login_required
 def registrar_compra(request):

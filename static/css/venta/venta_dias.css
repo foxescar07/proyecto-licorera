@@ -1,0 +1,261 @@
+/* ════════════════════════════════════════════════════════════════
+   VENTAS_DIA.CSS — Historial de Ventas del Día — CYS Ltda
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  --cys-bg-card:       #11233f;
+  --cys-surface:       #0d1c33;
+  --cys-borde:         rgba(77, 168, 218, 0.25);
+  --cys-borde-focus:   #4da8da;
+  --cys-texto-muted:   #9fb3c8;
+  --cys-acento:        #4da8da;
+  --cys-verde:         #2ecc71;
+  --cys-rojo:          #e74c3c;
+  --cys-cian-brillante:#00c2ff;
+}
+
+/* ── CONTENEDOR GENERAL ── */
+.cys-page-wrapper {
+  background-color: #0a1628;
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+/* ── BOTONES DE ACCIÓN (Volver / Imprimir) ── */
+.cys-btn-action {
+  background: var(--cys-cian-brillante);
+  border: none;
+  color: #000;
+  border-radius: 50px;
+  padding: 8px 24px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cys-btn-action:hover {
+  background: #00a3d9;
+  color: #000;
+  transform: translateY(-1px);
+}
+.cys-btn-action--ghost {
+  padding: 4px 16px;
+  font-size: 0.85rem;
+  background: transparent;
+  border: 1px solid var(--cys-borde);
+  color: #e2e8f0;
+}
+
+/* ── TARJETAS KPI (Transacciones / Total / Productos) ── */
+.cys-dia-kpi {
+  background: var(--cys-bg-card);
+  border: 1px solid var(--cys-borde);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.cys-dia-kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+.cys-dia-kpi-icon--azul  { background: rgba(77, 168, 218, 0.1); }
+.cys-dia-kpi-icon--verde { background: rgba(46, 204, 113, 0.1); }
+.cys-dia-kpi-icon--azul  i  { color: var(--cys-acento); font-size: 1.3rem; }
+.cys-dia-kpi-icon--verde i  { color: var(--cys-verde); font-size: 1.3rem; }
+
+/* ══ CORRECCIÓN: todos los spans del KPI como bloque ══ */
+.cys-dia-kpi-label,
+.cys-dia-kpi-value,
+.cys-dia-kpi-sub,
+.cys-dia-kpi-sub--verde {
+  display: block;
+}
+
+.cys-dia-kpi-label {
+  font-size: .75rem;
+  color: var(--cys-texto-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+.cys-dia-kpi-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin: 2px 0;
+}
+.cys-dia-kpi-sub {
+  font-size: .75rem;
+  color: var(--cys-texto-muted);
+}
+.cys-dia-kpi-sub--verde {
+  font-size: .75rem;
+  color: var(--cys-verde);
+  font-weight: 500;
+}
+
+/* ── MINI GRÁFICOS CSS ── */
+.css-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 45px;
+  width: 100px;
+  margin-left: auto;
+}
+.css-bar {
+  width: 6px;
+  background: linear-gradient(to top, rgba(77, 168, 218, 0.2), var(--cys-acento));
+  border-radius: 2px 2px 0 0;
+}
+.css-line-chart {
+  width: 120px;
+  height: 35px;
+  margin-left: auto;
+  background: linear-gradient(135deg, transparent 40%, rgba(77, 168, 218, 0.1) 40%),
+              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' width='100' height='30' preserveAspectRatio='none'%3E%3Cpath d='M0,25 Q15,10 30,20 T60,5 T90,15 T100,10' fill='none' stroke='%234da8da' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+}
+.css-pie-chart {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: conic-gradient(var(--cys-acento) 0% 55%, #2c4a5e 55% 75%, #1a3240 75% 100%);
+  margin-left: auto;
+}
+
+/* ── PANEL HISTORIAL ── */
+.cys-dia-panel {
+  background: var(--cys-bg-card);
+  border: 1px solid var(--cys-borde);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cys-dia-panel-header {
+  padding: 1.2rem 1.5rem .8rem;
+  border-bottom: 1px solid var(--cys-borde);
+  background: rgba(77, 168, 218, 0.02);
+}
+.cys-dia-panel-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--cys-acento);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── FILTROS (rango de fechas) ── */
+.cys-dia-filtros {
+  padding: 1rem 1.5rem;
+  background: var(--cys-surface);
+  border-bottom: 1px solid var(--cys-borde);
+  margin: 0;
+}
+.cys-dia-filtros-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 5px;
+}
+.cys-dia-filtros-sep {
+  color: var(--cys-texto-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 4px;
+}
+.cys-dia-input-fecha {
+  background: var(--cys-surface);
+  border: 1px solid rgba(77, 168, 218, 0.3);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+/* ── TABLA HISTORIAL ── */
+.cys-history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.cys-history-table th {
+  background-color: rgba(77, 168, 218, 0.05);
+  color: var(--cys-texto-muted);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--cys-borde);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cys-history-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.08);
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+.cys-history-table tbody tr:hover {
+  background-color: rgba(77, 168, 218, 0.02);
+}
+
+.cys-col-center  { text-align: center; }
+.cys-col-right   { text-align: right; }
+.cys-col-muted   { color: var(--cys-texto-muted); }
+.cys-col-strong  { color: #fff; font-weight: 600; }
+.cys-col-cantidad{ color: #fff; font-weight: 600; }
+.cys-col-acento  { color: var(--cys-acento); font-weight: 700; }
+
+/* ── FOOTER TOTAL ── */
+.cys-dia-footer {
+  padding: 1rem 1.5rem;
+  background: rgba(77, 168, 218, 0.02);
+  border-top: 1px solid var(--cys-borde);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cys-dia-footer-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--cys-texto-muted);
+  text-transform: uppercase;
+}
+.cys-dia-footer-valor {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cys-acento);
+}
+
+/* ── ESTADO VACÍO ── */
+.cys-dia-empty {
+  padding: 5rem 2rem;
+  text-align: center;
+  color: var(--cys-texto-muted);
+  background: var(--cys-bg-card);
+}
+.cys-dia-empty i {
+  font-size: 2.5rem;
+  color: rgba(77, 168, 218, 0.15);
+  display: block;
+  margin-bottom: 1rem;
+}
+.cys-dia-empty span {
+  font-size: 0.95rem;
+  font-weight: 500;
+}

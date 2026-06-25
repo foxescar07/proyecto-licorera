@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
+from datetime import timedelta
 from django.db import models as db_models
 from django.db.models import Prefetch, Sum
 
@@ -24,15 +25,21 @@ def inventario_home(request):
         messages.success(request, 'Inventario agendado correctamente.')
         return redirect('inventario_home')
 
-    hoy          = timezone.now().date()
-    fecha_filtro = request.GET.get('fecha_mov', str(hoy))
+    hoy = timezone.now().date()
+
+    # Primero calculamos los días que SÍ tienen movimientos registrados...
+    dias_con_movimientos = Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30]
+
+    # ...y usamos el más reciente como valor por defecto (en vez de "hoy" a ciegas,
+    # que puede no tener ningún movimiento todavía y dejar el selector vacío).
+    fecha_default = str(dias_con_movimientos[0]) if dias_con_movimientos else str(hoy)
+    fecha_filtro  = request.GET.get('fecha_mov', fecha_default)
 
     movimientos = Inventario.objects.select_related(
         'lote__presentacion__producto__categoria',
         'registrado_por'
     ).filter(fecha_actualizada__date=fecha_filtro).order_by('-fecha_actualizada')
 
-    dias_con_movimientos = Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30]
     agendas  = AgendaInventario.objects.order_by('fecha_programada')
     sesion   = SesionConteo.objects.filter(estado='activa').first()
     conteos  = ConteoProducto.objects.filter(sesion=sesion).select_related('presentacion__producto') if sesion else []
@@ -289,21 +296,6 @@ def editar_movimiento(request, pk):
     return redirect('inventario_home')
 
 
-@login_required
-def gestion_productos(request):
-    categorias     = Categoria.objects.filter(padre=None).prefetch_related('subcategorias', 'productos__presentaciones')
-    todas_cats     = Categoria.objects.all()
-    productos      = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').all()
-    total_criticos = 0
-
-    context = {
-        'categorias':     categorias,
-        'todas_cats':     todas_cats,
-        'productos':      productos,
-        'lotes':          [],
-        'total_criticos': total_criticos,
-    }
-    return render(request, 'productos/gestion_productos.html', context)
 
 
 @login_required
@@ -444,202 +436,14 @@ def gestion_salida(request):
     return redirect('registrar_salida_view')
 
 
-@login_required
-def gestion_producto_editar(request, pk):
-    producto = get_object_or_404(Producto, pk=pk)
-    if request.method == 'POST':
-        cambios = []
-
-        nombre       = request.POST.get('nombre', '').strip()
-        codigo       = request.POST.get('codigo', '').strip()
-        descripcion  = request.POST.get('descripcion', '').strip()
-        categoria_pk = request.POST.get('categoria')
-        precio_raw   = request.POST.get('precio_unitario', '').strip()
-
-        if nombre and nombre != producto.nombre:
-            cambios.append(f'📝 Nombre: "{producto.nombre}" → "{nombre}"')
-        if nombre:
-            producto.nombre = nombre
-
-        if codigo and codigo != producto.codigo:
-            cambios.append(f'🔖 Código: {producto.codigo} → {codigo}')
-        if codigo:
-            producto.codigo = codigo
-
-        if descripcion != (producto.descripcion or ''):
-            cambios.append('📄 Descripción actualizada')
-        producto.descripcion = descripcion
-
-        if categoria_pk:
-            try:
-                nueva_cat_id = int(categoria_pk)
-                if nueva_cat_id != producto.categoria_id:
-                    nueva_cat = Categoria.objects.get(pk=nueva_cat_id)
-                    cambios.append(f'🏷️ Categoría: "{producto.categoria.nombre}" → "{nueva_cat.nombre}"')
-                producto.categoria_id = nueva_cat_id
-            except (ValueError, TypeError, Categoria.DoesNotExist):
-                pass
-
-        if precio_raw:
-            try:
-                nuevo_precio = max(0, float(precio_raw))
-                if nuevo_precio != float(producto.precio_unitario or 0):
-                    cambios.append(f'💲 Precio base: ${int(producto.precio_unitario or 0):,} → ${int(nuevo_precio):,}')
-                producto.precio_unitario = nuevo_precio
-            except (ValueError, TypeError):
-                pass
-
-        producto.save()
-
-        for key, valor in request.POST.items():
-            if key.startswith('pres_nombre_'):
-                pres_id = key.replace('pres_nombre_', '')
-                try:
-                    pres           = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
-                    nuevo_nombre   = valor.strip()
-                    nuevo_precio   = request.POST.get(f'pres_precio_{pres_id}', '').strip()
-                    nueva_cantidad = request.POST.get(f'pres_cantidad_{pres_id}', '').strip()
-
-                    if nuevo_nombre and nuevo_nombre != pres.nombre:
-                        cambios.append(f'📦 Presentación: "{pres.nombre}" → "{nuevo_nombre}"')
-                        pres.nombre = nuevo_nombre
-
-                    if nuevo_precio:
-                        try:
-                            np = max(0, float(nuevo_precio))
-                            if np != float(pres.precio or 0):
-                                cambios.append(f'💲 Precio "{pres.nombre}": ${int(pres.precio or 0):,} → ${int(np):,}')
-                            pres.precio = np
-                        except (ValueError, TypeError):
-                            pass
-
-                    if nueva_cantidad:
-                        try:
-                            nq = max(0, int(nueva_cantidad))
-                            if nq != pres.cantidad:
-                                diff  = nq - pres.cantidad
-                                signo = f'+{diff}' if diff > 0 else str(diff)
-                                cambios.append(f'📊 Stock "{pres.nombre}": {pres.cantidad} → {nq} ({signo} uds)')
-                            pres.cantidad = nq
-                        except (ValueError, TypeError):
-                            pass
-
-                    pres.save()
-                except PresentacionProducto.DoesNotExist:
-                    pass
-
-        nuevos_nombres    = request.POST.getlist('nueva_pres_nombre[]')
-        nuevos_precios    = request.POST.getlist('nueva_pres_precio[]')
-        nuevas_cantidades = request.POST.getlist('nueva_pres_cantidad[]')
-
-        for i, nombre_pres in enumerate(nuevos_nombres):
-            nombre_pres = nombre_pres.strip()
-            if not nombre_pres:
-                continue
-            if PresentacionProducto.objects.filter(producto=producto, nombre__iexact=nombre_pres).exists():
-                continue
-            try:
-                precio_pres   = max(0, float(nuevos_precios[i]))   if i < len(nuevos_precios)    else 0
-                cantidad_pres = max(0, int(nuevas_cantidades[i]))   if i < len(nuevas_cantidades) else 0
-            except (ValueError, TypeError):
-                precio_pres   = 0
-                cantidad_pres = 0
-
-            PresentacionProducto.objects.create(
-                producto=producto,
-                nombre=nombre_pres,
-                precio=precio_pres,
-                cantidad=cantidad_pres,
-                unidades=1,
-            )
-            cambios.append(f'➕ Nueva presentación: "{nombre_pres}" ${int(precio_pres):,} · {cantidad_pres} uds')
-
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'ok':          True,
-                'cambios':     cambios if cambios else [],
-                'sin_cambios': len(cambios) == 0,
-            })
-
-    next_url = request.POST.get('next') or request.GET.get('next')
-    if next_url:
-        return redirect(next_url)
-    return redirect('gestion_productos')
 
 
-@login_required
-def gestion_producto_eliminar(request, pk):
-    producto = get_object_or_404(Producto, pk=pk)
-    if request.method == 'POST':
-        nombre = producto.nombre
-        producto.delete()
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'ok': True, 'nombre': nombre})
-    return redirect('gestion_productos')
 
 
-@login_required
-def gestion_categoria_crear(request):
-    if request.method == 'POST':
-        nombre      = request.POST.get('nombre', '').strip()
-        codigo      = request.POST.get('codigo', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        padre_id    = request.POST.get('padre') or None
-
-        if not nombre or not codigo:
-            messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('gestion_productos')
-
-        if Categoria.objects.filter(codigo=codigo).exists():
-            messages.error(request, f'⚠️ Ya existe una categoría con el código "{codigo}".')
-            return redirect('gestion_productos')
-
-        padre = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
-        Categoria.objects.create(nombre=nombre, codigo=codigo, descripcion=descripcion, padre=padre)
-        tipo = 'Subcategoría' if padre else 'Categoría'
-        messages.success(request, f'✅ {tipo} "{nombre}" creada.')
-
-    return redirect('gestion_productos')
 
 
-@login_required
-def gestion_categoria_editar(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    if request.method == 'POST':
-        nombre      = request.POST.get('nombre', '').strip()
-        codigo      = request.POST.get('codigo', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        padre_id    = request.POST.get('padre') or None
-
-        if not nombre or not codigo:
-            messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('gestion_productos')
-
-        if Categoria.objects.filter(codigo=codigo).exclude(pk=pk).exists():
-            messages.error(request, f'⚠️ Ya existe otra categoría con el código "{codigo}".')
-            return redirect('gestion_productos')
-
-        categoria.nombre      = nombre
-        categoria.codigo      = codigo
-        categoria.descripcion = descripcion
-        categoria.padre       = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
-        categoria.save()
-        messages.success(request, f'✅ Categoría "{nombre}" actualizada.')
-
-    return redirect('gestion_productos')
 
 
-@login_required
-def gestion_categoria_eliminar(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    if request.method == 'POST':
-        if categoria.productos.exists() or categoria.subcategorias.exists():
-            messages.error(request, f'⚠️ No se puede eliminar "{categoria.nombre}": tiene productos o subcategorías asociadas.')
-        else:
-            nombre = categoria.nombre
-            categoria.delete()
-            messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
-    return redirect('gestion_productos')
 
 
 @login_required
@@ -729,38 +533,6 @@ def gestion_stock(request):
     return render(request, 'inventario/gestion_stock.html', context)
 
 
-@login_required
-def stock_status(request):
-    UMBRAL_CRITICO = 5
-    UMBRAL_BAJO    = 15
-
-    presentaciones = PresentacionProducto.objects.select_related('producto').annotate(
-        stock_lotes=Sum('lotes__stock_actual')
-    )
-
-    criticos, bajos = [], []
-    for pr in presentaciones:
-        stock = pr.stock_lotes or 0
-        entrada = {
-            'nombre':           f"{pr.producto.nombre} — {pr.nombre}",
-            'cantidad':         stock,
-            'url_presentacion': f'/inventario/inventario/stock/?buscar={pr.producto.nombre}',
-            'url_lote':         '/inventario/lote/registrar/',
-        }
-        if stock <= UMBRAL_CRITICO:
-            criticos.append(entrada)
-        elif stock <= UMBRAL_BAJO:
-            bajos.append(entrada)
-
-    total  = len(criticos) + len(bajos)
-    estado = 'verde' if total == 0 else ('rojo' if criticos else 'amarillo')
-
-    return JsonResponse({
-        'estado':        estado,
-        'total_alertas': total,
-        'criticos':      criticos,
-        'bajos':         bajos,
-    })
 
 
 @login_required
@@ -815,3 +587,184 @@ def editar_lote_stock(request, pk):
     )
 
     return redirect('gestion_stock')
+# ===============================
+# FUNCIONES MOVIDAS DESDE PRODUCTOS
+# ===============================
+@login_required
+def stock_status(request):
+    productos = Producto.objects.prefetch_related('presentaciones__lotes').all()
+    criticos, bajos = [], []
+
+    for p in productos:
+        stock_total = p.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+        
+        # Tomamos la primera presentación para la URL de lotes
+        primera_pres = p.presentaciones.first()
+        pres_pk = primera_pres.pk if primera_pres else None
+        
+        entrada = {
+            'nombre':           p.nombre,
+            'cantidad':          stock_total,
+            'url_presentacion':  reverse('gestion_productos'),
+            'url_lote':          reverse('gestion_lotes_view') + f'?tab=lote&presentacion={pres_pk}' if pres_pk else '#',
+        }
+        
+        if stock_total == 0:
+            criticos.append(entrada)
+        elif stock_total <= 5:
+            bajos.append(entrada)
+
+    if criticos:
+        estado = 'rojo'
+    elif bajos:
+        estado = 'amarillo'
+    else:
+        estado = 'verde'
+
+    return JsonResponse({
+        'estado':        estado,
+        'total_alertas': len(criticos) + len(bajos),
+        'criticos':      criticos,
+        'bajos':         bajos,
+    })
+
+@login_required
+def producto_salida(request):
+    if request.method != 'POST':
+        return redirect('lista_productos')
+
+    presentacion_id = request.POST.get('presentacion_id') or request.POST.get('presentacion')
+    cantidad_raw    = request.POST.get('cantidad', 0)
+    motivo          = request.POST.get('motivo', 'Salida manual')
+
+    try:
+        cantidad = int(cantidad_raw)
+        if cantidad <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        messages.error(request, '⚠️ Cantidad inválida.')
+        return redirect('lista_productos')
+
+    if not presentacion_id:
+        messages.error(request, '⚠️ Debes seleccionar una presentación.')
+        return redirect('lista_productos')
+
+    presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
+    stock_actual = presentacion.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
+
+    if cantidad > stock_actual:
+        messages.error(
+            request,
+            f"⚠️ Stock insuficiente: solo hay {stock_actual} unidades de '{presentacion.nombre}'."
+        )
+        return redirect('lista_productos')
+
+    # Descuento FEFO
+    restante = cantidad
+    for lote in presentacion.lotes.filter(stock_actual__gt=0).order_by('fecha_vencimiento'):
+        if restante <= 0:
+            break
+        descuento         = min(lote.stock_actual, restante)
+        lote.stock_actual -= descuento
+        lote.save()
+        restante          -= descuento
+
+    Inventario.objects.create(
+        presentacion=presentacion,
+        lote=presentacion.lotes.order_by('fecha_vencimiento').first(),
+        tipo='salida',
+        cantidad=cantidad,
+        motivo=motivo,
+        registrado_por=request.user,
+    )
+    messages.success(
+        request,
+        f"✅ Salida registrada: {cantidad} × '{presentacion.nombre}'. Motivo: {motivo}."
+    )
+    return redirect('lista_productos')
+
+@login_required
+def rotacion_json(request):
+    hace_30 = timezone.now() - timedelta(days=30)
+
+    rotacion_qs = (
+        Inventario.objects
+        .filter(tipo='salida', fecha_actualizada__gte=hace_30)
+        .values('presentacion__producto__pk', 'presentacion__producto__nombre')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')[:15]
+    )
+
+    ids_con_movimiento = {r['presentacion__producto__pk'] for r in rotacion_qs}
+    sin_movimiento     = list(
+        Producto.objects.exclude(pk__in=ids_con_movimiento).values('pk', 'nombre')
+    )
+
+    estrella_nombre        = None
+    estrella_categoria     = None
+    estrella_vendido       = 0
+    estrella_stock         = 0
+    estrella_stock_critico = False
+    estrella_presentacion  = None
+    estrella_ingresos      = 0
+
+    if rotacion_qs:
+        top = rotacion_qs[0]
+        try:
+            prod = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').get(
+                pk=top['presentacion__producto__pk']
+            )
+            estrella_nombre        = prod.nombre
+            estrella_categoria     = prod.categoria.nombre if prod.categoria else ''
+            estrella_vendido       = top['total_vendido']
+            
+            # Cálculo seguro de stock total de presentaciones
+            estrella_stock         = prod.presentaciones.aggregate(total=Sum('lotes__stock_actual'))['total'] or 0
+            estrella_stock_critico = getattr(prod, 'stock_critico', False)
+
+            pres_top = (
+                Inventario.objects
+                .filter(tipo='salida', fecha_actualizada__gte=hace_30, presentacion__producto=prod)
+                .values('presentacion__nombre')
+                .annotate(total=Sum('cantidad'))
+                .order_by('-total')
+                .first()
+            )
+            if pres_top:
+                estrella_presentacion = pres_top['presentacion__nombre']
+
+            estrella_ingresos = (
+                Inventario.objects
+                .filter(tipo='salida', fecha_actualizada__gte=hace_30, presentacion__producto=prod)
+                .aggregate(total=Sum('cantidad'))['total'] or 0
+            )
+        except Producto.DoesNotExist:
+            pass
+
+    return JsonResponse({
+        'rotacion':               [{'nombre': r['presentacion__producto__nombre'], 'cantidad': r['total_vendido']} for r in rotacion_qs],
+        'sin_movimiento':         [{'nombre': p['nombre'], 'cantidad': 0} for p in sin_movimiento],
+        'estrella_nombre':        estrella_nombre,
+        'estrella_categoria':     estrella_categoria,
+        'estrella_vendido':       estrella_vendido,
+        'estrella_ingresos':      estrella_ingresos,
+        'estrella_presentacion':  estrella_presentacion,
+        'estrella_stock':         estrella_stock,
+        'estrella_stock_critico': estrella_stock_critico,
+    })
+
+@login_required
+def agenda_lista(request):
+    agendas = AgendaInventario.objects.all().order_by('fecha_programada')
+    context = {
+        'agendas': agendas,
+    }
+    return render(request, 'inventario/inventario_home.html', context)
+
+@login_required
+def agenda_eliminar(request, pk):
+    agenda = get_object_or_404(AgendaInventario, pk=pk)
+    if request.method == 'POST':
+        agenda.delete()
+        messages.success(request, '✅ Registro de agenda eliminado.')
+    return redirect('agenda_lista')

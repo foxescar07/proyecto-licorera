@@ -517,9 +517,9 @@
    que rompía los estilos de ambas páginas)
    ══════════════════════════════════════════ */
 :root {
-  --pg-card:   #19314e;
-  --pg-input:  #1e3f5e;
-  --pg-border: rgba(38, 164, 232, 0.22);
+  --pg-card:   #112b4c;
+  --pg-input:  #103354;
+  --pg-border: rgba(28, 123, 175, 0.22);
   --pg-azul:   #4DA8DA;
   --pg-azul2:  #3b9ad6;
   --pg-texto:  #dce8f2;
@@ -628,4 +628,179 @@
 .inv-input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
     cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: transparent !important;
+  border: 1px solid rgba(77,168,218,0.2) !important;
+  border-radius: 6px !important;
+  color: #4DA8DA !important;
+  padding: 0.3rem 0.8rem !important;
+  margin: 0 2px !important;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: rgba(77,168,218,0.15) !important;
+  color: #fff !important;
+  border-color: #4DA8DA !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: #4DA8DA !important;
+  color: #0d1b2a !important;
+  border-color: #4DA8DA !important;
+  font-weight: bold;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+  color: rgba(226,232,240,0.3) !important;
+  border-color: rgba(77,168,218,0.1) !important;
+  background: transparent !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+.dataTables_wrapper .dataTables_info {
+  color: rgba(226,232,240,0.6) !important;
+  font-size: 0.85rem;
+  padding-top: 0 !important;
+}
+
+/* Paginador DataTables con estilo de boton Editar */
+.dt-paging .pagination {
+  gap: 0.3rem;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.dt-paging .pagination .page-link {
+  background: rgba(77,168,218,0.12) !important;
+  border: 1px solid rgba(77,168,218,0.3) !important;
+  color: #4DA8DA !important;
+  border-radius: 50px !important;
+  padding: 0.28rem 0.9rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+}
+.dt-paging .pagination .page-item:not(.disabled):not(.active) .page-link:hover {
+  background: rgba(77,168,218,0.22) !important;
+  border-color: rgba(77,168,218,0.55) !important;
+  color: #7ecef4 !important;
+}
+.dt-paging .pagination .page-item.active .page-link {
+  background: #4DA8DA !important;
+  border-color: #4DA8DA !important;
+  color: #0d1b2a !important;
+}
+.dt-paging .pagination .page-item.disabled .page-link {
+  background: transparent !important;
+  border-color: rgba(77,168,218,0.1) !important;
+  color: rgba(226,232,240,0.3) !important;
+  cursor: not-allowed !important;
+}
+div.dt-container div.dt-info {
+  color: rgba(226,232,240,0.6) !important;
+  font-size: 0.85rem;
+  padding-top: 0 !important;
+}
+.prod-input-select,
+.prod-input-select option {
+  background-color: #0d2240 !important;
+  color: #9fc9ec !important;
+}
+
+.prod-input-select option:checked,
+.prod-input-select option:hover,
+.prod-input-select option:focus {
+  background: #1d4e6e !important;
+  color: #ffffff !important;
+}
+
+.prod-input-select:focus {
+  background-color: rgba(13,26,64,.8) !important;
+  border-color: #4DA8DA;
+  color: #e2e8f0 !important;
+  box-shadow: 0 0 0 .2rem rgba(77,168,218,.15);
+  outline: none;
+}
+/* Opciones del dropdown */
+#cat-categoria option,
+.inv-select option {
+  background-color: #0d1b2a;
+  color: #c8d6e5;
+}
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active {
+  background: rgba(0, 166, 255, 0.15) !important;
+  color: #4DA8DA !important;
+}
+
+.dropdown-item.active {
+  background: rgba(77,168,218,.2) !important;
+  color: #4DA8DA !important;
+}
+/* 1) El popup del calendario se ve en tema claro */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  color-scheme: light;
+}
+
+/* 2) El ícono del calendario dentro del input se invierte a blanco
+      para que se vea bien sobre el fondo oscuro de .inv-input */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+#buscarLote::placeholder {
+  color: rgba(226, 232, 240, .45);
+}
+/* Buscador y dropdown "Todos" en Stock por Lote — mismo estilo que Catálogo/Movimientos */
+#buscarLote-grupo .input-group-text,
+#buscarLote,
+#filtroEstado-btn {
+  height: 38px;
+  font-size: .85rem;
+  background-color: rgba(77,168,218,0.1) !important;
+  border-color: rgba(77, 168, 218, 0.35) !important;
+  color: #c8d6e5 !important;
+}
+
+#buscarLote-grupo .input-group-text {
+  border-radius: 8px 0 0 8px !important;
+  color: #4DA8DA !important; /* el ícono de lupa se mantiene en azul */
+}
+
+#buscarLote {
+  border-radius: 0 8px 8px 0 !important;
+}
+
+#buscarLote::placeholder {
+  color: rgba(226, 232, 240, .45);
+}
+
+#filtroEstado-btn {
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dropdown-menu {
+  --bs-dropdown-link-hover-bg: rgba(77,168,218,.15);
+  --bs-dropdown-link-hover-color: #4DA8DA;
+  --bs-dropdown-link-active-bg: rgba(77,168,218,.2);
+  --bs-dropdown-link-active-color: #4DA8DA;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active,
+.dropdown-item.active {
+  background-color: rgba(77,168,218,.15) !important;
+  color: #4DA8DA !important;
 }
