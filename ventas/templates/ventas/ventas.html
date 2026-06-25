@@ -5,6 +5,8 @@
 {% block page_title %}Punto de Venta{% endblock %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
 {% endblock %}
 
@@ -94,7 +96,7 @@
 
   {% if messages %}
     {% for msg in messages %}
-    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); color: #fff;">
+    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show cys-alert" role="alert">
       {{ msg }} <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
     </div>
     {% endfor %}
@@ -105,16 +107,17 @@
 
     <!-- COLUMNA IZQUIERDA: SELECCIÓN DE PRODUCTOS -->
     <div class="col-12 col-lg-7">
-      <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; min-height: 600px; overflow: hidden; display: flex; flex-direction: column;">
-        
-        <div style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--cys-borde); background: rgba(77, 168, 218, 0.02);">
-          <div style="font-size: 0.95rem; font-weight: 700; color: var(--cys-acento); text-transform: uppercase; letter-spacing: 0.5px;">
+      <div class="cys-panel cys-panel-tall">
+
+        <div class="cys-panel-header">
+          <div class="cys-panel-header-title">
             <i class="bi bi-grid-3x3-gap me-2"></i>Selecciona Productos
           </div>
         </div>
 
         <div class="p-4 flex-grow-1">
-          <div class="mb-4 position-relative">
+          <div class="mb-4 position-relative cys-input-icon-wrap">
+            <i class="bi bi-search"></i>
             <input type="text" id="buscadorProducto" class="form-control cys-input-dark" placeholder="Buscar producto por nombre...">
           </div>
 
@@ -126,10 +129,12 @@
           <!-- Vista de Productos -->
           <div id="vistaProductos" style="display:none;">
             <div class="d-flex align-items-center gap-2 mb-3">
-              <button class="btn btn-sm cys-btn-action-dark" id="btnVolverCats" style="border-radius: 8px !important;">
+              <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverProds-Cats">
+              </button>
+              <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverCats">
                 <i class="bi bi-arrow-left"></i> Volver
               </button>
-              <span style="font-weight: 800; font-size: .95rem; color: var(--cys-acento);" id="catTitulo"></span>
+              <span class="cys-volver-titulo" id="catTitulo"></span>
             </div>
             <div class="row g-3" id="productoLista"></div>
           </div>
@@ -137,10 +142,10 @@
           <!-- Vista de Presentaciones -->
           <div id="vistaPresentaciones" style="display:none;">
             <div class="d-flex align-items-center gap-2 mb-3">
-              <button class="btn btn-sm cys-btn-action-dark" id="btnVolverProds" style="border-radius: 8px !important;">
+              <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverProds">
                 <i class="bi bi-arrow-left"></i> Volver
               </button>
-              <span style="font-weight: 800; font-size: .95rem; color: var(--cys-acento);" id="presTitulo"></span>
+              <span class="cys-volver-titulo" id="presTitulo"></span>
             </div>
             <div class="d-flex flex-column gap-2" id="presentacionLista"></div>
           </div>
@@ -150,27 +155,37 @@
 
     <!-- COLUMNA DERECHA: CARRITO -->
     <div class="col-12 col-lg-5">
-      <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; overflow: hidden;">
-        
-        <div style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--cys-borde); background: rgba(77, 168, 218, 0.02);">
-          <div style="font-size: 0.95rem; font-weight: 700; color: var(--cys-acento); text-transform: uppercase; letter-spacing: 0.5px;">
+      <div class="cys-panel">
+
+        <div class="cys-panel-header">
+          <div class="cys-panel-header-title">
             <i class="bi bi-cart3 me-2"></i>Carrito de Venta
           </div>
         </div>
 
         <div class="p-4">
-          <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
+          <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta" novalidate>
             {% csrf_token %}
 
-            <div class="mb-3 position-relative">
-              <label style="color: var(--cys-texto-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; display: block; letter-spacing: 0.5px;">Cliente</label>
-              <input type="text" name="cliente_nombre" id="inputClienteNombre" class="form-control cys-input-dark" placeholder="Nombre del cliente (opcional)">
+            <!-- ── CLIENTE (OBLIGATORIO) ── -->
+            <div class="mb-3 position-relative cys-input-icon-wrap cys-input-icon-wrap--con-label">
+              <label class="cys-form-label">
+                Cliente <span style="color: var(--cys-rojo);">*</span>
+              </label>
+              <i class="bi bi-person"></i>
+              <input type="text" name="cliente_nombre" id="inputClienteNombre"
+                     class="form-control cys-input-dark"
+                     placeholder="Nombre del cliente (obligatorio)"
+                     autocomplete="off">
               <input type="hidden" name="cliente_id" id="inputClienteId">
-              
-              <div id="sugerenciasClientes" class="list-group mt-1 shadow-lg" style="display:none; position:absolute; z-index:100; width:100%;">
+              <!-- Mensaje de error -->
+              <div id="errorCliente" class="cys-campo-error" style="display:none;">
+                <i class="bi bi-exclamation-circle me-1"></i>El nombre del cliente es obligatorio
+              </div>
+
+              <div id="sugerenciasClientes" class="list-group mt-1 shadow-lg cys-sugerencias-dropdown">
                 {% for cliente in clientes %}
-                <button type="button" class="list-group-item list-group-item-action"
-                        style="background: var(--cys-surface); border-color: var(--cys-borde); color: #fff; font-size: .85rem;"
+                <button type="button" class="list-group-item list-group-item-action cys-sugerencias-item"
                         data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
                   {{ cliente.nombre }}
                 </button>
@@ -178,63 +193,147 @@
               </div>
             </div>
 
-            <div id="carritoVacio" class="text-center py-5 mb-3 rounded-3" style="border: 1px dashed var(--cys-borde); background: rgba(77,168,218,0.01);">
-              <i class="bi bi-cart3" style="font-size: 2.2rem; color: rgba(77, 168, 218, 0.15); display: block; margin-bottom: 0.5rem;"></i>
-              <div style="font-size: .85rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Carrito vacío</div>
-              <div style="font-size: .75rem; color: var(--cys-texto-muted);">Selecciona productos para comenzar</div>
+            <!-- ── CARRITO VACÍO ── -->
+            <div id="carritoVacio" class="text-center py-5 mb-3 rounded-3 cys-carrito-vacio">
+              <div class="cys-carrito-vacio-icono-box">
+                <i class="bi bi-cart3"></i>
+              </div>
+              <div class="cys-carrito-vacio-titulo">Carrito vacío</div>
+              <div class="cys-carrito-vacio-subtitulo">Selecciona productos para comenzar</div>
             </div>
 
+            <!-- ── ITEMS DEL CARRITO ── -->
             <div id="carritoItems" style="display:none;" class="mb-3">
               <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
             </div>
 
             <div id="camposOcultos"></div>
 
+            <!-- ── DESCUENTO MEJORADO ── -->
             <div id="seccionDescuento" style="display:none;" class="mb-3">
-              <div class="d-flex justify-content-between align-items-center rounded-3 p-2 px-3"
-                   style="background: var(--cys-surface); border: 1px solid var(--cys-borde);">
-                <span style="color: var(--cys-texto-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">% Descuento</span>
-                <input type="number" id="inputDescuento" name="descuento_porcentaje" value="0" min="0" max="100" class="form-control text-center"
-                       style="width: 80px; background: var(--cys-bg-card); border: 1px solid var(--cys-borde); color: var(--cys-acento); font-weight: 800; font-size: 1.1rem; border-radius: 8px;">
+              <div class="cys-descuento-box-nuevo">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="cys-descuento-label">
+                    <i class="bi bi-tag me-1"></i>% Descuento
+                  </span>
+                  <input type="number" id="inputDescuento" name="descuento_porcentaje"
+                         value="0" min="0" max="100"
+                         class="form-control text-center cys-descuento-input">
+                </div>
+                <!-- Desglose de descuento -->
+                <div id="desgloseDescuento" style="display:none;" class="cys-descuento-desglose">
+                  <div class="cys-descuento-fila">
+                    <span class="cys-descuento-fila-label">Subtotal</span>
+                    <span id="descSubtotal" class="cys-descuento-fila-valor">$0</span>
+                  </div>
+                  <div class="cys-descuento-fila">
+                    <span class="cys-descuento-fila-label">Descuento (<span id="descPctLabel">0</span>%)</span>
+                    <span id="descValor" class="cys-descuento-fila-valor--rojo">-$0</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div id="totalGeneral" style="display:none;" class="mb-3 rounded-3 p-3"
-                 style="background: rgba(77,168,218,.06); border: 1px solid var(--cys-borde);">
+            <!-- ── TOTAL ── -->
+            <div id="totalGeneral" style="display:none;" class="mb-3 rounded-3 p-3 cys-total-box">
               <div class="d-flex justify-content-between align-items-center">
-                <span style="color: #fff; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Total</span>
-                <span id="totalMonto" style="font-size: 1.6rem; font-weight: 800; color: var(--cys-acento);">$0</span>
+                <span class="cys-total-label">Total</span>
+                <span id="totalMonto" class="cys-total-monto">$0</span>
               </div>
             </div>
 
-            <div id="seccionPagos" style="display:none;" class="mb-3 rounded-3 p-3"
-                 style="background: var(--cys-surface); border: 1px solid var(--cys-borde);">
-              <div style="color: var(--cys-texto-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Método de Pago</div>
-              <div class="row g-2 mb-2">
-                <div class="col-6">
-                  <label style="font-size: .7rem; color: var(--cys-texto-muted); font-weight: 600; text-transform: uppercase;">Efectivo</label>
-                  <input type="number" name="pago_efectivo" value="0" min="0" class="form-control pago-input cys-input-dark">
-                </div>
-                <div class="col-6">
-                  <label style="font-size: .7rem; color: var(--cys-texto-muted); font-weight: 600; text-transform: uppercase;">Tarjeta</label>
-                  <input type="number" name="pago_tarjeta" value="0" min="0" class="form-control pago-input cys-input-dark">
-                </div>
-                <div class="col-4">
-                  <label style="font-size: .7rem; color: var(--cys-texto-muted); font-weight: 600; text-transform: uppercase;">Transfer.</label>
-                  <input type="number" name="pago_transferencia" value="0" min="0" class="form-control pago-input cys-input-dark">
-                </div>
-                <div class="col-4">
-                  <label style="font-size: .7rem; color: var(--cys-texto-muted); font-weight: 600; text-transform: uppercase;">Nequi</label>
-                  <input type="number" name="pago_nequi" value="0" min="0" class="form-control pago-input cys-input-dark">
-                </div>
-                <div class="col-4">
-                  <label style="font-size: .7rem; color: var(--cys-texto-muted); font-weight: 600; text-transform: uppercase;">Daviplata</label>
-                  <input type="number" name="pago_daviplata" value="0" min="0" class="form-control pago-input cys-input-dark">
-                </div>
+            <!-- ── MÉTODOS DE PAGO ── -->
+            <div id="seccionPagos" style="display:none;" class="mb-3 cys-pagos-box">
+              <div class="cys-pagos-titulo">
+                <i class="bi bi-wallet2 me-1"></i> Método de Pago
               </div>
-              <div class="d-flex justify-content-between align-items-center pt-2 mt-2" style="border-top: 1px solid var(--cys-borde);">
-                <span style="color: var(--cys-texto-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Total pagado</span>
-                <span id="totalPagado" style="font-size: 1.1rem; font-weight: 700; color: var(--cys-acento);">$0</span>
+
+              <div class="row g-2 mb-2">
+
+                <!-- EFECTIVO -->
+                <div class="col-6">
+                  <div class="cys-pago-card">
+                    <div class="cys-pago-card-header cys-pago-card-header--verde">
+                      <i class="bi bi-cash-stack"></i>
+                      <span>Efectivo</span>
+                    </div>
+                    <input type="number" name="pago_efectivo" id="pagoEfectivo"
+                           value="0" min="0"
+                           class="form-control pago-input cys-input-dark cys-pago-input">
+                  </div>
+                </div>
+
+                <!-- TARJETA -->
+                <div class="col-6">
+                  <div class="cys-pago-card">
+                    <div class="cys-pago-card-header cys-pago-card-header--acento">
+                      <i class="bi bi-credit-card-2-front"></i>
+                      <span>Tarjeta</span>
+                    </div>
+                    <input type="number" name="pago_tarjeta"
+                           value="0" min="0"
+                           class="form-control pago-input cys-input-dark cys-pago-input">
+                  </div>
+                </div>
+
+                <!-- TRANSFERENCIA -->
+                <div class="col-4">
+                  <div class="cys-pago-card">
+                    <div class="cys-pago-card-header cys-pago-card-header--naranja">
+                      <i class="bi bi-arrow-left-right"></i>
+                      <span>Transfer.</span>
+                    </div>
+                    <input type="number" name="pago_transferencia"
+                           value="0" min="0"
+                           class="form-control pago-input cys-input-dark cys-pago-input">
+                  </div>
+                </div>
+
+                <!-- NEQUI -->
+                <div class="col-4">
+                  <div class="cys-pago-card">
+                    <div class="cys-pago-card-header cys-pago-card-header--morado">
+                      <i class="bi bi-phone"></i>
+                      <span>Nequi</span>
+                    </div>
+                    <input type="number" name="pago_nequi"
+                           value="0" min="0"
+                           class="form-control pago-input cys-input-dark cys-pago-input">
+                  </div>
+                </div>
+
+                <!-- DAVIPLATA -->
+                <div class="col-4">
+                  <div class="cys-pago-card">
+                    <div class="cys-pago-card-header cys-pago-card-header--rosa">
+                      <i class="bi bi-phone-fill"></i>
+                      <span>Daviplata</span>
+                    </div>
+                    <input type="number" name="pago_daviplata"
+                           value="0" min="0"
+                           class="form-control pago-input cys-input-dark cys-pago-input">
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ── RESUMEN DE PAGO ── -->
+              <div class="cys-pagos-resumen">
+                <div class="cys-pagos-footer">
+                  <span class="cys-pagos-footer-label">Total pagado</span>
+                  <span id="totalPagado" class="cys-pagos-footer-valor">$0</span>
+                </div>
+                <!-- Cambio / Faltante (solo si hay efectivo) -->
+                <div id="infoEfectivo" style="display:none;" class="cys-efectivo-info">
+                  <div id="filaFalta" style="display:none;" class="cys-efectivo-fila cys-efectivo-fila--falta">
+                    <span><i class="bi bi-exclamation-triangle me-1"></i>Falta</span>
+                    <span id="montoFalta" class="cys-efectivo-monto">$0</span>
+                  </div>
+                  <div id="filaCambio" style="display:none;" class="cys-efectivo-fila cys-efectivo-fila--cambio">
+                    <span><i class="bi bi-arrow-return-left me-1"></i>Cambio</span>
+                    <span id="montoCambio" class="cys-efectivo-monto">$0</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -254,28 +353,28 @@
   </div>
 
   <!-- ── HISTORIAL DE VENTAS ── -->
-  <section class="mt-4" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-radius: 12px; overflow: hidden;">
-    
-    <div style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--cys-borde); background: rgba(77, 168, 218, 0.02);">
-      <div style="font-size: 0.95rem; font-weight: 700; color: var(--cys-acento); text-transform: uppercase; letter-spacing: 0.5px;">
+  <section class="mt-4 cys-panel">
+
+    <div class="cys-panel-header">
+      <div class="cys-panel-header-title">
         <i class="bi bi-clock-history me-2"></i>Historial de Ventas
       </div>
     </div>
 
-    <div class="px-4 py-3 d-flex flex-wrap align-items-center gap-3" style="border-bottom: 1px solid var(--cys-borde); background: rgba(7,18,26,0.2);">
-      <span style="font-size: .72rem; font-weight: 700; color: var(--cys-texto-muted); text-transform: uppercase; letter-spacing: .06em;">Rango de fechas:</span>
+    <div class="px-4 py-3 d-flex flex-wrap align-items-center gap-3 cys-filtros-bar">
+      <span class="cys-filtros-label">Rango de fechas:</span>
       <input type="date" id="filtroDesde" class="form-control form-control-sm cys-input-dark" style="width:auto;">
-      <span style="color: var(--cys-texto-muted); font-size: .85rem;">A</span>
+      <span class="cys-filtros-separador">A</span>
       <input type="date" id="filtroHasta" class="form-control form-control-sm cys-input-dark" style="width:auto;">
-      <button id="btnLimpiarFiltro" class="btn btn-sm cys-btn-action-dark" style="border-radius: 8px !important;">
+      <button id="btnLimpiarFiltro" class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill">
         <i class="bi bi-x-circle me-1"></i>Limpiar
       </button>
     </div>
 
     <div class="table-responsive p-3">
-      <table class="cys-inv-table w-100" id="tablaHistorial" style="color: #fff; font-size: 0.9rem;">
+      <table class="cys-inv-table w-100" id="tablaHistorial">
         <thead>
-          <tr style="border-bottom: 2px solid var(--cys-borde); color: var(--cys-texto-muted); font-size: 0.75rem; text-transform: uppercase;">
+          <tr>
             <th class="pb-2">#</th>
             <th class="pb-2">Cliente</th>
             <th class="pb-2">Producto</th>
@@ -289,7 +388,7 @@
         <tbody id="tablaHistorialBody">
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
-            <tr class="fila-venta" style="border-bottom: 1px solid rgba(77, 168, 218, 0.08);"
+            <tr class="fila-venta"
                 data-fecha="{{ venta.fecha|date:'Y-m-d' }}"
                 data-venta-id="{{ venta.pk }}"
                 data-first="{% if forloop.first %}1{% else %}0{% endif %}"
@@ -299,7 +398,7 @@
               <td class="py-3 fw-bold" rowspan="{{ venta.detalles.all|length }}">{{ venta.cliente.nombre }}</td>
               {% endif %}
               <td class="py-3">
-                <span style="background: rgba(46, 213, 115, 0.1); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">
+                <span class="cys-badge-producto">
                   {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
                 </span>
               </td>
@@ -311,7 +410,7 @@
               <td class="py-3 text-center" rowspan="{{ venta.detalles.all|length }}">
                 <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('¿Eliminar esta venta?');">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-sm" style="background:rgba(231, 76, 60, 0.1); border:1px solid rgba(231, 76, 60, 0.2); color:#e74c3c; border-radius:6px;">
+                  <button type="submit" class="btn btn-sm cys-btn-eliminar-fila">
                     <i class="bi bi-trash"></i>
                   </button>
                 </form>
@@ -321,8 +420,8 @@
             {% endfor %}
           {% empty %}
           <tr id="filaVacia">
-            <td colspan="8" class="text-center py-5 text-muted">
-              <i class="bi bi-bar-chart d-block fs-2 mb-2" style="color: rgba(77,168,218,0.2);"></i>
+            <td colspan="8" class="cys-empty-box">
+              <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
               No hay ventas registradas aún.
             </td>
           </tr>
@@ -330,8 +429,8 @@
         </tbody>
       </table>
 
-      <div id="sinResultadosFiltro" style="display:none;" class="text-center py-5 text-muted">
-        <i class="bi bi-bar-chart d-block fs-2 mb-2" style="color: rgba(77,168,218,0.2);"></i>
+      <div id="sinResultadosFiltro" style="display:none;" class="cys-empty-box">
+        <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
         No hay ventas registradas para este rango de fechas.
       </div>
     </div>
@@ -341,43 +440,43 @@
 <!-- ══ MODAL APERTURA DE CAJA ══ -->
 <div class="modal fade" id="modalConteo" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); color: #fff;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--cys-borde);">
-        <h5 class="modal-title fw-bold" style="color: var(--cys-acento);"><i class="bi bi-unlock-fill me-2"></i>Conteo de Apertura</h5>
+    <div class="modal-content cys-modal-content">
+      <div class="modal-header cys-modal-header">
+        <h5 class="modal-title fw-bold cys-modal-titulo--acento"><i class="bi bi-unlock-fill me-2"></i>Conteo de Apertura</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p style="font-size:.82rem; color:var(--cys-texto-muted);" class="mb-3">Cuenta el dinero disponible e ingresa la cantidad por denominación.</p>
+        <p class="cys-modal-subtexto mb-3">Cuenta el dinero disponible e ingresa la cantidad por denominación.</p>
 
-        <div style="font-size:.72rem; text-transform:uppercase; color:var(--cys-acento); font-weight:700;" class="mb-2">Billetes</div>
+        <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
         <div class="row g-2 mb-3">
           {% for valor in billetes_denom %}
           <div class="col-6 col-md-3">
-            <label style="font-size:.7rem; color:var(--cys-texto-muted); font-weight:600;">${{ valor|floatformat:0 }}</label>
+            <label class="cys-denom-label">${{ valor|floatformat:0 }}</label>
             <input type="number" min="0" value="0" class="form-control text-center denom-ct cys-input-dark" data-valor="{{ valor }}">
           </div>
           {% endfor %}
         </div>
 
-        <div style="font-size:.72rem; text-transform:uppercase; color:var(--cys-acento); font-weight:700;" class="mb-2">Monedas</div>
+        <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
         <div class="row g-2 mb-3">
           {% for valor in monedas_denom %}
           <div class="col-6 col-md-3">
-            <label style="font-size:.7rem; color:var(--cys-texto-muted); font-weight:600;">${{ valor }}</label>
+            <label class="cys-denom-label">${{ valor }}</label>
             <input type="number" min="0" value="0" class="form-control text-center denom-ct cys-input-dark" data-valor="{{ valor }}">
           </div>
           {% endfor %}
         </div>
 
-        <div class="d-flex justify-content-between align-items-center rounded-3 p-3 mb-3" style="background:rgba(77,168,218,.06); border:1px solid var(--cys-borde);">
-          <span style="font-size:.82rem; color:var(--cys-texto-muted); font-weight:600; text-transform:uppercase;">Total contado</span>
-          <span style="font-size:1.4rem; font-weight:800; color:var(--cys-acento);" id="totalConteo">$0</span>
+        <div class="cys-total-contado-box mb-3">
+          <span class="cys-total-contado-label">Total contado</span>
+          <span class="cys-total-contado-valor" id="totalConteo">$0</span>
         </div>
 
-        <label style="font-size:.72rem; color:var(--cys-texto-muted); text-transform:uppercase; font-weight:700;" class="mb-1">Observación (opcional)</label>
+        <label class="cys-modal-form-label mb-1">Observación (opcional)</label>
         <input type="text" class="form-control mb-4 cys-input-dark" id="ctObservacion" placeholder="Ej: todo en orden">
 
-        <button class="btn w-100 cys-btn-submit py-2" id="btnConfirmarConteo" type="button">
+        <button class="btn w-100 cys-btn-submit cys-btn-block-lg py-2" id="btnConfirmarConteo" type="button">
           <i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar
         </button>
       </div>
@@ -388,69 +487,69 @@
 <!-- ══ MODAL CIERRE DE CAJA ══ -->
 <div class="modal fade" id="modalCierre" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content" style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); color: #fff;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--cys-borde);">
-        <h5 class="modal-title fw-bold" style="color: var(--cys-rojo);"><i class="bi bi-lock-fill me-2"></i>Conteo de Cierre</h5>
+    <div class="modal-content cys-modal-content">
+      <div class="modal-header cys-modal-header">
+        <h5 class="modal-title fw-bold cys-modal-titulo--rojo"><i class="bi bi-lock-fill me-2"></i>Conteo de Cierre</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p style="font-size:.82rem; color:var(--cys-texto-muted);" class="mb-3">Cuenta todo el dinero físico en caja.</p>
+        <p class="cys-modal-subtexto mb-3">Cuenta todo el dinero físico en caja.</p>
 
-        <div style="font-size:.72rem; text-transform:uppercase; color:var(--cys-acento); font-weight:700;" class="mb-2">Billetes</div>
+        <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
         <div class="row g-2 mb-3">
           {% for valor in billetes_denom %}
           <div class="col-6 col-md-3">
-            <label style="font-size:.7rem; color:var(--cys-texto-muted); font-weight:600;">${{ valor|floatformat:0 }}</label>
+            <label class="cys-denom-label">${{ valor|floatformat:0 }}</label>
             <input type="number" min="0" value="0" class="form-control text-center denom-ci cys-input-dark" data-valor="{{ valor }}">
           </div>
           {% endfor %}
         </div>
 
-        <div style="font-size:.72rem; text-transform:uppercase; color:var(--cys-acento); font-weight:700;" class="mb-2">Monedas</div>
+        <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
         <div class="row g-2 mb-3">
           {% for valor in monedas_denom %}
           <div class="col-6 col-md-3">
-            <label style="font-size:.7rem; color:var(--cys-texto-muted); font-weight:600;">${{ valor }}</label>
+            <label class="cys-denom-label">${{ valor }}</label>
             <input type="number" min="0" value="0" class="form-control text-center denom-ci cys-input-dark" data-valor="{{ valor }}">
           </div>
           {% endfor %}
         </div>
 
-        <div class="d-flex justify-content-between align-items-center rounded-3 p-3 mb-3" style="background:rgba(77,168,218,.06); border:1px solid var(--cys-borde);">
-          <span style="font-size:.82rem; color:var(--cys-texto-muted); font-weight:600; text-transform:uppercase;">Total contado</span>
-          <span style="font-size:1.4rem; font-weight:800; color:var(--cys-acento);" id="totalCierre">$0</span>
+        <div class="cys-total-contado-box mb-3">
+          <span class="cys-total-contado-label">Total contado</span>
+          <span class="cys-total-contado-valor" id="totalCierre">$0</span>
         </div>
 
-        <label style="font-size:.72rem; color:var(--cys-texto-muted); text-transform:uppercase; font-weight:700;" class="mb-1">Monto base para mañana ($)</label>
+        <label class="cys-modal-form-label mb-1">Monto base para mañana ($)</label>
         <input type="number" class="form-control mb-3 cys-input-dark" id="baseSiguiente" placeholder="Ej: 100000" min="0">
 
-        <div class="rounded-3 p-3 mb-4" style="background:var(--cys-surface); border:1px solid var(--cys-borde);">
-          <div style="color: var(--cys-texto-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;" class="mb-2">Resumen del día</div>
+        <div class="cys-resumen-box mb-4">
+          <div class="cys-resumen-titulo">Resumen del día</div>
           {% if caja_abierta %}
-          <div class="d-flex justify-content-between py-1" style="font-size:.83rem; border-bottom:1px solid rgba(77,168,218,0.1);">
-            <span style="color:var(--cys-texto-muted);">Base de apertura</span>
-            <span style="font-weight:700; color:#fff;">${{ caja_abierta.monto_base|floatformat:0 }}</span>
+          <div class="cys-resumen-fila">
+            <span class="cys-resumen-fila-label">Base de apertura</span>
+            <span class="cys-resumen-fila-valor">${{ caja_abierta.monto_base|floatformat:0 }}</span>
           </div>
           {% endif %}
-          <div class="d-flex justify-content-between py-1" style="font-size:.83rem; border-bottom:1px solid rgba(77,168,218,0.1);">
-            <span style="color:var(--cys-texto-muted);">Ventas del día</span>
-            <span style="font-weight:700; color:var(--cys-verde);">${{ total_dia|floatformat:0 }}</span>
+          <div class="cys-resumen-fila">
+            <span class="cys-resumen-fila-label">Ventas del día</span>
+            <span class="cys-resumen-fila-valor--verde">${{ total_dia|floatformat:0 }}</span>
           </div>
-          <div class="d-flex justify-content-between py-1" style="font-size:.83rem; border-bottom:1px solid rgba(77,168,218,0.1);">
-            <span style="color:var(--cys-texto-muted);">Total contado</span>
-            <span style="font-weight:700; color:var(--cys-acento);" id="resumenTotalContado">$0</span>
+          <div class="cys-resumen-fila">
+            <span class="cys-resumen-fila-label">Total contado</span>
+            <span class="cys-resumen-fila-valor--acento" id="resumenTotalContado">$0</span>
           </div>
-          <div class="d-flex justify-content-between py-1" style="font-size:.83rem; border-bottom:1px solid rgba(77,168,218,0.1);">
-            <span style="color:var(--cys-texto-muted);">Base para mañana</span>
-            <span style="font-weight:700; color:#fff;" id="resumenBaseSig">$0</span>
+          <div class="cys-resumen-fila">
+            <span class="cys-resumen-fila-label">Base para mañana</span>
+            <span class="cys-resumen-fila-valor" id="resumenBaseSig">$0</span>
           </div>
-          <div class="d-flex justify-content-between pt-2 mt-1" style="font-size:.95rem;">
-            <span style="font-weight:700; color:#fff;">Total a retirar</span>
-            <span style="font-size:1.3rem; font-weight:800; color:var(--cys-verde);" id="resumenRetirar">$0</span>
+          <div class="cys-resumen-total">
+            <span class="cys-resumen-total-label">Total a retirar</span>
+            <span class="cys-resumen-total-valor" id="resumenRetirar">$0</span>
           </div>
         </div>
 
-        <button class="btn w-100 cys-btn-cancel py-2" id="btnConfirmarCierre" type="button" style="color: var(--cys-rojo); border-color: rgba(231, 76, 60, 0.4);">
+        <button class="btn w-100 cys-btn-cancel cys-btn-block-lg py-2" id="btnConfirmarCierre" type="button" style="color: var(--cys-rojo); border-color: rgba(231, 76, 60, 0.4);">
           <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
         </button>
       </div>
@@ -466,6 +565,29 @@ const CATALOGO = {{ catalogo_json|safe }};
 </script>
 
 <script>
+// ══ HELPERS DE PRESENTACIÓN ══
+function badgeStock(stock) {
+  if (stock <= 10) return { clase: 'cys-stock-badge--critico', texto: `${stock} uds` };
+  if (stock <= 50) return { clase: 'cys-stock-badge--bajo', texto: `${stock} uds` };
+  return { clase: 'cys-stock-badge--ok', texto: `${stock} uds` };
+}
+
+function tarjetaProductoHTML(prod) {
+  const minPrecio = prod.presentaciones.length
+    ? Math.min(...prod.presentaciones.map(p => p.precio))
+    : 0;
+  const badge = badgeStock(prod.stock);
+  return `
+    <div class="cys-cat-card-premium" style="cursor:pointer;">
+      <div class="cys-cat-card-top">
+        <div class="cys-cat-card-icon"><i class="bi bi-box-seam"></i></div>
+        <span class="cys-stock-badge ${badge.clase}">${badge.texto}</span>
+      </div>
+      <div class="cys-cat-card-nombre">${prod.nombre}</div>
+      <div class="cys-cat-card-precio">desde $${minPrecio.toLocaleString('es-CO')}</div>
+    </div>`;
+}
+
 // ══ NAVEGACIÓN TPV ══
 const vistaCats  = document.getElementById('vistaCategorias');
 const vistaProds = document.getElementById('vistaProductos');
@@ -485,8 +607,8 @@ function renderCategorias() {
   if (CATALOGO.length === 0) {
     lista.innerHTML = `
       <div class="col-12 text-center py-5">
-        <div style="border:1px dashed var(--cys-borde); border-radius:8px; padding:3rem 1rem; color:var(--cys-texto-muted);">
-          <i class="bi bi-tag d-block fs-2 mb-2" style="color:rgba(77,168,218,0.2);"></i>
+        <div class="cys-empty-box">
+          <i class="bi bi-tag d-block fs-2 mb-2"></i>
           No hay categorías registradas.
         </div>
       </div>`;
@@ -497,10 +619,12 @@ function renderCategorias() {
     const div = document.createElement('div');
     div.className = 'col-6 col-md-4';
     div.innerHTML = `
-      <div class="cys-cat-card-premium" style="cursor:pointer;" data-cat-id="${cat.id}">
-        <i class="bi bi-tag-fill d-block mb-2" style="font-size: 1.4rem; color: var(--cys-acento);"></i>
-        <div style="font-weight:700; font-size:.85rem; color:#fff;">${cat.nombre}</div>
-        <div style="font-size:.72rem; color:var(--cys-texto-muted); margin-top:4px;">${cat.productos.length} productos</div>
+      <div class="cys-cat-card-premium cys-cat-card-premium--centrada" style="cursor:pointer;" data-cat-id="${cat.id}">
+        <div class="cys-cat-card-icon cys-cat-card-icon--lg">
+          <i class="bi bi-tag-fill"></i>
+        </div>
+        <div class="cys-cat-card-nombre">${cat.nombre}</div>
+        <div class="cys-cat-card-meta">${cat.productos.length} productos</div>
       </div>`;
     div.querySelector('[data-cat-id]').addEventListener('click', () => abrirCategoria(cat));
     lista.appendChild(div);
@@ -515,8 +639,8 @@ function abrirCategoria(cat) {
   if (cat.productos.length === 0) {
     lista.innerHTML = `
       <div class="col-12 text-center py-5">
-        <div style="border:1px dashed var(--cys-borde); border-radius:8px; padding:3rem 1rem; color:var(--cys-texto-muted);">
-          <i class="bi bi-box d-block fs-2 mb-2" style="color:rgba(77,168,218,0.2);"></i>
+        <div class="cys-empty-box">
+          <i class="bi bi-box d-block fs-2 mb-2"></i>
           No hay productos en esta categoría.
         </div>
       </div>`;
@@ -525,22 +649,9 @@ function abrirCategoria(cat) {
   }
 
   cat.productos.forEach(prod => {
-    const minPrecio = prod.presentaciones.length
-      ? Math.min(...prod.presentaciones.map(p => p.precio))
-      : 0;
-
     const div = document.createElement('div');
     div.className = 'col-6 col-md-4';
-    div.innerHTML = `
-      <div class="cys-cat-card-premium" style="cursor:pointer;">
-        <div style="font-weight:700; font-size:.85rem; color:#fff;">${prod.nombre}</div>
-        <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
-          desde $${minPrecio.toLocaleString('es-CO')}
-        </div>
-        <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
-          Stock: ${prod.stock} uds
-        </div>
-      </div>`;
+    div.innerHTML = tarjetaProductoHTML(prod);
     div.querySelector('.cys-cat-card-premium').addEventListener('click', () => abrirPresentaciones(prod));
     lista.appendChild(div);
   });
@@ -555,7 +666,7 @@ function abrirPresentaciones(prod) {
 
   if (!prod.presentaciones || prod.presentaciones.length === 0) {
     lista.innerHTML = `
-      <div class="text-center py-4" style="border:1px dashed var(--cys-borde); border-radius:8px; color:var(--cys-texto-muted);">
+      <div class="text-center py-4 cys-empty-box">
         <i class="bi bi-exclamation-circle d-block fs-3 mb-2" style="color:rgba(255,193,7,0.4);"></i>
         Este producto no tiene presentaciones configuradas.
       </div>`;
@@ -575,7 +686,7 @@ function abrirPresentaciones(prod) {
           <div style="font-weight:700; color:#fff; font-size:.9rem;">${pr.nombre}</div>
           <div style="font-size:.72rem; color:var(--cys-texto-muted);">x${pr.unidades} unidades · Stock: ${pr.stock}</div>
         </div>
-        <div style="font-size:1.1rem; font-weight:800; color:${sinStock ? 'var(--cys-rojo)' : 'var(--cys-acento)'};">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:800; color:${sinStock ? 'var(--cys-rojo)' : 'var(--cys-acento)'};">
           ${sinStock ? 'Sin stock' : '$' + pr.precio.toLocaleString('es-CO')}
         </div>
       </div>`;
@@ -660,7 +771,7 @@ function renderCarrito() {
         <span style="min-width:20px;text-align:center;font-weight:700;color:#fff;">${item.cantidad}</span>
         <button type="button" onclick="cambiarCantidad(${idx}, 1)"
                 style="width:24px;height:24px;border-radius:50%;background:rgba(77,168,218,0.1);border:1px solid var(--cys-borde);color:#fff;font-size:.8rem;line-height:1;padding:0;">+</button>
-        <span style="font-weight:700;color:var(--cys-acento);min-width:70px;text-align:right;font-size:.85rem;">
+        <span style="font-family:'Rajdhani',sans-serif; font-weight:700;color:var(--cys-acento);min-width:70px;text-align:right;font-size:.9rem;">
           $${(item.precio * item.cantidad).toLocaleString('es-CO')}
         </span>
         <button type="button" onclick="quitarItem(${idx})"
@@ -677,8 +788,22 @@ function renderCarrito() {
       <input type="hidden" name="precio[]"           value="${item.precio}">`;
   });
 
-  const descPct = parseFloat(document.getElementById('inputDescuento').value) || 0;
-  const total   = subtotal * (1 - descPct / 100);
+  // ── Descuento mejorado ──
+  const descPct    = parseFloat(document.getElementById('inputDescuento').value) || 0;
+  const descValor  = subtotal * (descPct / 100);
+  const total      = subtotal - descValor;
+
+  // Mostrar desglose solo si hay descuento > 0
+  const desgloseEl = document.getElementById('desgloseDescuento');
+  if (descPct > 0) {
+    desgloseEl.style.display = 'block';
+    document.getElementById('descSubtotal').textContent  = '$' + Math.round(subtotal).toLocaleString('es-CO');
+    document.getElementById('descPctLabel').textContent  = descPct;
+    document.getElementById('descValor').textContent     = '-$' + Math.round(descValor).toLocaleString('es-CO');
+  } else {
+    desgloseEl.style.display = 'none';
+  }
+
   document.getElementById('totalMonto').textContent = '$' + Math.round(total).toLocaleString('es-CO');
   calcularPagado();
 }
@@ -696,14 +821,82 @@ function quitarItem(idx) {
 
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
 
+// ══ CALCULAR PAGADO + CAMBIO/FALTA ══
 function calcularPagado() {
   let pagado = 0;
   document.querySelectorAll('.pago-input').forEach(inp => {
     pagado += parseFloat(inp.value) || 0;
   });
   document.getElementById('totalPagado').textContent = '$' + Math.round(pagado).toLocaleString('es-CO');
+
+  // Lógica cambio / faltante en efectivo
+  const efectivo = parseFloat(document.getElementById('pagoEfectivo').value) || 0;
+
+  // Obtener total actual
+  let subtotal = 0;
+  carrito.forEach(item => { subtotal += item.precio * item.cantidad; });
+  const descPct = parseFloat(document.getElementById('inputDescuento').value) || 0;
+  const total   = Math.round(subtotal * (1 - descPct / 100));
+
+  const infoEl   = document.getElementById('infoEfectivo');
+  const filaFalta  = document.getElementById('filaFalta');
+  const filaCambio = document.getElementById('filaCambio');
+
+  if (efectivo > 0 && total > 0) {
+    infoEl.style.display = 'block';
+    const diferencia = efectivo - total;
+
+    if (diferencia < 0) {
+      // Falta dinero
+      filaFalta.style.display  = 'flex';
+      filaCambio.style.display = 'none';
+      document.getElementById('montoFalta').textContent = '$' + Math.abs(diferencia).toLocaleString('es-CO');
+    } else if (diferencia > 0) {
+      // Sobra → cambio
+      filaFalta.style.display  = 'none';
+      filaCambio.style.display = 'flex';
+      document.getElementById('montoCambio').textContent = '$' + diferencia.toLocaleString('es-CO');
+    } else {
+      // Exacto
+      filaFalta.style.display  = 'none';
+      filaCambio.style.display = 'flex';
+      document.getElementById('montoCambio').textContent = '$0 (exacto)';
+    }
+  } else {
+    infoEl.style.display     = 'none';
+    filaFalta.style.display  = 'none';
+    filaCambio.style.display = 'none';
+  }
 }
+
 document.querySelectorAll('.pago-input').forEach(inp => inp.addEventListener('input', calcularPagado));
+
+// ══ VALIDACIÓN CLIENTE OBLIGATORIO ══
+document.getElementById('formVenta').addEventListener('submit', function(e) {
+  const clienteVal = document.getElementById('inputClienteNombre').value.trim();
+  const errorEl    = document.getElementById('errorCliente');
+  const inputEl    = document.getElementById('inputClienteNombre');
+
+  if (!clienteVal) {
+    e.preventDefault();
+    errorEl.style.display = 'flex';
+    inputEl.classList.add('cys-input-error');
+    inputEl.focus();
+    // Scroll suave al campo
+    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  errorEl.style.display = 'none';
+  inputEl.classList.remove('cys-input-error');
+});
+
+// Limpiar error al escribir
+document.getElementById('inputClienteNombre').addEventListener('input', function() {
+  if (this.value.trim()) {
+    document.getElementById('errorCliente').style.display = 'none';
+    this.classList.remove('cys-input-error');
+  }
+});
 
 document.getElementById('btnCancelarVenta').addEventListener('click', function() {
   if (carrito.length === 0 || confirm('¿Vaciar el carrito?')) {
@@ -725,21 +918,9 @@ document.getElementById('buscadorProducto').addEventListener('input', function()
     cat.productos.forEach(prod => {
       if (prod.nombre.toLowerCase().includes(term)) {
         encontrados++;
-        const minPrecio = prod.presentaciones.length
-          ? Math.min(...prod.presentaciones.map(p => p.precio))
-          : 0;
         const div = document.createElement('div');
         div.className = 'col-6 col-md-4';
-        div.innerHTML = `
-          <div class="cys-cat-card-premium" style="cursor:pointer;">
-            <div style="font-weight:700; font-size:.85rem; color:#fff;">${prod.nombre}</div>
-            <div style="font-size:.72rem; color:var(--cys-acento); margin-top:.3rem; font-weight:700;">
-              desde $${minPrecio.toLocaleString('es-CO')}
-            </div>
-            <div style="font-size:.68rem; color:var(--cys-texto-muted); margin-top:2px;">
-              Stock: ${prod.stock} uds
-            </div>
-          </div>`;
+        div.innerHTML = tarjetaProductoHTML(prod);
         div.querySelector('.cys-cat-card-premium').addEventListener('click', () => abrirPresentaciones(prod));
         lista.appendChild(div);
       }

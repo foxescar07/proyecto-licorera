@@ -6,6 +6,7 @@
 {% block nav_inventario %}active{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
 {% endblock %}
 
@@ -397,7 +398,7 @@
                 {{ p.stock_sum|default:0 }}
               </div>
               <div class="text-muted mt-1" style="font-size:.7rem;">
-                {{ unidad }}{% if precio %} · ${{ precio|floatformat:"0" }}{% endif %}
+              {{ unidad }}{% if precio %} · <span class="precio-fmt">${{ precio|floatformat:"0" }}</span>{% endif %}
               </div>
             </div>
           </div>
@@ -940,6 +941,45 @@
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // ── DATATABLE MOVIMIENTOS ──
+$(document).ready(function () {
+
+  // Tabla movimientos
+  if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
+    $('#tablaMovimientos').DataTable().destroy();
+  }
+  $('#tablaMovimientos').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [8] }  // Acciones no ordenable
+    ],
+    language: {
+      emptyTable: "No hay movimientos para este día."
+    },
+    dom: 'rt'
+  });
+
+  // Tabla catálogo lista
+  if ($.fn.DataTable.isDataTable('#cat-list table')) {
+    $('#cat-list table').DataTable().destroy();
+  }
+  var tablaCatalogo = $('#cat-list table').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [0] }  // # no ordenable
+    ],
+    dom: 'rt'
+  });
+
+});
 // Limpiar backdrop huérfano SOLO si no hay modal abriendo
 window.addEventListener('load', function() {
   setTimeout(function() {
@@ -951,7 +991,19 @@ window.addEventListener('load', function() {
     }
   }, 300);
 });
-
+// ── FORMATO DE PRECIOS (puntos de miles, es-CO) ──
+function formatMiles(n) {
+  var num = parseInt(String(n).replace(/\D/g, ''), 10);
+  if (isNaN(num)) return n;
+  return num.toLocaleString('es-CO');
+}
+document.querySelectorAll('.precio-fmt').forEach(function (el) {
+  var texto = el.textContent.trim();
+  var num = texto.replace('$', '').replace(/\./g, '').trim();
+  if (num && !isNaN(num) && parseInt(num) > 0) {
+    el.textContent = '$' + formatMiles(num);
+  }
+});
 // ── EDITAR MOVIMIENTO ──
 document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
   const btn = e.relatedTarget;

@@ -3,12 +3,12 @@
 <link rel="stylesheet" href="{% static 'css/cuerpo/aside.css' %}">
 
 <div class="offcanvas offcanvas-end"
-     tabindex="-1"
      id="sidebarRight"
      data-bs-backdrop="false"
      data-bs-scroll="true">
 
-  <!-- HEADER -->
+       <!-- HEADER-->
+  <id="sidebarRight">
   <div class="cys-sb-header">
     <div class="cys-sb-brand">
       <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo">
@@ -154,9 +154,31 @@
           <a href="{% url 'lista_proveedores' %}" class="cys-sb-sublink">
             <i class="bi bi-truck"></i> Lista de Proveedores
           </a>
-          <a href="{% url 'registrar_compra' %}" class="cys-sb-sublink">
-            <i class="bi bi-cart-plus-fill"></i> Compras
-          </a>
+
+          <!-- COMPRAS (Expandible) -->
+          <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0; margin-top:8px; margin-left:-12px;">
+            <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuCompras')"
+                    class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
+                    style="color:inherit; padding:8px 14px; width:100%; background:none; border:none; cursor:pointer;">
+              <i class="bi bi-cart-check-fill"></i>
+              <span class="flex-grow-1">Compras</span>
+            </button>
+            <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuCompras')"
+                    style="background:none; border:none; color:inherit; padding:8px 14px; cursor:pointer;">
+              <i class="bi bi-chevron-down cys-chevron" style="font-size:12px;"></i>
+            </button>
+          </div>
+          <div class="cys-sb-submenu" id="submenuCompras">
+            <a href="{% url 'listar_ordenes' %}" class="cys-sb-sublink">
+              <i class="bi bi-list-check"></i> Órdenes de Compra
+            </a>
+            <a href="{% url 'crear_orden' %}" class="cys-sb-sublink">
+              <i class="bi bi-plus-circle-fill"></i> Nueva Orden
+            </a>
+            <a href="{% url 'registrar_compra' %}" class="cys-sb-sublink">
+              <i class="bi bi-receipt"></i> Compras Tradicionales
+            </a>
+          </div>
         </div>
 
       </nav>
@@ -264,6 +286,16 @@
   }
   if (currentPath.startsWith('/proveedores') || currentPath.startsWith('/compra')) {
     document.getElementById('submenuProveedores')?.classList.add('abierto');
+
+    // Auto-expandir submenu de Compras si estamos en órdenes
+    if (currentPath.includes('/ordenes')) {
+      const submenuCompras = document.getElementById('submenuCompras');
+      if (submenuCompras) {
+        submenuCompras.style.display = 'block';
+        const chevron = submenuCompras.previousElementSibling.querySelector('.bi-chevron-right');
+        if (chevron) chevron.style.transform = 'rotate(90deg)';
+      }
+    }
   }
 
   const sidebar = document.getElementById('sidebarRight');

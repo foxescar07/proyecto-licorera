@@ -3,9 +3,9 @@
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-  --cys-bg-card:       #11233f;   /* antes #0b1a24 */
-  --cys-surface:       #0d1c33;   /* antes #07121a */
-  --cys-borde:         rgba(77, 168, 218, 0.25); /* antes 0.15, más visible como inventario */
+  --cys-bg-card:       #11233f;
+  --cys-surface:       #0d1c33;
+  --cys-borde:         rgba(77, 168, 218, 0.25);
   --cys-borde-focus:   #4da8da;
   --cys-texto-muted:   #6b8296;
   --cys-acento:        #4da8da;
@@ -16,7 +16,7 @@
 
 /* ── CONTENEDOR GENERAL ── */
 .cys-page-wrapper {
-  background-color: #0a1628;   /* antes #040a0f */
+  background-color: #0a1628;
   min-height: 100vh;
   font-family: sans-serif;
 }
@@ -228,15 +228,36 @@
   outline: none;
 }
 
+/* ── Input con icono (buscador / cliente) ── */
+.cys-input-icon-wrap {
+  position: relative;
+}
+.cys-input-icon-wrap > i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cys-texto-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+.cys-input-icon-wrap.cys-input-icon-wrap--con-label > i {
+  top: calc(50% + 11px);
+}
+.cys-input-icon-wrap .cys-input-dark {
+  padding-left: 38px !important;
+}
+
 /* ══════════════════════════════════════
    TARJETAS DE CATEGORÍAS / PRODUCTOS
 ══════════════════════════════════════ */
 .cys-cat-card-premium {
   background: var(--cys-surface);
   border: 1px solid var(--cys-borde);
+  border-left: 3px solid var(--cys-acento);
   border-radius: 12px;
-  padding: 1.25rem 1rem;
-  text-align: center;
+  padding: 1.1rem 1rem;
+  text-align: left;
   color: #fff;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -247,6 +268,72 @@
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12);
 }
+
+/* Variante centrada (vista de categorías padre) */
+.cys-cat-card-premium--centrada {
+  text-align: center;
+}
+
+.cys-cat-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+}
+
+.cys-cat-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(77, 168, 218, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cys-cat-card-icon i { color: var(--cys-acento); font-size: 0.9rem; }
+
+.cys-cat-card-icon--lg {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 0.6rem;
+}
+.cys-cat-card-icon--lg i { font-size: 1.3rem; }
+
+.cys-cat-card-nombre {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.cys-cat-card-precio {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cys-acento);
+  margin-top: 0.3rem;
+}
+
+.cys-cat-card-meta {
+  font-size: 0.72rem;
+  color: var(--cys-texto-muted);
+  margin-top: 4px;
+}
+
+/* ── Badge de stock (condicional por color) ── */
+.cys-stock-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 8px;
+  border-radius: 50px;
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cys-stock-badge--ok      { color: var(--cys-verde); background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.25); }
+.cys-stock-badge--bajo    { color: #f5a623; background: rgba(245, 166, 35, 0.1); border-color: rgba(245, 166, 35, 0.25); }
+.cys-stock-badge--critico { color: var(--cys-rojo); background: rgba(231, 76, 60, 0.1); border-color: rgba(231, 76, 60, 0.25); }
 
 /* ══════════════════════════════════════
    FORMULARIO DE VENTA / CARRITO
@@ -283,11 +370,19 @@
   border-radius: 8px;
   background: rgba(77, 168, 218, 0.01);
 }
-.cys-carrito-vacio-icono {
-  font-size: 2.2rem;
-  color: rgba(77, 168, 218, 0.15);
-  display: block;
-  margin-bottom: 0.5rem;
+.cys-carrito-vacio-icono-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(77, 168, 218, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+}
+.cys-carrito-vacio-icono-box i {
+  font-size: 1.6rem;
+  color: rgba(77, 168, 218, 0.4);
 }
 .cys-carrito-vacio-titulo {
   font-size: 0.9rem;
@@ -300,7 +395,9 @@
   color: var(--cys-texto-muted);
 }
 
-/* ── Descuento ── */
+/* ══════════════════════════════════════
+   DESCUENTO — con Rajdhani
+══════════════════════════════════════ */
 .cys-descuento-box {
   background: var(--cys-surface);
   border: 1px solid var(--cys-borde);
@@ -310,21 +407,62 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .cys-descuento-label {
   color: var(--cys-texto-muted);
-  font-size: 0.78rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
+
 .cys-descuento-input {
   width: 80px;
   background: var(--cys-bg-card) !important;
   border: 1px solid var(--cys-borde) !important;
   color: var(--cys-acento) !important;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 800;
   font-size: 1.1rem;
   border-radius: 8px !important;
   text-align: center;
+}
+
+/* Desglose de descuento (subtotal / descuento aplicado) */
+.cys-descuento-desglose {
+  border-top: 1px solid var(--cys-borde);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.cys-descuento-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.cys-descuento-fila-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--cys-texto-muted);
+}
+
+.cys-descuento-fila-valor {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cys-descuento-fila-valor--rojo {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cys-rojo);
 }
 
 /* ── Total general ── */
@@ -341,34 +479,43 @@
   text-transform: uppercase;
 }
 .cys-total-monto {
+  font-family: 'Rajdhani', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
   color: var(--cys-acento);
 }
 
-/* ── Métodos de pago ── */
+/* ══════════════════════════════════════
+   MÉTODOS DE PAGO — con Rajdhani
+══════════════════════════════════════ */
 .cys-pagos-box {
   background: var(--cys-surface);
   border: 1px solid var(--cys-borde);
   border-radius: 8px;
   padding: 1rem;
 }
+
 .cys-pagos-titulo {
+  font-family: 'Rajdhani', sans-serif;
   color: var(--cys-texto-muted);
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
+
 .cys-pagos-input-label {
-  font-size: 0.68rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
   color: var(--cys-texto-muted);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   display: block;
   margin-bottom: 4px;
 }
+
 .cys-pagos-footer {
   border-top: 1px solid var(--cys-borde);
   padding-top: 0.5rem;
@@ -377,16 +524,82 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .cys-pagos-footer-label {
+  font-family: 'Rajdhani', sans-serif;
   color: var(--cys-texto-muted);
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
+
 .cys-pagos-footer-valor {
+  font-family: 'Rajdhani', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--cys-acento);
+}
+
+/* Tarjetas individuales de método de pago */
+.cys-pago-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cys-pago-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 2px;
+}
+
+.cys-pago-card-header--verde   { color: var(--cys-verde); }
+.cys-pago-card-header--acento  { color: var(--cys-acento); }
+.cys-pago-card-header--naranja { color: #f5a623; }
+.cys-pago-card-header--morado  { color: #a78bfa; }
+.cys-pago-card-header--rosa    { color: #f472b6; }
+
+.cys-pago-input {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+}
+
+/* Resumen de pago / cambio / faltante */
+.cys-pagos-resumen {
+  margin-top: 0.5rem;
+}
+
+.cys-efectivo-info {
+  margin-top: 4px;
+}
+
+.cys-efectivo-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cys-efectivo-fila--falta  { color: var(--cys-rojo); }
+.cys-efectivo-fila--cambio { color: var(--cys-verde); }
+
+.cys-efectivo-monto {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
 }
 
 /* ══════════════════════════════════════
@@ -591,6 +804,7 @@
   text-transform: uppercase;
 }
 .cys-total-contado-valor {
+  font-family: 'Rajdhani', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--cys-acento);
@@ -631,6 +845,7 @@
 }
 .cys-resumen-total-label { font-weight: 700; color: #fff; }
 .cys-resumen-total-valor {
+  font-family: 'Rajdhani', sans-serif;
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--cys-verde);
