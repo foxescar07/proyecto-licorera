@@ -10,7 +10,7 @@ from functools import wraps
 import json
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
-from .forms import VentaForm, DetalleVentaForm
+from .forms import VentaForm, DetalleVentaForm, DevolucionForm
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario, Lote
 from usuarios.models import Usuario

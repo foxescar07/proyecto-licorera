@@ -173,7 +173,6 @@ def _pdf_ventas(ventas_qs, fecha_inicio, fecha_fin):
     col_w = [1*cm, 2.5*cm, 4*cm, 5*cm, 1.5*cm, 3*cm, 3*cm]
     t = Table(filas, colWidths=col_w, repeatRows=1)
     estilo = _estilo_tabla_base(7)
-    # Columnas numéricas alineadas a la derecha
     estilo.add('ALIGN', (4, 1), (6, -1), 'RIGHT')
     t.setStyle(estilo)
     elementos.append(t)
@@ -186,10 +185,11 @@ def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     elementos = []
     styles = getSampleStyleSheet()
 
+    # ── Corregido: usa stock_total en lugar de cantidad_disponible ──
     total_reg   = productos_qs.count()
-    en_stock    = sum(1 for p in productos_qs if getattr(p, 'cantidad_disponible', 0) > 10)
-    stock_bajo  = sum(1 for p in productos_qs if 0 < getattr(p, 'cantidad_disponible', 0) <= 10)
-    agotados    = sum(1 for p in productos_qs if getattr(p, 'cantidad_disponible', 0) == 0)
+    en_stock    = sum(1 for p in productos_qs if p.stock_total > 10)
+    stock_bajo  = sum(1 for p in productos_qs if 0 < p.stock_total <= 10)
+    agotados    = sum(1 for p in productos_qs if p.stock_total == 0)
 
     elementos.append(_kpi_table([
         ('Registrados', str(total_reg),  '#4DA8DA'),
@@ -205,7 +205,8 @@ def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
 
     filas = [['#', 'Producto', 'Stock', 'Estado']]
     for i, p in enumerate(productos_qs, 1):
-        qty = getattr(p, 'cantidad_disponible', 0)
+        # ── Corregido: usa stock_total ──
+        qty = p.stock_total
         if qty == 0:
             estado, color = 'Agotado',    COLOR_ROJO
         elif qty <= 10:
@@ -512,8 +513,9 @@ def index_reportes(request):
 
             elif tipo == 'inventario':
                 writer.writerow(['Producto', 'Stock Disponible', 'Estado'])
+                # ── Corregido: usa stock_total ──
                 for p in Producto.objects.all().order_by('nombre'):
-                    qty    = getattr(p, 'cantidad_disponible', 0)
+                    qty    = p.stock_total
                     estado = "En Stock" if qty > 10 else ("Bajo" if qty > 0 else "Agotado")
                     writer.writerow([p.nombre, qty, estado])
 
@@ -636,9 +638,10 @@ def index_reportes(request):
     total_clientes  = ventas_todas.values('cliente').distinct().count()
 
     total_registrados = productos.count()
-    total_en_stock    = sum(1 for p in productos if getattr(p, 'cantidad_disponible', 0) > 10)
-    total_stock_bajo  = sum(1 for p in productos if 0 < getattr(p, 'cantidad_disponible', 0) <= 10)
-    total_agotados    = sum(1 for p in productos if getattr(p, 'cantidad_disponible', 0) == 0)
+    # ── Corregido: usa stock_total en lugar de cantidad_disponible con getattr ──
+    total_en_stock    = sum(1 for p in productos if p.stock_total > 10)
+    total_stock_bajo  = sum(1 for p in productos if 0 < p.stock_total <= 10)
+    total_agotados    = sum(1 for p in productos if p.stock_total == 0)
 
     entradas = Inventario.objects.filter(tipo='entrada').select_related('presentacion__producto').order_by('-fecha_actualizada')
     salidas  = Inventario.objects.filter(tipo='salida').select_related('presentacion__producto').order_by('-fecha_actualizada')
@@ -757,5 +760,3 @@ def reporte_movimientos(request):
         'movimientos': page_obj,
     }
     return render(request, 'reportes/reporte_movimientos.html', context)
-    
-    
