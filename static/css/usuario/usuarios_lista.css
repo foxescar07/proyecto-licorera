@@ -722,6 +722,67 @@
   transition: background-color 9999s ease-in-out 0s;
 }
 
+
+/* ══════════════════════════════════════════════
+   MODAL CREAR USUARIO — estilos específicos
+══════════════════════════════════════════════ */
+
+/* Separadores de sección dentro del modal */
+.cu-section-label {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #4DA8DA;
+  margin-bottom: .75rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid rgba(77,168,218,.12);
+  opacity: .85;
+}
+
+.cu-section-label i { font-size: .82rem; }
+
+/* Asterisco obligatorio */
+.cu-required {
+  color: #e87070;
+  margin-left: .15rem;
+}
+
+/* Rol fijo — no editable */
+.cu-rol-badge-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding-top: .25rem;
+}
+
+.cu-rol-badge {
+  font-size: .72rem;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  width: fit-content;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cu-rol-hint {
+  font-size: .68rem;
+  color: rgba(232,237,242,.38);
+  line-height: 1.5;
+}
+
+.cu-rol-hint strong {
+  color: rgba(232,237,242,.6);
+}
+
+/* Input inválido en el modal crear */
+.eu-input--invalid {
+  border-color: #e87070 !important;
+  box-shadow: 0 0 0 3px rgba(232,112,112,.12) !important;
 /* ══════════════════════════════════════════════
    ROL CONTROL INLINE
    ══════════════════════════════════════════════ */
@@ -833,4 +894,5 @@
 .usuario-rol-btn--cancel:hover {
   background: rgba(232,112,112,.15);
   border-color: rgba(232,112,112,.7);
+
 }
