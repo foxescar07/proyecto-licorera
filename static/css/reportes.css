@@ -55,6 +55,12 @@
   color: var(--color-menta);
 }
 
+/* Variantes de color del icono de cabecera por tipo de modal */
+.cys-modal__icon--inv      { background: rgba(77,168,218,0.12);  color: #4DA8DA; }
+.cys-modal__icon--prov     { background: rgba(93,202,165,0.12);  color: #5DCAA5; }
+.cys-modal__icon--diario   { background: rgba(175,169,236,0.12); color: #AFA9EC; }
+.cys-modal__icon--analisis { background: rgba(127,119,221,0.15); color: #7F77DD; }
+
 .cys-modal__title {
   font-size: 1rem;
   font-weight: 700;
@@ -89,6 +95,66 @@
   background-color: var(--color-surface);
   border-top: 1px solid rgba(239,248,226,0.1);
   padding: 12px 20px;
+}
+
+.cys-modal__footer-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.cys-modal__body {
+  background-color: var(--color-bg);
+}
+
+/* ────────────────────────────────────
+   BOTONES DE EXPORTAR — REDONDOS
+──────────────────────────────────── */
+.cys-btn-export {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.cys-btn-export:hover {
+  transform: translateY(-2px);
+}
+
+.cys-btn-export--excel {
+  background: rgba(46,204,113,0.12);
+  border-color: rgba(46,204,113,0.35);
+  color: #2ecc71;
+}
+
+.cys-btn-export--excel:hover {
+  background: rgba(46,204,113,0.22);
+  box-shadow: 0 6px 16px rgba(46,204,113,0.25);
+  color: #2ecc71;
+}
+
+.cys-btn-export--pdf {
+  background: rgba(231,76,60,0.12);
+  border-color: rgba(231,76,60,0.35);
+  color: #e74c3c;
+}
+
+.cys-btn-export--pdf:hover {
+  background: rgba(231,76,60,0.22);
+  box-shadow: 0 6px 16px rgba(231,76,60,0.25);
+  color: #e74c3c;
+}
+
+.cys-btn-export--lg {
+  width: 52px;
+  height: 52px;
+  font-size: 1.4rem;
 }
 
 /* ────────────────────────────────────
@@ -126,6 +192,10 @@
    ESTADO VACÍO
 ──────────────────────────────────── */
 .cys-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 2rem 1rem;
   color: var(--texto-muted);
@@ -138,6 +208,7 @@
   text-align: center !important;
   padding: 40px 20px !important;
   background: transparent !important;
+  border: none !important;
 }
 
 .cys-empty-box i {
@@ -192,11 +263,14 @@
 ──────────────────────────────────── */
 .cys-inv-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 4px;
+  border-collapse: collapse;
+  border-spacing: 0;
   font-size: .88rem;
   background: transparent;
+  table-layout: fixed;
 }
+
+.cys-table--noTopMargin { margin-top: 0; }
 
 .cys-inv-table thead th {
   background: rgba(255, 255, 255, 0.02);
@@ -207,6 +281,10 @@
   letter-spacing: 0.1em;
   padding: 14px 16px;
   border-bottom: 2px solid rgba(77, 168, 218, 0.3);
+  text-align: center;
+  vertical-align: middle;
+  height: 48px;
+  box-sizing: border-box;
 }
 
 .cys-inv-table td {
@@ -215,6 +293,10 @@
   color: rgba(255, 255, 255, 0.85);
   transition: all 0.2s ease;
   background: rgba(255, 255, 255, 0.01);
+  text-align: center;
+  vertical-align: middle;
+  height: 44px;
+  box-sizing: border-box;
 }
 
 .cys-inv-table tbody tr:hover td {
@@ -228,10 +310,22 @@
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--azul-acento);
+  text-align: center;
+  display: block;
+}
+
+.cys-col-num    { width: 50px; }
+.cys-col-stock  { width: 100px; }
+.cys-col-estado { width: 130px; }
+
+.cys-td-icon {
+  color: #4DA8DA;
+  margin-right: 6px;
+  font-size: .8rem;
 }
 
 /* ────────────────────────────────────
-   MODAL KPI
+   MODAL KPI (genérico, tarjeta simple)
 ──────────────────────────────────── */
 .cys-modal-kpi {
   padding: 1.25rem !important;
@@ -274,48 +368,126 @@
 }
 
 /* ────────────────────────────────────
-   TABLA HISTORIAL DE VENTAS
+   MODAL KPI v2 (Inventario / Compras)
 ──────────────────────────────────── */
-#reportes-table {
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  width: 100% !important;
-  margin-top: 1rem !important;
-  border: 1px solid rgba(77, 168, 218, 0.1) !important;
+.cys-modal-kpi-v2 {
+  background: #02224a;
+  border: 1px solid rgba(77,168,218,.1);
+  border-bottom: 3px solid #4DA8DA;
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.cys-modal-kpi-v2__icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  background: rgba(77,168,218,0.12);
+  color: #4DA8DA;
+  margin-bottom: 4px;
+}
+
+.cys-modal-kpi-v2__label {
+  font-size: .68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: #8FA3B1;
+}
+
+.cys-modal-kpi-v2__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.9rem; font-weight: 800; line-height: 1.1; color: #4DA8DA;
+}
+
+.cys-modal-kpi-v2__sub {
+  font-size: .7rem; color: #8FA3B1;
+}
+
+.cys-modal-kpi-v2--azul     { border-bottom-color: #4DA8DA; }
+.cys-modal-kpi-v2--verde    { border-bottom-color: #2ecc71; }
+.cys-modal-kpi-v2--amarillo { border-bottom-color: #f1c40f; background: rgba(241,196,15,0.05); }
+.cys-modal-kpi-v2--rojo     { border-bottom-color: #e74c3c; background: rgba(231,76,60,0.05); }
+.cys-modal-kpi-v2--menta    { border-bottom-color: #5DCAA5; }
+
+.cys-modal-kpi-v2__icon--azul     { background: rgba(77,168,218,0.12);  color: #4DA8DA; }
+.cys-modal-kpi-v2__icon--verde    { background: rgba(46,204,113,0.12);  color: #2ecc71; }
+.cys-modal-kpi-v2__icon--amarillo { background: rgba(241,196,15,0.12);  color: #f1c40f; }
+.cys-modal-kpi-v2__icon--rojo     { background: rgba(231,76,60,0.12);   color: #e74c3c; }
+.cys-modal-kpi-v2__icon--menta    { background: rgba(93,202,165,0.12);  color: #5DCAA5; }
+
+.cys-modal-kpi-v2__val--verde    { color: #2ecc71; }
+.cys-modal-kpi-v2__val--amarillo { color: #f1c40f; }
+.cys-modal-kpi-v2__val--rojo     { color: #e74c3c; }
+.cys-modal-kpi-v2__val--menta    { color: #5DCAA5; }
+
+.cys-modal__stats--3col { grid-template-columns: repeat(3, 1fr); }
+.cys-modal__stats--4col { grid-template-columns: repeat(4, 1fr); }
+
+/* ────────────────────────────────────
+   SECCIONES INTERNAS DE MODAL
+──────────────────────────────────── */
+.cys-modal-section {
+  padding: 20px 20px 0;
+}
+
+.cys-modal-section--padded {
+  padding: 0 20px 20px;
+}
+
+.cys-modal-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cys-modal-section__label {
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #8FA3B1;
+}
+
+.cys-modal-table-wrap          { padding: 0 20px 0; }
+.cys-modal-table-wrap--noTop   { padding: 0 20px; }
+.cys-modal-table-wrap--bottom  { padding: 0 20px 20px; }
+.cys-modal-table-wrap--padded  { padding: 20px; }
+
+.cys-modal-subsection-header { padding: 20px 20px 6px; }
+
+.cys-search-box {
+  position: relative;
+}
+
+.cys-search-box__input {
+  background: #02224a;
+  border: 1px solid rgba(77,168,218,.2);
   border-radius: 8px;
-  overflow: hidden;
+  color: #fff;
+  padding: 7px 36px 7px 14px;
+  font-size: .84rem;
+  outline: none;
+  width: 220px;
 }
 
-#reportes-table thead th {
-  background: rgba(77, 168, 218, 0.08) !important;
-  border-bottom: 2px solid var(--azul-acento) !important;
-  padding: 14px 10px !important;
-  color: var(--azul-claro) !important;
+.cys-search-box__input--dark {
+  background: #011936;
 }
 
-#reportes-table th:nth-child(1),
-#reportes-table td:nth-child(1):not([colspan]) { text-align: center; width: 60px; }
-
-#reportes-table th:nth-child(4), #reportes-table td:nth-child(4):not([colspan]),
-#reportes-table th:nth-child(5), #reportes-table td:nth-child(5):not([colspan]),
-#reportes-table th:nth-child(6), #reportes-table td:nth-child(6):not([colspan]) { text-align: right; }
-
-#reportes-table tbody tr:hover {
-  background-color: rgba(77, 168, 218, 0.05) !important;
+.cys-search-box__icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4DA8DA;
+  pointer-events: none;
+  font-size: .85rem;
 }
-
-.cys-qty, .cys-td--green { text-align: right; }
-
-.cys-inv-table tbody tr:last-child td { border-bottom: none; }
-.cys-inv-table tbody tr:hover         { background: rgba(239,248,226,.04); }
-
-.cys-td--muted { color: var(--texto-muted); }
-.cys-td--bold  { font-weight: 600; color: var(--color-blanco); }
-.cys-td--green { color: var(--verde-acento); }
-
-.cys-qty--ok  { color: var(--verde-acento);    font-weight: 700; }
-.cys-qty--low { color: var(--amarillo-acento); font-weight: 700; }
-.cys-qty--out { color: var(--rojo-acento);     font-weight: 700; }
 
 /* ────────────────────────────────────
    BADGES
@@ -392,7 +564,7 @@
 .cys-inv-section-dot--salidas     { background: var(--rojo-acento); }
 
 /* ────────────────────────────────────
-   TAG PROVEEDOR
+   TAG PROVEEDOR / GENÉRICO
 ──────────────────────────────────── */
 .cys-tag {
   display: inline-block;
@@ -403,6 +575,447 @@
   font-size: .78rem;
   font-weight: 600;
   border: 1px solid rgba(239,248,226,.12);
+}
+
+.cys-tag--prov {
+  display: inline-block;
+  background: rgba(77,168,218,0.08);
+  border: 1px solid rgba(77,168,218,0.25);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: .78rem; font-weight: 600;
+  color: #4DA8DA;
+}
+
+#tabla-modal-proveedores .prov-row:nth-child(1) .cys-tag--prov { background:rgba(77,168,218,.12);border-color:rgba(77,168,218,.3);color:#4DA8DA; }
+#tabla-modal-proveedores .prov-row:nth-child(2) .cys-tag--prov { background:rgba(175,169,236,.12);border-color:rgba(175,169,236,.3);color:#AFA9EC; }
+#tabla-modal-proveedores .prov-row:nth-child(3) .cys-tag--prov { background:rgba(46,204,113,.12);border-color:rgba(46,204,113,.3);color:#2ecc71; }
+#tabla-modal-proveedores .prov-row:nth-child(4) .cys-tag--prov { background:rgba(232,168,124,.12);border-color:rgba(232,168,124,.3);color:#e8a87c; }
+#tabla-modal-proveedores .prov-row:nth-child(5) .cys-tag--prov { background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.3);color:#e74c3c; }
+
+/* ────────────────────────────────────
+   PROVEEDORES — nombre + avatar
+──────────────────────────────────── */
+.cys-prov-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.cys-avatar-initials {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 800;
+  flex-shrink: 0;
+  color: #fff;
+  background: linear-gradient(135deg, #4DA8DA, #2e6d8f);
+}
+
+#tabla-modal-proveedores .prov-row:nth-child(1) .cys-avatar-initials { background: linear-gradient(135deg,#4DA8DA,#2563a8); }
+#tabla-modal-proveedores .prov-row:nth-child(2) .cys-avatar-initials { background: linear-gradient(135deg,#AFA9EC,#7163c8); }
+#tabla-modal-proveedores .prov-row:nth-child(3) .cys-avatar-initials { background: linear-gradient(135deg,#2ecc71,#1a8048); }
+#tabla-modal-proveedores .prov-row:nth-child(4) .cys-avatar-initials { background: linear-gradient(135deg,#e8a87c,#c46a30); }
+#tabla-modal-proveedores .prov-row:nth-child(5) .cys-avatar-initials { background: linear-gradient(135deg,#e74c3c,#8e1c14); }
+
+/* ────────────────────────────────────
+   PROVEEDORES — KPI único centrado
+──────────────────────────────────── */
+.cys-modal__kpi-single-wrap {
+  padding: 20px;
+  background: #011936;
+}
+
+.cys-modal__kpi-single {
+  background: #02224a;
+  border: 1px solid rgba(93,202,165,0.2);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.cys-modal__kpi-single-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(93,202,165,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  color: #5DCAA5;
+}
+
+.cys-modal__kpi-single-label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #8FA3B1;
+}
+
+.cys-modal__kpi-single-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #5DCAA5;
+  line-height: 1.1;
+}
+
+/* ────────────────────────────────────
+   PROVEEDORES — header de lista + búsqueda
+──────────────────────────────────── */
+.cys-modal-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #02224a;
+  border: 1px solid rgba(77,168,218,.1);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 4px;
+}
+
+.cys-modal-list-header__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cys-modal-list-header__icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: rgba(77,168,218,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: #4DA8DA;
+  font-size: 1rem;
+}
+
+.cys-modal-list-header__title {
+  font-size: .85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #E8EDF2;
+}
+
+/* ────────────────────────────────────
+   PROVEEDORES — paginación simple
+──────────────────────────────────── */
+.cys-prov-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.cys-prov-pagination__indicator {
+  background: #4DA8DA;
+  color: #011936;
+  font-weight: 700;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .88rem;
+}
+
+.cys-pag-btn {
+  background: #02224a; border: 1px solid rgba(77,168,218,.2);
+  color: #4DA8DA; width: 36px; height: 36px;
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.cys-pag-btn:hover { background: rgba(77,168,218,.15); }
+
+/* ────────────────────────────────────
+   RESUMEN DIARIO — layout 2 columnas
+──────────────────────────────────── */
+.cys-rd-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 500px;
+}
+
+.cys-rd-sidebar {
+  background: #02224a;
+  border-right: 1px solid rgba(77,168,218,.1);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cys-rd-sidebar__title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: #E8EDF2;
+  margin-bottom: 4px;
+}
+
+.cys-rd-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.cys-rd-tabs {
+  padding: 16px 24px 0;
+  border-bottom: 1px solid rgba(77,168,218,.15);
+  background: #011936;
+}
+
+.cys-rd-tab-content {
+  background: #011936;
+  flex: 1;
+}
+
+.cys-rd-table-wrap { padding: 16px; }
+.cys-rd-top-wrap { padding: 0 16px 16px; }
+
+.cys-rd-top-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cys-rd-top-header__dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #7F77DD;
+  display: inline-block;
+}
+
+.cys-rd-top-header__label {
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #8FA3B1;
+}
+
+/* ── Resumen Diario stat cards ── */
+.cys-rd-stat-card {
+  background: #011936;
+  border: 1px solid rgba(77,168,218,.1);
+  border-left: 3px solid #4DA8DA;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+.cys-rd-stat-card--verde    { border-left-color: #2ecc71; }
+.cys-rd-stat-card--azul     { border-left-color: #4DA8DA; }
+.cys-rd-stat-card--amarillo { border-left-color: #f1c40f; }
+.cys-rd-stat-card--rojo     { border-left-color: #e74c3c; }
+
+.cys-rd-stat-card__icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.cys-rd-stat-card__icon--verde    { background: rgba(46,204,113,0.15);  color: #2ecc71; }
+.cys-rd-stat-card__icon--azul     { background: rgba(77,168,218,0.15);  color: #4DA8DA; }
+.cys-rd-stat-card__icon--amarillo { background: rgba(241,196,15,0.15); color: #f1c40f; }
+.cys-rd-stat-card__icon--rojo     { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+
+.cys-rd-stat-card__label {
+  font-size: .72rem; font-weight: 600; color: #8FA3B1;
+  text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px;
+}
+
+.cys-rd-stat-card__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.55rem; font-weight: 800; line-height: 1.1; color: #4DA8DA;
+}
+
+.cys-rd-stat-card__val--verde    { color: #2ecc71; }
+.cys-rd-stat-card__val--azul     { color: #4DA8DA; }
+.cys-rd-stat-card__val--amarillo { color: #f1c40f; }
+.cys-rd-stat-card__val--rojo     { color: #e74c3c; }
+
+/* ────────────────────────────────────
+   ANÁLISIS DE VENTAS
+──────────────────────────────────── */
+.cys-av-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  min-height: 560px;
+}
+
+.cys-av-sidebar {
+  background: #02224a;
+  border-right: 1px solid rgba(77,168,218,.1);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cys-av-sidebar__divider {
+  width: 60%;
+  height: 1px;
+  background: rgba(77,168,218,.1);
+  margin: 8px 0;
+}
+
+.cys-av-content {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.cys-av-panel--hidden { display: none; }
+
+.cys-av-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cys-av-kpi-card {
+  background: #02224a;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  border-top: 3px solid #4DA8DA;
+  border: 1px solid rgba(77,168,218,0.25);
+  border-top-width: 3px;
+}
+
+.cys-av-kpi-card--verde    { border-color: rgba(46,204,113,0.25);  border-top-color: #2ecc71; }
+.cys-av-kpi-card--azul     { border-color: rgba(77,168,218,0.25);  border-top-color: #4DA8DA; }
+.cys-av-kpi-card--amarillo { border-color: rgba(241,196,15,0.25);  border-top-color: #f1c40f; }
+
+.cys-av-kpi-card__icon {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 1.3rem;
+}
+
+.cys-av-kpi-card--verde    .cys-av-kpi-card__icon { background: rgba(46,204,113,0.12);  color: #2ecc71; }
+.cys-av-kpi-card--azul     .cys-av-kpi-card__icon { background: rgba(77,168,218,0.12);  color: #4DA8DA; }
+.cys-av-kpi-card--amarillo .cys-av-kpi-card__icon { background: rgba(241,196,15,0.12);  color: #f1c40f; }
+
+.cys-av-kpi-card__label {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: #8FA3B1; margin-bottom: 4px;
+}
+
+.cys-av-kpi-card__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.8rem; font-weight: 800;
+}
+
+.cys-av-kpi-card--verde    .cys-av-kpi-card__val { color: #2ecc71; }
+.cys-av-kpi-card--azul     .cys-av-kpi-card__val { color: #4DA8DA; }
+.cys-av-kpi-card--amarillo .cys-av-kpi-card__val { color: #f1c40f; }
+
+.cys-av-nav-btn {
+  width: 90px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  transition: background .2s;
+  color: #8FA3B1;
+  font-size: .72rem; font-weight: 600; text-align: center;
+  border-left: 3px solid transparent;
+}
+.cys-av-nav-btn:hover {
+  background: rgba(77,168,218,.08);
+  color: #E8EDF2;
+}
+.cys-av-nav-btn.active {
+  background: rgba(127,119,221,.1);
+  color: #7F77DD;
+  border-left-color: #7F77DD;
+}
+.cys-av-nav-btn__icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: rgba(77,168,218,0.08);
+  color: #8FA3B1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  transition: background .2s, color .2s;
+}
+.cys-av-nav-btn.active .cys-av-nav-btn__icon {
+  background: rgba(127,119,221,0.2);
+  color: #7F77DD;
+}
+
+.cys-av-table-card {
+  background: #02224a;
+  border: 1px solid rgba(77,168,218,.1);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.cys-av-table-card--last { margin-bottom: 0; }
+
+.cys-av-table-card__header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(77,168,218,.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cys-av-table-card__dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cys-av-table-card__dot--morado { background: #7F77DD; }
+.cys-av-table-card__dot--azul   { background: #4DA8DA; }
+
+.cys-av-table-card__star {
+  color: #2ecc71;
+  font-size: .8rem;
+}
+
+.cys-av-table-card__title {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #8FA3B1;
+}
+
+.cys-av-export-card {
+  background: #02224a;
+  border: 1px solid rgba(77,168,218,.1);
+  border-radius: 14px;
+  padding: 28px;
+  text-align: center;
+}
+
+.cys-av-export-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #E8EDF2;
+  margin-bottom: 20px;
+}
+
+.cys-av-export-card__actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 /* ────────────────────────────────────
@@ -423,31 +1036,6 @@
 .cys-modal-meta__accent--prov    { color: var(--verde-acento);  font-weight: 600; }
 
 /* ────────────────────────────────────
-   ANÁLISIS DE VENTAS — tabla card
-──────────────────────────────────── */
-.cys-av-table-card {
-  background: rgba(239,248,226,.03);
-  border-radius: 10px;
-  border: 1px solid rgba(239,248,226,.1);
-  margin: 16px;
-  overflow: hidden;
-}
-
-.cys-av-table-title {
-  padding: 12px 16px;
-  font-size: .82rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid rgba(239,248,226,.08);
-  color: var(--texto-muted);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  background-color: rgba(239,248,226,.03);
-}
-
-/* ────────────────────────────────────
    BÚSQUEDA ACTIVA
 ──────────────────────────────────── */
 .cys-busqueda-activa {
@@ -458,6 +1046,17 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+.cys-busqueda-activa__count {
+  color: var(--texto-muted, #8FA3B1);
+}
+
+.cys-busqueda-activa__clear {
+  color: var(--texto-muted, #8FA3B1);
+  font-size: .75rem;
+  margin-left: 4px;
+  text-decoration: none;
 }
 
 /* ────────────────────────────────────
@@ -794,6 +1393,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
    RESPONSIVE TABLES
 ──────────────────────────────────── */
 @media (max-width: 768px) {
+  .cys-inv-table {
+    table-layout: auto;
+  }
+
   .cys-inv-table thead { display: none; }
   .cys-inv-table, .cys-inv-table tbody, .cys-inv-table tr, .cys-inv-table td {
     display: block;
@@ -815,6 +1418,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: none !important;
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
     text-align: right !important;
+    height: auto;
   }
   .cys-inv-table td[colspan], .cys-td--empty {
     display: block !important;
@@ -834,6 +1438,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
   .cys-inv-table td[colspan] { display: block; text-align: center; border: none !important; }
   .cys-inv-table td[colspan]::before { display: none; }
+
+  .cys-rd-grid,
+  .cys-av-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .cys-rd-sidebar {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(77,168,218,.1);
+  }
+  .cys-av-nav-btn { width: 70px; }
 }
 
 .cys-summary-card__sub {
@@ -859,10 +1473,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cys-summary-card--clientes .cys-summary-card__val   { color: #4DA8DA; text-shadow: 0 0 12px rgba(77, 168, 218, 0.25); }
 
 /* ════════════════════════════════════════════════════════════
-   HISTORIAL DE VENTAS — SECCIÓN COMPLETA (DISEÑO FINAL)
+   HISTORIAL DE VENTAS
    ════════════════════════════════════════════════════════════ */
 
-/* CONTENEDOR */
+.cys-card__title-icon {
+  color: #4DA8DA;
+  margin-right: .5rem;
+}
+
+.cys-link-plain {
+  text-decoration: none;
+}
+
 .cys-card:has(#reportes-table) {
   background: #041d3d;
   border: 1px solid rgba(77,168,218,.08);
@@ -870,9 +1492,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   overflow: hidden;
 }
 
-/* -----------------------------------
-   FILTROS — alineación perfecta
------------------------------------ */
 .cys-hv-filters {
   display: flex;
   align-items: flex-end;
@@ -930,10 +1549,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: .9rem;
 }
 
-/* -----------------------------------
-   BOTONES — mismo tamaño exacto que los inputs de fecha
-   width: 160px  |  height: 40px  |  border-radius: 10px
------------------------------------ */
 .cys-hv-btn-filtrar,
 .cys-hv-btn-eliminar,
 .cys-hv-btn-limpiar,
@@ -943,15 +1558,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center !important;
   justify-content: center !important;
   gap: 7px !important;
-
   height: 40px !important;
   min-height: 40px !important;
   max-height: 50px !important;
-
   width: 160px !important;
   min-width: 160px !important;
   max-width: 160px !important;
-
   padding: 0 !important;
   margin: 0 !important;
   border-radius: 10px !important;
@@ -978,7 +1590,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-color: #4DA8DA !important;
 }
 
-/* Exportar: texto blanco, mismo tamaño */
 .cys-hv-btn-exportar {
   color: #fff !important;
 }
@@ -993,7 +1604,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   vertical-align: 0 !important;
 }
 
-/* Dropdown */
 .cys-hv-dropdown {
   background: #071b3a;
   border: 1px solid rgba(77,168,218,.25);
@@ -1011,9 +1621,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: #fff;
 }
 
-/* -----------------------------------
-   TABLA INTERNA
------------------------------------ */
 #reportes-table {
   width: 100% !important;
   border-collapse: collapse !important;
@@ -1033,6 +1640,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   letter-spacing: .12em;
   padding: 16px 14px !important;
   border-bottom: 2px solid #4DA8DA !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  height: 48px !important;
+  box-sizing: border-box !important;
 }
 
 #reportes-table tbody td {
@@ -1040,6 +1651,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: #EAF3FA !important;
   padding: 14px !important;
   border-bottom: 1px solid rgba(255,255,255,.05);
+  text-align: center !important;
+  vertical-align: middle !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
 }
 
 #reportes-table tbody tr {
@@ -1065,7 +1680,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-align: right;
 }
 
-/* Estado vacío dentro de la tabla */
 .cys-td--empty {
   padding: 80px 20px !important;
   background: transparent !important;
@@ -1087,9 +1701,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-bottom: 12px;
 }
 
-/* -----------------------------------
-   FOOTER — paginación + info bien separados
------------------------------------ */
 .cys-hv-table-footer {
   display: flex !important;
   align-items: center !important;
@@ -1101,7 +1712,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   flex-wrap: wrap !important;
 }
 
-/* Info "Mostrando X a X de X ventas" */
 .cys-hv-table-footer .dt-info,
 .cys-hv-table-footer .dataTables_info {
   color: #7dbce6 !important;
@@ -1113,16 +1723,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   min-width: 0 !important;
 }
 
-/* Paginación a la derecha */
 .cys-hv-table-footer .dt-paging,
 .cys-hv-table-footer .dataTables_paginate {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* -----------------------------------
-   PAGINACIÓN — botones
------------------------------------ */
 .cys-hv-pagination-wrap .page-link,
 .cys-hv-table-footer .page-link,
 .pagination .page-link {
@@ -1163,9 +1769,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: rgba(255,255,255,.2) !important;
 }
 
-/* -----------------------------------
-   DATATABLES — contenedor limpio
------------------------------------ */
 .dataTables_wrapper,
 .dt-container {
   background: transparent !important;
@@ -1189,7 +1792,6 @@ table.dataTable {
   border-spacing: 0 !important;
 }
 
-/* Inputs de fecha legacy (por si se usan fuera del historial) */
 #filtro-fecha-inicio,
 #filtro-fecha-fin {
   background-color: #011936 !important;
@@ -1216,4 +1818,36 @@ table.dataTable {
   border-radius: 12px;
   margin-top: 10px;
   box-shadow: inset 0 0 10px rgba(77, 168, 218, 0.1);
+}
+
+/* ════════════════════════════════════════════════════════════
+   CORRECCIÓN 1 — CENTRADO TABLA INVENTARIO (modal stock)
+   Fuerza centrado en todas las celdas y encabezados
+   ════════════════════════════════════════════════════════════ */
+#tabla-modal-stock th,
+#tabla-modal-stock td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+#tabla-modal-stock .cys-prov-name {
+  justify-content: center;
+}
+
+/* ════════════════════════════════════════════════════════════
+   CORRECCIÓN 2 — BOTÓN "CERRAR" OVALADO EN TODOS LOS MODALES
+   ════════════════════════════════════════════════════════════ */
+.modal-footer .btn-outline-secondary {
+  border-radius: 50px !important;
+  padding: 6px 24px !important;
+  font-size: .85rem !important;
+  border-color: rgba(239,248,226,0.2) !important;
+  color: #8FA3B1 !important;
+  transition: background .2s, border-color .2s, color .2s !important;
+}
+
+.modal-footer .btn-outline-secondary:hover {
+  background: rgba(239,248,226,0.08) !important;
+  border-color: rgba(239,248,226,0.35) !important;
+  color: #fff !important;
 }
