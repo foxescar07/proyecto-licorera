@@ -169,18 +169,19 @@
 }
 
 .table thead {
-  background: rgba(6, 182, 212, 0.1) !important;
+  background: rgba(77, 168, 218, 0.08) !important;
 }
 
 .table thead th {
-  background: rgba(6, 182, 212, 0.1) !important;
-  color: #06B6D4 !important;
+  background: rgba(77, 168, 218, 0.08) !important;
+  color: #4DA8DA !important;
   font-weight: 700 !important;
   font-size: 0.8rem !important;
   padding: 1rem 0.9rem !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
   border: none !important;
+  border-bottom: 2px solid #4DA8DA !important;
   text-align: left !important;
   vertical-align: middle !important;
 }
@@ -191,22 +192,23 @@
 
 .table tbody tr {
   border: none !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;
   transition: background-color 0.15s ease !important;
-  background: var(--color-bg-card) !important;
+  background: #011936 !important;
 }
 
 .table tbody tr:nth-child(even) {
-  background: rgba(6, 182, 212, 0.05) !important;
+  background: #011936 !important;
 }
 
 .table tbody tr:hover {
-  background: rgba(6, 182, 212, 0.1) !important;
+  background: rgba(77, 168, 218, 0.08) !important;
 }
 
 .table tbody td {
   vertical-align: middle !important;
   color: var(--text-hi) !important;
-  padding: 0.9rem 0.9rem !important;
+  padding: 0.6rem 0.9rem !important;
   font-weight: 500 !important;
   font-size: 0.85rem !important;
   border: none !important;
@@ -552,6 +554,141 @@ h1, h2, h3, h4, h5, h6 {
 
 .table-responsive > .table {
   margin-bottom: 0 !important;
+}
+
+/* ── COLLAPSE ANIMATION ── */
+#tablaProveedoresCollapse {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.35s ease;
+  opacity: 1;
+}
+
+#tablaProveedoresCollapse:not(.show) {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  visibility: hidden;
+}
+
+#tablaProveedoresCollapse.show {
+  max-height: 2000px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.card.card-dev {
+  margin-bottom: 0 !important;
+}
+
+/* ── TOP PROVEEDORES LEADERBOARD ── */
+.top-proveedores-container {
+  background: #02224a;
+  border: 1px solid rgba(77, 168, 218, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 0;
+  transition: all 0.35s ease;
+}
+
+.top-proveedores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(77, 168, 218, 0.05);
+  border-radius: 10px;
+  border-left: 4px solid #4DA8DA;
+  transition: all 0.3s ease;
+}
+
+.top-item:hover {
+  background: rgba(77, 168, 218, 0.1);
+  transform: translateX(4px);
+}
+
+.medal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.top-info {
+  flex: 1;
+}
+
+.top-nombre {
+  color: #FDFFFC;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.top-email {
+  color: #AF8D86;
+  font-size: 0.8rem;
+}
+
+.badge-inline {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 0 0 200px;
+}
+
+.bar-visual {
+  height: 8px;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.bar-monto {
+  color: #4DA8DA;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.top-compras {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .top-item {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .top-bar {
+    flex: 0 0 100%;
+  }
+
+  .top-compras {
+    flex: 0 0 100%;
+  }
 }
 
 /* ── KPI CARDS GRID ── */
