@@ -12,25 +12,15 @@
 {% block content %}
 <div class="container-fluid p-0">
 
-  {% if messages %}
-  <div class="mb-3">
-    {% for message in messages %}
-    <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <div class="d-flex align-items-center gap-3 mb-3">
-    <div style="flex:1; min-width:0;">
-      {% include 'inventario/stock_widget.html' %}
-    </div>
-    <a href="{% url 'lista_productos' %}" class="btn rounded-pill fw-bold px-4 flex-shrink-0 align-self-center"
+  
+    <!-- Encabezado -->
+  <div class="d-flex justify-content-end mb-4 pb-3"
+       style="border-bottom:1px solid rgba(77,168,218,0.18);">
+    <a href="{% url 'lista_productos' %}" class="btn rounded-pill fw-bold px-4"
        style="background: var(--azul-claro); color: var(--fondo); border: none;">
-      <i class="bi bi-arrow-left me-2"></i> Productos
+      <i class="bi bi-arrow-left me-1"></i> Productos
     </a>
+  </div>
   </div>
 
   <div class="d-flex gap-3 align-items-start" style="margin-top:20px; flex-wrap:wrap;">
@@ -130,7 +120,7 @@
                     <td>
                       <div class="d-flex flex-wrap gap-1">
                         {% for pr in p.presentaciones.all %}
-                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
+                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — <span class="precio-fmt">${{ pr.precio|floatformat:0 }}</span></span>
                         {% empty %}
                         <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
                         {% endfor %}
@@ -267,7 +257,7 @@
           <div class="px-3 py-2" style="border-bottom:1px solid rgba(77,168,218,0.08); background:rgba(255,255,255,0.02);">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="fw-semibold">{{ pr.nombre }}</span>
-              <span class="fw-bold" style="color:#4DA8DA;">${{ pr.precio|floatformat:0 }}</span>
+              <span class="fw-bold precio-fmt" style="color:#4DA8DA;">${{ pr.precio|floatformat:0 }}</span>
             </div>
             <!-- Lotes de esta presentación con su costo -->
             {% for lote in pr.lotes.all %}
@@ -454,6 +444,11 @@
 </form>
 
 <script>
+  function formatMiles(n) {
+  var num = parseInt(String(n).replace(/\D/g, ''), 10);
+  if (isNaN(num)) return n;
+  return num.toLocaleString('es-CO');
+}
 document.addEventListener('DOMContentLoaded', function () {
   const rows  = document.querySelectorAll('.producto-row');
   const total = rows.length;
@@ -509,6 +504,14 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('stat-sin-pres').textContent = sinPres;
   if (total > 0)
     document.getElementById('bar-sin-pres').style.width = Math.round((sinPres / total) * 100) + '%';
+    // Formato de precios con puntos de miles (es-CO)
+  document.querySelectorAll('.precio-fmt').forEach(function (el) {
+    var texto = el.textContent.trim();
+    var num = texto.replace('$', '').replace(/\./g, '').trim();
+    if (num && !isNaN(num) && parseInt(num) > 0) {
+      el.textContent = '$' + formatMiles(num);
+    }
+  });
 });
 
 function toggleAcc(btn, bodyId) {
