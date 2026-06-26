@@ -594,3 +594,14 @@
   background: rgba(77, 168, 218, 0.3);
   border-radius: 10px;
 }
+/* Fix dropdown items oscuros - categorías */
+.dropdown-menu .dropdown-item {
+  background-color: transparent;
+}
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item:active,
+.dropdown-menu .dropdown-item.active {
+  background-color: rgba(77,168,218,0.15) !important;
+  color: #4DA8DA !important;
+}

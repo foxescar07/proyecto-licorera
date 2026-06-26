@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+}{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Usuarios — CYS Ltda{% endblock %}
@@ -33,17 +33,12 @@
   <!-- BARRA DE BÚSQUEDA + NUEVO USUARIO -->
   <div class="ul-searchbar mb-4">
     <i class="bi bi-search ul-searchbar__icon"></i>
-    <input
-      type="text"
-      id="inputBuscarUsuario"
-      class="ul-searchbar__input"
-      placeholder="Buscar usuario en el sistema…"
-      autocomplete="off"
-    >
+    <input type="text" id="inputBuscarUsuario" class="ul-searchbar__input"
+           placeholder="Buscar usuario en el sistema…" autocomplete="off">
     {% if request.session.usuario_rol == 'admin' %}
     <div class="ul-searchbar__div"></div>
-    <!-- CAMBIO: abre modal en vez de ir a otra página -->
-    <button type="button" class="ul-searchbar__btn" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+    <button type="button" class="ul-searchbar__btn"
+            data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
       <i class="bi bi-person-plus"></i> Nuevo Usuario
     </button>
     {% endif %}
@@ -60,7 +55,8 @@
         <div class="col-12 col-md-6" id="col-{{ u.pk }}"
              data-nombre="{{ u.nombre_completo|lower }}"
              data-usuario="{{ u.usuario|lower }}"
-             data-rol="{{ u.get_rol_display|lower }}">
+             data-rol="{{ u.get_rol_display|lower }}"
+             data-visible="1">
           <div id="fila-{{ u.pk }}" class="usuario-card h-100">
 
             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -80,10 +76,8 @@
                 </div>
               </div>
 
-              <!-- ── ROL CONTROL (badge + selector inline) ── -->
               {% if request.session.usuario_rol == 'admin' %}
               <div class="usuario-rol-control" id="rol-control-{{ u.pk }}">
-
                 <span id="rol-badge-{{ u.pk }}"
                       class="badge usuario-rol
                       {% if u.rol == 'admin' %}usuario-rol--admin
@@ -95,11 +89,8 @@
                       title="Cambiar rol"
                       {% endif %}>
                   {{ u.get_rol_display }}
-                  {% if u.rol != 'admin' %}
-                  <i class="bi bi-pencil-fill usuario-rol__edit-icon"></i>
-                  {% endif %}
+                  {% if u.rol != 'admin' %}<i class="bi bi-pencil-fill usuario-rol__edit-icon"></i>{% endif %}
                 </span>
-
                 {% if u.rol != 'admin' %}
                 <div id="rol-selector-{{ u.pk }}" class="usuario-rol-selector" style="display:none;">
                   <select id="rol-select-{{ u.pk }}" class="usuario-rol-select">
@@ -107,21 +98,17 @@
                     <option value="empleado" {% if u.rol == 'empleado' %}selected{% endif %}>Empleado</option>
                   </select>
                   <button class="usuario-rol-btn usuario-rol-btn--ok"
-                          onclick="guardarRol({{ u.pk }})"
-                          title="Guardar rol">
+                          onclick="guardarRol({{ u.pk }})" title="Guardar rol">
                     <i class="bi bi-check-lg"></i>
                   </button>
                   <button class="usuario-rol-btn usuario-rol-btn--cancel"
-                          onclick="cancelarRol({{ u.pk }})"
-                          title="Cancelar">
+                          onclick="cancelarRol({{ u.pk }})" title="Cancelar">
                     <i class="bi bi-x-lg"></i>
                   </button>
                 </div>
                 {% endif %}
-
               </div>
               {% else %}
-              <!-- Vista solo lectura para no-admin -->
               <span class="badge usuario-rol
                 {% if u.rol == 'admin' %}usuario-rol--admin
                 {% elif u.rol == 'cajero' %}usuario-rol--cajero
@@ -129,13 +116,12 @@
                 {{ u.get_rol_display }}
               </span>
               {% endif %}
-              <!-- ── FIN ROL CONTROL ── -->
-
             </div>
 
             <hr class="usuario-divider">
 
-            <div class="row g-2 mb-3 usuario-datos">
+            <!-- ▼ CAMBIO: align-items-start para evitar columnas de altura desigual -->
+            <div class="row g-2 mb-3 usuario-datos align-items-start">
               <div class="col-6">
                 <div class="usuario-label">Identificación</div>
                 <div class="usuario-value">{{ u.identificacion }}</div>
@@ -152,9 +138,7 @@
               <div class="col-6">
                 <div class="usuario-label">Estado</div>
                 <span id="estado-badge-{{ u.pk }}"
-                      class="usuario-estado
-                      {% if u.activo %}usuario-estado--activo
-                      {% else %}usuario-estado--inactivo{% endif %}">
+                      class="usuario-estado {% if u.activo %}usuario-estado--activo{% else %}usuario-estado--inactivo{% endif %}">
                   <span class="usuario-dot"></span>
                   {% if u.activo %}Activo{% else %}Inactivo{% endif %}
                 </span>
@@ -191,7 +175,6 @@
         {% endfor %}
       </div>
 
-      <!-- Sin resultados de búsqueda -->
       <div class="usuarios-vacio text-center py-5" id="sin-resultados" style="display:none !important;">
         <i class="bi bi-search usuarios-vacio-icon"></i>
         <div class="usuarios-vacio-text">No se encontraron usuarios.</div>
@@ -228,10 +211,8 @@
       <div class="ul-sidebar-bottom" id="ul-sidebar-bottom-ref">
 
         <div class="sidebar-dropdown-wrapper" id="wrapperStats">
-          <button class="btn-trigger-dropdown"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseStats"
+          <button class="btn-trigger-dropdown" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapseStats"
                   aria-expanded="false">
             <span><i class="bi bi-bar-chart-steps me-2"></i>Ver Estadísticas Detalladas</span>
             <i class="bi bi-chevron-down arrow-icon"></i>
@@ -239,42 +220,28 @@
           <div class="collapse" id="collapseStats">
             <div class="stats-grid-inner">
               <div class="widget-estado">
-                <div class="ul-widget__title">
-                  <i class="bi bi-circle-fill"></i> Estado
-                </div>
+                <div class="ul-widget__title"><i class="bi bi-circle-fill"></i> Estado</div>
                 <div class="ul-stat-row">
-                  <span class="ul-stat-label">
-                    <span class="ul-stat-dot ul-stat-dot--activo"></span> Activos
-                  </span>
+                  <span class="ul-stat-label"><span class="ul-stat-dot ul-stat-dot--activo"></span> Activos</span>
                   <span class="ul-stat-val" id="cnt-activos">0</span>
                 </div>
                 <div class="ul-stat-row">
-                  <span class="ul-stat-label">
-                    <span class="ul-stat-dot ul-stat-dot--inactivo"></span> Inactivos
-                  </span>
+                  <span class="ul-stat-label"><span class="ul-stat-dot ul-stat-dot--inactivo"></span> Inactivos</span>
                   <span class="ul-stat-val" id="cnt-inactivos">0</span>
                 </div>
               </div>
               <div class="widget-rol">
-                <div class="ul-widget__title">
-                  <i class="bi bi-person-badge"></i> Por Rol
-                </div>
+                <div class="ul-widget__title"><i class="bi bi-person-badge"></i> Por Rol</div>
                 <div class="ul-stat-row">
-                  <span class="ul-stat-label">
-                    <span class="ul-stat-dot ul-stat-dot--admin"></span> Admin
-                  </span>
+                  <span class="ul-stat-label"><span class="ul-stat-dot ul-stat-dot--admin"></span> Admin</span>
                   <span class="ul-stat-val" id="cnt-admin">0</span>
                 </div>
                 <div class="ul-stat-row">
-                  <span class="ul-stat-label">
-                    <span class="ul-stat-dot ul-stat-dot--cajero"></span> Cajeros
-                  </span>
+                  <span class="ul-stat-label"><span class="ul-stat-dot ul-stat-dot--cajero"></span> Cajeros</span>
                   <span class="ul-stat-val" id="cnt-cajero">0</span>
                 </div>
                 <div class="ul-stat-row">
-                  <span class="ul-stat-label">
-                    <span class="ul-stat-dot ul-stat-dot--empleado"></span> Empl.
-                  </span>
+                  <span class="ul-stat-label"><span class="ul-stat-dot ul-stat-dot--empleado"></span> Empl.</span>
                   <span class="ul-stat-val" id="cnt-empleado">0</span>
                 </div>
               </div>
@@ -283,19 +250,15 @@
         </div>
 
         <div class="sidebar-dropdown-wrapper" id="wrapperRecientes">
-          <button class="btn-trigger-dropdown"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseRecientes"
+          <button class="btn-trigger-dropdown" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapseRecientes"
                   aria-expanded="false">
             <span><i class="bi bi-clock-history me-2"></i>Ver Registros Recientes</span>
             <i class="bi bi-chevron-down arrow-icon"></i>
           </button>
           <div class="collapse" id="collapseRecientes">
             <div class="ul-widget widget-recientes">
-              <div class="ul-widget__title">
-                <i class="bi bi-clock-history"></i> Registros recientes
-              </div>
+              <div class="ul-widget__title"><i class="bi bi-clock-history"></i> Registros recientes</div>
               <div class="ul-recientes-scroll" id="recientes-scroll">
                 {% for u in usuarios %}
                 {% if u.pk != request.session.usuario_id %}
@@ -328,15 +291,13 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAL EDITAR USUARIO (existente)
-══════════════════════════════════════════ -->
 {% if request.session.usuario_rol == 'admin' %}
+
+<!-- MODAL EDITAR USUARIO -->
 <div class="modal fade" id="modalEditarUsuario" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-editar">
     <div class="modal-content modal-editar-content">
-
       <div class="modal-header modal-editar-header">
         <div>
           <span class="modal-editar-title">Editar Usuario</span>
@@ -345,12 +306,9 @@
         <button type="button" class="btn-close btn-close-white"
                 data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-
       <div id="euMsg" class="eu-msg"></div>
-
       <div class="modal-body modal-editar-body">
         <input type="hidden" id="euPk">
-
         <div class="row g-3 mb-3">
           <div class="col-6">
             <label class="eu-label">Nombres</label>
@@ -361,7 +319,6 @@
             <input type="text" id="euApellidos" class="eu-input">
           </div>
         </div>
-
         <div class="row g-3 mb-3">
           <div class="col-6">
             <label class="eu-label">Correo</label>
@@ -375,65 +332,48 @@
             </select>
           </div>
         </div>
-
         <hr class="modal-divider">
         <div class="modal-pass-title">Nueva contraseña (opcional)</div>
-
         <div class="mb-4">
           <label class="eu-label">Nueva Contraseña</label>
           <input type="password" id="euClaveNueva" class="eu-input"
                  placeholder="Mín. 6 car., 2 núm., 1 may.">
         </div>
-
         <button onclick="guardarEditar()" id="euBtnGuardar"
                 class="btn w-100 modal-btn-guardar">
           <i class="bi bi-check-lg me-1"></i> Guardar Cambios
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════
-     MODAL CREAR USUARIO (nuevo, solo admin)
-══════════════════════════════════════════ -->
+<!-- MODAL CREAR USUARIO -->
 <div class="modal fade" id="modalCrearUsuario" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-editar" style="max-width:540px;">
     <div class="modal-content modal-editar-content">
-
       <div class="modal-header modal-editar-header">
         <div class="d-flex align-items-center gap-3">
-          <div style="
-            width:40px;height:40px;border-radius:12px;
-            background:linear-gradient(135deg,rgba(77,168,218,.18),rgba(77,168,218,.06));
-            border:1px solid rgba(77,168,218,.45);
-            display:flex;align-items:center;justify-content:center;
-            font-size:1.1rem;color:#4DA8DA;flex-shrink:0;">
+          <div style="width:40px;height:40px;border-radius:12px;
+                      background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.35);
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:1.1rem;color:#4DA8DA;flex-shrink:0;">
             <i class="bi bi-person-plus-fill"></i>
           </div>
           <div>
-            <div style="font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#4DA8DA;opacity:.7;margin-bottom:.15rem;">
-              Panel Admin
-            </div>
+            <div style="font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+                        color:#4DA8DA;opacity:.7;margin-bottom:.15rem;">Panel Admin</div>
             <span class="modal-editar-title">Nuevo Usuario</span>
           </div>
         </div>
         <button type="button" class="btn-close btn-close-white ms-auto"
                 data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-
-      <!-- Mensaje de error/éxito -->
       <div id="cuMsg" class="eu-msg"></div>
-
       <div class="modal-body modal-editar-body">
 
-        <!-- Sección: Identificación -->
-        <div class="cu-section-label">
-          <i class="bi bi-person-badge"></i> Identificación
-        </div>
+        <div class="cu-section-label"><i class="bi bi-person-badge"></i> Identificación</div>
         <div class="row g-3 mb-3">
           <div class="col-5">
             <label class="eu-label">Tipo ID <span class="cu-required">*</span></label>
@@ -452,10 +392,7 @@
           </div>
         </div>
 
-        <!-- Sección: Datos Personales -->
-        <div class="cu-section-label">
-          <i class="bi bi-person"></i> Datos Personales
-        </div>
+        <div class="cu-section-label"><i class="bi bi-person"></i> Datos Personales</div>
         <div class="row g-3 mb-3">
           <div class="col-6">
             <label class="eu-label">Nombres <span class="cu-required">*</span></label>
@@ -477,14 +414,10 @@
           </div>
         </div>
 
-        <!-- Sección: Acceso -->
-        <div class="cu-section-label">
-          <i class="bi bi-shield-lock"></i> Acceso al Sistema
-        </div>
+        <div class="cu-section-label"><i class="bi bi-shield-lock"></i> Acceso al Sistema</div>
         <div class="row g-3 mb-3">
           <div class="col-6">
             <label class="eu-label">Rol</label>
-            <!-- Rol fijo: no editable -->
             <div class="cu-rol-badge-wrap">
               <span class="badge usuario-rol usuario-rol--empleado cu-rol-badge">
                 <i class="bi bi-person-fill me-1"></i> Empleado
@@ -514,13 +447,12 @@
         <button type="button" id="cuBtnGuardar" class="btn w-100 modal-btn-guardar mt-2">
           <i class="bi bi-person-check-fill me-2"></i> Crear Usuario
         </button>
-
       </div>
     </div>
   </div>
 </div>
-{% endif %}
 
+{% endif %}
 
 <script>
 (function () {
@@ -542,24 +474,27 @@
     return fd;
   }
 
-
-  /* ── BÚSQUEDA ── */
-
+  /* ══════════════════════════════════════════════
+     BÚSQUEDA
+  ══════════════════════════════════════════════ */
   $('inputBuscarUsuario')?.addEventListener('input', function () {
     const q    = this.value.trim().toLowerCase();
     const cols = document.querySelectorAll('#contenedor-tarjetas > div[id^="col-"]');
     let vis    = 0;
     cols.forEach(col => {
       const show = !q || ['nombre','usuario','rol'].some(k => (col.dataset[k]||'').includes(q));
-      col.style.display = show ? '' : 'none';
+      col.style.display      = show ? '' : 'none';
+      col.dataset.visible    = show ? '1' : '0';
       if (show) vis++;
     });
     const sr = $('sin-resultados');
     if (sr) sr.style.setProperty('display', vis === 0 ? 'block' : 'none', 'important');
+    reajustarLayout();
   });
 
-
-  /* ── STATS ── */
+  /* ══════════════════════════════════════════════
+     STATS
+  ══════════════════════════════════════════════ */
   function calcularStats() {
     let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
     document.querySelectorAll('[id^="fila-"]').forEach(card => {
@@ -578,11 +513,19 @@
     $('cnt-cajero').textContent    = cajero;
     $('cnt-empleado').textContent  = empleado;
     const pct = total > 0 ? Math.round(activos / total * 100) : 0;
-    $('pct-activos').textContent  = pct + '%';
-    $('bar-activos').style.width  = pct + '%';
+    $('pct-activos').textContent = pct + '%';
+    $('bar-activos').style.width = pct + '%';
   }
 
-  /* ── LAYOUT ── */
+  /* ══════════════════════════════════════════════
+     LAYOUT
+  ══════════════════════════════════════════════ */
+  function contarVisibles() {
+    return document.querySelectorAll(
+      '#contenedor-tarjetas > div[id^="col-"][data-visible="1"]'
+    ).length;
+  }
+
   function sincronizarAlturaRecientes() {
     const layout = $('layout-principal');
     if (!layout.classList.contains('cards-view-3-4')) return;
@@ -590,41 +533,23 @@
     const widget = document.querySelector('#wrapperRecientes .widget-recientes');
     const scroll = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
     if (!main || !widget || !scroll) return;
-    const mainBottom = main.getBoundingClientRect().bottom;
-    const wrapperTop = $('wrapperRecientes').getBoundingClientRect().top;
-    const titleEl    = widget.querySelector('.ul-widget__title');
-    const titleH     = titleEl ? titleEl.offsetHeight + 12 : 32;
-    const alturaDisponible = mainBottom - wrapperTop - titleH - 44;
-
-  // ── LAYOUT ────────────────────────────────────────────────────────────────
-  function sincronizarAlturaRecientes() {
-    const layout = $('layout-principal');
-    if (!layout.classList.contains('cards-view-3-4')) return;
-
-    const main    = $('ul-main-ref');
-    const widget  = document.querySelector('#wrapperRecientes .widget-recientes');
-    const scroll  = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
-    if (!main || !widget || !scroll) return;
-
     const mainBottom    = main.getBoundingClientRect().bottom;
     const wrapperTop    = $('wrapperRecientes').getBoundingClientRect().top;
     const titleEl       = widget.querySelector('.ul-widget__title');
     const titleH        = titleEl ? titleEl.offsetHeight + 12 : 32;
     const paddingWidget = 22;
-
-    const alturaDisponible = mainBottom - wrapperTop - titleH - paddingWidget * 2;
-
-    scroll.style.maxHeight = Math.max(alturaDisponible, 120) + 'px';
+    const disponible    = mainBottom - wrapperTop - titleH - paddingWidget * 2;
+    scroll.style.maxHeight = Math.max(disponible, 120) + 'px';
   }
 
   function reajustarLayout() {
-    const total  = document.querySelectorAll(
-      '#contenedor-tarjetas > div[style=""], #contenedor-tarjetas > div:not([style])'
-    ).length;
+    const total  = contarVisibles();
     const layout = $('layout-principal');
     const cS     = $('collapseStats');
     const cR     = $('collapseRecientes');
+
     layout.classList.remove('cards-view-1-2','cards-view-3-4','cards-view-5-6','cards-view-dense');
+
     const casos = [
       [2,        'cards-view-1-2',   false, false],
       [4,        'cards-view-3-4',   true,  true ],
@@ -635,47 +560,48 @@
     layout.classList.add(cls);
     cS?.classList[showS ? 'add' : 'remove']('show');
     cR?.classList[showR ? 'add' : 'remove']('show');
-
     requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
   }
 
+  /* ── INIT ── */
   calcularStats();
   reajustarLayout();
   window.addEventListener('resize', () => requestAnimationFrame(sincronizarAlturaRecientes));
 
-  /* ═══════════════════════════════════════
+  /* ══════════════════════════════════════════════
      MODAL CREAR USUARIO
-  ═══════════════════════════════════════ */
+  ══════════════════════════════════════════════ */
   const modalCrearEl = $('modalCrearUsuario');
 
   if (modalCrearEl) {
 
-    // Limpiar al abrir
     modalCrearEl.addEventListener('show.bs.modal', () => {
       ['cuTipoId','cuIdentificacion','cuNombre','cuApellidos','cuEmail','cuTelefono','cuClave']
         .forEach(id => { if ($(id)) $(id).value = ''; });
       const msg = $('cuMsg');
       msg.style.display = 'none';
       msg.className = 'eu-msg';
-      // Resetear inputs inválidos
       modalCrearEl.querySelectorAll('.eu-input').forEach(el => el.classList.remove('eu-input--invalid'));
     });
 
-    // Toggle ojo contraseña
     $('cuToggleClave')?.addEventListener('click', function () {
       const field = $('cuClave');
       const icon  = this.querySelector('i');
       const isPwd = field.type === 'password';
       field.type = isPwd ? 'text' : 'password';
-      icon.classList.toggle('bi-eye',       !isPwd);
-      icon.classList.toggle('bi-eye-slash',  isPwd);
+      icon.classList.toggle('bi-eye',      !isPwd);
+      icon.classList.toggle('bi-eye-slash', isPwd);
     });
 
-    // Guardar
+    function mostrarMsgCrear(texto, tipo) {
+      const el = $('cuMsg');
+      el.textContent   = texto;
+      el.className     = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
+      el.style.display = 'block';
+    }
+
     $('cuBtnGuardar')?.addEventListener('click', function () {
       const btn = this;
-
-      // Limpiar estados inválidos previos
       modalCrearEl.querySelectorAll('.eu-input').forEach(el => el.classList.remove('eu-input--invalid'));
 
       const tipo_id        = $('cuTipoId').value;
@@ -686,9 +612,8 @@
       const telefono       = $('cuTelefono').value.trim();
       const clave          = $('cuClave').value;
 
-      // Validación frontend básica
       let hayError = false;
-      const marcar = (id) => { $(id)?.classList.add('eu-input--invalid'); hayError = true; };
+      const marcar = id => { $(id)?.classList.add('eu-input--invalid'); hayError = true; };
 
       if (!tipo_id)        marcar('cuTipoId');
       if (!identificacion) marcar('cuIdentificacion');
@@ -709,11 +634,9 @@
       })).then(d => {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-person-check-fill me-2"></i> Crear Usuario';
-
         if (d.ok) {
           mostrarMsgCrear('✅ Usuario creado correctamente.', 'ok');
           agregarTarjetaAlDOM(d);
-          // Limpiar formulario tras éxito
           setTimeout(() => {
             ['cuTipoId','cuIdentificacion','cuNombre','cuApellidos','cuEmail','cuTelefono','cuClave']
               .forEach(id => { if ($(id)) $(id).value = ''; });
@@ -727,151 +650,117 @@
         btn.innerHTML = '<i class="bi bi-person-check-fill me-2"></i> Crear Usuario';
         mostrarMsgCrear('Error de conexión.', 'err');
       });
-
-
-    requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
-  }
-
-  // ── STATS ─────────────────────────────────────────────────────────────────
-  function calcularStats() {
-    let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
-    document.querySelectorAll('[id^="fila-"]').forEach(card => {
-      const pk = card.id.slice(5);
-      const eb = $('estado-badge-' + pk);
-      const rb = $('rol-badge-'    + pk);
-      if (!eb || !rb) return;
-      eb.classList.contains('usuario-estado--activo') ? activos++ : inactivos++;
-      const r = rb.textContent.trim().toLowerCase();
-      r.includes('admin') ? admin++ : r.includes('caj') ? cajero++ : empleado++;
-
     });
-  }
 
-  function mostrarMsgCrear(texto, tipo) {
-    const el = $('cuMsg');
-    el.textContent = texto;
-    el.className   = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
-    el.style.display = 'block';
-  }
+    function agregarTarjetaAlDOM(d) {
+      const contenedor = $('contenedor-tarjetas');
+      if (!contenedor) return;
+      const hoy   = new Date();
+      const fecha = hoy.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
 
+      const colDiv = document.createElement('div');
+      colDiv.className = 'col-12 col-md-6';
+      colDiv.id = 'col-' + d.pk;
+      colDiv.dataset.nombre   = (d.nombre_completo || '').toLowerCase();
+      colDiv.dataset.usuario  = (d.usuario || '').toLowerCase();
+      colDiv.dataset.rol      = 'empleado';
+      colDiv.dataset.visible  = '1';
 
-  /* Inserta la nueva tarjeta en el DOM sin recargar */
-  function agregarTarjetaAlDOM(d) {
-    const contenedor = $('contenedor-tarjetas');
-    if (!contenedor) return;
-
-    const hoy = new Date();
-    const fecha = hoy.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
-
-    const colDiv = document.createElement('div');
-    colDiv.className = 'col-12 col-md-6';
-    colDiv.id = 'col-' + d.pk;
-    colDiv.dataset.nombre  = (d.nombre_completo || '').toLowerCase();
-    colDiv.dataset.usuario = (d.usuario || '').toLowerCase();
-    colDiv.dataset.rol     = 'empleado';
-
-    colDiv.innerHTML = `
-      <div id="fila-${d.pk}" class="usuario-card h-100" style="opacity:0;transform:scale(.95);transition:opacity .35s,transform .35s;">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div class="d-flex align-items-center gap-2">
-            <div class="usuario-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
-            <div>
-              <div class="usuario-nombre">${d.nombre_completo}</div>
-              <div class="usuario-user">@${d.usuario}</div>
+      colDiv.innerHTML = `
+        <div id="fila-${d.pk}" class="usuario-card h-100"
+             style="opacity:0;transform:scale(.95);transition:opacity .35s,transform .35s;">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <div class="usuario-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
+              <div>
+                <div class="usuario-nombre">${d.nombre_completo}</div>
+                <div class="usuario-user">@${d.usuario}</div>
+              </div>
+            </div>
+            <span id="rol-badge-${d.pk}" class="badge usuario-rol usuario-rol--empleado">Empleado</span>
+          </div>
+          <hr class="usuario-divider">
+          <div class="row g-2 mb-3 usuario-datos align-items-start">
+            <div class="col-6">
+              <div class="usuario-label">Identificación</div>
+              <div class="usuario-value">${d.identificacion}</div>
+              <div class="usuario-sub">${d.tipo_id_display || ''}</div>
+            </div>
+            <div class="col-6">
+              <div class="usuario-label">Correo</div>
+              <div class="usuario-email">${d.email || '—'}</div>
+            </div>
+            <div class="col-6">
+              <div class="usuario-label">Miembro desde</div>
+              <div class="usuario-muted">${fecha}</div>
+            </div>
+            <div class="col-6">
+              <div class="usuario-label">Estado</div>
+              <span id="estado-badge-${d.pk}" class="usuario-estado usuario-estado--activo">
+                <span class="usuario-dot"></span> Activo
+              </span>
             </div>
           </div>
-          <span id="rol-badge-${d.pk}" class="badge usuario-rol usuario-rol--empleado">Empleado</span>
-        </div>
-        <hr class="usuario-divider">
-        <div class="row g-2 mb-3 usuario-datos">
-          <div class="col-6">
-            <div class="usuario-label">Identificación</div>
-            <div class="usuario-value">${d.identificacion}</div>
-            <div class="usuario-sub">${d.tipo_id_display || ''}</div>
-          </div>
-          <div class="col-6">
-            <div class="usuario-label">Correo</div>
-            <div class="usuario-email">${d.email || '—'}</div>
-          </div>
-          <div class="col-6">
-            <div class="usuario-label">Miembro desde</div>
-            <div class="usuario-muted">${fecha}</div>
-          </div>
-          <div class="col-6">
-            <div class="usuario-label">Estado</div>
-            <span id="estado-badge-${d.pk}" class="usuario-estado usuario-estado--activo">
-              <span class="usuario-dot"></span> Activo
-            </span>
-          </div>
-        </div>
-        <div class="d-flex gap-2">
-          <button onclick="abrirEditar(${d.pk})" class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
-            <i class="bi bi-pencil me-1"></i> Editar
-          </button>
-          <div id="wrap-toggle-${d.pk}" class="flex-fill d-flex flex-column gap-1">
-            <button id="btn-toggle-${d.pk}"
-                    onclick="toggleActivo(${d.pk}, true)"
-                    class="btn btn-sm w-100 usuario-btn usuario-btn-desactivar">
-              <i class="bi bi-person-dash me-1"></i> Desactivar
+          <div class="d-flex gap-2">
+            <button onclick="abrirEditar(${d.pk})"
+                    class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
+              <i class="bi bi-pencil me-1"></i> Editar
             </button>
-            <button id="btn-eliminar-${d.pk}"
-                    onclick="eliminarUsuario(${d.pk})"
-                    class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
-                    style="display:none;">
-              <i class="bi bi-trash3 me-1"></i> Eliminar
-            </button>
+            <div id="wrap-toggle-${d.pk}" class="flex-fill d-flex flex-column gap-1">
+              <button id="btn-toggle-${d.pk}"
+                      onclick="toggleActivo(${d.pk}, true)"
+                      class="btn btn-sm w-100 usuario-btn usuario-btn-desactivar">
+                <i class="bi bi-person-dash me-1"></i> Desactivar
+              </button>
+              <button id="btn-eliminar-${d.pk}"
+                      onclick="eliminarUsuario(${d.pk})"
+                      class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
+                      style="display:none;">
+                <i class="bi bi-trash3 me-1"></i> Eliminar
+              </button>
+            </div>
           </div>
-        </div>
-      </div>`;
+        </div>`;
 
-    contenedor.appendChild(colDiv);
+      contenedor.appendChild(colDiv);
+      requestAnimationFrame(() => {
+        const card = colDiv.querySelector('.usuario-card');
+        card.style.opacity   = '1';
+        card.style.transform = 'scale(1)';
+      });
 
-    // Animación de entrada
-    requestAnimationFrame(() => {
-      const card = colDiv.querySelector('.usuario-card');
-      card.style.opacity   = '1';
-      card.style.transform = 'scale(1)';
-    });
+      const recientesScroll = $('recientes-scroll');
+      if (recientesScroll) {
+        const item = document.createElement('div');
+        item.className = 'ul-activity-item';
+        item.id = 'reciente-' + d.pk;
+        item.innerHTML = `
+          <div class="ul-activity-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
+          <div class="ul-activity-body">
+            <div class="ul-activity-name">${d.nombre_completo}</div>
+            <div class="ul-activity-meta">Empleado</div>
+          </div>
+          <div class="ul-activity-time">${fecha}</div>`;
+        recientesScroll.insertBefore(item, recientesScroll.firstChild);
+      }
 
-    // Agregar al panel de recientes
-    const recientesScroll = $('recientes-scroll');
-    if (recientesScroll) {
-      const item = document.createElement('div');
-      item.className = 'ul-activity-item';
-      item.id = 'reciente-' + d.pk;
-      item.innerHTML = `
-        <div class="ul-activity-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
-        <div class="ul-activity-body">
-          <div class="ul-activity-name">${d.nombre_completo}</div>
-          <div class="ul-activity-meta">Empleado</div>
-        </div>
-        <div class="ul-activity-time">${fecha}</div>`;
-      recientesScroll.insertBefore(item, recientesScroll.firstChild);
+      const totalEl = $('total-usuarios-num');
+      if (totalEl) totalEl.textContent = parseInt(totalEl.textContent || '0') + 1;
+
+      calcularStats();
+      reajustarLayout();
     }
 
-    // Actualizar contador total
-    const totalEl = $('total-usuarios-num');
-    if (totalEl) totalEl.textContent = parseInt(totalEl.textContent || '0') + 1;
-
-    calcularStats();
-    reajustarLayout();
   }
 
-  /* ═══════════════════════════════════════
-     MODAL EDITAR USUARIO (existente)
-  ═══════════════════════════════════════ */
-
-  window.addEventListener('resize', () => {
-    requestAnimationFrame(sincronizarAlturaRecientes);
-  });
-
-  // ── MODAL EDITAR ──────────────────────────────────────────────────────────
-
+  /* ══════════════════════════════════════════════
+     MODAL EDITAR USUARIO
+  ══════════════════════════════════════════════ */
   window.euMostrarMsg = (texto, tipo) => {
     const el = $('euMsg');
-    el.textContent = texto;
+    el.textContent   = texto;
     el.style.display = 'block';
-    el.className = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
+    el.className     = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
   };
 
   window.abrirEditar = pk =>
@@ -911,7 +800,9 @@
     });
   };
 
-  // ── SELECTOR DE ROL INLINE ────────────────────────────────────────────────
+  /* ══════════════════════════════════════════════
+     SELECTOR DE ROL INLINE
+  ══════════════════════════════════════════════ */
   const ROL_LABELS = { cajero: 'Cajero', empleado: 'Empleado' };
   const ROL_CLASES = {
     cajero:   'usuario-rol--cajero',
@@ -919,14 +810,12 @@
   };
 
   window.abrirSelectorRol = (pk, rolActual) => {
-    // Cerrar cualquier otro selector abierto primero
     document.querySelectorAll('.usuario-rol-selector').forEach(s => {
       if (s.id !== 'rol-selector-' + pk) s.style.display = 'none';
     });
     document.querySelectorAll('.usuario-rol--clickable').forEach(b => {
       if (b.id !== 'rol-badge-' + pk) b.style.display = '';
     });
-
     $('rol-badge-'    + pk).style.display = 'none';
     $('rol-selector-' + pk).style.display = 'flex';
     $('rol-select-'   + pk).value = rolActual;
@@ -941,52 +830,40 @@
   window.guardarRol = pk => {
     const nuevoRol = $('rol-select-' + pk).value;
     const btnOk    = document.querySelector(`#rol-selector-${pk} .usuario-rol-btn--ok`);
-
     btnOk.disabled = true;
     btnOk.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;border-width:2px;"></span>';
 
     const card      = $('fila-' + pk);
-    const nombreEl  = card.querySelector('.usuario-nombre');
+    const nombreEl  = card?.querySelector('.usuario-nombre');
     const partes    = nombreEl ? nombreEl.textContent.trim().split(' ') : ['', ''];
-    const nombre    = partes.slice(0, Math.ceil(partes.length / 2)).join(' ');
-    const apellidos = partes.slice(Math.ceil(partes.length / 2)).join(' ') || nombre;
-
-    const emailEl = card.querySelector('.usuario-email');
-    const email   = emailEl ? emailEl.textContent.trim().replace('—', '') : '';
+    const mitad     = Math.ceil(partes.length / 2);
+    const nombre    = partes.slice(0, mitad).join(' ');
+    const apellidos = partes.slice(mitad).join(' ') || nombre;
+    const emailEl   = card?.querySelector('.usuario-email');
+    const email     = emailEl ? emailEl.textContent.trim().replace('—', '') : '';
 
     apiFetch(`/usuarios/editar/${pk}/`, mkFd({
-      nombre,
-      apellidos,
-      email,
-      rol: nuevoRol,
-      clave_nueva: '',
+      nombre, apellidos, email, rol: nuevoRol, clave_nueva: '',
     })).then(d => {
       btnOk.disabled = false;
       btnOk.innerHTML = '<i class="bi bi-check-lg"></i>';
-
       if (!d.ok) {
         const badge = $('rol-badge-' + pk);
-        const prev  = badge.textContent;
+        const prev  = badge.textContent.trim();
         badge.style.display = '';
         $('rol-selector-' + pk).style.display = 'none';
         badge.textContent = '⚠ ' + (d.error || 'Error');
         setTimeout(() => { badge.textContent = prev; }, 2000);
         return;
       }
-
-      // Actualizar badge visualmente sin recargar
       const badge = $('rol-badge-' + pk);
       badge.className = `badge usuario-rol ${ROL_CLASES[nuevoRol]} usuario-rol--clickable`;
       badge.innerHTML = `${ROL_LABELS[nuevoRol]} <i class="bi bi-pencil-fill usuario-rol__edit-icon"></i>`;
       badge.onclick   = () => abrirSelectorRol(pk, nuevoRol);
-
       $('rol-selector-' + pk).style.display = 'none';
       badge.style.display = '';
-
-      // Actualizar data-rol de la columna para que la búsqueda funcione
       const col = $('col-' + pk);
       if (col) col.dataset.rol = ROL_LABELS[nuevoRol].toLowerCase();
-
       calcularStats();
     }).catch(() => {
       btnOk.disabled = false;
@@ -995,13 +872,15 @@
     });
   };
 
-  // ── TOGGLE ACTIVO ─────────────────────────────────────────────────────────
+  /* ══════════════════════════════════════════════
+     TOGGLE ACTIVO
+  ══════════════════════════════════════════════ */
   window.toggleActivo = (pk, activo) =>
     apiFetch(`/usuarios/toggle/${pk}/`, mkFd()).then(d => {
       if (!d.ok) return;
       const badge = $('estado-badge-' + pk);
-      const btnT  = $('btn-toggle-'  + pk);
-      const btnE  = $('btn-eliminar-'+ pk);
+      const btnT  = $('btn-toggle-'   + pk);
+      const btnE  = $('btn-eliminar-' + pk);
       if (d.activo) {
         badge.className = 'usuario-estado usuario-estado--activo';
         badge.innerHTML = '<span class="usuario-dot"></span> Activo';
@@ -1020,7 +899,9 @@
       calcularStats();
     });
 
-  // ── ELIMINAR ──────────────────────────────────────────────────────────────
+  /* ══════════════════════════════════════════════
+     ELIMINAR USUARIO
+  ══════════════════════════════════════════════ */
   window.eliminarUsuario = pk => {
     if (!confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')) return;
     apiFetch(`/usuarios/eliminar/${pk}/`, mkFd()).then(d => {
@@ -1030,7 +911,6 @@
         card.classList.add('usuario-card--removing');
         setTimeout(() => {
           $('col-' + pk)?.remove();
-          // Quitar del panel recientes también
           $('reciente-' + pk)?.remove();
           const totalEl = $('total-usuarios-num');
           if (totalEl) totalEl.textContent = Math.max(0, parseInt(totalEl.textContent) - 1);

@@ -319,7 +319,6 @@ body.offcanvas-open {
 
 /* ============================================================
    SIDEBAR EMPUJA CONTENIDO
-   header y subnav usan right, main usa margin-right
    ============================================================ */
 body.sidebar-open .cys-header,
 body.sidebar-open .cys-subnav {
@@ -327,7 +326,8 @@ body.sidebar-open .cys-subnav {
 }
 
 body.sidebar-open .cys-main {
-  margin-right: 290px;
+  width: calc(100% - 290px);
+  margin-right: 0;
 }
 
 /* ============================================================
@@ -340,7 +340,7 @@ body.sidebar-open .cys-main {
   padding-right: 2rem;
   padding-bottom: 1.5rem;
   width: 100%;
-  transition: margin-right .3s ease;
+  transition: width .3s ease;
   overflow-x: hidden;
 }
 
@@ -654,18 +654,14 @@ body.sidebar-open .cys-main {
 
 /* ============================================================
    CONTAINER FLUID DENTRO DEL MAIN
+   fluye con el espacio disponible sin max-width fijo
    ============================================================ */
 .cys-main .container-fluid {
-  max-width: 1700px;
+  width: 100%;
   margin: 0 auto;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
-
-body.sidebar-open .cys-main .container-fluid {
-  max-width: 1200px;
-}
-
 /* ============================================================
    SIDEBAR — SUBMENÚS Y CHEVRON
    ============================================================ */
@@ -715,22 +711,34 @@ body.sidebar-open .cys-main .container-fluid {
    ============================================================ */
 @media (max-width: 768px) {
 
-  .cys-header {
-    padding: 0 1rem;
-    height: auto;
-    min-height: 60px;
-    flex-wrap: wrap;
-    gap: .5rem;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
+  :root {
+    --header-h: 60px;
   }
 
-  .cys-header__logo        { height: 38px; width: 38px; }
-  .cys-header__title       { font-size: 1rem; }
-  .cys-header__clock-time  { font-size: 1.4rem; }
-  .cys-header__clock-date  { font-size: .6rem; }
+  .cys-header {
+    padding: 0 1rem;
+    height: var(--header-h);
+    flex-wrap: nowrap;
+    gap: .5rem;
+  }
 
-  .cys-subnav { padding: 0 1rem; }
+  /* Ocultar el reloj en móvil — ocupa demasiado espacio */
+  .cys-header__clock {
+    display: none !important;
+  }
+
+  /* Ocultar el separador vertical */
+  .cys-header .d-flex > div[style*="width:1px"] {
+    display: none !important;
+  }
+
+  .cys-header__logo  { height: 38px; width: 38px; }
+  .cys-header__title { font-size: 1rem; }
+
+  .cys-subnav {
+    padding: 0 1rem;
+    top: var(--header-h);
+  }
 
   .cys-main {
     padding: 1rem;
@@ -743,12 +751,12 @@ body.sidebar-open .cys-main .container-fluid {
   }
 
   body.sidebar-open .cys-main {
-    margin-right: 0 !important;
+    width: 100% !important;
   }
 
   .cys-card { padding: 1rem; }
 
-  .cys-stat-card     { min-height: 100px; padding: 1rem; }
+  .cys-stat-card      { min-height: 100px; padding: 1rem; }
   .cys-stat-card__val { font-size: 1.5rem; }
 
   .modal-footer { flex-direction: column; gap: .5rem; }

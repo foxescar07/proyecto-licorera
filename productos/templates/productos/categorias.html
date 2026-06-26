@@ -49,17 +49,39 @@
               </label>
               <textarea name="descripcion" class="form-control" rows="2" placeholder="Opcional..."></textarea>
             </div>
-            <div class="mb-4">
-              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
-                Categoría Padre
-              </label>
-              <select name="padre" class="form-select">
-                <option value="">— Es categoría principal —</option>
-                {% for main_cat in categorias %}
-                  <option value="{{ main_cat.pk }}">{{ main_cat.nombre }}</option>
-                {% endfor %}
-              </select>
-            </div>
+           <!-- Reemplaza select padre en form crear categoría -->
+<div class="mb-4">
+  <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+    Categoría Padre
+  </label>
+  <div class="dropdown w-100">
+    <button class="btn dropdown-toggle w-100 text-start" type="button"
+            id="crear-padre-btn" data-bs-toggle="dropdown"
+            style="background:rgba(255,255,255,0.05); border:1px solid rgba(77,168,218,0.25);
+                   color:#e2e8f0; font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+      <span id="crear-padre-label">— Es categoría principal —</span>
+    </button>
+    <ul class="dropdown-menu w-100"
+        style="background:#0a2240; border:1px solid rgba(77,168,218,0.25);">
+      <li>
+        <a class="dropdown-item cat-padre-item" href="#" data-value=""
+           style="color:#c8d6e5; font-size:.85rem;">
+          — Es categoría principal —
+        </a>
+      </li>
+      {% for main_cat in categorias %}
+      <li>
+        <a class="dropdown-item cat-padre-item" href="#"
+           data-value="{{ main_cat.pk }}"
+           style="color:#c8d6e5; font-size:.85rem;">
+          {{ main_cat.nombre }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <input type="hidden" name="padre" id="crear-padre-hidden">
+</div>
             <button type="submit" class="btn w-100 rounded-pill fw-bold py-2"
               style="background: var(--azul-claro); color: var(--fondo); border: none;">
               <i class="bi bi-check-circle me-1"></i> Crear Categoría
@@ -174,20 +196,42 @@
             <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Código</label>
             <input type="text" name="codigo" class="form-control font-monospace" value="{{ cat.codigo }}" required>
           </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Categoría Padre</label>
-            <select name="padre" class="form-select">
-              <option value="">— Es categoría principal —</option>
-              {% for main_cat in categorias %}
-                {% if main_cat.pk != cat.pk %}
-                <option value="{{ main_cat.pk }}"
-                  {% if cat.padre and cat.padre.pk == main_cat.pk %}selected{% endif %}>
-                  {{ main_cat.nombre }}
-                </option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </div>
+         <div class="mb-3">
+  <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Categoría Padre</label>
+  <div class="dropdown w-100">
+    <button class="btn dropdown-toggle w-100 text-start" type="button"
+            id="edit-padre-btn-{{ cat.pk }}" data-bs-toggle="dropdown"
+            style="background:rgba(255,255,255,0.05); border:1px solid rgba(77,168,218,0.25);
+                   color:#e2e8f0; font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+      <span id="edit-padre-label-{{ cat.pk }}">
+        {% if cat.padre %}{{ cat.padre.nombre }}{% else %}— Es categoría principal —{% endif %}
+      </span>
+    </button>
+    <ul class="dropdown-menu w-100"
+        style="background:#0a2240; border:1px solid rgba(77,168,218,0.25);">
+      <li>
+        <a class="dropdown-item edit-padre-item" href="#"
+           data-value="" data-target="{{ cat.pk }}"
+           style="color:#c8d6e5; font-size:.85rem;">
+          — Es categoría principal —
+        </a>
+      </li>
+      {% for main_cat in categorias %}
+        {% if main_cat.pk != cat.pk %}
+        <li>
+          <a class="dropdown-item edit-padre-item" href="#"
+             data-value="{{ main_cat.pk }}" data-target="{{ cat.pk }}"
+             style="color:#c8d6e5; font-size:.85rem;">
+            {{ main_cat.nombre }}
+          </a>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  <input type="hidden" name="padre" id="edit-padre-hidden-{{ cat.pk }}"
+         value="{% if cat.padre %}{{ cat.padre.pk }}{% endif %}">
+</div>
           <div class="mb-2">
             <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Descripción</label>
             <textarea name="descripcion" class="form-control" rows="2">{{ cat.descripcion }}</textarea>
@@ -207,4 +251,26 @@
   </div>
 </div>
 {% endfor %}
+{% endblock %}
+{% block extra_js %}
+<script>
+// ── DROPDOWN CREAR CATEGORÍA ──
+document.querySelectorAll('.cat-padre-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('crear-padre-label').textContent = this.textContent.trim();
+    document.getElementById('crear-padre-hidden').value = this.dataset.value;
+  });
+});
+
+// ── DROPDOWN EDITAR CATEGORÍA ──
+document.querySelectorAll('.edit-padre-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = this.dataset.target;
+    document.getElementById('edit-padre-label-' + target).textContent = this.textContent.trim();
+    document.getElementById('edit-padre-hidden-' + target).value = this.dataset.value;
+  });
+});
+</script>
 {% endblock %}

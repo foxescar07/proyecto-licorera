@@ -664,25 +664,18 @@
               {% for prov in proveedores %}
               <tr class="cys-tr prov-row">
                 <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
-                <td data-label="Nombre">
-                  <div class="cys-prov-name">
-                    <div class="cys-avatar-initials">
-                      {{ prov.nombre_contacto|slice:':2'|upper }}
-                    </div>
-                    <strong>{{ prov.nombre_contacto }}</strong>
-                  </div>
-                </td>
-                <td data-label="Empresa">
-                  <span class="cys-tag cys-tag--prov">{{ prov.nombre_empresa }}</span>
-                </td>
-                <td class="cys-td" data-label="Teléfono">
-                  <i class="bi bi-telephone cys-td-icon"></i>
-                  {{ prov.telefono }}
-                </td>
-                <td class="cys-td" data-label="Correo">
-                  <i class="bi bi-envelope cys-td-icon"></i>
-                  {{ prov.email }}
-                </td>
+                <td class="cys-prov-name-text" data-label="Nombre">
+                  {{ prov.nombre_contacto }}
+              </td>
+                
+               <td class="cys-prov-company" data-label="Empresa">
+               {{ prov.nombre_empresa }}
+              </td> 
+                <td class="cys-prov-phone" data-label="Teléfono">
+                {{ prov.telefono }}
+                  <td class="cys-prov-email" data-label="Correo">
+                {{ prov.email }}
+              </td>
               </tr>
               {% empty %}
               <tr>

@@ -617,15 +617,32 @@
             {% csrf_token %}
             <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
             <div class="row g-3 align-items-end mb-3">
-              <div class="col-md-7">
-                <label class="form-label inv-label">Producto</label>
-                <select name="producto_id" class="form-select inv-input" required>
-                  <option value="">— Seleccionar producto —</option>
-                  {% for p in productos %}
-                    <option value="{{ p.pk }}">{{ p.nombre }}</option>
-                  {% endfor %}
-                </select>
-              </div>
+              <!-- Reemplaza el select de producto en modalConteo -->
+      <div class="col-md-7">
+  <label class="form-label inv-label">Producto</label>
+  <div class="dropdown w-100">
+    <button class="btn dropdown-toggle w-100 text-start" type="button"
+            id="conteo-prod-btn" data-bs-toggle="dropdown"
+            style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
+                   color:#c8d6e5; font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+      <span id="conteo-prod-label">— Seleccionar producto —</span>
+    </button>
+    <ul class="dropdown-menu w-100"
+        style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
+               max-height:260px; overflow-y:auto;">
+      {% for p in productos %}
+      <li>
+        <a class="dropdown-item conteo-prod-item" href="#"
+           data-value="{{ p.pk }}"
+           style="color:#c8d6e5; font-size:.85rem;">
+          {{ p.nombre }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <input type="hidden" name="producto_id" id="conteo-prod-hidden" required>
+</div>
               <div class="col-md-3">
                 <label class="form-label inv-label">Cantidad física</label>
                 <input type="number" name="cantidad_contada" class="form-control inv-input" min="0" placeholder="0" required>
@@ -1239,5 +1256,13 @@ const ROTACION_URL = "{% url 'rotacion_json' %}";
       document.getElementById('rotacion-loading').innerHTML = '<p class="text-muted small">Error al cargar datos.</p>';
     });
 })();
+// ── DROPDOWN CONTEO PRODUCTO ──
+document.querySelectorAll('.conteo-prod-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('conteo-prod-label').textContent = this.textContent.trim();
+    document.getElementById('conteo-prod-hidden').value = this.dataset.value;
+  });
+});
 </script>
 {% endblock %}
