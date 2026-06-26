@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/ordenes_compra.css' %}">
+<link rel="stylesheet" href="{% static 'css/proveedores/ordenes_compra.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,10 +14,10 @@
             <i class="bi bi-clipboard-check"></i>
             Órdenes de Compra
         </h1>
-        <a href="{% url 'crear_orden' %}" class="btn-nueva-orden">
+        <button class="btn-nueva-orden" data-bs-toggle="modal" data-bs-target="#modalNuevaOrden">
             <i class="bi bi-plus-circle-fill"></i>
             Nueva Orden
-        </a>
+        </button>
     </div>
 
     <!-- MENSAJES -->
@@ -155,54 +155,9 @@
 
                         <!-- Acciones -->
                         <td>
-                            <div class="ordenes-actions-menu">
-                                <button class="btn-menu-toggle" title="Acciones">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <div class="ordenes-menu-dropdown">
-                                    <!-- Ver detalles -->
-                                    <a href="{% url 'detalle_orden' pk=orden.id %}" class="ordenes-menu-item">
-                                        <i class="bi bi-eye"></i>
-                                        <span>Ver detalles</span>
-                                    </a>
-
-                                    {% if orden.estado == 'pendiente' %}
-                                    <!-- Confirmar orden -->
-                                    <form method="POST" action="{% url 'cambiar_estado_orden_rapido' pk=orden.id %}" style="display: contents;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="estado" value="confirmada">
-                                        <button type="submit" class="ordenes-menu-item">
-                                            <i class="bi bi-check-circle"></i>
-                                            <span>Confirmar orden</span>
-                                        </button>
-                                    </form>
-                                    {% endif %}
-
-                                    {% if orden.estado == 'confirmada' %}
-                                    <!-- Recibir compra -->
-                                    <form method="POST" action="{% url 'cambiar_estado_orden_rapido' pk=orden.id %}" style="display: contents;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="estado" value="recibida">
-                                        <button type="submit" class="ordenes-menu-item">
-                                            <i class="bi bi-box-seam"></i>
-                                            <span>Recibir compra</span>
-                                        </button>
-                                    </form>
-                                    {% endif %}
-
-                                    {% if orden.estado != 'recibida' and orden.estado != 'cancelada' %}
-                                    <!-- Cancelar orden -->
-                                    <form method="POST" action="{% url 'cambiar_estado_orden_rapido' pk=orden.id %}" style="display: contents;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="estado" value="cancelada">
-                                        <button type="submit" class="ordenes-menu-item ordenes-menu-item-danger">
-                                            <i class="bi bi-x-circle"></i>
-                                            <span>Cancelar orden</span>
-                                        </button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                            </div>
+                            <a href="{% url 'detalle_orden' pk=orden.id %}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i> Ver detalles
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -250,4 +205,88 @@
     </div>
 
 </div>
+
+<!-- MODAL: NUEVA ORDEN -->
+<div class="modal fade" id="modalNuevaOrden" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: linear-gradient(135deg, #0a1628 0%, #0f1f35 100%); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 12px;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(77, 168, 218, 0.15); padding: 20px;">
+                <h5 class="modal-title" style="color: #ffffff; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-plus-circle-fill" style="color: #4DA8DA;"></i> Nueva Orden de Compra
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: brightness(0.8);"></button>
+            </div>
+            <form id="formNuevaOrden" method="POST" action="{% url 'crear_orden' %}">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 25px;">
+                    <!-- Proveedor -->
+                    <div class="mb-4">
+                        <label class="form-label" style="color: #a0aec0; font-weight: 500; font-size: 0.9rem;">
+                            Proveedor <span class="text-danger">*</span>
+                        </label>
+                        {{ form.proveedor }}
+                        {% if form.proveedor.errors %}
+                        <div class="text-danger small" style="margin-top: 5px;">{{ form.proveedor.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mb-4">
+                        <label class="form-label" style="color: #a0aec0; font-weight: 500; font-size: 0.9rem;">
+                            Estado <span class="text-danger">*</span>
+                        </label>
+                        {{ form.estado }}
+                        {% if form.estado.errors %}
+                        <div class="text-danger small" style="margin-top: 5px;">{{ form.estado.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(77, 168, 218, 0.15); padding: 15px 25px; background: rgba(0, 0, 0, 0.2);">
+                    <button type="button" class="btn" data-bs-dismiss="modal" style="background: rgba(107, 114, 128, 0.2); color: #4DA8DA; border: 1px solid rgba(77, 168, 218, 0.3); border-radius: 6px; padding: 8px 20px; font-weight: 500;">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn" style="background: #4DA8DA; color: #ffffff; border: none; border-radius: 6px; padding: 8px 24px; font-weight: 500;">
+                        <i class="bi bi-check-circle"></i> Crear Orden
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos para los inputs del modal */
+#modalNuevaOrden select,
+#modalNuevaOrden input {
+    background: rgba(15, 31, 53, 0.8) !important;
+    border: 1px solid rgba(77, 168, 218, 0.25) !important;
+    color: #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    font-size: 0.95rem !important;
+}
+
+#modalNuevaOrden select:focus,
+#modalNuevaOrden input:focus {
+    background: rgba(15, 31, 53, 0.9) !important;
+    border-color: #4DA8DA !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 0 0 3px rgba(77, 168, 218, 0.2) !important;
+}
+
+#modalNuevaOrden select option {
+    background: #0f1f35;
+    color: #e2e8f0;
+}
+
+#modalNuevaOrden select option:disabled {
+    background: #0f1f35;
+    color: #4DA8DA !important;
+}
+
+#modalNuevaOrden select option[value=""] {
+    color: #4DA8DA !important;
+}
+</style>
+
 {% endblock %}

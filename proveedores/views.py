@@ -417,6 +417,9 @@ def listar_ordenes(request):
     ordenes_confirmadas = OrdenCompra.objects.filter(estado='confirmada').count()
     ordenes_recibidas = OrdenCompra.objects.filter(estado='recibida').count()
 
+    # Formulario para el modal
+    form = OrdenCompraForm()
+
     context = {
         'ordenes': page_obj.object_list,
         'page_obj': page_obj,
@@ -424,9 +427,10 @@ def listar_ordenes(request):
         'ordenes_pendientes': ordenes_pendientes,
         'ordenes_confirmadas': ordenes_confirmadas,
         'ordenes_recibidas': ordenes_recibidas,
+        'form': form,
     }
 
-    return render(request, 'proveedores/ordenes_lista.html', context)
+    return render(request, 'proveedores/orden_compra.html', context)
 
 
 @login_required
@@ -437,7 +441,6 @@ def crear_orden(request):
         if form.is_valid():
             orden = form.save(commit=False)
             orden.registrado_por = request.user
-            orden.estado = 'pendiente'
             orden.save()
 
             messages.success(
@@ -449,12 +452,13 @@ def crear_orden(request):
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
+            return redirect('listar_ordenes')
 
     else:
         form = OrdenCompraForm()
 
     context = {'form': form}
-    return render(request, 'proveedores/crear_orden.html', context)
+    return render(request, 'proveedores/nueva_orden.html', context)
 
 
 @login_required
@@ -462,10 +466,12 @@ def detalle_orden(request, pk):
     """Mostrar detalle de una orden con sus detalles."""
     orden = get_object_or_404(OrdenCompra, pk=pk)
     detalles = orden.detalles.all()
+    form_detalle = DetalleCompraForm()
 
     context = {
         'orden': orden,
         'detalles': detalles,
+        'form_detalle': form_detalle,
     }
 
     return render(request, 'proveedores/detalle_orden.html', context)
@@ -497,16 +503,9 @@ def agregar_detalle_orden(request, pk):
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
+            return redirect('detalle_orden', pk=pk)
 
-    else:
-        form = DetalleCompraForm()
-
-    context = {
-        'orden': orden,
-        'form': form,
-    }
-
-    return render(request, 'proveedores/agregar_detalle.html', context)
+    return redirect('detalle_orden', pk=pk)
 
 
 @login_required
@@ -540,17 +539,7 @@ def cambiar_estado_orden(request, pk):
 
         return redirect('detalle_orden', pk=pk)
 
-    context = {
-        'orden': orden,
-        'transiciones': {
-            'pendiente': ['confirmada', 'cancelada'],
-            'confirmada': ['recibir', 'cancelada'],
-            'recibida': [],
-            'cancelada': [],
-        }.get(orden.estado, [])
-    }
-
-    return render(request, 'proveedores/cambiar_estado_orden.html', context)
+    return redirect('detalle_orden', pk=pk)
 
 
 @login_required
@@ -600,8 +589,7 @@ def recibir_compra(request, pk):
 
         return redirect('detalle_orden', pk=pk)
 
-    context = {'orden': orden}
-    return render(request, 'proveedores/recibir_compra.html', context)
+    return redirect('detalle_orden', pk=pk)
 
 
 @login_required
