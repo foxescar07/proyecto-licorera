@@ -3,13 +3,15 @@
 
 <div class="card prod-card mb-4">
   <div class="card-body">
-    <div class="input-group">
-      <input class="form-control prod-input" id="bp-input"
-             placeholder="Buscar producto por nombre o código…"
-             onkeydown="if(event.key==='Enter') bpBuscar()">
-      <button class="btn prod-btn-primary" id="bp-btn" onclick="bpBuscar()">
+    <div class="input-group position-relative">
+      <input class="form-control prod-input" id="bp-input" autocomplete="off"
+             placeholder="Buscar producto por nombre o código…">
+      <button class="btn prod-btn-primary" id="bp-btn" onclick="bpBuscarDetalle(document.getElementById('bp-input').value.trim())">
         <i class="bi bi-search"></i>
       </button>
+
+      <!-- Dropdown de sugerencias (Bootstrap 5) -->
+      <ul class="dropdown-menu w-100" id="bp-sugerencias" style="max-height:280px; overflow-y:auto;"></ul>
     </div>
     <div id="bp-resultado" class="mt-3"></div>
   </div>
@@ -18,15 +20,95 @@
 <script>
 (function () {
   const URL_BUSCAR = "{{ BP_URL }}";
+  const input      = document.getElementById('bp-input');
+  const ulSugest   = document.getElementById('bp-sugerencias');
+  const out        = document.getElementById('bp-resultado');
+  const btn        = document.getElementById('bp-btn');
 
-  window.bpBuscar = async function () {
-    const q   = document.getElementById('bp-input').value.trim();
-    const out = document.getElementById('bp-resultado');
-    const btn = document.getElementById('bp-btn');
+  let bpTimer = null;
+
+  // ── PASO 4: cada tecla dispara un debounce de 300ms ──────────────────
+  input.addEventListener('input', function () {
+    clearTimeout(bpTimer);
+    const valor = this.value.trim();
+
+    if (valor.length < 2) {
+      ocultarSugerencias();
+      return;
+    }
+    bpTimer = setTimeout(() => bpAutocompletar(valor), 300);
+  });
+
+  // Permitir seguir usando Enter para ir directo al detalle
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      ocultarSugerencias();
+      bpBuscarDetalle(this.value.trim());
+    }
+  });
+
+  // ── PASO 5: pedir sugerencias y pintarlas como dropdown-item ─────────
+  async function bpAutocompletar(q) {
+    try {
+      const resp = await fetch(`${URL_BUSCAR}?q=${encodeURIComponent(q)}&modo=sugerencias`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await resp.json();
+      pintarSugerencias(data.resultados || []);
+    } catch {
+      ocultarSugerencias();
+    }
+  }
+
+  function pintarSugerencias(resultados) {
+    if (!resultados.length) {
+      ulSugest.innerHTML = `<li><span class="dropdown-item disabled text-muted">Sin coincidencias</span></li>`;
+      ulSugest.classList.add('show');
+      return;
+    }
+
+    ulSugest.innerHTML = resultados.map(r => `
+      <li>
+        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#" data-pk="${r.pk}">
+          <span>${r.nombre}</span>
+          <small class="text-muted ms-2">${r.categoria} · ${r.codigo}</small>
+        </a>
+      </li>
+    `).join('');
+
+    ulSugest.classList.add('show');
+  }
+
+  function ocultarSugerencias() {
+    ulSugest.classList.remove('show');
+    ulSugest.innerHTML = '';
+  }
+
+  // ── PASO 6: click en una sugerencia → buscar detalle por nombre exacto ──
+  ulSugest.addEventListener('click', function (e) {
+    const item = e.target.closest('.dropdown-item');
+    if (!item || item.classList.contains('disabled')) return;
+    e.preventDefault();
+
+    const nombre = item.querySelector('span').textContent.trim();
+    input.value  = nombre;
+    ocultarSugerencias();
+    bpBuscarDetalle(nombre);
+  });
+
+  // ── PASO 7: cerrar el dropdown al hacer click fuera ──────────────────
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.input-group')) {
+      ocultarSugerencias();
+    }
+  });
+
+  // ── Detalle completo del producto (tu lógica original, sin cambios) ──
+  window.bpBuscarDetalle = async function (q) {
     if (!q) return;
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Buscando…';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
     out.innerHTML = '';
 
     try {
@@ -82,7 +164,7 @@
         <i class="bi bi-exclamation-octagon me-1"></i>Error de conexión.</div>`;
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-search"></i> Buscar';
+      btn.innerHTML = '<i class="bi bi-search"></i>';
     }
   };
 })();

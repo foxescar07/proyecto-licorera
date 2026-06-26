@@ -541,3 +541,56 @@
   text-align: center !important;
   padding-right: 12px !important;
 }
+/* ═══════════════════════════════════════════════════════
+   AUTOCOMPLETE — Dropdown de sugerencias búsqueda producto
+   Sigue el mismo lenguaje visual que .prod-card / .prod-input
+   ═══════════════════════════════════════════════════════ */
+
+#bp-sugerencias {
+  background-color: #0a1f3d;
+  border: 1px solid rgba(77, 168, 218, 0.25);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  margin-top: 6px;
+  padding: 6px;
+  z-index: 1050;
+}
+
+#bp-sugerencias .dropdown-item {
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  font-size: .9rem;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+#bp-sugerencias .dropdown-item:last-child {
+  margin-bottom: 0;
+}
+
+#bp-sugerencias .dropdown-item:hover,
+#bp-sugerencias .dropdown-item:focus {
+  background-color: rgba(77, 168, 218, 0.15);
+  color: #4DA8DA;
+}
+
+#bp-sugerencias .dropdown-item small {
+  color: rgba(226, 232, 240, 0.45);
+  font-size: .78rem;
+  white-space: nowrap;
+}
+
+#bp-sugerencias .dropdown-item.disabled {
+  color: rgba(226, 232, 240, 0.4);
+  pointer-events: none;
+}
+
+/* Scrollbar discreto cuando hay muchos resultados */
+#bp-sugerencias::-webkit-scrollbar {
+  width: 6px;
+}
+#bp-sugerencias::-webkit-scrollbar-thumb {
+  background: rgba(77, 168, 218, 0.3);
+  border-radius: 10px;
+}
