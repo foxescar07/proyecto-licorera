@@ -82,14 +82,14 @@ body.offcanvas-open {
 </head>
 
 <body>
+<div id="cys-layout">
     {% include 'partials/header.html' %}
 
     <nav class="cys-subnav">
         <span class="cys-subnav__page">{% block page_title %}Tablero{% endblock %}</span>
-
         <div class="d-flex align-items-center gap-2">
             <button class="cys-menu-btn" id="menuBtn">
-                <i class="bi bi-list"></i> 
+                <i class="bi bi-list"></i> Menú
             </button>
         </div>
     </nav>
@@ -99,6 +99,7 @@ body.offcanvas-open {
     <main class="cys-main">
         {% block content %}{% endblock %}
     </main>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/reloj.js' %}"></script>

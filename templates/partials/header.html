@@ -18,71 +18,83 @@
             <div id="fecha" class="cys-header__clock-date">Cargando fecha...</div>
         </div>
 
+          <div style="width:1px; height:32px; background:rgba(226,232,240,.15);"></div>
+       
+       <div class="dropdown">
+    <button class="btn p-0 position-relative"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-label="Alertas de stock"
+            style="background:transparent; border:none; color:rgba(226,232,240,.85); line-height:1;">
+        <i class="bi bi-bell" style="font-size:1.6rem;"></i>
         {% if notif_total > 0 %}
-        <div class="dropdown">
-            <button class="btn p-0 position-relative"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    aria-label="Alertas de stock"
-                    style="background:transparent; border:none; color:rgba(226,232,240,.85); line-height:1;">
-                <i class="bi bi-bell" style="font-size:1.6rem;"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-                      style="background:{% if notif_criticos %}#9b5de5{% else %}#4DA8DA{% endif %};
-                             font-size:10px; min-width:18px; padding:3px 6px;
-                             border:2px solid var(--azul-oscuro);">
-                    {{ notif_total }}
-                </span>
-            </button>
-
-            <ul id="notif-dropdown-menu"
-                class="dropdown-menu dropdown-menu-end p-0"
-                style="border:1px solid rgba(77,168,218,.25);
-                       min-width:270px; border-radius:10px; overflow:hidden;">
-
-                <li class="px-3 pt-2 pb-1"
-                    style="font-size:10px; text-transform:uppercase; letter-spacing:.07em;
-                           color:rgba(226,232,240,.4); font-weight:600; pointer-events:none;">
-                    Alertas de stock ({{ notif_total }})
-                </li>
-
-                {% for p in notif_criticos %}
-                <li style="border-top:1px solid rgba(255,255,255,.05);">
-                    <span class="notif-item dropdown-item d-flex align-items-start gap-2 py-2 px-3"
-                          style="color:#e2e8f0; cursor:default;">
-                        <span style="width:8px; height:8px; border-radius:50%;
-                                     background:#9b5de5; flex-shrink:0; margin-top:4px;"></span>
-                        <span style="font-size:12px; line-height:1.4;">
-                            {{ p.nombre }}<br>
-                            <small style="color:rgba(226,232,240,.4);">{{ p.total_stock }} uds — crítico</small>
-                        </span>
-                    </span>
-                </li>
-                {% endfor %}
-
-                {% for p in notif_bajos %}
-                <li style="border-top:1px solid rgba(255,255,255,.05);">
-                    <span class="notif-item dropdown-item d-flex align-items-start gap-2 py-2 px-3"
-                          style="color:#e2e8f0; cursor:default;">
-                        <span style="width:8px; height:8px; border-radius:50%;
-                                     background:#4DA8DA; flex-shrink:0; margin-top:4px;"></span>
-                        <span style="font-size:12px; line-height:1.4;">
-                            {{ p.nombre }}<br>
-                            <small style="color:rgba(226,232,240,.4);">{{ p.total_stock }} uds — bajo</small>
-                        </span>
-                    </span>
-                </li>
-                {% endfor %}
-
-                <li style="border-top:1px solid rgba(255,255,255,.06);">
-                    <a class="notif-footer dropdown-item text-center py-2"
-                       href="{% url 'gestion_stock' %}"
-                       style="font-size:12px; color:#4DA8DA;">
-                        Ver stock completo →
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+              style="background:{% if notif_criticos %}#9b5de5{% else %}#4DA8DA{% endif %};
+                     font-size:10px; min-width:18px; padding:3px 6px;
+                     border:2px solid var(--azul-oscuro);">
+            {{ notif_total }}
+        </span>
         {% endif %}
+    </button>
+
+    <ul id="notif-dropdown-menu"
+        class="dropdown-menu dropdown-menu-end p-0"
+        style="border:1px solid rgba(77,168,218,.25);
+               min-width:270px; border-radius:10px; overflow:hidden;">
+
+        <li class="px-3 pt-2 pb-1"
+            style="font-size:10px; text-transform:uppercase; letter-spacing:.07em;
+                   color:rgba(226,232,240,.4); font-weight:600; pointer-events:none;">
+            Alertas de stock {% if notif_total > 0 %}({{ notif_total }}){% endif %}
+        </li>
+
+        {% if notif_total == 0 %}
+        <li style="border-top:1px solid rgba(255,255,255,.05);">
+            <span class="dropdown-item d-flex align-items-center gap-2 py-3 px-3"
+                  style="color:rgba(226,232,240,.4); cursor:default; font-size:13px;">
+                <i class="bi bi-check-circle" style="color:#2ecc71; font-size:1rem;"></i>
+                Sin alertas — todo en orden
+            </span>
+        </li>
+        {% else %}
+            {% for p in notif_criticos %}
+            <li style="border-top:1px solid rgba(255,255,255,.05);">
+                <span class="notif-item dropdown-item d-flex align-items-start gap-2 py-2 px-3"
+                      style="color:#e2e8f0; cursor:default;">
+                    <span style="width:8px; height:8px; border-radius:50%;
+                                 background:#9b5de5; flex-shrink:0; margin-top:4px;"></span>
+                    <span style="font-size:12px; line-height:1.4;">
+                        {{ p.nombre }}<br>
+                        <small style="color:rgba(226,232,240,.4);">{{ p.total_stock }} uds — crítico</small>
+                    </span>
+                </span>
+            </li>
+            {% endfor %}
+
+            {% for p in notif_bajos %}
+            <li style="border-top:1px solid rgba(255,255,255,.05);">
+                <span class="notif-item dropdown-item d-flex align-items-start gap-2 py-2 px-3"
+                      style="color:#e2e8f0; cursor:default;">
+                    <span style="width:8px; height:8px; border-radius:50%;
+                                 background:#4DA8DA; flex-shrink:0; margin-top:4px;"></span>
+                    <span style="font-size:12px; line-height:1.4;">
+                        {{ p.nombre }}<br>
+                        <small style="color:rgba(226,232,240,.4);">{{ p.total_stock }} uds — bajo</small>
+                    </span>
+                </span>
+            </li>
+            {% endfor %}
+        {% endif %}
+
+        <li style="border-top:1px solid rgba(255,255,255,.06);">
+            <a class="notif-footer dropdown-item text-center py-2"
+               href="{% url 'gestion_stock' %}"
+               style="font-size:12px; color:#4DA8DA;">
+                Ver stock completo →
+            </a>
+        </li>
+    </ul>
+</div>
 
     </div>
 </header>

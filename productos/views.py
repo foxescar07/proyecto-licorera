@@ -332,10 +332,31 @@ def producto_registro(request):
 # ===============================
 @login_required
 def buscar_producto(request):
-    q = request.GET.get('q', '').strip()
+    q    = request.GET.get('q', '').strip()
+    modo = request.GET.get('modo', '')
+
     if not q:
+        if modo == 'sugerencias':
+            return JsonResponse({'resultados': []})
         return JsonResponse({'encontrado': False, 'mensaje': 'Escribe un nombre o código.'})
 
+    # ── MODO SUGERENCIAS: lista corta para el autocomplete ──────────────
+    if modo == 'sugerencias':
+        productos = (
+            Producto.objects.filter(nombre__icontains=q) |
+            Producto.objects.filter(codigo__icontains=q)
+        ).select_related('categoria').distinct()[:8]
+
+        resultados = [{
+            'pk':        p.pk,
+            'nombre':    p.nombre,
+            'codigo':    p.codigo or '—',
+            'categoria': p.categoria.nombre if p.categoria else '—',
+        } for p in productos]
+
+        return JsonResponse({'resultados': resultados})
+
+    # ── MODO DETALLE (comportamiento original, intacto) ─────────────────
     producto = (
         Producto.objects.filter(nombre__icontains=q).first() or
         Producto.objects.filter(codigo__icontains=q).first()
@@ -348,6 +369,17 @@ def buscar_producto(request):
         total=Sum('lotes__stock_actual')
     )['total'] or 0
 
+    presentaciones = []
+    for pres in producto.presentaciones.all():
+        stock_pres = pres.lotes.aggregate(total=Sum('stock_actual'))['total'] or 0
+        presentaciones.append({
+            'id':           pres.id,
+            'nombre':       pres.nombre,
+            'unidades':     pres.unidades,
+            'precio':       str(pres.precio),
+            'stock_actual': stock_pres,
+        })
+
     return JsonResponse({
         'encontrado': True,
         'producto': {
@@ -357,9 +389,7 @@ def buscar_producto(request):
             'categoria':    producto.categoria.nombre if producto.categoria else '—',
             'stock_total':  stock_total,
             'descripcion':  producto.descripcion or '',
-            'presentaciones': list(
-                producto.presentaciones.values('id', 'nombre', 'unidades', 'precio')
-            ),
+            'presentaciones': presentaciones,
         }
     })
 
