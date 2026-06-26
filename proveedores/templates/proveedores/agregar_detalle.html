@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
 {% block content %}
 <div class="container mt-4">
@@ -103,16 +102,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <!-- Información -->
-            <div class="alert alert-warning mt-4" role="alert">
-                <h6 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Importante</h6>
-                <small>
-                    • Solo puedes agregar productos a órdenes en estado <strong>Pendiente</strong> o <strong>Confirmada</strong><br>
-                    • Asegúrate de ingresar el precio correcto del proveedor<br>
-                    • El total de la orden se actualiza automáticamente
-                </small>
             </div>
         </div>
     </div>

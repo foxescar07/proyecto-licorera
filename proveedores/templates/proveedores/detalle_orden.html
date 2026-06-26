@@ -76,18 +76,18 @@
         </div>
     </div>
 
-    <!-- Acciones -->
+    <!-- Botones de acción -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="btn-group" role="group">
-                <a href="{% url 'agregar_detalle_orden' pk=orden.id %}" class="btn btn-success">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarDetalle">
                     <i class="bi bi-plus-circle"></i> Agregar Producto
-                </a>
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cambiarEstadoModal">
+                </button>
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalCambiarEstado">
                     <i class="bi bi-pencil"></i> Cambiar Estado
                 </button>
                 {% if orden.estado == 'confirmada' %}
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#recibirCompraModal">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRecibirCompra">
                     <i class="bi bi-check-circle"></i> Recibir Compra
                 </button>
                 {% endif %}
@@ -138,10 +138,47 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- MODAL 1: CAMBIAR ESTADO -->
+<!-- MODAL 1: AGREGAR DETALLE -->
 <!-- ════════════════════════════════════════════════════════════════ -->
-<div class="modal fade" id="cambiarEstadoModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="modalAgregarDetalle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Agregar Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'agregar_detalle_orden' pk=orden.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Presentación <span class="text-danger">*</span></label>
+                        {{ form_detalle.presentacion }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cantidad <span class="text-danger">*</span></label>
+                        {{ form_detalle.cantidad }}
+                        <small class="text-muted">Debe ser mayor a 0</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Precio Unitario <span class="text-danger">*</span></label>
+                        {{ form_detalle.precio_unitario }}
+                        <small class="text-muted">Debe ser mayor a 0</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Agregar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 2: CAMBIAR ESTADO -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalCambiarEstado" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title">Cambiar Estado de Orden</h5>
@@ -151,8 +188,8 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nuevoEstado" class="form-label fw-bold">Nuevo Estado:</label>
-                        <select class="form-select form-select-lg" name="nuevo_estado" id="nuevoEstado" required>
+                        <label class="form-label fw-bold">Nuevo Estado:</label>
+                        <select class="form-select" name="nuevo_estado" required>
                             <option value="">-- Selecciona --</option>
                             {% if orden.estado == 'pendiente' %}
                                 <option value="confirmada">Confirmada</option>
@@ -180,10 +217,10 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- MODAL 2: RECIBIR COMPRA -->
+<!-- MODAL 3: RECIBIR COMPRA -->
 <!-- ════════════════════════════════════════════════════════════════ -->
-<div class="modal fade" id="recibirCompraModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="modalRecibirCompra" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Recibir Compra</h5>
@@ -192,14 +229,14 @@
             <form method="POST" action="{% url 'recibir_compra' pk=orden.id %}">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <div class="alert alert-info">
-                        <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Confirmación</h6>
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading"><i class="bi bi-check-circle"></i> Operación Importante</h6>
                         <small>
-                            Al recibir la compra:
+                            Al confirmar la recepción:
                             <ul class="mb-0 mt-2">
-                                <li>El estado cambiará a <strong>"Recibida"</strong></li>
-                                <li>Se crearán automáticamente los <strong>lotes</strong> de inventario</li>
-                                <li>No podrás agregar más productos</li>
+                                <li>✅ El estado cambiará a <strong>"Recibida"</strong></li>
+                                <li>✅ Se crearán automáticamente los <strong>lotes</strong></li>
+                                <li>❌ No podrás agregar más productos</li>
                             </ul>
                         </small>
                     </div>
@@ -210,7 +247,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle"></i> Recibir Compra
+                        <i class="bi bi-check-circle"></i> Confirmar Recepción
                     </button>
                 </div>
             </form>

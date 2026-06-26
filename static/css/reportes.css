@@ -654,6 +654,12 @@
   justify-content: center;
   gap: 20px;
 }
+.cys-modal__kpi-single > div:last-child{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
 .cys-modal__kpi-single-icon {
   width: 52px; height: 52px;
@@ -825,8 +831,8 @@
 
 .cys-rd-stat-card--verde    { border-left-color: #2ecc71; }
 .cys-rd-stat-card--azul     { border-left-color: #4DA8DA; }
-.cys-rd-stat-card--amarillo { border-left-color: #f1c40f; }
-.cys-rd-stat-card--rojo     { border-left-color: #e74c3c; }
+.cys-rd-stat-card--amarillo { border-left-color:#2ecc71; }
+.cys-rd-stat-card--rojo     { border-left-color:#4DA8DA; }
 
 .cys-rd-stat-card__icon {
   width: 40px; height: 40px;
@@ -838,8 +844,8 @@
 
 .cys-rd-stat-card__icon--verde    { background: rgba(46,204,113,0.15);  color: #2ecc71; }
 .cys-rd-stat-card__icon--azul     { background: rgba(77,168,218,0.15);  color: #4DA8DA; }
-.cys-rd-stat-card__icon--amarillo { background: rgba(241,196,15,0.15); color: #f1c40f; }
-.cys-rd-stat-card__icon--rojo     { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+.cys-rd-stat-card__icon--amarillo { background:rgba(46,204,113,.15);  color:#2ecc71; }
+.cys-rd-stat-card__icon--rojo     { background:rgba(77,168,218,.15);  color:#4DA8DA; }
 
 .cys-rd-stat-card__label {
   font-size: .72rem; font-weight: 600; color: #8FA3B1;
@@ -853,8 +859,8 @@
 
 .cys-rd-stat-card__val--verde    { color: #2ecc71; }
 .cys-rd-stat-card__val--azul     { color: #4DA8DA; }
-.cys-rd-stat-card__val--amarillo { color: #f1c40f; }
-.cys-rd-stat-card__val--rojo     { color: #e74c3c; }
+.cys-rd-stat-card__val--amarillo { color:#2ecc71; }
+.cys-rd-stat-card__val--rojo     {  color:#4DA8DA; }
 
 /* ────────────────────────────────────
    ANÁLISIS DE VENTAS
@@ -908,7 +914,7 @@
 
 .cys-av-kpi-card--verde    { border-color: rgba(46,204,113,0.25);  border-top-color: #2ecc71; }
 .cys-av-kpi-card--azul     { border-color: rgba(77,168,218,0.25);  border-top-color: #4DA8DA; }
-.cys-av-kpi-card--amarillo { border-color: rgba(241,196,15,0.25);  border-top-color: #f1c40f; }
+.cys-av-kpi-card--amarillo { border-color: rgba(46,204,113,0.25); border-top-color: #2ecc71; }
 
 .cys-av-kpi-card__icon {
   width: 46px; height: 46px;
@@ -920,7 +926,8 @@
 
 .cys-av-kpi-card--verde    .cys-av-kpi-card__icon { background: rgba(46,204,113,0.12);  color: #2ecc71; }
 .cys-av-kpi-card--azul     .cys-av-kpi-card__icon { background: rgba(77,168,218,0.12);  color: #4DA8DA; }
-.cys-av-kpi-card--amarillo .cys-av-kpi-card__icon { background: rgba(241,196,15,0.12);  color: #f1c40f; }
+.cys-av-kpi-card--amarillo .cys-av-kpi-card__icon { background: rgba(46,204,113,0.12);  color: #2ecc71; }
+ 
 
 .cys-av-kpi-card__label {
   font-size: .7rem; font-weight: 700; text-transform: uppercase;
@@ -934,7 +941,7 @@
 
 .cys-av-kpi-card--verde    .cys-av-kpi-card__val { color: #2ecc71; }
 .cys-av-kpi-card--azul     .cys-av-kpi-card__val { color: #4DA8DA; }
-.cys-av-kpi-card--amarillo .cys-av-kpi-card__val { color: #f1c40f; }
+.cys-av-kpi-card--amarillo .cys-av-kpi-card__val {  color: #2ecc71; }
 
 .cys-av-nav-btn {
   width: 90px;
@@ -1942,4 +1949,90 @@ table.dataTable {
   background: rgba(239,248,226,0.08) !important;
   border-color: rgba(239,248,226,0.35) !important;
   color: #fff !important;
+}
+/*==============================
+TABLA PROVEEDORES
+===============================*/
+
+#tabla-modal-proveedores{
+    margin-top:0;
+}
+
+#tabla-modal-proveedores thead th{
+
+    background:transparent;
+    color:#ffffff;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-align:center;
+
+    padding:18px 16px;
+
+    border-bottom:2px solid rgba(255,255,255,.12);
+}
+
+#tabla-modal-proveedores tbody td{
+
+    padding:22px 16px;
+
+    font-size:15px;
+
+    color:#EAF2FF;
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+    background:transparent;
+
+    text-align:center;
+}
+
+#tabla-modal-proveedores tbody tr:hover td{
+
+    background:transparent;
+
+}
+
+#tabla-modal-proveedores td:nth-child(2){
+
+    text-align:left;
+
+    font-weight:500;
+}
+
+#tabla-modal-proveedores td:nth-child(3){
+
+    text-align:center;
+}
+
+#tabla-modal-proveedores td:nth-child(4){
+
+    text-align:center;
+}
+
+#tabla-modal-proveedores td:nth-child(5){
+
+    text-align:center;
+}
+
+.cys-prov-name-text{
+
+    font-weight:500;
+
+    color:#F5F7FA;
+}
+
+.cys-prov-company{
+
+    color:#EAF2FF;
+}
+
+.cys-prov-phone{
+
+    color:#EAF2FF;
+}
+
+.cys-prov-email{
+
+    color:#EAF2FF;
 }

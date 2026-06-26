@@ -100,27 +100,6 @@
                     • No podrás revertir cambios una orden fue recibida
                 </small>
             </div>
-
-            <!-- Información adicional -->
-            <div class="card border-0 bg-light mt-4">
-                <div class="card-body">
-                    <h6 class="card-title">📋 Detalles de la Orden</h6>
-                    <table class="table table-sm mb-0">
-                        <tr>
-                            <td class="fw-bold" style="width: 50%">Proveedor:</td>
-                            <td>{{ orden.proveedor.nombre_empresa }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Fecha:</td>
-                            <td>{{ orden.fecha|date:"d/m/Y H:i" }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Total:</td>
-                            <td><strong>${{ orden.total|floatformat:0|default:"0" }}</strong></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 </div>
