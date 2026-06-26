@@ -102,7 +102,7 @@
     <div class="cfg-card-body">
       <div class="cfg-card-title">Base de Datos</div>
       <div class="cfg-card-desc">Estado del motor, estadísticas y gestión de respaldos automáticos.</div>
-      <span class="cfg-card-badge" id="badgeBD">Calculando…</span>
+      <span class="cfg-card-badge" id="badgeBD">{{ db_stats.tamaño|default:"Calculando…" }}</span>
     </div>
     <i class="bi bi-chevron-right cfg-card-arrow"></i>
   </div>
@@ -279,15 +279,23 @@
           <div class="mb-1">
             <label class="form-label">Unidades de medida</label>
             <div class="cfg-tags mb-2" id="tagContainer">
-              <div class="cfg-tag">
-                750ml <button class="remove-tag" type="button" aria-label="Eliminar 750ml">&times;</button>
-              </div>
-              <div class="cfg-tag">
-                1L <button class="remove-tag" type="button" aria-label="Eliminar 1L">&times;</button>
-              </div>
-              <div class="cfg-tag">
-                375ml <button class="remove-tag" type="button" aria-label="Eliminar 375ml">&times;</button>
-              </div>
+              {% if config.unidades_medida %}
+                {% for unidad in config.unidades_medida %}
+                <div class="cfg-tag">
+                  {{ unidad }} <button class="remove-tag" type="button" aria-label="Eliminar {{ unidad }}">&times;</button>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="cfg-tag">
+                  750ml <button class="remove-tag" type="button" aria-label="Eliminar 750ml">&times;</button>
+                </div>
+                <div class="cfg-tag">
+                  1L <button class="remove-tag" type="button" aria-label="Eliminar 1L">&times;</button>
+                </div>
+                <div class="cfg-tag">
+                  375ml <button class="remove-tag" type="button" aria-label="Eliminar 375ml">&times;</button>
+                </div>
+              {% endif %}
             </div>
             <div class="input-group">
               <input type="text" class="form-control" id="inputNuevaUnidad" placeholder="Ej. 2L" aria-label="Nueva unidad">
@@ -352,7 +360,7 @@
           <div class="cfg-backup-item">
             <i class="bi bi-check-circle-fill"></i>
             <span class="name">{{ backup.nombre }}</span>
-            <span class="date">{{ backup.fecha }}</span>
+            <span class="date">{{ backup.fecha|date:"d/m/Y H:i" }}</span>
           </div>
           {% empty %}
           <div class="cfg-backup-item">
@@ -404,19 +412,24 @@ const getCookie = name => {
 };
 
 /* ── Toast helper ── */
-function showToast(msg = 'Guardado', duration = 2800) {
+function showToast(msg = 'Guardado', tipo = 'ok', duration = 2800) {
   const toast = document.getElementById('cfgToast');
+  const icon  = toast.querySelector('i');
   document.getElementById('cfgToastMsg').textContent = msg;
+  icon.className = tipo === 'error'
+    ? 'bi bi-x-circle-fill'
+    : 'bi bi-check-circle-fill';
+  toast.classList.toggle('cfg-toast-error', tipo === 'error');
   toast.classList.add('show');
   clearTimeout(toast._t);
   toast._t = setTimeout(() => toast.classList.remove('show'), duration);
 }
 
-/* ── Slider helper (actualiza degradado de relleno) ── */
+/* ── Slider helper ── */
 function syncSlider(slider) {
-  const min  = +slider.min  || 0;
-  const max  = +slider.max  || 100;
-  const pct  = ((+slider.value - min) / (max - min)) * 100;
+  const min = +slider.min  || 0;
+  const max = +slider.max  || 100;
+  const pct = ((+slider.value - min) / (max - min)) * 100;
   slider.style.setProperty('--pct', pct + '%');
 }
 
@@ -455,49 +468,39 @@ document.querySelectorAll('.cfg-swatch').forEach(sw => {
 
 /* ── Guardar apariencia ── */
 document.getElementById('btnGuardarApariencia').addEventListener('click', () => {
-  const tema = document.querySelector('.cfg-swatch.active')?.dataset.tema || 'Azul Marino';
-  // Aquí harías el POST a tu vista de Django:
-  // fetch('/configuracion/apariencia/', { method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}, body: new FormData(...) })
+  // POST pendiente de implementar según diseño de temas
   bootstrap.Modal.getInstance(document.getElementById('modalApariencia')).hide();
   showToast('Apariencia guardada');
 });
 
 /* ── Guardar empresa ── */
 document.getElementById('btnGuardarEmpresa').addEventListener('click', () => {
+  const btn  = document.getElementById('btnGuardarEmpresa');
   const form = document.getElementById('formEmpresa');
   const data = new FormData(form);
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+
   fetch('{% url "configuracion:guardar_empresa" %}', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body: data
+    body:    data
   })
   .then(r => r.json())
   .then(json => {
     if (json.ok) {
       bootstrap.Modal.getInstance(document.getElementById('modalEmpresa')).hide();
       showToast('Datos de empresa guardados');
+    } else {
+      showToast('Error al guardar', 'error');
     }
   })
-  .catch(() => showToast('Error al guardar'));
-});
-
-/* ── Guardar impuestos ── */
-document.getElementById('btnGuardarImpuestos').addEventListener('click', () => {
-  const form = document.getElementById('formImpuestos');
-  const data = new FormData(form);
-  fetch('{% url "configuracion:guardar_impuestos" %}', {
-    method: 'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body: data
-  })
-  .then(r => r.json())
-  .then(json => {
-    if (json.ok) {
-      bootstrap.Modal.getInstance(document.getElementById('modalImpuestos')).hide();
-      showToast('Impuestos y moneda guardados');
-    }
-  })
-  .catch(() => showToast('Error al guardar'));
+  .catch(() => showToast('Error de conexión', 'error'))
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Guardar cambios';
+  });
 });
 
 /* ── Tags de unidades de medida ── */
@@ -509,7 +512,7 @@ function crearTag(texto) {
   return tag;
 }
 
-// Inicializar botones existentes
+// Inicializar botones de tags existentes (renderizados desde Django)
 document.querySelectorAll('#tagContainer .remove-tag').forEach(btn => {
   btn.addEventListener('click', () => btn.closest('.cfg-tag').remove());
 });
@@ -528,14 +531,51 @@ function addUnidad() {
   input.focus();
 }
 
-/* ── Backup ── */
+/* ── Guardar impuestos ── */
+document.getElementById('btnGuardarImpuestos').addEventListener('click', () => {
+  const btn  = document.getElementById('btnGuardarImpuestos');
+  const form = document.getElementById('formImpuestos');
+  const data = new FormData(form);
+
+  // Recolectar unidades desde los tags actuales
+  data.delete('unidades[]');
+  document.querySelectorAll('#tagContainer .cfg-tag').forEach(tag => {
+    const texto = tag.childNodes[0].textContent.trim();
+    if (texto) data.append('unidades[]', texto);
+  });
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+
+  fetch('{% url "configuracion:guardar_impuestos" %}', {
+    method:  'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body:    data
+  })
+  .then(r => r.json())
+  .then(json => {
+    if (json.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('modalImpuestos')).hide();
+      showToast('Impuestos y moneda guardados');
+    } else {
+      showToast('Error al guardar', 'error');
+    }
+  })
+  .catch(() => showToast('Error de conexión', 'error'))
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Guardar cambios';
+  });
+});
+
+/* ── Crear respaldo ── */
 document.getElementById('btnBackup').addEventListener('click', () => {
   const btn = document.getElementById('btnBackup');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creando…';
 
   fetch('{% url "configuracion:crear_backup" %}', {
-    method: 'POST',
+    method:  'POST',
     headers: { 'X-CSRFToken': getCookie('csrftoken') }
   })
   .then(r => r.json())
@@ -543,13 +583,22 @@ document.getElementById('btnBackup').addEventListener('click', () => {
     if (json.ok) {
       const item = document.createElement('div');
       item.className = 'cfg-backup-item';
-      item.innerHTML = `<i class="bi bi-check-circle-fill"></i><span class="name">${json.nombre}</span><span class="date">${json.fecha}</span>`;
+      item.innerHTML = `
+        <i class="bi bi-check-circle-fill"></i>
+        <span class="name">${json.nombre}</span>
+        <span class="date">${json.fecha}</span>`;
+      // Quitar mensaje "sin respaldos" si existe
+      const vacio = document.querySelector('#backupList .cfg-backup-item .bi-info-circle');
+      if (vacio) vacio.closest('.cfg-backup-item').remove();
       document.getElementById('backupList').prepend(item);
       document.getElementById('badgeBD').textContent = json.tamaño || 'Listo';
+      document.getElementById('statTamano').textContent = json.tamaño || '—';
       showToast('Respaldo creado exitosamente');
+    } else {
+      showToast(json.error || 'Error al crear respaldo', 'error');
     }
   })
-  .catch(() => showToast('Error al crear respaldo'))
+  .catch(() => showToast('Error de conexión', 'error'))
   .finally(() => {
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-download me-1"></i> Crear respaldo';
@@ -559,8 +608,7 @@ document.getElementById('btnBackup').addEventListener('click', () => {
 /* ── Limpiar BD (con confirmación) ── */
 document.getElementById('btnLimpiarBD').addEventListener('click', () => {
   if (!confirm('¿Seguro que deseas limpiar la base de datos? Esta acción no se puede deshacer.')) return;
-  // fetch('/configuracion/limpiar-bd/', ...)
-  showToast('Base de datos limpiada');
+  showToast('Función no implementada aún', 'error');
 });
 
 /* ── Accesibilidad: abrir modal con Enter/Space en tarjetas ── */

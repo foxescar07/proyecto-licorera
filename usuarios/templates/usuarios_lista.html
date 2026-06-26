@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+}{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Usuarios — CYS Ltda{% endblock %}
@@ -120,7 +120,8 @@
 
             <hr class="usuario-divider">
 
-            <div class="row g-2 mb-3 usuario-datos">
+            <!-- ▼ CAMBIO: align-items-start para evitar columnas de altura desigual -->
+            <div class="row g-2 mb-3 usuario-datos align-items-start">
               <div class="col-6">
                 <div class="usuario-label">Identificación</div>
                 <div class="usuario-value">{{ u.identificacion }}</div>
@@ -475,8 +476,6 @@
 
   /* ══════════════════════════════════════════════
      BÚSQUEDA
-     Usa data-visible para que reajustarLayout
-     cuente correctamente sin depender de style=""
   ══════════════════════════════════════════════ */
   $('inputBuscarUsuario')?.addEventListener('input', function () {
     const q    = this.value.trim().toLowerCase();
@@ -519,7 +518,7 @@
   }
 
   /* ══════════════════════════════════════════════
-     LAYOUT — conteo robusto via data-visible
+     LAYOUT
   ══════════════════════════════════════════════ */
   function contarVisibles() {
     return document.querySelectorAll(
@@ -665,7 +664,7 @@
       colDiv.dataset.nombre   = (d.nombre_completo || '').toLowerCase();
       colDiv.dataset.usuario  = (d.usuario || '').toLowerCase();
       colDiv.dataset.rol      = 'empleado';
-      colDiv.dataset.visible  = '1';   // ← imprescindible para el conteo
+      colDiv.dataset.visible  = '1';
 
       colDiv.innerHTML = `
         <div id="fila-${d.pk}" class="usuario-card h-100"
@@ -681,7 +680,7 @@
             <span id="rol-badge-${d.pk}" class="badge usuario-rol usuario-rol--empleado">Empleado</span>
           </div>
           <hr class="usuario-divider">
-          <div class="row g-2 mb-3 usuario-datos">
+          <div class="row g-2 mb-3 usuario-datos align-items-start">
             <div class="col-6">
               <div class="usuario-label">Identificación</div>
               <div class="usuario-value">${d.identificacion}</div>
