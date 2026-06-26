@@ -178,9 +178,10 @@
                      placeholder="Nombre del cliente (obligatorio)"
                      autocomplete="off">
               <input type="hidden" name="cliente_id" id="inputClienteId">
-              <!-- Mensaje de error -->
+
+              <!-- Mensaje de error — mismo estilo inline que el resto de la UI -->
               <div id="errorCliente" class="cys-campo-error" style="display:none;">
-                <i class="bi bi-exclamation-circle me-1"></i>El nombre del cliente es obligatorio
+                <i class="bi bi-exclamation-circle"></i>El nombre del cliente es obligatorio
               </div>
 
               <div id="sugerenciasClientes" class="list-group mt-1 shadow-lg cys-sugerencias-dropdown">
@@ -276,10 +277,10 @@
                   </div>
                 </div>
 
-                <!-- TRANSFERENCIA -->
+                <!-- TRANSFERENCIA — azul acero frío -->
                 <div class="col-4">
                   <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--naranja">
+                    <div class="cys-pago-card-header cys-pago-card-header--transferencia">
                       <i class="bi bi-arrow-left-right"></i>
                       <span>Transfer.</span>
                     </div>
@@ -302,10 +303,10 @@
                   </div>
                 </div>
 
-                <!-- DAVIPLATA -->
+                <!-- DAVIPLATA — cian apagado frío -->
                 <div class="col-4">
                   <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--rosa">
+                    <div class="cys-pago-card-header cys-pago-card-header--daviplata">
                       <i class="bi bi-phone-fill"></i>
                       <span>Daviplata</span>
                     </div>
@@ -1074,3 +1075,4 @@ function filtrarHistorial() {
 renderCategorias();
 </script>
 {% endblock %}
+ENDOFFILE
