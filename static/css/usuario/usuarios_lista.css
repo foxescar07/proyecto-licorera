@@ -50,6 +50,7 @@
   padding: .25rem .55rem;
   border-radius: 7px;
   transition: background .2s, color .2s;
+  cursor: pointer;
 }
 .ul-searchbar__btn:hover {
   background: #4DA8DA;
@@ -136,37 +137,36 @@
 /* ══════════════════════════════════════════════
    CASO 1 — 1 o 2 tarjetas
 ══════════════════════════════════════════════ */
-.cards-view-1-2 .ul-layout,
 .ul-layout.cards-view-1-2 {
   align-items: flex-start;
 }
-.cards-view-1-2 #contenedor-tarjetas {
+.ul-layout.cards-view-1-2 #contenedor-tarjetas {
   align-items: stretch;
   height: 100%;
 }
-.cards-view-1-2 #contenedor-tarjetas > div {
+.ul-layout.cards-view-1-2 #contenedor-tarjetas > div {
   display: flex;
 }
-.cards-view-1-2 .usuario-card {
+.ul-layout.cards-view-1-2 .usuario-card {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
-.cards-view-1-2 .usuario-card.h-100 {
+.ul-layout.cards-view-1-2 .usuario-card.h-100 {
   height: auto !important;
 }
-.cards-view-1-2 .usuario-card > .d-flex.gap-2:last-child {
+.ul-layout.cards-view-1-2 .usuario-card > .d-flex.gap-2:last-child {
   margin-top: auto;
 }
-.cards-view-1-2 .ul-main {
+.ul-layout.cards-view-1-2 .ul-main {
   display: flex;
   flex-direction: column;
   align-self: flex-start;
 }
-.cards-view-1-2 .ul-main #contenedor-tarjetas {
+.ul-layout.cards-view-1-2 .ul-main #contenedor-tarjetas {
   flex: 1;
 }
-.cards-view-1-2 .ul-sidebar {
+.ul-layout.cards-view-1-2 .ul-sidebar {
   align-self: flex-start;
   display: flex;
   flex-direction: column;
@@ -175,35 +175,35 @@
   position: sticky;
   top: 1.5rem;
 }
-.cards-view-1-2 .widget-total {
+.ul-layout.cards-view-1-2 .widget-total {
   flex: 0 0 auto;
   padding: .9rem 1.1rem;
 }
-.cards-view-1-2 .widget-total .ul-big-stat {
+.ul-layout.cards-view-1-2 .widget-total .ul-big-stat {
   padding: .25rem 0 .15rem;
 }
-.cards-view-1-2 .widget-total .ul-big-stat__num {
+.ul-layout.cards-view-1-2 .widget-total .ul-big-stat__num {
   font-size: 2.3rem;
 }
-.cards-view-1-2 .widget-total .ul-big-stat__label {
+.ul-layout.cards-view-1-2 .widget-total .ul-big-stat__label {
   font-size: .66rem;
   margin-top: .2rem;
 }
-.cards-view-1-2 .widget-total .ul-big-stat__sub {
+.ul-layout.cards-view-1-2 .widget-total .ul-big-stat__sub {
   font-size: .6rem;
   margin-top: .28rem;
 }
-.cards-view-1-2 .widget-total .ul-bar-wrap {
+.ul-layout.cards-view-1-2 .widget-total .ul-bar-wrap {
   margin-top: .5rem;
 }
-.cards-view-1-2 .ul-sidebar-bottom {
+.ul-layout.cards-view-1-2 .ul-sidebar-bottom {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: .4rem;
 }
-.cards-view-1-2 #wrapperStats,
-.cards-view-1-2 #wrapperRecientes {
+.ul-layout.cards-view-1-2 #wrapperStats,
+.ul-layout.cards-view-1-2 #wrapperRecientes {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -213,41 +213,41 @@
   border-radius: 12px;
   overflow: hidden;
 }
-.cards-view-1-2 #wrapperStats .btn-trigger-dropdown,
-.cards-view-1-2 #wrapperRecientes .btn-trigger-dropdown {
+.ul-layout.cards-view-1-2 #wrapperStats .btn-trigger-dropdown,
+.ul-layout.cards-view-1-2 #wrapperRecientes .btn-trigger-dropdown {
   display: flex;
   margin-bottom: 0;
   background: transparent;
   border: none;
   border-radius: 0;
 }
-.cards-view-1-2 .btn-trigger-dropdown[aria-expanded="true"] {
+.ul-layout.cards-view-1-2 .btn-trigger-dropdown[aria-expanded="true"] {
   border-bottom: 1px solid rgba(77,168,218,.12);
 }
-.cards-view-1-2 .btn-trigger-dropdown .arrow-icon {
+.ul-layout.cards-view-1-2 .btn-trigger-dropdown .arrow-icon {
   transform: rotate(0deg);
 }
-.cards-view-1-2 .btn-trigger-dropdown[aria-expanded="true"] .arrow-icon {
+.ul-layout.cards-view-1-2 .btn-trigger-dropdown[aria-expanded="true"] .arrow-icon {
   transform: rotate(180deg);
 }
-.cards-view-1-2 #wrapperStats .collapse,
-.cards-view-1-2 #wrapperStats .collapsing,
-.cards-view-1-2 #wrapperRecientes .collapse,
-.cards-view-1-2 #wrapperRecientes .collapsing {
+.ul-layout.cards-view-1-2 #wrapperStats .collapse,
+.ul-layout.cards-view-1-2 #wrapperStats .collapsing,
+.ul-layout.cards-view-1-2 #wrapperRecientes .collapse,
+.ul-layout.cards-view-1-2 #wrapperRecientes .collapsing {
   background: transparent;
 }
-.cards-view-1-2 #wrapperStats .stats-grid-inner {
+.ul-layout.cards-view-1-2 #wrapperStats .stats-grid-inner {
   padding: .75rem;
   gap: .5rem;
 }
-.cards-view-1-2 #wrapperRecientes .ul-widget {
+.ul-layout.cards-view-1-2 #wrapperRecientes .ul-widget {
   border: none;
   border-radius: 0;
   background: transparent;
   padding: .75rem;
 }
-.cards-view-1-2 .widget-estado,
-.cards-view-1-2 .widget-rol {
+.ul-layout.cards-view-1-2 .widget-estado,
+.ul-layout.cards-view-1-2 .widget-rol {
   background: rgba(77,168,218,.04);
   border-radius: 10px !important;
   border: 1px solid rgba(77,168,218,.1) !important;
@@ -256,104 +256,87 @@
 /* ══════════════════════════════════════════════
    CASO 2 — 3 o 4 tarjetas
 ══════════════════════════════════════════════ */
-.cards-view-3-4 #wrapperStats .btn-trigger-dropdown,
-.cards-view-3-4 #wrapperRecientes .btn-trigger-dropdown {
+.ul-layout.cards-view-3-4 #wrapperStats .btn-trigger-dropdown,
+.ul-layout.cards-view-3-4 #wrapperRecientes .btn-trigger-dropdown {
   display: none !important;
 }
-
-.cards-view-3-4 .ul-layout {
+.ul-layout.cards-view-3-4 {
   align-items: stretch;
 }
-.cards-view-3-4 .ul-sidebar {
+.ul-layout.cards-view-3-4 .ul-sidebar {
   display: flex;
   flex-direction: column;
   align-self: stretch;
   gap: .75rem;
 }
-
-/* Widget Usuarios Totales: compacto, no crece */
-.cards-view-3-4 .widget-total {
+.ul-layout.cards-view-3-4 .widget-total {
   flex: 0 0 auto;
 }
-.cards-view-3-4 .widget-total .ul-big-stat {
+.ul-layout.cards-view-3-4 .widget-total .ul-big-stat {
   padding: .2rem 0 .1rem;
 }
-.cards-view-3-4 .widget-total .ul-big-stat__num {
+.ul-layout.cards-view-3-4 .widget-total .ul-big-stat__num {
   font-size: 2rem;
 }
-.cards-view-3-4 .widget-total .ul-big-stat__label {
+.ul-layout.cards-view-3-4 .widget-total .ul-big-stat__label {
   font-size: .62rem;
   margin-top: .15rem;
 }
-.cards-view-3-4 .widget-total .ul-big-stat__sub {
+.ul-layout.cards-view-3-4 .widget-total .ul-big-stat__sub {
   font-size: .58rem;
   margin-top: .18rem;
 }
-.cards-view-3-4 .widget-total .ul-bar-wrap {
+.ul-layout.cards-view-3-4 .widget-total .ul-bar-wrap {
   margin-top: .4rem;
 }
-
-/* sidebar-bottom ocupa todo el espacio restante */
-.cards-view-3-4 .ul-sidebar-bottom {
+.ul-layout.cards-view-3-4 .ul-sidebar-bottom {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: .75rem;
   min-height: 0;
 }
-
-/* wrapperStats: tamaño natural */
-.cards-view-3-4 #wrapperStats {
+.ul-layout.cards-view-3-4 #wrapperStats {
   flex: 0 0 auto;
 }
-.cards-view-3-4 .stats-grid-inner {
+.ul-layout.cards-view-3-4 .stats-grid-inner {
   flex-direction: row;
   gap: .5rem;
 }
-.cards-view-3-4 .widget-estado,
-.cards-view-3-4 .widget-rol {
+.ul-layout.cards-view-3-4 .widget-estado,
+.ul-layout.cards-view-3-4 .widget-rol {
   flex: 1;
 }
-.cards-view-3-4 .widget-estado .ul-widget__title,
-.cards-view-3-4 .widget-rol .ul-widget__title {
+.ul-layout.cards-view-3-4 .widget-estado .ul-widget__title,
+.ul-layout.cards-view-3-4 .widget-rol .ul-widget__title {
   margin-bottom: .4rem;
 }
-.cards-view-3-4 .widget-estado .ul-stat-row,
-.cards-view-3-4 .widget-rol .ul-stat-row {
+.ul-layout.cards-view-3-4 .widget-estado .ul-stat-row,
+.ul-layout.cards-view-3-4 .widget-rol .ul-stat-row {
   padding: .3rem 0;
 }
-
-/* wrapperRecientes: ocupa TODO el espacio restante del sidebar-bottom */
-.cards-view-3-4 #wrapperRecientes {
+.ul-layout.cards-view-3-4 #wrapperRecientes {
   flex: 1;
   min-height: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
 }
-
-/*
-  CORRECCIÓN CLAVE:
-  Bootstrap fuerza display:block en .collapse.show, rompiendo la cadena flex.
-  height:100% resuelve el estiramiento desde el padre aunque display cambie.
-*/
-.cards-view-3-4 #collapseRecientes {
+.ul-layout.cards-view-3-4 #collapseRecientes {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column;
   min-height: 0;
   height: 100%;
 }
-.cards-view-3-4 .widget-recientes {
+.ul-layout.cards-view-3-4 .widget-recientes {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
   height: 100%;
 }
-
-/* El título queda fijo; solo la lista hace scroll */
-.cards-view-3-4 .ul-recientes-scroll {
+.ul-layout.cards-view-3-4 .ul-recientes-scroll {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -364,30 +347,30 @@
 /* ══════════════════════════════════════════════
    CASO 3 — 5 o 6 tarjetas
 ══════════════════════════════════════════════ */
-.cards-view-5-6 .btn-trigger-dropdown {
+.ul-layout.cards-view-5-6 .btn-trigger-dropdown {
   display: none !important;
 }
-.cards-view-5-6 .stats-grid-inner {
+.ul-layout.cards-view-5-6 .stats-grid-inner {
   flex-direction: row;
   gap: .5rem;
 }
-.cards-view-5-6 .widget-estado,
-.cards-view-5-6 .widget-rol {
+.ul-layout.cards-view-5-6 .widget-estado,
+.ul-layout.cards-view-5-6 .widget-rol {
   flex: 1;
 }
-.cards-view-5-6 .widget-estado .ul-widget__title,
-.cards-view-5-6 .widget-rol .ul-widget__title {
+.ul-layout.cards-view-5-6 .widget-estado .ul-widget__title,
+.ul-layout.cards-view-5-6 .widget-rol .ul-widget__title {
   margin-bottom: .4rem;
 }
-.cards-view-5-6 .widget-estado .ul-stat-row,
-.cards-view-5-6 .widget-rol .ul-stat-row {
+.ul-layout.cards-view-5-6 .widget-estado .ul-stat-row,
+.ul-layout.cards-view-5-6 .widget-rol .ul-stat-row {
   padding: .28rem 0;
 }
-.cards-view-5-6 .ul-sidebar {
+.ul-layout.cards-view-5-6 .ul-sidebar {
   position: sticky;
   top: 1.5rem;
 }
-.cards-view-5-6 .ul-sidebar-bottom {
+.ul-layout.cards-view-5-6 .ul-sidebar-bottom {
   display: flex;
   flex-direction: column;
   gap: .75rem;
@@ -396,26 +379,26 @@
 /* ══════════════════════════════════════════════
    CASO 4 — 7 o más tarjetas
 ══════════════════════════════════════════════ */
-.cards-view-dense .btn-trigger-dropdown {
+.ul-layout.cards-view-dense .btn-trigger-dropdown {
   display: none !important;
 }
-.cards-view-dense .stats-grid-inner {
+.ul-layout.cards-view-dense .stats-grid-inner {
   flex-direction: column;
   gap: .75rem;
 }
-.cards-view-dense .widget-estado .ul-widget__title,
-.cards-view-dense .widget-rol .ul-widget__title {
+.ul-layout.cards-view-dense .widget-estado .ul-widget__title,
+.ul-layout.cards-view-dense .widget-rol .ul-widget__title {
   margin-bottom: .4rem;
 }
-.cards-view-dense .widget-estado .ul-stat-row,
-.cards-view-dense .widget-rol .ul-stat-row {
+.ul-layout.cards-view-dense .widget-estado .ul-stat-row,
+.ul-layout.cards-view-dense .widget-rol .ul-stat-row {
   padding: .28rem 0;
 }
-.cards-view-dense .ul-sidebar {
+.ul-layout.cards-view-dense .ul-sidebar {
   position: sticky;
   top: 1.5rem;
 }
-.cards-view-dense .ul-sidebar-bottom {
+.ul-layout.cards-view-dense .ul-sidebar-bottom {
   display: flex;
   flex-direction: column;
   gap: .75rem;
@@ -549,18 +532,12 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-
-/* Scrollbar de Registros recientes */
 .ul-recientes-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(77,168,218,.3) transparent;
 }
-.ul-recientes-scroll::-webkit-scrollbar {
-  width: 5px;
-}
-.ul-recientes-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
+.ul-recientes-scroll::-webkit-scrollbar { width: 5px; }
+.ul-recientes-scroll::-webkit-scrollbar-track { background: transparent; }
 .ul-recientes-scroll::-webkit-scrollbar-thumb {
   background: rgba(77,168,218,.3);
   border-radius: 999px;
@@ -568,7 +545,6 @@
 .ul-recientes-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(77,168,218,.5);
 }
-
 .ul-bar-wrap { margin-top: .6rem; }
 .ul-bar-label-row {
   display: flex;
@@ -641,7 +617,7 @@
 .usuario-btn-desactivar { background: rgba(192,57,43,.14); border: 1px solid rgba(192,57,43,.35); color: #e87070; }
 .usuario-btn-desactivar:hover { background: rgba(192,57,43,.28); border-color: rgba(192,57,43,.5); color: #fff; }
 .usuario-btn-activar    { background: rgba(77,218,140,.14); border: 1px solid rgba(77,218,140,.35); color: #5edb97; }
-.usuario-btn-activar:hover    { background: rgba(77,218,140,.28); border-color: rgba(77,218,140,.5); color: #011936; }
+.usuario-btn-activar:hover { background: rgba(77,218,140,.28); border-color: rgba(77,218,140,.5); color: #011936; }
 .usuario-btn-eliminar {
   display: flex; align-items: center; justify-content: center; gap: .35rem;
   border-radius: 8px; font-size: .73rem; font-family: 'Inter',sans-serif;
@@ -660,7 +636,7 @@
 .cys-alert-error { background: rgba(192,57,43,.12); border: 1px solid rgba(192,57,43,.4); color: #e87070; border-radius: 10px; }
 
 /* ══════════════════════════════════════════════
-   MODAL EDITAR
+   MODAL EDITAR / CREAR
 ══════════════════════════════════════════════ */
 .modal-editar { max-width: 500px; }
 .modal-editar-content { background: #0D1B2E; border: 1px solid rgba(77,168,218,.3); border-radius: 18px; box-shadow: 0 16px 48px rgba(0,0,0,.8); font-family: 'Inter',sans-serif; }
@@ -675,59 +651,15 @@
 .eu-input  { background: #111f33; border: 1px solid rgba(77,168,218,.3); color: #E8EDF2; border-radius: 10px; padding: .65rem .9rem; font-size: .85rem; width: 100%; outline: none; font-family: 'Inter',sans-serif; transition: border-color .2s; }
 .eu-input:focus  { border-color: #4DA8DA; }
 .eu-input option { background: #111f33; }
+.eu-input--invalid { border-color: #e87070 !important; box-shadow: 0 0 0 3px rgba(232,112,112,.1) !important; }
 .modal-divider    { border-color: rgba(77,168,218,.12); margin: 1rem 0 .85rem; }
 .modal-pass-title { font-size: .68rem; color: rgba(232,237,242,.3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .85rem; }
 .modal-btn-guardar { background: #4DA8DA; color: #011936; border: none; border-radius: 10px; padding: .75rem; font-family: 'Rajdhani',sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: .1em; text-transform: uppercase; transition: background .2s; box-shadow: 0 4px 14px rgba(77,168,218,.3); }
 .modal-btn-guardar:hover { background: #6dc0e8; }
 
 /* ══════════════════════════════════════════════
-   RESPONSIVE
+   MODAL CREAR — específicos
 ══════════════════════════════════════════════ */
-@media (max-width: 992px) {
-  .ul-layout { flex-direction: column; }
-  .ul-sidebar { width: 100% !important; position: static !important; }
-  .cards-view-1-2 .ul-sidebar { position: static !important; }
-  .cards-view-3-4 .ul-layout { align-items: flex-start !important; }
-  .cards-view-3-4 .ul-sidebar { height: auto !important; }
-  .cards-view-3-4 .widget-total { flex: none !important; }
-  .cards-view-3-4 #wrapperStats { flex: none !important; }
-  .cards-view-3-4 #collapseStats { flex: none !important; display: block !important; }
-  .cards-view-3-4 .stats-grid-inner { flex: none !important; align-items: flex-start !important; }
-  .cards-view-3-4 #wrapperRecientes { flex: none !important; margin-top: 0 !important; }
-  .cards-view-3-4 #collapseRecientes {
-    flex: none !important;
-    display: block !important;
-    height: auto !important;
-  }
-  .cards-view-3-4 .widget-recientes {
-    flex: none !important;
-    height: auto !important;
-  }
-  .cards-view-3-4 .ul-recientes-scroll { flex: none !important; overflow-y: visible !important; }
-  .cards-view-3-4 .stats-grid-inner,
-  .cards-view-5-6 .stats-grid-inner { flex-direction: column !important; }
-  .btn-trigger-dropdown { display: flex !important; }
-}
-
-/* ── FIX AUTOCOMPLETADO (fondo blanco del navegador) ── */
-.cys-input:-webkit-autofill,
-.cys-input:-webkit-autofill:hover,
-.cys-input:-webkit-autofill:focus,
-.cys-input:-webkit-autofill:active {
-  -webkit-text-fill-color: var(--texto) !important;
-  -webkit-box-shadow: 0 0 0 1000px var(--fondo-input) inset !important;
-  box-shadow: 0 0 0 1000px var(--fondo-input) inset !important;
-  border: 1px solid var(--azul-borde) !important;
-  caret-color: var(--texto);
-  transition: background-color 9999s ease-in-out 0s;
-}
-
-
-/* ══════════════════════════════════════════════
-   MODAL CREAR USUARIO — estilos específicos
-══════════════════════════════════════════════ */
-
-/* Separadores de sección dentro del modal */
 .cu-section-label {
   display: flex;
   align-items: center;
@@ -743,23 +675,14 @@
   border-bottom: 1px solid rgba(77,168,218,.12);
   opacity: .85;
 }
-
 .cu-section-label i { font-size: .82rem; }
-
-/* Asterisco obligatorio */
-.cu-required {
-  color: #e87070;
-  margin-left: .15rem;
-}
-
-/* Rol fijo — no editable */
+.cu-required { color: #e87070; margin-left: .15rem; }
 .cu-rol-badge-wrap {
   display: flex;
   flex-direction: column;
   gap: .5rem;
   padding-top: .25rem;
 }
-
 .cu-rol-badge {
   font-size: .72rem;
   padding: .35rem .75rem;
@@ -768,34 +691,22 @@
   pointer-events: none;
   user-select: none;
 }
-
 .cu-rol-hint {
   font-size: .68rem;
   color: rgba(232,237,242,.38);
   line-height: 1.5;
 }
+.cu-rol-hint strong { color: rgba(232,237,242,.6); }
 
-.cu-rol-hint strong {
-  color: rgba(232,237,242,.6);
-}
-
-/* Input inválido en el modal crear */
-.eu-input--invalid {
-  border-color: #e87070 !important;
-  box-shadow: 0 0 0 3px rgba(232,112,112,.12) !important;
-}
 /* ══════════════════════════════════════════════
    ROL CONTROL INLINE
-   ══════════════════════════════════════════════ */
-
+══════════════════════════════════════════════ */
 .usuario-rol-control {
   position: relative;
   display: flex;
   align-items: center;
-  flex-shrink: 0;          /* nunca se encoge empujando el nombre */
+  flex-shrink: 0;
 }
-
-/* Badge clickable */
 .usuario-rol--clickable {
   cursor: pointer;
   transition: opacity .15s, filter .15s;
@@ -813,8 +724,6 @@
   opacity: .55;
   flex-shrink: 0;
 }
-
-/* ── Selector inline: se despliega DEBAJO del badge como popover ── */
 .usuario-rol-selector {
   position: absolute;
   top: calc(100% + 6px);
@@ -831,13 +740,10 @@
   animation: rolFadeIn .15s ease;
   white-space: nowrap;
 }
-
 @keyframes rolFadeIn {
   from { opacity: 0; transform: translateY(-4px) scale(.97); }
   to   { opacity: 1; transform: translateY(0)   scale(1);   }
 }
-
-/* Select de rol — solo 2 opciones, ancho justo */
 .usuario-rol-select {
   background: rgba(13,27,46,.9);
   border: 1px solid rgba(77,168,218,.35);
@@ -856,18 +762,12 @@
   border-color: rgba(77,168,218,.85);
   box-shadow: 0 0 0 2px rgba(77,168,218,.12);
 }
-.usuario-rol-select option {
-  background: #0d1b2e;
-  color: #e8edf2;
-}
-
-/* Botones ok / cancel */
+.usuario-rol-select option { background: #0d1b2e; color: #e8edf2; }
 .usuario-rol-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 22px; height: 22px;
   border-radius: 50%;
   border: 1px solid transparent;
   background: transparent;
@@ -879,76 +779,29 @@
 }
 .usuario-rol-btn:active  { transform: scale(.88); }
 .usuario-rol-btn:disabled { opacity: .45; cursor: not-allowed; }
+.usuario-rol-btn--ok    { color: #2ecc71; border-color: rgba(46,204,113,.4); }
+.usuario-rol-btn--ok:hover { background: rgba(46,204,113,.15); border-color: rgba(46,204,113,.7); }
+.usuario-rol-btn--cancel { color: #e87070; border-color: rgba(232,112,112,.4); }
+.usuario-rol-btn--cancel:hover { background: rgba(232,112,112,.15); border-color: rgba(232,112,112,.7); }
 
-.usuario-rol-btn--ok {
-  color: #2ecc71;
-  border-color: rgba(46,204,113,.4);
-}
-.usuario-rol-btn--ok:hover {
-  background: rgba(46,204,113,.15);
-  border-color: rgba(46,204,113,.7);
-}
-.usuario-rol-btn--cancel {
-  color: #e87070;
-  border-color: rgba(232,112,112,.4);
-}
-.usuario-rol-btn--cancel:hover {
-  background: rgba(232,112,112,.15);
-  border-color: rgba(232,112,112,.7);
-
-}
-
-/* ══ MODAL CREAR — estilos adicionales ══ */
-.cu-modal-icon {
-  width: 38px; height: 38px;
-  background: rgba(77,168,218,.12);
-  border: 1px solid rgba(77,168,218,.35);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem;
-  color: #4DA8DA;
-  flex-shrink: 0;
-}
-.cu-modal-eyebrow {
-  font-size: .58rem;
-  font-weight: 600;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: #4DA8DA;
-  opacity: .65;
-  margin-bottom: .1rem;
-}
-.cu-section-label {
-  display: flex;
-  align-items: center;
-  gap: .4rem;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: .68rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #4DA8DA;
-  padding-bottom: .4rem;
-  border-bottom: 1px solid rgba(77,168,218,.1);
-  opacity: .85;
-}
-.cu-rules {
-  display: flex;
-  gap: .75rem;
-  flex-wrap: wrap;
-}
-.cu-rule {
-  font-size: .7rem;
-  color: rgba(232,237,242,.5);
-  display: flex;
-  align-items: center;
-  gap: .3rem;
-  transition: color .2s;
-}
-.cu-rule i { color: #e87070; font-size: .75rem; transition: color .2s; }
-.cu-rule.cu-rule--ok { color: rgba(232,237,242,.85); }
-.cu-rule.cu-rule--ok i { color: #5edb97; }
-.eu-input--invalid {
-  border-color: #e87070 !important;
-  box-shadow: 0 0 0 3px rgba(232,112,112,.1) !important;
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 992px) {
+  .ul-layout { flex-direction: column; }
+  .ul-sidebar { width: 100% !important; position: static !important; }
+  .ul-layout.cards-view-1-2 .ul-sidebar { position: static !important; }
+  .ul-layout.cards-view-3-4 { align-items: flex-start !important; }
+  .ul-layout.cards-view-3-4 .ul-sidebar { height: auto !important; }
+  .ul-layout.cards-view-3-4 .widget-total { flex: none !important; }
+  .ul-layout.cards-view-3-4 #wrapperStats { flex: none !important; }
+  .ul-layout.cards-view-3-4 #collapseStats { flex: none !important; display: block !important; }
+  .ul-layout.cards-view-3-4 .stats-grid-inner { flex: none !important; align-items: flex-start !important; }
+  .ul-layout.cards-view-3-4 #wrapperRecientes { flex: none !important; margin-top: 0 !important; }
+  .ul-layout.cards-view-3-4 #collapseRecientes { flex: none !important; display: block !important; height: auto !important; }
+  .ul-layout.cards-view-3-4 .widget-recientes { flex: none !important; height: auto !important; }
+  .ul-layout.cards-view-3-4 .ul-recientes-scroll { flex: none !important; overflow-y: visible !important; }
+  .ul-layout.cards-view-3-4 .stats-grid-inner,
+  .ul-layout.cards-view-5-6 .stats-grid-inner { flex-direction: column !important; }
+  .btn-trigger-dropdown { display: flex !important; }
 }
