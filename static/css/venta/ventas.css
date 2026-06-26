@@ -1,3 +1,4 @@
+
 /* ════════════════════════════════════════════════════════════════
    VENTAS.CSS — Punto de Venta CYS Ltda
    ════════════════════════════════════════════════════════════════ */
@@ -249,6 +250,38 @@
 }
 
 /* ══════════════════════════════════════
+   FIX 1 — ALERTA DE CLIENTE OBLIGATORIO
+   Mismo estilo tipográfico que la página
+   (sans-serif, peso 600, rojo CYS)
+══════════════════════════════════════ */
+.cys-campo-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.25);
+  border-radius: 6px;
+  color: var(--cys-rojo);          /* rojo CYS */
+  font-family: sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.cys-campo-error i {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  color: var(--cys-rojo);
+}
+
+/* Estado de error en el input */
+.cys-input-error {
+  border-color: var(--cys-rojo) !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15) !important;
+}
+
+/* ══════════════════════════════════════
    TARJETAS DE CATEGORÍAS / PRODUCTOS
 ══════════════════════════════════════ */
 .cys-cat-card-premium {
@@ -408,6 +441,13 @@
   align-items: center;
 }
 
+.cys-descuento-box-nuevo {
+  background: var(--cys-surface);
+  border: 1px solid var(--cys-borde);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
 .cys-descuento-label {
   color: var(--cys-texto-muted);
   font-family: 'Rajdhani', sans-serif;
@@ -486,7 +526,10 @@
 }
 
 /* ══════════════════════════════════════
-   MÉTODOS DE PAGO — con Rajdhani
+   FIX 2 — MÉTODOS DE PAGO
+   Transferencia → azul acero
+   Daviplata → morado/índigo
+   (eliminado blanco en iconos)
 ══════════════════════════════════════ */
 .cys-pagos-box {
   background: var(--cys-surface);
@@ -560,11 +603,16 @@
   padding: 4px 2px;
 }
 
-.cys-pago-card-header--verde   { color: var(--cys-verde); }
-.cys-pago-card-header--acento  { color: var(--cys-acento); }
-.cys-pago-card-header--naranja { color: #f5a623; }
-.cys-pago-card-header--morado  { color: #a78bfa; }
-.cys-pago-card-header--rosa    { color: #f472b6; }
+/* Efectivo — verde */
+.cys-pago-card-header--verde        { color: var(--cys-verde); }
+/* Tarjeta — azul acento */
+.cys-pago-card-header--acento       { color: var(--cys-acento); }
+/* Transferencia — azul acero frío */
+.cys-pago-card-header--transferencia { color: #60a5fa; }
+/* Nequi — morado violeta */
+.cys-pago-card-header--morado       { color: #a78bfa; }
+/* Daviplata — índigo / morado oscuro */
+.cys-pago-card-header--daviplata    { color: #818cf8; }
 
 .cys-pago-input {
   font-family: 'Rajdhani', sans-serif !important;
@@ -689,7 +737,9 @@
 }
 
 /* ══════════════════════════════════════
-   HISTORIAL — TABLA
+   FIX 3 — HISTORIAL TABLA
+   Celdas td con color azul claro legible
+   en lugar del gris oscuro casi invisible
 ══════════════════════════════════════ */
 .cys-inv-table {
   width: 100%;
@@ -710,9 +760,17 @@
 .cys-inv-table td {
   padding: 14px 16px;
   border-bottom: 1px solid rgba(77, 168, 218, 0.08);
-  color: #e2e8f0;
+  color: #93c5fd;          /* azul claro legible, estética CYS */
   font-size: 0.9rem;
   vertical-align: middle;
+}
+/* Columnas que deben resaltar más (cliente, total) mantienen blanco */
+.cys-inv-table td.fw-bold {
+  color: #e2e8f0;
+}
+/* La clase text-muted en tabla → azul grisáceo visible */
+.cys-inv-table td.text-muted {
+  color: #7db9e8 !important;
 }
 .cys-inv-table tbody tr:hover {
   background: rgba(77, 168, 218, 0.02);

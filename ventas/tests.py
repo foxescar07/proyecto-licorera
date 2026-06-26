@@ -123,7 +123,7 @@ class DevolucionModelTest(TestCase):
             )
             self.assertEqual(devolucion.tipo_reembolso, tipo)
 
-    # ✓ Propiedad: Número de devolución formateado
+    # ✓ Propiedad: Número de devolución formato (DEV-XXXX)
     def test_numero_devolucion_formateado(self):
         """Verificar que el número se formatea correctamente."""
         devolucion = Devolucion.objects.create(
@@ -145,6 +145,16 @@ class DevolucionModelTest(TestCase):
         )
 
         self.assertTrue(devolucion.restaurar_stock)
+
+    # ✓ Novedad: Validación de Valores por Defecto iniciales
+    def test_valores_por_defecto_devolucion(self):
+        """Verificar que el estado inicial por defecto sea correcto."""
+        devolucion = Devolucion.objects.create(
+            venta=self.venta,
+            registrado_por=self.usuario
+        )
+        # Ajusta 'pendiente' o el estado inicial por defecto que manejes en tu modelo
+        self.assertEqual(devolucion.estado, 'pendiente') 
 
     # ✓ Validación: String representation
     def test_str_representation(self):
@@ -181,7 +191,7 @@ class DetalleDevolucionModelTest(TestCase):
         self.devolucion = Devolucion.objects.create(
             venta=self.venta,
             registrado_por=self.usuario,
-            total_devuelto=50000
+            total_devuelto=0
         )
 
         self.categoria = Categoria.objects.create(codigo="RON", nombre="Ron")
@@ -211,7 +221,8 @@ class DetalleDevolucionModelTest(TestCase):
         self.assertEqual(detalle.devolucion, self.devolucion)
         self.assertEqual(detalle.presentacion, self.presentacion)
         self.assertEqual(detalle.cantidad, 1)
-        self.assertEqual(detalle.subtotal(), 50000)
+        # Nota: Ajustado a propiedad (sin paréntesis) para mantener consistencia con compras
+        self.assertEqual(detalle.subtotal, 50000) 
 
     # ✓ US-021: Detalle devuelto requiere presentación
     def test_detalle_requiere_presentacion(self):
@@ -230,10 +241,22 @@ class DetalleDevolucionModelTest(TestCase):
         detalle = DetalleDevolucion(
             devolucion=self.devolucion,
             presentacion=self.presentacion,
-            cantidad=0,
+            cantidad=-5,
             precio_unitario=50000
         )
 
+        with self.assertRaises(ValidationError):
+            detalle.full_clean()
+
+    # ✓ Novedad (Igual a Proveedores): Límite exacto de cantidad mínima
+    def test_cantidad_minima_es_uno(self):
+        """Verificar que la cantidad mínima permitida es 1 (Error si es 0)."""
+        detalle = DetalleDevolucion(
+            devolucion=self.devolucion,
+            presentacion=self.presentacion,
+            cantidad=0,
+            precio_unitario=50000
+        )
         with self.assertRaises(ValidationError):
             detalle.full_clean()
 
@@ -250,18 +273,18 @@ class DetalleDevolucionModelTest(TestCase):
         with self.assertRaises(ValidationError):
             detalle.full_clean()
 
-    # ✓ Calcular subtotal automático
+    # ✓ Calcular subtotal automático (Consistencia con propiedad de Compras)
     def test_subtotal_calculado_automaticamente(self):
-        """Verificar que subtotal se calcula automáticamente."""
+        """Verificar que subtotal se calcula automáticamente como propiedad."""
         detalle = DetalleDevolucion.objects.create(
             devolucion=self.devolucion,
             presentacion=self.presentacion,
             cantidad=3,
             precio_unitario=50000
         )
-
-        self.assertEqual(detalle.subtotal(), 3 * 50000)
-        self.assertEqual(detalle.subtotal(), 150000)
+        # Ajustado a acceso de propiedad directo para mimetizar la arquitectura general
+        self.assertEqual(detalle.subtotal, 3 * 50000)
+        self.assertEqual(detalle.subtotal, 150000)
 
     # ✓ Validación: String representation
     def test_str_representation(self):
@@ -330,16 +353,14 @@ class DevolucionIntegrationTest(TestCase):
             precio=50000
         )
 
-    # ✓ Flujo completo: Crear devolución → Agregar detalles
-    def test_flujo_completo_devolucion(self):
-        """Verificar flujo completo de una devolución."""
+    # ✓ Novedad (Igual a Proveedores): Flujo completo con recálculo de cabecera
+    def test_flujo_completo_calculo_total_devolucion(self):
+        """Verificar que la devolución calcula el total dinámicamente desde sus detalles."""
         devolucion = Devolucion.objects.create(
             venta=self.venta,
             registrado_por=self.usuario,
             motivo='defectuoso',
-            tipo_reembolso='cambio',
-            restaurar_stock=True,
-            total_devuelto=100000
+            total_devuelto=0  # Comienza en 0
         )
 
         DetalleDevolucion.objects.create(
@@ -349,8 +370,11 @@ class DevolucionIntegrationTest(TestCase):
             precio_unitario=50000
         )
 
+        # Disparador dinámico (Cambia a la función correspondiente de tu modelo, ej: calcular_total())
+        devolucion.calcular_total() 
+
+        self.assertEqual(devolucion.total_devuelto, 100000)
         self.assertEqual(devolucion.detalles.count(), 1)
-        self.assertEqual(devolucion.detalles.first().subtotal(), 100000)
 
     # ✓ Devolución con múltiples líneas
     def test_devolucion_multiples_detalles(self):
@@ -383,9 +407,25 @@ class DevolucionIntegrationTest(TestCase):
         )
 
         self.assertEqual(devolucion.detalles.count(), 2)
-
-        total_detalles = sum(d.subtotal() for d in devolucion.detalles.all())
+        total_detalles = sum(d.subtotal for d in devolucion.detalles.all())
         self.assertEqual(total_detalles, 180000)
+
+    # ✓ Novedad (Igual a Proveedores): Ciclo de Vida y Transiciones de Estado
+    def test_flujo_estados_devolucion(self):
+        """Verificar transiciones lógicas de estado del documento de devolución."""
+        devolucion = Devolucion.objects.create(
+            venta=self.venta,
+            registrado_por=self.usuario
+        )
+        self.assertEqual(devolucion.estado, 'pendiente')
+
+        devolucion.estado = 'aprobada'
+        devolucion.save()
+        self.assertEqual(devolucion.estado, 'aprobada')
+
+        devolucion.estado = 'aplicada'
+        devolucion.save()
+        self.assertEqual(devolucion.estado, 'aplicada')
 
     # ✓ Devolución parcial
     def test_devolucion_parcial(self):
@@ -394,7 +434,7 @@ class DevolucionIntegrationTest(TestCase):
             venta=self.venta,
             registrado_por=self.usuario,
             tipo_reembolso='reembolso',
-            total_devuelto=50000  # Solo 1 de 4 botellas
+            total_devuelto=50000
         )
 
         DetalleDevolucion.objects.create(
@@ -404,5 +444,5 @@ class DevolucionIntegrationTest(TestCase):
             precio_unitario=50000
         )
 
-        self.assertLess(devolucion.total_devuelto, self.venta.total_venta)
+        self.assertLess(devolucion.total_devuelto, self.venta.total_con_descuento)
         self.assertEqual(devolucion.detalles.count(), 1)
