@@ -12,24 +12,41 @@
 
 {% block content %}
 <div class="container-fluid p-0">
+<!-- ═══════ ESTADÍSTICAS COMPACTAS — VAN PRIMERO ═══════ -->
+<div class="row g-3 mb-4">
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-dismissible fade show mb-2
-        {% if message.tags == 'error' %}alert-danger
-        {% elif message.tags == 'warning' %}alert-warning
-        {% elif message.tags == 'info' %}alert-info
-        {% else %}alert-success{% endif %}" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <!-- Donut + últimos en una fila -->
+  <div class="col-md-5">
+    <div class="prod-card p-3 h-100" style="border-radius:12px;">
+      <div class="prod-label mb-3"><i class="bi bi-pie-chart-fill me-1" style="color:#4DA8DA;"></i>Por categoría</div>
+      <div class="d-flex align-items-center gap-3">
+        <div style="position:relative;width:130px;height:130px;flex-shrink:0;">
+          <svg id="donut-svg" width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="53" fill="none" stroke="rgba(77,168,218,.08)" stroke-width="20"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <span style="font-size:1.3rem;font-weight:700;color:#e2e8f0;line-height:1;">{{ productos|length }}</span>
+            <span style="font-size:.6rem;color:rgba(226,232,240,.4);">total</span>
+          </div>
+        </div>
+        <div id="donut-leyenda" style="flex:1;display:flex;flex-direction:column;gap:5px;overflow-y:auto;max-height:100px;"></div>
       </div>
-    {% endfor %}
-  {% endif %}
+    </div>
+  </div>
+
+  <!-- Últimos productos -->
+  <div class="col-md-7">
+    <div class="prod-card p-3 h-100" style="border-radius:12px;">
+      <div class="prod-label mb-2"><i class="bi bi-clock-history me-1" style="color:#27ae60;"></i>Últimos agregados</div>
+      <ul class="list-unstyled mb-0" id="lista-ultimos2" style="display:flex;flex-direction:column;gap:6px;"></ul>
+    </div>
+  </div>
+
+</div>
 
 {% include 'productos/busqueda_producto.html' %}
 
- <!-- INVENTARIO POR CATEGORÍA -->
-<div class="row g-3 mb-4">
+<div class="row g-3">
 
   <!-- CUADRO CATEGORÍAS -->
   <div class="col-md-3">
@@ -599,11 +616,53 @@ function agregarPresentacionModal() {
   cont.appendChild(div);
 }
 
-function guardarPresentacionesModal() {
-  document.getElementById('form-presentaciones-modal').submit();
-}
+(function(){
+  const COLS = ['#4DA8DA','#27ae60','#f39c12','#9b59b6','#e74c3c','#1abc9c','#e67e22'];
 
-
-
+  // donut
+  const cats = {};
+  todoProductos.forEach(p => { cats[p.categoria_nombre] = (cats[p.categoria_nombre]||0)+1; });
+  const total = todoProductos.length || 1;
+  const entradas = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const R=53, C=65, W=20, CIRC=2*Math.PI*R;
+  let off=0;
+  const svg = document.getElementById('donut-svg');
+  entradas.forEach(([n,v],i)=>{
+    const dash=v/total*CIRC;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',C);c.setAttribute('cy',C);c.setAttribute('r',R);
+    c.setAttribute('fill','none');c.setAttribute('stroke',COLS[i%COLS.length]);
+    c.setAttribute('stroke-width',W);
+    c.setAttribute('stroke-dasharray',`${dash} ${CIRC-dash}`);
+    c.setAttribute('stroke-dashoffset',-off*CIRC);
+    c.setAttribute('transform',`rotate(-90 ${C} ${C})`);
+    svg.appendChild(c);
+    off+=v/total;
+  });
+ 
+  // leyenda
+  const ley=document.getElementById('donut-leyenda');
+  entradas.slice(0,5).forEach(([n,v],i)=>{
+    ley.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:${COLS[i%COLS.length]};flex-shrink:0;"></span>
+      <span style="font-size:.78rem;color:#e2e8f0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${n}</span>
+      <span style="font-size:.75rem;color:rgba(226,232,240,.45);">${Math.round(v/total*100)}%</span>
+    </div>`;
+  });
+ 
+  // últimos
+  const ul=document.getElementById('lista-ultimos2');
+  [...todoProductos].slice(-3).reverse().forEach(p=>{
+    ul.innerHTML+=`<li style="display:flex;align-items:center;justify-content:space-between;
+      padding:5px 8px;border-radius:8px;background:rgba(77,168,218,.05);border:1px solid rgba(77,168,218,.1);">
+      <div>
+        <div style="font-size:.85rem;font-weight:600;color:#e2e8f0;">${p.nombre}</div>
+        <div style="font-size:.72rem;color:rgba(226,232,240,.45);">${p.categoria_nombre}</div>
+      </div>
+      <span style="font-size:.72rem;padding:2px 8px;border-radius:6px;
+        background:rgba(77,168,218,.12);color:#4DA8DA;white-space:nowrap;">${p.presentaciones.length} pres.</span>
+    </li>`;
+  });
+})();
 </script>
 {% endblock %}

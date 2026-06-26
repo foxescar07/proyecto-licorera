@@ -31,25 +31,20 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background: var(--fondo);
   color: var(--texto);
   min-height: 100vh;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
 }
 
-html {
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  overflow-x: hidden;
-}
-
+/* Bootstrap no puede mover el body */
 body.modal-open,
 body.offcanvas-open {
   overflow: auto !important;
@@ -57,8 +52,12 @@ body.offcanvas-open {
   margin-right: 0 !important;
 }
 
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 99px; }
+
 /* ============================================================
-   HEADER
+   HEADER — fixed, siempre arriba
    ============================================================ */
 .cys-header {
   position: fixed;
@@ -154,10 +153,16 @@ body.offcanvas-open {
   text-shadow: 0 0 10px rgba(255,255,255,.25);
   opacity: .9;
 }
+
 /* ============================================================
-   SUBNAV
+   SUBNAV — fixed justo debajo del header
    ============================================================ */
 .cys-subnav {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 1020;
   height: var(--nav-h);
   background: var(--azul-medio);
   border-bottom: 1px solid var(--azul-borde);
@@ -165,7 +170,7 @@ body.offcanvas-open {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  transition: margin-right .3s ease;
+  transition: right .3s ease;
 }
 
 .cys-subnav__page {
@@ -236,9 +241,12 @@ body.offcanvas-open {
 .cys-breadcrumb__current { color: var(--texto-muted); }
 
 /* ============================================================
-   SIDEBAR OFFCANVAS
+   SIDEBAR OFFCANVAS — fixed, cubre toda la altura
    ============================================================ */
 #sidebarRight {
+  position: fixed !important;
+  top: 0 !important;
+  height: 100vh !important;
   width: 290px !important;
   background: var(--azul-oscuro) !important;
   border-left: 1px solid var(--azul-borde) !important;
@@ -311,27 +319,29 @@ body.offcanvas-open {
 
 /* ============================================================
    SIDEBAR EMPUJA CONTENIDO
+   header y subnav usan right, main usa margin-right
    ============================================================ */
-.cys-header,
-.cys-subnav,
-.cys-main {
-  transition: margin-right .3s ease;
+body.sidebar-open .cys-header,
+body.sidebar-open .cys-subnav {
+  right: 290px;
 }
 
-body.sidebar-open .cys-header,
-body.sidebar-open .cys-subnav,
 body.sidebar-open .cys-main {
   margin-right: 290px;
 }
 
 /* ============================================================
    MAIN CONTENIDO
+   padding-top compensa header+subnav fixed
    ============================================================ */
 .cys-main {
-  padding: 1.5rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding-top: calc(var(--header-h) + var(--nav-h) + 1.5rem);
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 1.5rem;
+  width: 100%;
   transition: margin-right .3s ease;
+  overflow-x: hidden;
 }
 
 /* ============================================================
@@ -646,14 +656,14 @@ body.sidebar-open .cys-main {
    CONTAINER FLUID DENTRO DEL MAIN
    ============================================================ */
 .cys-main .container-fluid {
-  max-width: 1200px;
+  max-width: 1700px;
   margin: 0 auto;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
 
 body.sidebar-open .cys-main .container-fluid {
-  max-width: 100%;
+  max-width: 1200px;
 }
 
 /* ============================================================
@@ -722,14 +732,18 @@ body.sidebar-open .cys-main .container-fluid {
 
   .cys-subnav { padding: 0 1rem; }
 
-  .cys-main { padding: 1rem; }
+  .cys-main {
+    padding: 1rem;
+    padding-top: calc(var(--header-h) + var(--nav-h) + 1rem);
+  }
 
   body.sidebar-open .cys-header,
-  body.sidebar-open .cys-subnav,
+  body.sidebar-open .cys-subnav {
+    right: 0 !important;
+  }
+
   body.sidebar-open .cys-main {
     margin-right: 0 !important;
-    max-width: 100% !important;
-    padding-right: 0 !important;
   }
 
   .cys-card { padding: 1rem; }
@@ -751,17 +765,4 @@ body.sidebar-open .cys-main .container-fluid {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
-}
-/* ============================================================
-   FIX ESPACIO NEGRO SIDEBAR
-   ============================================================ */
-body {
-  position: relative;
-}
-
-#sidebarRight {
-  position: fixed !important;
-  top: 0 !important;
-  height: 100vh !important;
 }
