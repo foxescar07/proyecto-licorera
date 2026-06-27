@@ -218,12 +218,12 @@
 
 /* ── INPUTS ── */
 .inv-input {
-  background-color: #0a1e38 !important;
+  background-color: #162e4d !important;
   color: var(--inv-texto) !important;
   border: 1px solid var(--inv-azul-borde) !important;
 }
 .inv-input:focus {
-  background: var(--inv-card2) !important;
+  background: #162e4d !important;
   color: var(--inv-texto) !important;
   border-color: var(--inv-azul) !important;
   box-shadow: 0 0 0 2px rgba(77,168,218,.2) !important;
@@ -518,7 +518,7 @@
    ══════════════════════════════════════════ */
 :root {
   --pg-card:   #112b4c;
-  --pg-input:  #0a1e38;
+  --pg-input:  #162e4d;
   --pg-border: rgba(28, 123, 175, 0.22);
   --pg-azul:   #4DA8DA;
   --pg-azul2:  #3b9ad6;
@@ -901,7 +901,7 @@ button#presentacion-btn,
 button#lote-btn,
 button#motivo-btn,
 button#presentacion-lote-btn {
-  background-color: #0a1e38 !important;
+  background-color: #162e4d !important;
   background-image: none !important;
   border: 1px solid rgba(77, 168, 218, 0.35) !important;
   color: #c8d6e5 !important;
@@ -927,9 +927,17 @@ button#presentacion-lote-btn {
 .btn#lote-btn.show,
 .btn#motivo-btn.show,
 .btn#presentacion-lote-btn.show {
-  background-color: #0a1e38 !important;
+background-color: #162e4d !important;
   background-image: none !important;
   border-color: #4DA8DA !important;
   color: #c8d6e5 !important;
   box-shadow: 0 0 0 2px rgba(77, 168, 218, .2) !important;
+}
+/* ── Fix dropdown recortado en Registrar Salida ── */
+.inv-card {
+  overflow: visible !important;
+}
+
+.dropdown-menu {
+  z-index: 9999 !important;
 }
