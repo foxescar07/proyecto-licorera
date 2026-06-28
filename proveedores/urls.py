@@ -20,4 +20,5 @@ urlpatterns = [
     path('ordenes/<int:pk>/cambiar-estado/', views.cambiar_estado_orden, name='cambiar_estado_orden'),
     path('ordenes/<int:pk>/cambiar-estado-rapido/', views.cambiar_estado_orden_rapido, name='cambiar_estado_orden_rapido'),
     path('ordenes/<int:pk>/recibir/', views.recibir_compra, name='recibir_compra'),
+    path('api/orden/<int:orden_id>/detalles/', views.api_orden_detalles, name='api_orden_detalles'),
 ]

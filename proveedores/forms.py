@@ -111,13 +111,9 @@ class OrdenCompraForm(forms.ModelForm):
 
     class Meta:
         model = OrdenCompra
-        fields = ['proveedor', 'estado']
+        fields = ['proveedor']
         widgets = {
             'proveedor': forms.Select(attrs={
-                'class': 'form-select',
-                'required': True
-            }),
-            'estado': forms.Select(attrs={
                 'class': 'form-select',
                 'required': True
             }),
