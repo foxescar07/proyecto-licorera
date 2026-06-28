@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="padding: 30px;">
+<div class="container-fluid">
 
     <!-- HEADER -->
     <div class="ordenes-header">
@@ -23,7 +23,7 @@
     <!-- MENSAJES -->
     {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -155,9 +155,77 @@
 
                         <!-- Acciones -->
                         <td>
-                            <a href="{% url 'detalle_orden' pk=orden.id %}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-eye"></i> Ver detalles
-                            </a>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+
+                                    <!-- Ver detalles -->
+                                    <li>
+                                        <form method="GET">
+                                            <input type="hidden" name="mostrar_orden" value="{{ orden.id }}">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-eye"></i> <span>Ver detalles</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Cambiar estado (opciones dinámicas) -->
+                                    {% if orden.estado == 'pendiente' %}
+                                        <li>
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="nuevo_estado" value="confirmada">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-check-circle"></i> <span>Confirmar Orden</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="nuevo_estado" value="cancelada">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-x-circle"></i> <span>Cancelar Orden</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% elif orden.estado == 'confirmada' %}
+                                        <li>
+                                            <form method="POST" action="{% url 'recibir_compra' pk=orden.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-box-seam"></i> <span>Recibir Compra</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="nuevo_estado" value="cancelada">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-x-circle"></i> <span>Cancelar Orden</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% elif orden.estado == 'recibida' %}
+                                        <li>
+                                            <span class="dropdown-item">
+                                                <i class="bi bi-lock"></i> <span>Orden Recibida</span>
+                                            </span>
+                                        </li>
+                                    {% elif orden.estado == 'cancelada' %}
+                                        <li>
+                                            <span class="dropdown-item">
+                                                <i class="bi bi-lock"></i> <span>Orden Cancelada</span>
+                                            </span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -176,7 +244,7 @@
                 <span class="pagination-item disabled">‹ Anterior</span>
             {% endif %}
 
-            <span class="pagination-item" style="background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3);">
+            <span class="pagination-item">
                 {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
             </span>
 
@@ -195,8 +263,8 @@
         <div class="ordenes-empty">
             <i class="bi bi-inbox"></i>
             <p>No hay órdenes registradas</p>
-            <p style="font-size: 13px; margin-top: 8px;">
-                <a href="{% url 'crear_orden' %}" style="color: #3b82f6; text-decoration: underline;">
+            <p>
+                <a href="{% url 'crear_orden' %}">
                     Crea la primera orden aquí
                 </a>
             </p>
@@ -209,43 +277,80 @@
 <!-- MODAL: NUEVA ORDEN -->
 <div class="modal fade" id="modalNuevaOrden" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="background: linear-gradient(135deg, #0a1628 0%, #0f1f35 100%); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 12px;">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(77, 168, 218, 0.15); padding: 20px;">
-                <h5 class="modal-title" style="color: #ffffff; font-weight: 600; display: flex; align-items: center; gap: 10px;">
-                    <i class="bi bi-plus-circle-fill" style="color: #4DA8DA;"></i> Nueva Orden de Compra
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle-fill"></i> Nueva Orden de Compra
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: brightness(0.8);"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="formNuevaOrden" method="POST" action="{% url 'crear_orden' %}">
                 {% csrf_token %}
-                <div class="modal-body" style="padding: 25px;">
+                <div class="modal-body">
+                    <!-- SECCIÓN 1: Información de la Orden -->
+                    <h6 class="text-muted text-uppercase mb-3">
+                        <i class="bi bi-box"></i> Información de la Orden
+                    </h6>
+
                     <!-- Proveedor -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #a0aec0; font-weight: 500; font-size: 0.9rem;">
+                        <label class="form-label">
                             Proveedor <span class="text-danger">*</span>
                         </label>
                         {{ form.proveedor }}
                         {% if form.proveedor.errors %}
-                        <div class="text-danger small" style="margin-top: 5px;">{{ form.proveedor.errors }}</div>
+                        <div class="text-danger small">{{ form.proveedor.errors }}</div>
                         {% endif %}
                     </div>
 
-                    <!-- Estado -->
+                    <hr>
+
+                    <!-- SECCIÓN 2: Agregar Primer Producto (Opcional) -->
+                    <h6 class="text-muted text-uppercase mb-3">
+                        <i class="bi bi-plus-circle"></i> Agregar Primer Producto (Opcional)
+                    </h6>
+
+                    <!-- Presentación -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #a0aec0; font-weight: 500; font-size: 0.9rem;">
-                            Estado <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Presentación
                         </label>
-                        {{ form.estado }}
-                        {% if form.estado.errors %}
-                        <div class="text-danger small" style="margin-top: 5px;">{{ form.estado.errors }}</div>
-                        {% endif %}
+                        <select name="presentacion" class="form-select">
+                            <option value="">-- Selecciona una presentación --</option>
+                            {% for presentacion in form_detalle.presentacion.field.queryset %}
+                                <option value="{{ presentacion.id }}">
+                                    {{ presentacion.nombre }} ({{ presentacion.producto.nombre }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small>Puedes agregar más productos después</small>
+                    </div>
+
+                    <!-- Cantidad -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Cantidad
+                        </label>
+                        <input type="number" name="cantidad" class="form-control" min="1" step="1"
+                               placeholder="Ej: 10">
+                        <small>Debe ser mayor a 0</small>
+                    </div>
+
+                    <!-- Precio Unitario -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Precio Unitario
+                        </label>
+                        <input type="number" name="precio_unitario" class="form-control" min="0.01" step="0.01"
+                               placeholder="Ej: 15000.00">
+                        <small>Debe ser mayor a 0</small>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid rgba(77, 168, 218, 0.15); padding: 15px 25px; background: rgba(0, 0, 0, 0.2);">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background: rgba(107, 114, 128, 0.2); color: #4DA8DA; border: 1px solid rgba(77, 168, 218, 0.3); border-radius: 6px; padding: 8px 20px; font-weight: 500;">
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn" style="background: #4DA8DA; color: #ffffff; border: none; border-radius: 6px; padding: 8px 24px; font-weight: 500;">
+                    <button type="submit" class="btn">
                         <i class="bi bi-check-circle"></i> Crear Orden
                     </button>
                 </div>
@@ -254,39 +359,251 @@
     </div>
 </div>
 
-<style>
-/* Estilos para los inputs del modal */
-#modalNuevaOrden select,
-#modalNuevaOrden input {
-    background: rgba(15, 31, 53, 0.8) !important;
-    border: 1px solid rgba(77, 168, 218, 0.25) !important;
-    color: #e2e8f0 !important;
-    border-radius: 8px !important;
-    padding: 10px 12px !important;
-    font-size: 0.95rem !important;
-}
+<!-- MODAL: DETALLE DE ORDEN (estilo análisis de ventas) -->
+{% if orden_detalle %}
+<div class="modal fade show" id="modalDetalleOrden" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-lg">
+        <div class="modal-content">
 
-#modalNuevaOrden select:focus,
-#modalNuevaOrden input:focus {
-    background: rgba(15, 31, 53, 0.9) !important;
-    border-color: #4DA8DA !important;
-    color: #e2e8f0 !important;
-    box-shadow: 0 0 0 3px rgba(77, 168, 218, 0.2) !important;
-}
+            <!-- HEADER -->
+            <div>
+                <div>
+                    <h4>
+                        <i class="bi bi-clipboard-check"></i>
+                        Detalle de Orden
+                    </h4>
+                    <p>
+                        Orden #{{ orden_detalle.id }} - {{ orden_detalle.proveedor.nombre_empresa }}
+                    </p>
+                </div>
+                <a href="{% url 'listar_ordenes' %}" class="btn-close btn-close-white"></a>
+            </div>
 
-#modalNuevaOrden select option {
-    background: #0f1f35;
-    color: #e2e8f0;
-}
+            <!-- BODY -->
+            <div>
 
-#modalNuevaOrden select option:disabled {
-    background: #0f1f35;
-    color: #4DA8DA !important;
-}
+                <!-- TARJETAS DE KPI - Grid 3 columnas responsive -->
+                <div>
+                    <!-- Total Orden - Violeta -->
+                    <div>
+                        <div>
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <p>Total</p>
+                        <h4>${{ orden_detalle.total|floatformat:0 }}</h4>
+                    </div>
 
-#modalNuevaOrden select option[value=""] {
-    color: #4DA8DA !important;
-}
-</style>
+                    <!-- Cantidad de Productos - Teal Brillante -->
+                    <div>
+                        <div>
+                            <i class="bi bi-box2"></i>
+                        </div>
+                        <p>Productos</p>
+                        <h4>{{ orden_detalle.detalles.count }}</h4>
+                    </div>
+
+                    <!-- Estado - Verde Teal -->
+                    <div>
+                        <div>
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <p>Estado</p>
+                        <div>
+                            {% if orden_detalle.estado == 'pendiente' %}
+                                <span>🟡 Pendiente</span>
+                            {% elif orden_detalle.estado == 'confirmada' %}
+                                <span>🔵 Confirmada</span>
+                            {% elif orden_detalle.estado == 'recibida' %}
+                                <span>🟢 Recibida</span>
+                            {% elif orden_detalle.estado == 'cancelada' %}
+                                <span>🔴 Cancelada</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN DE LA ORDEN -->
+                <div>
+                    <div>
+                        <p>Fecha</p>
+                        <p>{{ orden_detalle.fecha|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div>
+                        <p>Registrado por</p>
+                        <p>{{ orden_detalle.registrado_por.nombre_completo }}</p>
+                    </div>
+                    <div>
+                        <p>Proveedor</p>
+                        <p>{{ orden_detalle.proveedor.nombre_empresa }}</p>
+                    </div>
+                </div>
+
+                <!-- TABLA DE PRODUCTOS -->
+                <h6>
+                    <i class="bi bi-list-check"></i>Detalle de Productos
+                </h6>
+
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in orden_detalle.detalles.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ detalle.presentacion.nombre }}</strong><br>
+                                    <small>{{ detalle.presentacion.producto.nombre }}</small>
+                                </td>
+                                <td>{{ detalle.cantidad }}</td>
+                                <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+                                <td>${{ detalle.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">
+                                    No hay productos agregados
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div>
+                <a href="{% url 'listar_ordenes' %}" class="btn">
+                    Cerrar
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+<!-- MODAL: AGREGAR PRODUCTO A ORDEN -->
+<div class="modal fade" id="modalAgregarProducto" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Agregar Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="formAgregarProducto" action="">
+                {% csrf_token %}
+                <input type="hidden" id="ordenIdProducto" name="pk">
+                <div class="modal-body">
+                    <!-- Presentación -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Presentación <span class="text-danger">*</span></label>
+                        <select name="presentacion" class="form-select" id="selectPresentacion" required
+                               >
+                            <option value="">-- Selecciona una presentación --</option>
+                            {% for presentacion in form_detalle.presentacion.field.queryset %}
+                                <option value="{{ presentacion.id }}">
+                                    {{ presentacion.nombre }} ({{ presentacion.producto.nombre }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Cantidad -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cantidad <span class="text-danger">*</span></label>
+                        <input type="number" name="cantidad" class="form-control" min="1" required
+                               placeholder="Debe ser mayor a 0">
+                    </div>
+                    <!-- Precio Unitario -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Precio Unitario <span class="text-danger">*</span></label>
+                        <input type="number" name="precio_unitario" class="form-control" min="0.01" step="0.01" required
+                               placeholder="Debe ser mayor a 0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Agregar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CAMBIAR ESTADO -->
+<div class="modal fade" id="modalCambiarEstado" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Cambiar Estado de Orden</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="formCambiarEstado" action="">
+                {% csrf_token %}
+                <input type="hidden" id="ordenIdEstado" name="pk">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nuevo Estado:</label>
+                        <select class="form-select" name="nuevo_estado" id="selectNuevoEstado" required
+                               >
+                            <option value="">-- Selecciona --</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">
+                        <small>
+                            <strong>Estado actual:</strong> <span id="estadoActual"></span><br>
+                            El cambio será registrado automáticamente.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Cambiar Estado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: RECIBIR COMPRA -->
+<div class="modal fade" id="modalRecibirCompra" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Recibir Compra</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="formRecibirCompra" action="">
+                {% csrf_token %}
+                <input type="hidden" id="ordenIdRecibir" name="pk">
+                <div class="modal-body">
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading"><i class="bi bi-check-circle"></i> Operación Importante</h6>
+                        <small>
+                            Al confirmar la recepción:
+                            <ul class="mb-0 mt-2">
+                                <li>✅ El estado cambiará a <strong>"Recibida"</strong></li>
+                                <li>✅ Se crearán automáticamente los <strong>lotes</strong></li>
+                                <li>❌ No podrás agregar más productos</li>
+                            </ul>
+                        </small>
+                    </div>
+                    <p>
+                        <strong>Productos a recibir:</strong> <span id="cantidadProductos">0</span>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Confirmar Recepción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}

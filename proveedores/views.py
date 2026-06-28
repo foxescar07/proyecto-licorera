@@ -389,7 +389,9 @@ def registrar_compra(request):
 @login_required
 def listar_ordenes(request):
     """US-010: Listar órdenes de compra con filtros."""
-    ordenes = OrdenCompra.objects.all().select_related('proveedor', 'registrado_por')
+    from django.db.models import Prefetch
+
+    ordenes = OrdenCompra.objects.all().select_related('proveedor', 'registrado_por').prefetch_related('detalles__presentacion__producto')
 
     # Filtros
     q = request.GET.get('q', '')
@@ -419,6 +421,16 @@ def listar_ordenes(request):
 
     # Formulario para el modal
     form = OrdenCompraForm()
+    form_detalle = DetalleCompraForm()
+
+    # Verificar si hay que mostrar detalle de una orden
+    mostrar_orden_id = request.GET.get('mostrar_orden')
+    orden_detalle = None
+    if mostrar_orden_id:
+        try:
+            orden_detalle = OrdenCompra.objects.select_related('proveedor', 'registrado_por').prefetch_related('detalles__presentacion__producto').get(id=mostrar_orden_id)
+        except OrdenCompra.DoesNotExist:
+            orden_detalle = None
 
     context = {
         'ordenes': page_obj.object_list,
@@ -428,6 +440,8 @@ def listar_ordenes(request):
         'ordenes_confirmadas': ordenes_confirmadas,
         'ordenes_recibidas': ordenes_recibidas,
         'form': form,
+        'form_detalle': form_detalle,
+        'orden_detalle': orden_detalle,
     }
 
     return render(request, 'proveedores/orden_compra.html', context)
@@ -435,18 +449,50 @@ def listar_ordenes(request):
 
 @login_required
 def crear_orden(request):
-    """US-010: Crear nueva orden de compra."""
+    """US-010: Crear nueva orden de compra con opción de agregar primer producto."""
     if request.method == 'POST':
         form = OrdenCompraForm(request.POST)
+
         if form.is_valid():
             orden = form.save(commit=False)
             orden.registrado_por = request.user
             orden.save()
 
-            messages.success(
-                request,
-                f'Orden #{orden.id} creada exitosamente para {orden.proveedor.nombre_empresa}'
-            )
+            # Intentar agregar primer detalle si se proporciona
+            presentacion_id = request.POST.get('presentacion')
+            cantidad = request.POST.get('cantidad')
+            precio = request.POST.get('precio_unitario')
+
+            if presentacion_id and cantidad and precio:
+                try:
+                    from productos.models import PresentacionProducto
+                    presentacion = PresentacionProducto.objects.get(id=presentacion_id)
+
+                    DetalleCompra.objects.create(
+                        orden_compra=orden,
+                        presentacion=presentacion,
+                        cantidad=int(cantidad),
+                        precio_unitario=float(precio)
+                    )
+
+                    # Recalcular total
+                    orden.calcular_total()
+
+                    messages.success(
+                        request,
+                        f'Orden #{orden.id} creada con 1 producto agregado'
+                    )
+                except Exception as e:
+                    messages.warning(
+                        request,
+                        f'Orden #{orden.id} creada, pero hubo error al agregar el producto: {str(e)}'
+                    )
+            else:
+                messages.success(
+                    request,
+                    f'Orden #{orden.id} creada exitosamente para {orden.proveedor.nombre_empresa}'
+                )
+
             return redirect('detalle_orden', pk=orden.id)
         else:
             for field, errors in form.errors.items():
@@ -457,7 +503,13 @@ def crear_orden(request):
     else:
         form = OrdenCompraForm()
 
-    context = {'form': form}
+    from productos.models import PresentacionProducto
+    form_detalle = DetalleCompraForm()
+
+    context = {
+        'form': form,
+        'form_detalle': form_detalle
+    }
     return render(request, 'proveedores/nueva_orden.html', context)
 
 
@@ -498,14 +550,14 @@ def agregar_detalle_orden(request, pk):
             orden.calcular_total()
 
             messages.success(request, 'Detalle agregado exitosamente.')
-            return redirect('detalle_orden', pk=pk)
+            return redirect('listar_ordenes')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
-            return redirect('detalle_orden', pk=pk)
+            return redirect('listar_ordenes')
 
-    return redirect('detalle_orden', pk=pk)
+    return redirect('listar_ordenes')
 
 
 @login_required
@@ -526,7 +578,7 @@ def cambiar_estado_orden(request, pk):
 
         if nuevo_estado not in transiciones_validas.get(orden.estado, []):
             messages.error(request, f'No se puede cambiar de {orden.estado} a {nuevo_estado}.')
-            return redirect('detalle_orden', pk=pk)
+            return redirect('listar_ordenes')
 
         orden_anterior = orden.estado
         orden.estado = nuevo_estado
@@ -537,9 +589,9 @@ def cambiar_estado_orden(request, pk):
             f'Estado de orden #{orden.id} cambió de {orden_anterior} a {nuevo_estado}'
         )
 
-        return redirect('detalle_orden', pk=pk)
+        return redirect('listar_ordenes')
 
-    return redirect('detalle_orden', pk=pk)
+    return redirect('listar_ordenes')
 
 
 @login_required
@@ -553,7 +605,7 @@ def recibir_compra(request, pk):
     # Validar que la orden esté en estado confirmada
     if orden.estado != 'confirmada':
         messages.error(request, 'Solo se pueden recibir órdenes en estado "confirmada".')
-        return redirect('detalle_orden', pk=pk)
+        return redirect('listar_ordenes')
 
     if request.method == 'POST':
         try:
@@ -587,9 +639,9 @@ def recibir_compra(request, pk):
         except Exception as e:
             messages.error(request, f'Error al recibir la orden: {str(e)}')
 
-        return redirect('detalle_orden', pk=pk)
+        return redirect('listar_ordenes')
 
-    return redirect('detalle_orden', pk=pk)
+    return redirect('listar_ordenes')
 
 
 @login_required
@@ -622,3 +674,26 @@ def cambiar_estado_orden_rapido(request, pk):
 
     # Redirige a la lista de órdenes (o a la página anterior)
     return redirect('listar_ordenes')
+
+
+@login_required
+def api_orden_detalles(request, orden_id):
+    """API: Retorna los detalles de una orden en JSON."""
+    from django.http import JsonResponse
+
+    try:
+        orden = OrdenCompra.objects.get(id=orden_id)
+        detalles_data = []
+
+        for detalle in orden.detalles.all():
+            detalles_data.append({
+                'id': detalle.id,
+                'presentacion': detalle.presentacion.nombre,
+                'cantidad': detalle.cantidad,
+                'precio_unitario': f"{detalle.precio_unitario:.2f}",
+                'subtotal': f"{detalle.subtotal:.2f}"
+            })
+
+        return JsonResponse({'detalles': detalles_data})
+    except OrdenCompra.DoesNotExist:
+        return JsonResponse({'error': 'Orden no encontrada'}, status=404)
