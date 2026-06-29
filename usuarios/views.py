@@ -140,10 +140,12 @@ def lista_usuarios(request):
 
     ctx = {
         **_ctx_base(request),
-        'usuarios':       usuarios,
-        'total_usuarios': usuarios.count(),
-        'tipo_id_choices': Usuario.TIPO_ID_CHOICES,
-        'rol_choices':     Usuario.ROL_CHOICES,
+        'usuarios':          usuarios,
+        'usuarios_activos':   usuarios.filter(is_active=True).count(),
+        'usuarios_inactivos': usuarios.filter(is_active=False).count(),
+        'total_usuarios':    usuarios.count(),
+        'tipo_id_choices':   Usuario.TIPO_ID_CHOICES,
+        'rol_choices':       Usuario.ROL_CHOICES,
     }
     return render(request, 'usuarios_lista.html', ctx)
 
@@ -186,31 +188,97 @@ def crear_usuario_ajax(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
 
-    form = UsuarioForm(request.POST)
-    if form.is_valid():
-        usuario = form.save()
-        return JsonResponse({
-            'ok':      True,
-            'mensaje': f'Usuario {usuario.usuario} creado correctamente.',
-            'usuario': {
-                'pk':             usuario.pk,
-                'nombre_completo': usuario.nombre_completo,
-                'usuario':        usuario.usuario,
-                'email':          usuario.email or '',
-                'rol':            usuario.rol,
-                'rol_label':      usuario.get_rol_display(),
-                'identificacion': usuario.identificacion,
-                'tipo_id_label':  usuario.get_tipo_id_display(),
-                'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y'),
-                'activo':         usuario.activo,
-            }
-        })
-    else:
-        errores = []
-        for campo, lista in form.errors.items():
-            for e in lista:
-                errores.append(e)
-        return JsonResponse({'ok': False, 'error': errores[0] if errores else 'Error de validación.'})
+    import json
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, Exception):
+        return JsonResponse({'ok': False, 'error': 'Datos inválidos.'})
+
+    tipo_id        = data.get('tipo_identificacion', '').strip()
+    identificacion = data.get('identificacion', '').strip()
+    nombre         = data.get('first_name', '').strip()
+    apellidos      = data.get('last_name', '').strip()
+    email          = data.get('email', '').strip().lower()
+    telefono       = data.get('telefono', '').strip()
+    username       = data.get('username', '').strip()
+    rol            = data.get('rol', '').strip()
+    password1      = data.get('password1', '')
+    password2      = data.get('password2', '')
+
+    # Validaciones
+    if not all([tipo_id, identificacion, nombre, apellidos, username, rol, password1]):
+        return JsonResponse({'ok': False, 'error': 'Completa todos los campos obligatorios.'})
+    if any(c.isdigit() for c in nombre):
+        return JsonResponse({'ok': False, 'error': 'El nombre no debe contener números.'})
+    if any(c.isdigit() for c in apellidos):
+        return JsonResponse({'ok': False, 'error': 'Los apellidos no deben contener números.'})
+    if password1 != password2:
+        return JsonResponse({'ok': False, 'error': 'Las contraseñas no coinciden.'})
+
+    err_clave = _validar_clave_segura(password1)
+    if err_clave:
+        return JsonResponse({'ok': False, 'error': err_clave})
+
+    TIPOS_VALIDOS = ['CC', 'TI', 'CE', 'PA', 'NIT']
+    if tipo_id not in TIPOS_VALIDOS:
+        return JsonResponse({'ok': False, 'error': 'Tipo de identificación inválido.'})
+
+    ROLES_VALIDOS = [ 'cajero', 'empleado']
+    if rol not in ROLES_VALIDOS:
+        return JsonResponse({'ok': False, 'error': 'Rol inválido.'})
+
+    if Usuario.objects.filter(identificacion=identificacion).exists():
+        return JsonResponse({'ok': False, 'error': 'Ya existe un usuario con esa identificación.'})
+    if Usuario.objects.filter(username__iexact=username).exists():
+        return JsonResponse({'ok': False, 'error': 'Ese nombre de usuario ya está en uso.'})
+    if email and Usuario.objects.filter(email__iexact=email).exists():
+        return JsonResponse({'ok': False, 'error': 'Ese correo ya está en uso.'})
+
+    usuario = Usuario(
+        username       = username,
+        first_name     = nombre,
+        last_name      = apellidos,
+        email          = email or '',
+        identificacion = identificacion,
+        tipo_id        = tipo_id,
+        telefono       = telefono or None,
+        rol            = rol,
+        activo         = True,
+        is_active      = True,
+    )
+    usuario.set_password(password1)
+    usuario.save()
+
+    return JsonResponse({
+        'ok':              True,
+        'mensaje':         f'Usuario {usuario.username} creado correctamente.',
+        'usuario': {
+            'pk':              usuario.pk,
+            'nombre_completo': usuario.get_full_name(),
+            'username':        usuario.username,
+            'email':           usuario.email or '',
+            'rol':             usuario.rol,
+            'rol_label':       usuario.get_rol_display(),
+            'identificacion':  usuario.identificacion,
+            'tipo_id_label':   usuario.get_tipo_id_display(),
+            'fecha_registro':  usuario.date_joined.strftime('%d/%m/%Y'),
+            'activo':          usuario.activo,
+        }
+    })
+
+
+# ── FRAGMENTO MODAL CREAR USUARIO ─────────────────────────────────────────────
+
+# views.py — función crear_usuario_modal
+@login_required
+def crear_usuario_modal(request):
+    if not _solo_admin(request):
+        return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
+
+    if request.headers.get('X-Modal-Request') == 'true':
+        return render(request, 'crear_usuario_modal.html')  # ← sin subcarpeta
+
+    return redirect('usuario')
 
 
 # ── EDITAR USUARIO ─────────────────────────────────────────────────────────────
@@ -227,13 +295,13 @@ def editar_usuario(request, pk):
         return JsonResponse({
             'ok':             True,
             'pk':             usuario.pk,
-            'nombre':         usuario.nombre,
-            'apellidos':      usuario.apellidos,
+            'nombre':         usuario.first_name,
+            'apellidos':      usuario.last_name,
             'email':          usuario.email or '',
-            'usuario':        usuario.usuario,
+            'usuario':        usuario.username,
             'rol':            usuario.rol,
             'activo':         usuario.activo,
-            'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y'),
+            'fecha_registro': usuario.date_joined.strftime('%d/%m/%Y'),
         })
 
     if request.method == 'POST':
@@ -251,7 +319,7 @@ def editar_usuario(request, pk):
             error = 'El nombre no debe contener números.'
         elif any(c.isdigit() for c in apellidos):
             error = 'Los apellidos no deben contener números.'
-        elif rol not in ['admin', 'cajero', 'empleado']:
+        elif rol not in [ 'cajero', 'empleado']:
             error = 'Rol inválido.'
         elif email and email != (usuario.email or '').lower():
             if Usuario.objects.filter(email__iexact=email).exclude(pk=usuario.pk).exists():
@@ -279,12 +347,12 @@ def editar_usuario(request, pk):
         if es_ajax:
             return JsonResponse({
                 'ok':              True,
-                'mensaje':         f'Usuario {usuario.usuario} actualizado.',
-                'nombre_completo': usuario.nombre_completo,
+                'mensaje':         f'Usuario {usuario.username} actualizado.',
+                'nombre_completo': usuario.get_full_name(),
                 'rol_label':       usuario.get_rol_display(),
             })
 
-        messages.success(request, f'Usuario {usuario.usuario} actualizado correctamente.')
+        messages.success(request, f'Usuario {usuario.username} actualizado correctamente.')
         return redirect('usuario')
 
     return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
@@ -299,16 +367,16 @@ def perfil_datos(request):
     u = request.user
     return JsonResponse({
         'ok':             True,
-        'nombre':         u.nombre,
-        'apellidos':      u.apellidos,
-        'usuario':        u.usuario,
+        'nombre':         u.first_name,
+        'apellidos':      u.last_name,
+        'usuario':        u.username,
         'email':          u.email or '',
         'tipo_id':        u.tipo_id,
         'tipo_id_label':  u.get_tipo_id_display(),
         'identificacion': u.identificacion,
         'rol':            u.rol,
         'rol_label':      u.get_rol_display(),
-        'fecha_registro': u.fecha_registro.strftime('%d/%m/%Y'),
+        'fecha_registro': u.date_joined.strftime('%d/%m/%Y'),
     })
 
 
@@ -377,8 +445,8 @@ def perfil_editar(request):
         usuario.email      = email or ''
         usuario.telefono   = telefono or None
         usuario.save(update_fields=['first_name', 'last_name', 'email', 'telefono'])
-        request.session['usuario_nombre'] = usuario.nombre_completo
-        return JsonResponse({'ok': True, 'nombre_completo': usuario.nombre_completo})
+        request.session['usuario_nombre'] = usuario.get_full_name()
+        return JsonResponse({'ok': True, 'nombre_completo': usuario.get_full_name()})
 
     return JsonResponse({'ok': False, 'error': 'Acción no reconocida.'})
 
@@ -403,7 +471,7 @@ def solicitar_recuperacion(request):
 
         link   = request.build_absolute_uri(f'/usuarios/restablecer/{token}/')
         cuerpo = (
-            f'Hola {usuario.nombre},\n\n'
+            f'Hola {usuario.first_name},\n\n'
             f'Recibimos una solicitud para restablecer la contraseña de tu cuenta en CYS Ltda.\n\n'
             f'Haz clic en el siguiente enlace para crear una nueva contraseña:\n\n{link}\n\n'
             f'Este enlace expirará en 15 minutos.\n\n'
@@ -449,7 +517,7 @@ def solicitar_otp_correo(request):
     usuario.save(update_fields=['reset_token', 'reset_token_expira'])
 
     cuerpo = (
-        f'Hola {usuario.nombre},\n\n'
+        f'Hola {usuario.first_name},\n\n'
         f'Tu código de verificación para restablecer tu contraseña en CYS Ltda es:\n\n'
         f'        {codigo}\n\n'
         f'Este código expira en 10 minutos.\n'
@@ -512,11 +580,15 @@ def restablecer_clave(request, token):
     try:
         usuario = Usuario.objects.get(reset_token=token, activo=True)
     except Usuario.DoesNotExist:
-        return render(request, 'restablecer_clave.html', {'error': 'El enlace o código no es válido o ya fue utilizado.'})
+        return render(request, 'restablecer_clave.html', {
+            'error': 'El enlace o código no es válido o ya fue utilizado.'
+        })
 
     if timezone.now() > usuario.reset_token_expira:
         Usuario.objects.filter(pk=usuario.pk).update(reset_token=None, reset_token_expira=None)
-        return render(request, 'restablecer_clave.html', {'error': 'El enlace o código expiró. Solicita uno nuevo.'})
+        return render(request, 'restablecer_clave.html', {
+            'error': 'El enlace o código expiró. Solicita uno nuevo.'
+        })
 
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
@@ -526,7 +598,9 @@ def restablecer_clave(request, token):
         if error:
             return render(request, 'restablecer_clave.html', {'token': token, 'error': error})
         if nueva != confirmar:
-            return render(request, 'restablecer_clave.html', {'token': token, 'error': 'Las contraseñas no coinciden.'})
+            return render(request, 'restablecer_clave.html', {
+                'token': token, 'error': 'Las contraseñas no coinciden.'
+            })
 
         usuario.set_password(nueva)
         usuario.save(update_fields=['password'])
@@ -560,7 +634,7 @@ def eliminar_usuario(request, pk):
         return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
 
     usuario = get_object_or_404(Usuario, pk=pk)
-    if usuario.pk == request.session.get('usuario_id'):
+    if usuario.pk == request.user.pk:
         return JsonResponse({'ok': False, 'error': 'No puedes eliminar tu propia cuenta.'})
 
     usuario.delete()
@@ -574,20 +648,20 @@ def perfil_pagina(request):
     u = request.user
     ctx = {
         **_ctx_base(request),
-        'nombre':          u.first_name,
-        'apellidos':       u.last_name,
-        'usuario':         u.username,
-        'email':           u.email,
-        'rol':             u.rol,
-        'rol_label':       u.get_rol_display(),
-        'tipo_id':         u.tipo_id,
-        'tipo_id_label':   u.get_tipo_id_display(),
-        'fecha_registro':  u.date_joined.strftime('%d/%m/%Y'),
-        'identificacion':  u.identificacion,
-        'telefono':        u.telefono or '—',
-        'tiene_foto':      bool(u.foto),
-        'foto_url':        u.foto.url if u.foto else None,
-        'avatar_name':     u.avatar_name,
+        'nombre':         u.first_name,
+        'apellidos':      u.last_name,
+        'usuario':        u.username,
+        'email':          u.email,
+        'rol':            u.rol,
+        'rol_label':      u.get_rol_display(),
+        'tipo_id':        u.tipo_id,
+        'tipo_id_label':  u.get_tipo_id_display(),
+        'fecha_registro': u.date_joined.strftime('%d/%m/%Y'),
+        'identificacion': u.identificacion,
+        'telefono':       u.telefono or '—',
+        'tiene_foto':     bool(u.foto),
+        'foto_url':       u.foto.url if u.foto else None,
+        'avatar_name':    u.avatar_name,
     }
     return render(request, 'perfil.html', ctx)
 
@@ -621,7 +695,7 @@ def actualizar_foto(request):
     return JsonResponse({'ok': True, 'url': request.user.foto.url})
 
 
-# ── CREAR USUARIO DESDE ADMIN (AJAX) ──────────────────────────────────────────
+# ── CREAR USUARIO DESDE ADMIN (AJAX — formulario clásico POST) ────────────────
 
 def crear_usuario_admin(request):
     if not request.user.is_authenticated:
@@ -675,13 +749,13 @@ def crear_usuario_admin(request):
     usuario.save()
 
     return JsonResponse({
-        'ok':             True,
-        'pk':             usuario.pk,
-        'nombre_completo': usuario.nombre_completo,
-        'usuario':        usuario.username,
-        'email':          usuario.email,
-        'identificacion': usuario.identificacion,
+        'ok':              True,
+        'pk':              usuario.pk,
+        'nombre_completo': usuario.get_full_name(),
+        'usuario':         usuario.username,
+        'email':           usuario.email,
+        'identificacion':  usuario.identificacion,
         'tipo_id_display': usuario.get_tipo_id_display(),
-        'fecha_registro': usuario.date_joined.strftime('%d/%m/%Y'),
-        'foto_url':       None,
+        'fecha_registro':  usuario.date_joined.strftime('%d/%m/%Y'),
+        'foto_url':        None,
     })

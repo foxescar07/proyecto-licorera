@@ -1,4 +1,4 @@
-}{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Usuarios — CYS Ltda{% endblock %}
@@ -37,8 +37,7 @@
            placeholder="Buscar usuario en el sistema…" autocomplete="off">
     {% if request.session.usuario_rol == 'admin' %}
     <div class="ul-searchbar__div"></div>
-    <button type="button" class="ul-searchbar__btn"
-            data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+    <button type="button" class="ul-searchbar__btn" id="btnAbrirModalCrear">
       <i class="bi bi-person-plus"></i> Nuevo Usuario
     </button>
     {% endif %}
@@ -120,8 +119,7 @@
 
             <hr class="usuario-divider">
 
-            <!-- ▼ CAMBIO: align-items-start para evitar columnas de altura desigual -->
-            <div class="row g-2 mb-3 usuario-datos align-items-start">
+            <div class="row g-2 mb-3 usuario-datos">
               <div class="col-6">
                 <div class="usuario-label">Identificación</div>
                 <div class="usuario-value">{{ u.identificacion }}</div>
@@ -351,103 +349,217 @@
 <!-- MODAL CREAR USUARIO -->
 <div class="modal fade" id="modalCrearUsuario" tabindex="-1"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-editar" style="max-width:540px;">
-    <div class="modal-content modal-editar-content">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-editar"
+       style="max-width:540px;">
+    <div class="modal-content modal-editar-content" id="modalCrearContenido">
+
       <div class="modal-header modal-editar-header">
-        <div class="d-flex align-items-center gap-3">
-          <div style="width:40px;height:40px;border-radius:12px;
-                      background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.35);
-                      display:flex;align-items:center;justify-content:center;
-                      font-size:1.1rem;color:#4DA8DA;flex-shrink:0;">
-            <i class="bi bi-person-plus-fill"></i>
-          </div>
-          <div>
-            <div style="font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
-                        color:#4DA8DA;opacity:.7;margin-bottom:.15rem;">Panel Admin</div>
-            <span class="modal-editar-title">Nuevo Usuario</span>
-          </div>
-        </div>
+        <span class="modal-editar-title">Nuevo Usuario</span>
         <button type="button" class="btn-close btn-close-white ms-auto"
                 data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div id="cuMsg" class="eu-msg"></div>
-      <div class="modal-body modal-editar-body">
 
-        <div class="cu-section-label"><i class="bi bi-person-badge"></i> Identificación</div>
-        <div class="row g-3 mb-3">
-          <div class="col-5">
-            <label class="eu-label">Tipo ID <span class="cu-required">*</span></label>
-            <select id="cuTipoId" class="eu-input">
-              <option value="">Seleccionar…</option>
-              <option value="CC">Cédula de Ciudadanía</option>
-              <option value="TI">Tarjeta de Identidad</option>
-              <option value="CE">Cédula de Extranjería</option>
-              <option value="PA">Pasaporte</option>
-              <option value="NIT">NIT</option>
-            </select>
-          </div>
-          <div class="col-7">
-            <label class="eu-label">Número de Identificación <span class="cu-required">*</span></label>
-            <input type="text" id="cuIdentificacion" class="eu-input" placeholder="Número de documento">
-          </div>
+      <div id="cuMsg" class="eu-msg"></div>
+
+      <div class="modal-body modal-editar-body" style="padding-top:1.1rem;">
+
+        <!-- DATOS PERSONALES -->
+        <div class="cu-section-label">
+          <i class="bi bi-person"></i> Datos Personales
         </div>
 
-        <div class="cu-section-label"><i class="bi bi-person"></i> Datos Personales</div>
         <div class="row g-3 mb-3">
           <div class="col-6">
             <label class="eu-label">Nombres <span class="cu-required">*</span></label>
-            <input type="text" id="cuNombre" class="eu-input" placeholder="Nombres completos">
+            <input type="text" id="cuNombre" class="eu-input" autocomplete="off">
           </div>
           <div class="col-6">
             <label class="eu-label">Apellidos <span class="cu-required">*</span></label>
-            <input type="text" id="cuApellidos" class="eu-input" placeholder="Apellidos completos">
-          </div>
-        </div>
-        <div class="row g-3 mb-3">
-          <div class="col-6">
-            <label class="eu-label">Correo Electrónico</label>
-            <input type="email" id="cuEmail" class="eu-input" placeholder="usuario@correo.com">
-          </div>
-          <div class="col-6">
-            <label class="eu-label">Teléfono</label>
-            <input type="text" id="cuTelefono" class="eu-input" placeholder="300 000 0000">
+            <input type="text" id="cuApellidos" class="eu-input" autocomplete="off">
           </div>
         </div>
 
-        <div class="cu-section-label"><i class="bi bi-shield-lock"></i> Acceso al Sistema</div>
         <div class="row g-3 mb-3">
           <div class="col-6">
-            <label class="eu-label">Rol</label>
-            <div class="cu-rol-badge-wrap">
-              <span class="badge usuario-rol usuario-rol--empleado cu-rol-badge">
-                <i class="bi bi-person-fill me-1"></i> Empleado
-              </span>
-              <div class="cu-rol-hint">
-                <i class="bi bi-info-circle me-1"></i>
-                El rol puede cambiarse después desde <strong>Editar</strong>.
-              </div>
-            </div>
+            <label class="eu-label">Tipo de ID <span class="cu-required">*</span></label>
+            <select id="cuTipoId" class="eu-input">
+              <option value="CC">Cédula de Ciudadanía</option>
+              <option value="TI">Tarjeta de Identidad</option>
+              <option value="CE">Cédula Extranjería</option>
+              <option value="PA">Pasaporte</option>
+            </select>
           </div>
           <div class="col-6">
-            <label class="eu-label">Contraseña <span class="cu-required">*</span></label>
-            <div style="position:relative;display:flex;align-items:center;">
-              <input type="password" id="cuClave" class="eu-input"
-                     placeholder="Mín. 6 car., 2 núm., 1 may."
-                     style="padding-right:2.6rem;">
-              <button type="button" id="cuToggleClave"
-                      style="position:absolute;right:.75rem;background:none;border:none;
-                             color:rgba(77,168,218,.4);cursor:pointer;font-size:.95rem;
-                             padding:0;line-height:1;transition:color .2s;">
-                <i class="bi bi-eye"></i>
+            <label class="eu-label">Identificación <span class="cu-required">*</span></label>
+            <input type="text" id="cuIdentificacion" class="eu-input" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="eu-label">Correo electrónico</label>
+          <input type="email" id="cuEmail" class="eu-input" autocomplete="off"
+                 placeholder="opcional">
+        </div>
+
+        <!-- ROL -->
+        <div class="cu-section-label mt-1">
+          <i class="bi bi-person-badge"></i> Rol
+        </div>
+
+        <div class="mb-3">
+          <div class="cu-rol-badge-wrap">
+            <span class="badge usuario-rol usuario-rol--empleado cu-rol-badge">Empleado</span>
+            <span class="cu-rol-hint">
+              Los nuevos usuarios se crean siempre como
+              <strong>Empleado</strong>. El rol puede cambiarse
+              después desde la lista de usuarios.
+            </span>
+          </div>
+        </div>
+
+        <!-- CONTRASEÑA -->
+        <div class="cu-section-label mt-1">
+          <i class="bi bi-lock"></i> Contraseña
+        </div>
+
+        <div class="mb-3">
+          <label class="eu-label">Contraseña <span class="cu-required">*</span></label>
+          <div class="cu-pass-wrap">
+            <input type="password" id="cuClave" class="eu-input cu-pass-input"
+                   placeholder="Mín. 6 car., 2 núm., 1 may."
+                   autocomplete="new-password">
+            <button type="button" class="cu-eye-btn" id="cuEyeClave"
+                    onclick="cuToggleOjo('cuClave','cuEyeIconClave')" title="Mostrar/ocultar">
+              <i class="bi bi-eye" id="cuEyeIconClave"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="eu-label">Confirmar contraseña <span class="cu-required">*</span></label>
+          <div class="cu-pass-wrap">
+            <input type="password" id="cuClaveConfirm" class="eu-input cu-pass-input"
+                   placeholder="Repite la contraseña"
+                   autocomplete="new-password">
+            <button type="button" class="cu-eye-btn" id="cuEyeConfirm"
+                    onclick="cuToggleOjo('cuClaveConfirm','cuEyeIconConfirm')" title="Mostrar/ocultar">
+              <i class="bi bi-eye" id="cuEyeIconConfirm"></i>
+            </button>
+          </div>
+          <div id="cuClaveMatch" class="cu-match-hint" style="display:none;"></div>
+        </div>
+
+        <!-- TÉRMINOS Y CONDICIONES -->
+        <div class="cu-tc-wrap mb-4" id="cuTcWrap">
+          <label class="cu-tc-label" for="cuAceptaTC">
+            <input type="checkbox" id="cuAceptaTC" class="cu-tc-checkbox">
+            <span class="cu-tc-box"><i class="bi bi-check"></i></span>
+            <span class="cu-tc-text">
+              Acepto los
+              <button type="button" class="cu-tc-link" id="cuBtnVerTC">
+                Términos y Condiciones
               </button>
-            </div>
+              de uso del sistema CYS Ltda.
+            </span>
+          </label>
+        </div>
+
+        <button type="button" id="cuBtnGuardar"
+                onclick="guardarNuevoUsuario()"
+                class="btn w-100 modal-btn-guardar">
+          <i class="bi bi-person-plus me-1"></i> Crear Usuario
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TÉRMINOS Y CONDICIONES -->
+<div class="modal fade" id="modalTC" tabindex="-1"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+       style="max-width:520px;">
+    <div class="modal-content modal-editar-content">
+
+      <div class="modal-header modal-editar-header">
+        <div>
+          <span class="modal-editar-title">
+            <i class="bi bi-file-text me-2"></i>Términos y Condiciones
+          </span>
+        </div>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body" style="padding:1.25rem 1.4rem; max-height:55vh; overflow-y:auto;">
+
+        <div class="tc-banner mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Lea atentamente antes de registrar un nuevo usuario en el sistema.
+        </div>
+
+        <div class="tc-item">
+          <div class="tc-num">01</div>
+          <div class="tc-content">
+            <div class="tc-title">Acceso al sistema</div>
+            <p>El usuario registrado tendrá acceso al sistema de gestión de CYS Ltda.
+               únicamente para las funciones correspondientes a su rol asignado.</p>
           </div>
         </div>
 
-        <button type="button" id="cuBtnGuardar" class="btn w-100 modal-btn-guardar mt-2">
-          <i class="bi bi-person-check-fill me-2"></i> Crear Usuario
+        <div class="tc-item">
+          <div class="tc-num">02</div>
+          <div class="tc-content">
+            <div class="tc-title">Confidencialidad</div>
+            <p>Toda la información manejada dentro del sistema es de carácter
+               <strong>confidencial</strong>. Queda prohibida su divulgación a terceros
+               no autorizados.</p>
+          </div>
+        </div>
+
+        <div class="tc-item">
+          <div class="tc-num">03</div>
+          <div class="tc-content">
+            <div class="tc-title">Responsabilidad de credenciales</div>
+            <p>Cada usuario es responsable de mantener la seguridad de sus credenciales
+               de acceso. No se permite compartir contraseñas entre usuarios.</p>
+          </div>
+        </div>
+
+        <div class="tc-item">
+          <div class="tc-num">04</div>
+          <div class="tc-content">
+            <div class="tc-title">Uso adecuado</div>
+            <p>El acceso al sistema debe usarse exclusivamente para actividades
+               relacionadas con las operaciones de <strong>CYS Ltda.</strong>
+               Cualquier uso indebido será motivo de suspensión inmediata.</p>
+          </div>
+        </div>
+
+        <div class="tc-item">
+          <div class="tc-num">05</div>
+          <div class="tc-content">
+            <div class="tc-title">Auditoría y monitoreo</div>
+            <p>Las acciones realizadas dentro del sistema quedan registradas y pueden
+               ser auditadas por el administrador en cualquier momento.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="background:#0d1b2e; border-top:1px solid rgba(77,168,218,.18); padding:1rem 1.4rem; display:flex; gap:.75rem; justify-content:flex-end;">
+        <button type="button" class="btn usuario-btn usuario-btn-editar"
+                data-bs-dismiss="modal">
+          Cerrar
+        </button>
+        <button type="button" class="btn modal-btn-guardar"
+                style="width:auto; padding:.55rem 1.4rem;"
+                id="tcBtnAceptar" data-bs-dismiss="modal">
+          <i class="bi bi-check-lg me-1"></i> Acepto
         </button>
       </div>
+
     </div>
   </div>
 </div>
@@ -483,8 +595,8 @@
     let vis    = 0;
     cols.forEach(col => {
       const show = !q || ['nombre','usuario','rol'].some(k => (col.dataset[k]||'').includes(q));
-      col.style.display      = show ? '' : 'none';
-      col.dataset.visible    = show ? '1' : '0';
+      col.style.display   = show ? '' : 'none';
+      col.dataset.visible = show ? '1' : '0';
       if (show) vis++;
     });
     const sr = $('sin-resultados');
@@ -571,186 +683,287 @@
   /* ══════════════════════════════════════════════
      MODAL CREAR USUARIO
   ══════════════════════════════════════════════ */
-  const modalCrearEl = $('modalCrearUsuario');
+  const modalCrearEl  = $('modalCrearUsuario');
+  const btnAbrirCrear = $('btnAbrirModalCrear');
 
-  if (modalCrearEl) {
+  /* Toggle ojo de contraseña */
+  window.cuToggleOjo = function(inputId, iconId) {
+    const inp  = $(inputId);
+    const icon = $(iconId);
+    if (!inp || !icon) return;
+    const esPassword = inp.type === 'password';
+    inp.type = esPassword ? 'text' : 'password';
+    icon.className = esPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+  };
 
-    modalCrearEl.addEventListener('show.bs.modal', () => {
-      ['cuTipoId','cuIdentificacion','cuNombre','cuApellidos','cuEmail','cuTelefono','cuClave']
-        .forEach(id => { if ($(id)) $(id).value = ''; });
-      const msg = $('cuMsg');
-      msg.style.display = 'none';
-      msg.className = 'eu-msg';
-      modalCrearEl.querySelectorAll('.eu-input').forEach(el => el.classList.remove('eu-input--invalid'));
+  /* Validador en tiempo real: coincidencia de contraseñas */
+  function cuValidarMatch() {
+    const c1    = $('cuClave')?.value         || '';
+    const c2    = $('cuClaveConfirm')?.value  || '';
+    const hint  = $('cuClaveMatch');
+    const inp2  = $('cuClaveConfirm');
+    if (!hint || !c2) { hint && (hint.style.display = 'none'); return; }
+    const ok = c1 === c2;
+    hint.style.display = 'flex';
+    hint.className     = 'cu-match-hint ' + (ok ? 'cu-match-ok' : 'cu-match-err');
+    hint.innerHTML     = ok
+      ? '<i class="bi bi-check-circle-fill"></i> Las contraseñas coinciden'
+      : '<i class="bi bi-x-circle-fill"></i> Las contraseñas no coinciden';
+    inp2.classList.toggle('eu-input--invalid', !ok);
+  }
+
+  /* Limpiar campos del modal crear */
+  function cuLimpiar() {
+    ['cuNombre','cuApellidos','cuIdentificacion','cuEmail','cuClave','cuClaveConfirm'].forEach(id => {
+      const el = $(id);
+      if (el) { el.value = ''; el.classList.remove('eu-input--invalid'); }
+    });
+    const ti = $('cuTipoId');    if (ti) ti.value = 'CC';
+    const cb = $('cuAceptaTC'); if (cb) cb.checked = false;
+    const tw = $('cuTcWrap');   if (tw) tw.classList.remove('cu-tc-wrap--invalid');
+    const mh = $('cuClaveMatch'); if (mh) mh.style.display = 'none';
+    const msg = $('cuMsg');
+    if (msg) { msg.style.display = 'none'; msg.className = 'eu-msg'; }
+    // resetear iconos ojo
+    ['cuEyeIconClave','cuEyeIconConfirm'].forEach(id => {
+      const ic = $(id); if (ic) ic.className = 'bi bi-eye';
+    });
+    ['cuClave','cuClaveConfirm'].forEach(id => {
+      const inp = $(id); if (inp) inp.type = 'password';
+    });
+  }
+
+  if (btnAbrirCrear && modalCrearEl) {
+    btnAbrirCrear.addEventListener('click', () => {
+      cuLimpiar();
+      new bootstrap.Modal(modalCrearEl).show();
     });
 
-    $('cuToggleClave')?.addEventListener('click', function () {
-      const field = $('cuClave');
-      const icon  = this.querySelector('i');
-      const isPwd = field.type === 'password';
-      field.type = isPwd ? 'text' : 'password';
-      icon.classList.toggle('bi-eye',      !isPwd);
-      icon.classList.toggle('bi-eye-slash', isPwd);
-    });
+    /* Listeners dinámicos — se registran una sola vez tras primer show */
+    modalCrearEl.addEventListener('shown.bs.modal', function onShown() {
+      modalCrearEl.removeEventListener('shown.bs.modal', onShown);
 
-    function mostrarMsgCrear(texto, tipo) {
-      const el = $('cuMsg');
-      el.textContent   = texto;
-      el.className     = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
-      el.style.display = 'block';
-    }
+      $('cuClaveConfirm')?.addEventListener('input', cuValidarMatch);
+      $('cuClave')?.addEventListener('input', cuValidarMatch);
 
-    $('cuBtnGuardar')?.addEventListener('click', function () {
-      const btn = this;
-      modalCrearEl.querySelectorAll('.eu-input').forEach(el => el.classList.remove('eu-input--invalid'));
+      /* Botón ver T&C */
+      $('cuBtnVerTC')?.addEventListener('click', () => {
+        const tcModal = new bootstrap.Modal($('modalTC'));
+        tcModal.show();
+      });
 
-      const tipo_id        = $('cuTipoId').value;
-      const identificacion = $('cuIdentificacion').value.trim();
-      const nombre         = $('cuNombre').value.trim();
-      const apellidos      = $('cuApellidos').value.trim();
-      const email          = $('cuEmail').value.trim();
-      const telefono       = $('cuTelefono').value.trim();
-      const clave          = $('cuClave').value;
-
-      let hayError = false;
-      const marcar = id => { $(id)?.classList.add('eu-input--invalid'); hayError = true; };
-
-      if (!tipo_id)        marcar('cuTipoId');
-      if (!identificacion) marcar('cuIdentificacion');
-      if (!nombre)         marcar('cuNombre');
-      if (!apellidos)      marcar('cuApellidos');
-      if (!clave)          marcar('cuClave');
-
-      if (hayError) {
-        mostrarMsgCrear('Completa todos los campos obligatorios (*).', 'err');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando usuario…';
-
-      apiFetch("{% url 'crear_usuario_admin' %}", mkFd({
-        tipo_id, identificacion, nombre, apellidos, email, telefono, clave
-      })).then(d => {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-person-check-fill me-2"></i> Crear Usuario';
-        if (d.ok) {
-          mostrarMsgCrear('✅ Usuario creado correctamente.', 'ok');
-          agregarTarjetaAlDOM(d);
-          setTimeout(() => {
-            ['cuTipoId','cuIdentificacion','cuNombre','cuApellidos','cuEmail','cuTelefono','cuClave']
-              .forEach(id => { if ($(id)) $(id).value = ''; });
-            $('cuMsg').style.display = 'none';
-          }, 1800);
-        } else {
-          mostrarMsgCrear(d.error || 'Error al crear el usuario.', 'err');
+      /* Al aceptar desde el modal T&C → marcar checkbox */
+      $('tcBtnAceptar')?.addEventListener('click', () => {
+        const cb = $('cuAceptaTC');
+        if (cb) {
+          cb.checked = true;
+          $('cuTcWrap')?.classList.remove('cu-tc-wrap--invalid');
         }
-      }).catch(() => {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-person-check-fill me-2"></i> Crear Usuario';
-        mostrarMsgCrear('Error de conexión.', 'err');
       });
     });
+  }
 
-    function agregarTarjetaAlDOM(d) {
-      const contenedor = $('contenedor-tarjetas');
-      if (!contenedor) return;
-      const hoy   = new Date();
-      const fecha = hoy.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
+  /* Guardar nuevo usuario */
+  window.guardarNuevoUsuario = function() {
+    const nombre    = $('cuNombre')?.value.trim()        || '';
+    const apellidos = $('cuApellidos')?.value.trim()     || '';
+    const tipoId    = $('cuTipoId')?.value               || 'CC';
+    const idNum     = $('cuIdentificacion')?.value.trim()|| '';
+    const email     = $('cuEmail')?.value.trim()         || '';
+    const clave     = $('cuClave')?.value                || '';
+    const confirm   = $('cuClaveConfirm')?.value         || '';
+    const acepta    = $('cuAceptaTC')?.checked           || false;
 
-      const colDiv = document.createElement('div');
-      colDiv.className = 'col-12 col-md-6';
-      colDiv.id = 'col-' + d.pk;
-      colDiv.dataset.nombre   = (d.nombre_completo || '').toLowerCase();
-      colDiv.dataset.usuario  = (d.usuario || '').toLowerCase();
-      colDiv.dataset.rol      = 'empleado';
-      colDiv.dataset.visible  = '1';
+    /* Validación cliente */
+    let errores = false;
 
-      colDiv.innerHTML = `
-        <div id="fila-${d.pk}" class="usuario-card h-100"
-             style="opacity:0;transform:scale(.95);transition:opacity .35s,transform .35s;">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <div class="usuario-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
-              <div>
-                <div class="usuario-nombre">${d.nombre_completo}</div>
-                <div class="usuario-user">@${d.usuario}</div>
-              </div>
-            </div>
-            <span id="rol-badge-${d.pk}" class="badge usuario-rol usuario-rol--empleado">Empleado</span>
-          </div>
-          <hr class="usuario-divider">
-          <div class="row g-2 mb-3 usuario-datos align-items-start">
-            <div class="col-6">
-              <div class="usuario-label">Identificación</div>
-              <div class="usuario-value">${d.identificacion}</div>
-              <div class="usuario-sub">${d.tipo_id_display || ''}</div>
-            </div>
-            <div class="col-6">
-              <div class="usuario-label">Correo</div>
-              <div class="usuario-email">${d.email || '—'}</div>
-            </div>
-            <div class="col-6">
-              <div class="usuario-label">Miembro desde</div>
-              <div class="usuario-muted">${fecha}</div>
-            </div>
-            <div class="col-6">
-              <div class="usuario-label">Estado</div>
-              <span id="estado-badge-${d.pk}" class="usuario-estado usuario-estado--activo">
-                <span class="usuario-dot"></span> Activo
-              </span>
-            </div>
-          </div>
-          <div class="d-flex gap-2">
-            <button onclick="abrirEditar(${d.pk})"
-                    class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
-              <i class="bi bi-pencil me-1"></i> Editar
-            </button>
-            <div id="wrap-toggle-${d.pk}" class="flex-fill d-flex flex-column gap-1">
-              <button id="btn-toggle-${d.pk}"
-                      onclick="toggleActivo(${d.pk}, true)"
-                      class="btn btn-sm w-100 usuario-btn usuario-btn-desactivar">
-                <i class="bi bi-person-dash me-1"></i> Desactivar
-              </button>
-              <button id="btn-eliminar-${d.pk}"
-                      onclick="eliminarUsuario(${d.pk})"
-                      class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
-                      style="display:none;">
-                <i class="bi bi-trash3 me-1"></i> Eliminar
-              </button>
-            </div>
-          </div>
-        </div>`;
-
-      contenedor.appendChild(colDiv);
-      requestAnimationFrame(() => {
-        const card = colDiv.querySelector('.usuario-card');
-        card.style.opacity   = '1';
-        card.style.transform = 'scale(1)';
-      });
-
-      const recientesScroll = $('recientes-scroll');
-      if (recientesScroll) {
-        const item = document.createElement('div');
-        item.className = 'ul-activity-item';
-        item.id = 'reciente-' + d.pk;
-        item.innerHTML = `
-          <div class="ul-activity-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
-          <div class="ul-activity-body">
-            <div class="ul-activity-name">${d.nombre_completo}</div>
-            <div class="ul-activity-meta">Empleado</div>
-          </div>
-          <div class="ul-activity-time">${fecha}</div>`;
-        recientesScroll.insertBefore(item, recientesScroll.firstChild);
-      }
-
-      const totalEl = $('total-usuarios-num');
-      if (totalEl) totalEl.textContent = parseInt(totalEl.textContent || '0') + 1;
-
-      calcularStats();
-      reajustarLayout();
+    function marcar(id, mal) {
+      $(id)?.classList.toggle('eu-input--invalid', mal);
     }
 
+    marcar('cuNombre',        !nombre);
+    marcar('cuApellidos',     !apellidos);
+    marcar('cuIdentificacion',!idNum);
+    marcar('cuClave',         !clave);
+    marcar('cuClaveConfirm',  !confirm || clave !== confirm);
+    if (!nombre || !apellidos || !idNum || !clave) errores = true;
+    if (!confirm || clave !== confirm) errores = true;
+
+    if (!acepta) {
+      $('cuTcWrap')?.classList.add('cu-tc-wrap--invalid');
+      errores = true;
+    } else {
+      $('cuTcWrap')?.classList.remove('cu-tc-wrap--invalid');
+    }
+
+    if (errores) {
+      cuMostrarMsg(
+        clave !== confirm
+          ? 'Las contraseñas no coinciden.'
+          : !acepta
+            ? 'Debes aceptar los Términos y Condiciones.'
+            : 'Completa todos los campos obligatorios.',
+        'err'
+      );
+      return;
+    }
+
+    const btn = $('cuBtnGuardar');
+    btn.disabled    = true;
+    btn.textContent = 'Creando…';
+
+    apiFetch('/usuarios/crear/', mkFd({
+      nombre, apellidos, tipo_id: tipoId,
+      identificacion: idNum, email, clave,
+    })).then(d => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-person-plus me-1"></i> Crear Usuario';
+      if (d.ok) {
+        cuMostrarMsg('✅ ' + (d.mensaje || 'Usuario creado correctamente.'), 'ok');
+        setTimeout(() => {
+          bootstrap.Modal.getInstance($('modalCrearUsuario'))?.hide();
+          cuLimpiar();
+          if (d.pk) agregarTarjetaAlDOM(d);
+        }, 1100);
+      } else {
+        cuMostrarMsg(d.error || 'Error al crear el usuario.', 'err');
+      }
+    }).catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-person-plus me-1"></i> Crear Usuario';
+      cuMostrarMsg('Error de conexión.', 'err');
+    });
+  };
+
+  function cuMostrarMsg(texto, tipo) {
+    const el = $('cuMsg');
+    if (!el) return;
+    el.textContent   = texto;
+    el.style.display = 'block';
+    el.className     = 'eu-msg ' + (tipo === 'ok' ? 'eu-msg-ok' : 'eu-msg-error');
+  }
+
+  /* ══════════════════════════════════════════════
+     AGREGAR TARJETA AL DOM
+  ══════════════════════════════════════════════ */
+  function agregarTarjetaAlDOM(d) {
+    const contenedor = $('contenedor-tarjetas');
+    if (!contenedor) return;
+    const hoy   = new Date();
+    const fecha = hoy.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+    const colDiv = document.createElement('div');
+    colDiv.className = 'col-12 col-md-6';
+    colDiv.id = 'col-' + d.pk;
+    colDiv.dataset.nombre   = (d.nombre_completo || '').toLowerCase();
+    colDiv.dataset.usuario  = (d.usuario || '').toLowerCase();
+    colDiv.dataset.rol      = 'empleado';
+    colDiv.dataset.visible  = '1';
+
+    colDiv.innerHTML = `
+      <div id="fila-${d.pk}" class="usuario-card h-100"
+           style="opacity:0;transform:scale(.95);transition:opacity .35s,transform .35s;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <div class="usuario-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
+            <div>
+              <div class="usuario-nombre">${d.nombre_completo}</div>
+              <div class="usuario-user">@${d.usuario}</div>
+            </div>
+          </div>
+          <div class="usuario-rol-control" id="rol-control-${d.pk}">
+            <span id="rol-badge-${d.pk}"
+                  class="badge usuario-rol usuario-rol--empleado usuario-rol--clickable"
+                  onclick="abrirSelectorRol(${d.pk}, 'empleado')"
+                  title="Cambiar rol">
+              Empleado <i class="bi bi-pencil-fill usuario-rol__edit-icon"></i>
+            </span>
+            <div id="rol-selector-${d.pk}" class="usuario-rol-selector" style="display:none;">
+              <select id="rol-select-${d.pk}" class="usuario-rol-select">
+                <option value="cajero">Cajero</option>
+                <option value="empleado" selected>Empleado</option>
+              </select>
+              <button class="usuario-rol-btn usuario-rol-btn--ok"
+                      onclick="guardarRol(${d.pk})" title="Guardar rol">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="usuario-rol-btn usuario-rol-btn--cancel"
+                      onclick="cancelarRol(${d.pk})" title="Cancelar">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <hr class="usuario-divider">
+        <div class="row g-2 mb-3 usuario-datos">
+          <div class="col-6">
+            <div class="usuario-label">Identificación</div>
+            <div class="usuario-value">${d.identificacion}</div>
+            <div class="usuario-sub">${d.tipo_id_display || ''}</div>
+          </div>
+          <div class="col-6">
+            <div class="usuario-label">Correo</div>
+            <div class="usuario-email">${d.email || '—'}</div>
+          </div>
+          <div class="col-6">
+            <div class="usuario-label">Miembro desde</div>
+            <div class="usuario-muted">${fecha}</div>
+          </div>
+          <div class="col-6">
+            <div class="usuario-label">Estado</div>
+            <span id="estado-badge-${d.pk}" class="usuario-estado usuario-estado--activo">
+              <span class="usuario-dot"></span> Activo
+            </span>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button onclick="abrirEditar(${d.pk})"
+                  class="btn btn-sm flex-fill usuario-btn usuario-btn-editar">
+            <i class="bi bi-pencil me-1"></i> Editar
+          </button>
+          <div id="wrap-toggle-${d.pk}" class="flex-fill d-flex flex-column gap-1">
+            <button id="btn-toggle-${d.pk}"
+                    onclick="toggleActivo(${d.pk}, true)"
+                    class="btn btn-sm w-100 usuario-btn usuario-btn-desactivar">
+              <i class="bi bi-person-dash me-1"></i> Desactivar
+            </button>
+            <button id="btn-eliminar-${d.pk}"
+                    onclick="eliminarUsuario(${d.pk})"
+                    class="btn btn-sm w-100 usuario-btn usuario-btn-eliminar"
+                    style="display:none;">
+              <i class="bi bi-trash3 me-1"></i> Eliminar
+            </button>
+          </div>
+        </div>
+      </div>`;
+
+    contenedor.appendChild(colDiv);
+    requestAnimationFrame(() => {
+      const card = colDiv.querySelector('.usuario-card');
+      card.style.opacity   = '1';
+      card.style.transform = 'scale(1)';
+    });
+
+    const recientesScroll = $('recientes-scroll');
+    if (recientesScroll) {
+      const item = document.createElement('div');
+      item.className = 'ul-activity-item';
+      item.id = 'reciente-' + d.pk;
+      item.innerHTML = `
+        <div class="ul-activity-avatar">${(d.nombre_completo||'?')[0].toUpperCase()}</div>
+        <div class="ul-activity-body">
+          <div class="ul-activity-name">${d.nombre_completo}</div>
+          <div class="ul-activity-meta">Empleado</div>
+        </div>
+        <div class="ul-activity-time">${fecha}</div>`;
+      recientesScroll.insertBefore(item, recientesScroll.firstChild);
+    }
+
+    const totalEl = $('total-usuarios-num');
+    if (totalEl) totalEl.textContent = parseInt(totalEl.textContent || '0') + 1;
+
+    calcularStats();
+    reajustarLayout();
   }
 
   /* ══════════════════════════════════════════════
@@ -833,27 +1046,28 @@
     btnOk.disabled = true;
     btnOk.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:.75rem;height:.75rem;border-width:2px;"></span>';
 
-    const card      = $('fila-' + pk);
-    const nombreEl  = card?.querySelector('.usuario-nombre');
-    const partes    = nombreEl ? nombreEl.textContent.trim().split(' ') : ['', ''];
-    const mitad     = Math.ceil(partes.length / 2);
-    const nombre    = partes.slice(0, mitad).join(' ');
-    const apellidos = partes.slice(mitad).join(' ') || nombre;
-    const emailEl   = card?.querySelector('.usuario-email');
-    const email     = emailEl ? emailEl.textContent.trim().replace('—', '') : '';
-
-    apiFetch(`/usuarios/editar/${pk}/`, mkFd({
-      nombre, apellidos, email, rol: nuevoRol, clave_nueva: '',
-    })).then(d => {
+    fetch(`/usuarios/editar/${pk}/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) throw new Error('No se pudieron obtener datos del usuario.');
+      return apiFetch(`/usuarios/editar/${pk}/`, mkFd({
+        nombre:      d.nombre,
+        apellidos:   d.apellidos,
+        email:       d.email,
+        rol:         nuevoRol,
+        clave_nueva: '',
+      }));
+    })
+    .then(d => {
       btnOk.disabled = false;
       btnOk.innerHTML = '<i class="bi bi-check-lg"></i>';
       if (!d.ok) {
         const badge = $('rol-badge-' + pk);
-        const prev  = badge.textContent.trim();
+        const prev  = badge.innerHTML;
         badge.style.display = '';
         $('rol-selector-' + pk).style.display = 'none';
-        badge.textContent = '⚠ ' + (d.error || 'Error');
-        setTimeout(() => { badge.textContent = prev; }, 2000);
+        badge.innerHTML = `⚠ ${d.error || 'Error'}`;
+        setTimeout(() => { badge.innerHTML = prev; }, 2500);
         return;
       }
       const badge = $('rol-badge-' + pk);
@@ -865,7 +1079,8 @@
       const col = $('col-' + pk);
       if (col) col.dataset.rol = ROL_LABELS[nuevoRol].toLowerCase();
       calcularStats();
-    }).catch(() => {
+    })
+    .catch(() => {
       btnOk.disabled = false;
       btnOk.innerHTML = '<i class="bi bi-check-lg"></i>';
       cancelarRol(pk);
