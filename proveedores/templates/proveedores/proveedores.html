@@ -69,31 +69,24 @@
     {% endfor %}
   {% endif %}
 
-  <!-- FILTROS -->
+  <!-- BÚSQUEDA Y ACCIONES -->
   <div class="card card-dev p-3 mb-2">
-    <form method="GET" action="/proveedores/" class="d-flex gap-2 align-items-end flex-wrap">
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
       <!-- Búsqueda -->
-      <div style="flex: 1; min-width: 300px;">
-        <label style="display: block; font-size: 0.75rem; color: #4DA8DA; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem;">Buscar</label>
-        <div class="input-group input-group-sm">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" name="q" class="form-control" placeholder="Por empresa o contacto..." value="{{ request.GET.q }}">
+      <form method="GET" action="/proveedores/" style="flex: 1; min-width: 250px; display: flex; gap: 0;">
+        <div style="flex: 1; display: flex; align-items: center; background: rgba(13, 27, 42, 0.5); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 8px 0 0 8px; padding: 0 12px;">
+          <input type="text" name="q" style="flex: 1; background: none; border: none; color: #e2e8f0; padding: 12px 0; outline: none; font-size: 0.95rem;" placeholder="Buscar por empresa o contacto..." value="{{ request.GET.q }}">
         </div>
-      </div>
+        <button type="submit" style="background: rgba(77, 168, 218, 0.2); border: 1px solid rgba(77, 168, 218, 0.2); border-left: none; border-radius: 0 8px 8px 0; color: #4DA8DA; cursor: pointer; padding: 0 16px; font-size: 1.1rem; transition: all 0.2s; display: flex; align-items: center;">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
 
-      <!-- Botones -->
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-sm btn-primary" style="border-radius: 20px;">
-          <i class="bi bi-search me-1"></i>Filtrar
-        </button>
-        <a href="/proveedores/" class="btn btn-sm btn-outline-secondary" style="border-radius: 20px;">
-          <i class="bi bi-trash me-1"></i>Limpiar
-        </a>
-        <button type="button" class="btn btn-nuevo-proveedor" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor" style="border-radius: 20px;">
-          <i class="bi bi-plus-lg me-2"></i>Nuevo proveedor
-        </button>
-      </div>
-    </form>
+      <!-- Nuevo proveedor -->
+      <button type="button" class="btn btn-nuevo-proveedor" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor" style="border-radius: 8px; white-space: nowrap;">
+        <i class="bi bi-plus-lg me-2"></i>Nuevo proveedor
+      </button>
+    </div>
   </div>
 
   <!-- TABLA DE PROVEEDORES (DESPLEGABLE) -->
@@ -195,12 +188,6 @@
                     </button>
                   </li>
                   {% endif %}
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEliminarProveedor{{ p.id }}" style="border: none; background: none; cursor: pointer;">
-                      <i class="bi bi-trash me-2 text-danger"></i>Eliminar
-                    </button>
-                  </li>
                 </ul>
               </div>
             </td>
@@ -592,30 +579,6 @@
             </div>
           </div>
 
-          <!-- CLASIFICACIÓN -->
-          <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px;">
-            <h6 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;"><i class="bi bi-tag me-2"></i>Clasificación</h6>
-            <div class="row g-3">
-              <div class="col-12 col-md-6">
-                <label for="id_tipo_proveedor" class="form-label fw-bold" style="color: var(--cyan);">Tipo de Proveedor *</label>
-                <select name="tipo_proveedor" id="id_tipo_proveedor" class="form-select" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
-                  <option value="">-- Selecciona un tipo --</option>
-                  <option value="distribuidor">Distribuidor</option>
-                  <option value="fabricante">Fabricante</option>
-                  <option value="importador">Importador</option>
-                </select>
-              </div>
-              <div class="col-12 col-md-6">
-                <label for="id_estado" class="form-label fw-bold" style="color: var(--cyan);">Estado *</label>
-                <select name="estado" id="id_estado" class="form-select" style="background: var(--color-surface); border-color: rgba(77, 168, 218, 0.3); color: var(--text-hi); font-weight: 500;" required>
-                  <option value="">-- Selecciona un estado --</option>
-                  <option value="activo">✓ Activo</option>
-                  <option value="inactivo">⏸ Inactivo</option>
-                  <option value="sancionado">⚠ Sancionado</option>
-                </select>
-              </div>
-            </div>
-          </div>
         </form>
       </div>
       <div class="modal-footer border-0">
