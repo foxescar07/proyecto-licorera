@@ -605,3 +605,75 @@
   background-color: rgba(77,168,218,0.15) !important;
   color: #4DA8DA !important;
 }
+/* ── Fix flechas DataTables Productos ── */
+#tablaProductosCat thead > tr > th div.dt-column-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+#tablaProductosCat thead > tr > th div.dt-column-header .dt-column-title {
+  flex: 1 !important;
+}
+
+#tablaProductosCat thead > tr > th div.dt-column-header .dt-column-order {
+  flex-shrink: 0 !important;
+  margin-left: 4px !important;
+}
+
+/* Columnas numéricas: evitar que DataTables invierta la dirección */
+#tablaProductosCat thead > tr > th.dt-type-numeric div.dt-column-header {
+  flex-direction: row !important;
+}
+/* ── Header tabla categoría ── */
+#tablaProductosCat thead tr {
+  background: rgba(77,168,218,0.08) !important;
+  border-bottom: 2px solid rgba(77,168,218,0.3) !important;
+}
+
+#tablaProductosCat thead tr th {
+  color: #4DA8DA !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  padding: .75rem 1rem !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* ── Flechas todas al mismo lado ── */
+#tablaProductosCat thead tr th div.dt-column-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+#tablaProductosCat thead tr th div.dt-column-header .dt-column-title {
+  flex: 1 !important;
+}
+
+#tablaProductosCat thead tr th div.dt-column-header .dt-column-order {
+  flex-shrink: 0 !important;
+}
+
+/* Fuerza row en TODAS las columnas incluidas numéricas */
+#tablaProductosCat thead tr th.dt-type-numeric div.dt-column-header,
+#tablaProductosCat thead tr th.dt-type-date div.dt-column-header,
+#tablaProductosCat thead tr th.dt-right div.dt-column-header {
+  flex-direction: row !important;
+}
+
+/* Color flechas */
+#tablaProductosCat thead tr th .dt-column-order::before,
+#tablaProductosCat thead tr th .dt-column-order::after {
+  color: #4DA8DA !important;
+  opacity: 0.4 !important;
+}
+
+#tablaProductosCat thead tr th.dt-ordering-asc .dt-column-order::before,
+#tablaProductosCat thead tr th.dt-ordering-desc .dt-column-order::after {
+  opacity: 1 !important;
+}
