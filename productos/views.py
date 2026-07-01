@@ -234,17 +234,28 @@ def producto_editar(request, pk):
     return redirect('lista_productos')
 
 
-# ===============================
-# ELIMINAR PRODUCTO
-# ===============================
 @login_required
-def producto_eliminar(request, pk):
+def gestion_producto_desactivar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
-        nombre = producto.nombre
-        producto.delete()
-        messages.success(request, f'✅ Producto "{nombre}" eliminado correctamente.')
-    return redirect('lista_productos')
+        producto.activo = False
+        producto.save()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'nombre': producto.nombre, 'activo': False})
+        messages.success(request, f'⏸️ Producto "{producto.nombre}" desactivado correctamente.')
+    return redirect('gestion_productos')
+
+
+@login_required
+def gestion_producto_activar(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        producto.activo = True
+        producto.save()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'nombre': producto.nombre, 'activo': True})
+        messages.success(request, f'▶️ Producto "{producto.nombre}" activado correctamente.')
+    return redirect('gestion_productos')
 
 
 # ===============================

@@ -36,6 +36,7 @@ class Producto(models.Model):
         on_delete=models.PROTECT,
         related_name="productos"
     )
+    activo              = models.BooleanField(default=True) 
 
     class Meta:
         verbose_name        = "Producto"

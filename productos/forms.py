@@ -77,3 +77,8 @@ class AgendaInventarioForm(forms.ModelForm):
             'fecha_programada': forms.DateTimeInput(attrs={'class': 'gp-input', 'type': 'datetime-local'}),
             'estado':           forms.Select(attrs={'class': 'gp-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:  # solo al crear, no al editar
+            self.fields['estado'].initial = 'pendiente'

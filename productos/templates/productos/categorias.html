@@ -116,14 +116,16 @@
                 <div class="d-flex gap-2 ms-auto">
                   <button class="btn btn-sm rounded-pill px-3"
   style="background: rgba(77,168,218,0.1); border: 1px solid rgba(77,168,218,0.3); color: #4DA8DA;"
-  data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ cat.pk }}">
+  data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ cat.pk }}"
+  title="Editar categoría">
   <i class="bi bi-pencil"></i>
 </button>
 <form method="POST" action="{% url 'categoria_eliminar' cat.pk %}" class="d-inline"
   onsubmit="return confirm('¿Eliminar definitivamente «{{ cat.nombre }}»?');">
   {% csrf_token %}
   <button type="submit" class="btn btn-sm rounded-pill px-3"
-    style="background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #e74c3c;">
+    style="background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #e74c3c;"
+    title="Eliminar categoría">
     <i class="bi bi-trash"></i>
   </button>
 </form>
@@ -143,14 +145,16 @@
                   <div class="d-flex gap-2">
                     <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
   style="width:32px;height:32px;background:rgba(77,168,218,0.1);border:1px solid rgba(77,168,218,0.3);color:#4DA8DA;"
-  data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}">
+  data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}"
+  title="Editar subcategoría">
   <i class="bi bi-pencil" style="font-size:12px;"></i>
 </button>
 <form method="POST" action="{% url 'categoria_eliminar' sub.pk %}" class="d-inline"
   onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?');">
   {% csrf_token %}
   <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
-    style="width:32px;height:32px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;">
+    style="width:32px;height:32px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;"
+    title="Eliminar subcategoría">
     <i class="bi bi-trash" style="font-size:12px;"></i>
               </button>
               </form>
@@ -270,6 +274,17 @@ document.querySelectorAll('.edit-padre-item').forEach(function(item) {
     const target = this.dataset.target;
     document.getElementById('edit-padre-label-' + target).textContent = this.textContent.trim();
     document.getElementById('edit-padre-hidden-' + target).value = this.dataset.value;
+  });
+});
+
+// ── TOOLTIPS en botones Editar/Eliminar (categorías y subcategorías) ──
+window.addEventListener('load', function () {
+  const tooltipTriggerList = document.querySelectorAll('.cat-card [title]');
+  tooltipTriggerList.forEach(function (el) {
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover'
+    });
   });
 });
 </script>
