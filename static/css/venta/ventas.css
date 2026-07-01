@@ -1,4 +1,3 @@
-
 /* ════════════════════════════════════════════════════════════════
    VENTAS.CSS — Punto de Venta CYS Ltda
    ════════════════════════════════════════════════════════════════ */
@@ -716,85 +715,155 @@
 .cys-empty-box i { color: rgba(77, 168, 218, 0.2); }
 
 /* ══════════════════════════════════════
-   HISTORIAL — FILTROS
+   HISTORIAL — BARRA DE BÚSQUEDA/FILTROS
+   (estilo alineado a la tabla de inventario)
 ══════════════════════════════════════ */
-.cys-filtros-bar {
+.cys-hist-search-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--cys-borde);
-  background: var(--cys-surface);
+  background: rgba(77, 168, 218, 0.02);
 }
-.cys-filtros-label {
-  font-size: 0.78rem;
-  font-weight: 700;
+
+.cys-hist-search-wrap {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+.cys-hist-search-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cys-texto-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.cys-hist-search-input {
+  width: 100%;
+  background: var(--cys-surface);
+  border: 1px solid var(--cys-borde);
   color: #fff;
+  border-radius: 10px;
+  padding: 8px 14px 8px 38px;
+  font-size: 0.85rem;
+}
+.cys-hist-search-input::placeholder { color: var(--cys-texto-muted); }
+.cys-hist-search-input:focus {
+  outline: none;
+  border-color: var(--cys-acento);
+}
+
+.cys-filtros-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cys-texto-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 .cys-filtros-separador {
   color: var(--cys-texto-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 /* ══════════════════════════════════════
-   FIX 3 — HISTORIAL TABLA
-   Celdas td con color azul claro legible
-   en lugar del gris oscuro casi invisible
+   HISTORIAL — TABLA ESTILO "INVENTARIO"
+   Fondo plano, sin tarjetas por fila,
+   encabezado celeste con flechas de orden
 ══════════════════════════════════════ */
-.cys-inv-table {
+.cys-hist-table {
   width: 100%;
   border-collapse: collapse;
+  background: #050d1a;
 }
-.cys-inv-table thead tr {
+
+.cys-hist-table thead tr {
   border-bottom: 1px solid var(--cys-borde);
 }
-.cys-inv-table th {
-  background: rgba(77, 168, 218, 0.05);
-  color: var(--cys-texto-muted);
+
+.cys-hist-table thead th {
+  color: var(--cys-acento);
+  font-size: 0.72rem;
   font-weight: 700;
-  font-size: 0.78rem;
-  padding: 14px 16px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  padding: 12px 16px;
+  text-align: left;
+  white-space: nowrap;
 }
-.cys-inv-table td {
-  padding: 14px 16px;
+
+.cys-hist-table thead th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.cys-hist-table thead th.sortable i {
+  margin-left: 5px;
+  font-size: 0.68rem;
+  color: var(--cys-texto-muted);
+  transition: color 0.15s;
+}
+.cys-hist-table thead th.sortable:hover { color: #fff; }
+.cys-hist-table thead th.sortable:hover i { color: var(--cys-acento); }
+.cys-hist-table thead th.sortable.activo { color: #fff; }
+.cys-hist-table thead th.sortable.activo i { color: var(--cys-cian-brillante); }
+
+.cys-hist-table tbody tr {
   border-bottom: 1px solid rgba(77, 168, 218, 0.08);
-  color: #93c5fd;          /* azul claro legible, estética CYS */
-  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+.cys-hist-table tbody tr:hover {
+  background: rgba(77, 168, 218, 0.035);
+}
+.cys-hist-table tbody tr:last-child { border-bottom: none; }
+
+.cys-hist-table tbody td {
+  padding: 13px 16px;
+  font-size: 0.85rem;
+  color: #cfe3f5;
   vertical-align: middle;
 }
-/* Columnas que deben resaltar más (cliente, total) mantienen blanco */
-.cys-inv-table td.fw-bold {
+
+.cys-hist-id {
+  color: var(--cys-texto-muted);
+  font-weight: 600;
+}
+
+.cys-hist-cliente {
+  color: #fff;
+  font-weight: 700;
+}
+
+.cys-hist-total {
+  color: #fff;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem;
+}
+
+.cys-hist-fecha {
+  display: block;
   color: #e2e8f0;
+  font-weight: 600;
+  font-size: 0.82rem;
 }
-/* La clase text-muted en tabla → azul grisáceo visible */
-.cys-inv-table td.text-muted {
-  color: #7db9e8 !important;
+.cys-hist-hora {
+  display: block;
+  color: var(--cys-texto-muted);
+  font-size: 0.72rem;
 }
-.cys-inv-table tbody tr:hover {
-  background: rgba(77, 168, 218, 0.02);
+
+.cys-hist-sin-resultados {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--cys-texto-muted);
 }
-.cys-badge-producto {
-  background: rgba(46, 213, 115, 0.1);
-  color: #2ed573;
-  border: 1px solid rgba(46, 213, 115, 0.2);
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-.cys-btn-eliminar-fila {
-  background: rgba(231, 76, 60, 0.1);
-  border: 1px solid rgba(231, 76, 60, 0.2);
-  color: #e74c3c;
-  border-radius: 6px;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.cys-btn-eliminar-fila:hover {
-  background: rgba(231, 76, 60, 0.2);
-}
+.cys-hist-sin-resultados i { color: rgba(77, 168, 218, 0.2); }
 
 /* ══════════════════════════════════════
    ALERTAS

@@ -5,13 +5,20 @@
 {% block page_title %}Ventas del Día{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/venta/ventas_dia.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
+<style>
+  body, html, main, .content-wrapper, .main-content {
+    background-color: #001f38!important;
+    background: #001f38 !important;
+  }
+</style>
 {% endblock %}
-
 {% block content %}
 <style>
   .cys-page-wrapper {
-    background-color: #040a0f !important;
+    background-color: #001f38 !important;
     min-height: 100vh;
     font-family: sans-serif;
     color: #fff !important;
@@ -37,17 +44,93 @@
     align-items: center;
     gap: 6px;
   }
+
+  /* ── KPI con rayita de color a la izquierda (igual a cards de Caja) ── */
   .cys-kpi {
     background: #11233f !important;
     border: 1px solid rgba(77, 168, 218, 0.18) !important;
+    border-left: 4px solid #4da8da !important;
     border-radius: 14px;
     padding: 1.25rem;
     height: 100%;
     position: relative;
   }
+  .cys-kpi--success { border-left-color: #2ecc71 !important; }
+  .cys-kpi--info    { border-left-color: #4da8da !important; }
+  .cys-kpi--warning { border-left-color: #f0a83a !important; }
+
   .cys-kpi-value { font-size: 1.8rem; font-weight: 800; color: #fff !important; }
   .cys-kpi-label { font-size: 0.85rem; font-weight: 600; color: #fff; }
   .cys-kpi-sub { font-size: 0.75rem; color: #7a96b0; }
+
+  /* ── Card Producto Más Vendido ── */
+  .cys-kpi-value-sm {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff !important;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Tarjeta de Meta del Día (solo texto, sin barra) ── */
+  .cys-meta-card {
+    background: #11233f !important;
+    border: 1px solid rgba(77, 168, 218, 0.18) !important;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+  }
+  .cys-meta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cys-meta-titulo {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .cys-meta-titulo i { color: #4da8da; margin-right: 6px; }
+  .cys-meta-cifras {
+    font-size: 0.85rem;
+    color: #7a96b0;
+  }
+  .cys-meta-cifras strong { color: #fff; }
+  .cys-meta-porcentaje {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4da8da;
+    display: block;
+  }
+  .cys-meta-porcentaje--completa { color: #2ecc71; }
+
+  /* ── Ranking de productos (barras) ── */
+  .cys-rank-item { margin-bottom: 14px; }
+  .cys-rank-item:last-child { margin-bottom: 0; }
+  .cys-rank-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .cys-rank-nombre { font-size: 0.85rem; color: #c8dae8; }
+  .cys-rank-valor { font-size: 0.85rem; color: #fff; font-weight: 700; }
+  .cys-rank-track { width: 100%; height: 6px; border-radius: 50px; background: rgba(77, 168, 218, 0.1); overflow: hidden; }
+  .cys-rank-fill { height: 100%; border-radius: 50px; background: #4da8da; }
+  .cys-rank-fill--top { background: #f0a83a; }
+
+  /* ── Ventas tope (circular) ── */
+  .cys-circular-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .cys-circular-svg { flex-shrink: 0; }
+  .cys-circular-legend { display: flex; flex-direction: column; gap: 12px; }
+  .cys-circular-item { display: flex; align-items: center; gap: 10px; }
+  .cys-circular-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .cys-circular-dot--a { background: #2ecc71; }
+  .cys-circular-dot--b { background: #4da8da; }
+  .cys-circular-label { font-size: 0.75rem; color: #7a96b0; margin: 0; }
+  .cys-circular-value { font-size: 0.9rem; color: #fff; font-weight: 700; margin: 0; }
+
   .cys-panel {
     background: #11233f !important;
     border: 1px solid rgba(77, 168, 218, 0.18) !important;
@@ -89,10 +172,10 @@
     </div>
   </div>
 
-  <div class="row g-3 mb-4">
+  <div class="row g-3 mb-3 justify-content-center">
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="cys-kpi">
+    <div class="col-12 col-sm-6 col-xl-4">
+      <div class="cys-kpi cys-kpi--info">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="text-info fs-4"><i class="bi bi-receipt"></i></div>
           <span class="badge bg-dark text-info border border-info">Hoy</span>
@@ -103,8 +186,8 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="cys-kpi">
+    <div class="col-12 col-sm-6 col-xl-4">
+      <div class="cys-kpi cys-kpi--success">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="text-success fs-4"><i class="bi bi-cash-stack"></i></div>
           <span class="badge bg-dark text-success border border-success">Ingresos</span>
@@ -115,8 +198,8 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="cys-kpi">
+    <div class="col-12 col-sm-6 col-xl-4">
+      <div class="cys-kpi cys-kpi--info">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="text-info fs-4"><i class="bi bi-box-seam"></i></div>
           <span class="badge bg-dark text-info border border-info">Unidades</span>
@@ -127,21 +210,69 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="cys-kpi">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-warning fs-4"><i class="bi bi-graph-up-arrow"></i></div>
-          <span class="badge bg-dark text-warning border border-warning">Promedio</span>
+  </div>
+
+  <div class="row g-3 mb-4">
+
+    <!-- ── PRODUCTOS MÁS VENDIDOS (barras) ── -->
+    <div class="col-12 col-lg-6">
+      <div class="cys-meta-card h-100">
+        <div class="cys-meta-titulo mb-3"><i class="bi bi-trophy-fill"></i>Productos más vendidos</div>
+        {% if productos_top %}
+          {% for p in productos_top %}
+          <div class="cys-rank-item">
+            <div class="cys-rank-row">
+              <span class="cys-rank-nombre">{{ p.nombre }}</span>
+              <span class="cys-rank-valor">{{ p.unidades }} u.</span>
+            </div>
+            <div class="cys-rank-track">
+              <div class="cys-rank-fill {% if forloop.first %}cys-rank-fill--top{% endif %}" style="width: {{ p.porcentaje }}%;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:#7a96b0; font-size:0.85rem; margin:0;">Sin ventas registradas hoy.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── VENTAS TOPE DEL DÍA (circular) ── -->
+    <div class="col-12 col-lg-6">
+      <div class="cys-meta-card h-100">
+        <div class="cys-meta-titulo mb-3"><i class="bi bi-cash-stack"></i>Ventas tope del día</div>
+        {% if ventas_top %}
+        <div class="cys-circular-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120" class="cys-circular-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
+            {% for v in ventas_top %}
+              {% if forloop.first %}
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#2ecc71" stroke-width="12"
+                      stroke-dasharray="314.159" stroke-dashoffset="{% widthratio v.porcentaje 100 -314.159 %}"
+                      stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
+              {% else %}
+              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
+              <circle cx="60" cy="60" r="34" fill="none" stroke="#4da8da" stroke-width="12"
+                      stroke-dasharray="213.628" stroke-dashoffset="{% widthratio v.porcentaje 100 -213.628 %}"
+                      stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
+              {% endif %}
+            {% endfor %}
+          </svg>
+          <div class="cys-circular-legend">
+            {% for v in ventas_top %}
+            <div class="cys-circular-item">
+              <span class="cys-circular-dot {% if forloop.first %}cys-circular-dot--a{% else %}cys-circular-dot--b{% endif %}"></span>
+              <div>
+                <p class="cys-circular-label">Venta #{{ v.id }}</p>
+                <p class="cys-circular-value">${{ v.total|floatformat:0 }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
-        <div class="cys-kpi-value text-warning">
-          {% if ventas.count %}
-            ${% widthratio total_dia ventas.count 1 %}
-          {% else %}
-            $0
-          {% endif %}
-        </div>
-        <div class="cys-kpi-label">Ticket promedio</div>
-        <div class="cys-kpi-sub">Por transacción</div>
+        <p style="color:#7a96b0; font-size:0.75rem; margin:12px 0 0;">Peso de cada venta sobre el total del día (${{ total_dia|floatformat:0 }})</p>
+        {% else %}
+          <p style="color:#7a96b0; font-size:0.85rem; margin:0;">Sin ventas registradas hoy.</p>
+        {% endif %}
       </div>
     </div>
 
@@ -154,8 +285,7 @@
         <i class="bi bi-clock-history me-2"></i>Historial de Ventas
       </div>
     </div>
-
-    <form method="GET" class="cys-filtros">
+<form method="GET" class="cys-filtros">
       <span class="text-white small fw-bold me-2">RANGO DE FECHAS:</span>
       <input type="date" name="fecha_inicio" value="{{ request.GET.fecha_inicio }}" class="cys-input-fecha">
       <span class="text-white fw-bold mx-2">A</span>
@@ -168,25 +298,39 @@
       </a>
     </form>
 
+    <div class="cys-hist-search-bar">
+      <div class="cys-hist-search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="buscadorHistorialDia" class="cys-hist-search-input" placeholder="Buscar cliente, producto...">
+      </div>
+    </div>
+
     {% if ventas %}
     <div style="overflow-x: auto;">
-      <table class="cys-table">
-        <thead>
+      <table class="cys-hist-table">
+        <thead id="theadHistorialDia">
           <tr>
-            <th style="width: 60px; text-align: center;">#</th>
-            <th>Cliente</th>
+            <th class="sortable" data-sort="id" style="width: 60px; text-align: center;">#<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="cliente">Cliente<i class="bi bi-arrow-down-up"></i></th>
             <th>Producto</th>
-            <th style="text-align: center; width: 80px;">Cant.</th>
-            <th style="text-align: right; width: 130px;">Precio Uni.</th>
-            <th style="text-align: right; width: 130px;">Total</th>
-            <th style="padding-left: 25px; width: 160px;">Fecha</th>
+            <th class="sortable" data-sort="cantidad" style="text-align: center; width: 80px;">Cant.<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="precio" style="text-align: right; width: 130px;">Precio Uni.<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="total" style="text-align: right; width: 130px;">Total<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="fecha" style="padding-left: 25px; width: 160px;">Fecha<i class="bi bi-arrow-down-up"></i></th>
             <th style="text-align: center; width: 120px;">Estado</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tablaHistorialDiaBody">
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
-            <tr>
+            <tr data-row
+                data-id="{{ venta.pk }}"
+                data-cliente="{{ venta.cliente.nombre|lower }}"
+                data-cantidad="{{ det.cantidad }}"
+                data-precio="{{ det.precio_unitario }}"
+                data-total="{{ det.subtotal }}"
+                data-fecha="{{ venta.fecha|date:'c' }}"
+                data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
               <td class="cys-td-num" style="text-align: center;">{{ forloop.parentloop.counter }}</td>
               <td>
                 <div class="cys-cliente-cell">
@@ -220,23 +364,10 @@
           {% endfor %}
         </tbody>
       </table>
-    </div>
-
-    <div class="cys-panel-footer">
-      <span style="color: #7a96b0; font-size: 0.85rem;">
-        <i class="bi bi-receipt me-1"></i>
-        {{ ventas.count }} venta{{ ventas.count|pluralize }} registrada{{ ventas.count|pluralize }}
-      </span>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="color: #7a96b0; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; letter-spacing: 0.5px;">Total acumulado</span>
-        <span class="fs-4 fw-bold text-info">${{ total_dia|floatformat:0 }}</span>
+      <div id="sinResultadosDia" style="display:none;" class="cys-hist-sin-resultados">
+        <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
+        Sin resultados para esa búsqueda.
       </div>
-    </div>
-    {% else %}
-    <div class="p-5 text-center" style="color: #7a96b0;">
-      <i class="bi bi-bar-chart fs-1 d-block mb-2" style="opacity: 0.3;"></i>
-      <span class="fw-bold text-white">No hay ventas registradas aún.</span>
-      <p class="small mb-0">Las ventas del día aparecerán aquí en cuanto se registren.</p>
     </div>
     {% endif %}
 
