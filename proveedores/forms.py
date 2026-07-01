@@ -19,7 +19,7 @@ class ProveedorForm(forms.ModelForm):
 
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'email', 'telefono', 'tipo_proveedor', 'estado', 'motivo_sancion']
+        fields = ['nombre_empresa', 'email', 'telefono', 'tipo_proveedor']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',

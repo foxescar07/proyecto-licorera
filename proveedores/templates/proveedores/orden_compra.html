@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/proveedores/ordenes_compra.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 {% endblock %}
 
 {% block content %}
@@ -14,7 +15,7 @@
             <i class="bi bi-clipboard-check"></i>
             Órdenes de Compra
         </h1>
-        <button class="btn-nueva-orden" data-bs-toggle="modal" data-bs-target="#modalNuevaOrden">
+        <button type="button" class="btn btn-primary btn-nueva-orden" data-bs-toggle="modal" data-bs-target="#modalNuevaOrden">
             <i class="bi bi-plus-circle-fill"></i>
             Nueva Orden
         </button>
@@ -154,21 +155,18 @@
                         </td>
 
                         <!-- Acciones -->
-                        <td>
+                        <td style="text-align: center;">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-link text-primary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Acciones" style="text-decoration: none; font-size: 1.5rem; line-height: 1;">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-dark">
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" style="min-width: 220px !important;">
 
                                     <!-- Ver detalles -->
                                     <li>
-                                        <form method="GET">
-                                            <input type="hidden" name="mostrar_orden" value="{{ orden.id }}">
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-eye"></i> <span>Ver detalles</span>
-                                            </button>
-                                        </form>
+                                        <a class="dropdown-item" href="?mostrar_orden={{ orden.id }}">
+                                            <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
+                                        </a>
                                     </li>
 
                                     <li><hr class="dropdown-divider"></li>
@@ -176,52 +174,52 @@
                                     <!-- Cambiar estado (opciones dinámicas) -->
                                     {% if orden.estado == 'pendiente' %}
                                         <li>
-                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}" style="margin: 0;">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="nuevo_estado" value="confirmada">
-                                                <button type="submit" class="dropdown-item">
-                                                    <i class="bi bi-check-circle"></i> <span>Confirmar Orden</span>
+                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
+                                                    <i class="bi bi-check-circle me-2 text-success"></i>Confirmar Orden
                                                 </button>
                                             </form>
                                         </li>
                                         <li>
-                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}" style="margin: 0;">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="nuevo_estado" value="cancelada">
-                                                <button type="submit" class="dropdown-item">
-                                                    <i class="bi bi-x-circle"></i> <span>Cancelar Orden</span>
+                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
+                                                    <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar Orden
                                                 </button>
                                             </form>
                                         </li>
                                     {% elif orden.estado == 'confirmada' %}
                                         <li>
-                                            <form method="POST" action="{% url 'recibir_compra' pk=orden.id %}">
+                                            <form method="POST" action="{% url 'recibir_compra' pk=orden.id %}" style="margin: 0;">
                                                 {% csrf_token %}
-                                                <button type="submit" class="dropdown-item">
-                                                    <i class="bi bi-box-seam"></i> <span>Recibir Compra</span>
+                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
+                                                    <i class="bi bi-box-seam me-2 text-success"></i>Recibir Compra
                                                 </button>
                                             </form>
                                         </li>
                                         <li>
-                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}" style="margin: 0;">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="nuevo_estado" value="cancelada">
-                                                <button type="submit" class="dropdown-item">
-                                                    <i class="bi bi-x-circle"></i> <span>Cancelar Orden</span>
+                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
+                                                    <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar Orden
                                                 </button>
                                             </form>
                                         </li>
                                     {% elif orden.estado == 'recibida' %}
                                         <li>
-                                            <span class="dropdown-item">
-                                                <i class="bi bi-lock"></i> <span>Orden Recibida</span>
-                                            </span>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="bi bi-lock me-2 text-muted"></i>Orden Recibida
+                                            </a>
                                         </li>
                                     {% elif orden.estado == 'cancelada' %}
                                         <li>
-                                            <span class="dropdown-item">
-                                                <i class="bi bi-lock"></i> <span>Orden Cancelada</span>
-                                            </span>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="bi bi-lock me-2 text-muted"></i>Orden Cancelada
+                                            </a>
                                         </li>
                                     {% endif %}
                                 </ul>
@@ -275,27 +273,27 @@
 </div>
 
 <!-- MODAL: NUEVA ORDEN -->
-<div class="modal fade" id="modalNuevaOrden" tabindex="-1">
+<div class="modal fade" id="modalNuevaOrden" tabindex="-1" style="background: rgba(0,0,0,0.5) !important;">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
+        <div class="modal-content" style="background-color: #02224a !important; background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important;">
+                <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important;">
                     <i class="bi bi-plus-circle-fill"></i> Nueva Orden de Compra
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="formNuevaOrden" method="POST" action="{% url 'crear_orden' %}">
                 {% csrf_token %}
-                <div class="modal-body">
+                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important;">
                     <!-- SECCIÓN 1: Información de la Orden -->
-                    <h6 class="text-muted text-uppercase mb-3">
+                    <h6 class="text-muted text-uppercase mb-3" style="color: #E2E8F0 !important; font-weight: 600 !important;">
                         <i class="bi bi-box"></i> Información de la Orden
                     </h6>
 
                     <!-- Proveedor -->
                     <div class="mb-4">
-                        <label class="form-label">
-                            Proveedor <span class="text-danger">*</span>
+                        <label class="form-label" style="color: #8FA3B1 !important;">
+                            Proveedor <span class="text-danger" style="color: #e74c3c !important;">*</span>
                         </label>
                         {{ form.proveedor }}
                         {% if form.proveedor.errors %}
@@ -306,13 +304,13 @@
                     <hr>
 
                     <!-- SECCIÓN 2: Agregar Primer Producto (Opcional) -->
-                    <h6 class="text-muted text-uppercase mb-3">
+                    <h6 class="text-muted text-uppercase mb-3" style="color: #E2E8F0 !important; font-weight: 600 !important;">
                         <i class="bi bi-plus-circle"></i> Agregar Primer Producto (Opcional)
                     </h6>
 
                     <!-- Presentación -->
                     <div class="mb-4">
-                        <label class="form-label">
+                        <label class="form-label" style="color: #8FA3B1 !important;">
                             Presentación
                         </label>
                         <select name="presentacion" class="form-select">
@@ -328,7 +326,7 @@
 
                     <!-- Cantidad -->
                     <div class="mb-4">
-                        <label class="form-label">
+                        <label class="form-label" style="color: #8FA3B1 !important;">
                             Cantidad
                         </label>
                         <input type="number" name="cantidad" class="form-control" min="1" step="1"
@@ -338,7 +336,7 @@
 
                     <!-- Precio Unitario -->
                     <div class="mb-4">
-                        <label class="form-label">
+                        <label class="form-label" style="color: #8FA3B1 !important;">
                             Precio Unitario
                         </label>
                         <input type="number" name="precio_unitario" class="form-control" min="0.01" step="0.01"
@@ -346,11 +344,11 @@
                         <small>Debe ser mayor a 0</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">
+                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem !important;">
+                    <button type="button" class="btn" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn">
+                    <button type="submit" class="btn" style="background: #4DA8DA !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
                         <i class="bi bi-check-circle"></i> Crear Orden
                     </button>
                 </div>
@@ -361,112 +359,114 @@
 
 <!-- MODAL: DETALLE DE ORDEN (estilo análisis de ventas) -->
 {% if orden_detalle %}
-<div class="modal fade show" id="modalDetalleOrden" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen-lg">
-        <div class="modal-content">
+<div class="modal fade show" id="modalDetalleOrden" tabindex="-1" style="background: rgba(0,0,0,0.7) !important; display: block !important;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 1150px !important;">
+        <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
 
             <!-- HEADER -->
-            <div>
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 2rem 2rem !important;">
                 <div>
-                    <h4>
-                        <i class="bi bi-clipboard-check"></i>
-                        Detalle de Orden
+                    <h4 style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem !important;">
+                        <i class="bi bi-clipboard-check"></i> Detalle de Orden
                     </h4>
-                    <p>
+                    <p style="color: #8FA3B1 !important; margin: 0 !important;">
                         Orden #{{ orden_detalle.id }} - {{ orden_detalle.proveedor.nombre_empresa }}
                     </p>
                 </div>
-                <a href="{% url 'listar_ordenes' %}" class="btn-close btn-close-white"></a>
+                <a href="{% url 'listar_ordenes' %}" class="btn-close btn-close-white" style="opacity: 0.8 !important;"></a>
             </div>
 
             <!-- BODY -->
-            <div>
+            <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
 
                 <!-- TARJETAS DE KPI - Grid 3 columnas responsive -->
-                <div>
-                    <!-- Total Orden - Violeta -->
-                    <div>
-                        <div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem !important;">
+
+                    <!-- Total Orden -->
+                    <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border: 1px solid rgba(77, 168, 218, 0.3); border-radius: 12px; padding: 1.5rem !important;">
+                        <div style="color: #4DA8DA !important; font-size: 1.8rem !important; margin-bottom: 0.5rem !important;">
                             <i class="bi bi-currency-dollar"></i>
                         </div>
-                        <p>Total</p>
-                        <h4>${{ orden_detalle.total|floatformat:0 }}</h4>
+                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Total</p>
+                        <h4 style="color: #4DA8DA !important; font-weight: 700 !important; font-size: 1.5rem !important; margin: 0 !important;">${{ orden_detalle.total|floatformat:0 }}</h4>
                     </div>
 
-                    <!-- Cantidad de Productos - Teal Brillante -->
-                    <div>
-                        <div>
+                    <!-- Cantidad de Productos -->
+                    <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(39, 174, 96, 0.05) 100%); border: 1px solid rgba(39, 174, 96, 0.3); border-radius: 12px; padding: 1.5rem !important;">
+                        <div style="color: #27ae60 !important; font-size: 1.8rem !important; margin-bottom: 0.5rem !important;">
                             <i class="bi bi-box2"></i>
                         </div>
-                        <p>Productos</p>
-                        <h4>{{ orden_detalle.detalles.count }}</h4>
+                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Productos</p>
+                        <h4 style="color: #27ae60 !important; font-weight: 700 !important; font-size: 1.5rem !important; margin: 0 !important;">{{ orden_detalle.detalles.count }}</h4>
                     </div>
 
-                    <!-- Estado - Verde Teal -->
-                    <div>
-                        <div>
+                    <!-- Estado -->
+                    <div style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(243, 156, 18, 0.05) 100%); border: 1px solid rgba(243, 156, 18, 0.3); border-radius: 12px; padding: 1.5rem !important;">
+                        <div style="color: #f39c12 !important; font-size: 1.8rem !important; margin-bottom: 0.5rem !important;">
                             <i class="bi bi-info-circle"></i>
                         </div>
-                        <p>Estado</p>
-                        <div>
+                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Estado</p>
+                        <div style="margin: 0 !important;">
                             {% if orden_detalle.estado == 'pendiente' %}
-                                <span>🟡 Pendiente</span>
+                                <span style="color: #f39c12 !important; font-weight: 600 !important;">⏳ Pendiente</span>
                             {% elif orden_detalle.estado == 'confirmada' %}
-                                <span>🔵 Confirmada</span>
+                                <span style="color: #4DA8DA !important; font-weight: 600 !important;">✓ Confirmada</span>
                             {% elif orden_detalle.estado == 'recibida' %}
-                                <span>🟢 Recibida</span>
+                                <span style="color: #27ae60 !important; font-weight: 600 !important;">📦 Recibida</span>
                             {% elif orden_detalle.estado == 'cancelada' %}
-                                <span>🔴 Cancelada</span>
+                                <span style="color: #e74c3c !important; font-weight: 600 !important;">✕ Cancelada</span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
 
-                <!-- INFORMACIÓN DE LA ORDEN -->
-                <div>
-                    <div>
-                        <p>Fecha</p>
-                        <p>{{ orden_detalle.fecha|date:"d/m/Y H:i" }}</p>
-                    </div>
-                    <div>
-                        <p>Registrado por</p>
-                        <p>{{ orden_detalle.registrado_por.nombre_completo }}</p>
-                    </div>
-                    <div>
-                        <p>Proveedor</p>
-                        <p>{{ orden_detalle.proveedor.nombre_empresa }}</p>
+                <!-- INFORMACIÓN DETALLADA -->
+                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem !important; margin-bottom: 2rem !important;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem !important;">
+                        <div>
+                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Fecha</p>
+                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.fecha|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div>
+                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Registrado por</p>
+                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.registrado_por.get_full_name|default:orden_detalle.registrado_por }}</p>
+                        </div>
+                        <div>
+                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Proveedor</p>
+                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.proveedor.nombre_empresa }}</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- TABLA DE PRODUCTOS -->
-                <h6>
-                    <i class="bi bi-list-check"></i>Detalle de Productos
+                <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1.5rem !important;">
+                    <i class="bi bi-list-check"></i> Detalle de Productos
                 </h6>
 
-                <div>
-                    <table>
+                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; overflow: hidden !important;">
+                    <table style="width: 100% !important; border-collapse: collapse !important;">
                         <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unit.</th>
-                                <th>Subtotal</th>
+                            <tr style="background: rgba(77, 168, 218, 0.1) !important; border-bottom: 2px solid rgba(77, 168, 218, 0.2) !important;">
+                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: left !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Producto</th>
+                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: center !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Cantidad</th>
+                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Precio Unit.</th>
+                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for detalle in orden_detalle.detalles.all %}
-                            <tr>
-                                <td>
+                            <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;">
+                                <td style="color: #E2E8F0 !important; padding: 1rem !important;">
                                     <strong>{{ detalle.presentacion.nombre }}</strong><br>
-                                    <small>{{ detalle.presentacion.producto.nombre }}</small>
+                                    <small style="color: #8FA3B1 !important;">{{ detalle.presentacion.producto.nombre }}</small>
                                 </td>
-                                <td>{{ detalle.cantidad }}</td>
-                                <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
-                                <td>${{ detalle.subtotal|floatformat:2 }}</td>
+                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">{{ detalle.cantidad }}</td>
+                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: right !important;">${{ detalle.precio_unitario|floatformat:2 }}</td>
+                                <td style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-weight: 600 !important;">${{ detalle.subtotal|floatformat:2 }}</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4">
+                                <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
                                     No hay productos agregados
                                 </td>
                             </tr>
@@ -477,13 +477,15 @@
             </div>
 
             <!-- FOOTER -->
-            <div>
-                <a href="{% url 'listar_ordenes' %}" class="btn">
-                    Cerrar
+            <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem 2rem !important;">
+                <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+                    <i class="bi bi-x-circle"></i> Cerrar
                 </a>
             </div>
         </div>
-    {% endif %}
+    </div>
+</div>
+{% endif %}
 
 <!-- MODAL: AGREGAR PRODUCTO A ORDEN -->
 <div class="modal fade" id="modalAgregarProducto" tabindex="-1">
@@ -605,5 +607,26 @@
     </div>
 </div>
 
+
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if ($.fn.dataTable.isDataTable('.ordenes-table')) {
+    $('.ordenes-table').DataTable().destroy();
+  }
+
+  $('.ordenes-table').DataTable({
+    language: {
+      url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+    },
+    pageLength: 10,
+    order: [[2, 'desc']],
+    columnDefs: [
+      { orderable: false, targets: 5 }
+    ]
+  });
+});
+</script>
 
 {% endblock %}
