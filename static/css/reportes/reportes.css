@@ -237,6 +237,7 @@
 .cys-report-card-icon--compras  { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--diario   { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
 .cys-report-card-icon--analisis { background: rgba(77, 168, 218, 0.12); color: #4DA8DA; }
+.cys-report-card-icon--devoluciones { background: rgba(77,168,218,0.12); color: #4DA8DA; }
 .cys-report-card-icon--proxima  { background: rgba(77, 168, 218, 0.1);  color: #4DA8DA; }
 
 .cys-report-card__title {
@@ -251,12 +252,17 @@
   margin-bottom: .75rem;
 }
 
-.cys-report-card__link-text--inv      { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
-.cys-report-card__link-text--prov     { color: var(--verde-acento);   font-size: .8rem; font-weight: 600; }
-.cys-report-card__link-text--compras  { color: var(--azul-acento);    font-size: .8rem; font-weight: 600; }
-.cys-report-card__link-text--diario   { color: var(--morado-acento);  font-size: .8rem; font-weight: 600; }
-.cys-report-card__link-text--analisis { color: var(--naranja-acento); font-size: .8rem; font-weight: 600; }
-.cys-report-card__link-text--proxima  { color: var(--dorado-acento);  font-size: .8rem; font-weight: 600; }
+.cys-report-card__link-text--inv,
+.cys-report-card__link-text--prov,
+.cys-report-card__link-text--compras,
+.cys-report-card__link-text--diario,
+.cys-report-card__link-text--analisis,
+.cys-report-card__link-text--devoluciones,
+.cys-report-card__link-text--proxima {
+  color: #4DA8DA;
+  font-size: .8rem;
+  font-weight: 600;
+}
 
 /* ────────────────────────────────────
    TABLA INVENTARIO / GENÉRICA
@@ -368,19 +374,22 @@
 
 /* ────────────────────────────────────
    MODAL KPI (genérico, tarjeta simple)
+   — versión compacta, estilo Análisis de Ventas
 ──────────────────────────────────── */
 
 .cys-modal-kpi-v2{
-    background:linear-gradient(180deg,#0b2a54 0%,#082248 100%);
-    border:1px solid rgba(77,168,218,.35);
+    background:#02224a;
+    border:1px solid rgba(77,168,218,.25);
+    border-top:3px solid #4DA8DA;
     border-radius:14px;
     padding:16px 12px;
-    min-height:165px;
+    min-height:auto;
 
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
+    text-align:center;
 
     transition:.25s;
     position:relative;
@@ -389,61 +398,83 @@
 
 .cys-modal-kpi-v2:hover{
     transform:translateY(-3px);
-    border-color:#4DA8DA;
-    box-shadow:0 12px 25px rgba(0,0,0,.30);
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
 }
+
+/* quitamos la barra superior fija azul de antes, ahora el color lo da border-top */
 .cys-modal-kpi-v2::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:4px;
-    background:#4DA8DA;
+    content:none;
 }
 
-/* TODAS LAS TARJETAS IGUALES */
-
-
-/* ICONO */
-
+/* ICONO — compacto, circular, color por variante */
 .cys-modal-kpi-v2__icon{
-    width:48px;
-    height:48px;
+    width:42px;
+    height:42px;
     border-radius:50%;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:22px;
-    margin-bottom:14px;
-
-    border:1px solid rgba(255,255,255,.08);
-
-    box-shadow:
-        inset 0 2px 8px rgba(255,255,255,.05),
-        0 4px 12px rgba(0,0,0,.20);
+    font-size:1.15rem;
+    margin:0 auto 10px;
+    border:none;
+    box-shadow:none;
 }
-/* TEXTO */
 
+/* TEXTO */
 .cys-modal-kpi-v2__label{
     color:#8FA3B1;
-    font-size:.82rem;
+    font-size:.7rem;
     font-weight:700;
     letter-spacing:.08em;
-    margin-bottom:8px;
+    text-transform:uppercase;
+    margin-bottom:6px;
 }
 
 .cys-modal-kpi-v2__val{
-    font-size:2.2rem;
+    font-family:'Rajdhani', sans-serif;
+    font-size:1.8rem;
     font-weight:800;
     line-height:1;
 }
 
 .cys-modal-kpi-v2__sub{
-    margin-top:8px;
+    margin-top:6px;
     color:#8FA3B1;
-    font-size:.82rem;
+    font-size:.7rem;
 }
+
+/* ── VARIANTES DE COLOR (igual que tarjetas Análisis de Ventas) ── */
+
+/* AZUL */
+.cys-modal-kpi-v2--azul{ border-top-color:#4DA8DA; }
+.cys-modal-kpi-v2__icon--azul{ background:rgba(77,168,218,.12); color:#4DA8DA; }
+.cys-modal-kpi-v2__val--azul{ color:#4DA8DA; }
+
+/* VERDE */
+.cys-modal-kpi-v2--verde{ border-top-color:#2ecc71; }
+.cys-modal-kpi-v2__icon--verde{ background:rgba(46,204,113,.12); color:#2ecc71; }
+.cys-modal-kpi-v2__val--verde{ color:#2ecc71; }
+
+/* AMARILLO */
+.cys-modal-kpi-v2--amarillo{ border-top-color:#f0d080; }
+.cys-modal-kpi-v2__icon--amarillo{ background:rgba(240,208,128,.14); color:#f0d080; }
+.cys-modal-kpi-v2__val--amarillo{ color:#f0d080; }
+
+/* CELESTE (azul claro — reemplazo del amarillo en Tasa de Devolución) */
+.cys-modal-kpi-v2--celeste{ border-top-color:#7ECFEF; }
+.cys-modal-kpi-v2__icon--celeste{ background:rgba(126,207,239,.14); color:#7ECFEF; }
+.cys-modal-kpi-v2__val--celeste{ color:#7ECFEF; }
+
+/* ROJO */
+.cys-modal-kpi-v2--rojo{ border-top-color:#e74c3c; }
+.cys-modal-kpi-v2__icon--rojo{ background:rgba(231,76,60,.14); color:#e74c3c; }
+.cys-modal-kpi-v2__val--rojo{ color:#e74c3c; }
+
+/* MENTA (usada en Compras → Proveedores) */
+.cys-modal-kpi-v2--menta{ border-top-color:#5DCAA5; }
+.cys-modal-kpi-v2__icon--menta{ background:rgba(93,202,165,.14); color:#5DCAA5; }
+.cys-modal-kpi-v2__val--menta{ color:#5DCAA5; }
+
 /* ────────────────────────────────────
    SECCIONES INTERNAS DE MODAL
 ──────────────────────────────────── */
@@ -1171,7 +1202,8 @@
 .cys-card--compras,
 .cys-card--proxima,
 .cys-card--diario,
-.cys-card--analisis { border-top: 2px solid #4DA8DA !important; }
+.cys-card--analisis,
+.cys-card--devoluciones { border-top: 2px solid #4DA8DA !important; }
 
 .cys-report-card__stats-grid {
   display: flex;
@@ -1212,11 +1244,11 @@
 }
 
 .cys-report-card-layout {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 16px;
+  display: flex;
+  gap: 20px;
+  height: 100%;
   align-items: center;
-  width: 100%;
+
 }
 
 .cys-report-card-icon--large {
