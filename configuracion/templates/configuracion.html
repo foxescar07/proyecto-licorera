@@ -10,8 +10,9 @@
     background: var(--fondo-card);
     border: 1px solid var(--azul-borde);
     border-radius: 14px;
-    padding: 1.5rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
     margin-bottom: 1.25rem;
+    height: 100%;
   }
   .cfg-title {
     font-family: 'Rajdhani', sans-serif;
@@ -27,10 +28,18 @@
   }
   .cfg-title i { color: var(--azul-claro); font-size: .9rem; }
 
-  /* OPCIONES DE TARJETA */
-  .cfg-options { display: flex; gap: .75rem; flex-wrap: wrap; }
+  /* Espaciado entre bloques de filas */
+  .cfg-row {
+    margin-top: 1.25rem;
+  }
+
+  /* OPCIONES DE TARJETA — grid responsivo real */
+  .cfg-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: .75rem;
+  }
   .cfg-opt {
-    flex: 1; min-width: 100px;
     border: 1.5px solid var(--azul-borde);
     border-radius: 10px;
     padding: .75rem 1rem;
@@ -51,6 +60,10 @@
     font-weight: 600;
   }
   .cfg-opt i { display: block; font-size: 1.4rem; margin-bottom: .4rem; }
+
+  @media (max-width: 576px) {
+    .cfg-options { grid-template-columns: repeat(2, 1fr); }
+  }
 
   /* PREVIEW TEMA */
   .tema-preview {
@@ -86,6 +99,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: .75rem;
     padding: .65rem 0;
     border-bottom: 1px solid rgba(77,168,218,.08);
   }
@@ -141,17 +155,73 @@
   }
   .cfg-select:focus { border-color: var(--azul-claro); }
 
+  .cfg-input {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    color: var(--texto);
+    border-radius: 10px;
+    padding: .55rem .9rem;
+    font-size: .85rem;
+    width: 100%;
+    outline: none;
+    margin-top: .4rem;
+    transition: border-color .2s;
+  }
+  .cfg-input:focus { border-color: var(--azul-claro); }
+  .cfg-label {
+    font-size: .68rem;
+    font-weight: 600;
+    color: var(--texto-muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  /* LOGO EMPRESA */
+  .cfg-logo-preview {
+    width: 84px;
+    height: 84px;
+    border-radius: 14px;
+    border: 1.5px dashed var(--azul-borde);
+    background: var(--fondo-card2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    color: var(--texto-muted);
+    font-size: 1.6rem;
+    cursor: pointer;
+  }
+  .cfg-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* BASE DE DATOS */
+  .cfg-db-stat {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+  }
+  .cfg-db-stat .lbl { font-size: .72rem; color: var(--texto-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .cfg-db-stat .val { font-size: .95rem; font-weight: 600; color: var(--texto); }
+  .cfg-db-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+
   /* BOTÓN GUARDAR */
   .cfg-save-bar {
     position: sticky;
     bottom: 0;
     background: var(--fondo-card);
     border-top: 1px solid var(--azul-borde);
-    padding: 1rem 0;
+    padding: 1rem;
     display: flex;
     justify-content: flex-end;
+    flex-wrap: wrap;
     gap: .75rem;
     margin-top: 1.5rem;
+    border-radius: 14px;
   }
 
   /* TOAST */
@@ -159,6 +229,9 @@
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
+    left: 1.5rem;
+    max-width: 340px;
+    margin-left: auto;
     background: rgba(39,174,96,.15);
     border: 1px solid rgba(39,174,96,.4);
     color: #2ecc71;
@@ -177,10 +250,10 @@
   }
 </style>
 
-<div class="container-fluid p-0" style="max-width: 760px;">
+<div class="container-fluid p-0">
 
   <!-- ENCABEZADO -->
-  <div class="cys-card mb-4" style="display:flex; align-items:center; gap:1rem;">
+  <div class="cys-card mb-4" style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
     <div style="width:44px; height:44px; border-radius:12px; flex-shrink:0;
                 background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
                 display:flex; align-items:center; justify-content:center;
@@ -195,7 +268,7 @@
     </div>
   </div>
 
-  <!-- ① TEMA -->
+  <!-- ① TEMA (full width) -->
   <div class="cfg-section">
     <div class="cfg-title"><i class="bi bi-palette-fill"></i> Tema y apariencia</div>
     <div class="cfg-options" id="opcionesTema">
@@ -218,157 +291,285 @@
         Alto contraste
       </div>
 
-      <div class="cfg-opt" data-tema="sepia" onclick="seleccionarTema('sepia', this)">
-        <div class="tema-preview" style="background:linear-gradient(135deg,#2c1f0e,#3d2b14);"></div>
-        <i class="bi bi-eyeglasses" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
-        Sepia
+      <div class="cfg-opt" data-tema="basecys" onclick="seleccionarTema('basecys', this)">
+        <div class="tema-preview" style="background:linear-gradient(135deg,#8C2F24 0%,#8C2F24 45%,#D9A441 45%,#D9A441 75%,#F2DFB8 75%);"></div>
+        <i class="bi bi-cup-straw" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        Base CyS
       </div>
 
     </div>
   </div>
 
-  <!-- ② DENSIDAD -->
-  <div class="cfg-section">
-    <div class="cfg-title"><i class="bi bi-layout-three-columns"></i> Densidad de interfaz</div>
-    <div class="cfg-options" id="opcionesDensidad">
+  <!-- ② DENSIDAD + ③ BARRA LATERAL (2 columnas en lg+) -->
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="cfg-section">
+        <div class="cfg-title"><i class="bi bi-layout-three-columns"></i> Densidad de interfaz</div>
+        <div class="cfg-options" id="opcionesDensidad">
 
-      <div class="cfg-opt" data-densidad="compacto" onclick="seleccionarDensidad('compacto', this)">
-        <i class="bi bi-view-list"></i>
-        Compacto
-        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más info, menos espacio</div>
-      </div>
+          <div class="cfg-opt" data-densidad="compacto" onclick="seleccionarDensidad('compacto', this)">
+            <i class="bi bi-view-list"></i>
+            Compacto
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más info, menos espacio</div>
+          </div>
 
-      <div class="cfg-opt" data-densidad="normal" onclick="seleccionarDensidad('normal', this)">
-        <i class="bi bi-grid"></i>
-        Normal
-        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Balance por defecto</div>
-      </div>
+          <div class="cfg-opt" data-densidad="normal" onclick="seleccionarDensidad('normal', this)">
+            <i class="bi bi-grid"></i>
+            Normal
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Balance por defecto</div>
+          </div>
 
-      <div class="cfg-opt" data-densidad="relajado" onclick="seleccionarDensidad('relajado', this)">
-        <i class="bi bi-layout-wtf"></i>
-        Relajado
-        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más espacio, más legible</div>
-      </div>
+          <div class="cfg-opt" data-densidad="relajado" onclick="seleccionarDensidad('relajado', this)">
+            <i class="bi bi-layout-wtf"></i>
+            Relajado
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más espacio, más legible</div>
+          </div>
 
-    </div>
-  </div>
-
-  <!-- ③ BARRA LATERAL -->
-  <div class="cfg-section">
-    <div class="cfg-title"><i class="bi bi-layout-sidebar-reverse"></i> Barra lateral</div>
-
-    <div class="cfg-toggle-row">
-      <div class="cfg-toggle-label">
-        <i class="bi bi-pin-angle" style="color:var(--azul-claro);"></i>
-        <div>
-          Abrir automáticamente al entrar
-          <span>La barra lateral se abre al cargar cualquier página</span>
         </div>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleSidebarAuto">
-        <span class="slider-sw"></span>
-      </label>
     </div>
 
-    <div class="cfg-toggle-row">
-      <div class="cfg-toggle-label">
-        <i class="bi bi-bar-chart-steps" style="color:var(--azul-claro);"></i>
-        <div>
-          Mostrar sección Resumen
-          <span>Stock total, crítico y categorías en el sidebar</span>
+    <div class="col-lg-6">
+      <div class="cfg-section">
+        <div class="cfg-title"><i class="bi bi-layout-sidebar-reverse"></i> Barra lateral</div>
+
+        <div class="cfg-toggle-row">
+          <div class="cfg-toggle-label">
+            <i class="bi bi-pin-angle" style="color:var(--azul-claro);"></i>
+            <div>
+              Abrir automáticamente al entrar
+              <span>La barra lateral se abre al cargar cualquier página</span>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleSidebarAuto">
+            <span class="slider-sw"></span>
+          </label>
         </div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleResumenSidebar" checked>
-        <span class="slider-sw"></span>
-      </label>
-    </div>
 
+        <div class="cfg-toggle-row">
+          <div class="cfg-toggle-label">
+            <i class="bi bi-bar-chart-steps" style="color:var(--azul-claro);"></i>
+            <div>
+              Mostrar sección Resumen
+              <span>Stock total, crítico y categorías en el sidebar</span>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleResumenSidebar" checked>
+            <span class="slider-sw"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
   </div>
 
-  <!-- ④ FORMATO DE FECHAS Y NÚMEROS -->
-  <div class="cfg-section">
-    <div class="cfg-title"><i class="bi bi-calendar-date"></i> Fechas y números</div>
+  <!-- ④ FECHAS/NÚMEROS + ⑤ NOTIFICACIONES (2 columnas en lg+) -->
+  <div class="row g-3 cfg-row">
+    <div class="col-lg-6">
+      <div class="cfg-section">
+        <div class="cfg-title"><i class="bi bi-calendar-date"></i> Fechas y números</div>
+
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="cfg-label">Formato de fecha</label>
+            <select class="cfg-select" id="formatoFecha">
+              <option value="dd/mm/yyyy">DD/MM/AAAA — ej: 13/05/2026</option>
+              <option value="mm/dd/yyyy">MM/DD/AAAA — ej: 05/13/2026</option>
+              <option value="yyyy-mm-dd">AAAA-MM-DD — ej: 2026-05-13</option>
+              <option value="dd-mmm-yyyy">DD-MMM-AAAA — ej: 13-May-2026</option>
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label class="cfg-label">Separador de miles</label>
+            <select class="cfg-select" id="separadorMiles">
+              <option value="punto">Punto — ej: $1.250.000</option>
+              <option value="coma">Coma — ej: $1,250,000</option>
+              <option value="espacio">Espacio — ej: $1 250 000</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <div style="background:var(--fondo-card2); border-radius:8px; padding:.6rem .9rem;
+                        font-size:.8rem; color:var(--texto-muted); margin-top:.25rem;">
+              <i class="bi bi-eye me-1" style="color:var(--azul-claro);"></i>
+              Vista previa: <strong id="preview-fecha" style="color:var(--texto);">13/05/2026</strong>
+              &nbsp;|&nbsp;
+              <strong id="preview-numero" style="color:var(--texto);">$1.250.000</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="cfg-section">
+        <div class="cfg-title"><i class="bi bi-bell-fill"></i> Notificaciones y alertas</div>
+
+        <div class="cfg-toggle-row">
+          <div class="cfg-toggle-label">
+            <i class="bi bi-exclamation-triangle-fill" style="color:#e87070;"></i>
+            <div>
+              Alertas de stock crítico
+              <span>Muestra el banner rojo cuando hay productos en 0 o bajo mínimo</span>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleAlertaStock" checked>
+            <span class="slider-sw"></span>
+          </label>
+        </div>
+
+        <div class="cfg-toggle-row">
+          <div class="cfg-toggle-label">
+            <i class="bi bi-bar-chart-fill" style="color:var(--azul-claro);"></i>
+            <div>
+              Widget de estadísticas en productos
+              <span>Muestra la sección de rotación y producto estrella</span>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleWidgetRotacion" checked>
+            <span class="slider-sw"></span>
+          </label>
+        </div>
+
+        <div class="cfg-toggle-row">
+          <div class="cfg-toggle-label">
+            <i class="bi bi-bell-slash" style="color:var(--texto-muted);"></i>
+            <div>
+              Modo silencioso
+              <span>Oculta todas las alertas visuales del sistema</span>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleSilencioso">
+            <span class="slider-sw"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥ INFORMACIÓN DE LA EMPRESA (full width) -->
+  <div class="cfg-section cfg-row">
+    <div class="cfg-title"><i class="bi bi-building"></i> Información de la empresa</div>
+
+    <div class="d-flex flex-wrap gap-3 align-items-start mb-3">
+      <div class="cfg-logo-preview" id="logoEmpresaPreview" onclick="document.getElementById('inputLogoEmpresa').click()">
+        <i class="bi bi-image"></i>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <label class="cfg-label">Logo de la empresa</label>
+        <div style="font-size:.75rem; color:var(--texto-muted); margin-top:.25rem;">
+          Haz clic en el recuadro para subir el logo (PNG o JPG, recomendado fondo transparente).
+        </div>
+        <input type="file" id="inputLogoEmpresa" accept="image/*" style="display:none;" onchange="previewLogoEmpresa(this)">
+      </div>
+    </div>
 
     <div class="row g-3">
-      <div class="col-md-6">
-        <label style="font-size:.68rem; font-weight:600; color:var(--texto-muted);
-                      text-transform:uppercase; letter-spacing:.08em;">Formato de fecha</label>
-        <select class="cfg-select" id="formatoFecha">
-          <option value="dd/mm/yyyy">DD/MM/AAAA — ej: 13/05/2026</option>
-          <option value="mm/dd/yyyy">MM/DD/AAAA — ej: 05/13/2026</option>
-          <option value="yyyy-mm-dd">AAAA-MM-DD — ej: 2026-05-13</option>
-          <option value="dd-mmm-yyyy">DD-MMM-AAAA — ej: 13-May-2026</option>
-        </select>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">Nombre de la empresa</label>
+        <input type="text" class="cfg-input" id="empresaNombre" placeholder="Licorera CYS Ltda">
       </div>
-      <div class="col-md-6">
-        <label style="font-size:.68rem; font-weight:600; color:var(--texto-muted);
-                      text-transform:uppercase; letter-spacing:.08em;">Separador de miles</label>
-        <select class="cfg-select" id="separadorMiles">
-          <option value="punto">Punto — ej: $1.250.000</option>
-          <option value="coma">Coma — ej: $1,250,000</option>
-          <option value="espacio">Espacio — ej: $1 250 000</option>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">NIT</label>
+        <input type="text" class="cfg-input" id="empresaNit" placeholder="900.123.456-7">
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">Teléfono</label>
+        <input type="text" class="cfg-input" id="empresaTelefono" placeholder="+57 300 000 0000">
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">Correo de contacto</label>
+        <input type="email" class="cfg-input" id="empresaCorreo" placeholder="contacto@cysltda.com">
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">Ciudad</label>
+        <input type="text" class="cfg-input" id="empresaCiudad" placeholder="Bogotá D.C.">
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">Moneda</label>
+        <select class="cfg-select" id="empresaMoneda">
+          <option value="COP">COP — Peso colombiano</option>
+          <option value="USD">USD — Dólar</option>
         </select>
       </div>
       <div class="col-12">
-        <div style="background:var(--fondo-card2); border-radius:8px; padding:.6rem .9rem;
-                    font-size:.8rem; color:var(--texto-muted); margin-top:.25rem;">
-          <i class="bi bi-eye me-1" style="color:var(--azul-claro);"></i>
-          Vista previa: <strong id="preview-fecha" style="color:var(--texto);">13/05/2026</strong>
-          &nbsp;|&nbsp;
-          <strong id="preview-numero" style="color:var(--texto);">$1.250.000</strong>
-        </div>
+        <label class="cfg-label">Dirección</label>
+        <input type="text" class="cfg-input" id="empresaDireccion" placeholder="Calle 00 # 00-00, local 00">
       </div>
+    </div>
+
+    <div class="cfg-db-actions">
+      <button onclick="guardarInfoEmpresa()" class="cys-btn cys-btn--primary">
+        <i class="bi bi-check-lg me-1"></i> Guardar información
+      </button>
     </div>
   </div>
 
-  <!-- ⑤ NOTIFICACIONES -->
-  <div class="cfg-section">
-    <div class="cfg-title"><i class="bi bi-bell-fill"></i> Notificaciones y alertas</div>
+  <!-- ⑦ BASE DE DATOS (full width) -->
+  <div class="cfg-section cfg-row">
+    <div class="cfg-title"><i class="bi bi-database-fill"></i> Base de datos</div>
 
-    <div class="cfg-toggle-row">
-      <div class="cfg-toggle-label">
-        <i class="bi bi-exclamation-triangle-fill" style="color:#e87070;"></i>
-        <div>
-          Alertas de stock crítico
-          <span>Muestra el banner rojo cuando hay productos en 0 o bajo mínimo</span>
+    <div class="row g-3">
+      <div class="col-sm-6 col-lg-3">
+        <div class="cfg-db-stat">
+          <div>
+            <div class="lbl">Motor</div>
+            <div class="val" id="dbMotor">SQLite</div>
+          </div>
+          <i class="bi bi-hdd-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleAlertaStock" checked>
-        <span class="slider-sw"></span>
-      </label>
-    </div>
-
-    <div class="cfg-toggle-row">
-      <div class="cfg-toggle-label">
-        <i class="bi bi-bar-chart-fill" style="color:var(--azul-claro);"></i>
-        <div>
-          Widget de estadísticas en productos
-          <span>Muestra la sección de rotación y producto estrella</span>
+      <div class="col-sm-6 col-lg-3">
+        <div class="cfg-db-stat">
+          <div>
+            <div class="lbl">Estado</div>
+            <div class="val" style="color:#2ecc71;">Conectada</div>
+          </div>
+          <i class="bi bi-plug-fill" style="color:#2ecc71; font-size:1.3rem;"></i>
         </div>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleWidgetRotacion" checked>
-        <span class="slider-sw"></span>
-      </label>
-    </div>
-
-    <div class="cfg-toggle-row">
-      <div class="cfg-toggle-label">
-        <i class="bi bi-bell-slash" style="color:var(--texto-muted);"></i>
-        <div>
-          Modo silencioso
-          <span>Oculta todas las alertas visuales del sistema</span>
+      <div class="col-sm-6 col-lg-3">
+        <div class="cfg-db-stat">
+          <div>
+            <div class="lbl">Último respaldo</div>
+            <div class="val" id="dbUltimoRespaldo">Sin registrar</div>
+          </div>
+          <i class="bi bi-clock-history" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleSilencioso">
-        <span class="slider-sw"></span>
-      </label>
+      <div class="col-sm-6 col-lg-3">
+        <div class="cfg-db-stat">
+          <div>
+            <div class="lbl">Tamaño aprox.</div>
+            <div class="val" id="dbTamano">—</div>
+          </div>
+          <i class="bi bi-hdd" style="color:var(--azul-claro); font-size:1.3rem;"></i>
+        </div>
+      </div>
     </div>
 
+    <div class="cfg-db-actions">
+      <button onclick="generarRespaldo()" class="cys-btn cys-btn--primary">
+        <i class="bi bi-cloud-arrow-down me-1"></i> Generar respaldo
+      </button>
+      <button onclick="restaurarRespaldo()" class="cys-btn cys-btn--outline">
+        <i class="bi bi-cloud-arrow-up me-1"></i> Restaurar respaldo
+      </button>
+      <button onclick="optimizarBD()" class="cys-btn cys-btn--outline">
+        <i class="bi bi-magic me-1"></i> Optimizar base de datos
+      </button>
+    </div>
+
+    <div style="font-size:.72rem; color:var(--texto-muted); margin-top:.9rem;">
+      <i class="bi bi-info-circle me-1"></i>
+      Estas acciones requieren conexión con el backend para ejecutarse realmente. Por ahora esta sección
+      muestra la interfaz; conéctala a las vistas de Django correspondientes cuando estén listas.
+    </div>
   </div>
 
   <!-- BARRA GUARDAR -->
@@ -416,6 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
     try { cfgActual = { ...cfgActual, ...JSON.parse(guardada) }; } catch(e) {}
   }
   cargarUI();
+  cargarInfoEmpresa();
 });
 
 function cargarUI() {
@@ -481,20 +683,20 @@ function aplicarTema(tema) {
       '--blanco':       '#e8edf2',
       '--gris-claro':   '#8899aa',
     },
-claro: {
-  '--fondo':        '#f0f4f8',
-  '--fondo-card':   '#ffffff',
-  '--fondo-card2':  '#e8eef5',
-  '--texto':        '#1a2a3a',      // ← texto oscuro para que se vea en cards blancas
-  '--texto-muted':  '#4a6a8a',      // ← subtítulos más oscuros también
-  '--azul-claro':   '#B22A1A',
-  '--azul-borde':   'rgba(178,42,26,.18)',
-  '--azul-oscuro':  '#ddeaf5',
-  '--verde':        '#1a8a4a',
-  '--rojo':         '#B22A1A',
-  '--blanco':       '#1a2a3a',
-  '--gris-claro':   '#3a5a7a',      // ← más oscuro para labels de tabla
-},
+    claro: {
+      '--fondo':        '#f0f4f8',
+      '--fondo-card':   '#ffffff',
+      '--fondo-card2':  '#e8eef5',
+      '--texto':        '#1a2a3a',
+      '--texto-muted':  '#4a6a8a',
+      '--azul-claro':   '#B22A1A',
+      '--azul-borde':   'rgba(178,42,26,.18)',
+      '--azul-oscuro':  '#ddeaf5',
+      '--verde':        '#1a8a4a',
+      '--rojo':         '#B22A1A',
+      '--blanco':       '#1a2a3a',
+      '--gris-claro':   '#3a5a7a',
+    },
     'alto-contraste': {
       '--fondo':        '#000000',
       '--fondo-card':   '#0a0a0a',
@@ -509,28 +711,27 @@ claro: {
       '--blanco':       '#ffffff',
       '--gris-claro':   '#aaaaaa',
     },
-    sepia: {
-      '--fondo':        '#1a0f05',
-      '--fondo-card':   '#2c1f0e',
-      '--fondo-card2':  '#3d2b14',
-      '--texto':        '#f5e6c8',
-      '--texto-muted':  '#a08060',
-      '--azul-claro':   '#d4a060',
-      '--azul-borde':   'rgba(212,160,96,.25)',
-      '--azul-oscuro':  '#150c04',
-      '--verde':        '#7ab870',
-      '--rojo':         '#c05030',
-      '--blanco':       '#f5e6c8',
-      '--gris-claro':   '#907060',
+    basecys: {
+      '--fondo':        '#241008',
+      '--fondo-card':   '#34160D',
+      '--fondo-card2':  '#421B10',
+      '--texto':        '#F2DFB8',
+      '--texto-muted':  '#C9A876',
+      '--azul-claro':   '#D9A441',
+      '--azul-borde':   'rgba(217,164,65,.25)',
+      '--azul-oscuro':  '#1A0A06',
+      '--verde':        '#8AB86F',
+      '--rojo':         '#B0392E',
+      '--blanco':       '#F2DFB8',
+      '--gris-claro':   '#B89868',
     },
   };
 
   const vars = temas[tema] || temas.oscuro;
   Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
 
-  // Fondo del body
   document.body.style.background = vars['--fondo'];
-    const hoja = document.getElementById('tema-claro-overrides');
+  const hoja = document.getElementById('tema-claro-overrides');
   if (hoja) hoja.style.display = tema === 'claro' ? '' : 'none';
 }
 
@@ -557,7 +758,7 @@ document.getElementById('separadorMiles').addEventListener('change', actualizarP
 function actualizarPreview() {
   const fmt  = document.getElementById('formatoFecha').value;
   const sep  = document.getElementById('separadorMiles').value;
-  const hoy  = new Date(2026, 4, 13); // 13 Mayo 2026
+  const hoy  = new Date(2026, 4, 13);
   const d    = String(hoy.getDate()).padStart(2,'0');
   const m    = String(hoy.getMonth()+1).padStart(2,'0');
   const mmmm = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][hoy.getMonth()];
@@ -590,16 +791,13 @@ function aplicarConfig() {
   aplicarTema(cfgActual.tema);
   aplicarDensidad(cfgActual.densidad);
 
-  // Sidebar auto
   if (cfgActual.sidebarAuto) {
     localStorage.setItem('sidebarOpen', 'true');
   }
 
-  // Widget stock crítico
   const widgetStock = document.getElementById('gp-messages-container');
   if (widgetStock && cfgActual.silencioso) widgetStock.style.display = 'none';
 
-  // Widget rotación
   const widgetRot = document.getElementById('rotacion-chart-wrapper');
   if (widgetRot) widgetRot.closest('section') &&
     (widgetRot.closest('section').style.display =
@@ -620,7 +818,7 @@ function guardarConfig() {
 
   localStorage.setItem('cys_config', JSON.stringify(cfgActual));
 
-   const hoja = document.getElementById('tema-claro-overrides');
+  const hoja = document.getElementById('tema-claro-overrides');
   if (hoja) hoja.style.display = cfgActual.tema === 'claro' ? '' : 'none';
 
   aplicarConfig();
@@ -640,6 +838,76 @@ function resetearConfig() {
   };
   cargarUI();
   mostrarToast('Configuración restablecida', 'info');
+}
+
+// ══════════════════════════════════════════
+// INFORMACIÓN DE LA EMPRESA
+// ══════════════════════════════════════════
+function previewLogoEmpresa(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    document.getElementById('logoEmpresaPreview').innerHTML =
+      `<img src="${e.target.result}" alt="Logo empresa">`;
+    localStorage.setItem('cys_empresa_logo', e.target.result);
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function cargarInfoEmpresa() {
+  const guardada = localStorage.getItem('cys_empresa_info');
+  if (guardada) {
+    try {
+      const info = JSON.parse(guardada);
+      document.getElementById('empresaNombre').value    = info.nombre || '';
+      document.getElementById('empresaNit').value       = info.nit || '';
+      document.getElementById('empresaTelefono').value  = info.telefono || '';
+      document.getElementById('empresaCorreo').value    = info.correo || '';
+      document.getElementById('empresaCiudad').value    = info.ciudad || '';
+      document.getElementById('empresaMoneda').value    = info.moneda || 'COP';
+      document.getElementById('empresaDireccion').value = info.direccion || '';
+    } catch(e) {}
+  }
+  const logo = localStorage.getItem('cys_empresa_logo');
+  if (logo) {
+    document.getElementById('logoEmpresaPreview').innerHTML = `<img src="${logo}" alt="Logo empresa">`;
+  }
+}
+
+function guardarInfoEmpresa() {
+  const info = {
+    nombre:    document.getElementById('empresaNombre').value.trim(),
+    nit:       document.getElementById('empresaNit').value.trim(),
+    telefono:  document.getElementById('empresaTelefono').value.trim(),
+    correo:    document.getElementById('empresaCorreo').value.trim(),
+    ciudad:    document.getElementById('empresaCiudad').value.trim(),
+    moneda:    document.getElementById('empresaMoneda').value,
+    direccion: document.getElementById('empresaDireccion').value.trim(),
+  };
+  localStorage.setItem('cys_empresa_info', JSON.stringify(info));
+  mostrarToast('Información de la empresa guardada');
+  // TODO: reemplazar por un fetch/POST al backend (vista Django) cuando exista el endpoint.
+}
+
+// ══════════════════════════════════════════
+// BASE DE DATOS (placeholders — conectar a backend)
+// ══════════════════════════════════════════
+function generarRespaldo() {
+  // TODO: reemplazar por fetch('/config/db/respaldo/') que dispare un dumpdata / backup real.
+  const ahora = new Date();
+  document.getElementById('dbUltimoRespaldo').textContent =
+    ahora.toLocaleDateString('es-CO') + ' ' + ahora.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
+  mostrarToast('Respaldo generado');
+}
+
+function restaurarRespaldo() {
+  // TODO: abrir selector de archivo .sql / .json y enviarlo por POST al backend.
+  mostrarToast('Función de restauración pendiente de conectar al backend', 'info');
+}
+
+function optimizarBD() {
+  // TODO: disparar VACUUM/ANALYZE (SQLite) o su equivalente vía vista Django.
+  mostrarToast('Optimización solicitada', 'info');
 }
 
 // ══════════════════════════════════════════
