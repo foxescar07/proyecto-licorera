@@ -8,10 +8,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
+<style>
+  body, html, main, .content-wrapper, .main-content {
+    background-color: #001f38 !important;
+    background: #001f38 !important;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid p-4" style="background-color: #040a0f; min-height: 100vh; font-family: sans-serif;">
+<div class="container-fluid p-4" style="background-color: #001f38; min-height: 100vh; font-family: sans-serif;">
 
  <!-- ── BARRA ESTADO DE CAJA ── -->
   <div class="mb-4">
@@ -353,7 +359,7 @@
     </div>
   </div>
 
-  <!-- ── HISTORIAL DE VENTAS ── -->
+ <!-- ── HISTORIAL DE VENTAS ── -->
   <section class="mt-4 cys-panel">
 
     <div class="cys-panel-header">
@@ -362,7 +368,11 @@
       </div>
     </div>
 
-    <div class="px-4 py-3 d-flex flex-wrap align-items-center gap-3 cys-filtros-bar">
+    <div class="cys-hist-search-bar">
+      <div class="cys-hist-search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="buscadorHistorial" class="cys-hist-search-input" placeholder="Buscar cliente, producto...">
+      </div>
       <span class="cys-filtros-label">Rango de fechas:</span>
       <input type="date" id="filtroDesde" class="form-control form-control-sm cys-input-dark" style="width:auto;">
       <span class="cys-filtros-separador">A</span>
@@ -373,42 +383,46 @@
     </div>
 
     <div class="table-responsive p-3">
-      <table class="cys-inv-table w-100" id="tablaHistorial">
-        <thead>
+      <table class="cys-hist-table w-100" id="tablaHistorial">
+        <thead id="theadHistorial">
           <tr>
-            <th class="pb-2">#</th>
-            <th class="pb-2">Cliente</th>
-            <th class="pb-2">Producto</th>
-            <th class="pb-2">Cantidad</th>
-            <th class="pb-2">Precio Uni.</th>
-            <th class="pb-2" style="text-align:right;">Total</th>
-            <th class="pb-2">Fecha</th>
-            <th class="pb-2"></th>
+            <th class="sortable" data-sort="id">#<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="cliente">Cliente<i class="bi bi-arrow-down-up"></i></th>
+            <th>Producto</th>
+            <th class="sortable" data-sort="cantidad">Cantidad<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="precio">Precio Uni.<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="total" style="text-align:right;">Total<i class="bi bi-arrow-down-up"></i></th>
+            <th class="sortable" data-sort="fecha">Fecha<i class="bi bi-arrow-down-up"></i></th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="tablaHistorialBody">
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
-            <tr class="fila-venta"
-                data-fecha="{{ venta.fecha|date:'Y-m-d' }}"
-                data-venta-id="{{ venta.pk }}"
-                data-first="{% if forloop.first %}1{% else %}0{% endif %}"
-                data-rowspan="{{ venta.detalles.all|length }}">
-              {% if forloop.first %}
-              <td class="py-3 text-muted" rowspan="{{ venta.detalles.all|length }}">{{ venta.pk }}</td>
-              <td class="py-3 fw-bold" rowspan="{{ venta.detalles.all|length }}">{{ venta.cliente.nombre }}</td>
-              {% endif %}
-              <td class="py-3">
+            <tr class="fila-venta" data-row
+                data-id="{{ venta.pk }}"
+                data-cliente="{{ venta.cliente.nombre|lower }}"
+                data-cantidad="{{ det.cantidad }}"
+                data-precio="{{ det.precio_unitario }}"
+                data-total="{{ venta.total_venta }}"
+                data-fecha="{{ venta.fecha|date:'c' }}"
+                data-fecha-corta="{{ venta.fecha|date:'Y-m-d' }}"
+                data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
+              <td class="cys-hist-id">{{ venta.pk }}</td>
+              <td class="cys-hist-cliente">{{ venta.cliente.nombre }}</td>
+              <td>
                 <span class="cys-badge-producto">
                   {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
                 </span>
               </td>
-              <td class="py-3 text-muted">{{ det.cantidad }}</td>
-              <td class="py-3 text-muted">${{ det.precio_unitario|floatformat:0 }}</td>
-              {% if forloop.first %}
-              <td class="py-3 fw-bold text-end" style="color: var(--cys-verde);" rowspan="{{ venta.detalles.all|length }}">${{ venta.total_venta|floatformat:0 }}</td>
-              <td class="py-3 text-muted" rowspan="{{ venta.detalles.all|length }}">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-              <td class="py-3 text-center" rowspan="{{ venta.detalles.all|length }}">
+              <td>{{ det.cantidad }}</td>
+              <td>${{ det.precio_unitario|floatformat:0 }}</td>
+              <td class="cys-hist-total">${{ venta.total_venta|floatformat:0 }}</td>
+              <td>
+                <span class="cys-hist-fecha">{{ venta.fecha|date:"d/m/Y" }}</span>
+                <span class="cys-hist-hora">{{ venta.fecha|date:"H:i" }}</span>
+              </td>
+              <td class="text-center">
                 <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('¿Eliminar esta venta?');">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-sm cys-btn-eliminar-fila">
@@ -416,7 +430,6 @@
                   </button>
                 </form>
               </td>
-              {% endif %}
             </tr>
             {% endfor %}
           {% empty %}
@@ -430,9 +443,9 @@
         </tbody>
       </table>
 
-      <div id="sinResultadosFiltro" style="display:none;" class="cys-empty-box">
+      <div id="sinResultadosFiltro" style="display:none;" class="cys-hist-sin-resultados">
         <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
-        No hay ventas registradas para este rango de fechas.
+        No hay ventas registradas para este filtro.
       </div>
     </div>
   </section>
@@ -906,7 +919,7 @@ document.getElementById('btnCancelarVenta').addEventListener('click', function()
   }
 });
 
-// ── Buscador ──
+// ── Buscador de productos (TPV) ──
 document.getElementById('buscadorProducto').addEventListener('input', function() {
   const term = this.value.toLowerCase().trim();
   if (!term) { mostrar(vistaCats); return; }
@@ -1045,34 +1058,76 @@ document.addEventListener('click', e => {
   if (!inputCliente.contains(e.target)) sugerencias.style.display = 'none';
 });
 
-// ══ FILTRO HISTORIAL ══
-document.getElementById('filtroDesde').addEventListener('change', filtrarHistorial);
-document.getElementById('filtroHasta').addEventListener('change', filtrarHistorial);
-document.getElementById('btnLimpiarFiltro').addEventListener('click', () => {
-  document.getElementById('filtroDesde').value = '';
-  document.getElementById('filtroHasta').value = '';
-  filtrarHistorial();
-});
+// ══ BÚSQUEDA + FILTRO POR FECHA + ORDENAMIENTO DEL HISTORIAL ══
+const inputBusquedaHist = document.getElementById('buscadorHistorial');
+const filtroDesdeEl     = document.getElementById('filtroDesde');
+const filtroHastaEl     = document.getElementById('filtroHasta');
+const tbodyHistorial    = document.getElementById('tablaHistorialBody');
+const sinResultadosEl   = document.getElementById('sinResultadosFiltro');
 
-function filtrarHistorial() {
-  const desde = document.getElementById('filtroDesde').value;
-  const hasta = document.getElementById('filtroHasta').value;
-  const filas  = document.querySelectorAll('.fila-venta');
-  let alguna   = false;
+function aplicarFiltroHistorial() {
+  const term  = inputBusquedaHist.value.toLowerCase().trim();
+  const desde = filtroDesdeEl.value;
+  const hasta = filtroHastaEl.value;
+  let visibles = 0;
 
-  filas.forEach(fila => {
-    const fecha  = fila.dataset.fecha;
-    const cumple = (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
-    fila.style.display = cumple ? '' : 'none';
-    if (cumple) alguna = true;
+  tbodyHistorial.querySelectorAll('.fila-venta').forEach(fila => {
+    const texto          = fila.dataset.buscar || '';
+    const fechaCorta     = fila.dataset.fechaCorta || '';
+    const coincideTexto  = !term  || texto.includes(term);
+    const coincideFecha  = (!desde || fechaCorta >= desde) && (!hasta || fechaCorta <= hasta);
+    const visible = coincideTexto && coincideFecha;
+    fila.style.display = visible ? '' : 'none';
+    if (visible) visibles++;
   });
 
-  document.getElementById('sinResultadosFiltro').style.display =
-    (alguna || (!desde && !hasta)) ? 'none' : 'block';
+  if (sinResultadosEl) sinResultadosEl.style.display = visibles === 0 ? 'block' : 'none';
 }
+
+// Filtra en vivo apenas se empieza a escribir
+inputBusquedaHist.addEventListener('input', aplicarFiltroHistorial);
+filtroDesdeEl.addEventListener('change', aplicarFiltroHistorial);
+filtroHastaEl.addEventListener('change', aplicarFiltroHistorial);
+document.getElementById('btnLimpiarFiltro').addEventListener('click', () => {
+  inputBusquedaHist.value = '';
+  filtroDesdeEl.value = '';
+  filtroHastaEl.value = '';
+  aplicarFiltroHistorial();
+});
+
+// ── Flechas de orden (clic en encabezados) ──
+function activarOrdenTabla(theadId, tbodyEl, filaSelector) {
+  const thead = document.getElementById(theadId);
+  if (!thead) return;
+  let estado = { campo: null, asc: true };
+
+  thead.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const campo = th.dataset.sort;
+      estado.asc = (estado.campo === campo) ? !estado.asc : true;
+      estado.campo = campo;
+
+      thead.querySelectorAll('th.sortable').forEach(h => h.classList.remove('activo', 'desc'));
+      th.classList.add('activo');
+      if (!estado.asc) th.classList.add('desc');
+
+      const filas = Array.from(tbodyEl.querySelectorAll(filaSelector));
+      filas.sort((a, b) => {
+        const va = a.dataset[campo] || '';
+        const vb = b.dataset[campo] || '';
+        const na = parseFloat(va), nb = parseFloat(vb);
+        const esNumerico = va !== '' && vb !== '' && !isNaN(na) && !isNaN(nb);
+        const cmp = esNumerico ? na - nb : va.localeCompare(vb, 'es');
+        return estado.asc ? cmp : -cmp;
+      });
+      filas.forEach(f => tbodyEl.appendChild(f));
+    });
+  });
+}
+
+activarOrdenTabla('theadHistorial', tbodyHistorial, '.fila-venta');
 
 // ── Inicializar ──
 renderCategorias();
 </script>
 {% endblock %}
-ENDOFFILE

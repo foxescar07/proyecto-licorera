@@ -18,6 +18,11 @@ from usuarios.models import Usuario
 BILLETES_DENOM = [100000, 50000, 20000, 10000, 5000, 2000, 1000]
 MONEDAS_DENOM  = [500, 200, 100, 50]
 
+# Meta de ventas diaria — ajusta este valor según el objetivo del negocio.
+# Si más adelante quieres hacerla configurable desde la base de datos,
+# este es el único punto que habría que cambiar por una consulta a un modelo.
+META_VENTA_DIARIA = 500000
+
 
 # ════════════════════════════════════════
 # DECORADOR
@@ -338,11 +343,61 @@ def ventas_del_dia(request):
         for det in v.detalles.all()
     )
 
+    # ── Producto más vendido del día (para la tarjeta KPI "Top") ──
+    producto_top = (
+        DetalleVenta.objects
+        .filter(venta__in=ventas)
+        .values('producto__nombre')
+        .annotate(total_unidades=Sum('cantidad'))
+        .order_by('-total_unidades')
+        .first()
+    )
+
+    # ── Ranking de productos más vendidos (con barra proporcional) ──
+    productos_top_qs = (
+        DetalleVenta.objects
+        .filter(venta__in=ventas)
+        .values('producto__nombre')
+        .annotate(total_unidades=Sum('cantidad'))
+        .order_by('-total_unidades')[:5]
+    )
+    max_unidades = productos_top_qs[0]['total_unidades'] if productos_top_qs else 0
+    productos_top = [
+        {
+            'nombre':     p['producto__nombre'],
+            'unidades':   p['total_unidades'],
+            'porcentaje': round((p['total_unidades'] / max_unidades) * 100, 1) if max_unidades else 0,
+        }
+        for p in productos_top_qs
+    ]
+
+    # ── Ventas tope del día (para el diseño circular) ──
+    ventas_top_qs = sorted(ventas, key=lambda v: v.total_con_descuento, reverse=True)[:2]
+    ventas_top = [
+        {
+            'id':         v.pk,
+            'total':      int(v.total_con_descuento),
+            'porcentaje': round((float(v.total_con_descuento) / total_dia) * 100, 1) if total_dia else 0,
+        }
+        for v in ventas_top_qs
+    ]
+
+    # ── Progreso hacia la meta de ventas del día (solo texto, sin barra) ──
+    meta_diaria = META_VENTA_DIARIA
+    porcentaje_meta = 0
+    if meta_diaria:
+        porcentaje_meta = round(min((total_dia / meta_diaria) * 100, 100), 1) if total_dia else 0
+
     context = {
         'ventas':          ventas,
         'hoy':             hoy,
         'total_dia':       total_dia,
         'total_productos': total_productos,
+        'producto_top':    producto_top,
+        'productos_top':   productos_top,
+        'ventas_top':      ventas_top,
+        'meta_diaria':     meta_diaria,
+        'porcentaje_meta': porcentaje_meta,
     }
     return render(request, 'ventas/ventas_dia.html', context)
 
