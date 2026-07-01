@@ -484,7 +484,7 @@
 .prod-dropdown-menu .dropdown-item.text-danger:hover { background:rgba(220,53,69,.12); }
 
 .prod-dropdown-menu {
-  z-index: 1060;
+  z-index: 1030;
 }
 
 /* === Columna ACCIONES centrada === */
@@ -676,4 +676,23 @@
 #tablaProductosCat thead tr th.dt-ordering-asc .dt-column-order::before,
 #tablaProductosCat thead tr th.dt-ordering-desc .dt-column-order::after {
   opacity: 1 !important;
+}
+/* Tooltip estilo CYS (azul, como el resto de la UI) */
+.tooltip .tooltip-inner {
+  background-color: #0D1B2A;
+  color: #4DA8DA;
+  border: 1px solid rgba(77, 168, 218, 0.35);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+/* Flechita del tooltip (apuntando hacia el botón) */
+.tooltip .tooltip-arrow::before {
+  border-top-color: rgba(77, 168, 218, 0.35) !important;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: #0D1B2A !important;
 }
