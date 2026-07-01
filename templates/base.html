@@ -115,11 +115,13 @@ body.offcanvas-open {
             });
             const menuBtn = document.getElementById('menuBtn');
 
-            // Restaurar estado guardado
-            if (localStorage.getItem('sidebarOpen') === 'true') {
-                sidebarEl.classList.add('show');
-                document.body.classList.add('sidebar-open');
-                sidebarEl.style.visibility = 'visible';
+            // Abrir automáticamente según preferencia de Configuración (cys_config.sidebarAuto)
+            let cysCfg = {};
+            try { cysCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
+            if (cysCfg.sidebarAuto === true) {
+            sidebarEl.classList.add('show');
+            document.body.classList.add('sidebar-open');
+            sidebarEl.style.visibility = 'visible'; 
             }
 
             menuBtn?.addEventListener('click', () => bsSidebar.toggle());
@@ -132,14 +134,12 @@ body.offcanvas-open {
 
             sidebarEl.addEventListener('show.bs.offcanvas', () => {
                 document.body.classList.add('sidebar-open');
-                localStorage.setItem('sidebarOpen', 'true');
                 limpiarBootstrap();
             });
             sidebarEl.addEventListener('shown.bs.offcanvas', limpiarBootstrap);
             sidebarEl.addEventListener('hide.bs.offcanvas',  limpiarBootstrap);
             sidebarEl.addEventListener('hidden.bs.offcanvas', () => {
                 document.body.classList.remove('sidebar-open');
-                localStorage.setItem('sidebarOpen', 'false');
                 limpiarBootstrap();
             });
         }

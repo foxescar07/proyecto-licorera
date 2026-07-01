@@ -4,271 +4,53 @@
 {% block page_title %}Configuración{% endblock %}
 {% block title %}Configuración — CYS Ltda{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/configuracion/configuracion.css' %}">
+{% endblock %}
+
 {% block content %}
-<style>
-  .cfg-section {
-    background: var(--fondo-card);
-    border: 1px solid var(--azul-borde);
-    border-radius: 14px;
-    padding: clamp(1rem, 2vw, 1.5rem);
-    margin-bottom: 1.25rem;
-    height: 100%;
-  }
-  .cfg-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: .7rem;
-    font-weight: 700;
-    color: var(--texto-muted);
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    margin-bottom: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-  }
-  .cfg-title i { color: var(--azul-claro); font-size: .9rem; }
-
-  /* Espaciado entre bloques de filas */
-  .cfg-row {
-    margin-top: 1.25rem;
-  }
-
-  /* OPCIONES DE TARJETA — grid responsivo real */
-  .cfg-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: .75rem;
-  }
-  .cfg-opt {
-    border: 1.5px solid var(--azul-borde);
-    border-radius: 10px;
-    padding: .75rem 1rem;
-    cursor: pointer;
-    text-align: center;
-    transition: all .2s;
-    background: var(--fondo-card2);
-    color: var(--texto-muted);
-    font-size: .8rem;
-    font-weight: 500;
-    user-select: none;
-  }
-  .cfg-opt:hover { border-color: var(--azul-claro); color: var(--texto); }
-  .cfg-opt.activo {
-    border-color: var(--azul-claro);
-    background: rgba(77,168,218,.12);
-    color: var(--azul-claro);
-    font-weight: 600;
-  }
-  .cfg-opt i { display: block; font-size: 1.4rem; margin-bottom: .4rem; }
-
-  @media (max-width: 576px) {
-    .cfg-options { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  /* PREVIEW TEMA */
-  .tema-preview {
-    width: 100%;
-    height: 48px;
-    border-radius: 8px;
-    margin-bottom: .5rem;
-    border: 2px solid transparent;
-    transition: border-color .2s;
-  }
-
-  /* SLIDER */
-  .cfg-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--azul-borde);
-    outline: none;
-    margin: .75rem 0;
-  }
-  .cfg-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: var(--azul-claro);
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(77,168,218,.4);
-  }
-
-  /* TOGGLE SWITCH */
-  .cfg-toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    padding: .65rem 0;
-    border-bottom: 1px solid rgba(77,168,218,.08);
-  }
-  .cfg-toggle-row:last-child { border-bottom: none; }
-  .cfg-toggle-label {
-    font-size: .85rem;
-    color: var(--texto);
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-  }
-  .cfg-toggle-label span { font-size: .72rem; color: var(--texto-muted); display: block; }
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 42px; height: 24px;
-    flex-shrink: 0;
-  }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider-sw {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: var(--azul-borde);
-    border-radius: 24px;
-    transition: .3s;
-  }
-  .slider-sw:before {
-    content: '';
-    position: absolute;
-    height: 18px; width: 18px;
-    left: 3px; bottom: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: .3s;
-  }
-  input:checked + .slider-sw { background: var(--azul-claro); }
-  input:checked + .slider-sw:before { transform: translateX(18px); }
-
-  /* FORMATO */
-  .cfg-select {
-    background: var(--fondo-card2);
-    border: 1px solid var(--azul-borde);
-    color: var(--texto);
-    border-radius: 10px;
-    padding: .55rem .9rem;
-    font-size: .85rem;
-    width: 100%;
-    outline: none;
-    cursor: pointer;
-    margin-top: .4rem;
-    transition: border-color .2s;
-  }
-  .cfg-select:focus { border-color: var(--azul-claro); }
-
-  .cfg-input {
-    background: var(--fondo-card2);
-    border: 1px solid var(--azul-borde);
-    color: var(--texto);
-    border-radius: 10px;
-    padding: .55rem .9rem;
-    font-size: .85rem;
-    width: 100%;
-    outline: none;
-    margin-top: .4rem;
-    transition: border-color .2s;
-  }
-  .cfg-input:focus { border-color: var(--azul-claro); }
-  .cfg-label {
-    font-size: .68rem;
-    font-weight: 600;
-    color: var(--texto-muted);
-    text-transform: uppercase;
-    letter-spacing: .08em;
-  }
-
-  /* LOGO EMPRESA */
-  .cfg-logo-preview {
-    width: 84px;
-    height: 84px;
-    border-radius: 14px;
-    border: 1.5px dashed var(--azul-borde);
-    background: var(--fondo-card2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-    color: var(--texto-muted);
-    font-size: 1.6rem;
-    cursor: pointer;
-  }
-  .cfg-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
-
-  /* BASE DE DATOS */
-  .cfg-db-stat {
-    background: var(--fondo-card2);
-    border: 1px solid var(--azul-borde);
-    border-radius: 10px;
-    padding: .75rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .5rem;
-  }
-  .cfg-db-stat .lbl { font-size: .72rem; color: var(--texto-muted); text-transform: uppercase; letter-spacing: .06em; }
-  .cfg-db-stat .val { font-size: .95rem; font-weight: 600; color: var(--texto); }
-  .cfg-db-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
-
-  /* BOTÓN GUARDAR */
-  .cfg-save-bar {
-    position: sticky;
-    bottom: 0;
-    background: var(--fondo-card);
-    border-top: 1px solid var(--azul-borde);
-    padding: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: .75rem;
-    margin-top: 1.5rem;
-    border-radius: 14px;
-  }
-
-  /* TOAST */
-  #cfg-toast {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    left: 1.5rem;
-    max-width: 340px;
-    margin-left: auto;
-    background: rgba(39,174,96,.15);
-    border: 1px solid rgba(39,174,96,.4);
-    color: #2ecc71;
-    border-radius: 10px;
-    padding: .75rem 1.25rem;
-    font-size: .85rem;
-    font-weight: 500;
-    display: none;
-    z-index: 9999;
-    backdrop-filter: blur(4px);
-    animation: slideIn .3s ease;
-  }
-  @keyframes slideIn {
-    from { opacity:0; transform: translateY(10px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-</style>
-
 <div class="container-fluid p-0">
 
-  <!-- ENCABEZADO -->
-  <div class="cys-card mb-4" style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-    <div style="width:44px; height:44px; border-radius:12px; flex-shrink:0;
-                background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
-                display:flex; align-items:center; justify-content:center;
-                color:var(--azul-claro); font-size:1.3rem;">
-      <i class="bi bi-sliders"></i>
-    </div>
-    <div>
-      <div class="cys-card__title mb-0">Configuración</div>
-      <div style="font-size:.78rem; color:var(--texto-muted); margin-top:.1rem;">
-        Personaliza la apariencia y el comportamiento del sistema. Los cambios se guardan localmente.
+  {% csrf_token %}
+
+  <!-- ① VISUALIZACIÓN: BRILLO / FUENTE / AUMENTO (3 TARJETAS CON PERILLA) -->
+  <div class="cfg-section">
+    <div class="cfg-title"><i class="bi bi-sliders2"></i> Visualización</div>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="cfg-knob-card">
+          <div class="cfg-knob-card__info">
+            <div class="cfg-knob-card__label"><i class="bi bi-brightness-high"></i> Brillo</div>
+            <div class="cfg-knob-card__hint">Brillo general de la interfaz</div>
+          </div>
+          <div class="cfg-knob" id="knobBrillo" data-min="60" data-max="120" data-step="1" data-unit="%"></div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="cfg-knob-card">
+          <div class="cfg-knob-card__info">
+            <div class="cfg-knob-card__label"><i class="bi bi-fonts"></i> Tamaño de letra</div>
+            <div class="cfg-knob-card__hint">Tamaño base del texto</div>
+          </div>
+          <div class="cfg-knob" id="knobFuente" data-min="12" data-max="20" data-step="1" data-unit="px"></div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="cfg-knob-card">
+          <div class="cfg-knob-card__info">
+            <div class="cfg-knob-card__label"><i class="bi bi-zoom-in"></i> Aumento</div>
+            <div class="cfg-knob-card__hint">Escala general de la pantalla</div>
+          </div>
+          <div class="cfg-knob" id="knobZoom" data-min="80" data-max="150" data-step="5" data-unit="%"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ① TEMA (full width) -->
+  <!-- ② TEMA -->
   <div class="cfg-section">
     <div class="cfg-title"><i class="bi bi-palette-fill"></i> Tema y apariencia</div>
     <div class="cfg-options" id="opcionesTema">
@@ -286,21 +68,27 @@
       </div>
 
       <div class="cfg-opt" data-tema="alto-contraste" onclick="seleccionarTema('alto-contraste', this)">
-        <div class="tema-preview" style="background:linear-gradient(135deg,#000,#1a1a1a); border:2px solid #fff;"></div>
+        <div class="tema-preview" style="background:#000; border:2px solid #fff;"></div>
         <i class="bi bi-circle-half" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Alto contraste
       </div>
 
       <div class="cfg-opt" data-tema="basecys" onclick="seleccionarTema('basecys', this)">
-        <div class="tema-preview" style="background:linear-gradient(135deg,#8C2F24 0%,#8C2F24 45%,#D9A441 45%,#D9A441 75%,#F2DFB8 75%);"></div>
+        <div class="tema-preview" style="background:#D9A441;"></div>
         <i class="bi bi-cup-straw" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Base CyS
+      </div>
+
+      <div class="cfg-opt" data-tema="sepia" onclick="seleccionarTema('sepia', this)">
+        <div class="tema-preview" style="background:linear-gradient(135deg,#1a0f05,#3d2b14);"></div>
+        <i class="bi bi-book-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        Sepia
       </div>
 
     </div>
   </div>
 
-  <!-- ② DENSIDAD + ③ BARRA LATERAL (2 columnas en lg+) -->
+  <!-- ③ DENSIDAD + ④ BARRA LATERAL -->
   <div class="row g-3">
     <div class="col-lg-6">
       <div class="cfg-section">
@@ -365,28 +153,27 @@
     </div>
   </div>
 
-  <!-- ④ FECHAS/NÚMEROS + ⑤ NOTIFICACIONES (2 columnas en lg+) -->
+  <!-- ⑤ FECHAS Y NÚMEROS + ⑥ NOTIFICACIONES -->
   <div class="row g-3 cfg-row">
     <div class="col-lg-6">
       <div class="cfg-section">
         <div class="cfg-title"><i class="bi bi-calendar-date"></i> Fechas y números</div>
-
         <div class="row g-3">
           <div class="col-sm-6">
             <label class="cfg-label">Formato de fecha</label>
             <select class="cfg-select" id="formatoFecha">
-              <option value="dd/mm/yyyy">DD/MM/AAAA — ej: 13/05/2026</option>
-              <option value="mm/dd/yyyy">MM/DD/AAAA — ej: 05/13/2026</option>
-              <option value="yyyy-mm-dd">AAAA-MM-DD — ej: 2026-05-13</option>
-              <option value="dd-mmm-yyyy">DD-MMM-AAAA — ej: 13-May-2026</option>
+              <option value="dd/mm/yyyy">DD/MM/AAAA</option>
+              <option value="mm/dd/yyyy">MM/DD/AAAA</option>
+              <option value="yyyy-mm-dd">AAAA-MM-DD</option>
+              <option value="dd-mmm-yyyy">DD-MMM-AAAA</option>
             </select>
           </div>
           <div class="col-sm-6">
             <label class="cfg-label">Separador de miles</label>
             <select class="cfg-select" id="separadorMiles">
-              <option value="punto">Punto — ej: $1.250.000</option>
-              <option value="coma">Coma — ej: $1,250,000</option>
-              <option value="espacio">Espacio — ej: $1 250 000</option>
+              <option value="punto">Punto — $1.250.000</option>
+              <option value="coma">Coma — $1,250,000</option>
+              <option value="espacio">Espacio — $1 250 000</option>
             </select>
           </div>
           <div class="col-12">
@@ -452,65 +239,87 @@
     </div>
   </div>
 
-  <!-- ⑥ INFORMACIÓN DE LA EMPRESA (full width) -->
+  <!-- ⑦ INFORMACIÓN DE LA EMPRESA (LOGO + DATOS, CONECTADO A guardar_empresa) -->
   <div class="cfg-section cfg-row">
-    <div class="cfg-title"><i class="bi bi-building"></i> Información de la empresa</div>
+    <div class="cfg-title-row">
+      <div class="cfg-title" style="margin-bottom:0;"><i class="bi bi-building"></i> Información de la empresa</div>
+      <button onclick="guardarInfoEmpresa()" class="cfg-btn-mini" id="btnGuardarEmpresa">
+        <i class="bi bi-check-lg"></i> Guardar
+      </button>
+    </div>
 
-    <div class="d-flex flex-wrap gap-3 align-items-start mb-3">
-      <div class="cfg-logo-preview" id="logoEmpresaPreview" onclick="document.getElementById('inputLogoEmpresa').click()">
-        <i class="bi bi-image"></i>
+    <div class="cfg-empresa-header">
+      <div class="cfg-logo-preview" id="logoEmpresaPreview"
+           onclick="document.getElementById('inputLogoEmpresa').click()">
+        {% if config.logo %}
+          <img src="{{ config.logo.url }}" alt="Logo empresa">
+        {% else %}
+          <i class="bi bi-image"></i>
+        {% endif %}
       </div>
-      <div style="flex:1; min-width:200px;">
-        <label class="cfg-label">Logo de la empresa</label>
-        <div style="font-size:.75rem; color:var(--texto-muted); margin-top:.25rem;">
-          Haz clic en el recuadro para subir el logo (PNG o JPG, recomendado fondo transparente).
+      <input type="file" id="inputLogoEmpresa" accept="image/*" style="display:none;"
+             onchange="previewLogoEmpresa(this)">
+
+      <div class="cfg-empresa-header__campos">
+        <div>
+          <label class="cfg-label">Nombre de la empresa</label>
+          <input type="text" class="cfg-input" id="empresaNombre" value="{{ config.nombre_empresa }}" placeholder="Licorera CYS Ltda">
         </div>
-        <input type="file" id="inputLogoEmpresa" accept="image/*" style="display:none;" onchange="previewLogoEmpresa(this)">
+        <div>
+          <label class="cfg-label">NIT</label>
+          <input type="text" class="cfg-input" id="empresaNit" value="{{ config.nit }}" placeholder="900.123.456-7">
+        </div>
+        <div>
+          <label class="cfg-label">Teléfono</label>
+          <input type="text" class="cfg-input" id="empresaTelefono" value="{{ config.telefono }}" placeholder="+57 300 000 0000">
+        </div>
       </div>
     </div>
 
     <div class="row g-3">
-      <div class="col-sm-6 col-lg-4">
-        <label class="cfg-label">Nombre de la empresa</label>
-        <input type="text" class="cfg-input" id="empresaNombre" placeholder="Licorera CYS Ltda">
-      </div>
-      <div class="col-sm-6 col-lg-4">
-        <label class="cfg-label">NIT</label>
-        <input type="text" class="cfg-input" id="empresaNit" placeholder="900.123.456-7">
-      </div>
-      <div class="col-sm-6 col-lg-4">
-        <label class="cfg-label">Teléfono</label>
-        <input type="text" class="cfg-input" id="empresaTelefono" placeholder="+57 300 000 0000">
-      </div>
-      <div class="col-sm-6 col-lg-4">
+      <div class="col-sm-6">
         <label class="cfg-label">Correo de contacto</label>
-        <input type="email" class="cfg-input" id="empresaCorreo" placeholder="contacto@cysltda.com">
+        <input type="email" class="cfg-input" id="empresaEmail" value="{{ config.email }}" placeholder="contacto@cysltda.com">
       </div>
-      <div class="col-sm-6 col-lg-4">
-        <label class="cfg-label">Ciudad</label>
-        <input type="text" class="cfg-input" id="empresaCiudad" placeholder="Bogotá D.C.">
-      </div>
-      <div class="col-sm-6 col-lg-4">
-        <label class="cfg-label">Moneda</label>
-        <select class="cfg-select" id="empresaMoneda">
-          <option value="COP">COP — Peso colombiano</option>
-          <option value="USD">USD — Dólar</option>
-        </select>
-      </div>
-      <div class="col-12">
+      <div class="col-sm-6">
         <label class="cfg-label">Dirección</label>
-        <input type="text" class="cfg-input" id="empresaDireccion" placeholder="Calle 00 # 00-00, local 00">
+        <input type="text" class="cfg-input" id="empresaDireccion" value="{{ config.direccion }}" placeholder="Calle 00 # 00-00, local 00">
       </div>
-    </div>
-
-    <div class="cfg-db-actions">
-      <button onclick="guardarInfoEmpresa()" class="cys-btn cys-btn--primary">
-        <i class="bi bi-check-lg me-1"></i> Guardar información
-      </button>
     </div>
   </div>
 
-  <!-- ⑦ BASE DE DATOS (full width) -->
+  <!-- ⑧ IMPUESTOS Y MONEDA (CONECTADO A guardar_impuestos) -->
+  <div class="cfg-section cfg-row">
+    <div class="cfg-title-row">
+      <div class="cfg-title" style="margin-bottom:0;"><i class="bi bi-cash-coin"></i> Impuestos y moneda</div>
+      <button onclick="guardarImpuestos()" class="cfg-btn-mini" id="btnGuardarImpuestos">
+        <i class="bi bi-check-lg"></i> Guardar
+      </button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">IVA (%)</label>
+        <input type="number" step="0.01" min="0" max="100" class="cfg-input" id="ivaPorcentaje" value="{{ config.iva_porcentaje }}">
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <label class="cfg-label">Moneda</label>
+        <select class="cfg-select" id="monedaSelect">
+          <option value="COP" {% if config.moneda == 'COP' %}selected{% endif %}>COP — Peso colombiano</option>
+          <option value="USD" {% if config.moneda == 'USD' %}selected{% endif %}>USD — Dólar</option>
+        </select>
+      </div>
+      <div class="col-sm-12 col-lg-4">
+        <label class="cfg-label">Unidades de medida</label>
+        <input type="text" class="cfg-input" id="unidadesMedida"
+               value="{{ config.unidades_medida|join:', ' }}"
+               placeholder="unidad, caja, paquete">
+        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.3rem;">Sepáralas con comas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑨ BASE DE DATOS (CONECTADO A crear_backup) -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title"><i class="bi bi-database-fill"></i> Base de datos</div>
 
@@ -518,8 +327,8 @@
       <div class="col-sm-6 col-lg-3">
         <div class="cfg-db-stat">
           <div>
-            <div class="lbl">Motor</div>
-            <div class="val" id="dbMotor">SQLite</div>
+            <div class="lbl">Tablas</div>
+            <div class="val" id="dbTablas">{{ db_stats.tablas }}</div>
           </div>
           <i class="bi bi-hdd-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
@@ -527,64 +336,59 @@
       <div class="col-sm-6 col-lg-3">
         <div class="cfg-db-stat">
           <div>
-            <div class="lbl">Estado</div>
-            <div class="val" style="color:#2ecc71;">Conectada</div>
+            <div class="lbl">Registros totales</div>
+            <div class="val" id="dbRegistros">{{ db_stats.registros }}</div>
           </div>
-          <i class="bi bi-plug-fill" style="color:#2ecc71; font-size:1.3rem;"></i>
+          <i class="bi bi-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="cfg-db-stat">
+          <div>
+            <div class="lbl">Tamaño BD</div>
+            <div class="val" id="dbTamano">{{ db_stats.tamaño }}</div>
+          </div>
+          <i class="bi bi-hdd" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
         <div class="cfg-db-stat">
           <div>
             <div class="lbl">Último respaldo</div>
-            <div class="val" id="dbUltimoRespaldo">Sin registrar</div>
+            <div class="val" id="dbUltimoRespaldo">
+              {% if backups.0 %}{{ backups.0.fecha|date:"d/m/Y H:i" }}{% else %}Sin registrar{% endif %}
+            </div>
           </div>
           <i class="bi bi-clock-history" style="color:var(--azul-claro); font-size:1.3rem;"></i>
-        </div>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <div class="cfg-db-stat">
-          <div>
-            <div class="lbl">Tamaño aprox.</div>
-            <div class="val" id="dbTamano">—</div>
-          </div>
-          <i class="bi bi-hdd" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
     </div>
 
     <div class="cfg-db-actions">
-      <button onclick="generarRespaldo()" class="cys-btn cys-btn--primary">
+      <button onclick="generarRespaldo()" class="cys-btn cys-btn--primary" id="btnBackup">
         <i class="bi bi-cloud-arrow-down me-1"></i> Generar respaldo
       </button>
-      <button onclick="restaurarRespaldo()" class="cys-btn cys-btn--outline">
-        <i class="bi bi-cloud-arrow-up me-1"></i> Restaurar respaldo
-      </button>
-      <button onclick="optimizarBD()" class="cys-btn cys-btn--outline">
-        <i class="bi bi-magic me-1"></i> Optimizar base de datos
-      </button>
     </div>
 
-    <div style="font-size:.72rem; color:var(--texto-muted); margin-top:.9rem;">
-      <i class="bi bi-info-circle me-1"></i>
-      Estas acciones requieren conexión con el backend para ejecutarse realmente. Por ahora esta sección
-      muestra la interfaz; conéctala a las vistas de Django correspondientes cuando estén listas.
+    <div id="listaBackups" style="margin-top:1.25rem;">
+      {% for b in backups %}
+        <div class="cfg-backup-item" data-backup-item>
+          <div>
+            <div class="cfg-backup-item__nombre">{{ b.nombre }}</div>
+            <div class="cfg-backup-item__meta">{{ b.fecha|date:"d/m/Y H:i" }} · {{ b.tamaño_mb }} MB</div>
+          </div>
+          <i class="bi bi-file-earmark-zip" style="color:var(--azul-claro);"></i>
+        </div>
+      {% empty %}
+        <div style="font-size:.8rem; color:var(--texto-muted);" data-backup-empty>
+          Todavía no hay respaldos generados.
+        </div>
+      {% endfor %}
     </div>
-  </div>
-
-  <!-- BARRA GUARDAR -->
-  <div class="cfg-save-bar">
-    <button onclick="resetearConfig()" class="cys-btn cys-btn--outline">
-      <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer
-    </button>
-    <button onclick="guardarConfig()" class="cys-btn cys-btn--primary">
-      <i class="bi bi-check-lg me-1"></i> Guardar cambios
-    </button>
   </div>
 
 </div>
 
-<!-- TOAST -->
 <div id="cfg-toast"><i class="bi bi-check-circle-fill me-2"></i> Configuración guardada</div>
 
 {% endblock %}
@@ -592,322 +396,409 @@
 
 {% block extra_js %}
 <script>
+// ══════════════════════════════════════════
+// CSRF helper
+// ══════════════════════════════════════════
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+const CSRF_TOKEN = getCookie('csrftoken') ||
+  document.querySelector('input[name=csrfmiddlewaretoken]')?.value;
 
 // ══════════════════════════════════════════
-// VARIABLES DE ESTADO
+// ESTADO VISUAL (tema/densidad/brillo/fuente/zoom/toggles)
+// mismo objeto que ya lee/aplica base.html y aside.html: localStorage.cys_config
 // ══════════════════════════════════════════
-let cfgActual = {
-  tema:             'oscuro',
-  densidad:         'normal',
-  sidebarAuto:      false,
-  resumenSidebar:   true,
-  formatoFecha:     'dd/mm/yyyy',
-  separadorMiles:   'punto',
-  alertaStock:      true,
-  widgetRotacion:   true,
-  silencioso:       false,
+const CFG_DEFAULT = {
+  tema: 'oscuro', densidad: 'normal', brillo: 100, fuente: 14, zoom: 100,
+  sidebarAuto: false, resumenSidebar: true,
+  formatoFecha: 'dd/mm/yyyy', separadorMiles: 'punto',
+  alertaStock: true, widgetRotacion: true, silencioso: false,
 };
 
+function cargarCfg() {
+  let cfg = { ...CFG_DEFAULT };
+  try {
+    const g = JSON.parse(localStorage.getItem('cys_config') || '{}');
+    cfg = { ...cfg, ...g };
+  } catch (e) {}
+  return cfg;
+}
+function guardarCfg(cfg) {
+  localStorage.setItem('cys_config', JSON.stringify(cfg));
+}
+
+let cfgActual = cargarCfg();
+let perillaBrillo, perillaFuente, perillaZoom;
+let logoEmpresaFile = null; // archivo seleccionado, pendiente de subir al guardar
+let toastPrefTimeout = null;
+
 // ══════════════════════════════════════════
-// CARGAR AL INICIAR
+// PERILLAS (DIAL)
+// ══════════════════════════════════════════
+function crearPerilla(container) {
+  const min    = parseFloat(container.dataset.min);
+  const max    = parseFloat(container.dataset.max);
+  const step   = parseFloat(container.dataset.step) || 1;
+  const unidad = container.dataset.unit || '';
+
+  container.innerHTML = `
+    <div class="cfg-knob__dial">
+      <svg class="cfg-knob__ring" viewBox="0 0 100 100">
+        <path class="cfg-knob__track" pathLength="100" d="M20,80 A38,38 0 1 1 80,80"></path>
+        <path class="cfg-knob__progress" pathLength="100" d="M20,80 A38,38 0 1 1 80,80"></path>
+      </svg>
+      <div class="cfg-knob__handle"><span class="cfg-knob__dot"></span></div>
+      <div class="cfg-knob__center">
+        <span class="cfg-knob__value">0</span><span class="cfg-knob__unit">${unidad}</span>
+      </div>
+    </div>
+    <div class="cfg-knob__minmax"><span>${min}${unidad}</span><span>${max}${unidad}</span></div>
+  `;
+
+  const dial     = container.querySelector('.cfg-knob__dial');
+  const progress = container.querySelector('.cfg-knob__progress');
+  const handle   = container.querySelector('.cfg-knob__handle');
+  const valorEl  = container.querySelector('.cfg-knob__value');
+
+  const MIN_ANGLE = -135;
+  const MAX_ANGLE = 135;
+
+  function pintar(val) {
+    val = Math.max(min, Math.min(max, val));
+    const pct = (val - min) / (max - min);
+    const angulo = MIN_ANGLE + pct * (MAX_ANGLE - MIN_ANGLE);
+    progress.style.strokeDasharray = `${pct * 100} 100`;
+    handle.style.transform = `rotate(${angulo}deg)`;
+    valorEl.textContent = val;
+    container.dataset.value = val;
+  }
+
+  function anguloDesdeEvento(e) {
+    const rect = dial.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    let deg = Math.atan2(x - cx, -(y - cy)) * 180 / Math.PI;
+    if (deg > MAX_ANGLE + 45 || deg < MIN_ANGLE - 45) {
+      deg = deg > 0 ? MAX_ANGLE : MIN_ANGLE;
+    }
+    return Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, deg));
+  }
+
+  let arrastrando = false;
+
+  function mover(e) {
+    if (!arrastrando) return;
+    e.preventDefault();
+    const angulo = anguloDesdeEvento(e);
+    const pct = (angulo - MIN_ANGLE) / (MAX_ANGLE - MIN_ANGLE);
+    let val = min + pct * (max - min);
+    val = Math.round(val / step) * step;
+    pintar(val);
+    container.dispatchEvent(new CustomEvent('cambio', { detail: val }));
+  }
+
+  dial.addEventListener('pointerdown', (e) => {
+    arrastrando = true;
+    dial.setPointerCapture(e.pointerId);
+    mover(e);
+  });
+  dial.addEventListener('pointermove', mover);
+  dial.addEventListener('pointerup', () => arrastrando = false);
+  dial.addEventListener('pointercancel', () => arrastrando = false);
+
+  return { pintar };
+}
+
+// ══════════════════════════════════════════
+// APLICAR EN VIVO (misma lógica que base.html)
+// ══════════════════════════════════════════
+function aplicarBrillo(val) {
+  document.documentElement.style.filter = val === 100 ? '' : `brightness(${val}%)`;
+}
+function aplicarFuente(val) {
+  document.documentElement.style.fontSize = val + 'px';
+}
+function aplicarZoom(val) {
+  document.body.style.zoom = val === 100 ? '' : (val / 100);
+}
+const TEMAS = {
+  oscuro: {'--fondo':'#011936','--fondo-card':'#0a2240','--fondo-card2':'#0d2a4d','--texto':'#e2e8f0','--texto-muted':'#7a9bbf','--azul-claro':'#4DA8DA','--azul-borde':'rgba(77,168,218,.2)','--azul-oscuro':'#05244a','--verde':'#2ecc71','--rojo':'#c0392b','--blanco':'#e8edf2','--gris-claro':'#8899aa'},
+  claro: {'--fondo':'#f0f4f8','--fondo-card':'#ffffff','--fondo-card2':'#e8eef5','--texto':'#1a2a3a','--texto-muted':'#4a6a8a','--azul-claro':'#B22A1A','--azul-borde':'rgba(178,42,26,.18)','--azul-oscuro':'#ddeaf5','--verde':'#1a8a4a','--rojo':'#B22A1A','--blanco':'#1a2a3a','--gris-claro':'#3a5a7a'},
+  'alto-contraste': {'--fondo':'#000000','--fondo-card':'#0a0a0a','--fondo-card2':'#111111','--texto':'#ffffff','--texto-muted':'#cccccc','--azul-claro':'#00cfff','--azul-borde':'rgba(0,207,255,.4)','--azul-oscuro':'#001a22','--verde':'#00ff88','--rojo':'#ff4444','--blanco':'#ffffff','--gris-claro':'#aaaaaa'},
+  basecys: {'--fondo':'#241008','--fondo-card':'#34160D','--fondo-card2':'#421B10','--texto':'#F2DFB8','--texto-muted':'#C9A876','--azul-claro':'#D9A441','--azul-borde':'rgba(217,164,65,.25)','--azul-oscuro':'#1A0A06','--verde':'#8AB86F','--rojo':'#B0392E','--blanco':'#F2DFB8','--gris-claro':'#B89868'},
+  sepia: {'--fondo':'#1a0f05','--fondo-card':'#2c1f0e','--fondo-card2':'#3d2b14','--texto':'#f5e6c8','--texto-muted':'#a08060','--azul-claro':'#d4a060','--azul-borde':'rgba(212,160,96,.25)','--azul-oscuro':'#150c04','--verde':'#7ab870','--rojo':'#c05030','--blanco':'#f5e6c8','--gris-claro':'#907060'},
+};
+const DENSIDADES = {
+  compacto: {'--card-padding':'.75rem','--gap-base':'.4rem','--font-base':'.8rem'},
+  normal:   {'--card-padding':'1.25rem','--gap-base':'.75rem','--font-base':'.875rem'},
+  relajado: {'--card-padding':'1.75rem','--gap-base':'1.1rem','--font-base':'.95rem'},
+};
+function aplicarTema(tema) {
+  const vars = TEMAS[tema] || TEMAS.oscuro;
+  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+}
+function aplicarDensidad(densidad) {
+  const vars = DENSIDADES[densidad] || DENSIDADES.normal;
+  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+}
+
+// ══════════════════════════════════════════
+// INIT
 // ══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function () {
-  const guardada = localStorage.getItem('cys_config');
-  if (guardada) {
-    try { cfgActual = { ...cfgActual, ...JSON.parse(guardada) }; } catch(e) {}
-  }
-  cargarUI();
-  cargarInfoEmpresa();
-});
+  perillaBrillo = crearPerilla(document.getElementById('knobBrillo'));
+  perillaFuente = crearPerilla(document.getElementById('knobFuente'));
+  perillaZoom   = crearPerilla(document.getElementById('knobZoom'));
 
-function cargarUI() {
-  // Tema
-  document.querySelectorAll('#opcionesTema .cfg-opt').forEach(el => {
-    el.classList.toggle('activo', el.dataset.tema === cfgActual.tema);
+  document.getElementById('knobBrillo').addEventListener('cambio', e => {
+    cfgActual.brillo = e.detail;
+    aplicarBrillo(e.detail);
+    guardarCfg(cfgActual);
+    mostrarToastPreferencia();
+  });
+  document.getElementById('knobFuente').addEventListener('cambio', e => {
+    cfgActual.fuente = e.detail;
+    aplicarFuente(e.detail);
+    guardarCfg(cfgActual);
+    mostrarToastPreferencia();
+  });
+  document.getElementById('knobZoom').addEventListener('cambio', e => {
+    cfgActual.zoom = e.detail;
+    aplicarZoom(e.detail);
+    guardarCfg(cfgActual);
+    mostrarToastPreferencia();
   });
 
-  // Densidad
-  document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(el => {
-    el.classList.toggle('activo', el.dataset.densidad === cfgActual.densidad);
-  });
+  document.querySelectorAll('#opcionesTema .cfg-opt').forEach(el =>
+    el.classList.toggle('activo', el.dataset.tema === cfgActual.tema));
+  document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(el =>
+    el.classList.toggle('activo', el.dataset.densidad === cfgActual.densidad));
 
-  // Toggles
   document.getElementById('toggleSidebarAuto').checked    = cfgActual.sidebarAuto;
   document.getElementById('toggleResumenSidebar').checked = cfgActual.resumenSidebar;
   document.getElementById('toggleAlertaStock').checked    = cfgActual.alertaStock;
   document.getElementById('toggleWidgetRotacion').checked = cfgActual.widgetRotacion;
   document.getElementById('toggleSilencioso').checked     = cfgActual.silencioso;
+  document.getElementById('formatoFecha').value           = cfgActual.formatoFecha;
+  document.getElementById('separadorMiles').value         = cfgActual.separadorMiles;
 
-  // Formato
-  document.getElementById('formatoFecha').value    = cfgActual.formatoFecha;
-  document.getElementById('separadorMiles').value  = cfgActual.separadorMiles;
+  perillaBrillo.pintar(cfgActual.brillo);
+  perillaFuente.pintar(cfgActual.fuente);
+  perillaZoom.pintar(cfgActual.zoom);
 
   actualizarPreview();
-  aplicarConfig();
-}
+
+  // ── Autoguardado de toggles y selects (barra lateral, alertas, formato) ──
+  const togglesMap = {
+    toggleSidebarAuto:    'sidebarAuto',
+    toggleResumenSidebar: 'resumenSidebar',
+    toggleAlertaStock:    'alertaStock',
+    toggleWidgetRotacion: 'widgetRotacion',
+    toggleSilencioso:     'silencioso',
+  };
+  Object.entries(togglesMap).forEach(([id, key]) => {
+    document.getElementById(id).addEventListener('change', function () {
+      cfgActual[key] = this.checked;
+      guardarCfg(cfgActual);
+      mostrarToastPreferencia();
+    });
+  });
+
+  document.getElementById('formatoFecha').addEventListener('change', function () {
+    cfgActual.formatoFecha = this.value;
+    actualizarPreview();
+    guardarCfg(cfgActual);
+    mostrarToastPreferencia();
+  });
+  document.getElementById('separadorMiles').addEventListener('change', function () {
+    cfgActual.separadorMiles = this.value;
+    actualizarPreview();
+    guardarCfg(cfgActual);
+    mostrarToastPreferencia();
+  });
+});
 
 // ══════════════════════════════════════════
-// SELECCIONAR TEMA / DENSIDAD
+// TEMA / DENSIDAD — se aplican y guardan al instante
 // ══════════════════════════════════════════
 function seleccionarTema(tema, el) {
   document.querySelectorAll('#opcionesTema .cfg-opt').forEach(o => o.classList.remove('activo'));
   el.classList.add('activo');
   cfgActual.tema = tema;
   aplicarTema(tema);
+  guardarCfg(cfgActual);
+  mostrarToastPreferencia();
 }
-
 function seleccionarDensidad(densidad, el) {
   document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(o => o.classList.remove('activo'));
   el.classList.add('activo');
   cfgActual.densidad = densidad;
   aplicarDensidad(densidad);
+  guardarCfg(cfgActual);
+  mostrarToastPreferencia();
 }
 
 // ══════════════════════════════════════════
-// APLICAR TEMA
+// VISTA PREVIA FECHA / NÚMERO
 // ══════════════════════════════════════════
-function aplicarTema(tema) {
-  const root = document.documentElement;
-  const temas = {
-    oscuro: {
-      '--fondo':        '#011936',
-      '--fondo-card':   '#0a2240',
-      '--fondo-card2':  '#0d2a4d',
-      '--texto':        '#e2e8f0',
-      '--texto-muted':  '#7a9bbf',
-      '--azul-claro':   '#4DA8DA',
-      '--azul-borde':   'rgba(77,168,218,.2)',
-      '--azul-oscuro':  '#05244a',
-      '--verde':        '#2ecc71',
-      '--rojo':         '#c0392b',
-      '--blanco':       '#e8edf2',
-      '--gris-claro':   '#8899aa',
-    },
-    claro: {
-      '--fondo':        '#f0f4f8',
-      '--fondo-card':   '#ffffff',
-      '--fondo-card2':  '#e8eef5',
-      '--texto':        '#1a2a3a',
-      '--texto-muted':  '#4a6a8a',
-      '--azul-claro':   '#B22A1A',
-      '--azul-borde':   'rgba(178,42,26,.18)',
-      '--azul-oscuro':  '#ddeaf5',
-      '--verde':        '#1a8a4a',
-      '--rojo':         '#B22A1A',
-      '--blanco':       '#1a2a3a',
-      '--gris-claro':   '#3a5a7a',
-    },
-    'alto-contraste': {
-      '--fondo':        '#000000',
-      '--fondo-card':   '#0a0a0a',
-      '--fondo-card2':  '#111111',
-      '--texto':        '#ffffff',
-      '--texto-muted':  '#cccccc',
-      '--azul-claro':   '#00cfff',
-      '--azul-borde':   'rgba(0,207,255,.4)',
-      '--azul-oscuro':  '#001a22',
-      '--verde':        '#00ff88',
-      '--rojo':         '#ff4444',
-      '--blanco':       '#ffffff',
-      '--gris-claro':   '#aaaaaa',
-    },
-    basecys: {
-      '--fondo':        '#241008',
-      '--fondo-card':   '#34160D',
-      '--fondo-card2':  '#421B10',
-      '--texto':        '#F2DFB8',
-      '--texto-muted':  '#C9A876',
-      '--azul-claro':   '#D9A441',
-      '--azul-borde':   'rgba(217,164,65,.25)',
-      '--azul-oscuro':  '#1A0A06',
-      '--verde':        '#8AB86F',
-      '--rojo':         '#B0392E',
-      '--blanco':       '#F2DFB8',
-      '--gris-claro':   '#B89868',
-    },
-  };
-
-  const vars = temas[tema] || temas.oscuro;
-  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
-
-  document.body.style.background = vars['--fondo'];
-  const hoja = document.getElementById('tema-claro-overrides');
-  if (hoja) hoja.style.display = tema === 'claro' ? '' : 'none';
-}
-
-// ══════════════════════════════════════════
-// APLICAR DENSIDAD
-// ══════════════════════════════════════════
-function aplicarDensidad(densidad) {
-  const root = document.documentElement;
-  const densidades = {
-    compacto: { '--card-padding': '.75rem', '--gap-base': '.4rem',  '--font-base': '.8rem'  },
-    normal:   { '--card-padding': '1.25rem','--gap-base': '.75rem', '--font-base': '.875rem' },
-    relajado: { '--card-padding': '1.75rem','--gap-base': '1.1rem', '--font-base': '.95rem'  },
-  };
-  const vars = densidades[densidad] || densidades.normal;
-  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
-}
-
-// ══════════════════════════════════════════
-// VISTA PREVIA FORMATO
-// ══════════════════════════════════════════
-document.getElementById('formatoFecha').addEventListener('change', actualizarPreview);
-document.getElementById('separadorMiles').addEventListener('change', actualizarPreview);
-
 function actualizarPreview() {
-  const fmt  = document.getElementById('formatoFecha').value;
-  const sep  = document.getElementById('separadorMiles').value;
-  const hoy  = new Date(2026, 4, 13);
-  const d    = String(hoy.getDate()).padStart(2,'0');
-  const m    = String(hoy.getMonth()+1).padStart(2,'0');
-  const mmmm = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][hoy.getMonth()];
-  const y    = hoy.getFullYear();
+  const fmt = document.getElementById('formatoFecha').value;
+  const sep = document.getElementById('separadorMiles').value;
+  const hoy = new Date();
+  const d   = String(hoy.getDate()).padStart(2, '0');
+  const m   = String(hoy.getMonth() + 1).padStart(2, '0');
+  const mmm = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][hoy.getMonth()];
+  const y   = hoy.getFullYear();
 
   const fechas = {
-    'dd/mm/yyyy':   `${d}/${m}/${y}`,
-    'mm/dd/yyyy':   `${m}/${d}/${y}`,
-    'yyyy-mm-dd':   `${y}-${m}-${d}`,
-    'dd-mmm-yyyy':  `${d}-${mmmm}-${y}`,
+    'dd/mm/yyyy':  `${d}/${m}/${y}`,
+    'mm/dd/yyyy':  `${m}/${d}/${y}`,
+    'yyyy-mm-dd':  `${y}-${m}-${d}`,
+    'dd-mmm-yyyy': `${d}-${mmm}-${y}`,
   };
-
   const num = 1250000;
-  let numStr;
-  if (sep === 'punto')   numStr = '$' + num.toLocaleString('es-CO');
-  else if (sep === 'coma')   numStr = '$' + num.toLocaleString('en-US');
-  else numStr = '$' + num.toLocaleString('fr-FR');
+  const numStr = sep === 'punto'  ? '$' + num.toLocaleString('es-CO')
+               : sep === 'coma'   ? '$' + num.toLocaleString('en-US')
+               :                    '$' + num.toLocaleString('fr-FR');
 
   document.getElementById('preview-fecha').textContent  = fechas[fmt] || fechas['dd/mm/yyyy'];
   document.getElementById('preview-numero').textContent = numStr;
-
-  cfgActual.formatoFecha   = fmt;
-  cfgActual.separadorMiles = sep;
 }
 
 // ══════════════════════════════════════════
-// APLICAR CONFIG COMPLETA
-// ══════════════════════════════════════════
-function aplicarConfig() {
-  aplicarTema(cfgActual.tema);
-  aplicarDensidad(cfgActual.densidad);
-
-  if (cfgActual.sidebarAuto) {
-    localStorage.setItem('sidebarOpen', 'true');
-  }
-
-  const widgetStock = document.getElementById('gp-messages-container');
-  if (widgetStock && cfgActual.silencioso) widgetStock.style.display = 'none';
-
-  const widgetRot = document.getElementById('rotacion-chart-wrapper');
-  if (widgetRot) widgetRot.closest('section') &&
-    (widgetRot.closest('section').style.display =
-      cfgActual.widgetRotacion ? '' : 'none');
-}
-
-// ══════════════════════════════════════════
-// GUARDAR
-// ══════════════════════════════════════════
-function guardarConfig() {
-  cfgActual.sidebarAuto    = document.getElementById('toggleSidebarAuto').checked;
-  cfgActual.resumenSidebar = document.getElementById('toggleResumenSidebar').checked;
-  cfgActual.alertaStock    = document.getElementById('toggleAlertaStock').checked;
-  cfgActual.widgetRotacion = document.getElementById('toggleWidgetRotacion').checked;
-  cfgActual.silencioso     = document.getElementById('toggleSilencioso').checked;
-  cfgActual.formatoFecha   = document.getElementById('formatoFecha').value;
-  cfgActual.separadorMiles = document.getElementById('separadorMiles').value;
-
-  localStorage.setItem('cys_config', JSON.stringify(cfgActual));
-
-  const hoja = document.getElementById('tema-claro-overrides');
-  if (hoja) hoja.style.display = cfgActual.tema === 'claro' ? '' : 'none';
-
-  aplicarConfig();
-  mostrarToast();
-}
-
-// ══════════════════════════════════════════
-// RESETEAR
-// ══════════════════════════════════════════
-function resetearConfig() {
-  localStorage.removeItem('cys_config');
-  cfgActual = {
-    tema: 'oscuro', densidad: 'normal',
-    sidebarAuto: false, resumenSidebar: true,
-    formatoFecha: 'dd/mm/yyyy', separadorMiles: 'punto',
-    alertaStock: true, widgetRotacion: true, silencioso: false,
-  };
-  cargarUI();
-  mostrarToast('Configuración restablecida', 'info');
-}
-
-// ══════════════════════════════════════════
-// INFORMACIÓN DE LA EMPRESA
+// LOGO EMPRESA — preview local, se sube junto con "Guardar"
 // ══════════════════════════════════════════
 function previewLogoEmpresa(input) {
   if (!input.files || !input.files[0]) return;
+  logoEmpresaFile = input.files[0];
   const reader = new FileReader();
   reader.onload = function (e) {
     document.getElementById('logoEmpresaPreview').innerHTML =
       `<img src="${e.target.result}" alt="Logo empresa">`;
-    localStorage.setItem('cys_empresa_logo', e.target.result);
   };
-  reader.readAsDataURL(input.files[0]);
-}
-
-function cargarInfoEmpresa() {
-  const guardada = localStorage.getItem('cys_empresa_info');
-  if (guardada) {
-    try {
-      const info = JSON.parse(guardada);
-      document.getElementById('empresaNombre').value    = info.nombre || '';
-      document.getElementById('empresaNit').value       = info.nit || '';
-      document.getElementById('empresaTelefono').value  = info.telefono || '';
-      document.getElementById('empresaCorreo').value    = info.correo || '';
-      document.getElementById('empresaCiudad').value    = info.ciudad || '';
-      document.getElementById('empresaMoneda').value    = info.moneda || 'COP';
-      document.getElementById('empresaDireccion').value = info.direccion || '';
-    } catch(e) {}
-  }
-  const logo = localStorage.getItem('cys_empresa_logo');
-  if (logo) {
-    document.getElementById('logoEmpresaPreview').innerHTML = `<img src="${logo}" alt="Logo empresa">`;
-  }
-}
-
-function guardarInfoEmpresa() {
-  const info = {
-    nombre:    document.getElementById('empresaNombre').value.trim(),
-    nit:       document.getElementById('empresaNit').value.trim(),
-    telefono:  document.getElementById('empresaTelefono').value.trim(),
-    correo:    document.getElementById('empresaCorreo').value.trim(),
-    ciudad:    document.getElementById('empresaCiudad').value.trim(),
-    moneda:    document.getElementById('empresaMoneda').value,
-    direccion: document.getElementById('empresaDireccion').value.trim(),
-  };
-  localStorage.setItem('cys_empresa_info', JSON.stringify(info));
-  mostrarToast('Información de la empresa guardada');
-  // TODO: reemplazar por un fetch/POST al backend (vista Django) cuando exista el endpoint.
+  reader.readAsDataURL(logoEmpresaFile);
 }
 
 // ══════════════════════════════════════════
-// BASE DE DATOS (placeholders — conectar a backend)
+// EMPRESA — POST real a configuracion:guardar_empresa (incluye logo si se cambió)
 // ══════════════════════════════════════════
-function generarRespaldo() {
-  // TODO: reemplazar por fetch('/config/db/respaldo/') que dispare un dumpdata / backup real.
-  const ahora = new Date();
-  document.getElementById('dbUltimoRespaldo').textContent =
-    ahora.toLocaleDateString('es-CO') + ' ' + ahora.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
-  mostrarToast('Respaldo generado');
+async function guardarInfoEmpresa() {
+  const btn = document.getElementById('btnGuardarEmpresa');
+  btn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('nombre_empresa', document.getElementById('empresaNombre').value.trim());
+  fd.append('nit',            document.getElementById('empresaNit').value.trim());
+  fd.append('telefono',       document.getElementById('empresaTelefono').value.trim());
+  fd.append('email',          document.getElementById('empresaEmail').value.trim());
+  fd.append('direccion',      document.getElementById('empresaDireccion').value.trim());
+  if (logoEmpresaFile) {
+    fd.append('logo', logoEmpresaFile);
+  }
+
+  try {
+    const resp = await fetch("{% url 'configuracion:guardar_empresa' %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      body: fd,
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      mostrarToast('Información de la empresa guardada');
+      logoEmpresaFile = null;
+    } else {
+      mostrarToast(data.error || 'No se pudo guardar', 'error');
+    }
+  } catch (e) {
+    mostrarToast('Error de conexión con el servidor', 'error');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
-function restaurarRespaldo() {
-  // TODO: abrir selector de archivo .sql / .json y enviarlo por POST al backend.
-  mostrarToast('Función de restauración pendiente de conectar al backend', 'info');
+// ══════════════════════════════════════════
+// IMPUESTOS — POST real a configuracion:guardar_impuestos
+// ══════════════════════════════════════════
+async function guardarImpuestos() {
+  const btn = document.getElementById('btnGuardarImpuestos');
+  btn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('iva_porcentaje', document.getElementById('ivaPorcentaje').value);
+  fd.append('moneda', document.getElementById('monedaSelect').value);
+
+  const unidadesRaw = document.getElementById('unidadesMedida').value;
+  unidadesRaw.split(',').map(u => u.trim()).filter(Boolean).forEach(u => {
+    fd.append('unidades[]', u);
+  });
+
+  try {
+    const resp = await fetch("{% url 'configuracion:guardar_impuestos' %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      body: fd,
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      mostrarToast('Impuestos guardados');
+    } else {
+      mostrarToast(data.error || 'No se pudo guardar', 'error');
+    }
+  } catch (e) {
+    mostrarToast('Error de conexión con el servidor', 'error');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
-function optimizarBD() {
-  // TODO: disparar VACUUM/ANALYZE (SQLite) o su equivalente vía vista Django.
-  mostrarToast('Optimización solicitada', 'info');
+// ══════════════════════════════════════════
+// BACKUP — POST real a configuracion:crear_backup
+// ══════════════════════════════════════════
+async function generarRespaldo() {
+  const btn = document.getElementById('btnBackup');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Generando...';
+
+  try {
+    const resp = await fetch("{% url 'configuracion:crear_backup' %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+    });
+    const data = await resp.json();
+
+    if (data.ok) {
+      document.getElementById('dbUltimoRespaldo').textContent = data.fecha;
+      mostrarToast('Respaldo generado: ' + data.nombre);
+
+      const lista = document.getElementById('listaBackups');
+      const vacio = lista.querySelector('[data-backup-empty]');
+      if (vacio) vacio.remove();
+
+      const item = document.createElement('div');
+      item.className = 'cfg-backup-item';
+      item.innerHTML = `
+        <div>
+          <div class="cfg-backup-item__nombre">${data.nombre}</div>
+          <div class="cfg-backup-item__meta">${data.fecha} · ${data.tamaño}</div>
+        </div>
+        <i class="bi bi-file-earmark-zip" style="color:var(--azul-claro);"></i>
+      `;
+      lista.prepend(item);
+    } else {
+      mostrarToast(data.error || 'No se pudo generar el respaldo', 'error');
+    }
+  } catch (e) {
+    mostrarToast('Error de conexión con el servidor', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-cloud-arrow-down me-1"></i> Generar respaldo';
+  }
 }
 
 // ══════════════════════════════════════════
@@ -916,18 +807,29 @@ function optimizarBD() {
 function mostrarToast(msg = 'Configuración guardada', tipo = 'ok') {
   const t = document.getElementById('cfg-toast');
   t.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>${msg}`;
-  if (tipo === 'info') {
-    t.style.background = 'rgba(77,168,218,.15)';
+  if (tipo === 'error') {
+    t.style.background  = 'rgba(192,57,43,.15)';
+    t.style.borderColor = 'rgba(192,57,43,.4)';
+    t.style.color       = '#e87070';
+  } else if (tipo === 'info') {
+    t.style.background  = 'rgba(77,168,218,.15)';
     t.style.borderColor = 'rgba(77,168,218,.4)';
-    t.style.color = '#4DA8DA';
+    t.style.color       = '#4DA8DA';
   } else {
-    t.style.background = 'rgba(39,174,96,.15)';
+    t.style.background  = 'rgba(39,174,96,.15)';
     t.style.borderColor = 'rgba(39,174,96,.4)';
-    t.style.color = '#2ecc71';
+    t.style.color       = '#2ecc71';
   }
   t.style.display = 'block';
   setTimeout(() => t.style.display = 'none', 2800);
 }
 
+// Toast corto y silencioso para autoguardado de preferencias (evita spam si se togglean varias seguidas)
+function mostrarToastPreferencia() {
+  clearTimeout(toastPrefTimeout);
+  toastPrefTimeout = setTimeout(() => {
+    mostrarToast('Preferencia guardada', 'info');
+  }, 250);
+}
 </script>
 {% endblock %}

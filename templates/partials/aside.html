@@ -180,41 +180,43 @@
       </nav>
     </div>
 
-    <hr class="cys-sb-divider">
+    <div id="cys-sb-resumen-wrap">
+      <hr class="cys-sb-divider">
 
-    <div class="cys-sb-section">
-      <div class="cys-sb-label">Resumen</div>
-      <div class="cys-sb-stats">
+      <div class="cys-sb-section">
+        <div class="cys-sb-label">Resumen</div>
+        <div class="cys-sb-stats">
 
-        <div class="cys-sb-stat">
-          <div class="cys-sb-stat__dot cys-sb-stat__dot--verde"></div>
-          <div class="cys-sb-stat__body">
-            <div class="cys-sb-stat__label">Total en stock</div>
-            <div class="cys-sb-stat__val">{{ sb_total_stock|default:"0" }}</div>
-            <div class="cys-sb-stat__sub">unidades disponibles</div>
-          </div>
-        </div>
-
-        <div class="cys-sb-stat">
-          <div class="cys-sb-stat__dot cys-sb-stat__dot--rojo"></div>
-          <div class="cys-sb-stat__body">
-            <div class="cys-sb-stat__label">Stock crítico</div>
-            <div class="cys-sb-stat__val">{{ sb_stock_criticos|default:"0" }}</div>
-            <div class="cys-sb-stat__sub">
-              producto{{ sb_stock_criticos|pluralize }} por reponer
+          <div class="cys-sb-stat">
+            <div class="cys-sb-stat__dot cys-sb-stat__dot--verde"></div>
+            <div class="cys-sb-stat__body">
+              <div class="cys-sb-stat__label">Total en stock</div>
+              <div class="cys-sb-stat__val">{{ sb_total_stock|default:"0" }}</div>
+              <div class="cys-sb-stat__sub">unidades disponibles</div>
             </div>
           </div>
-        </div>
 
-        <div class="cys-sb-stat">
-          <div class="cys-sb-stat__dot cys-sb-stat__dot--amarillo"></div>
-          <div class="cys-sb-stat__body">
-            <div class="cys-sb-stat__label">Categorías</div>
-            <div class="cys-sb-stat__val">{{ sb_total_cats|default:"0" }}</div>
-            <div class="cys-sb-stat__sub">activas</div>
+          <div class="cys-sb-stat">
+            <div class="cys-sb-stat__dot cys-sb-stat__dot--rojo"></div>
+            <div class="cys-sb-stat__body">
+              <div class="cys-sb-stat__label">Stock crítico</div>
+              <div class="cys-sb-stat__val">{{ sb_stock_criticos|default:"0" }}</div>
+              <div class="cys-sb-stat__sub">
+                producto{{ sb_stock_criticos|pluralize }} por reponer
+              </div>
+            </div>
           </div>
-        </div>
 
+          <div class="cys-sb-stat">
+            <div class="cys-sb-stat__dot cys-sb-stat__dot--amarillo"></div>
+            <div class="cys-sb-stat__body">
+              <div class="cys-sb-stat__label">Categorías</div>
+              <div class="cys-sb-stat__val">{{ sb_total_cats|default:"0" }}</div>
+              <div class="cys-sb-stat__sub">activas</div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
 
@@ -237,6 +239,20 @@
 
 <script>
 (function () {
+
+  // ══════════════════════════════════════════
+  // PREFERENCIAS DE BARRA LATERAL (definidas en Configuración)
+  // Lee el mismo localStorage.cys_config que usa configuracion.html
+  // ══════════════════════════════════════════
+  let cysSidebarCfg = {};
+  try { cysSidebarCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
+
+  // 1) Mostrar/ocultar sección Resumen
+  const resumenWrap = document.getElementById('cys-sb-resumen-wrap');
+  if (resumenWrap && cysSidebarCfg.resumenSidebar === false) {
+    resumenWrap.style.display = 'none';
+  }
+
 
   window.toggleSubmenu = function (e, btn, id) {
     e.stopPropagation();
