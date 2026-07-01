@@ -215,6 +215,37 @@
       </div>
     </div>
 
+    <!-- Tarjeta Devoluciones -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="cys-card cys-card--interactive cys-card--devoluciones h-100"
+           data-bs-toggle="modal" data-bs-target="#modalDevoluciones">
+        <div class="cys-report-card-layout">
+          <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--devoluciones">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="cys-report-card__title">Devoluciones</div>
+            <div class="cys-report-card__desc">Control de devoluciones y reembolsos</div>
+            <div class="cys-report-card__stats-grid">
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-warning">${{ total_devoluciones|floatformat:0|default:"0" }}</span>
+                <span class="cys-report-card__stat-label">Valor</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-danger">{{ cantidad_devoluciones|default:"0" }}</span>
+                <span class="cys-report-card__stat-label">Cantidad</span>
+              </div>
+              <div class="cys-report-card__stat-item">
+                <span class="cys-report-card__stat-num text-info">{{ tasa_devolucion|default:"0%" }}</span>
+                <span class="cys-report-card__stat-label">Tasa</span>
+              </div>
+            </div>
+            <span class="cys-report-card__link-text--devoluciones">Ver reporte →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="cys-snap-section">
@@ -1309,6 +1340,145 @@
   </div>
 </div>
 
+
+<!-- ═══════════════════════════════════════════
+     MODAL — DEVOLUCIONES
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalDevoluciones" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content cys-modal">
+
+      <!-- HEADER -->
+      <div class="modal-header cys-modal__header">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon cys-modal__icon--inv">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Devoluciones</div>
+            <div class="cys-modal__subtitle">CYS Ltda · Control de devoluciones y reembolsos</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="cys-modal__stats cys-modal__stats--4col">
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--azul">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--azul">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </div>
+          <div class="cys-modal-kpi-v2__label">DEVOLUCIONES</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--azul">{{ cantidad_devoluciones|default:"0" }}</div>
+          <div class="cys-modal-kpi-v2__sub">Total registradas</div>
+        </div>
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--verde">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--verde">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <div class="cys-modal-kpi-v2__label">VALOR DEVUELTO</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--verde">${{ total_devoluciones|floatformat:0|default:"0" }}</div>
+          <div class="cys-modal-kpi-v2__sub">Monto total</div>
+        </div>
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--celeste">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--celeste">
+            <i class="bi bi-percent"></i>
+          </div>
+          <div class="cys-modal-kpi-v2__label">TASA DEVOLUCIÓN</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--celeste">{{ tasa_devolucion|default:"0%" }}</div>
+          <div class="cys-modal-kpi-v2__sub">Sobre ventas totales</div>
+        </div>
+
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--verde">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--verde">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="cys-modal-kpi-v2__label">APROBADAS</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--verde">{{ devoluciones_aprobadas|default:"0" }}</div>
+          <div class="cys-modal-kpi-v2__sub">Reembolsos confirmados</div>
+        </div>
+
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body p-0 cys-modal__body">
+
+        <div class="cys-modal-section">
+          <div class="cys-modal-section__header">
+            <span class="cys-modal-section__label">
+              ÚLTIMAS DEVOLUCIONES
+            </span>
+            <div class="cys-search-box">
+              <input type="text" id="buscar-devoluciones" placeholder="Buscar devolución..."
+                class="cys-search-box__input"
+                oninput="filtrarTablaDevoluciones(this.value)">
+              <i class="bi bi-search cys-search-box__icon"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive cys-modal-table-wrap--bottom">
+          <table class="cys-inv-table" id="tabla-modal-devoluciones">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>CLIENTE</th>
+                <th>PRODUCTO</th>
+                <th>MOTIVO</th>
+                <th>VALOR</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dev in devoluciones %}
+              <tr class="cys-tr dev-row">
+                <td class="cys-td" data-label="Fecha">{{ dev.fecha|date:"d/m/Y" }}</td>
+                <td class="cys-td cys-td--bold" data-label="Cliente">{{ dev.cliente }}</td>
+                <td class="cys-td" data-label="Producto">{{ dev.producto }}</td>
+                <td class="cys-td cys-td--muted" data-label="Motivo">{{ dev.motivo }}</td>
+                <td class="cys-qty cys-qty--out" data-label="Valor">${{ dev.valor|floatformat:0 }}</td>
+                <td data-label="Estado">
+                  {% if dev.estado == "Aprobada" %}
+                    <span class="cys-badge cys-badge--verde">Aprobada</span>
+                  {% elif dev.estado == "En revisión" %}
+                    <span class="cys-badge cys-badge--amarillo">En revisión</span>
+                  {% else %}
+                    <span class="cys-badge cys-badge--rojo">Rechazada</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-arrow-counterclockwise"></i>No hay devoluciones registradas.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer cys-modal__footer">
+        <div class="me-auto cys-modal__footer-actions">
+          <a href="?export=excel&tipo=devoluciones" class="cys-btn-export cys-btn-export--excel" download="reporte_devoluciones.xlsx" target="_blank" title="Exportar Excel">
+            <i class="bi bi-file-earmark-excel"></i>
+          </a>
+          <a href="?export=pdf&tipo=devoluciones" class="cys-btn-export cys-btn-export--pdf" download="reporte_devoluciones.pdf" target="_blank" title="Exportar PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
+          </a>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 </div><!-- /container-fluid -->
 
 {% endblock %}
@@ -1403,6 +1573,16 @@ function avSetTab(tab) {
             panel.classList.add('cys-av-panel--hidden');
             btn.classList.remove('active');
         }
+    });
+}
+
+/* ── Búsqueda devoluciones ── */
+function filtrarTablaDevoluciones(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#tabla-modal-devoluciones .dev-row').forEach(function(row) {
+        const cliente  = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const producto = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        row.style.display = (cliente.includes(q) || producto.includes(q)) ? '' : 'none';
     });
 }
 </script>
