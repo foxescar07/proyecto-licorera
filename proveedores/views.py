@@ -1,5 +1,6 @@
 # proveedores/views.py
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -515,18 +516,11 @@ def crear_orden(request):
 
 @login_required
 def detalle_orden(request, pk):
-    """Mostrar detalle de una orden con sus detalles."""
-    orden = get_object_or_404(OrdenCompra, pk=pk)
-    detalles = orden.detalles.all()
-    form_detalle = DetalleCompraForm()
-
-    context = {
-        'orden': orden,
-        'detalles': detalles,
-        'form_detalle': form_detalle,
-    }
-
-    return render(request, 'proveedores/detalle_orden.html', context)
+    """Redirigir al listado de órdenes con el modal abierto."""
+    # Verificar que la orden existe
+    get_object_or_404(OrdenCompra, pk=pk)
+    # Redirigir al listado con parámetro para abrir el modal
+    return redirect(f'{reverse("listar_ordenes")}?mostrar_orden={pk}')
 
 
 @login_required
