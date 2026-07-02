@@ -438,25 +438,9 @@
 
             <!-- FOOTER CON ACCIONES -->
             <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem 2rem !important;">
-                <div style="display: flex; gap: 10px; width: 100%; justify-content: space-between;">
-                    <!-- Botones de acciones (izquierda) -->
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalNotas"
-                                style="background: #9b5de5 !important; border: none !important; color: #fff !important; font-weight: 600 !important;"
-                                title="Agregar notas internas">
-                            <i class="bi bi-sticky"></i> Notas
-                        </button>
-                        <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalHistorial"
-                                style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 600 !important;"
-                                title="Ver historial de cambios">
-                            <i class="bi bi-clock-history"></i> Historial
-                        </button>
-                    </div>
-                    <!-- Botón cerrar (derecha) -->
-                    <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
-                        <i class="bi bi-x-circle"></i> Cerrar
-                    </a>
-                </div>
+                <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+                    <i class="bi bi-x-circle"></i> Cerrar
+                </a>
             </div>
         </div>
     </div>
