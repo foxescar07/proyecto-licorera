@@ -55,6 +55,9 @@ def lista_productos(request):
         'resumen_categorias': resumen_categorias,
         'form': form,
         'total_criticos': total_criticos,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': None},
+        ],
     }
 
     return render(request, 'productos/productos.html', context)
@@ -112,6 +115,10 @@ def producto_detalle(request, pk):
     context = {
         'producto': producto,
         'movimientos': movimientos,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': reverse('lista_productos')},
+            {'nombre': producto.nombre, 'url': None},
+        ],
     }
 
     return render(request, 'productos/productos.html', context)
@@ -323,6 +330,10 @@ def producto_registro(request):
             messages.success(request, '✅ Producto registrado correctamente.')
     context = {
         'form': form,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': reverse('lista_productos')},
+            {'nombre': 'Registrar Producto', 'url': None},
+        ],
     }
 
     return render(request, 'productos/productos.html', context)
@@ -422,6 +433,10 @@ def categorias_lista(request):
     context = {
         'categorias': categorias,
         'todas_cats': todas_cats,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': reverse('lista_productos')},
+            {'nombre': 'Categorías', 'url': None},
+        ],
     }
     return render(request, 'productos/categorias.html', context)
 
@@ -513,6 +528,9 @@ def gestion_productos(request):
         'productos':      productos,
         'lotes':          [],
         'total_criticos': total_criticos,
+        'breadcrumb_items': [
+            {'nombre': 'Gestión de Productos', 'url': None},
+        ],
     }
     return render(request, 'productos/gestion_productos.html', context)
 

@@ -58,6 +58,9 @@ def lista_proveedores(request):
         'proveedores_inactivos': proveedores_inactivos,
         'proveedores_sancionados': proveedores_sancionados,
         'porcentaje_activos': porcentaje_activos,
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': None},
+        ],
     }
 
     return render(request, 'proveedores/proveedores.html', context)
@@ -99,6 +102,10 @@ def editar_proveedor(request, id):
     context = {
         'form': form,
         'proveedor': proveedor,
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+            {'nombre': f'Editar: {proveedor.nombre_empresa}', 'url': None},
+        ],
     }
 
     return render(request, 'proveedores/editar_proveedor.html', context)
@@ -117,7 +124,12 @@ def eliminar_proveedor(request, id):
 def detalle_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
     context = {
-        'proveedor': proveedor
+        'proveedor': proveedor,
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+            {'nombre': proveedor.nombre_empresa, 'url': None},
+        ],
+        
     }
     return render(request, 'proveedores/detalle_proveedor.html', context)
 
@@ -164,7 +176,12 @@ def sancionar_proveedor(request, id):
 
 @login_required
 def lista_compras(request):
-    context = {}
+    context = {
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+            {'nombre': 'Compras', 'url': None},
+        ],
+    }
     return render(request, 'proveedores/compras.html', context)
 
 @login_required
@@ -377,7 +394,12 @@ def registrar_compra(request):
         'productos_data_json': json.dumps(productos_data),      # Cantidad comprada por producto
         'gastos_labels_json': json.dumps(gastos_labels),        # Top 5 proveedores
         'gastos_data_json': json.dumps(gastos_data),            # Monto gasto por proveedor
-        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),  # Porcentaje de gasto
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes), # Porcentaje de gasto
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+            {'nombre': 'Registrar Compra', 'url': None},
+        ],
+
     }
 
     return render(request, 'proveedores/compras.html', context)
@@ -443,6 +465,10 @@ def listar_ordenes(request):
         'form': form,
         'form_detalle': form_detalle,
         'orden_detalle': orden_detalle,
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+            {'nombre': 'Órdenes de Compra', 'url': None},
+        ],
     }
 
     return render(request, 'proveedores/orden_compra.html', context)
@@ -509,7 +535,12 @@ def crear_orden(request):
 
     context = {
         'form': form,
-        'form_detalle': form_detalle
+        'form_detalle': form_detalle,   
+        'breadcrumb_items': [
+            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+            {'nombre': 'Órdenes de Compra', 'url': reverse('listar_ordenes')},
+            {'nombre': 'Nueva Orden', 'url': None},
+        ],
     }
     return render(request, 'proveedores/nueva_orden.html', context)
 

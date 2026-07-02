@@ -10,6 +10,7 @@ import json
 import zoneinfo
 import csv
 from django.core.serializers.json import DjangoJSONEncoder
+from django.urls import reverse
 
 # ReportLab
 from reportlab.lib.pagesizes import letter, landscape # type: ignore
@@ -728,6 +729,9 @@ def index_reportes(request):
         'total_salidas_hoy':  total_salidas_hoy,
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
+        'breadcrumb_items': [
+            {'nombre': 'Reportes', 'url': None},
+        ],
     }
     return render(request, 'reportes/reportes.html', context)
 
@@ -758,5 +762,9 @@ def reporte_movimientos(request):
     context = {
         'form':        form,
         'movimientos': page_obj,
+        'breadcrumb_items': [
+            {'nombre': 'Reportes', 'url': reverse('index_reportes')},
+            {'nombre': 'Movimientos', 'url': None},
+        ],
     }
     return render(request, 'reportes/reporte_movimientos.html', context)

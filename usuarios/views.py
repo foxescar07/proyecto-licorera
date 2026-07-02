@@ -167,6 +167,9 @@ def lista_usuarios(request):
         'total_usuarios':    usuarios.count(),
         'tipo_id_choices':   Usuario.TIPO_ID_CHOICES,
         'rol_choices':       Usuario.ROL_CHOICES,
+        'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': None},
+        ],
     }
     return render(request, 'usuarios_lista.html', ctx)
 
@@ -185,6 +188,10 @@ def crear_usuario(request):
                 'form':           form,
                 'usuario_creado': True,
                 'nuevo_usuario':  usuario.usuario,
+                'breadcrumb_items': [
+                    {'nombre': 'Usuarios', 'url': reverse('usuario')},  # ← confirma este nombre
+                    {'nombre': 'Crear Usuario', 'url': None},
+                ],
             }
             return render(request, 'crear_usuario.html', ctx)
         else:
@@ -195,6 +202,10 @@ def crear_usuario(request):
     ctx = {
         **_ctx_base(request),
         'form': form,
+        'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': reverse('usuario')},
+            {'nombre': 'Crear Usuario', 'url': None},
+        ],
     }
     return render(request, 'crear_usuario.html', ctx)
 
@@ -353,7 +364,14 @@ def editar_usuario(request, pk):
             if es_ajax:
                 return JsonResponse({'ok': False, 'error': error})
             messages.error(request, error)
-            return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
+            return render(request, 'editar_usuario.html', {
+        **_ctx_base(request),
+        'perfil': usuario,
+        'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': reverse('usuario')},  # ← confirma este nombre
+            {'nombre': f'Editar: {usuario.first_name}', 'url': None},
+        ],
+    })
 
         usuario.first_name = nombre
         usuario.last_name  = apellidos
@@ -376,7 +394,15 @@ def editar_usuario(request, pk):
         messages.success(request, f'Usuario {usuario.username} actualizado correctamente.')
         return redirect('usuario')
 
-    return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
+    return render(request, 'editar_usuario.html', {
+        **_ctx_base(request), 
+        
+            'perfil': usuario,
+            'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': reverse('usuario')},  # ← confirma este nombre
+            {'nombre': f'Editar: {usuario.first_name}', 'url': None},
+        ],
+    })
 
 
 # ── PERFIL DATOS (JSON) ────────────────────────────────────────────────────────
@@ -683,6 +709,9 @@ def perfil_pagina(request):
         'tiene_foto':     bool(u.foto),
         'foto_url':       u.foto.url if u.foto else None,
         'avatar_name':    u.avatar_name,
+        'breadcrumb_items': [
+            {'nombre': 'Mi Perfil', 'url': None},
+        ],
     }
     return render(request, 'perfil.html', ctx)
 
