@@ -1,624 +1,665 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
-{% block title %}Configuración — CYS Ltda{% endblock %}
-{% block page_title %}Configuración{% endblock %}
-{% block nav_inventario %}active{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/configuracion/configuracion.css' %}">
-{% endblock %}
+{% block page_title %}Configuración{% endblock %}
+{% block title %}Configuración — CYS Ltda{% endblock %}
 
 {% block content %}
+<style>
+  .cfg-section {
+    background: var(--fondo-card);
+    border: 1px solid var(--azul-borde);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .cfg-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--texto-muted);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .cfg-title i { color: var(--azul-claro); font-size: .9rem; }
 
-<!-- ══════════════════════════════════════════════
-     CONTROLES GLOBALES: Brillo + Tamaño de letra
-     ══════════════════════════════════════════════ -->
-<div class="cfg-global-controls">
+  /* OPCIONES DE TARJETA */
+  .cfg-options { display: flex; gap: .75rem; flex-wrap: wrap; }
+  .cfg-opt {
+    flex: 1; min-width: 100px;
+    border: 1.5px solid var(--azul-borde);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all .2s;
+    background: var(--fondo-card2);
+    color: var(--texto-muted);
+    font-size: .8rem;
+    font-weight: 500;
+    user-select: none;
+  }
+  .cfg-opt:hover { border-color: var(--azul-claro); color: var(--texto); }
+  .cfg-opt.activo {
+    border-color: var(--azul-claro);
+    background: rgba(77,168,218,.12);
+    color: var(--azul-claro);
+    font-weight: 600;
+  }
+  .cfg-opt i { display: block; font-size: 1.4rem; margin-bottom: .4rem; }
 
-  <!-- Brillo -->
-  <div class="cfg-ctrl-group">
-    <span class="cfg-ctrl-label">
-      <i class="bi bi-brightness-high-fill"></i> Brillo
-    </span>
-    <input
-      type="range"
-      class="cfg-slider"
-      id="sliderBrillo"
-      min="50" max="120" step="1" value="100"
-      aria-label="Brillo de la página"
-    >
-    <span class="cfg-slider-val" id="valBrillo">100%</span>
+  /* PREVIEW TEMA */
+  .tema-preview {
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+    margin-bottom: .5rem;
+    border: 2px solid transparent;
+    transition: border-color .2s;
+  }
+
+  /* SLIDER */
+  .cfg-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--azul-borde);
+    outline: none;
+    margin: .75rem 0;
+  }
+  .cfg-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--azul-claro);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(77,168,218,.4);
+  }
+
+  /* TOGGLE SWITCH */
+  .cfg-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .65rem 0;
+    border-bottom: 1px solid rgba(77,168,218,.08);
+  }
+  .cfg-toggle-row:last-child { border-bottom: none; }
+  .cfg-toggle-label {
+    font-size: .85rem;
+    color: var(--texto);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .cfg-toggle-label span { font-size: .72rem; color: var(--texto-muted); display: block; }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 42px; height: 24px;
+    flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider-sw {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--azul-borde);
+    border-radius: 24px;
+    transition: .3s;
+  }
+  .slider-sw:before {
+    content: '';
+    position: absolute;
+    height: 18px; width: 18px;
+    left: 3px; bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: .3s;
+  }
+  input:checked + .slider-sw { background: var(--azul-claro); }
+  input:checked + .slider-sw:before { transform: translateX(18px); }
+
+  /* FORMATO */
+  .cfg-select {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    color: var(--texto);
+    border-radius: 10px;
+    padding: .55rem .9rem;
+    font-size: .85rem;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    margin-top: .4rem;
+    transition: border-color .2s;
+  }
+  .cfg-select:focus { border-color: var(--azul-claro); }
+
+  /* BOTÓN GUARDAR */
+  .cfg-save-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--fondo-card);
+    border-top: 1px solid var(--azul-borde);
+    padding: 1rem 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-top: 1.5rem;
+  }
+
+  /* TOAST */
+  #cfg-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: rgba(39,174,96,.15);
+    border: 1px solid rgba(39,174,96,.4);
+    color: #2ecc71;
+    border-radius: 10px;
+    padding: .75rem 1.25rem;
+    font-size: .85rem;
+    font-weight: 500;
+    display: none;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: slideIn .3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+</style>
+
+<div class="container-fluid p-0" style="max-width: 760px;">
+
+  <!-- ENCABEZADO -->
+  <div class="cys-card mb-4" style="display:flex; align-items:center; gap:1rem;">
+    <div style="width:44px; height:44px; border-radius:12px; flex-shrink:0;
+                background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
+                display:flex; align-items:center; justify-content:center;
+                color:var(--azul-claro); font-size:1.3rem;">
+      <i class="bi bi-sliders"></i>
+    </div>
+    <div>
+      <div class="cys-card__title mb-0">Configuración</div>
+      <div style="font-size:.78rem; color:var(--texto-muted); margin-top:.1rem;">
+        Personaliza la apariencia y el comportamiento del sistema. Los cambios se guardan localmente.
+      </div>
+    </div>
   </div>
 
-  <div class="cfg-divider"></div>
+  <!-- ① TEMA -->
+  <div class="cfg-section">
+    <div class="cfg-title"><i class="bi bi-palette-fill"></i> Tema y apariencia</div>
+    <div class="cfg-options" id="opcionesTema">
 
-  <!-- Tamaño de letra -->
-  <div class="cfg-ctrl-group">
-    <span class="cfg-ctrl-label">
-      <i class="bi bi-type"></i> Texto
-    </span>
-    <input
-      type="range"
-      class="cfg-slider"
-      id="sliderTexto"
-      min="12" max="20" step="1" value="16"
-      aria-label="Tamaño de letra"
-    >
-    <span class="cfg-slider-val" id="valTexto">16px</span>
+      <div class="cfg-opt" data-tema="oscuro" onclick="seleccionarTema('oscuro', this)">
+        <div class="tema-preview" style="background:linear-gradient(135deg,#011936,#0a2240);"></div>
+        <i class="bi bi-moon-stars-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        Oscuro
+      </div>
+
+      <div class="cfg-opt" data-tema="claro" onclick="seleccionarTema('claro', this)">
+        <div class="tema-preview" style="background:linear-gradient(135deg,#f0f4f8,#dde8f0);"></div>
+        <i class="bi bi-sun-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        Claro
+      </div>
+
+      <div class="cfg-opt" data-tema="alto-contraste" onclick="seleccionarTema('alto-contraste', this)">
+        <div class="tema-preview" style="background:linear-gradient(135deg,#000,#1a1a1a); border:2px solid #fff;"></div>
+        <i class="bi bi-circle-half" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        Alto contraste
+      </div>
+
+      <div class="cfg-opt" data-tema="sepia" onclick="seleccionarTema('sepia', this)">
+        <div class="tema-preview" style="background:linear-gradient(135deg,#2c1f0e,#3d2b14);"></div>
+        <i class="bi bi-eyeglasses" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        Sepia
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ② DENSIDAD -->
+  <div class="cfg-section">
+    <div class="cfg-title"><i class="bi bi-layout-three-columns"></i> Densidad de interfaz</div>
+    <div class="cfg-options" id="opcionesDensidad">
+
+      <div class="cfg-opt" data-densidad="compacto" onclick="seleccionarDensidad('compacto', this)">
+        <i class="bi bi-view-list"></i>
+        Compacto
+        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más info, menos espacio</div>
+      </div>
+
+      <div class="cfg-opt" data-densidad="normal" onclick="seleccionarDensidad('normal', this)">
+        <i class="bi bi-grid"></i>
+        Normal
+        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Balance por defecto</div>
+      </div>
+
+      <div class="cfg-opt" data-densidad="relajado" onclick="seleccionarDensidad('relajado', this)">
+        <i class="bi bi-layout-wtf"></i>
+        Relajado
+        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más espacio, más legible</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ③ BARRA LATERAL -->
+  <div class="cfg-section">
+    <div class="cfg-title"><i class="bi bi-layout-sidebar-reverse"></i> Barra lateral</div>
+
+    <div class="cfg-toggle-row">
+      <div class="cfg-toggle-label">
+        <i class="bi bi-pin-angle" style="color:var(--azul-claro);"></i>
+        <div>
+          Abrir automáticamente al entrar
+          <span>La barra lateral se abre al cargar cualquier página</span>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleSidebarAuto">
+        <span class="slider-sw"></span>
+      </label>
+    </div>
+
+    <div class="cfg-toggle-row">
+      <div class="cfg-toggle-label">
+        <i class="bi bi-bar-chart-steps" style="color:var(--azul-claro);"></i>
+        <div>
+          Mostrar sección Resumen
+          <span>Stock total, crítico y categorías en el sidebar</span>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleResumenSidebar" checked>
+        <span class="slider-sw"></span>
+      </label>
+    </div>
+
+  </div>
+
+  <!-- ④ FORMATO DE FECHAS Y NÚMEROS -->
+  <div class="cfg-section">
+    <div class="cfg-title"><i class="bi bi-calendar-date"></i> Fechas y números</div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label style="font-size:.68rem; font-weight:600; color:var(--texto-muted);
+                      text-transform:uppercase; letter-spacing:.08em;">Formato de fecha</label>
+        <select class="cfg-select" id="formatoFecha">
+          <option value="dd/mm/yyyy">DD/MM/AAAA — ej: 13/05/2026</option>
+          <option value="mm/dd/yyyy">MM/DD/AAAA — ej: 05/13/2026</option>
+          <option value="yyyy-mm-dd">AAAA-MM-DD — ej: 2026-05-13</option>
+          <option value="dd-mmm-yyyy">DD-MMM-AAAA — ej: 13-May-2026</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label style="font-size:.68rem; font-weight:600; color:var(--texto-muted);
+                      text-transform:uppercase; letter-spacing:.08em;">Separador de miles</label>
+        <select class="cfg-select" id="separadorMiles">
+          <option value="punto">Punto — ej: $1.250.000</option>
+          <option value="coma">Coma — ej: $1,250,000</option>
+          <option value="espacio">Espacio — ej: $1 250 000</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <div style="background:var(--fondo-card2); border-radius:8px; padding:.6rem .9rem;
+                    font-size:.8rem; color:var(--texto-muted); margin-top:.25rem;">
+          <i class="bi bi-eye me-1" style="color:var(--azul-claro);"></i>
+          Vista previa: <strong id="preview-fecha" style="color:var(--texto);">13/05/2026</strong>
+          &nbsp;|&nbsp;
+          <strong id="preview-numero" style="color:var(--texto);">$1.250.000</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ NOTIFICACIONES -->
+  <div class="cfg-section">
+    <div class="cfg-title"><i class="bi bi-bell-fill"></i> Notificaciones y alertas</div>
+
+    <div class="cfg-toggle-row">
+      <div class="cfg-toggle-label">
+        <i class="bi bi-exclamation-triangle-fill" style="color:#e87070;"></i>
+        <div>
+          Alertas de stock crítico
+          <span>Muestra el banner rojo cuando hay productos en 0 o bajo mínimo</span>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleAlertaStock" checked>
+        <span class="slider-sw"></span>
+      </label>
+    </div>
+
+    <div class="cfg-toggle-row">
+      <div class="cfg-toggle-label">
+        <i class="bi bi-bar-chart-fill" style="color:var(--azul-claro);"></i>
+        <div>
+          Widget de estadísticas en productos
+          <span>Muestra la sección de rotación y producto estrella</span>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleWidgetRotacion" checked>
+        <span class="slider-sw"></span>
+      </label>
+    </div>
+
+    <div class="cfg-toggle-row">
+      <div class="cfg-toggle-label">
+        <i class="bi bi-bell-slash" style="color:var(--texto-muted);"></i>
+        <div>
+          Modo silencioso
+          <span>Oculta todas las alertas visuales del sistema</span>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleSilencioso">
+        <span class="slider-sw"></span>
+      </label>
+    </div>
+
+  </div>
+
+  <!-- BARRA GUARDAR -->
+  <div class="cfg-save-bar">
+    <button onclick="resetearConfig()" class="cys-btn cys-btn--outline">
+      <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer
+    </button>
+    <button onclick="guardarConfig()" class="cys-btn cys-btn--primary">
+      <i class="bi bi-check-lg me-1"></i> Guardar cambios
+    </button>
   </div>
 
 </div>
 
-
-<!-- ══════════════════════════════════════════════
-     TARJETAS VERTICALES
-     ══════════════════════════════════════════════ -->
-<div class="cfg-cards-col">
-
-  <!-- 1. Apariencia -->
-  <div class="cfg-card" data-bs-toggle="modal" data-bs-target="#modalApariencia" role="button" tabindex="0" aria-label="Abrir configuración de apariencia">
-    <div class="cfg-card-icon">
-      <i class="bi bi-palette2"></i>
-    </div>
-    <div class="cfg-card-body">
-      <div class="cfg-card-title">Apariencia</div>
-      <div class="cfg-card-desc">Tema de colores, modo oscuro y preferencias visuales del sistema.</div>
-      <span class="cfg-card-badge" id="badgeTema">Azul Marino</span>
-    </div>
-    <i class="bi bi-chevron-right cfg-card-arrow"></i>
-  </div>
-
-  <!-- 2. Empresa -->
-  <div class="cfg-card" data-bs-toggle="modal" data-bs-target="#modalEmpresa" role="button" tabindex="0" aria-label="Abrir configuración de empresa">
-    <div class="cfg-card-icon">
-      <i class="bi bi-building"></i>
-    </div>
-    <div class="cfg-card-body">
-      <div class="cfg-card-title">Empresa</div>
-      <div class="cfg-card-desc">Nombre, NIT, dirección y datos de contacto de CYS Ltda.</div>
-      <span class="cfg-card-badge">{{ config.nombre_empresa|default:"CYS Ltda" }}</span>
-    </div>
-    <i class="bi bi-chevron-right cfg-card-arrow"></i>
-  </div>
-
-  <!-- 3. Impuestos y moneda -->
-  <div class="cfg-card" data-bs-toggle="modal" data-bs-target="#modalImpuestos" role="button" tabindex="0" aria-label="Abrir configuración de impuestos">
-    <div class="cfg-card-icon">
-      <i class="bi bi-percent"></i>
-    </div>
-    <div class="cfg-card-body">
-      <div class="cfg-card-title">Impuestos y Moneda</div>
-      <div class="cfg-card-desc">IVA por defecto, moneda de operación y unidades de medida.</div>
-      <span class="cfg-card-badge">IVA {{ config.iva_porcentaje|default:"19" }}% · COP</span>
-    </div>
-    <i class="bi bi-chevron-right cfg-card-arrow"></i>
-  </div>
-
-  <!-- 4. Base de datos -->
-  <div class="cfg-card" data-bs-toggle="modal" data-bs-target="#modalBaseDatos" role="button" tabindex="0" aria-label="Abrir configuración de base de datos">
-    <div class="cfg-card-icon">
-      <i class="bi bi-server"></i>
-    </div>
-    <div class="cfg-card-body">
-      <div class="cfg-card-title">Base de Datos</div>
-      <div class="cfg-card-desc">Estado del motor, estadísticas y gestión de respaldos automáticos.</div>
-      <span class="cfg-card-badge" id="badgeBD">{{ db_stats.tamaño|default:"Calculando…" }}</span>
-    </div>
-    <i class="bi bi-chevron-right cfg-card-arrow"></i>
-  </div>
-
-</div><!-- /.cfg-cards-col -->
-
-
-<!-- ══════════════════════════════════════════════
-     MODAL 1 — APARIENCIA
-     ══════════════════════════════════════════════ -->
-<div class="modal fade cfg-modal" id="modalApariencia" tabindex="-1" aria-labelledby="lblApariencia" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="lblApariencia">
-          <i class="bi bi-palette2"></i> Apariencia
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body">
-
-        <!-- Tema de color -->
-        <label class="form-label">Tema de color</label>
-        <div class="cfg-theme-swatches" id="swatches">
-          <div class="cfg-swatch active" data-tema="Azul Marino"    style="background:linear-gradient(135deg,#0d1b2a,#2e5c8a)"></div>
-          <div class="cfg-swatch"        data-tema="Verde Esmeralda" style="background:linear-gradient(135deg,#0d2a1b,#2a8a5c)"></div>
-          <div class="cfg-swatch"        data-tema="Violeta"         style="background:linear-gradient(135deg,#1a0d2a,#5c2e8a)"></div>
-          <div class="cfg-swatch"        data-tema="Rojo Oscuro"     style="background:linear-gradient(135deg,#2a0d0d,#8a2e2e)"></div>
-          <div class="cfg-swatch"        data-tema="Gris Carbón"     style="background:linear-gradient(135deg,#1a1a1a,#444)"></div>
-          <div class="cfg-swatch"        data-tema="Cobre"           style="background:linear-gradient(135deg,#2a1a0d,#8a5c2e)"></div>
-        </div>
-
-        <!-- Modo oscuro -->
-        <div class="mt-3 d-flex align-items-center justify-content-between">
-          <label class="form-label mb-0" for="switchModoOscuro">Modo oscuro</label>
-          <div class="form-check form-switch mb-0">
-            <input class="form-check-input" type="checkbox" id="switchModoOscuro" checked>
-          </div>
-        </div>
-
-        <!-- Idioma -->
-        <div class="mt-3">
-          <label class="form-label" for="selIdioma">Idioma de la interfaz</label>
-          <select class="form-select" id="selIdioma">
-            <option value="es" selected>Español (Colombia)</option>
-            <option value="en">English</option>
-          </select>
-        </div>
-
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn-cys-sec" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn-cys-ppal" id="btnGuardarApariencia">
-          <i class="bi bi-check2 me-1"></i> Guardar cambios
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════
-     MODAL 2 — EMPRESA
-     ══════════════════════════════════════════════ -->
-<div class="modal fade cfg-modal" id="modalEmpresa" tabindex="-1" aria-labelledby="lblEmpresa" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="lblEmpresa">
-          <i class="bi bi-building"></i> Datos de la Empresa
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body">
-        <form id="formEmpresa" novalidate>
-          {% csrf_token %}
-
-          <div class="mb-3">
-            <label class="form-label" for="inputNombre">Nombre de la empresa</label>
-            <input type="text" class="form-control" id="inputNombre"
-                   name="nombre_empresa"
-                   value="{{ config.nombre_empresa|default:'CYS Ltda' }}"
-                   placeholder="Ej. CYS Ltda">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" for="inputNIT">NIT</label>
-            <input type="text" class="form-control" id="inputNIT"
-                   name="nit"
-                   value="{{ config.nit|default:'' }}"
-                   placeholder="900.123.456-7">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" for="inputDireccion">Dirección</label>
-            <input type="text" class="form-control" id="inputDireccion"
-                   name="direccion"
-                   value="{{ config.direccion|default:'' }}"
-                   placeholder="Calle 123 # 45-67">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" for="inputTelefono">Teléfono</label>
-            <input type="text" class="form-control" id="inputTelefono"
-                   name="telefono"
-                   value="{{ config.telefono|default:'' }}"
-                   placeholder="+57 310 000 0000">
-          </div>
-
-          <div class="mb-1">
-            <label class="form-label" for="inputEmail">Correo electrónico</label>
-            <input type="email" class="form-control" id="inputEmail"
-                   name="email"
-                   value="{{ config.email|default:'' }}"
-                   placeholder="contacto@cysltda.com">
-          </div>
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn-cys-sec" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn-cys-ppal" id="btnGuardarEmpresa">
-          <i class="bi bi-check2 me-1"></i> Guardar cambios
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════
-     MODAL 3 — IMPUESTOS Y MONEDA
-     ══════════════════════════════════════════════ -->
-<div class="modal fade cfg-modal" id="modalImpuestos" tabindex="-1" aria-labelledby="lblImpuestos" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="lblImpuestos">
-          <i class="bi bi-percent"></i> Impuestos y Moneda
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body">
-        <form id="formImpuestos" novalidate>
-          {% csrf_token %}
-
-          <div class="mb-3">
-            <label class="form-label" for="inputIVA">IVA por defecto (%)</label>
-            <input type="number" class="form-control" id="inputIVA"
-                   name="iva_porcentaje" min="0" max="100" step="0.01"
-                   value="{{ config.iva_porcentaje|default:'19' }}"
-                   placeholder="19">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" for="selMoneda">Moneda de operación</label>
-            <select class="form-select" id="selMoneda" name="moneda">
-              <option value="COP" {% if config.moneda == "COP" or not config.moneda %}selected{% endif %}>Peso Colombiano (COP)</option>
-              <option value="USD" {% if config.moneda == "USD" %}selected{% endif %}>Dólar (USD)</option>
-              <option value="EUR" {% if config.moneda == "EUR" %}selected{% endif %}>Euro (EUR)</option>
-            </select>
-          </div>
-
-          <!-- Unidades de medida como tags -->
-          <div class="mb-1">
-            <label class="form-label">Unidades de medida</label>
-            <div class="cfg-tags mb-2" id="tagContainer">
-              {% if config.unidades_medida %}
-                {% for unidad in config.unidades_medida %}
-                <div class="cfg-tag">
-                  {{ unidad }} <button class="remove-tag" type="button" aria-label="Eliminar {{ unidad }}">&times;</button>
-                </div>
-                {% endfor %}
-              {% else %}
-                <div class="cfg-tag">
-                  750ml <button class="remove-tag" type="button" aria-label="Eliminar 750ml">&times;</button>
-                </div>
-                <div class="cfg-tag">
-                  1L <button class="remove-tag" type="button" aria-label="Eliminar 1L">&times;</button>
-                </div>
-                <div class="cfg-tag">
-                  375ml <button class="remove-tag" type="button" aria-label="Eliminar 375ml">&times;</button>
-                </div>
-              {% endif %}
-            </div>
-            <div class="input-group">
-              <input type="text" class="form-control" id="inputNuevaUnidad" placeholder="Ej. 2L" aria-label="Nueva unidad">
-              <button class="btn-cys-ppal px-3" type="button" id="btnAddUnidad" style="border-radius:0 10px 10px 0;">
-                <i class="bi bi-plus-lg"></i>
-              </button>
-            </div>
-          </div>
-
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn-cys-sec" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn-cys-ppal" id="btnGuardarImpuestos">
-          <i class="bi bi-check2 me-1"></i> Guardar cambios
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════
-     MODAL 4 — BASE DE DATOS
-     ══════════════════════════════════════════════ -->
-<div class="modal fade cfg-modal" id="modalBaseDatos" tabindex="-1" aria-labelledby="lblBD" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="lblBD">
-          <i class="bi bi-server"></i> Base de Datos
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body">
-
-        <!-- Stats -->
-        <label class="form-label">Estado actual</label>
-        <div class="cfg-db-stats">
-          <div class="cfg-stat-box">
-            <div class="val">{{ db_stats.registros|default:"0" }}</div>
-            <div class="lbl">Registros</div>
-          </div>
-          <div class="cfg-stat-box">
-            <div class="val">{{ db_stats.tablas|default:"0" }}</div>
-            <div class="lbl">Tablas</div>
-          </div>
-          <div class="cfg-stat-box">
-            <div class="val" id="statTamano">{{ db_stats.tamaño|default:"—" }}</div>
-            <div class="lbl">Tamaño</div>
-          </div>
-        </div>
-
-        <!-- Historial de backups -->
-        <label class="form-label mt-2">Respaldos recientes</label>
-        <div class="cfg-backup-list" id="backupList">
-          {% for backup in backups %}
-          <div class="cfg-backup-item">
-            <i class="bi bi-check-circle-fill"></i>
-            <span class="name">{{ backup.nombre }}</span>
-            <span class="date">{{ backup.fecha|date:"d/m/Y H:i" }}</span>
-          </div>
-          {% empty %}
-          <div class="cfg-backup-item">
-            <i class="bi bi-info-circle" style="color:var(--texto-sec)"></i>
-            <span class="name" style="color:var(--texto-sec)">Sin respaldos registrados</span>
-          </div>
-          {% endfor %}
-        </div>
-
-      </div>
-
-      <div class="modal-footer justify-content-between">
-        <button type="button" class="btn-cys-danger" id="btnLimpiarBD">
-          <i class="bi bi-trash3 me-1"></i> Limpiar BD
-        </button>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn-cys-sec" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn-cys-ppal" id="btnBackup">
-            <i class="bi bi-download me-1"></i> Crear respaldo
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════
-     TOAST DE CONFIRMACIÓN
-     ══════════════════════════════════════════════ -->
-<div class="cfg-toast" id="cfgToast" role="alert" aria-live="polite">
-  <i class="bi bi-check-circle-fill"></i>
-  <span id="cfgToastMsg">Configuración guardada</span>
-</div>
+<!-- TOAST -->
+<div id="cfg-toast"><i class="bi bi-check-circle-fill me-2"></i> Configuración guardada</div>
 
 {% endblock %}
 
 
 {% block extra_js %}
 <script>
-/* ══════════════════════════════════════════════
-   CONFIGURACIÓN JS
-   ══════════════════════════════════════════════ */
 
-const getCookie = name => {
-  const v = document.cookie.split(';').find(c => c.trim().startsWith(name + '='));
-  return v ? decodeURIComponent(v.split('=')[1]) : null;
+// ══════════════════════════════════════════
+// VARIABLES DE ESTADO
+// ══════════════════════════════════════════
+let cfgActual = {
+  tema:             'oscuro',
+  densidad:         'normal',
+  sidebarAuto:      false,
+  resumenSidebar:   true,
+  formatoFecha:     'dd/mm/yyyy',
+  separadorMiles:   'punto',
+  alertaStock:      true,
+  widgetRotacion:   true,
+  silencioso:       false,
 };
 
-/* ── Toast helper ── */
-function showToast(msg = 'Guardado', tipo = 'ok', duration = 2800) {
-  const toast = document.getElementById('cfgToast');
-  const icon  = toast.querySelector('i');
-  document.getElementById('cfgToastMsg').textContent = msg;
-  icon.className = tipo === 'error'
-    ? 'bi bi-x-circle-fill'
-    : 'bi bi-check-circle-fill';
-  toast.classList.toggle('cfg-toast-error', tipo === 'error');
-  toast.classList.add('show');
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => toast.classList.remove('show'), duration);
+// ══════════════════════════════════════════
+// CARGAR AL INICIAR
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function () {
+  const guardada = localStorage.getItem('cys_config');
+  if (guardada) {
+    try { cfgActual = { ...cfgActual, ...JSON.parse(guardada) }; } catch(e) {}
+  }
+  cargarUI();
+});
+
+function cargarUI() {
+  // Tema
+  document.querySelectorAll('#opcionesTema .cfg-opt').forEach(el => {
+    el.classList.toggle('activo', el.dataset.tema === cfgActual.tema);
+  });
+
+  // Densidad
+  document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(el => {
+    el.classList.toggle('activo', el.dataset.densidad === cfgActual.densidad);
+  });
+
+  // Toggles
+  document.getElementById('toggleSidebarAuto').checked    = cfgActual.sidebarAuto;
+  document.getElementById('toggleResumenSidebar').checked = cfgActual.resumenSidebar;
+  document.getElementById('toggleAlertaStock').checked    = cfgActual.alertaStock;
+  document.getElementById('toggleWidgetRotacion').checked = cfgActual.widgetRotacion;
+  document.getElementById('toggleSilencioso').checked     = cfgActual.silencioso;
+
+  // Formato
+  document.getElementById('formatoFecha').value    = cfgActual.formatoFecha;
+  document.getElementById('separadorMiles').value  = cfgActual.separadorMiles;
+
+  actualizarPreview();
+  aplicarConfig();
 }
 
-/* ── Slider helper ── */
-function syncSlider(slider) {
-  const min = +slider.min  || 0;
-  const max = +slider.max  || 100;
-  const pct = ((+slider.value - min) / (max - min)) * 100;
-  slider.style.setProperty('--pct', pct + '%');
+// ══════════════════════════════════════════
+// SELECCIONAR TEMA / DENSIDAD
+// ══════════════════════════════════════════
+function seleccionarTema(tema, el) {
+  document.querySelectorAll('#opcionesTema .cfg-opt').forEach(o => o.classList.remove('activo'));
+  el.classList.add('activo');
+  cfgActual.tema = tema;
+  aplicarTema(tema);
 }
 
-/* ── Brillo ── */
-const sliderBrillo = document.getElementById('sliderBrillo');
-const valBrillo    = document.getElementById('valBrillo');
-
-sliderBrillo.addEventListener('input', () => {
-  const v = sliderBrillo.value;
-  document.documentElement.style.setProperty('--brillo-pagina', v / 100);
-  valBrillo.textContent = v + '%';
-  syncSlider(sliderBrillo);
-});
-syncSlider(sliderBrillo);
-
-/* ── Tamaño de letra ── */
-const sliderTexto = document.getElementById('sliderTexto');
-const valTexto    = document.getElementById('valTexto');
-
-sliderTexto.addEventListener('input', () => {
-  const v = sliderTexto.value;
-  document.documentElement.style.setProperty('--tamaño-letra', v + 'px');
-  valTexto.textContent = v + 'px';
-  syncSlider(sliderTexto);
-});
-syncSlider(sliderTexto);
-
-/* ── Swatches de tema ── */
-document.querySelectorAll('.cfg-swatch').forEach(sw => {
-  sw.addEventListener('click', () => {
-    document.querySelectorAll('.cfg-swatch').forEach(s => s.classList.remove('active'));
-    sw.classList.add('active');
-    document.getElementById('badgeTema').textContent = sw.dataset.tema;
-  });
-});
-
-/* ── Guardar apariencia ── */
-document.getElementById('btnGuardarApariencia').addEventListener('click', () => {
-  // POST pendiente de implementar según diseño de temas
-  bootstrap.Modal.getInstance(document.getElementById('modalApariencia')).hide();
-  showToast('Apariencia guardada');
-});
-
-/* ── Guardar empresa ── */
-document.getElementById('btnGuardarEmpresa').addEventListener('click', () => {
-  const btn  = document.getElementById('btnGuardarEmpresa');
-  const form = document.getElementById('formEmpresa');
-  const data = new FormData(form);
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
-
-  fetch('{% url "configuracion:guardar_empresa" %}', {
-    method:  'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body:    data
-  })
-  .then(r => r.json())
-  .then(json => {
-    if (json.ok) {
-      bootstrap.Modal.getInstance(document.getElementById('modalEmpresa')).hide();
-      showToast('Datos de empresa guardados');
-    } else {
-      showToast('Error al guardar', 'error');
-    }
-  })
-  .catch(() => showToast('Error de conexión', 'error'))
-  .finally(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Guardar cambios';
-  });
-});
-
-/* ── Tags de unidades de medida ── */
-function crearTag(texto) {
-  const tag = document.createElement('div');
-  tag.className = 'cfg-tag';
-  tag.innerHTML = `${texto} <button class="remove-tag" type="button" aria-label="Eliminar ${texto}">&times;</button>`;
-  tag.querySelector('.remove-tag').addEventListener('click', () => tag.remove());
-  return tag;
+function seleccionarDensidad(densidad, el) {
+  document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(o => o.classList.remove('activo'));
+  el.classList.add('activo');
+  cfgActual.densidad = densidad;
+  aplicarDensidad(densidad);
 }
 
-// Inicializar botones de tags existentes (renderizados desde Django)
-document.querySelectorAll('#tagContainer .remove-tag').forEach(btn => {
-  btn.addEventListener('click', () => btn.closest('.cfg-tag').remove());
-});
+// ══════════════════════════════════════════
+// APLICAR TEMA
+// ══════════════════════════════════════════
+function aplicarTema(tema) {
+  const root = document.documentElement;
+  const temas = {
+    oscuro: {
+      '--fondo':        '#011936',
+      '--fondo-card':   '#0a2240',
+      '--fondo-card2':  '#0d2a4d',
+      '--texto':        '#e2e8f0',
+      '--texto-muted':  '#7a9bbf',
+      '--azul-claro':   '#4DA8DA',
+      '--azul-borde':   'rgba(77,168,218,.2)',
+      '--azul-oscuro':  '#05244a',
+      '--verde':        '#2ecc71',
+      '--rojo':         '#c0392b',
+      '--blanco':       '#e8edf2',
+      '--gris-claro':   '#8899aa',
+    },
+claro: {
+  '--fondo':        '#f0f4f8',
+  '--fondo-card':   '#ffffff',
+  '--fondo-card2':  '#e8eef5',
+  '--texto':        '#1a2a3a',      // ← texto oscuro para que se vea en cards blancas
+  '--texto-muted':  '#4a6a8a',      // ← subtítulos más oscuros también
+  '--azul-claro':   '#B22A1A',
+  '--azul-borde':   'rgba(178,42,26,.18)',
+  '--azul-oscuro':  '#ddeaf5',
+  '--verde':        '#1a8a4a',
+  '--rojo':         '#B22A1A',
+  '--blanco':       '#1a2a3a',
+  '--gris-claro':   '#3a5a7a',      // ← más oscuro para labels de tabla
+},
+    'alto-contraste': {
+      '--fondo':        '#000000',
+      '--fondo-card':   '#0a0a0a',
+      '--fondo-card2':  '#111111',
+      '--texto':        '#ffffff',
+      '--texto-muted':  '#cccccc',
+      '--azul-claro':   '#00cfff',
+      '--azul-borde':   'rgba(0,207,255,.4)',
+      '--azul-oscuro':  '#001a22',
+      '--verde':        '#00ff88',
+      '--rojo':         '#ff4444',
+      '--blanco':       '#ffffff',
+      '--gris-claro':   '#aaaaaa',
+    },
+    sepia: {
+      '--fondo':        '#1a0f05',
+      '--fondo-card':   '#2c1f0e',
+      '--fondo-card2':  '#3d2b14',
+      '--texto':        '#f5e6c8',
+      '--texto-muted':  '#a08060',
+      '--azul-claro':   '#d4a060',
+      '--azul-borde':   'rgba(212,160,96,.25)',
+      '--azul-oscuro':  '#150c04',
+      '--verde':        '#7ab870',
+      '--rojo':         '#c05030',
+      '--blanco':       '#f5e6c8',
+      '--gris-claro':   '#907060',
+    },
+  };
 
-document.getElementById('btnAddUnidad').addEventListener('click', addUnidad);
-document.getElementById('inputNuevaUnidad').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); addUnidad(); }
-});
+  const vars = temas[tema] || temas.oscuro;
+  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
 
-function addUnidad() {
-  const input = document.getElementById('inputNuevaUnidad');
-  const val   = input.value.trim();
-  if (!val) return;
-  document.getElementById('tagContainer').appendChild(crearTag(val));
-  input.value = '';
-  input.focus();
+  // Fondo del body
+  document.body.style.background = vars['--fondo'];
+    const hoja = document.getElementById('tema-claro-overrides');
+  if (hoja) hoja.style.display = tema === 'claro' ? '' : 'none';
 }
 
-/* ── Guardar impuestos ── */
-document.getElementById('btnGuardarImpuestos').addEventListener('click', () => {
-  const btn  = document.getElementById('btnGuardarImpuestos');
-  const form = document.getElementById('formImpuestos');
-  const data = new FormData(form);
+// ══════════════════════════════════════════
+// APLICAR DENSIDAD
+// ══════════════════════════════════════════
+function aplicarDensidad(densidad) {
+  const root = document.documentElement;
+  const densidades = {
+    compacto: { '--card-padding': '.75rem', '--gap-base': '.4rem',  '--font-base': '.8rem'  },
+    normal:   { '--card-padding': '1.25rem','--gap-base': '.75rem', '--font-base': '.875rem' },
+    relajado: { '--card-padding': '1.75rem','--gap-base': '1.1rem', '--font-base': '.95rem'  },
+  };
+  const vars = densidades[densidad] || densidades.normal;
+  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+}
 
-  // Recolectar unidades desde los tags actuales
-  data.delete('unidades[]');
-  document.querySelectorAll('#tagContainer .cfg-tag').forEach(tag => {
-    const texto = tag.childNodes[0].textContent.trim();
-    if (texto) data.append('unidades[]', texto);
-  });
+// ══════════════════════════════════════════
+// VISTA PREVIA FORMATO
+// ══════════════════════════════════════════
+document.getElementById('formatoFecha').addEventListener('change', actualizarPreview);
+document.getElementById('separadorMiles').addEventListener('change', actualizarPreview);
 
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+function actualizarPreview() {
+  const fmt  = document.getElementById('formatoFecha').value;
+  const sep  = document.getElementById('separadorMiles').value;
+  const hoy  = new Date(2026, 4, 13); // 13 Mayo 2026
+  const d    = String(hoy.getDate()).padStart(2,'0');
+  const m    = String(hoy.getMonth()+1).padStart(2,'0');
+  const mmmm = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][hoy.getMonth()];
+  const y    = hoy.getFullYear();
 
-  fetch('{% url "configuracion:guardar_impuestos" %}', {
-    method:  'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body:    data
-  })
-  .then(r => r.json())
-  .then(json => {
-    if (json.ok) {
-      bootstrap.Modal.getInstance(document.getElementById('modalImpuestos')).hide();
-      showToast('Impuestos y moneda guardados');
-    } else {
-      showToast('Error al guardar', 'error');
-    }
-  })
-  .catch(() => showToast('Error de conexión', 'error'))
-  .finally(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Guardar cambios';
-  });
-});
+  const fechas = {
+    'dd/mm/yyyy':   `${d}/${m}/${y}`,
+    'mm/dd/yyyy':   `${m}/${d}/${y}`,
+    'yyyy-mm-dd':   `${y}-${m}-${d}`,
+    'dd-mmm-yyyy':  `${d}-${mmmm}-${y}`,
+  };
 
-/* ── Crear respaldo ── */
-document.getElementById('btnBackup').addEventListener('click', () => {
-  const btn = document.getElementById('btnBackup');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creando…';
+  const num = 1250000;
+  let numStr;
+  if (sep === 'punto')   numStr = '$' + num.toLocaleString('es-CO');
+  else if (sep === 'coma')   numStr = '$' + num.toLocaleString('en-US');
+  else numStr = '$' + num.toLocaleString('fr-FR');
 
-  fetch('{% url "configuracion:crear_backup" %}', {
-    method:  'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-  })
-  .then(r => r.json())
-  .then(json => {
-    if (json.ok) {
-      const item = document.createElement('div');
-      item.className = 'cfg-backup-item';
-      item.innerHTML = `
-        <i class="bi bi-check-circle-fill"></i>
-        <span class="name">${json.nombre}</span>
-        <span class="date">${json.fecha}</span>`;
-      // Quitar mensaje "sin respaldos" si existe
-      const vacio = document.querySelector('#backupList .cfg-backup-item .bi-info-circle');
-      if (vacio) vacio.closest('.cfg-backup-item').remove();
-      document.getElementById('backupList').prepend(item);
-      document.getElementById('badgeBD').textContent = json.tamaño || 'Listo';
-      document.getElementById('statTamano').textContent = json.tamaño || '—';
-      showToast('Respaldo creado exitosamente');
-    } else {
-      showToast(json.error || 'Error al crear respaldo', 'error');
-    }
-  })
-  .catch(() => showToast('Error de conexión', 'error'))
-  .finally(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-download me-1"></i> Crear respaldo';
-  });
-});
+  document.getElementById('preview-fecha').textContent  = fechas[fmt] || fechas['dd/mm/yyyy'];
+  document.getElementById('preview-numero').textContent = numStr;
 
-/* ── Limpiar BD (con confirmación) ── */
-document.getElementById('btnLimpiarBD').addEventListener('click', () => {
-  if (!confirm('¿Seguro que deseas limpiar la base de datos? Esta acción no se puede deshacer.')) return;
-  showToast('Función no implementada aún', 'error');
-});
+  cfgActual.formatoFecha   = fmt;
+  cfgActual.separadorMiles = sep;
+}
 
-/* ── Accesibilidad: abrir modal con Enter/Space en tarjetas ── */
-document.querySelectorAll('.cfg-card[tabindex]').forEach(card => {
-  card.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      card.click();
-    }
-  });
-});
+// ══════════════════════════════════════════
+// APLICAR CONFIG COMPLETA
+// ══════════════════════════════════════════
+function aplicarConfig() {
+  aplicarTema(cfgActual.tema);
+  aplicarDensidad(cfgActual.densidad);
+
+  // Sidebar auto
+  if (cfgActual.sidebarAuto) {
+    localStorage.setItem('sidebarOpen', 'true');
+  }
+
+  // Widget stock crítico
+  const widgetStock = document.getElementById('gp-messages-container');
+  if (widgetStock && cfgActual.silencioso) widgetStock.style.display = 'none';
+
+  // Widget rotación
+  const widgetRot = document.getElementById('rotacion-chart-wrapper');
+  if (widgetRot) widgetRot.closest('section') &&
+    (widgetRot.closest('section').style.display =
+      cfgActual.widgetRotacion ? '' : 'none');
+}
+
+// ══════════════════════════════════════════
+// GUARDAR
+// ══════════════════════════════════════════
+function guardarConfig() {
+  cfgActual.sidebarAuto    = document.getElementById('toggleSidebarAuto').checked;
+  cfgActual.resumenSidebar = document.getElementById('toggleResumenSidebar').checked;
+  cfgActual.alertaStock    = document.getElementById('toggleAlertaStock').checked;
+  cfgActual.widgetRotacion = document.getElementById('toggleWidgetRotacion').checked;
+  cfgActual.silencioso     = document.getElementById('toggleSilencioso').checked;
+  cfgActual.formatoFecha   = document.getElementById('formatoFecha').value;
+  cfgActual.separadorMiles = document.getElementById('separadorMiles').value;
+
+  localStorage.setItem('cys_config', JSON.stringify(cfgActual));
+
+   const hoja = document.getElementById('tema-claro-overrides');
+  if (hoja) hoja.style.display = cfgActual.tema === 'claro' ? '' : 'none';
+
+  aplicarConfig();
+  mostrarToast();
+}
+
+// ══════════════════════════════════════════
+// RESETEAR
+// ══════════════════════════════════════════
+function resetearConfig() {
+  localStorage.removeItem('cys_config');
+  cfgActual = {
+    tema: 'oscuro', densidad: 'normal',
+    sidebarAuto: false, resumenSidebar: true,
+    formatoFecha: 'dd/mm/yyyy', separadorMiles: 'punto',
+    alertaStock: true, widgetRotacion: true, silencioso: false,
+  };
+  cargarUI();
+  mostrarToast('Configuración restablecida', 'info');
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function mostrarToast(msg = 'Configuración guardada', tipo = 'ok') {
+  const t = document.getElementById('cfg-toast');
+  t.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>${msg}`;
+  if (tipo === 'info') {
+    t.style.background = 'rgba(77,168,218,.15)';
+    t.style.borderColor = 'rgba(77,168,218,.4)';
+    t.style.color = '#4DA8DA';
+  } else {
+    t.style.background = 'rgba(39,174,96,.15)';
+    t.style.borderColor = 'rgba(39,174,96,.4)';
+    t.style.color = '#2ecc71';
+  }
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2800);
+}
+
 </script>
 {% endblock %}

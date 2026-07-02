@@ -46,7 +46,7 @@
         </div>
         <div>
           <h6 class="mb-0 fw-bold text-uppercase"
-              style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:.1.1rem;">
+              style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:1.1rem;">
             Registrar Nuevo Lote
           </h6>
           <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
@@ -55,57 +55,57 @@
         </div>
       </div>
 
-      <form method="POST" action="{% url 'registrar_lote' %}">
+      <form method="POST" action="{% url 'registrar_lote' %}" id="form-lote">
         {% csrf_token %}
 
         <!-- Presentación -->
-<div class="mb-3">
-  <label class="inv-label">Presentación <span class="text-danger">*</span></label>
+        <div class="mb-3">
+          <label class="inv-label">Presentación <span class="text-danger">*</span></label>
 
-  <!-- Select real: oculto, sigue siendo el que se envía con el formulario -->
-  <select name="presentacion_lote" id="select-presentacion-lote" class="d-none" required>
-    <option value="">— Selecciona presentación —</option>
-    {% for p in productos %}
-      {% if p.presentaciones.all %}
-      <optgroup label="{{ p.nombre }}">
-        {% for pr in p.presentaciones.all %}
-        <option value="{{ pr.pk }}">{{ pr.nombre }}</option>
-        {% endfor %}
-      </optgroup>
-      {% endif %}
-    {% endfor %}
-  </select>
+          <!-- Select real: oculto, sigue siendo el que se envía con el formulario -->
+          <select name="presentacion_lote" id="select-presentacion-lote" class="d-none" required>
+            <option value="">— Selecciona presentación —</option>
+            {% for p in productos %}
+              {% if p.presentaciones.all %}
+              <optgroup label="{{ p.nombre }}">
+                {% for pr in p.presentaciones.all %}
+                <option value="{{ pr.pk }}">{{ pr.nombre }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+            {% endfor %}
+          </select>
 
-  <!-- Dropdown visual -->
-  <div class="dropdown">
-    <button class="btn dropdown-toggle w-100 text-start" type="button"
-            id="presentacion-lote-btn" data-bs-toggle="dropdown"
-            style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-       color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
-      <span id="presentacion-lote-label">— Selecciona presentación —</span>
-    </button>
-    <ul class="dropdown-menu w-100"
-        style="background:#0d1b2a; border:1px solid rgba(0, 54, 83, 0.46); max-height:320px; overflow-y:auto;">
-      {% for p in productos %}
-        {% if p.presentaciones.all %}
-        <li>
-          <h6 class="dropdown-header" style="color:#4DA8DA; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em;">
-            {{ p.nombre }}
-          </h6>
-        </li>
-          {% for pr in p.presentaciones.all %}
-          <li>
-            <a class="dropdown-item presentacion-lote-item" href="#" data-value="{{ pr.pk }}"
-               style="color:#c8d6e5; font-size:.85rem; padding-left:1.5rem;">
-              {{ pr.nombre }}
-            </a>
-          </li>
-          {% endfor %}
-        {% endif %}
-      {% endfor %}
-    </ul>
-  </div>
-</div>
+          <!-- Dropdown visual -->
+          <div class="dropdown">
+            <button class="btn dropdown-toggle w-100 text-start" type="button"
+                    id="presentacion-lote-btn" data-bs-toggle="dropdown"
+                    style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
+               color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+              <span id="presentacion-lote-label">— Selecciona presentación —</span>
+            </button>
+            <ul class="dropdown-menu w-100"
+                style="background:#0d1b2a; border:1px solid rgba(0, 54, 83, 0.46); max-height:320px; overflow-y:auto;">
+              {% for p in productos %}
+                {% if p.presentaciones.all %}
+                <li>
+                  <h6 class="dropdown-header" style="color:#4DA8DA; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em;">
+                    {{ p.nombre }}
+                  </h6>
+                </li>
+                  {% for pr in p.presentaciones.all %}
+                  <li>
+                    <a class="dropdown-item presentacion-lote-item" href="#" data-value="{{ pr.pk }}"
+                       style="color:#c8d6e5; font-size:.85rem; padding-left:1.5rem;">
+                      {{ pr.nombre }}
+                    </a>
+                  </li>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
 
         <!-- Nº Lote + Cantidad -->
         <div class="row g-3 mb-3">
@@ -231,22 +231,14 @@ new Chart(document.getElementById('chartProveedores').getContext('2d'), {
     datasets: [{
       label: 'Unidades en stock',
       data: {{ proveedores_data|safe }},
-      // Arreglo de colores fríos (Violeta, Morado, Rojo-Violeta, etc.) con opacidad para el fondo
       backgroundColor: [
-        'rgba(62, 181, 229, 0.85)',  /* Violeta intenso */
-        'rgba(155, 89, 182, 0.85)',  /* Morado claro */
-        'rgba(214, 48, 117, 0.85)',  /* Rojo Violeta / Magenta */
-        'rgba(108, 92, 231, 0.85)',  /* Azul Violeta / Indigo */
-        'rgba(162, 155, 254, 0.85)'  /* Violeta pastel */
+        'rgba(62, 181, 229, 0.85)',
+        'rgba(155, 89, 182, 0.85)',
+        'rgba(214, 48, 117, 0.85)',
+        'rgba(108, 92, 231, 0.85)',
+        'rgba(162, 155, 254, 0.85)'
       ],
-      // Bordes sólidos combinados con los fondos
-      borderColor: [
-        '#4195c9',
-        '#9b59b6',
-        '#d63017',
-        '#6c5ce7',
-        '#a29bfe'
-      ],
+      borderColor: ['#4195c9', '#9b59b6', '#d63017', '#6c5ce7', '#a29bfe'],
       borderWidth: 1,
       borderRadius: 5
     }]
@@ -268,23 +260,25 @@ new Chart(document.getElementById('chartProveedores').getContext('2d'), {
     }
   }
 });
- const selLote = document.getElementById('select-presentacion-lote');
-  document.querySelectorAll('.presentacion-lote-item').forEach(function (item) {
-    item.addEventListener('click', function (e) {
-      e.preventDefault();
-      selLote.value = this.dataset.value;
-      document.getElementById('presentacion-lote-label').textContent = this.textContent.trim();
-      selLote.dispatchEvent(new Event('change'));
-    });
-  });
 
-  // Validación manual ya que el select real no tiene "required" nativo visible
-  document.querySelector('form[action="{% url 'registrar_lote' %}"]').addEventListener('submit', function (e) {
-    if (!selLote.value) {
-      e.preventDefault();
-      document.getElementById('presentacion-lote-btn').style.borderColor = '#e74c3c';
-      document.getElementById('presentacion-lote-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+// Dropdown de presentación: sincroniza el texto del botón y el <select> oculto
+const selLote = document.getElementById('select-presentacion-lote');
+document.querySelectorAll('.presentacion-lote-item').forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    selLote.value = item.dataset.value;
+    document.getElementById('presentacion-lote-label').textContent = item.textContent.trim();
   });
+});
+
+// Validación manual: el select real está oculto, así que "required" no se muestra visualmente
+document.getElementById('form-lote').addEventListener('submit', e => {
+  if (!selLote.value) {
+    e.preventDefault();
+    const btn = document.getElementById('presentacion-lote-btn');
+    btn.style.borderColor = '#e74c3c';
+    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
 </script>
 {% endblock %}
