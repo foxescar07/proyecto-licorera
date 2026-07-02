@@ -8,7 +8,7 @@ from django.db import models
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from .models import Proveedor, Compra, OrdenCompra, DetalleCompra
+from .models import Proveedor, Compra, OrdenCompra, DetalleCompra, HistorialOrden
 from .forms import ProveedorForm, CompraForm, OrdenCompraForm, DetalleCompraForm
 from productos.models import Producto
 from inventario.models import Lote, Inventario
@@ -695,3 +695,156 @@ def api_orden_detalles(request, orden_id):
         return JsonResponse({'detalles': detalles_data})
     except OrdenCompra.DoesNotExist:
         return JsonResponse({'error': 'Orden no encontrada'}, status=404)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# VISTAS PARA MODALES: NOTAS, EDITAR, HISTORIAL
+# ════════════════════════════════════════════════════════════════════════════
+
+@login_required
+def guardar_nota_orden(request, pk):
+    """Guardar notas internas en una orden."""
+    if request.method == 'POST':
+        try:
+            orden = OrdenCompra.objects.get(id=pk)
+            nota = request.POST.get('notas', '').strip()
+
+            orden.notas = nota
+            orden.save()
+
+            # Registrar en historial
+            HistorialOrden.objects.create(
+                orden=orden,
+                evento='nota_agregada',
+                usuario=request.user,
+                descripcion=f"Nota actualizada: {nota[:50]}{'...' if len(nota) > 50 else ''}"
+            )
+
+            messages.success(request, '✅ Nota guardada correctamente')
+        except OrdenCompra.DoesNotExist:
+            messages.error(request, '❌ Orden no encontrada')
+        except Exception as e:
+            messages.error(request, f'❌ Error: {str(e)}')
+
+    return redirect(f'{reverse("listar_ordenes")}?mostrar_orden={pk}')
+
+
+@login_required
+def obtener_historial_orden(request, pk):
+    """Obtener historial de cambios de una orden."""
+    from django.http import JsonResponse
+
+    try:
+        orden = OrdenCompra.objects.get(id=pk)
+        historial = orden.historial.all()
+
+        eventos = []
+
+        # Evento: Creación (siempre incluir)
+        eventos.append({
+            'evento': 'Orden Creada',
+            'usuario': orden.registrado_por.get_full_name() if orden.registrado_por else 'Sistema',
+            'fecha': orden.fecha.strftime('%d/%m/%Y %H:%M'),
+            'descripcion': 'Orden creada en el sistema',
+            'color': '#9b5de5'
+        })
+
+        # Eventos adicionales del historial
+        for h in historial:
+            eventos.append({
+                'evento': h.get_evento_display(),
+                'usuario': h.usuario.get_full_name() if h.usuario else 'Sistema',
+                'fecha': h.fecha.strftime('%d/%m/%Y %H:%M'),
+                'descripcion': h.descripcion,
+                'color': {
+                    'creada': '#9b5de5',
+                    'confirmada': '#4DA8DA',
+                    'recibida': '#27ae60',
+                    'cancelada': '#e74c3c',
+                    'nota_agregada': '#f39c12',
+                    'editada': '#4DA8DA',
+                }.get(h.evento, '#8FA3B1')
+            })
+
+        return JsonResponse({'status': 'ok', 'historial': eventos})
+    except OrdenCompra.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Orden no encontrada'}, status=404)
+
+
+@login_required
+def editar_detalle_orden(request, detalle_id):
+    """Editar cantidad y precio de un detalle de orden."""
+    from django.http import JsonResponse
+
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+
+    try:
+        detalle = DetalleCompra.objects.get(id=detalle_id)
+
+        # Solo si la orden está en pendiente
+        if detalle.orden_compra.estado != 'pendiente':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No se puede editar orden que no está pendiente'
+            }, status=400)
+
+        # Actualizar detalle
+        detalle.cantidad = int(request.POST.get('cantidad'))
+        detalle.precio_unitario = float(request.POST.get('precio_unitario'))
+        detalle.save()
+
+        # Recalcular total de la orden
+        detalle.orden_compra.calcular_total()
+
+        # Registrar en historial
+        HistorialOrden.objects.create(
+            orden=detalle.orden_compra,
+            evento='editada',
+            usuario=request.user,
+            descripcion=f"Editada línea: {detalle.presentacion.nombre}"
+        )
+
+        return JsonResponse({
+            'status': 'ok',
+            'subtotal': f"{detalle.subtotal:.2f}",
+            'total_orden': f"{detalle.orden_compra.total:.2f}"
+        })
+    except DetalleCompra.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Detalle no encontrado'}, status=404)
+    except ValueError:
+        return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+def guardar_pago_compra(request, compra_id):
+    """Guardar información de pago en una compra legacy."""
+    from django.http import JsonResponse
+    from django.utils.dateparse import parse_datetime
+
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+
+    try:
+        compra = Compra.objects.get(id=compra_id)
+
+        compra.numero_factura = request.POST.get('numero_factura', '').strip()
+        compra.metodo_pago = request.POST.get('metodo_pago')
+        compra.estado_pago = request.POST.get('estado_pago')
+        compra.monto_pagado = float(request.POST.get('monto_pagado', 0))
+
+        fecha_pago = request.POST.get('fecha_pago')
+        if fecha_pago:
+            compra.fecha_pago = parse_datetime(fecha_pago)
+
+        compra.save()
+
+        return JsonResponse({'status': 'ok', 'message': 'Pago registrado correctamente'})
+    except Compra.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Compra no encontrada'}, status=404)
+    except ValueError:
+        return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

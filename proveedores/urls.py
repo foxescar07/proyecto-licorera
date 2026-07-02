@@ -21,4 +21,12 @@ urlpatterns = [
     path('ordenes/<int:pk>/cambiar-estado-rapido/', views.cambiar_estado_orden_rapido, name='cambiar_estado_orden_rapido'),
     path('ordenes/<int:pk>/recibir/', views.recibir_compra, name='recibir_compra'),
     path('api/orden/<int:orden_id>/detalles/', views.api_orden_detalles, name='api_orden_detalles'),
+
+    # Modales: Notas, Editar, Historial (Órdenes)
+    path('ordenes/<int:pk>/notas/', views.guardar_nota_orden, name='guardar_nota_orden'),
+    path('ordenes/<int:pk>/historial/', views.obtener_historial_orden, name='obtener_historial_orden'),
+    path('detalles/<int:detalle_id>/editar/', views.editar_detalle_orden, name='editar_detalle_orden'),
+
+    # Modal: Pago (Compras legacy)
+    path('compras/<int:compra_id>/pago/', views.guardar_pago_compra, name='guardar_pago_compra'),
 ]

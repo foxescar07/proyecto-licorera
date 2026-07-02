@@ -953,13 +953,13 @@
     font-size: 1.5rem;
 }
 
-/* Colores específicos para cada método */
-.metodo-pago-card-compact[data-value="efectivo"] { --card-color: #f39c12; }
-.metodo-pago-card-compact[data-value="tarjeta"] { --card-color: #3498db; }
-.metodo-pago-card-compact[data-value="transferencia"] { --card-color: #2ecc71; }
-.metodo-pago-card-compact[data-value="cheque"] { --card-color: #9b59b6; }
-.metodo-pago-card-compact[data-value="credito"] { --card-color: #e74c3c; }
-.metodo-pago-card-compact[data-value="otro"] { --card-color: #95a5a6; }
+/* Colores específicos para cada método - Solo Verde, Azul, Morado */
+.metodo-pago-card-compact[data-value="efectivo"] { --card-color: #27ae60; }
+.metodo-pago-card-compact[data-value="tarjeta"] { --card-color: #4DA8DA; }
+.metodo-pago-card-compact[data-value="transferencia"] { --card-color: #27ae60; }
+.metodo-pago-card-compact[data-value="cheque"] { --card-color: #9b5de5; }
+.metodo-pago-card-compact[data-value="credito"] { --card-color: #4DA8DA; }
+.metodo-pago-card-compact[data-value="otro"] { --card-color: #9b5de5; }
 
 .metodo-pago-card-compact:hover {
     border-color: var(--card-color, #4DA8DA);
@@ -1028,9 +1028,9 @@ document.getElementById('formPago')?.addEventListener('submit', function(e) {
     const compraId = document.getElementById('compraId').value;
     const formData = new FormData(this);
 
-    fetch(`/compras/${compraId}/pago/`, {
+    fetch(`/proveedores/compras/${compraId}/pago/`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
         body: formData
     })
     .then(r => r.json())
