@@ -153,39 +153,19 @@
     </div>
   </div>
 
-  <!-- ⑤ FECHAS Y NÚMEROS + ⑥ NOTIFICACIONES -->
+  <!-- ⑤ ACTIVIDAD DE USUARIOS + ⑥ NOTIFICACIONES -->
   <div class="row g-3 cfg-row">
     <div class="col-lg-6">
       <div class="cfg-section">
-        <div class="cfg-title"><i class="bi bi-calendar-date"></i> Fechas y números</div>
-        <div class="row g-3">
-          <div class="col-sm-6">
-            <label class="cfg-label">Formato de fecha</label>
-            <select class="cfg-select" id="formatoFecha">
-              <option value="dd/mm/yyyy">DD/MM/AAAA</option>
-              <option value="mm/dd/yyyy">MM/DD/AAAA</option>
-              <option value="yyyy-mm-dd">AAAA-MM-DD</option>
-              <option value="dd-mmm-yyyy">DD-MMM-AAAA</option>
-            </select>
-          </div>
-          <div class="col-sm-6">
-            <label class="cfg-label">Separador de miles</label>
-            <select class="cfg-select" id="separadorMiles">
-              <option value="punto">Punto — $1.250.000</option>
-              <option value="coma">Coma — $1,250,000</option>
-              <option value="espacio">Espacio — $1 250 000</option>
-            </select>
-          </div>
-          <div class="col-12">
-            <div style="background:var(--fondo-card2); border-radius:8px; padding:.6rem .9rem;
-                        font-size:.8rem; color:var(--texto-muted); margin-top:.25rem;">
-              <i class="bi bi-eye me-1" style="color:var(--azul-claro);"></i>
-              Vista previa: <strong id="preview-fecha" style="color:var(--texto);">13/05/2026</strong>
-              &nbsp;|&nbsp;
-              <strong id="preview-numero" style="color:var(--texto);">$1.250.000</strong>
-            </div>
-          </div>
-        </div>
+        <div class="cfg-title"><i class="bi bi-clock-history"></i> Actividad de usuarios</div>
+
+        <p style="font-size:.8rem; color:var(--texto-muted); margin-bottom:1rem;" id="actividadHint">
+          Consulta los inicios de sesión registrados en el sistema.
+        </p>
+
+        <button type="button" class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#modalActividad">
+          <i class="bi bi-eye me-1"></i> Ver actividad
+        </button>
       </div>
     </div>
 
@@ -391,6 +371,34 @@
 
 <div id="cfg-toast"><i class="bi bi-check-circle-fill me-2"></i> Configuración guardada</div>
 
+<!-- MODAL: ACTIVIDAD DE USUARIOS -->
+<div class="modal fade" id="modalActividad" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content cfg-modal-content">
+      <div class="modal-header cfg-modal-header">
+        <h5 class="modal-title cfg-modal-title">
+          <i class="bi bi-clock-history"></i> <span id="tituloActividad">Actividad</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body cfg-modal-body">
+        <table class="table table-sm cfg-activity-table">
+          <thead>
+            <tr>
+              <th id="colUsuario">Usuario</th>
+              <th>Fecha y hora</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="tablaActividad">
+            <tr><td colspan="3" class="text-center">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 
@@ -415,7 +423,6 @@ const CSRF_TOKEN = getCookie('csrftoken') ||
 const CFG_DEFAULT = {
   tema: 'oscuro', paginaInicio: 'tablero', brillo: 100, fuente: 14, zoom: 100,
   sidebarAuto: false, resumenSidebar: true,
-  formatoFecha: 'dd/mm/yyyy', separadorMiles: 'punto',
   alertaStock: true, widgetRotacion: true, silencioso: false,
 };
 
@@ -576,16 +583,12 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('toggleAlertaStock').checked    = cfgActual.alertaStock;
   document.getElementById('toggleWidgetRotacion').checked = cfgActual.widgetRotacion;
   document.getElementById('toggleSilencioso').checked     = cfgActual.silencioso;
-  document.getElementById('formatoFecha').value           = cfgActual.formatoFecha;
-  document.getElementById('separadorMiles').value         = cfgActual.separadorMiles;
 
   perillaBrillo.pintar(cfgActual.brillo);
   perillaFuente.pintar(cfgActual.fuente);
   perillaZoom.pintar(cfgActual.zoom);
 
-  actualizarPreview();
-
-  // ── Autoguardado de toggles y selects (barra lateral, alertas, formato) ──
+  // ── Autoguardado de toggles (barra lateral, alertas) ──
   const togglesMap = {
     toggleSidebarAuto:    'sidebarAuto',
     toggleResumenSidebar: 'resumenSidebar',
@@ -600,19 +603,6 @@ document.addEventListener('DOMContentLoaded', function () {
       window.dispatchEvent(new CustomEvent('cys-config-changed', { detail: cfgActual }));
       mostrarToastPreferencia();
     });
-  });
-
-  document.getElementById('formatoFecha').addEventListener('change', function () {
-    cfgActual.formatoFecha = this.value;
-    actualizarPreview();
-    guardarCfg(cfgActual);
-    mostrarToastPreferencia();
-  });
-  document.getElementById('separadorMiles').addEventListener('change', function () {
-    cfgActual.separadorMiles = this.value;
-    actualizarPreview();
-    guardarCfg(cfgActual);
-    mostrarToastPreferencia();
   });
 });
 
@@ -637,31 +627,38 @@ function seleccionarInicio(valor, el) {
 }
 
 // ══════════════════════════════════════════
-// VISTA PREVIA FECHA / NÚMERO
+// ACTIVIDAD DE USUARIOS — carga al abrir el modal
 // ══════════════════════════════════════════
-function actualizarPreview() {
-  const fmt = document.getElementById('formatoFecha').value;
-  const sep = document.getElementById('separadorMiles').value;
-  const hoy = new Date();
-  const d   = String(hoy.getDate()).padStart(2, '0');
-  const m   = String(hoy.getMonth() + 1).padStart(2, '0');
-  const mmm = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][hoy.getMonth()];
-  const y   = hoy.getFullYear();
+document.getElementById('modalActividad').addEventListener('show.bs.modal', function () {
+  const tbody = document.getElementById('tablaActividad');
+  tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>';
 
-  const fechas = {
-    'dd/mm/yyyy':  `${d}/${m}/${y}`,
-    'mm/dd/yyyy':  `${m}/${d}/${y}`,
-    'yyyy-mm-dd':  `${y}-${m}-${d}`,
-    'dd-mmm-yyyy': `${d}-${mmm}-${y}`,
-  };
-  const num = 1250000;
-  const numStr = sep === 'punto'  ? '$' + num.toLocaleString('es-CO')
-               : sep === 'coma'   ? '$' + num.toLocaleString('en-US')
-               :                    '$' + num.toLocaleString('fr-FR');
+  fetch("{% url 'actividad_usuarios' %}")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('tituloActividad').textContent =
+        data.es_admin ? 'Actividad de todos los usuarios' : 'Mi actividad';
+      document.getElementById('colUsuario').style.display = data.es_admin ? '' : 'none';
 
-  document.getElementById('preview-fecha').textContent  = fechas[fmt] || fechas['dd/mm/yyyy'];
-  document.getElementById('preview-numero').textContent = numStr;
-}
+      tbody.innerHTML = '';
+      if (data.registros.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">Sin registros</td></tr>';
+        return;
+      }
+      data.registros.forEach(r => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          ${data.es_admin ? `<td>${r.usuario}</td>` : ''}
+          <td>${r.fecha_hora}</td>
+          <td>${r.ip}</td>
+        `;
+        tbody.appendChild(fila);
+      });
+    })
+    .catch(() => {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center">Error al cargar la actividad</td></tr>';
+    });
+});
 
 // ══════════════════════════════════════════
 // LOGO EMPRESA — preview local, se sube junto con "Guardar"

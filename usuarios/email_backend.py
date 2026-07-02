@@ -1,6 +1,5 @@
 import smtplib
 import ssl
-import certifi
 from django.core.mail.backends.smtp import EmailBackend
 
 
@@ -9,7 +8,7 @@ class CertifiEmailBackend(EmailBackend):
         if self.connection:
             return False
         try:
-            ctx = ssl.create_default_context(cafile=certifi.where())
+            ctx = ssl.create_default_context()
             self.connection = smtplib.SMTP(self.host, self.port, timeout=self.timeout)
             self.connection.ehlo()
             if self.use_tls:
