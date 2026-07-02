@@ -91,7 +91,7 @@
               <i class="bi bi-graph-up-arrow" style="color: var(--cys-verde); font-size: 1rem;"></i>
             </div>
             <span style="font-size: .62rem; font-weight: 700; color: var(--cys-verde); background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.25); border-radius: 6px; padding: 3px 9px; text-transform: uppercase; letter-spacing: 0.4px;">Hoy</span>
-          </div>
+            </div>
           <div style="font-size: 1.6rem; font-weight: 800; color: var(--cys-verde); line-height: 1.2;">${{ total_dia|floatformat:0 }}</div>
           <div style="font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px;">Total vendido hoy</div>
         </div>
@@ -368,73 +368,91 @@
       </div>
     </div>
 
-    <div class="cys-hist-search-bar">
+    <div class="cys-hist-toolbar">
       <div class="cys-hist-search-wrap">
         <i class="bi bi-search"></i>
-        <input type="text" id="buscadorHistorial" class="cys-hist-search-input" placeholder="Buscar cliente, producto...">
+        <input type="text" id="buscadorHistorial" class="cys-hist-search-input" placeholder="Buscar por cliente o producto...">
       </div>
-      <span class="cys-filtros-label">Rango de fechas:</span>
-      <input type="date" id="filtroDesde" class="form-control form-control-sm cys-input-dark" style="width:auto;">
-      <span class="cys-filtros-separador">A</span>
-      <input type="date" id="filtroHasta" class="form-control form-control-sm cys-input-dark" style="width:auto;">
-      <button id="btnLimpiarFiltro" class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill">
-        <i class="bi bi-x-circle me-1"></i>Limpiar
-      </button>
+
+      <div class="cys-hist-sort-wrap">
+        <i class="bi bi-sort-down"></i>
+        <select id="ordenHistorial" class="cys-hist-sort-select">
+          <option value="reciente">Más reciente</option>
+          <option value="antiguo">Más antiguo</option>
+          <option value="mayor_total">Mayor total</option>
+          <option value="menor_total">Menor total</option>
+        </select>
+      </div>
     </div>
 
-    <div class="table-responsive p-3">
+    <div class="table-responsive">
       <table class="cys-hist-table w-100" id="tablaHistorial">
-        <thead id="theadHistorial">
+        <thead>
           <tr>
-            <th class="sortable" data-sort="id">#<i class="bi bi-arrow-down-up"></i></th>
-            <th class="sortable" data-sort="cliente">Cliente<i class="bi bi-arrow-down-up"></i></th>
+            <th style="width: 60px; text-align: center;">#</th>
+            <th>Cliente</th>
             <th>Producto</th>
-            <th class="sortable" data-sort="cantidad">Cantidad<i class="bi bi-arrow-down-up"></i></th>
-            <th class="sortable" data-sort="precio">Precio Uni.<i class="bi bi-arrow-down-up"></i></th>
-            <th class="sortable" data-sort="total" style="text-align:right;">Total<i class="bi bi-arrow-down-up"></i></th>
-            <th class="sortable" data-sort="fecha">Fecha<i class="bi bi-arrow-down-up"></i></th>
-            <th></th>
+            <th style="text-align: center; width: 80px;">Cant.</th>
+            <th style="text-align: right; width: 130px;">Precio Uni.</th>
+            <th style="text-align: right; width: 130px;">Total</th>
+            <th style="width: 160px;">Fecha</th>
+            <th style="text-align: center; width: 110px;">Estado</th>
+            <th style="width: 60px;"></th>
           </tr>
         </thead>
         <tbody id="tablaHistorialBody">
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
-            <tr class="fila-venta" data-row
+            <tr class="fila-venta"
+                data-bs-toggle="modal"
+                data-bs-target="#modalDetalle{{ venta.pk }}"
                 data-id="{{ venta.pk }}"
                 data-cliente="{{ venta.cliente.nombre|lower }}"
                 data-cantidad="{{ det.cantidad }}"
                 data-precio="{{ det.precio_unitario }}"
                 data-total="{{ venta.total_venta }}"
                 data-fecha="{{ venta.fecha|date:'c' }}"
-                data-fecha-corta="{{ venta.fecha|date:'Y-m-d' }}"
                 data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
-              <td class="cys-hist-id">{{ venta.pk }}</td>
-              <td class="cys-hist-cliente">{{ venta.cliente.nombre }}</td>
+              <td class="cys-hist-id" style="text-align: center;">{{ forloop.parentloop.counter }}</td>
               <td>
-                <span class="cys-badge-producto">
+                <div class="cys-cliente-cell">
+                  <div class="cys-avatar">{{ venta.cliente.nombre|slice:":2"|upper }}</div>
+                  <div>
+                    <div class="cys-hist-cliente">{{ venta.cliente.nombre }}</div>
+                    <div style="font-size: 0.7rem; color: var(--cys-texto-muted);">Cliente</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="cys-producto-badge">
+                  <i class="bi bi-box me-1"></i>
                   {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
                 </span>
               </td>
-              <td>{{ det.cantidad }}</td>
-              <td>${{ det.precio_unitario|floatformat:0 }}</td>
-              <td class="cys-hist-total">${{ venta.total_venta|floatformat:0 }}</td>
+              <td style="text-align: center; color: #fff; font-weight: 700;">{{ det.cantidad }}</td>
+              <td style="text-align: right; color: var(--cys-texto-muted);">${{ det.precio_unitario|floatformat:0 }}</td>
+              <td class="cys-hist-total" style="text-align: right;">${{ venta.total_venta|floatformat:0 }}</td>
               <td>
                 <span class="cys-hist-fecha">{{ venta.fecha|date:"d/m/Y" }}</span>
                 <span class="cys-hist-hora">{{ venta.fecha|date:"H:i" }}</span>
               </td>
+              <td style="text-align: center;">
+                <span class="cys-estado-pagado">
+                  <i class="bi bi-check-circle-fill"></i> Pagado
+                </span>
+              </td>
               <td class="text-center">
-                <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('¿Eliminar esta venta?');">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm cys-btn-eliminar-fila">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </form>
+                <button type="button" class="btn btn-sm cys-btn-eliminar-fila"
+                        data-bs-toggle="modal" data-bs-target="#modalEliminar{{ venta.pk }}"
+                        onclick="event.stopPropagation();">
+                  <i class="bi bi-trash"></i>
+                </button>
               </td>
             </tr>
             {% endfor %}
           {% empty %}
           <tr id="filaVacia">
-            <td colspan="8" class="cys-empty-box">
+            <td colspan="9" class="cys-empty-box">
               <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
               No hay ventas registradas aún.
             </td>
@@ -445,11 +463,108 @@
 
       <div id="sinResultadosFiltro" style="display:none;" class="cys-hist-sin-resultados">
         <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
-        No hay ventas registradas para este filtro.
+        Sin resultados para esa búsqueda.
       </div>
     </div>
   </section>
 </div>
+
+<!-- ══ MODALES POR VENTA: DETALLE + CONFIRMAR ELIMINACIÓN ══ -->
+{% for venta in ventas %}
+
+<!-- Detalle de Venta #{{ venta.pk }} -->
+<div class="modal fade" id="modalDetalle{{ venta.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content cys-modal-content">
+      <div class="modal-header cys-modal-header">
+        <h5 class="modal-title fw-bold cys-modal-titulo--acento">
+          <i class="bi bi-receipt me-2"></i>Detalle de Venta #{{ venta.pk }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="cys-detalle-info-fila">
+          <span class="cys-detalle-info-label">Cliente</span>
+          <span class="cys-detalle-info-valor">{{ venta.cliente.nombre }}</span>
+        </div>
+        <div class="cys-detalle-info-fila">
+          <span class="cys-detalle-info-label">Fecha</span>
+          <span class="cys-detalle-info-valor">{{ venta.fecha|date:"d/m/Y H:i" }}</span>
+        </div>
+        <div class="cys-detalle-info-fila mb-3">
+          <span class="cys-detalle-info-label">Estado</span>
+          <span class="cys-estado-pagado"><i class="bi bi-check-circle-fill"></i> Pagado</span>
+        </div>
+
+        <div class="cys-modal-seccion-titulo mb-2">Productos</div>
+        {% for det in venta.detalles.all %}
+        <div class="cys-detalle-item">
+          <div>
+            <div class="cys-detalle-item-nombre">
+              {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+            </div>
+            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|floatformat:0 }}</div>
+          </div>
+          <div class="cys-detalle-item-total">${{ det.subtotal|floatformat:0 }}</div>
+        </div>
+        {% endfor %}
+
+        <div class="cys-total-contado-box mt-3">
+          <span class="cys-total-contado-label">Total de la venta</span>
+          <span class="cys-total-contado-valor">${{ venta.total_venta|floatformat:0 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmar Eliminación de Venta #{{ venta.pk }} -->
+<div class="modal fade" id="modalEliminar{{ venta.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content cys-modal-content">
+      <div class="modal-header cys-modal-header">
+        <h5 class="modal-title fw-bold cys-modal-titulo--rojo">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Eliminar Venta
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="cys-confirm-icono-box">
+          <i class="bi bi-trash3"></i>
+        </div>
+        <div class="cys-confirm-texto">¿Seguro que deseas eliminar esta venta?</div>
+        <div class="cys-confirm-subtexto">Esta acción no se puede deshacer. La venta contiene:</div>
+
+        {% for det in venta.detalles.all %}
+        <div class="cys-detalle-item">
+          <div>
+            <div class="cys-detalle-item-nombre">
+              {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+            </div>
+            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|floatformat:0 }}</div>
+          </div>
+          <div class="cys-detalle-item-total">${{ det.subtotal|floatformat:0 }}</div>
+        </div>
+        {% endfor %}
+
+        <div class="cys-total-contado-box mb-3 mt-2">
+          <span class="cys-total-contado-label">Total</span>
+          <span class="cys-total-contado-valor">${{ venta.total_venta|floatformat:0 }}</span>
+        </div>
+
+        <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="button" class="btn cys-btn-cancel" style="flex:1;" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn cys-btn-action-rojo" style="flex:1; justify-content:center;">
+            <i class="bi bi-trash me-1"></i> Sí, eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %}
 
 <!-- ══ MODAL APERTURA DE CAJA ══ -->
 <div class="modal fade" id="modalConteo" tabindex="-1">
@@ -807,7 +922,6 @@ function renderCarrito() {
   const descValor  = subtotal * (descPct / 100);
   const total      = subtotal - descValor;
 
-  // Mostrar desglose solo si hay descuento > 0
   const desgloseEl = document.getElementById('desgloseDescuento');
   if (descPct > 0) {
     desgloseEl.style.display = 'block';
@@ -843,10 +957,8 @@ function calcularPagado() {
   });
   document.getElementById('totalPagado').textContent = '$' + Math.round(pagado).toLocaleString('es-CO');
 
-  // Lógica cambio / faltante en efectivo
   const efectivo = parseFloat(document.getElementById('pagoEfectivo').value) || 0;
 
-  // Obtener total actual
   let subtotal = 0;
   carrito.forEach(item => { subtotal += item.precio * item.cantidad; });
   const descPct = parseFloat(document.getElementById('inputDescuento').value) || 0;
@@ -861,17 +973,14 @@ function calcularPagado() {
     const diferencia = efectivo - total;
 
     if (diferencia < 0) {
-      // Falta dinero
       filaFalta.style.display  = 'flex';
       filaCambio.style.display = 'none';
       document.getElementById('montoFalta').textContent = '$' + Math.abs(diferencia).toLocaleString('es-CO');
     } else if (diferencia > 0) {
-      // Sobra → cambio
       filaFalta.style.display  = 'none';
       filaCambio.style.display = 'flex';
       document.getElementById('montoCambio').textContent = '$' + diferencia.toLocaleString('es-CO');
     } else {
-      // Exacto
       filaFalta.style.display  = 'none';
       filaCambio.style.display = 'flex';
       document.getElementById('montoCambio').textContent = '$0 (exacto)';
@@ -896,7 +1005,6 @@ document.getElementById('formVenta').addEventListener('submit', function(e) {
     errorEl.style.display = 'flex';
     inputEl.classList.add('cys-input-error');
     inputEl.focus();
-    // Scroll suave al campo
     inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
@@ -904,7 +1012,6 @@ document.getElementById('formVenta').addEventListener('submit', function(e) {
   inputEl.classList.remove('cys-input-error');
 });
 
-// Limpiar error al escribir
 document.getElementById('inputClienteNombre').addEventListener('input', function() {
   if (this.value.trim()) {
     document.getElementById('errorCliente').style.display = 'none';
@@ -1058,74 +1165,51 @@ document.addEventListener('click', e => {
   if (!inputCliente.contains(e.target)) sugerencias.style.display = 'none';
 });
 
-// ══ BÚSQUEDA + FILTRO POR FECHA + ORDENAMIENTO DEL HISTORIAL ══
+// ══ BÚSQUEDA + ORDENAMIENTO DEL HISTORIAL ══
 const inputBusquedaHist = document.getElementById('buscadorHistorial');
-const filtroDesdeEl     = document.getElementById('filtroDesde');
-const filtroHastaEl     = document.getElementById('filtroHasta');
+const selectOrdenHist   = document.getElementById('ordenHistorial');
 const tbodyHistorial    = document.getElementById('tablaHistorialBody');
 const sinResultadosEl   = document.getElementById('sinResultadosFiltro');
 
+function filasHistorial() {
+  return Array.from(tbodyHistorial.querySelectorAll('tr.fila-venta'));
+}
+
 function aplicarFiltroHistorial() {
-  const term  = inputBusquedaHist.value.toLowerCase().trim();
-  const desde = filtroDesdeEl.value;
-  const hasta = filtroHastaEl.value;
+  const term = (inputBusquedaHist.value || '').toLowerCase().trim();
   let visibles = 0;
-
-  tbodyHistorial.querySelectorAll('.fila-venta').forEach(fila => {
-    const texto          = fila.dataset.buscar || '';
-    const fechaCorta     = fila.dataset.fechaCorta || '';
-    const coincideTexto  = !term  || texto.includes(term);
-    const coincideFecha  = (!desde || fechaCorta >= desde) && (!hasta || fechaCorta <= hasta);
-    const visible = coincideTexto && coincideFecha;
-    fila.style.display = visible ? '' : 'none';
-    if (visible) visibles++;
+  filasHistorial().forEach(function (fila) {
+    const coincide = (fila.dataset.buscar || '').indexOf(term) !== -1;
+    fila.style.display = coincide ? '' : 'none';
+    if (coincide) visibles++;
   });
-
   if (sinResultadosEl) sinResultadosEl.style.display = visibles === 0 ? 'block' : 'none';
 }
 
-// Filtra en vivo apenas se empieza a escribir
-inputBusquedaHist.addEventListener('input', aplicarFiltroHistorial);
-filtroDesdeEl.addEventListener('change', aplicarFiltroHistorial);
-filtroHastaEl.addEventListener('change', aplicarFiltroHistorial);
-document.getElementById('btnLimpiarFiltro').addEventListener('click', () => {
-  inputBusquedaHist.value = '';
-  filtroDesdeEl.value = '';
-  filtroHastaEl.value = '';
-  aplicarFiltroHistorial();
-});
+function ordenarHistorial() {
+  const criterio = selectOrdenHist.value;
+  const filas = filasHistorial();
 
-// ── Flechas de orden (clic en encabezados) ──
-function activarOrdenTabla(theadId, tbodyEl, filaSelector) {
-  const thead = document.getElementById(theadId);
-  if (!thead) return;
-  let estado = { campo: null, asc: true };
-
-  thead.querySelectorAll('th.sortable').forEach(th => {
-    th.addEventListener('click', () => {
-      const campo = th.dataset.sort;
-      estado.asc = (estado.campo === campo) ? !estado.asc : true;
-      estado.campo = campo;
-
-      thead.querySelectorAll('th.sortable').forEach(h => h.classList.remove('activo', 'desc'));
-      th.classList.add('activo');
-      if (!estado.asc) th.classList.add('desc');
-
-      const filas = Array.from(tbodyEl.querySelectorAll(filaSelector));
-      filas.sort((a, b) => {
-        const va = a.dataset[campo] || '';
-        const vb = b.dataset[campo] || '';
-        const na = parseFloat(va), nb = parseFloat(vb);
-        const esNumerico = va !== '' && vb !== '' && !isNaN(na) && !isNaN(nb);
-        const cmp = esNumerico ? na - nb : va.localeCompare(vb, 'es');
-        return estado.asc ? cmp : -cmp;
-      });
-      filas.forEach(f => tbodyEl.appendChild(f));
-    });
+  filas.sort(function (a, b) {
+    switch (criterio) {
+      case 'reciente':
+        return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
+      case 'antiguo':
+        return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
+      case 'mayor_total':
+        return parseFloat(b.dataset.total) - parseFloat(a.dataset.total);
+      case 'menor_total':
+        return parseFloat(a.dataset.total) - parseFloat(b.dataset.total);
+      default:
+        return 0;
+    }
   });
+
+  filas.forEach(function (fila) { tbodyHistorial.appendChild(fila); });
 }
 
-activarOrdenTabla('theadHistorial', tbodyHistorial, '.fila-venta');
+if (inputBusquedaHist) inputBusquedaHist.addEventListener('input', aplicarFiltroHistorial);
+if (selectOrdenHist)   selectOrdenHist.addEventListener('change', ordenarHistorial);
 
 // ── Inicializar ──
 renderCategorias();

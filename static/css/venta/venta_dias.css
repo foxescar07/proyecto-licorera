@@ -170,12 +170,15 @@
 .cys-rank-fill {
     height: 100%;
     border-radius: 50px;
-    background: #4da8da;
 }
 
-.cys-rank-fill--top {
-    background: #f0a83a;
-}
+/* Paleta fría para cada barra de producto (asignada por rotación en el template) */
+.cys-rank-fill--c1 { background: #4da8da; } /* azul cielo */
+.cys-rank-fill--c2 { background: #7a5cf0; } /* morado */
+.cys-rank-fill--c3 { background: #2ec4c4; } /* teal / cian */
+.cys-rank-fill--c4 { background: #6a7ac0; } /* azul índigo */
+.cys-rank-fill--c5 { background: #3ad6a0; } /* verde azulado */
+.cys-rank-fill--c6 { background: #38bdf8; } /* celeste claro */
 
 /* ── Ventas tope del día (diseño circular) ── */
 .cys-circular-wrap {
@@ -378,3 +381,76 @@
 .cys-hist-hora { color: var(--cys-texto-muted); font-size: .72rem; display: block; }
 
 .cys-hist-sin-resultados { text-align: center; padding: 3rem 1rem; color: var(--cys-texto-muted); }
+/* ── Toolbar de búsqueda + orden (Historial de Ventas) ── */
+  .cys-hist-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem 1.5rem;
+    background: #0a1628;
+    border-bottom: 1px solid rgba(77, 168, 218, 0.18);
+  }
+  .cys-hist-search-wrap {
+    position: relative;
+    flex: 1 1 280px;
+    min-width: 220px;
+  }
+  .cys-hist-search-wrap i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4da8da;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+  .cys-hist-search-input {
+    width: 100%;
+    background: #0d1c33;
+    border: 1px solid rgba(77, 168, 218, 0.28);
+    color: #fff;
+    border-radius: 50px;
+    padding: 9px 16px 9px 38px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .cys-hist-search-input:focus { border-color: #4da8da; }
+  .cys-hist-search-input::placeholder { color: #7a96b0; }
+
+  .cys-hist-sort-wrap { position: relative; flex: 0 0 auto; }
+  .cys-hist-sort-wrap i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4da8da;
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+  .cys-hist-sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #0d1c33;
+    border: 1px solid rgba(77, 168, 218, 0.28);
+    color: #fff;
+    border-radius: 50px;
+    padding: 9px 34px 9px 38px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    min-width: 170px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234da8da' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+  }
+  .cys-hist-sort-select:focus { border-color: #4da8da; }
+  .cys-hist-sort-select option { background: #0d1c33; color: #fff; }
+
+  .cys-hist-sin-resultados {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #7a96b0;
+  }

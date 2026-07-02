@@ -696,6 +696,21 @@
   border-radius: 8px !important;
 }
 
+/* Botón eliminar fila (historial) */
+.cys-btn-eliminar-fila {
+  background: rgba(231, 76, 60, 0.08) !important;
+  border: 1px solid rgba(231, 76, 60, 0.2) !important;
+  color: var(--cys-rojo) !important;
+  border-radius: 8px !important;
+  padding: 5px 9px;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.cys-btn-eliminar-fila:hover {
+  background: rgba(231, 76, 60, 0.18) !important;
+  border-color: var(--cys-rojo) !important;
+}
+
 /* ══════════════════════════════════════
    VOLVER / SUBTÍTULOS DE NAVEGACIÓN
 ══════════════════════════════════════ */
@@ -715,22 +730,22 @@
 .cys-empty-box i { color: rgba(77, 168, 218, 0.2); }
 
 /* ══════════════════════════════════════
-   HISTORIAL — BARRA DE BÚSQUEDA/FILTROS
-   (estilo alineado a la tabla de inventario)
+   HISTORIAL — TOOLBAR (buscador + orden)
+   Igual estilo que "Ventas del día"
 ══════════════════════════════════════ */
-.cys-hist-search-bar {
+.cys-hist-toolbar {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--cys-borde);
   background: rgba(77, 168, 218, 0.02);
+  border-bottom: 1px solid var(--cys-borde);
 }
 
 .cys-hist-search-wrap {
   position: relative;
-  flex: 1 1 260px;
+  flex: 1 1 280px;
   min-width: 220px;
 }
 .cys-hist-search-wrap i {
@@ -738,8 +753,8 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--cys-texto-muted);
-  font-size: 0.85rem;
+  color: var(--cys-acento);
+  font-size: 0.9rem;
   pointer-events: none;
 }
 .cys-hist-search-input {
@@ -747,34 +762,49 @@
   background: var(--cys-surface);
   border: 1px solid var(--cys-borde);
   color: #fff;
-  border-radius: 10px;
-  padding: 8px 14px 8px 38px;
-  font-size: 0.85rem;
-}
-.cys-hist-search-input::placeholder { color: var(--cys-texto-muted); }
-.cys-hist-search-input:focus {
+  border-radius: 50px;
+  padding: 9px 16px 9px 38px;
+  font-size: 0.88rem;
   outline: none;
-  border-color: var(--cys-acento);
+  transition: border-color 0.2s;
 }
+.cys-hist-search-input:focus { border-color: var(--cys-acento); }
+.cys-hist-search-input::placeholder { color: var(--cys-texto-muted); }
 
-.cys-filtros-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--cys-texto-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
+.cys-hist-sort-wrap { position: relative; flex: 0 0 auto; }
+.cys-hist-sort-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cys-acento);
+  font-size: 0.85rem;
+  pointer-events: none;
 }
-.cys-filtros-separador {
-  color: var(--cys-texto-muted);
-  font-size: 0.8rem;
-  font-weight: 600;
+.cys-hist-sort-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--cys-surface);
+  border: 1px solid var(--cys-borde);
+  color: #fff;
+  border-radius: 50px;
+  padding: 9px 34px 9px 38px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 170px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234da8da' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
 }
+.cys-hist-sort-select:focus { border-color: var(--cys-acento); }
+.cys-hist-sort-select option { background: var(--cys-surface); color: #fff; }
 
 /* ══════════════════════════════════════
    HISTORIAL — TABLA ESTILO "INVENTARIO"
    Fondo plano, sin tarjetas por fila,
-   encabezado celeste con flechas de orden
+   avatar de cliente + badges
 ══════════════════════════════════════ */
 .cys-hist-table {
   width: 100%;
@@ -796,22 +826,6 @@
   text-align: left;
   white-space: nowrap;
 }
-
-.cys-hist-table thead th.sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.15s;
-}
-.cys-hist-table thead th.sortable i {
-  margin-left: 5px;
-  font-size: 0.68rem;
-  color: var(--cys-texto-muted);
-  transition: color 0.15s;
-}
-.cys-hist-table thead th.sortable:hover { color: #fff; }
-.cys-hist-table thead th.sortable:hover i { color: var(--cys-acento); }
-.cys-hist-table thead th.sortable.activo { color: #fff; }
-.cys-hist-table thead th.sortable.activo i { color: var(--cys-cian-brillante); }
 
 .cys-hist-table tbody tr {
   border-bottom: 1px solid rgba(77, 168, 218, 0.08);
@@ -840,7 +854,7 @@
 }
 
 .cys-hist-total {
-  color: #fff;
+  color: var(--cys-verde);
   font-weight: 700;
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.95rem;
@@ -864,6 +878,53 @@
   color: var(--cys-texto-muted);
 }
 .cys-hist-sin-resultados i { color: rgba(77, 168, 218, 0.2); }
+
+/* ── Avatar + celda cliente (igual a "Ventas del día") ── */
+.cys-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(77, 168, 218, 0.15);
+  color: var(--cys-acento);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 1px solid rgba(77, 168, 218, 0.2);
+  flex-shrink: 0;
+}
+.cys-cliente-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── Badge de producto ── */
+.cys-producto-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(46, 204, 113, 0.06);
+  color: var(--cys-verde);
+  border: 1px solid rgba(46, 204, 113, 0.18);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+/* ── Badge de estado "Pagado" ── */
+.cys-estado-pagado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(46, 204, 113, 0.1);
+  color: var(--cys-verde);
+  border: 1px solid rgba(46, 204, 113, 0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
 
 /* ══════════════════════════════════════
    ALERTAS
@@ -976,4 +1037,73 @@
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--cys-verde);
+}
+/* ══════════════════════════════════════
+   MODAL DETALLE DE VENTA
+══════════════════════════════════════ */
+.cys-detalle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--cys-surface);
+  border: 1px solid var(--cys-borde);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.cys-detalle-item-nombre {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.9rem;
+}
+.cys-detalle-item-meta {
+  font-size: 0.75rem;
+  color: var(--cys-texto-muted);
+  margin-top: 2px;
+}
+.cys-detalle-item-total {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--cys-verde);
+}
+.cys-detalle-info-fila {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(77,168,218,0.1);
+  font-size: 0.85rem;
+}
+.cys-detalle-info-label { color: var(--cys-texto-muted); }
+.cys-detalle-info-valor { color: #fff; font-weight: 700; }
+
+/* Fila clickeable en historial */
+.cys-hist-table tbody tr.fila-venta { cursor: pointer; }
+
+/* ══════════════════════════════════════
+   MODAL CONFIRMAR ELIMINACIÓN
+══════════════════════════════════════ */
+.cys-confirm-icono-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+.cys-confirm-icono-box i { font-size: 1.6rem; color: var(--cys-rojo); }
+.cys-confirm-texto {
+  text-align: center;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.cys-confirm-subtexto {
+  text-align: center;
+  color: var(--cys-texto-muted);
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
 }
