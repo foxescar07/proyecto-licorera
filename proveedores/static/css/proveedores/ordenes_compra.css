@@ -17,6 +17,94 @@
 }
 
 /* ══════════════════════════════════════════
+   ESTILOS DE TABLA CYS-INV-TABLE
+   ══════════════════════════════════════════ */
+
+.cys-inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: .88rem;
+  background: transparent;
+  table-layout: auto;
+  box-sizing: border-box;
+}
+
+.cys-inv-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  color: #4DA8DA;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid rgba(77, 168, 218, 0.3);
+  text-align: left;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+/* Alinear números a la derecha */
+.cys-inv-table th:nth-child(5),
+.cys-inv-table td[data-label="TOTAL"] {
+  text-align: right !important;
+  padding-right: 4rem !important;
+}
+
+.cys-inv-table th:nth-child(6),
+.cys-inv-table td[data-label="ACCIONES"] {
+  text-align: center !important;
+  padding-left: 3rem !important;
+}
+
+.cys-inv-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.01);
+  text-align: left;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.cys-inv-table tbody tr:hover td {
+  background: rgba(77, 168, 218, 0.08);
+  color: #fff;
+  border-bottom-color: rgba(77, 168, 218, 0.2);
+}
+
+.cys-inv-table tbody td.cys-td {
+  padding: 1.2rem 1.5rem;
+  color: #E2E8F0;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.cys-inv-table tbody td.cys-td--muted {
+  color: #8FA3B1 !important;
+  font-weight: 500 !important;
+}
+
+.cys-inv-table thead th:last-child,
+.cys-inv-table tbody td[data-label="Total"],
+.cys-inv-table tbody td[data-label="Acciones"] {
+  min-width: 120px !important;
+}
+
+.cys-inv-table tbody td[data-label="Total"] {
+  text-align: right !important;
+  color: #4DA8DA !important;
+  font-weight: 600 !important;
+  padding-right: 4rem !important;
+}
+
+.cys-inv-table tbody td[data-label="Acciones"] {
+  text-align: center !important;
+  padding-left: 3rem !important;
+  padding-right: 2rem !important;
+}
+
+/* ══════════════════════════════════════════
    BOTONES DE ACCIONES DE COMPRA CON COLORES
    ══════════════════════════════════════════ */
 
@@ -155,6 +243,61 @@ button.btn-accion-recibir:hover {
 
 button.btn-accion-recibir:hover i {
   color: #52be80 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ESTILOS DE PAGINACIÓN Y FOOTER
+   ══════════════════════════════════════════════════════════════ */
+
+.cys-hv-table-footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 1.5rem !important;
+  background: transparent !important;
+  border-top: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #8FA3B1 !important;
+  font-size: 0.9rem !important;
+  gap: 2rem !important;
+}
+
+.cys-hv-showing-info {
+  color: #4DA8DA !important;
+  font-weight: 500 !important;
+  min-width: 200px !important;
+}
+
+.cys-hv-pagination-wrap {
+  display: flex !important;
+  gap: 0.5rem !important;
+  justify-content: flex-end !important;
+}
+
+.cys-hv-pagination-wrap .paginate_button {
+  background: transparent !important;
+  border: 1px solid rgba(77, 168, 218, 0.3) !important;
+  color: #4DA8DA !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-weight: 500 !important;
+}
+
+.cys-hv-pagination-wrap .paginate_button:hover {
+  background: rgba(77, 168, 218, 0.1) !important;
+  border-color: #4DA8DA !important;
+}
+
+.cys-hv-pagination-wrap .paginate_button.current {
+  background: #4DA8DA !important;
+  border-color: #4DA8DA !important;
+  color: #fff !important;
+}
+
+.cys-hv-pagination-wrap .paginate_button.disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
 }
 
 /* ══════════════════════════════════════════════════════════════
