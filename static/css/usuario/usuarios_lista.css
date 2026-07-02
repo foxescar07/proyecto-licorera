@@ -632,10 +632,38 @@
 .eu-msg-ok    { background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.35); color: #5edb97; }
 .eu-msg-error { background: rgba(192,57,43,.1); border: 1px solid rgba(192,57,43,.35); color: #e87070; }
 .eu-label  { font-size: .62rem; font-weight: 600; color: rgba(232,237,242,.4); letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .3rem; }
-.eu-input  { background: #111f33; border: 1px solid rgba(77,168,218,.3); color: #E8EDF2; border-radius: 10px; padding: .65rem .9rem; font-size: .85rem; width: 100%; outline: none; font-family: 'Inter',sans-serif; transition: border-color .2s; }
-.eu-input:focus  { border-color: #4DA8DA; }
-.eu-input option { background: #111f33; }
-.eu-input--invalid { border-color: #e87070 !important; box-shadow: 0 0 0 3px rgba(232,112,112,.1) !important; }
+.eu-input { 
+  background: #111f33; 
+  border: 1px solid rgba(77,168,218,.3); 
+  color: #E8EDF2; 
+  border-radius: 10px; 
+  padding: .65rem .9rem; 
+  font-size: .85rem; 
+  width: 100%; 
+  outline: none; 
+  font-family: 'Inter', sans-serif; 
+  transition: border-color .2s; 
+}
+.eu-input:focus { 
+  border-color: #4DA8DA; 
+}
+.eu-input option { 
+  background: #111f33; 
+}
+.eu-input--invalid { 
+  border-color: #e87070 !important; 
+  box-shadow: 0 0 0 3px rgba(232,112,112,.1) !important; 
+}
+
+/* ── SOLUCIÓN AL AUTOFILL (Evita el fondo blanco/vacío del navegador) ── */
+.eu-input:-webkit-autofill,
+.eu-input:-webkit-autofill:hover, 
+.eu-input:-webkit-autofill:focus,
+.eu-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #111f33 inset !important;
+  -webkit-text-fill-color: #E8EDF2 !important;
+  font-family: 'Inter', sans-serif !important;
+}
 .modal-divider    { border-color: rgba(77,168,218,.12); margin: 1rem 0 .85rem; }
 .modal-pass-title { font-size: .68rem; color: rgba(232,237,242,.3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .85rem; }
 .modal-btn-guardar { background: #4DA8DA; color: #011936; border: none; border-radius: 10px; padding: .75rem; font-family: 'Rajdhani',sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: .1em; text-transform: uppercase; transition: background .2s; box-shadow: 0 4px 14px rgba(77,168,218,.3); }

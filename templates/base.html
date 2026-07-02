@@ -101,7 +101,7 @@ body.offcanvas-open {
     </main>
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/reloj.js' %}"></script>
     <script src="{% static 'js/principal.js' %}"></script>
 
@@ -115,11 +115,13 @@ body.offcanvas-open {
             });
             const menuBtn = document.getElementById('menuBtn');
 
-            // Restaurar estado guardado
-            if (localStorage.getItem('sidebarOpen') === 'true') {
-                sidebarEl.classList.add('show');
-                document.body.classList.add('sidebar-open');
-                sidebarEl.style.visibility = 'visible';
+            // Abrir automáticamente según preferencia de Configuración (cys_config.sidebarAuto)
+            let cysCfg = {};
+            try { cysCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
+            if (cysCfg.sidebarAuto === true) {
+            sidebarEl.classList.add('show');
+            document.body.classList.add('sidebar-open');
+            sidebarEl.style.visibility = 'visible'; 
             }
 
             menuBtn?.addEventListener('click', () => bsSidebar.toggle());
@@ -132,14 +134,12 @@ body.offcanvas-open {
 
             sidebarEl.addEventListener('show.bs.offcanvas', () => {
                 document.body.classList.add('sidebar-open');
-                localStorage.setItem('sidebarOpen', 'true');
                 limpiarBootstrap();
             });
             sidebarEl.addEventListener('shown.bs.offcanvas', limpiarBootstrap);
             sidebarEl.addEventListener('hide.bs.offcanvas',  limpiarBootstrap);
             sidebarEl.addEventListener('hidden.bs.offcanvas', () => {
                 document.body.classList.remove('sidebar-open');
-                localStorage.setItem('sidebarOpen', 'false');
                 limpiarBootstrap();
             });
         }

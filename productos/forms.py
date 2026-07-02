@@ -70,10 +70,9 @@ class PresentacionForm(forms.ModelForm):
 class AgendaInventarioForm(forms.ModelForm):
     class Meta:
         model  = AgendaInventario
-        fields = ['titulo', 'descripcion', 'fecha_programada', 'estado']
+        fields = ['titulo', 'descripcion', 'fecha_programada',]
         widgets = {
             'titulo':           forms.TextInput(attrs={'class': 'gp-input'}),
             'descripcion':      forms.Textarea(attrs={'class': 'gp-input', 'rows': 2}),
             'fecha_programada': forms.DateTimeInput(attrs={'class': 'gp-input', 'type': 'datetime-local'}),
-            'estado':           forms.Select(attrs={'class': 'gp-input'}),
         }

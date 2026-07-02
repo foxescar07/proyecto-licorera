@@ -129,16 +129,21 @@
                     <td class="text-end">
                       <div class="dropdown">
                         <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" data-bs-strategy="fixed">
+                                data-bs-toggle="dropdown"
+                                title="Acciones">
                           <i class="bi bi-three-dots"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
-                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
-                        </ul>
+                          <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
+  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
+  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-warning"></i>Editar</a></li>
+  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
+ <li><hr class="dropdown-divider"></li>
+{% if p.activo %}
+<li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-warning"></i>Desactivar</a></li>
+{% else %}
+<li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
+{% endif %}
+</ul>
                       </div>
                     </td>
                   </tr>
@@ -167,13 +172,14 @@
                     <td class="text-end">
                       <div class="dropdown">
                         <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" data-bs-strategy="fixed">
-                          <i class="bi bi-three-dots"></i>
+                            data-bs-toggle="dropdown"
+                            title="Acciones">
+                            <i class="bi bi-three-dots"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
-                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
                           <li><hr class="dropdown-divider"></li>
                           <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
                         </ul>
@@ -543,12 +549,56 @@ function filtrarProductos(q) {
   document.getElementById('noResultados').classList.toggle('d-none', alguno || !term);
 }
 
-function confirmarEliminar(url, nombre) {
-  if (confirm('¿Eliminar "' + nombre + '"?')) {
+function confirmarToggle(url, nombre, accion) {
+  if (confirm('¿Deseas ' + accion + ' "' + nombre + '"?')) {
     const form = document.getElementById('form-eliminar');
     form.action = url;
     form.submit();
   }
 }
+// Tooltips de Bootstrap 5 en los botones de acciones
+window.addEventListener('load', function () {
+  const tooltipTriggerList = document.querySelectorAll('.prod-table [title]');
+  tooltipTriggerList.forEach(function (el) {
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover'
+    });
+  });
+});
+
+// ══════════════════════════════════════════════════════════
+// FIX: el dropdown de acciones (⋮) no se cerraba al elegir
+// una opción ni al hacer clic fuera de él.
+// Forzamos el cierre manual usando la API de Bootstrap.
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function () {
+  // 1) Cierra el dropdown ANTES de que se ejecute cualquier acción
+  //    (abrir modal, click en Desactivar/Activar, etc.)
+  document.querySelectorAll('.prod-dropdown-menu .dropdown-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      const menu = item.closest('.dropdown-menu');
+      const toggleBtn = menu ? menu.previousElementSibling : null;
+      if (toggleBtn) {
+        const dd = bootstrap.Dropdown.getOrCreateInstance(toggleBtn);
+        dd.hide();
+      }
+    });
+  });
+
+  // 2) Cierra cualquier dropdown abierto si se hace clic en
+  //    cualquier otra parte de la página
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('.dropdown-menu.show').forEach(function (menu) {
+      const dropdownWrap = menu.closest('.dropdown');
+      if (dropdownWrap && !dropdownWrap.contains(e.target)) {
+        const toggleBtn = menu.previousElementSibling;
+        if (toggleBtn) {
+          bootstrap.Dropdown.getOrCreateInstance(toggleBtn).hide();
+        }
+      }
+    });
+  }, true);
+});
 </script>
 {% endblock %}

@@ -9,6 +9,7 @@ from django.utils.crypto import get_random_string
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
+from django.urls import reverse, NoReverseMatch
 from datetime import timedelta
 from django.http import JsonResponse
 from .forms import UsuarioForm
@@ -65,11 +66,30 @@ def _ctx_base(request):
     }
 
 
+def _destino_post_login(request):
+    """
+    Lee la cookie 'cys_pagina_inicio' (guardada desde Configuración) y
+    devuelve la URL a la que se debe redirigir tras iniciar sesión.
+    Si no existe la cookie o el valor no es válido, cae a 'principal' (Tablero).
+    """
+    pagina = request.COOKIES.get('cys_pagina_inicio', 'tablero')
+    mapa_urls = {
+        'tablero':   'principal',
+        'ventas':    'ventas:ventas_lista',
+        'productos': 'lista_productos',
+    }
+    nombre_url = mapa_urls.get(pagina, 'principal')
+    try:
+        return reverse(nombre_url)
+    except NoReverseMatch:
+        return reverse('principal')
+
+
 # ── LOGIN ──────────────────────────────────────────────────────────────────────
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('principal')
+        return redirect(_destino_post_login(request))
 
     seccion       = request.GET.get('action', 'login')
     usuario_input = ''
@@ -100,9 +120,10 @@ def login_view(request):
             if user:
                 login(request, user)
                 _set_session(request, usuario)
+                destino = _destino_post_login(request)
                 if es_ajax:
-                    return JsonResponse({'ok': True, 'redirect': '/'})
-                return redirect('principal')
+                    return JsonResponse({'ok': True, 'redirect': destino})
+                return redirect(destino)
 
         err = 'Usuario o contraseña incorrectos.'
         if es_ajax:
