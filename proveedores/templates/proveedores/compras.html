@@ -176,8 +176,9 @@
                   <th class="text-center small header-th">Cant.</th>
                   <th class="text-end small header-th">Precio</th>
                   <th class="text-end small header-th">Total</th>
+                  <th class="text-center small header-th">Pago</th>
                   <th class="text-center small header-th">Fecha</th>
-                  <th class="text-center small header-th">Ver</th>
+                  <th class="text-center small header-th">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,13 +213,38 @@
                         <span class="text-muted">—</span>
                       {% endif %}
                     </td>
+                    <td class="text-center small">
+                      {% if compra.estado_pago == 'pagada' %}
+                        <span class="badge" style="background: rgba(39, 174, 96, 0.2); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.3);">
+                          <i class="bi bi-check-circle me-1"></i>Pagada
+                        </span>
+                      {% elif compra.estado_pago == 'parcial' %}
+                        <span class="badge" style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3);">
+                          <i class="bi bi-dash-circle me-1"></i>Parcial
+                        </span>
+                      {% else %}
+                        <span class="badge" style="background: rgba(155, 93, 229, 0.2); color: #9b5de5; border: 1px solid rgba(155, 93, 229, 0.3);">
+                          <i class="bi bi-hourglass-split me-1"></i>Pendiente
+                        </span>
+                      {% endif %}
+                    </td>
                     <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
                     <td class="text-center">
-                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2"
-                              data-bs-toggle="modal"
-                              data-bs-target="#detalleCompra{{ compra.id }}">
-                        <i class="bi bi-eye"></i>
-                      </button>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary py-0 px-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#detalleCompra{{ compra.id }}"
+                                title="Ver detalles">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary py-0 px-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalPago"
+                                onclick="abrirModalPago({{ compra.id }})"
+                                title="Registrar pago">
+                          <i class="bi bi-credit-card"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 {% empty %}
@@ -773,5 +799,129 @@
     }
   });
 </script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: INFORMACIÓN DE PAGO (COMPRA) -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+
+<div class="modal fade" id="modalPago" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.15) !important;">
+                <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important;">
+                    <i class="bi bi-credit-card" style="color: #f39c12;"></i> Información de Pago
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formPago" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="compraId" name="compra_id">
+                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important;">
+
+                    <!-- Número de Factura -->
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #8FA3B1 !important;">Número de Factura:</label>
+                        <input type="text" id="numeroFactura" name="numero_factura" class="form-control"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                               placeholder="Ej: FAC-2026-001">
+                    </div>
+
+                    <!-- Método de Pago -->
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #8FA3B1 !important;">Método de Pago:</label>
+                        <select id="metodoPago" name="metodo_pago" class="form-select"
+                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                            <option value="">-- Selecciona --</option>
+                            <option value="transferencia">Transferencia Bancaria</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="tarjeta">Tarjeta de Crédito</option>
+                            <option value="credito">Crédito a 30 días</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <!-- Estado de Pago -->
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #8FA3B1 !important;">Estado de Pago:</label>
+                        <select id="estadoPago" name="estado_pago" class="form-select"
+                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                            <option value="pendiente">Pendiente de Pago</option>
+                            <option value="parcial">Pago Parcial</option>
+                            <option value="pagada">Pagada</option>
+                        </select>
+                    </div>
+
+                    <!-- Monto Pagado (si es parcial) -->
+                    <div class="mb-3" id="montoPagadoDiv" style="display: none;">
+                        <label class="form-label" style="color: #8FA3B1 !important;">Monto Pagado:</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">$</span>
+                            <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01"
+                                   style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Pago -->
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #8FA3B1 !important;">Fecha de Pago:</label>
+                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                    </div>
+                </div>
+                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.15) !important;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn" style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
+                        <i class="bi bi-check-circle"></i> Guardar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mostrar/ocultar monto pagado según estado
+document.getElementById('estadoPago')?.addEventListener('change', function() {
+    const montoPagadoDiv = document.getElementById('montoPagadoDiv');
+    if (this.value === 'parcial') {
+        montoPagadoDiv.style.display = 'block';
+    } else {
+        montoPagadoDiv.style.display = 'none';
+    }
+});
+
+// Abrir modal de pago con ID de compra
+function abrirModalPago(compraId) {
+    document.getElementById('compraId').value = compraId;
+    // Opcional: cargar datos de la compra mediante AJAX
+}
+
+// Enviar formulario de pago
+document.getElementById('formPago')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const compraId = document.getElementById('compraId').value;
+    const formData = new FormData(this);
+
+    fetch(`/compras/${compraId}/pago/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'ok') {
+            alert('Pago registrado correctamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalPago')).hide();
+            location.reload();
+        }
+    })
+    .catch(err => console.error('Error:', err));
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
 
 {% endblock %}
