@@ -23,7 +23,10 @@
     <!-- Tarjeta Inventario -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--inv h-100"
-           data-bs-toggle="modal" data-bs-target="#modalInventario">
+           data-modal-target="#modalInventario">
+        <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
+          <i class="bi bi-bar-chart-line"></i>
+        </button>
         <div class="cys-report-card-layout">
           <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--inv">
             <i class="bi bi-box-seam"></i>
@@ -48,13 +51,19 @@
             <span class="cys-report-card__link-text--inv">Ver reporte →</span>
           </div>
         </div>
+        <div class="cys-report-card__chart-wrap d-none">
+          <canvas></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Tarjeta Proveedores -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--prov h-100"
-           data-bs-toggle="modal" data-bs-target="#modalProveedores">
+           data-modal-target="#modalProveedores">
+        <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
+          <i class="bi bi-bar-chart-line"></i>
+        </button>
         <div class="cys-report-card-layout">
           <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--prov">
             <i class="bi bi-truck"></i>
@@ -75,13 +84,19 @@
             <span class="cys-report-card__link-text--prov">Ver reporte →</span>
           </div>
         </div>
+        <div class="cys-report-card__chart-wrap d-none">
+          <canvas></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Tarjeta Compras -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--compras h-100"
-           data-bs-toggle="modal" data-bs-target="#modalCompras">
+           data-modal-target="#modalCompras">
+        <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
+          <i class="bi bi-bar-chart-line"></i>
+        </button>
         <div class="cys-report-card-layout">
           <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--compras">
             <i class="bi bi-cart3"></i>
@@ -106,13 +121,19 @@
             <span class="cys-report-card__link-text--compras">Ver reporte →</span>
           </div>
         </div>
+        <div class="cys-report-card__chart-wrap d-none">
+          <canvas></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Tarjeta Resumen Diario -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--diario h-100"
-           data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
+           data-modal-target="#modalResumenDiario">
+        <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
+          <i class="bi bi-bar-chart-line"></i>
+        </button>
         <div class="cys-report-card-layout">
           <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--diario">
             <i class="bi bi-calendar-day"></i>
@@ -137,13 +158,19 @@
             <span class="cys-report-card__link-text--diario">Ver reporte →</span>
           </div>
         </div>
+        <div class="cys-report-card__chart-wrap d-none">
+          <canvas></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Tarjeta Análisis de Ventas -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--analisis h-100"
-           data-bs-toggle="modal" data-bs-target="#modalAnalisisVentas">
+           data-modal-target="#modalAnalisisVentas">
+        <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
+          <i class="bi bi-bar-chart-line"></i>
+        </button>
         <div class="cys-report-card-layout">
           <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--analisis">
             <i class="bi bi-graph-up-arrow"></i>
@@ -168,13 +195,19 @@
             <span class="cys-report-card__link-text--analisis">Ver reporte →</span>
           </div>
         </div>
+        <div class="cys-report-card__chart-wrap d-none">
+          <canvas></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Tarjeta Devoluciones -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--devoluciones h-100"
-           data-bs-toggle="modal" data-bs-target="#modalDevoluciones">
+           data-modal-target="#modalDevoluciones">
+        <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
+          <i class="bi bi-bar-chart-line"></i>
+        </button>
         <div class="cys-report-card-layout">
           <div class="cys-report-card-icon cys-report-card-icon--large cys-report-card-icon--devoluciones">
             <i class="bi bi-arrow-counterclockwise"></i>
@@ -199,6 +232,9 @@
             <span class="cys-report-card__link-text--devoluciones">Ver reporte →</span>
           </div>
         </div>
+        <div class="cys-report-card__chart-wrap d-none">
+          <canvas></canvas>
+        </div>
       </div>
     </div>
 
@@ -215,6 +251,16 @@
 
       <!-- Barra de filtros -->
       <div class="cys-hv-filters">
+
+        <!-- Buscador -->
+        <div class="cys-hv-date-group">
+          <span class="cys-hv-date-label">&nbsp;</span>
+          <div class="cys-hv-search-wrap">
+            <i class="bi bi-search cys-hv-search-icon"></i>
+            <input type="text" id="buscar-historial" class="cys-hv-search-input"
+                   placeholder="Buscar producto, cliente...">
+          </div>
+        </div>
 
         <!-- Desde -->
         <div class="cys-hv-date-group">
@@ -236,23 +282,6 @@
                    placeholder="dd/mm/aaaa">
             <i class="bi bi-calendar3 cys-hv-cal-icon"></i>
           </div>
-        </div>
-
-        <!-- Botón Filtrar -->
-        <div class="cys-hv-date-group">
-          <span class="cys-hv-date-label">&nbsp;</span>
-          <button type="button" id="btn-filtrar" class="cys-hv-btn-filtrar"
-                  onclick="aplicarFiltro()">
-            <i class="bi bi-funnel-fill"></i>Filtrar
-          </button>
-        </div>
-
-        <!-- Botón Limpiar -->
-        <div class="cys-hv-date-group">
-          <span class="cys-hv-date-label">&nbsp;</span>
-          <a href="{% url 'reportes' %}" class="cys-hv-btn-limpiar cys-link-plain">
-            <i class="bi bi-trash"></i>Limpiar
-          </a>
         </div>
 
         <!-- Dropdown Exportar -->
@@ -403,21 +432,21 @@
           <div class="cys-modal-kpi-v2__sub">Disponible</div>
         </div>
 
-        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--amarillo">
-          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--amarillo">
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--azul">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--azul">
             <i class="bi bi-exclamation-triangle"></i>
           </div>
           <div class="cys-modal-kpi-v2__label">BAJO</div>
-          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--amarillo">{{ total_stock_bajo }}</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--azul">{{ total_stock_bajo }}</div>
           <div class="cys-modal-kpi-v2__sub">Stock bajo</div>
         </div>
 
-        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--rojo">
-          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--rojo">
+        <div class="cys-modal-kpi-v2 cys-modal-kpi-v2--verde">
+          <div class="cys-modal-kpi-v2__icon cys-modal-kpi-v2__icon--verde">
             <i class="bi bi-x-circle"></i>
           </div>
           <div class="cys-modal-kpi-v2__label">AGOTADOS</div>
-          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--rojo">{{ total_agotados }}</div>
+          <div class="cys-modal-kpi-v2__val cys-modal-kpi-v2__val--verde">{{ total_agotados }}</div>
           <div class="cys-modal-kpi-v2__sub">Sin disponibilidad</div>
         </div>
 
@@ -1442,12 +1471,13 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 /* ── DataTable Historial de Ventas ── */
 $(document).ready(function() {
     var table = $('#reportes-table').DataTable({
         paging: true,
-        searching: false,
+        searching: true,      // habilitado: lo controla nuestro input personalizado
         info: true,
         lengthChange: false,
         pageLength: 10,
@@ -1458,7 +1488,12 @@ $(document).ready(function() {
             infoEmpty: "Mostrando 0 a 0 de 0 ventas",
             paginate: { first:'«', previous:'‹', next:'›', last:'»' }
         },
-        dom: 'rt<"cys-hv-table-footer"ip>'
+        dom: 'rt<"cys-hv-table-footer"ip>' // sin 'f' -> ocultamos el buscador nativo de DataTables
+    });
+
+    /* Conecta el input de búsqueda personalizado con DataTables */
+    $('#buscar-historial').on('keyup', function() {
+        table.search(this.value).draw();
     });
 
     function syncExportLinks() {
@@ -1469,7 +1504,14 @@ $(document).ready(function() {
         $('#btn-export-pdf').attr('href',   `?export=pdf&tipo=ventas${p}`);
         $('#btn-export-print').attr('href', `?export=pdf&tipo=ventas&print=true${p}`);
     }
-    $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', syncExportLinks);
+
+    /* Al cambiar cualquiera de las fechas: sincroniza export y aplica el filtro
+       automáticamente (ya no hay botón "Filtrar") */
+    $('#filtro-fecha-inicio, #filtro-fecha-fin').on('change', function() {
+        syncExportLinks();
+        aplicarFiltro();
+    });
+
     syncExportLinks();
 });
 
@@ -1539,6 +1581,153 @@ function filtrarTablaDevoluciones(q) {
         const cliente  = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
         const producto = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
         row.style.display = (cliente.includes(q) || producto.includes(q)) ? '' : 'none';
+    });
+}
+
+/* ════════════════════════════════════════════════════════════
+   TARJETAS DE REPORTE: abrir modal SOLO si no se tocó el botón
+   de gráfica ni el área de la gráfica. Reemplaza el uso de
+   data-bs-toggle="modal" en la tarjeta completa para que el
+   click en el botón de gráfica nunca dispare el modal
+   (soluciona el problema en dispositivos táctiles/móviles).
+   ════════════════════════════════════════════════════════════ */
+document.querySelectorAll('.cys-card--interactive[data-modal-target]').forEach(function (card) {
+    card.addEventListener('click', function (e) {
+        // Si el toque/clic fue sobre el botón de gráfica o sobre la gráfica misma, no abrir el modal
+        if (e.target.closest('.cys-report-card__chart-toggle') ||
+            e.target.closest('.cys-report-card__chart-wrap')) {
+            return;
+        }
+        const sel = card.getAttribute('data-modal-target');
+        const modalEl = document.querySelector(sel);
+        if (modalEl && window.bootstrap) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    });
+});
+
+/* Botón de gráfica: maneja su propio clic/touch y detiene la
+   propagación para que NUNCA llegue al listener de la tarjeta */
+document.querySelectorAll('.cys-report-card__chart-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleCardChart(this);
+    });
+});
+
+/* ════════════════════════════════════════════════════════════
+   MINI GRÁFICAS EN LAS TARJETAS DE REPORTE
+   Al hacer click en el botón de gráfica, se OCULTA todo el
+   contenido normal de la tarjeta (ícono, descripción, números,
+   "Ver reporte") y se muestra ÚNICAMENTE la gráfica en su lugar.
+   Al volver a hacer click, se restaura el contenido normal.
+   ════════════════════════════════════════════════════════════ */
+
+// Paleta de colores de las gráficas: LILA y VERDE (se alternan
+// entre las barras, sin importar la tarjeta o el KPI que sea)
+const CYS_CHART_PALETTE = ['#A78BFA', '#3ECF8E'];
+
+function toggleCardChart(btn) {
+    const card   = btn.closest('.cys-card');
+    const wrap   = card.querySelector('.cys-report-card__chart-wrap');
+    const layout = card.querySelector('.cys-report-card-layout');
+    if (!wrap || !layout) return;
+
+    const mostrandoGrafica = card.classList.toggle('cys-card--chart-mode');
+    btn.classList.toggle('is-active');
+
+    if (mostrandoGrafica) {
+        // Ocultamos el contenido normal y mostramos solo la gráfica
+        layout.classList.add('d-none');
+        wrap.classList.remove('d-none');
+
+        if (!wrap.dataset.rendered) {
+            renderReportCardChart(wrap, card);
+            wrap.dataset.rendered = '1';
+        }
+    } else {
+        // Volvemos a mostrar el contenido normal y ocultamos la gráfica
+        layout.classList.remove('d-none');
+        wrap.classList.add('d-none');
+    }
+}
+
+function renderReportCardChart(wrap, card) {
+    // Leemos los datos desde los stat-items (siguen en el DOM aunque estén con d-none)
+    const statItems = card.querySelectorAll('.cys-report-card__stat-item');
+
+    const labels = [];
+    const data = [];
+    const colors = [];
+
+    let colorIndex = 0;
+    statItems.forEach(function (item) {
+        const numEl = item.querySelector('.cys-report-card__stat-num');
+        const labelEl = item.querySelector('.cys-report-card__stat-label');
+        if (!numEl || !labelEl) return;
+
+        const rawText = numEl.textContent.trim();
+        // Si el valor no trae ningún dígito (ej: "Activos"), no se puede graficar
+        if (!/\d/.test(rawText)) return;
+
+        const valorNumerico = parseFloat(rawText.replace(/[^0-9.\-]/g, '')) || 0;
+
+        // Alternamos entre lila y verde para cada barra
+        const color = CYS_CHART_PALETTE[colorIndex % CYS_CHART_PALETTE.length];
+        colorIndex++;
+
+        labels.push(labelEl.textContent.trim());
+        data.push(valorNumerico);
+        colors.push(color);
+    });
+
+    if (data.length === 0) {
+        wrap.innerHTML = '<div class="cys-empty-box" style="padding:10px 0;font-size:.75rem;">Sin datos suficientes para graficar.</div>';
+        return;
+    }
+
+    const canvas = wrap.querySelector('canvas');
+    if (!canvas) return;
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderRadius: 6,
+                maxBarThickness: 42
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 500 },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#02224a',
+                    borderColor: 'rgba(167,139,250,.35)',
+                    borderWidth: 1,
+                    titleColor: '#fff',
+                    bodyColor: '#EAF3FA'
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#8FA3B1', font: { size: 10 } },
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#8FA3B1', font: { size: 10 }, precision: 0 },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                }
+            }
+        }
     });
 }
 </script>
