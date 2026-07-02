@@ -432,11 +432,39 @@
                 </div>
             </div>
 
-            <!-- FOOTER -->
+            <!-- FOOTER CON ACCIONES -->
             <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem 2rem !important;">
-                <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
-                    <i class="bi bi-x-circle"></i> Cerrar
-                </a>
+                <div style="display: flex; gap: 10px; width: 100%; justify-content: space-between;">
+                    <!-- Botones de acciones (izquierda) -->
+                    <div style="display: flex; gap: 8px;">
+                        {% if orden_detalle.estado == 'pendiente' %}
+                            <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarDetalle"
+                                    style="background: #4DA8DA !important; border: none !important; color: #fff !important; font-weight: 600 !important;"
+                                    title="Editar productos y cantidades">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </button>
+                            <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalDuplicarOrden"
+                                    style="background: #27ae60 !important; border: none !important; color: #fff !important; font-weight: 600 !important;"
+                                    title="Crear copia de esta orden">
+                                <i class="bi bi-files"></i> Duplicar
+                            </button>
+                        {% endif %}
+                        <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalNotas"
+                                style="background: #9b5de5 !important; border: none !important; color: #fff !important; font-weight: 600 !important;"
+                                title="Agregar notas internas">
+                            <i class="bi bi-sticky"></i> Notas
+                        </button>
+                        <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modalHistorial"
+                                style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 600 !important;"
+                                title="Ver historial de cambios">
+                            <i class="bi bi-clock-history"></i> Historial
+                        </button>
+                    </div>
+                    <!-- Botón cerrar (derecha) -->
+                    <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+                        <i class="bi bi-x-circle"></i> Cerrar
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -562,6 +590,242 @@
         </div>
     </div>
 </div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- MODALES NUEVOS - BIEN ORGANIZADOS -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+
+<!-- MODAL: NOTAS INTERNAS -->
+<div class="modal fade" id="modalNotas" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-sticky" style="color: #4DA8DA;"></i> Notas Internas
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNotas" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="ordenIdNotas" name="pk">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Añade contexto o comentarios importantes:</label>
+                        <textarea class="form-control" id="notasTexto" name="notas" rows="6"
+                                  style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                                  placeholder="Ej: Proveedor pidió pago anticipado, Stock urgente, Precio especial..."></textarea>
+                        <small class="text-muted">Máximo 500 caracteres</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn" style="background: #4DA8DA !important; color: #fff !important;">
+                        <i class="bi bi-check-circle"></i> Guardar Nota
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EDITAR DETALLE DE LÍNEA -->
+<div class="modal fade" id="modalEditarDetalle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square" style="color: #4DA8DA;"></i> Editar Línea
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarDetalle" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="detalleId" name="detalle_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Producto:</label>
+                        <input type="text" id="detalleProducto" class="form-control" disabled
+                               style="background: #02224a !important; color: #8FA3B1 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cantidad:</label>
+                            <input type="number" id="detalleCantidad" name="cantidad" class="form-control" min="1"
+                                   style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Precio Unitario:</label>
+                            <input type="number" id="detallePrecio" name="precio_unitario" class="form-control" min="0.01" step="0.01"
+                                   style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3" style="background: rgba(77, 168, 218, 0.1) !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+                        <small><strong>Subtotal:</strong> $<span id="detalleSubtotal">0</span></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="eliminarDetalle()">
+                        <i class="bi bi-trash"></i> Eliminar Línea
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn" style="background: #4DA8DA !important; color: #fff !important;">
+                        <i class="bi bi-check-circle"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: DUPLICAR ORDEN -->
+<div class="modal fade" id="modalDuplicarOrden" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-files" style="color: #27ae60;"></i> Duplicar Orden
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formDuplicarOrden" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="ordenIdDuplicar" name="pk">
+                <div class="modal-body">
+                    <div class="alert alert-success" style="background: rgba(39, 174, 96, 0.1) !important; border: 1px solid rgba(39, 174, 96, 0.2) !important;">
+                        <i class="bi bi-check-circle"></i> Se copiarán todos los productos. Puedes editar cantidades antes de confirmar.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Productos a duplicar:</label>
+                        <div id="listaDuplicados" style="background: #02224a; border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 6px; padding: 12px; max-height: 250px; overflow-y: auto;">
+                            <!-- Se llena con JavaScript -->
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad a duplicar:</label>
+                        <input type="number" id="multiplicador" name="multiplicador" class="form-control" value="1" min="1"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                               title="Multiplica todas las cantidades por este número">
+                        <small class="text-muted">Ej: si pones 2, se duplican todas las cantidades</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn" style="background: #27ae60 !important; color: #fff !important;">
+                        <i class="bi bi-files"></i> Duplicar Orden
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: HISTORIAL / TIMELINE -->
+<div class="modal fade" id="modalHistorial" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock-history" style="color: #9b5de5;"></i> Historial de Cambios
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="timeline" id="timelineContent" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Se llena con JavaScript o datos del servidor -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #9b5de5;"></div>
+                        <div class="timeline-content">
+                            <p class="mb-1"><strong>Orden Creada</strong></p>
+                            <small style="color: #8FA3B1;">por Usuario • Hace 5 días</small>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #4DA8DA;"></div>
+                        <div class="timeline-content">
+                            <p class="mb-1"><strong>Confirmada</strong></p>
+                            <small style="color: #8FA3B1;">por Gerente • Hace 4 días</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: INFORMACIÓN DE PAGO (para COMPRA) -->
+<div class="modal fade" id="modalPago" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-credit-card" style="color: #f39c12;"></i> Información de Pago
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formPago" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="compraId" name="compra_id">
+                <div class="modal-body">
+                    <!-- Número de Factura -->
+                    <div class="mb-3">
+                        <label class="form-label">Número de Factura:</label>
+                        <input type="text" id="numeroFactura" name="numero_factura" class="form-control"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                               placeholder="Ej: FAC-2026-001">
+                    </div>
+
+                    <!-- Método de Pago -->
+                    <div class="mb-3">
+                        <label class="form-label">Método de Pago:</label>
+                        <select id="metodoPago" name="metodo_pago" class="form-select"
+                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                            <option value="">-- Selecciona --</option>
+                            <option value="transferencia">Transferencia Bancaria</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="tarjeta">Tarjeta de Crédito</option>
+                            <option value="credito">Crédito a 30 días</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <!-- Estado de Pago -->
+                    <div class="mb-3">
+                        <label class="form-label">Estado de Pago:</label>
+                        <select id="estadoPago" name="estado_pago" class="form-select"
+                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                            <option value="pendiente">Pendiente de Pago</option>
+                            <option value="parcial">Pago Parcial</option>
+                            <option value="pagada">Pagada</option>
+                        </select>
+                    </div>
+
+                    <!-- Monto Pagado (si es parcial) -->
+                    <div class="mb-3" id="montoPagadoDiv" style="display: none;">
+                        <label class="form-label">Monto Pagado:</label>
+                        <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                    </div>
+
+                    <!-- Fecha de Pago -->
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Pago:</label>
+                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn" style="background: #f39c12 !important; color: #fff !important;">
+                        <i class="bi bi-check-circle"></i> Guardar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
 
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
