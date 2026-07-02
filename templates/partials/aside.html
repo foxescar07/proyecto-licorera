@@ -2,6 +2,19 @@
 
 <link rel="stylesheet" href="{% static 'css/cuerpo/aside.css' %}">
 
+<style>
+  #cys-sb-resumen-wrap {
+    transition: opacity .35s ease, visibility .35s ease;
+    opacity: 1;
+    visibility: visible;
+  }
+  #cys-sb-resumen-wrap.cys-sb-resumen-oculto {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+</style>
+
 <div class="offcanvas offcanvas-end"
      id="sidebarRight"
      data-bs-backdrop="false"
@@ -247,11 +260,18 @@
   let cysSidebarCfg = {};
   try { cysSidebarCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
 
-  // 1) Mostrar/ocultar sección Resumen
+  // 1) Mostrar/ocultar sección Resumen (con transición suave, sin recargar)
   const resumenWrap = document.getElementById('cys-sb-resumen-wrap');
-  if (resumenWrap && cysSidebarCfg.resumenSidebar === false) {
-    resumenWrap.style.display = 'none';
+  function actualizarResumenWrap(visible) {
+    if (!resumenWrap) return;
+    resumenWrap.classList.toggle('cys-sb-resumen-oculto', visible === false);
   }
+  actualizarResumenWrap(cysSidebarCfg.resumenSidebar);
+
+  // Escucha el cambio en vivo desde la página de Configuración (misma pestaña)
+  window.addEventListener('cys-config-changed', function (e) {
+    actualizarResumenWrap(e.detail && e.detail.resumenSidebar);
+  });
 
 
   window.toggleSubmenu = function (e, btn, id) {
