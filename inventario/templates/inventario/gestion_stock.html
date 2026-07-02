@@ -81,7 +81,7 @@
 
 <!-- Buscador -->
 <div class="d-flex flex-wrap gap-2 mb-3">
-  <div class="input-group" id="buscarLote-grupo" style="max-width:360px;">
+  <div class="input-group" id="buscarLote-grupo" style="max-width:360px; width:100%;">
     <span class="input-group-text"
           style="background:rgba(77,168,218,.08);border-color:rgba(77,168,218,.25);color:#4DA8DA;">
       <i class="bi bi-search"></i>
@@ -90,12 +90,12 @@
            placeholder="Buscar producto, lote…"
            style="background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#e2e8f0;">
   </div>
-  <div class="dropdown">
+  <div class="dropdown" id="filtroEstado-wrap">
   <button class="btn btn-sm dropdown-toggle px-3" type="button"
-          id="filtroEstado-btn" data-bs-toggle="dropdown"
-          style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
-                 color:#9fc9ec; font-size:.82rem; border-radius:8px; width:170px;
-                 text-align:left;">
+        id="filtroEstado-btn" data-bs-toggle="dropdown"
+        style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
+               color:#9fc9ec; font-size:.82rem; border-radius:8px; min-width:170px; width:auto;
+               text-align:left;">
     <span id="filtroEstado-label">Todos</span>
   </button>
   <ul class="dropdown-menu" style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); min-width:170px;">
@@ -204,12 +204,13 @@
         </td>
 
         <td class="pe-3 text-end">
-          <button class="btn-edit-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalEditarLote{{ lote.pk }}">
-            <i class="bi bi-pencil"></i>
-          </button>
-        </td>
+  <button class="btn-edit-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#modalEditarLote{{ lote.pk }}"
+          title="Editar">
+    <i class="bi bi-pencil"></i>
+  </button>
+</td>
       </tr>
       {% endfor %} </tbody>
   </table>
@@ -316,21 +317,40 @@ $(document).ready(function() {
     },
     dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>',
     drawCallback: function() {
-        $('#tablaLotes tbody tr').each(function() {
-            [5, 6].forEach(function(idx) {
-                var $td = $(this).find('td').eq(idx);
-                var $span = $td.find('span');
-                if ($span.length) {
-                    var texto = $span.text().trim();
-                    var num = texto.replace('$', '').replace(/\./g, '').trim();
-                    if (num && !isNaN(num) && parseInt(num) > 0) {
-                        $span.text('$' + formatMiles(num));
-                    }
+    $('#tablaLotes tbody tr').each(function() {
+        [5, 6].forEach(function(idx) {
+            var $td = $(this).find('td').eq(idx);
+            var $span = $td.find('span');
+            if ($span.length) {
+                var texto = $span.text().trim();
+                var num = texto.replace('$', '').replace(/\./g, '').trim();
+                if (num && !isNaN(num) && parseInt(num) > 0) {
+                    $span.text('$' + formatMiles(num));
                 }
-            }.bind(this));
-        });
-    }
-});
+            }
+        }.bind(this));
+    });
+}
+
+    // Tooltips por delegación: funcionan sin importar cuántas veces DataTables
+    // destruya y recree las filas (paginación, orden, búsqueda). No dependen
+    // de que el drawCallback llegue a ejecutarse completo.
+    $(document).on('mouseenter', '#tablaLotes [title]', function () {
+        var el = this;
+        var instance = bootstrap.Tooltip.getInstance(el);
+        if (!instance) {
+            instance = new bootstrap.Tooltip(el, {
+                placement: 'top',
+                trigger: 'manual',
+                container: 'body'
+            });
+        }
+        instance.show();
+    });
+    $(document).on('mouseleave', '#tablaLotes [title]', function () {
+        var instance = bootstrap.Tooltip.getInstance(this);
+        if (instance) instance.hide();
+    });
 
     $('#buscarLote').on('input', function() {
         table.search(this.value).draw();
