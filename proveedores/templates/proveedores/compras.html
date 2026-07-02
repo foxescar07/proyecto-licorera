@@ -833,59 +833,47 @@
                                placeholder="Ej: FAC-2026-001">
                     </div>
 
-                    <!-- Método de Pago - TARJETAS -->
+                    <!-- Método de Pago - TARJETAS COMPACTAS -->
                     <div class="mb-4">
-                        <label style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: block; margin-bottom: 1.5rem;">
+                        <label style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: block; margin-bottom: 1rem;">
                             <i class="bi bi-wallet2 me-2"></i>Elige Método de Pago
                         </label>
 
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px;">
                             <!-- Efectivo -->
-                            <div class="metodo-pago-card" data-value="efectivo">
-                                <div style="text-align: center; padding: 1.5rem;">
-                                    <i class="bi bi-cash-coin" style="font-size: 2rem; color: #f39c12; display: block; margin-bottom: 0.5rem;"></i>
-                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Efectivo</div>
-                                </div>
+                            <div class="metodo-pago-card-compact" data-value="efectivo">
+                                <i class="bi bi-cash-coin"></i>
+                                <span>Efectivo</span>
                             </div>
 
                             <!-- Tarjeta -->
-                            <div class="metodo-pago-card" data-value="tarjeta">
-                                <div style="text-align: center; padding: 1.5rem;">
-                                    <i class="bi bi-credit-card-2-front" style="font-size: 2rem; color: #4DA8DA; display: block; margin-bottom: 0.5rem;"></i>
-                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Tarjeta</div>
-                                </div>
+                            <div class="metodo-pago-card-compact" data-value="tarjeta">
+                                <i class="bi bi-credit-card-2-front"></i>
+                                <span>Tarjeta</span>
                             </div>
 
                             <!-- Transferencia -->
-                            <div class="metodo-pago-card" data-value="transferencia">
-                                <div style="text-align: center; padding: 1.5rem;">
-                                    <i class="bi bi-bank" style="font-size: 2rem; color: #27ae60; display: block; margin-bottom: 0.5rem;"></i>
-                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Transferencia</div>
-                                </div>
+                            <div class="metodo-pago-card-compact" data-value="transferencia">
+                                <i class="bi bi-bank"></i>
+                                <span>Transferencia</span>
                             </div>
 
                             <!-- Cheque -->
-                            <div class="metodo-pago-card" data-value="cheque">
-                                <div style="text-align: center; padding: 1.5rem;">
-                                    <i class="bi bi-receipt" style="font-size: 2rem; color: #9b5de5; display: block; margin-bottom: 0.5rem;"></i>
-                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Cheque</div>
-                                </div>
+                            <div class="metodo-pago-card-compact" data-value="cheque">
+                                <i class="bi bi-receipt"></i>
+                                <span>Cheque</span>
                             </div>
 
                             <!-- Crédito -->
-                            <div class="metodo-pago-card" data-value="credito">
-                                <div style="text-align: center; padding: 1.5rem;">
-                                    <i class="bi bi-hourglass-split" style="font-size: 2rem; color: #e67e22; display: block; margin-bottom: 0.5rem;"></i>
-                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Crédito 30d</div>
-                                </div>
+                            <div class="metodo-pago-card-compact" data-value="credito">
+                                <i class="bi bi-hourglass-split"></i>
+                                <span>Crédito</span>
                             </div>
 
                             <!-- Otro -->
-                            <div class="metodo-pago-card" data-value="otro">
-                                <div style="text-align: center; padding: 1.5rem;">
-                                    <i class="bi bi-question-circle" style="font-size: 2rem; color: #8FA3B1; display: block; margin-bottom: 0.5rem;"></i>
-                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Otro</div>
-                                </div>
+                            <div class="metodo-pago-card-compact" data-value="otro">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Otro</span>
                             </div>
                         </div>
 
@@ -941,36 +929,62 @@
 </div>
 
 <style>
-.metodo-pago-card {
-    border: 2px solid rgba(77, 168, 218, 0.3);
-    border-radius: 12px;
+.metodo-pago-card-compact {
+    flex: 0 0 auto;
+    min-width: 90px;
+    border: 2px solid rgba(100, 120, 140, 0.3);
+    border-radius: 8px;
+    padding: 12px 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: rgba(2, 34, 74, 0.5);
+    background: rgba(20, 40, 80, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #8FA3B1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    user-select: none;
 }
 
-.metodo-pago-card:hover {
-    border-color: rgba(77, 168, 218, 0.6);
-    background: rgba(2, 34, 74, 0.8);
+.metodo-pago-card-compact i {
+    font-size: 1.5rem;
+}
+
+/* Colores específicos para cada método */
+.metodo-pago-card-compact[data-value="efectivo"] { --card-color: #f39c12; }
+.metodo-pago-card-compact[data-value="tarjeta"] { --card-color: #3498db; }
+.metodo-pago-card-compact[data-value="transferencia"] { --card-color: #2ecc71; }
+.metodo-pago-card-compact[data-value="cheque"] { --card-color: #9b59b6; }
+.metodo-pago-card-compact[data-value="credito"] { --card-color: #e74c3c; }
+.metodo-pago-card-compact[data-value="otro"] { --card-color: #95a5a6; }
+
+.metodo-pago-card-compact:hover {
+    border-color: var(--card-color, #4DA8DA);
+    background: rgba(20, 40, 80, 0.9);
+    color: var(--card-color, #4DA8DA);
     transform: translateY(-2px);
 }
 
-.metodo-pago-card.active {
-    border-color: #4DA8DA;
-    background: rgba(77, 168, 218, 0.15);
-    box-shadow: 0 0 20px rgba(77, 168, 218, 0.2);
+.metodo-pago-card-compact.active {
+    border-color: var(--card-color, #4DA8DA);
+    background: var(--card-color, #4DA8DA);
+    color: #fff;
+    box-shadow: 0 0 12px var(--card-color, rgba(77, 168, 218, 0.4));
 }
 </style>
 
 <script>
 // ════════════════════════════════════════════════════════════════
-// SELECCIÓN DE MÉTODO DE PAGO (TARJETAS)
+// SELECCIÓN DE MÉTODO DE PAGO (TARJETAS COMPACTAS)
 // ════════════════════════════════════════════════════════════════
 
-document.querySelectorAll('.metodo-pago-card').forEach(card => {
+document.querySelectorAll('.metodo-pago-card-compact').forEach(card => {
     card.addEventListener('click', function() {
         // Quitar selección anterior
-        document.querySelectorAll('.metodo-pago-card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
 
         // Activar tarjeta seleccionada
         this.classList.add('active');
