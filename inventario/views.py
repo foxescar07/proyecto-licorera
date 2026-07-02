@@ -122,6 +122,9 @@ def inventario_home(request):
         'chart_motivos_data':   chart_motivos_data,
         'proveedores_labels':   proveedores_labels,
         'proveedores_data':     proveedores_data,
+        'breadcrumb_items':     [
+            {'nombre': 'Inventario', 'url': None},
+        ],
     }
     return render(request, 'inventario/inventario_home.html', context)
 
@@ -295,9 +298,6 @@ def editar_movimiento(request, pk):
             messages.error(request, '❌ Cantidad inválida.')
     return redirect('inventario_home')
 
-
-
-
 @login_required
 def registrar_salida_view(request):
     hoy         = timezone.now().date()
@@ -326,6 +326,10 @@ def registrar_salida_view(request):
         'productos':          productos,
         'ordenes_mes':        ordenes_mes,
         'chart_motivos_data': chart_motivos_data,
+        'breadcrumb_items': [
+            {'nombre': 'Inventario', 'url': reverse('inventario_home')},
+            {'nombre': 'Registrar Salida', 'url': None},
+        ],
     }
     return render(request, 'inventario/registrar_salida.html', context)
 
@@ -366,6 +370,10 @@ def gestion_lotes_view(request):
         'ordenes_mes':        ordenes_mes,
         'proveedores_labels': proveedores_labels,
         'proveedores_data':   proveedores_data,
+        'breadcrumb_items': [
+            {'nombre': 'Inventario', 'url': reverse('inventario_home')},
+            {'nombre': 'Gestión de Lotes', 'url': None},
+        ],
     }
     return render(request, 'inventario/gestion_lotes.html', context)
 
@@ -434,16 +442,6 @@ def gestion_salida(request):
         messages.success(request, f'✅ Salida de {cantidad} unidades de "{presentacion.nombre}" registrada.')
 
     return redirect('registrar_salida_view')
-
-
-
-
-
-
-
-
-
-
 
 
 @login_required
@@ -529,11 +527,12 @@ def gestion_stock(request):
         'lotes_vencidos':   lotes_vencidos,
         'total_criticos':   0,
         'hoy':              hoy,
+        'breadcrumb_items': [
+            {'nombre': 'Inventario', 'url': reverse('inventario_home')},
+            {'nombre': 'Gestión de Stock', 'url': None},
+        ],
     }
     return render(request, 'inventario/gestion_stock.html', context)
-
-
-
 
 @login_required
 def editar_lote_stock(request, pk):
@@ -758,6 +757,10 @@ def agenda_lista(request):
     agendas = AgendaInventario.objects.all().order_by('fecha_programada')
     context = {
         'agendas': agendas,
+        'breadcrumb_items': [
+            {'nombre': 'Inventario', 'url': reverse('inventario_home')},
+            {'nombre': 'Agenda', 'url': None},
+        ],
     }
     return render(request, 'inventario/inventario_home.html', context)
 
