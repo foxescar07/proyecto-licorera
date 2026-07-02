@@ -1637,6 +1637,8 @@
    MINI GRÁFICAS DENTRO DE LAS TARJETAS DE REPORTE
    (Inventario, Proveedores, Compras, Resumen Diario,
     Análisis de Ventas, Devoluciones)
+   Los colores de las barras (lila / verde) se definen en el
+   JS de reportes.html (CYS_CHART_PALETTE)
    ════════════════════════════════════════════════════════════ */
 
 /* Botón circular que activa/desactiva la gráfica (esquina sup. derecha) */
@@ -2375,6 +2377,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: center !important;
   font-size: .85rem !important;
   transition: background .2s, color .2s !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
 }
 
 .cys-hv-pagination-wrap .active .page-link,
@@ -2556,4 +2560,118 @@ TABLA PROVEEDORES
 .cys-prov-email {
 
   color: #EAF2FF;
+}
+/* ── Buscador Historial de Ventas ── */
+.cys-hv-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 260px;
+}
+
+.cys-hv-search-input {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 420px;
+  height: 40px !important;
+  padding: 0 14px 0 40px;
+  background: #071b3a !important;
+  border: 1px solid #1f4f80 !important;
+  border-radius: 10px !important;
+  color: #fff !important;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.cys-hv-search-input::placeholder {
+  color: #7dbce6;
+  opacity: .65;
+}
+
+.cys-hv-search-input:focus {
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 0 3px rgba(77, 168, 218, .18);
+}
+
+.cys-hv-search-icon {
+  position: absolute;
+  left: 14px;
+  color: #4DA8DA;
+  font-size: .9rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@media (max-width: 576px) {
+  .cys-hv-search-input {
+    width: 100% !important;
+    min-width: 0;
+  }
+}
+
+/* Grupo del buscador: que crezca y empuje el resto de filtros */
+.cys-hv-filters .cys-hv-date-group:first-child {
+  flex: 1 1 auto;
+  min-width: 260px;
+}
+/* ════════════════════════════════════════════════════════════
+   MINI GRÁFICAS DENTRO DE LAS TARJETAS DE REPORTE
+   ════════════════════════════════════════════════════════════ */
+
+.cys-report-card__chart-toggle {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(77, 168, 218, 0.12);
+    border: 1px solid rgba(77, 168, 218, 0.25);
+    border-radius: 8px;
+    color: #4DA8DA;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    z-index: 2;
+}
+
+.cys-report-card__chart-toggle:hover {
+    background: rgba(77, 168, 218, 0.25);
+}
+
+.cys-report-card__chart-toggle.is-active {
+    background: #4DA8DA;
+    color: #02224a;
+    transform: rotate(0deg) scale(1.05);
+}
+
+/* Contenedor de la gráfica — CLAVE: necesita altura fija,
+   si no, Chart.js con maintainAspectRatio:false colapsa a 0px */
+.cys-report-card__chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cys-report-card__chart-wrap.d-none {
+    display: none !important;
+}
+
+.cys-report-card__chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Aseguramos que la tarjeta tenga posición relativa
+   para que el botón absolute se posicione bien */
+.cys-card--interactive {
+    position: relative;
 }
