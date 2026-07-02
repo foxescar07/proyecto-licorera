@@ -419,6 +419,8 @@ def listar_ordenes(request):
     # Filtros
     q = request.GET.get('q', '')
     estado = request.GET.get('estado', '')
+    fecha_inicio = request.GET.get('fecha_inicio', '')
+    fecha_fin = request.GET.get('fecha_fin', '')
 
     if q:
         ordenes = ordenes.filter(
@@ -428,15 +430,15 @@ def listar_ordenes(request):
     if estado:
         ordenes = ordenes.filter(estado=estado)
 
+    if fecha_inicio:
+        ordenes = ordenes.filter(fecha__date__gte=fecha_inicio)
+    if fecha_fin:
+        ordenes = ordenes.filter(fecha__date__lte=fecha_fin)
+
     # Ordenar por fecha descendente
     ordenes = ordenes.order_by('-fecha')
 
-    # Paginación
-    paginator = Paginator(ordenes, 10)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-
-    # Estadísticas
+    # Estadísticas generales
     total_ordenes = OrdenCompra.objects.count()
     ordenes_pendientes = OrdenCompra.objects.filter(estado='pendiente').count()
     ordenes_confirmadas = OrdenCompra.objects.filter(estado='confirmada').count()
@@ -456,12 +458,14 @@ def listar_ordenes(request):
             orden_detalle = None
 
     context = {
-        'ordenes': page_obj.object_list,
-        'page_obj': page_obj,
+        'ordenes': ordenes,
+        'ordenes_count': ordenes.count(),
         'total_ordenes': total_ordenes,
         'ordenes_pendientes': ordenes_pendientes,
         'ordenes_confirmadas': ordenes_confirmadas,
         'ordenes_recibidas': ordenes_recibidas,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
         'form': form,
         'form_detalle': form_detalle,
         'orden_detalle': orden_detalle,

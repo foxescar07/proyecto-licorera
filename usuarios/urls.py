@@ -20,4 +20,5 @@ urlpatterns = [
     path('editar/<int:pk>/',                views.editar_usuario,           name='editar_usuario'),
     path('toggle/<int:pk>/',                views.toggle_activo,            name='toggle_activo'),
     path('eliminar/<int:pk>/',              views.eliminar_usuario,         name='eliminar_usuario'),
+    path('actividad/', views.actividad_usuarios, name='actividad_usuarios'),
 ]

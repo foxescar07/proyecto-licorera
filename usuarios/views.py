@@ -13,6 +13,7 @@ from django.urls import reverse, NoReverseMatch
 from datetime import timedelta
 from django.http import JsonResponse
 from .forms import UsuarioForm
+from .models import RegistroActividad 
 import random
 import logging
 import re
@@ -809,3 +810,20 @@ def crear_usuario_admin(request):
         'fecha_registro':  usuario.date_joined.strftime('%d/%m/%Y'),
         'foto_url':        None,
     })
+
+@login_required
+def actividad_usuarios(request):
+    if request.user.rol == 'admin':
+        registros = RegistroActividad.objects.select_related('usuario').all()[:200]
+    else:
+        registros = RegistroActividad.objects.filter(usuario=request.user)[:200]
+
+    data = [
+        {
+            'usuario':    r.usuario.nombre_completo or r.usuario.username,
+            'fecha_hora': r.fecha_hora.strftime('%d/%m/%Y %H:%M'),
+            'ip':         r.ip_address or '—',
+        }
+        for r in registros
+    ]
+    return JsonResponse({'registros': data, 'es_admin': request.user.rol == 'admin'})

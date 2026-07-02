@@ -812,7 +812,7 @@
     btn.disabled    = true;
     btn.textContent = 'Creando…';
 
-    apiFetch('/usuarios/crear/', mkFd({
+    apiFetch('/usuarios/crear-admin/', mkFd({
       nombre, apellidos, tipo_id: tipoId,
       identificacion: idNum, email, clave,
     })).then(d => {
