@@ -88,29 +88,29 @@
     </div>
   </div>
 
-  <!-- ③ DENSIDAD + ④ BARRA LATERAL -->
+  <!-- ③ PÁGINA DE INICIO + ④ BARRA LATERAL -->
   <div class="row g-3">
     <div class="col-lg-6">
       <div class="cfg-section">
-        <div class="cfg-title"><i class="bi bi-layout-three-columns"></i> Densidad de interfaz</div>
-        <div class="cfg-options" id="opcionesDensidad">
+        <div class="cfg-title"><i class="bi bi-house-door-fill"></i> Página de inicio al entrar</div>
+        <div class="cfg-options" id="opcionesInicio">
 
-          <div class="cfg-opt" data-densidad="compacto" onclick="seleccionarDensidad('compacto', this)">
-            <i class="bi bi-view-list"></i>
-            Compacto
-            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más info, menos espacio</div>
+          <div class="cfg-opt" data-inicio="tablero" onclick="seleccionarInicio('tablero', this)">
+            <i class="bi bi-grid-1x2-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+            Tablero
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Vista general del negocio</div>
           </div>
 
-          <div class="cfg-opt" data-densidad="normal" onclick="seleccionarDensidad('normal', this)">
-            <i class="bi bi-grid"></i>
-            Normal
-            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Balance por defecto</div>
+          <div class="cfg-opt" data-inicio="ventas" onclick="seleccionarInicio('ventas', this)">
+            <i class="bi bi-receipt" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+            Ventas
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Directo a registrar ventas</div>
           </div>
 
-          <div class="cfg-opt" data-densidad="relajado" onclick="seleccionarDensidad('relajado', this)">
-            <i class="bi bi-layout-wtf"></i>
-            Relajado
-            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Más espacio, más legible</div>
+          <div class="cfg-opt" data-inicio="productos" onclick="seleccionarInicio('productos', this)">
+            <i class="bi bi-box-seam-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+            Productos
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Gestión de productos</div>
           </div>
 
         </div>
@@ -409,11 +409,11 @@ const CSRF_TOKEN = getCookie('csrftoken') ||
   document.querySelector('input[name=csrfmiddlewaretoken]')?.value;
 
 // ══════════════════════════════════════════
-// ESTADO VISUAL (tema/densidad/brillo/fuente/zoom/toggles)
+// ESTADO VISUAL (tema/pagina de inicio/brillo/fuente/zoom/toggles)
 // mismo objeto que ya lee/aplica base.html y aside.html: localStorage.cys_config
 // ══════════════════════════════════════════
 const CFG_DEFAULT = {
-  tema: 'oscuro', densidad: 'normal', brillo: 100, fuente: 14, zoom: 100,
+  tema: 'oscuro', paginaInicio: 'tablero', brillo: 100, fuente: 14, zoom: 100,
   sidebarAuto: false, resumenSidebar: true,
   formatoFecha: 'dd/mm/yyyy', separadorMiles: 'punto',
   alertaStock: true, widgetRotacion: true, silencioso: false,
@@ -534,17 +534,8 @@ const TEMAS = {
   basecys: {'--fondo':'#241008','--fondo-card':'#34160D','--fondo-card2':'#421B10','--texto':'#F2DFB8','--texto-muted':'#C9A876','--azul-claro':'#D9A441','--azul-borde':'rgba(217,164,65,.25)','--azul-oscuro':'#1A0A06','--verde':'#8AB86F','--rojo':'#B0392E','--blanco':'#F2DFB8','--gris-claro':'#B89868'},
   sepia: {'--fondo':'#1a0f05','--fondo-card':'#2c1f0e','--fondo-card2':'#3d2b14','--texto':'#f5e6c8','--texto-muted':'#a08060','--azul-claro':'#d4a060','--azul-borde':'rgba(212,160,96,.25)','--azul-oscuro':'#150c04','--verde':'#7ab870','--rojo':'#c05030','--blanco':'#f5e6c8','--gris-claro':'#907060'},
 };
-const DENSIDADES = {
-  compacto: {'--card-padding':'.75rem','--gap-base':'.4rem','--font-base':'.8rem'},
-  normal:   {'--card-padding':'1.25rem','--gap-base':'.75rem','--font-base':'.875rem'},
-  relajado: {'--card-padding':'1.75rem','--gap-base':'1.1rem','--font-base':'.95rem'},
-};
 function aplicarTema(tema) {
   const vars = TEMAS[tema] || TEMAS.oscuro;
-  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
-}
-function aplicarDensidad(densidad) {
-  const vars = DENSIDADES[densidad] || DENSIDADES.normal;
   Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
 }
 
@@ -577,8 +568,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('#opcionesTema .cfg-opt').forEach(el =>
     el.classList.toggle('activo', el.dataset.tema === cfgActual.tema));
-  document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(el =>
-    el.classList.toggle('activo', el.dataset.densidad === cfgActual.densidad));
+  document.querySelectorAll('#opcionesInicio .cfg-opt').forEach(el =>
+    el.classList.toggle('activo', el.dataset.inicio === cfgActual.paginaInicio));
 
   document.getElementById('toggleSidebarAuto').checked    = cfgActual.sidebarAuto;
   document.getElementById('toggleResumenSidebar').checked = cfgActual.resumenSidebar;
@@ -606,6 +597,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById(id).addEventListener('change', function () {
       cfgActual[key] = this.checked;
       guardarCfg(cfgActual);
+      window.dispatchEvent(new CustomEvent('cys-config-changed', { detail: cfgActual }));
       mostrarToastPreferencia();
     });
   });
@@ -625,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ══════════════════════════════════════════
-// TEMA / DENSIDAD — se aplican y guardan al instante
+// TEMA / PÁGINA DE INICIO — se aplican y guardan al instante
 // ══════════════════════════════════════════
 function seleccionarTema(tema, el) {
   document.querySelectorAll('#opcionesTema .cfg-opt').forEach(o => o.classList.remove('activo'));
@@ -635,12 +627,12 @@ function seleccionarTema(tema, el) {
   guardarCfg(cfgActual);
   mostrarToastPreferencia();
 }
-function seleccionarDensidad(densidad, el) {
-  document.querySelectorAll('#opcionesDensidad .cfg-opt').forEach(o => o.classList.remove('activo'));
+function seleccionarInicio(valor, el) {
+  document.querySelectorAll('#opcionesInicio .cfg-opt').forEach(o => o.classList.remove('activo'));
   el.classList.add('activo');
-  cfgActual.densidad = densidad;
-  aplicarDensidad(densidad);
+  cfgActual.paginaInicio = valor;
   guardarCfg(cfgActual);
+  document.cookie = `cys_pagina_inicio=${valor}; path=/; max-age=31536000; SameSite=Lax`;
   mostrarToastPreferencia();
 }
 
