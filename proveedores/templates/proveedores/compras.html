@@ -801,50 +801,103 @@
 </script>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- MODAL: INFORMACIÓN DE PAGO (COMPRA) -->
+<!-- MODAL: INFORMACIÓN DE PAGO (COMPRA) - GRANDE CON TARJETAS -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 
 <div class="modal fade" id="modalPago" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background-color: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
-            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.15) !important;">
-                <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important;">
-                    <i class="bi bi-credit-card" style="color: #f39c12;"></i> Información de Pago
-                </h5>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.15) !important; padding: 2rem !important;">
+                <div>
+                    <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem;">
+                        <i class="bi bi-credit-card" style="color: #f39c12; font-size: 1.5rem;"></i> Información de Pago
+                    </h5>
+                    <small style="color: #8FA3B1;">Completa los datos de pago para esta compra</small>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+
             <form id="formPago" method="POST" action="">
                 {% csrf_token %}
                 <input type="hidden" id="compraId" name="compra_id">
-                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important;">
+
+                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
 
                     <!-- Número de Factura -->
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #8FA3B1 !important;">Número de Factura:</label>
-                        <input type="text" id="numeroFactura" name="numero_factura" class="form-control"
-                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                    <div class="mb-4">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-file-earmark me-2"></i>Número de Factura
+                        </label>
+                        <input type="text" id="numeroFactura" name="numero_factura" class="form-control form-control-lg"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; font-size: 1rem;"
                                placeholder="Ej: FAC-2026-001">
                     </div>
 
-                    <!-- Método de Pago -->
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #8FA3B1 !important;">Método de Pago:</label>
-                        <select id="metodoPago" name="metodo_pago" class="form-select"
-                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
-                            <option value="">-- Selecciona --</option>
-                            <option value="transferencia">Transferencia Bancaria</option>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="cheque">Cheque</option>
-                            <option value="tarjeta">Tarjeta de Crédito</option>
-                            <option value="credito">Crédito a 30 días</option>
-                            <option value="otro">Otro</option>
-                        </select>
+                    <!-- Método de Pago - TARJETAS -->
+                    <div class="mb-4">
+                        <label style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: block; margin-bottom: 1.5rem;">
+                            <i class="bi bi-wallet2 me-2"></i>Elige Método de Pago
+                        </label>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                            <!-- Efectivo -->
+                            <div class="metodo-pago-card" data-value="efectivo">
+                                <div style="text-align: center; padding: 1.5rem;">
+                                    <i class="bi bi-cash-coin" style="font-size: 2rem; color: #f39c12; display: block; margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Efectivo</div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta -->
+                            <div class="metodo-pago-card" data-value="tarjeta">
+                                <div style="text-align: center; padding: 1.5rem;">
+                                    <i class="bi bi-credit-card-2-front" style="font-size: 2rem; color: #4DA8DA; display: block; margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Tarjeta</div>
+                                </div>
+                            </div>
+
+                            <!-- Transferencia -->
+                            <div class="metodo-pago-card" data-value="transferencia">
+                                <div style="text-align: center; padding: 1.5rem;">
+                                    <i class="bi bi-bank" style="font-size: 2rem; color: #27ae60; display: block; margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Transferencia</div>
+                                </div>
+                            </div>
+
+                            <!-- Cheque -->
+                            <div class="metodo-pago-card" data-value="cheque">
+                                <div style="text-align: center; padding: 1.5rem;">
+                                    <i class="bi bi-receipt" style="font-size: 2rem; color: #9b5de5; display: block; margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Cheque</div>
+                                </div>
+                            </div>
+
+                            <!-- Crédito -->
+                            <div class="metodo-pago-card" data-value="credito">
+                                <div style="text-align: center; padding: 1.5rem;">
+                                    <i class="bi bi-hourglass-split" style="font-size: 2rem; color: #e67e22; display: block; margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Crédito 30d</div>
+                                </div>
+                            </div>
+
+                            <!-- Otro -->
+                            <div class="metodo-pago-card" data-value="otro">
+                                <div style="text-align: center; padding: 1.5rem;">
+                                    <i class="bi bi-question-circle" style="font-size: 2rem; color: #8FA3B1; display: block; margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; color: #E2E8F0; font-size: 0.9rem;">Otro</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="metodoPago" name="metodo_pago" required>
                     </div>
 
                     <!-- Estado de Pago -->
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #8FA3B1 !important;">Estado de Pago:</label>
-                        <select id="estadoPago" name="estado_pago" class="form-select"
+                    <div class="mb-4">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-check-circle me-2"></i>Estado de Pago
+                        </label>
+                        <select id="estadoPago" name="estado_pago" class="form-select form-select-lg"
                                 style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
                             <option value="pendiente">Pendiente de Pago</option>
                             <option value="parcial">Pago Parcial</option>
@@ -853,28 +906,33 @@
                     </div>
 
                     <!-- Monto Pagado (si es parcial) -->
-                    <div class="mb-3" id="montoPagadoDiv" style="display: none;">
-                        <label class="form-label" style="color: #8FA3B1 !important;">Monto Pagado:</label>
-                        <div class="input-group">
-                            <span class="input-group-text" style="background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">$</span>
+                    <div class="mb-4" id="montoPagadoDiv" style="display: none;">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-cash me-2"></i>Monto Pagado
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text" style="background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #f39c12 !important; font-weight: 600;">$</span>
                             <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01"
                                    style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
                         </div>
                     </div>
 
                     <!-- Fecha de Pago -->
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #8FA3B1 !important;">Fecha de Pago:</label>
-                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control"
+                    <div class="mb-0">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-calendar me-2"></i>Fecha de Pago
+                        </label>
+                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control form-control-lg"
                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
                     </div>
                 </div>
-                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.15) !important;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">
-                        Cancelar
+
+                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.15) !important; padding: 1.5rem 2rem !important;">
+                    <button type="button" class="btn btn-lg" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600;">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
                     </button>
-                    <button type="submit" class="btn" style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
-                        <i class="bi bi-check-circle"></i> Guardar Pago
+                    <button type="submit" class="btn btn-lg" style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 700 !important;">
+                        <i class="bi bi-check-circle me-2"></i>Guardar Pago
                     </button>
                 </div>
             </form>
@@ -882,7 +940,46 @@
     </div>
 </div>
 
+<style>
+.metodo-pago-card {
+    border: 2px solid rgba(77, 168, 218, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(2, 34, 74, 0.5);
+}
+
+.metodo-pago-card:hover {
+    border-color: rgba(77, 168, 218, 0.6);
+    background: rgba(2, 34, 74, 0.8);
+    transform: translateY(-2px);
+}
+
+.metodo-pago-card.active {
+    border-color: #4DA8DA;
+    background: rgba(77, 168, 218, 0.15);
+    box-shadow: 0 0 20px rgba(77, 168, 218, 0.2);
+}
+</style>
+
 <script>
+// ════════════════════════════════════════════════════════════════
+// SELECCIÓN DE MÉTODO DE PAGO (TARJETAS)
+// ════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.metodo-pago-card').forEach(card => {
+    card.addEventListener('click', function() {
+        // Quitar selección anterior
+        document.querySelectorAll('.metodo-pago-card').forEach(c => c.classList.remove('active'));
+
+        // Activar tarjeta seleccionada
+        this.classList.add('active');
+
+        // Guardar valor en input oculto
+        document.getElementById('metodoPago').value = this.dataset.value;
+    });
+});
+
 // Mostrar/ocultar monto pagado según estado
 document.getElementById('estadoPago')?.addEventListener('change', function() {
     const montoPagadoDiv = document.getElementById('montoPagadoDiv');
@@ -895,13 +992,25 @@ document.getElementById('estadoPago')?.addEventListener('change', function() {
 
 // Abrir modal de pago con ID de compra
 function abrirModalPago(compraId) {
+    // Limpiar formulario
+    document.getElementById('formPago').reset();
+    document.querySelectorAll('.metodo-pago-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('montoPagadoDiv').style.display = 'none';
+
+    // Establecer ID de compra
     document.getElementById('compraId').value = compraId;
-    // Opcional: cargar datos de la compra mediante AJAX
 }
 
 // Enviar formulario de pago
 document.getElementById('formPago')?.addEventListener('submit', function(e) {
     e.preventDefault();
+
+    // Validar que se seleccionó método de pago
+    if (!document.getElementById('metodoPago').value) {
+        alert('Por favor selecciona un método de pago');
+        return;
+    }
+
     const compraId = document.getElementById('compraId').value;
     const formData = new FormData(this);
 
@@ -913,12 +1022,17 @@ document.getElementById('formPago')?.addEventListener('submit', function(e) {
     .then(r => r.json())
     .then(d => {
         if (d.status === 'ok') {
-            alert('Pago registrado correctamente');
+            alert('✓ Pago registrado correctamente');
             bootstrap.Modal.getInstance(document.getElementById('modalPago')).hide();
             location.reload();
+        } else {
+            alert('Error: ' + d.message);
         }
     })
-    .catch(err => console.error('Error:', err));
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error al guardar el pago');
+    });
 });
 </script>
 
