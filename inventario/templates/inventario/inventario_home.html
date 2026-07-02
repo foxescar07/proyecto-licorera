@@ -852,6 +852,16 @@
             style="background: #4DA8DA; color: #0d1b2a; border: none; opacity: 1;">
             <i class="bi bi-save2 me-1"></i>Guardar
           </button>
+          <button type="button" id="scan-camara-btn" class="btn rounded-pill px-3" disabled
+            style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+            title="Escanear con cámara">
+            <i class="bi bi-camera-fill"></i>
+          </button>
+        </div>
+
+        <div id="scan-camara-panel" class="d-none mb-3 text-center">
+          <video id="scan-video" class="rounded-3 w-100" style="max-height:300px; background:#000; object-fit:cover;" playsinline muted></video>
+          <div id="scan-camara-estado" class="text-muted small mt-2">Apunta la cámara al código de barras…</div>
         </div>
         <div class="table-responsive">
           <table class="table align-middle mb-0 inv-table" id="tabla-codigos">
@@ -955,6 +965,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1033,14 +1044,18 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
   document.getElementById('form-editar-movimiento').action =
     '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
 });
-
 // ── REGISTRAR CÓDIGOS ──
 (function () {
-  let filaActiva = null;
+  let filaActiva   = null;
+  let zxingReader  = null;
   const modal      = document.getElementById('modalRegistrarCodigos');
   const scanInput  = document.getElementById('scan-input');
   const scanBtn    = document.getElementById('scan-guardar');
   const scanNombre = document.getElementById('scan-producto-nombre');
+  const camBtn     = document.getElementById('scan-camara-btn');
+  const camPanel   = document.getElementById('scan-camara-panel');
+  const camVideo   = document.getElementById('scan-video');
+  const camEstado  = document.getElementById('scan-camara-estado');
 
   function resetUI() {
     filaActiva = null;
@@ -1050,7 +1065,62 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     scanInput.disabled     = true;
     scanBtn.disabled       = true;
     scanBtn.style.opacity  = '0.45';
+    camBtn.disabled        = true;
+    detenerCamara();
   }
+
+ let html5Scanner = null;
+
+async function iniciarCamara() {
+  camPanel.classList.remove('d-none');
+  camEstado.textContent = 'Iniciando cámara…';
+
+  if (typeof Html5Qrcode === 'undefined') {
+    camEstado.textContent = 'Error: la librería no cargó. Revisa tu conexión.';
+    return;
+  }
+
+ camVideo.style.display = 'none';
+let contenedor = document.getElementById('scan-video-html5');
+if (!contenedor) {
+  contenedor = document.createElement('div');
+  contenedor.id = 'scan-video-html5';
+  camVideo.parentNode.insertBefore(contenedor, camVideo);
+}
+contenedor.style.width      = '340px';
+contenedor.style.maxWidth   = '100%';
+contenedor.style.height     = '220px';
+contenedor.style.margin     = '0 auto';
+contenedor.style.overflow   = 'hidden';
+contenedor.style.borderRadius = '12px';
+
+  html5Scanner = new Html5Qrcode('scan-video-html5');
+
+  try {
+    await html5Scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
+      (codigoDetectado) => {
+        scanInput.value = codigoDetectado;
+        camEstado.textContent = 'Código detectado: ' + codigoDetectado;
+        detenerCamara();
+      },
+      () => {} // errores de frame sin detección, se ignoran
+    );
+    camEstado.textContent = 'Apunta la cámara al código de barras…';
+  } catch (err) {
+    console.error('Error al iniciar cámara:', err);
+    camEstado.textContent = 'No se pudo acceder a la cámara: ' + (err.message || err);
+  }
+}
+
+function detenerCamara() {
+  if (html5Scanner) {
+    html5Scanner.stop().then(() => html5Scanner.clear()).catch(() => {});
+    html5Scanner = null;
+  }
+  camPanel.classList.add('d-none');
+}
 
   function guardarCodigo(fila, codigo) {
     const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -1083,9 +1153,13 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     scanInput.disabled     = false;
     scanBtn.disabled       = false;
     scanBtn.style.opacity  = '1';
+    camBtn.disabled        = false;
     scanInput.focus();
   });
 
+  camBtn.addEventListener('click', () => {
+  html5Scanner ? detenerCamara() : iniciarCamara();
+});
   scanBtn.addEventListener('click', () => {
     if (filaActiva) guardarCodigo(filaActiva, scanInput.value.trim());
   });
@@ -1099,7 +1173,6 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
 
   modal.addEventListener('hidden.bs.modal', resetUI);
 })();
-
 // ── TABS AGENDAS ──
 document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
   btn.addEventListener('click', function () {
