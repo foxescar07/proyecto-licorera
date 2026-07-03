@@ -53,6 +53,9 @@ def index(request):
         'config':   config,
         'db_stats': _db_stats(),
         'backups':  backups,
+        'breadcrumb_items': [
+            {'nombre': 'Configuración', 'url': None},
+        ],
     }
     return render(request, 'configuracion.html', context)
 

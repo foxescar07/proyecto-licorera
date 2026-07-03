@@ -5,8 +5,10 @@
 {% block page_title %}Gestión de Lotes{% endblock %}
 {% block nav_inventario %}active{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+  {% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+  <link rel="stylesheet" href="{% static 'css/inventario/lotes.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -23,15 +25,6 @@
 {% endif %}
 
 <!-- Header -->
-<div class="d-flex align-items-center justify-content-between mb-4 pb-3"
-     style="border-bottom:1px solid rgba(77,168,218,0.18);">
-  <div class="d-flex align-items-center gap-2">
-  </div>
-   <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
-     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
-    <i class="bi bi-arrow-left me-1"></i> Inventario
-  </a>
-</div>
 
 <div class="row g-4">
 
@@ -41,15 +34,14 @@
 
       <!-- Cabecera tarjeta -->
       <div class="d-flex align-items-center gap-2 mb-4">
-        <div class="icon-box">
-          <i class="bi bi-plus-circle-fill" style="color:#4DA8DA;font-size:2.1rem;"></i>
+        <div class="icon-box lote-icon-box">
+          <i class="bi bi-plus-circle-fill"></i>
         </div>
         <div>
-          <h6 class="mb-0 fw-bold text-uppercase"
-              style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:1.1rem;">
+          <h6 class="mb-0 fw-bold text-uppercase lote-titulo">
             Registrar Nuevo Lote
           </h6>
-          <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
+          <small class="lote-subtitulo">
             El precio de costo se guarda en la presentación
           </small>
         </div>
@@ -78,25 +70,21 @@
 
           <!-- Dropdown visual -->
           <div class="dropdown">
-            <button class="btn dropdown-toggle w-100 text-start" type="button"
-                    id="presentacion-lote-btn" data-bs-toggle="dropdown"
-                    style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-               color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+            <button class="btn dropdown-toggle w-100 text-start lote-presentacion-btn" type="button"
+                    id="presentacion-lote-btn" data-bs-toggle="dropdown">
               <span id="presentacion-lote-label">— Selecciona presentación —</span>
             </button>
-            <ul class="dropdown-menu w-100"
-                style="background:#0d1b2a; border:1px solid rgba(0, 54, 83, 0.46); max-height:320px; overflow-y:auto;">
+            <ul class="dropdown-menu w-100 lote-presentacion-menu">
               {% for p in productos %}
                 {% if p.presentaciones.all %}
                 <li>
-                  <h6 class="dropdown-header" style="color:#4DA8DA; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em;">
+                  <h6 class="dropdown-header">
                     {{ p.nombre }}
                   </h6>
                 </li>
                   {% for pr in p.presentaciones.all %}
                   <li>
-                    <a class="dropdown-item presentacion-lote-item" href="#" data-value="{{ pr.pk }}"
-                       style="color:#c8d6e5; font-size:.85rem; padding-left:1.5rem;">
+                    <a class="dropdown-item presentacion-lote-item" href="#" data-value="{{ pr.pk }}">
                       {{ pr.nombre }}
                     </a>
                   </li>
@@ -127,15 +115,13 @@
         <div class="mb-3">
           <label class="inv-label">
             Precio de Costo
-            <span style="color:rgba(220,232,242,0.38);font-size:.72rem;text-transform:none;
-                         letter-spacing:0;font-weight:400;">(por unidad)</span>
+            <span class="lote-label-hint">(por unidad)</span>
           </label>
           <div class="d-flex">
             <span class="precio-prefix">$</span>
             <input type="number" name="costo_unitario"
-                   class="form-control inv-input inv-input-precio"
-                   min="0" step="1" placeholder="0"
-                   style="border-radius:0 8px 8px 0!important;border-left:none!important;">
+                   class="form-control inv-input inv-input-precio lote-precio-input"
+                   min="0" step="1" placeholder="0">
           </div>
           <p class="precio-hint">
             <i class="bi bi-info-circle me-1"></i>
@@ -157,10 +143,9 @@
           </div>
         </div>
 
-        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100"
-        style="background:#3b9ad6; color:#0d1b2a; border:none; font-size:0.9rem; white-space:nowrap;">
-  <i class="bi bi-plus-circle me-2"></i>Crear Lote
-</button>
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100 lote-btn-crear">
+          <i class="bi bi-plus-circle me-2"></i>Crear Lote
+        </button>
       </form>
 
     </div>
@@ -174,11 +159,10 @@
       <div class="col-6">
         <div class="stat-mini p-3 d-flex align-items-center justify-content-between">
           <div>
-            <small class="d-block text-uppercase"
-                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+            <small class="d-block text-uppercase lote-stat-label">
               Ingresos Hoy
             </small>
-            <h4 class="mb-0 fw-bold mt-1 text-success" style="font-family:'Rajdhani',sans-serif;">
+            <h4 class="mb-0 fw-bold mt-1 text-success lote-stat-value-success">
               +{{ ingresos_hoy }} uds
             </h4>
           </div>
@@ -186,14 +170,12 @@
         </div>
       </div>
       <div class="col-6">
-        <div class="stat-mini p-3 d-flex align-items-center justify-content-between"
-             style="border-color:rgba(77,168,218,0.22)!important;">
+        <div class="stat-mini lote-stat-mini--info p-3 d-flex align-items-center justify-content-between">
           <div>
-            <small class="d-block text-uppercase"
-                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+            <small class="d-block text-uppercase lote-stat-label">
               Lotes del Mes
             </small>
-            <h4 class="mb-0 fw-bold mt-1" style="color:#4DA8DA;font-family:'Rajdhani',sans-serif;">
+            <h4 class="mb-0 fw-bold mt-1 lote-stat-value-info">
               {{ ordenes_mes }}
             </h4>
           </div>
@@ -206,12 +188,11 @@
     <div class="inv-card p-4 flex-grow-1 d-flex flex-column">
       <div class="d-flex align-items-center gap-2 mb-3">
         <i class="bi bi-shop" style="color:#4DA8DA;"></i>
-        <h6 class="mb-0 fw-bold text-uppercase"
-            style="color:#dce8f2;font-size:.75rem;letter-spacing:.05em;">
+        <h6 class="mb-0 fw-bold text-uppercase lote-panel-titulo">
           Top 5 Productos en Stock
         </h6>
       </div>
-      <div class="flex-grow-1 position-relative" style="min-height:175px;">
+      <div class="flex-grow-1 position-relative lote-chart-wrap">
         <canvas id="chartProveedores"></canvas>
       </div>
     </div>
@@ -233,12 +214,12 @@ new Chart(document.getElementById('chartProveedores').getContext('2d'), {
       data: {{ proveedores_data|safe }},
       backgroundColor: [
         'rgba(62, 181, 229, 0.85)',
-        'rgba(155, 89, 182, 0.85)',
-        'rgba(214, 48, 117, 0.85)',
+        'rgb(190, 87, 231)',
+        'rgb(10, 74, 169)',
         'rgba(108, 92, 231, 0.85)',
-        'rgba(162, 155, 254, 0.85)'
+        'rgba(155, 254, 218, 0.85)'
       ],
-      borderColor: ['#4195c9', '#9b59b6', '#d63017', '#6c5ce7', '#a29bfe'],
+      borderColor: ['#4195c9', '#d059ff', '#014ab0', '#6c5ce7', '#9bfebc'],
       borderWidth: 1,
       borderRadius: 5
     }]

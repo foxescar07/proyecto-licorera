@@ -402,18 +402,29 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Transición suave para que la animación se vea fluida */
   transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
 }
 
-/* Al pasar el mouse (Hover): Fondo rojo transparente y equis iluminada */
 .cys-sb-close:hover {
-  background-color: rgba(232, 112, 112, 0.15) !important; /* Rojo traslúcido suave */
-  color: #e87070 !important; /* Mismo rojo de tus estilos de logout */
+  background-color: rgba(232, 112, 112, 0.15) !important;
+  color: #e87070 !important;
 }
 
-/* Al hacer clic (Active): Un poco más intenso el fondo */
 .cys-sb-close:active {
-  background-color: rgba(232, 112, 112, 0.3) !important; 
-  transform: scale(0.95); /* Pequeño efecto de pulsación */
+  background-color: rgba(232, 112, 112, 0.3) !important;
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   RESUMEN — VISIBILIDAD (movido desde <style> inline en aside.html)
+   ============================================================ */
+#cys-sb-resumen-wrap {
+  transition: opacity .35s ease, visibility .35s ease;
+  opacity: 1;
+  visibility: visible;
+}
+#cys-sb-resumen-wrap.cys-sb-resumen-oculto {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }

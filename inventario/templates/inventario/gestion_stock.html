@@ -6,6 +6,7 @@
 {% block nav_stock %}active{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventario/stock.css' %}">
 <link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 {% block content %}
@@ -22,97 +23,80 @@
 {% endif %}
 
 <!-- Encabezado -->
-<div class="d-flex align-items-center justify-content-between gap-2 mb-4 pb-3"
-     style="border-bottom:1px solid rgba(77,168,218,0.25);">
-  <div class="d-flex align-items-center gap-2">
-    
-  </div>
-  <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
-     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
-    <i class="bi bi-arrow-left me-1"></i> Inventario
-  </a>
-</div>
 
 <!-- KPI Cards -->
 <div class="row g-3 mb-4">
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #00a0f6;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
+    <div class="kpi-card kpi-card--stock">
       <div>
         <div class="kpi-label">Productos</div>
-        <div class="kpi-value" style="color:#e2e8f0;">{{ productos|length }}</div>
+        <div class="kpi-value kpi-value--claro">{{ productos|length }}</div>
       </div>
-      <i class="bi bi-box kpi-icon" style="color:rgb(41, 62, 222)"></i>
+      <i class="bi bi-box kpi-icon kpi-icon--productos"></i>
     </div>
   </div>
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #54ebb8;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
+    <div class="kpi-card kpi-card--lotes-activos">
       <div>
         <div class="kpi-label">Lotes activos</div>
-        <div class="kpi-value" style="color:#e2e8f0;">{{ lotes_activos|length }}</div>
+        <div class="kpi-value kpi-value--claro">{{ lotes_activos|length }}</div>
       </div>
-      <i class="bi bi-box-seam kpi-icon"  style="color:rgb(0, 255, 106);"></i>
+      <i class="bi bi-box-seam kpi-icon kpi-icon--lotes-activos"></i>
     </div>
   </div>
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #6090d7;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
+    <div class="kpi-card kpi-card--por-vencer">
       <div>
         <div class="kpi-label">Por vencer</div>
-        <div class="kpi-value" style="color:#e2e8f0;">{{ lotes_por_vencer|length }}</div>
+        <div class="kpi-value kpi-value--claro">{{ lotes_por_vencer|length }}</div>
       </div>
-      <i class="bi bi-exclamation-circle kpi-icon" style="color:rgb(12, 157, 180);"></i>
+      <i class="bi bi-exclamation-circle kpi-icon kpi-icon--por-vencer"></i>
     </div>
   </div>
   <div class="col-6 col-md-3">
-    <div class="kpi-card" style="background:#0d2240;border-left:3px solid #6b5dff;border-top:none;border-right:none;border-bottom:none;border-radius:8px;">
+    <div class="kpi-card kpi-card--vencidos">
       <div>
         <div class="kpi-label">Vencidos</div>
-        <div class="kpi-value" style="color:#e2e8f0;">{{ lotes_vencidos|length }}</div>
+        <div class="kpi-value kpi-value--claro">{{ lotes_vencidos|length }}</div>
       </div>
-      <i class="bi bi-x-circle kpi-icon" style="color:rgb(130, 79, 226);"></i>
+      <i class="bi bi-x-circle kpi-icon kpi-icon--vencidos"></i>
     </div>
   </div>
 </div>
 
 <!-- SECCIÓN: STOCK POR LOTE -->
 <div class="d-flex align-items-center gap-2 mb-3">
-  <i class="bi bi-table" style="color:#4DA8DA;font-size:1.5rem;"></i>
-  <h3 class="fw-bold m-0" style="color:#e2e8f0;">Stock por Lote</h3>
+  <i class="bi bi-table lotes-seccion-icon"></i>
+  <h3 class="fw-bold m-0 lotes-seccion-titulo">Stock por Lote</h3>
 </div>
 
 <!-- Buscador -->
 <div class="d-flex flex-wrap gap-2 mb-3">
-  <div class="input-group" id="buscarLote-grupo" style="max-width:360px;">
-    <span class="input-group-text"
-          style="background:rgba(77,168,218,.08);border-color:rgba(77,168,218,.25);color:#4DA8DA;">
+  <div class="input-group" id="buscarLote-grupo" style="max-width:360px; width:100%;">
+    <span class="input-group-text lotes-search-prefix">
       <i class="bi bi-search"></i>
     </span>
-    <input type="text" id="buscarLote" class="form-control"
-           placeholder="Buscar producto, lote…"
-           style="background:rgba(13,26,64,.6);border-color:rgba(77,168,218,.25);color:#e2e8f0;">
+    <input type="text" id="buscarLote" class="form-control lotes-search-input"
+           placeholder="Buscar producto, lote…">
   </div>
-  <div class="dropdown">
-  <button class="btn btn-sm dropdown-toggle px-3" type="button"
-          id="filtroEstado-btn" data-bs-toggle="dropdown"
-          style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
-                 color:#9fc9ec; font-size:.82rem; border-radius:8px; width:170px;
-                 text-align:left;">
-    <span id="filtroEstado-label">Todos</span>
-  </button>
-  <ul class="dropdown-menu" style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); min-width:170px;">
-    <li><a class="dropdown-item" href="#" data-estado="todos" style="color:#c8d6e5; font-size:.82rem;">Todos</a></li>
-    <li><a class="dropdown-item" href="#" data-estado="ok" style="color:#c8d6e5; font-size:.82rem;">En orden</a></li>
-    <li><a class="dropdown-item" href="#" data-estado="por_vencer" style="color:#c8d6e5; font-size:.82rem;">Por vencer</a></li>
-    <li><a class="dropdown-item" href="#" data-estado="vencido" style="color:#c8d6e5; font-size:.82rem;">Vencido</a></li>
-  </ul>
-</div>
+  <div class="dropdown" id="filtroEstado-wrap">
+    <button class="btn btn-sm dropdown-toggle px-3 lotes-filtro-btn" type="button"
+          id="filtroEstado-btn" data-bs-toggle="dropdown">
+      <span id="filtroEstado-label">Todos</span>
+    </button>
+    <ul class="dropdown-menu lotes-filtro-menu">
+  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="todos">Todos</a></li>
+  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="ok">En orden</a></li>
+  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="por_vencer">Por vencer</a></li>
+  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="vencido">Vencido</a></li>
+</ul>
+  </div>
 </div>
 
-<div class="table-responsive rounded-3" style="border:1px solid rgba(77,168,218,.18);">
-  <table class="table table-hover mb-0 align-middle" id="tablaLotes"
-         style="--bs-table-bg:rgba(10,26,64,.55);--bs-table-hover-bg:rgba(77,168,218,.07);
-                --bs-table-color:#e2e8f0;--bs-table-border-color:rgba(77,168,218,.12);">
-    <thead style="background:rgba(10,26,64,.9);">
-      <tr style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:rgba(226,232,240,.5);">
+<div class="table-responsive rounded-3 lotes-table-wrap">
+  <table class="table table-hover mb-0 align-middle" id="tablaLotes">
+    <thead>
+      <tr>
         <th class="ps-3">Producto / Presentación</th>
         <th>Nº Lote</th>
         <th class="text-center">Stock</th>
@@ -131,53 +115,48 @@
           data-estado="{% if lote.esta_vencido %}vencido{% elif lote.proximo_a_vencer %}por_vencer{% else %}ok{% endif %}">
 
         <td class="ps-3">
-          <div class="fw-semibold" style="color:#e2e8f0;">{{ lote.presentacion.producto.nombre }}</div>
-          <small style="color:rgba(77,168,218,.8);">{{ lote.presentacion.nombre }}</small>
+          <div class="fw-semibold lote-producto-nombre">{{ lote.presentacion.producto.nombre }}</div>
+          <small class="lote-presentacion-nombre">{{ lote.presentacion.nombre }}</small>
         </td>
 
         <td>
-          <span class="badge rounded-pill px-2 py-1"
-                style="background:rgba(77,168,218,.12);color:#4DA8DA;
-                       border:1px solid rgba(77,168,218,.25);font-size:.75rem;">
+          <span class="badge rounded-pill px-2 py-1 lote-badge-numero">
             {{ lote.numero_lote }}
           </span>
         </td>
 
         <td class="text-center">
-          <span class="fw-bold" style="color:#e2e8f0;">{{ lote.stock_actual }}</span>
-          <small style="color:rgba(226,232,240,.4);"> uds</small>
+          <span class="fw-bold lote-stock-valor">{{ lote.stock_actual }}</span>
+          <small class="lote-stock-unidad"> uds</small>
         </td>
 
         <td>
           {% if lote.fecha_vencimiento %}
-            <span style="color:{% if lote.esta_vencido %}#e74c3c{% elif lote.proximo_a_vencer %}#f39c12{% else %}rgba(226,232,240,.6){% endif %};">
+            <span class="{% if lote.esta_vencido %}lote-fecha--vencido{% elif lote.proximo_a_vencer %}lote-fecha--por-vencer{% else %}lote-fecha--ok{% endif %}">
               {{ lote.fecha_vencimiento|date:"d/m/Y" }}
             </span>
             {% if lote.dias_para_vencer is not None %}
-              <br><small style="font-size:.7rem;color:rgba(226,232,240,.4);">
+              <br><small class="lote-fecha-dias">
                 {% if lote.esta_vencido %}Vencido hace {{ lote.dias_para_vencer }} días
                 {% else %}{{ lote.dias_para_vencer }} días{% endif %}
               </small>
             {% endif %}
           {% else %}
-            <span style="color:rgba(226,232,240,.35);">—</span>
+            <span class="lote-fecha--vacio">—</span>
           {% endif %}
         </td>
 
         <td>
           {% if lote.esta_vencido %}
-            <span class="badge rounded-pill px-2"
-                  style="background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.3);">
+            <span class="badge rounded-pill px-2 lote-badge-estado--vencido">
               <i class="bi bi-x-circle me-1"></i>Vencido
             </span>
           {% elif lote.proximo_a_vencer %}
-            <span class="badge rounded-pill px-2"
-                  style="background:rgba(243,156,18,.15);color:#f39c12;border:1px solid rgba(243,156,18,.3);">
+            <span class="badge rounded-pill px-2 lote-badge-estado--por-vencer">
               <i class="bi bi-exclamation-circle me-1"></i>Por vencer
             </span>
           {% else %}
-            <span class="badge rounded-pill px-2"
-                  style="background:rgba(39,174,96,.12);color:#27ae60;border:1px solid rgba(39,174,96,.25);">
+            <span class="badge rounded-pill px-2 lote-badge-estado--ok">
               <i class="bi bi-check-circle me-1"></i>OK
             </span>
           {% endif %}
@@ -185,28 +164,29 @@
 
         <td class="text-center">
           {% if lote.costo_unitario %}
-            <span class="fw-semibold" style="color:#4DA8DA;">
+            <span class="fw-semibold lote-costo-valor">
               ${{ lote.costo_unitario|floatformat:0 }}
             </span>
           {% else %}
-            <span style="color:rgba(226,232,240,.35);">—</span>
+            <span class="lote-valor-vacio">—</span>
           {% endif %}
         </td>
 
         <td class="text-center">
           {% if lote.costo_unitario %}
-            <span style="color:rgba(226,232,240,.7);font-size:.85rem;">
+            <span class="lote-valor-total">
               ${% widthratio lote.stock_actual 1 lote.costo_unitario %}
             </span>
           {% else %}
-            <span style="color:rgba(226,232,240,.35);">—</span>
+            <span class="lote-valor-vacio">—</span>
           {% endif %}
         </td>
 
         <td class="pe-3 text-end">
           <button class="btn-edit-sm"
                   data-bs-toggle="modal"
-                  data-bs-target="#modalEditarLote{{ lote.pk }}">
+                  data-bs-target="#modalEditarLote{{ lote.pk }}"
+                  title="Editar">
             <i class="bi bi-pencil"></i>
           </button>
         </td>
@@ -215,7 +195,7 @@
   </table>
 </div>
 
-<div id="sinResultadosLotes" class="text-center py-5 d-none" style="color:rgba(226,232,240,.35);">
+<div id="sinResultadosLotes" class="text-center py-5 d-none lotes-sin-resultados">
   <i class="bi bi-search fs-1 d-block mb-2 opacity-50"></i>
   Sin resultados para tu búsqueda.
 </div>
@@ -224,9 +204,9 @@
 {% for lote in lotes_activos %}
 <div class="modal fade" id="modalEditarLote{{ lote.pk }}" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
-    <div class="modal-content" style="background:rgb(13, 34, 70);border:1px solid rgba(77,168,218,.25);">
-      <div class="modal-header" style="border-color:rgba(77,168,218,.15);">
-        <h5 class="modal-title fw-bold" style="color:#e2e8f0;font-size:1rem;">
+    <div class="modal-content lote-modal-content">
+      <div class="modal-header lote-modal-header">
+        <h5 class="modal-title fw-bold lote-modal-titulo">
           <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>
           Editar lote {{ lote.numero_lote }}
         </h5>
@@ -235,38 +215,34 @@
       <form method="post" action="{% url 'editar_lote_stock' lote.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
-          <div class="rounded-3 p-3 mb-3"
-               style="background:rgba(77,168,218,.05);border:1px solid rgba(77,168,218,.12);">
-            <div class="fw-semibold" style="color:#e2e8f0;">{{ lote.presentacion.producto.nombre }}</div>
-            <small style="color:rgba(77,168,218,.8);">{{ lote.presentacion.nombre }}</small>
+          <div class="rounded-3 p-3 mb-3 lote-modal-info-box">
+            <div class="fw-semibold lote-modal-producto-nombre">{{ lote.presentacion.producto.nombre }}</div>
+            <small class="lote-modal-presentacion-nombre">{{ lote.presentacion.nombre }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label small fw-semibold" style="color:rgba(226,232,240,.7);">
+            <label class="form-label small fw-semibold lote-modal-label">
               Stock de este lote
             </label>
-            <input type="number" name="nuevo_stock" class="form-control"
-                   style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;font-size:1.1rem;"
+            <input type="number" name="nuevo_stock" class="form-control lote-modal-input lote-modal-input--stock"
                    min="0" value="{{ lote.stock_actual }}" required>
           </div>
           <div class="mb-3">
-            <label class="form-label small fw-semibold" style="color:rgba(226,232,240,.7);">
+            <label class="form-label small fw-semibold lote-modal-label">
               Costo unitario ($)
             </label>
-            <input type="number" name="costo_unitario" class="form-control"
-                   style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;"
+            <input type="number" name="costo_unitario" class="form-control lote-modal-input"
                    min="0" step="1" value="{{ lote.costo_unitario|unlocalize|default:0 }}"
                    placeholder="0">
           </div>
           <div class="mb-1">
-            <label class="form-label small fw-semibold" style="color:rgba(226,232,240,.7);">
+            <label class="form-label small fw-semibold lote-modal-label">
               Motivo (opcional)
             </label>
-            <input type="text" name="motivo" class="form-control"
-                   style="background:rgba(13,26,64,.7);border-color:rgba(77,168,218,.3);color:#e2e8f0;"
+            <input type="text" name="motivo" class="form-control lote-modal-input"
                    placeholder="Conteo físico, corrección de error…" maxlength="200">
           </div>
         </div>
-        <div class="modal-footer" style="border-color:rgba(77,168,218,.15);">
+        <div class="modal-footer lote-modal-footer">
           <button type="button" class="btn-accion-ghost" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn-accion-primary">
             <i class="bi bi-check-lg"></i> Guardar
@@ -283,18 +259,32 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
-  function formatMiles(n) {
-    var num = parseInt(String(n).replace(/\D/g, ''), 10);
-    if (isNaN(num)) return n;
-    return num.toLocaleString('es-CO');
+function formatMiles(n) {
+  var num = parseInt(String(n).replace(/\D/g, ''), 10);
+  if (isNaN(num)) return n;
+  return num.toLocaleString('es-CO');
 }
+
+// ── TOOLTIPS: inicialización simple ──
+function inicializarTooltipsLotes() {
+  document.querySelectorAll('#tablaLotes [title]').forEach(function (el) {
+    var existente = bootstrap.Tooltip.getInstance(el);
+    if (existente) existente.dispose();
+
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover',
+      container: 'body'
+    });
+  });
+}
+
 $(document).ready(function() {
-    // Prevent double init if already initialized
-    if ($.fn.DataTable.isDataTable('#tablaLotes')) {
-        $('#tablaLotes').DataTable().destroy();
-    }
-    
-    var table = $('#tablaLotes').DataTable({
+  if ($.fn.DataTable.isDataTable('#tablaLotes')) {
+    $('#tablaLotes').DataTable().destroy();
+  }
+
+  var table = $('#tablaLotes').DataTable({
     paging: true,
     searching: true,
     info: true,
@@ -303,77 +293,72 @@ $(document).ready(function() {
     ordering: true,
     responsive: true,
     language: {
-        info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
-        infoEmpty: "Mostrando 0 a 0 de 0 lotes",
-        emptyTable: "No hay lotes con stock activo.",
-        zeroRecords: "Sin resultados para tu búsqueda.",
-        paginate: {
-            first:    '«',
-            previous: '‹',
-            next:     '›',
-            last:     '»'
-        }
+      info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
+      infoEmpty: "Mostrando 0 a 0 de 0 lotes",
+      emptyTable: "No hay lotes con stock activo.",
+      zeroRecords: "Sin resultados para tu búsqueda.",
+      paginate: { first: '«', previous: '‹', next: '›', last: '»' }
     },
     dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>',
     drawCallback: function() {
-        $('#tablaLotes tbody tr').each(function() {
-            [5, 6].forEach(function(idx) {
-                var $td = $(this).find('td').eq(idx);
-                var $span = $td.find('span');
-                if ($span.length) {
-                    var texto = $span.text().trim();
-                    var num = texto.replace('$', '').replace(/\./g, '').trim();
-                    if (num && !isNaN(num) && parseInt(num) > 0) {
-                        $span.text('$' + formatMiles(num));
-                    }
-                }
-            }.bind(this));
-        });
-    }
-});
-
-    $('#buscarLote').on('input', function() {
-        table.search(this.value).draw();
-    });
-
-    var filtroEstadoActual = 'todos';
-
-$.fn.dataTable.ext.search.push(
-    function(settings, data, dataIndex, rowData, counter) {
-        if (settings.sTableId !== 'tablaLotes') {
-            return true;
-        }
-        if (filtroEstadoActual === 'todos') return true;
-        var node = settings.aoData[dataIndex].nTr;
-        var estado = $(node).attr('data-estado');
-        return estado === filtroEstadoActual;
-    }
-);
-
-document.querySelectorAll('[data-estado]').forEach(function (a) {
-  a.addEventListener('click', function (e) {
-    e.preventDefault();
-    document.getElementById('filtroEstado-label').textContent = this.textContent.trim();
-    filtroEstadoActual = this.dataset.estado;
-    table.draw();
-  });
-});
-    
-    // Buscar param URL
-    const params = new URLSearchParams(window.location.search);
-    const termino = params.get('buscar');
-    if (termino) {
-        $('#buscarLote').val(termino);
-        table.search(termino).draw();
-        
-        setTimeout(() => {
-            const row = table.row({search: 'applied'}).node();
-            if (row) {
-                $(row).css({transition: 'background-color 0.3s ease', backgroundColor: 'rgba(77,168,218,0.18)'});
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      $('#tablaLotes tbody tr').each(function() {
+        [5, 6].forEach(function(idx) {
+          var $td = $(this).find('td').eq(idx);
+          var $span = $td.find('span');
+          if ($span.length) {
+            var texto = $span.text().trim();
+            var num = texto.replace('$', '').replace(/\./g, '').trim();
+            if (num && !isNaN(num) && parseInt(num) > 0) {
+              $span.text('$' + formatMiles(num));
             }
-        }, 100);
+          }
+        }.bind(this));
+      });
+      inicializarTooltipsLotes();
     }
+  });
+
+  inicializarTooltipsLotes();
+
+  $('#buscarLote').on('input', function() {
+    table.search(this.value).draw();
+  });
+
+  var filtroEstadoActual = 'todos';
+
+  $.fn.dataTable.ext.search.push(
+    function(settings, data, dataIndex, rowData, counter) {
+      if (settings.sTableId !== 'tablaLotes') return true;
+      if (filtroEstadoActual === 'todos') return true;
+      var node = settings.aoData[dataIndex].nTr;
+      var estado = $(node).attr('data-estado');
+      return estado === filtroEstadoActual;
+    }
+  );
+
+  document.querySelectorAll('.filtro-estado-item').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.getElementById('filtroEstado-label').textContent = this.textContent.trim();
+      filtroEstadoActual = this.dataset.estado;
+      table.draw();
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const termino = params.get('buscar');
+  if (termino) {
+    $('#buscarLote').val(termino);
+    table.search(termino).draw();
+
+    setTimeout(() => {
+      const row = table.row({search: 'applied'}).node();
+      if (row) {
+        $(row).css({transition: 'background-color 0.3s ease', backgroundColor: 'rgba(77,168,218,0.18)'});
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
 });
 </script>
 {% endblock %}

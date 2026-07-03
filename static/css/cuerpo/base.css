@@ -861,3 +861,17 @@ body.sidebar-open .cys-main {
     -webkit-overflow-scrolling: touch;
   }
 }
+@keyframes campanaAlerta {
+  0%, 55% { transform: rotate(0deg); }
+  60% { transform: rotate(-14deg); }
+  65% { transform: rotate(12deg); }
+  70% { transform: rotate(-9deg); }
+  75% { transform: rotate(6deg); }
+  80% { transform: rotate(-3deg); }
+  85%, 100% { transform: rotate(0deg); }
+}
+.notif-bell-active {
+  transform-origin: top center;
+  display: inline-block;
+  animation: campanaAlerta 3s ease-in-out infinite;
+}

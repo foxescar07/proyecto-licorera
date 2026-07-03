@@ -1,0 +1,27 @@
+.cys-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  font-size: .85rem;
+}
+
+.cys-breadcrumb__link {
+  color: #8899aa;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+
+.cys-breadcrumb__link:hover {
+  color: #4DA8DA;
+}
+
+.cys-breadcrumb__sep {
+  color: rgba(200,214,229,.3);
+  font-size: .7rem;
+}
+
+.cys-breadcrumb__current {
+  color: #c8d6e5;
+  font-weight: 600;
+}

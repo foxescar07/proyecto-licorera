@@ -13,6 +13,7 @@ from django.urls import reverse, NoReverseMatch
 from datetime import timedelta
 from django.http import JsonResponse
 from .forms import UsuarioForm
+from .models import RegistroActividad 
 import random
 import logging
 import re
@@ -167,6 +168,9 @@ def lista_usuarios(request):
         'total_usuarios':    usuarios.count(),
         'tipo_id_choices':   Usuario.TIPO_ID_CHOICES,
         'rol_choices':       Usuario.ROL_CHOICES,
+        'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': None},
+        ],
     }
     return render(request, 'usuarios_lista.html', ctx)
 
@@ -185,6 +189,10 @@ def crear_usuario(request):
                 'form':           form,
                 'usuario_creado': True,
                 'nuevo_usuario':  usuario.usuario,
+                'breadcrumb_items': [
+                    {'nombre': 'Usuarios', 'url': reverse('usuario')},  # ← confirma este nombre
+                    {'nombre': 'Crear Usuario', 'url': None},
+                ],
             }
             return render(request, 'crear_usuario.html', ctx)
         else:
@@ -195,6 +203,10 @@ def crear_usuario(request):
     ctx = {
         **_ctx_base(request),
         'form': form,
+        'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': reverse('usuario')},
+            {'nombre': 'Crear Usuario', 'url': None},
+        ],
     }
     return render(request, 'crear_usuario.html', ctx)
 
@@ -353,7 +365,14 @@ def editar_usuario(request, pk):
             if es_ajax:
                 return JsonResponse({'ok': False, 'error': error})
             messages.error(request, error)
-            return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
+            return render(request, 'editar_usuario.html', {
+        **_ctx_base(request),
+        'perfil': usuario,
+        'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': reverse('usuario')},  # ← confirma este nombre
+            {'nombre': f'Editar: {usuario.first_name}', 'url': None},
+        ],
+    })
 
         usuario.first_name = nombre
         usuario.last_name  = apellidos
@@ -376,7 +395,15 @@ def editar_usuario(request, pk):
         messages.success(request, f'Usuario {usuario.username} actualizado correctamente.')
         return redirect('usuario')
 
-    return render(request, 'editar_usuario.html', {**_ctx_base(request), 'perfil': usuario})
+    return render(request, 'editar_usuario.html', {
+        **_ctx_base(request), 
+        
+            'perfil': usuario,
+            'breadcrumb_items': [
+            {'nombre': 'Usuarios', 'url': reverse('usuario')},  # ← confirma este nombre
+            {'nombre': f'Editar: {usuario.first_name}', 'url': None},
+        ],
+    })
 
 
 # ── PERFIL DATOS (JSON) ────────────────────────────────────────────────────────
@@ -683,6 +710,9 @@ def perfil_pagina(request):
         'tiene_foto':     bool(u.foto),
         'foto_url':       u.foto.url if u.foto else None,
         'avatar_name':    u.avatar_name,
+        'breadcrumb_items': [
+            {'nombre': 'Mi Perfil', 'url': None},
+        ],
     }
     return render(request, 'perfil.html', ctx)
 
@@ -780,3 +810,20 @@ def crear_usuario_admin(request):
         'fecha_registro':  usuario.date_joined.strftime('%d/%m/%Y'),
         'foto_url':        None,
     })
+
+@login_required
+def actividad_usuarios(request):
+    if request.user.rol == 'admin':
+        registros = RegistroActividad.objects.select_related('usuario').all()[:200]
+    else:
+        registros = RegistroActividad.objects.filter(usuario=request.user)[:200]
+
+    data = [
+        {
+            'usuario':    r.usuario.nombre_completo or r.usuario.username,
+            'fecha_hora': r.fecha_hora.strftime('%d/%m/%Y %H:%M'),
+            'ip':         r.ip_address or '—',
+        }
+        for r in registros
+    ]
+    return JsonResponse({'registros': data, 'es_admin': request.user.rol == 'admin'})

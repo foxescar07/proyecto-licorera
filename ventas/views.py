@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from decimal import Decimal, InvalidOperation
 from functools import wraps
 import json
+from django.urls import reverse
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, Cliente
 from .forms import VentaForm, DetalleVentaForm, DevolucionForm
@@ -130,6 +131,9 @@ def ventas_lista(request):
         'billetes_denom': BILLETES_DENOM,
         'monedas_denom':  MONEDAS_DENOM,
         'catalogo_json':  catalogo_json,
+        'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': None},
+        ],
     }
     return render(request, 'ventas/ventas.html', context)
 
@@ -398,6 +402,10 @@ def ventas_del_dia(request):
         'ventas_top':      ventas_top,
         'meta_diaria':     meta_diaria,
         'porcentaje_meta': porcentaje_meta,
+        'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
+            {'nombre': 'Ventas del Día', 'url': None},
+        ],
     }
     return render(request, 'ventas/ventas_dia.html', context)
 
@@ -546,6 +554,11 @@ def seleccionar_venta_devolucion(request, venta_id):
         'detalles_venta': venta.detalles.select_related('producto', 'presentacion'),
         'form': form,
         'devoluciones': Devolucion.objects.select_related('venta'),
+        'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
+            {'nombre': 'Devoluciones', 'url': reverse('ventas:lista_devoluciones')},
+            {'nombre': f'Devolución — Venta #{venta.pk}', 'url': None},
+        ],
     }
 
     return render(request, 'ventas/devoluciones.html', context)
@@ -616,7 +629,14 @@ def comprobante_devolucion(request, pk):
             'detalles__producto', 'detalles__presentacion'
         ), pk=pk,
     )
-    return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})
+    return render(request, 'ventas/comprobante_devolucion.html', {
+        'devolucion': devolucion,
+        'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
+            {'nombre': 'Devoluciones', 'url': reverse('ventas:lista_devoluciones')},
+            {'nombre': f'Comprobante {devolucion.numero}', 'url': None},
+        ],
+    })
 
 
 # FLUJO DE DEVOLUCIONES - 100% SERVER-SIDE SIN JAVASCRIPT
@@ -954,6 +974,10 @@ def devoluciones_flujo(request):
         'productos': productos,
         'total_devolver': total_devolver,
         'metodo_pago_original': request.session.get('dev_metodo_original', ''),
+        'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
+            {'nombre': 'Devoluciones', 'url': None},
+        ],
     }
 
     return render(request, 'ventas/devoluciones.html', context)
