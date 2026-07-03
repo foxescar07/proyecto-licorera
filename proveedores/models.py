@@ -315,6 +315,8 @@ class Compra(models.Model):
         'productos.Producto',
         on_delete=models.CASCADE,
         related_name='compras',
+        null=True,
+        blank=True,
         help_text="Producto comprado"
     )
     lote = models.ForeignKey(
@@ -327,6 +329,7 @@ class Compra(models.Model):
     )
     cantidad = models.IntegerField(
         validators=[MinValueValidator(1)],
+        default=1,
         help_text="Cantidad comprada"
     )
     precio_unitario = models.DecimalField(
@@ -339,6 +342,8 @@ class Compra(models.Model):
     )
     fecha_registro = models.DateTimeField(
         auto_now_add=True,
+        null=True,
+        blank=True,
         help_text="Fecha de registro"
     )
     recibida = models.BooleanField(

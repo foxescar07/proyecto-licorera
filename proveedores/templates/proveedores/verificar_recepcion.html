@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/ordenes_compra.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="ordenes-header" style="margin-bottom: 2rem;">
+        <h1>
+            <i class="bi bi-clipboard2-check"></i>
+            Verificar Recepción
+        </h1>
+        <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <!-- PROGRESO -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center;">
+        <div style="text-align: center;">
+            <div style="width: 40px; height: 40px; background: #27ae60; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem;">✓</div>
+            <p style="color: #E2E8F0; font-size: 0.9rem;">Recibir</p>
+        </div>
+        <div style="width: 40px; border-top: 2px solid #4DA8DA; margin-top: 20px;"></div>
+        <div style="text-align: center;">
+            <div style="width: 40px; height: 40px; background: #4DA8DA; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem;">2</div>
+            <p style="color: #E2E8F0; font-size: 0.9rem;">Verificar</p>
+        </div>
+        <div style="width: 40px; border-top: 2px solid #8FA3B1; margin-top: 20px;"></div>
+        <div style="text-align: center;">
+            <div style="width: 40px; height: 40px; background: #8FA3B1; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem;">3</div>
+            <p style="color: #8FA3B1; font-size: 0.9rem;">Pagar</p>
+        </div>
+    </div>
+
+    <div class="cys-snap-section">
+        <section class="cys-card mb-4">
+            <div class="cys-card__title">
+                <i class="bi bi-list-check me-2" style="color: #4DA8DA;"></i>
+                Orden #{{ recepcion.orden_compra.id }} - Verificar Cantidades
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: rgba(77, 168, 218, 0.1); border-bottom: 2px solid rgba(77, 168, 218, 0.2);">
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: left; font-size: 0.85rem; text-transform: uppercase;">Producto</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Esperado</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Recibido</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Diferencia</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: left; font-size: 0.85rem; text-transform: uppercase;">Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in recepcion.detalles.all %}
+                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1);">
+                            <td style="color: #E2E8F0; padding: 1rem;">
+                                <strong>{{ detalle.detalle_compra.presentacion.nombre }}</strong><br>
+                                <small style="color: #8FA3B1;">{{ detalle.detalle_compra.presentacion.producto.nombre }}</small>
+                            </td>
+                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">{{ detalle.cantidad_esperada }}</td>
+                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">
+                                <input type="number"
+                                       name="cantidad_recibida_{{ detalle.id }}"
+                                       value="{{ detalle.cantidad_recibida }}"
+                                       min="0"
+                                       style="width: 80px; background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; padding: 0.5rem; text-align: center; border-radius: 4px;">
+                            </td>
+                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">
+                                <span id="diff_{{ detalle.id }}" style="color: #4DA8DA; font-weight: 600;">
+                                    {% if detalle.diferencia == 0 %}
+                                        ✓ OK
+                                    {% elif detalle.diferencia > 0 %}
+                                        +{{ detalle.diferencia }}
+                                    {% else %}
+                                        {{ detalle.diferencia }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td style="color: #E2E8F0; padding: 1rem;">
+                                <textarea name="observaciones_{{ detalle.id }}"
+                                          placeholder="Dañado, faltante, etc..."
+                                          style="width: 100%; height: 50px; background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; padding: 0.5rem; border-radius: 4px;">{{ detalle.observaciones }}</textarea>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Info de Recepción -->
+                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem; margin-top: 2rem;">
+                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">
+                        Estado de la Recepción
+                    </p>
+                    <p style="color: #E2E8F0; font-weight: 600;">
+                        {% if recepcion.estado == 'completa' %}
+                            <span style="color: #27ae60;">✓ Completa</span>
+                        {% elif recepcion.estado == 'parcial' %}
+                            <span style="color: #f39c12;">⚠️ Parcial</span>
+                        {% else %}
+                            <span style="color: #e74c3c;">❌ Con Diferencias</span>
+                        {% endif %}
+                    </p>
+                    <p style="color: #8FA3B1; font-size: 0.9rem; margin-top: 1rem;">{{ recepcion.notas }}</p>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn" style="background: #4DA8DA !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
+                        <i class="bi bi-check-circle"></i> Proceder a Crear Compra
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<script>
+// Actualizar diferencia en tiempo real
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    const detalleId = input.name.replace('cantidad_recibida_', '');
+    const expectedRow = input.closest('tr');
+    const expectedCell = expectedRow.cells[1];
+    const expectedQty = parseInt(expectedCell.textContent);
+
+    input.addEventListener('change', function() {
+        const received = parseInt(this.value) || 0;
+        const diff = received - expectedQty;
+        const diffSpan = document.getElementById(`diff_${detalleId}`);
+
+        if (diff === 0) {
+            diffSpan.textContent = '✓ OK';
+            diffSpan.style.color = '#27ae60';
+        } else if (diff > 0) {
+            diffSpan.textContent = `+${diff}`;
+            diffSpan.style.color = '#f39c12';
+        } else {
+            diffSpan.textContent = diff;
+            diffSpan.style.color = '#e74c3c';
+        }
+    });
+});
+</script>
+{% endblock %}
