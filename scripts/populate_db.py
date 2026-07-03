@@ -16,10 +16,11 @@ from django.db import transaction
 
 # Model Imports
 from usuarios.models import Usuario
-from productos.models import Categoria, Producto, PresentacionProducto, Inventario as InventarioProducto
+from productos.models import Categoria, Producto, PresentacionProducto
+from proveedores.models import Proveedor, ProveedorCategoria, OrdenCompra, DetalleCompra, Compra as CompraLegacy, HistorialOrden
 from inventario.models import Lote, Inventario as InventarioMovimiento, SesionConteo, ConteoProducto, ResultadoInventario, AgendaInventario
 from ventas.models import Cliente, Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
-from reportes.models import ReporteGenerado
+from reportes.models import ReporteVenta, ReporteInventario, ReporteCaja, ReporteCompra, ReporteDevolucion, ReporteLote
 
 def run():
     print("Iniciando la población de la base de datos de Proyecto Licorera...")
@@ -30,7 +31,12 @@ def run():
             # CLEANING DATABASE
             # ----------------------------------------------------
             print("Limpiando datos existentes...")
-            ReporteGenerado.objects.all().delete()
+            ReporteLote.objects.all().delete()
+            ReporteDevolucion.objects.all().delete()
+            ReporteCompra.objects.all().delete()
+            ReporteCaja.objects.all().delete()
+            ReporteInventario.objects.all().delete()
+            ReporteVenta.objects.all().delete()
             DetalleDevolucion.objects.all().delete()
             Devolucion.objects.all().delete()
             CierreCaja.objects.all().delete()
@@ -44,7 +50,12 @@ def run():
             SesionConteo.objects.all().delete()
             InventarioMovimiento.objects.all().delete()
             Lote.objects.all().delete()
-            InventarioProducto.objects.all().delete()
+            HistorialOrden.objects.all().delete()
+            DetalleCompra.objects.all().delete()
+            OrdenCompra.objects.all().delete()
+            CompraLegacy.objects.all().delete()
+            ProveedorCategoria.objects.all().delete()
+            Proveedor.objects.all().delete()
             PresentacionProducto.objects.all().delete()
             Producto.objects.all().delete()
             Categoria.objects.all().delete()
@@ -168,9 +179,8 @@ def run():
             # ----------------------------------------------------
             # 4. PRESENTACIONES DE PRODUCTO (10 Presentaciones)
             # ----------------------------------------------------
-            print("Creando 10 Presentaciones de Producto...")
+            print("Creando Presentaciones de Producto...")
             presentaciones = []
-            # Create at least 1-2 presentations per product to get 10+ presentations
             presentaciones_config = [
                 (productos[0], "Botella 750ml", 1, 40, Decimal("45000.00")),
                 (productos[0], "Media Botella 375ml", 1, 20, Decimal("25000.00")),
@@ -199,33 +209,96 @@ def run():
             print(f"-> Creadas exitosamente {len(presentaciones)} presentaciones.")
 
             # ----------------------------------------------------
-            # 5. REGISTROS DE INVENTARIO (PRODUCTOS) (10 Registros)
+            # 5. PROVEEDORES & RELACIONES (10 Proveedores)
             # ----------------------------------------------------
-            print("Creando 10 Registros de Inventario en Productos...")
-            movimientos_prod = []
-            motivos = ["Ingreso por compra", "Ajuste de inventario inicial", "Suministro extra de distribuidor"]
-            for i in range(10):
-                mov_p = InventarioProducto.objects.create(
-                    producto=productos[i % len(productos)],
-                    tipo=random.choice(['entrada', 'salida']),
-                    ubicacion=random.choice(["Bodega Principal", "Mostrador Principal", "Estantería Norte"]),
-                    cantidad=random.randint(5, 30),
-                    motivo=random.choice(motivos),
+            print("Creando 10 Proveedores...")
+            proveedores = []
+            proveedores_data = [
+                ("Distribuidora de Licores del Norte", "contacto@licoresnorte.com", "3007654321", "distribuidor"),
+                ("Bodegas del Valle", "valle@bodegas.com", "3117654321", "fabricante"),
+                ("Importaciones Premier", "premier@importaciones.com", "3127654321", "importador"),
+                ("Alianza Cervecera", "alianza@cervecera.com", "3137654321", "distribuidor"),
+                ("Destilerías de Caldas", "caldas@destilerias.com", "3147654321", "fabricante"),
+                ("Comercializadora del Sur", "contacto@comercialsur.com", "3157654321", "distribuidor"),
+                ("Vinos y Viñedos de América", "contacto@vinosamerica.com", "3167654321", "importador"),
+                ("Grupo Diageo Colombia", "contacto@diageocol.com", "3177654321", "importador"),
+                ("Industria de Licores de Antioquia", "ila@licoresantioquia.com", "3187654321", "fabricante"),
+                ("Licores y Abarrotes del Eje", "eje@licores.com", "3197654321", "distribuidor"),
+            ]
+            for nombre, email, telefono, tipo in proveedores_data:
+                prov = Proveedor.objects.create(
+                    nombre_empresa=nombre,
+                    email=email,
+                    telefono=telefono,
+                    tipo_proveedor=tipo,
+                    estado='activo',
+                    registrado_por=random.choice(users)
                 )
-                movimientos_prod.append(mov_p)
-            print(f"-> Creados exitosamente {len(movimientos_prod)} registros de inventario de producto.")
+                proveedores.append(prov)
+            
+            for i in range(10):
+                ProveedorCategoria.objects.create(
+                    proveedor=proveedores[i],
+                    categoria=categorias[i % len(categorias)]
+                )
+            print(f"-> Creados exitosamente {len(proveedores)} proveedores.")
 
             # ----------------------------------------------------
-            # 6. LOTES (10 Lotes)
+            # 6. ORDENES DE COMPRA & DETALLES (10 Órdenes)
             # ----------------------------------------------------
-            print("Creando 10 Lotes...")
+            print("Creando 10 Órdenes de Compra...")
+            ordenes = []
+            detalles_compra = []
+            for i in range(10):
+                orden = OrdenCompra.objects.create(
+                    proveedor=proveedores[i],
+                    registrado_por=random.choice(users),
+                    estado='recibida',
+                    total=Decimal("0.00")
+                )
+                ordenes.append(orden)
+                
+                pres_sel = presentaciones[i % len(presentaciones)]
+                detalle = DetalleCompra.objects.create(
+                    orden_compra=orden,
+                    presentacion=pres_sel,
+                    cantidad=random.randint(10, 50),
+                    precio_unitario=pres_sel.precio * Decimal("0.70")
+                )
+                detalles_compra.append(detalle)
+                orden.calcular_total()
+            print(f"-> Creadas exitosamente {len(ordenes)} órdenes de compra.")
+
+            # ----------------------------------------------------
+            # 7. COMPRAS LEGACY (10 Compras)
+            # ----------------------------------------------------
+            print("Creando 10 Compras Legacy...")
+            compras_legacy = []
+            for i in range(10):
+                comp = CompraLegacy.objects.create(
+                    proveedor=proveedores[i],
+                    producto=productos[i % len(productos)],
+                    cantidad=random.randint(10, 50),
+                    precio_unitario=productos[i % len(productos)].precio_unitario * Decimal("0.70"),
+                    recibida=True,
+                    estado_pago='pagada',
+                    monto_pagado=Decimal("100000.00"),
+                )
+                compras_legacy.append(comp)
+            print(f"-> Creadas exitosamente {len(compras_legacy)} compras legacy.")
+
+            # ----------------------------------------------------
+            # 8. LOTES (12 Lotes)
+            # ----------------------------------------------------
+            print("Creando 12 Lotes...")
             lotes = []
             for i in range(12):
                 lote = Lote.objects.create(
                     numero_lote=f"LOTE-2026-{i+1:03d}",
                     presentacion=presentaciones[i % len(presentaciones)],
+                    detalle_compra=detalles_compra[i % len(detalles_compra)],
                     stock_actual=random.randint(10, 50),
-                    costo_unitario=presentaciones[i % len(presentaciones)].precio * Decimal("0.70"), # 30% profit margin base
+                    costo_unitario=presentaciones[i % len(presentaciones)].precio * Decimal("0.70"),
                     fecha_vencimiento=timezone.now().date() + timedelta(days=random.randint(30, 730)),
                     registrado_por=random.choice(users)
                 )
@@ -233,7 +306,7 @@ def run():
             print(f"-> Creados exitosamente {len(lotes)} lotes.")
 
             # ----------------------------------------------------
-            # 7. MOVIMIENTOS DE INVENTARIO (10 Movimientos)
+            # 9. MOVIMIENTOS DE INVENTARIO (10 Movimientos)
             # ----------------------------------------------------
             print("Creando 10 Movimientos de Inventario...")
             movimientos_inv = []
@@ -251,7 +324,7 @@ def run():
             print(f"-> Creados exitosamente {len(movimientos_inv)} movimientos de inventario.")
 
             # ----------------------------------------------------
-            # 8. SESIONES DE CONTEO (10 Sesiones)
+            # 10. SESIONES DE CONTEO (10 Sesiones)
             # ----------------------------------------------------
             print("Creando 10 Sesiones de Conteo...")
             sesiones = []
@@ -268,11 +341,10 @@ def run():
             print(f"-> Creadas exitosamente {len(sesiones)} sesiones de conteo.")
 
             # ----------------------------------------------------
-            # 9. CONTEOS DE PRODUCTOS (10 Conteos)
+            # 11. CONTEOS DE PRODUCTOS (10 Conteos)
             # ----------------------------------------------------
             print("Creando 10 Conteos de Productos...")
             conteos = []
-            # Make sure we use different presentations for a single session or separate sessions to respect unique constraints
             for i in range(10):
                 conteo = ConteoProducto.objects.create(
                     sesion=sesiones[i % len(sesiones)],
@@ -283,7 +355,7 @@ def run():
             print(f"-> Creados exitosamente {len(conteos)} conteos de productos.")
 
             # ----------------------------------------------------
-            # 10. RESULTADOS DE INVENTARIO (10 Resultados)
+            # 12. RESULTADOS DE INVENTARIO (10 Resultados)
             # ----------------------------------------------------
             print("Creando 10 Resultados de Inventario...")
             resultados = []
@@ -301,7 +373,7 @@ def run():
             print(f"-> Creados exitosamente {len(resultados)} resultados de inventario.")
 
             # ----------------------------------------------------
-            # 11. AGENDAS DE INVENTARIO (10 Agendas)
+            # 13. AGENDAS DE INVENTARIO (10 Agendas)
             # ----------------------------------------------------
             print("Creando 10 Agendas de Inventario...")
             agendas = []
@@ -319,7 +391,7 @@ def run():
             print(f"-> Creadas exitosamente {len(agendas)} agendas de inventario.")
 
             # ----------------------------------------------------
-            # 12. CLIENTES (10 Clientes)
+            # 14. CLIENTES (10 Clientes)
             # ----------------------------------------------------
             print("Creando 10 Clientes...")
             clientes_data = [
@@ -349,7 +421,7 @@ def run():
             print(f"-> Creados exitosamente {len(clientes)} clientes.")
 
             # ----------------------------------------------------
-            # 13. VENTAS (10 Ventas)
+            # 15. VENTAS (10 Ventas)
             # ----------------------------------------------------
             print("Creando 10 Ventas...")
             ventas = []
@@ -373,7 +445,7 @@ def run():
             print(f"-> Creadas exitosamente {len(ventas)} ventas.")
 
             # ----------------------------------------------------
-            # 14. DETALLES DE VENTA (10 Detalles)
+            # 16. DETALLES DE VENTA (10 Detalles)
             # ----------------------------------------------------
             print("Creando 10 Detalles de Venta...")
             detalles_venta = []
@@ -392,13 +464,12 @@ def run():
             print(f"-> Creados exitosamente {len(detalles_venta)} detalles de venta.")
 
             # ----------------------------------------------------
-            # 15. APERTURAS DE CAJA (10 Aperturas)
+            # 17. APERTURAS DE CAJA (10 Aperturas)
             # ----------------------------------------------------
             print("Creando 10 Aperturas de Caja...")
             aperturas = []
             for i in range(10):
                 ap = AperturaCaja.objects.create(
-                    fecha_apertura=timezone.now() - timedelta(days=10-i, hours=random.randint(0, 4)),
                     fecha=timezone.localdate() - timedelta(days=10-i),
                     monto_base=Decimal("150000.00") + Decimal(random.randint(0, 5) * 10000),
                     usuario=random.choice(users),
@@ -409,16 +480,15 @@ def run():
             print(f"-> Creadas exitosamente {len(aperturas)} aperturas de caja.")
 
             # ----------------------------------------------------
-            # 16. CIERRES DE CAJA (10 Cierres)
+            # 18. CIERRES DE CAJA (10 Cierres)
             # ----------------------------------------------------
             print("Creando 10 Cierres de Caja...")
             cierres = []
             for i in range(10):
                 cc = CierreCaja.objects.create(
                     apertura=aperturas[i],
-                    fecha_cierre=aperturas[i].fecha_apertura + timedelta(hours=8),
                     fecha=aperturas[i].fecha,
-                    turno=1,
+                    usuario=aperturas[i].usuario,
                     total_contado=aperturas[i].monto_base + Decimal(random.randint(150000, 500000)),
                     total_retirado=Decimal(random.randint(100000, 300000)),
                     monto_base_siguiente=Decimal("200000.00"),
@@ -428,7 +498,7 @@ def run():
             print(f"-> Creados exitosamente {len(cierres)} cierres de caja.")
 
             # ----------------------------------------------------
-            # 17. DEVOLUCIONES (10 Devoluciones)
+            # 19. DEVOLUCIONES (10 Devoluciones)
             # ----------------------------------------------------
             print("Creando 10 Devoluciones...")
             devoluciones = []
@@ -436,6 +506,7 @@ def run():
             for i in range(10):
                 d = Devolucion.objects.create(
                     venta=ventas[i % len(ventas)],
+                    registrado_por=random.choice(users),
                     motivo=random.choice(motivos_dev),
                     observaciones="Cliente argumenta que el producto presentaba filtración de empaque.",
                     restaurar_stock=random.choice([True, False]),
@@ -446,7 +517,7 @@ def run():
             print(f"-> Creadas exitosamente {len(devoluciones)} devoluciones.")
 
             # ----------------------------------------------------
-            # 18. DETALLES DE DEVOLUCION (10 Detalles Devolución)
+            # 20. DETALLES DE DEVOLUCION (10 Detalles Devolución)
             # ----------------------------------------------------
             print("Creando 10 Detalles de Devolución...")
             detalles_dev = []
@@ -455,7 +526,6 @@ def run():
                 lote_sel = lotes[i % len(lotes)]
                 dd = DetalleDevolucion.objects.create(
                     devolucion=devoluciones[i % len(devoluciones)],
-                    producto=pres_sel.producto,
                     presentacion=pres_sel,
                     lote=lote_sel,
                     cantidad=1,
@@ -465,22 +535,88 @@ def run():
             print(f"-> Creados exitosamente {len(detalles_dev)} detalles de devolución.")
 
             # ----------------------------------------------------
-            # 19. REPORTES GENERADOS (10 Reportes)
+            # 21. REPORTES (10 Registros en cada una de las 6 tablas reales)
             # ----------------------------------------------------
-            print("Creando 10 Reportes Generados...")
-            reportes = []
-            tipos_rep = ['inventario', 'movimientos', 'vencimientos']
-            for i in range(10):
-                rep = ReporteGenerado.objects.create(
-                    titulo=f"Reporte del periodo {2026} - Q{i % 4 + 1} - V{i}",
-                    tipo=random.choice(tipos_rep),
-                    usuario=random.choice(users),
-                    archivo=None
-                )
-                reportes.append(rep)
-            print(f"-> Creados exitosamente {len(reportes)} reportes generados.")
+            print("Creando Reportes en las 6 tablas de reportes...")
             
-            print("\n¡Base de datos poblada exitosamente con al menos 10 registros reales en cada una de las 19 tablas!")
+            # Reportes de Ventas
+            for i in range(10):
+                v = ventas[i]
+                dv = detalles_venta[i]
+                ReporteVenta.objects.create(
+                    venta_id=v,
+                    cliente_id=v.cliente,
+                    presentacion_id=dv.presentacion,
+                    vendedor_id=v.vendedor,
+                    total=v.total_venta,
+                    fecha=v.fecha
+                )
+            
+            # Reportes de Inventario
+            for i in range(10):
+                l = lotes[i]
+                ReporteInventario.objects.create(
+                    presentacion_id=l.presentacion,
+                    lote_id=l,
+                    sesion_conteo_id=sesiones[i % len(sesiones)],
+                    stock_sistema=l.stock_actual,
+                    stock_fisico=l.stock_actual,
+                    diferencia=0,
+                    estado_lote='disponible',
+                    fecha_vencimiento=l.fecha_vencimiento
+                )
+            
+            # Reportes de Caja
+            for i in range(10):
+                ReporteCaja.objects.create(
+                    apertura_id=aperturas[i],
+                    cierre_id=cierres[i],
+                    usuario_id=aperturas[i].usuario,
+                    total_ventas=Decimal("350000.00"),
+                    total_devoluciones=Decimal("15000.00"),
+                    total_contado=Decimal("485000.00"),
+                    diferencia=Decimal("0.00")
+                )
+                
+            # Reportes de Compra
+            for i in range(10):
+                c = compras_legacy[i]
+                ReporteCompra.objects.create(
+                    orden_compra_id=c,
+                    proveedor_id=c.proveedor,
+                    presentacion_id=presentaciones[i % len(presentaciones)],
+                    total=c.total or Decimal("150000.00"),
+                    estado_orden='facturada',
+                    fecha=timezone.now()
+                )
+                
+            # Reportes de Devolucion
+            for i in range(10):
+                d = devoluciones[i]
+                ReporteDevolucion.objects.create(
+                    devolucion_id=d,
+                    venta_id=d.venta,
+                    cliente_id=d.venta.cliente,
+                    total_devuelto=d.total_devuelto,
+                    motivo=d.get_motivo_display(),
+                    fecha=d.fecha
+                )
+                
+            # Reportes de Lote
+            for i in range(10):
+                l = lotes[i]
+                ReporteLote.objects.create(
+                    lote_id=l,
+                    presentacion_id=l.presentacion,
+                    stock_actual=l.stock_actual,
+                    costo_unitario=l.costo_unitario,
+                    fecha_vencimiento=l.fecha_vencimiento,
+                    dias_para_vencer=l.dias_para_vencer or 365,
+                    estado='vigente'
+                )
+            print("-> Creados exitosamente 10 registros en cada una de las 6 tablas de reportes.")
+            
+            print("\n¡Base de datos poblada exitosamente con datos consistentes y actualizados en todos los modelos!")
 
     except Exception as e:
         print(f"\n[ERROR] Ocurrió un problema poblando la base de datos: {e}")
