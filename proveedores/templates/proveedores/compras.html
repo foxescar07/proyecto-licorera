@@ -534,7 +534,7 @@
         <div id="tablaProveedores" class="table-scroll">
           {% if todos_proveedores %}
             {% for prov in todos_proveedores %}
-            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}">
+            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" onclick="window.location.href='?proveedor={{ prov.id }}'" style="cursor: pointer; transition: all 0.3s ease;">
               <div class="d-flex align-items-start justify-content-between">
                 <div class="d-flex gap-3">
                   <div class="icon-bg-primary">
