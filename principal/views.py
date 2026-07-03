@@ -131,7 +131,7 @@ def _grupos_categorias():
     grupos, actual = [], []
     for cat in categorias:
         actual.append(cat)
-        if len(actual) == 3:
+        if len(actual) == 6:
             grupos.append(actual)
             actual = []
     if actual:
@@ -191,4 +191,4 @@ def meses_json(request):
 
 def cerrar_sesion(request):
     request.session.flush()
-    return redirect('login')
+    return redirect('login')  
