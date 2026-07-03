@@ -263,11 +263,22 @@ def lista_compras(request):
     meses_data = []
     meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
+    # Crear diccionario con datos por mes
+    datos_por_mes = {}
     for item in compras_por_mes:
         if item['mes']:
-            mes_num = item['mes'].month - 1
-            meses_labels.append(meses_nombres[mes_num])
-            meses_data.append(item['total'])
+            mes_num = item['mes'].month
+            datos_por_mes[mes_num] = item['total']
+
+    # Generar últimos 12 meses en orden cronológico
+    from datetime import date
+    mes_actual = hoy.month
+    año_actual = hoy.year
+
+    for i in range(12):
+        mes = (mes_actual - (11 - i) - 1) % 12 + 1
+        meses_labels.append(meses_nombres[mes - 1])
+        meses_data.append(datos_por_mes.get(mes, 0))
 
     # Productos más comprados (top 5)
     productos_top_list = (
