@@ -534,7 +534,7 @@
         <div id="tablaProveedores" class="table-scroll">
           {% if todos_proveedores %}
             {% for prov in todos_proveedores %}
-            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" onclick="window.location.href='?proveedor={{ prov.id }}'" style="cursor: pointer; transition: all 0.3s ease;">
+            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" data-proveedor-name="{{ prov.nombre_empresa }}" onclick="seleccionarProveedor({{ prov.id }}, '{{ prov.nombre_empresa }}')" style="cursor: pointer; transition: all 0.3s ease;">
               <div class="d-flex align-items-start justify-content-between">
                 <div class="d-flex gap-3">
                   <div class="icon-bg-primary">
@@ -621,22 +621,38 @@
       });
     }
 
-    // Selección de proveedor con event delegation
-    if (tablaProveedores) {
-      tablaProveedores.addEventListener('click', function(e) {
-        const fila = e.target.closest('.fila-proveedor');
-        if (fila) {
-          const proveedorId = fila.dataset.id;
-          window.location.href = '?proveedor=' + proveedorId;
+    // Función para seleccionar proveedor sin cerrar el modal
+    window.seleccionarProveedor = function(proveedorId, proveedorNombre) {
+      // Actualizar input hidden
+      document.getElementById('proveedorSeleccionado').value = proveedorId;
+
+      // Actualizar botón selector
+      const btnSelector = document.querySelector('.btn-selector');
+      if (btnSelector) {
+        btnSelector.innerHTML = `
+          <span class="d-flex align-items-center gap-2">
+            <i class="bi bi-truck"></i>
+            ${proveedorNombre}
+          </span>
+          <i class="bi bi-chevron-down"></i>
+        `;
+      }
+
+      // Actualizar checks en la lista
+      document.querySelectorAll('.fila-proveedor').forEach(fila => {
+        const existingCheck = fila.querySelector('.text-success');
+        if (existingCheck) {
+          existingCheck.remove();
+        }
+
+        if (fila.dataset.id == proveedorId) {
+          const checkDiv = document.createElement('div');
+          checkDiv.className = 'text-success';
+          checkDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+          fila.querySelector('[class*="justify-content-between"]').appendChild(checkDiv);
         }
       });
-
-      // Agregar cursor pointer a todas las filas
-      const filas = document.querySelectorAll('.fila-proveedor');
-      filas.forEach(fila => {
-        fila.style.cursor = 'pointer';
-      });
-    }
+    };
 
     // ====== GRÁFICOS CON CHART.JS ======
 
