@@ -655,29 +655,54 @@
 </div>
             </div>
           </form>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle inv-table mb-0">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Stock Sistema</th>
-                  <th>Conteo Físico</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for c in conteos %}
-                <tr>
-                  <td class="fw-semibold small">{{ c.presentacion.producto.nombre }}</td>
-                  <td class="small">{{ c.presentacion.cantidad }}</td>
-                  <td class="fw-bold small">{{ c.cantidad_contada }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="3" class="text-center py-3 text-muted small">Aún no has contado ningún producto.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="d-flex flex-column gap-2" style="max-height:280px; overflow-y:auto;">
+            {% for c in conteos %}
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3"
+                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
+                        border-left:4px solid
+                        {% if c.cantidad_contada == c.presentacion.cantidad %}var(--inv-verde)
+                        {% elif c.cantidad_contada > c.presentacion.cantidad %}#9b5de5
+                        {% else %}var(--inv-rojo){% endif %};">
+
+              <div style="flex:1 1 200px; min-width:0;">
+                <div class="fw-semibold small text-truncate" style="color:var(--inv-texto);">{{ c.presentacion.producto.nombre }}</div>
+                <div class="text-muted" style="font-size:.7rem;">{{ c.presentacion.nombre }}</div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2" style="flex:1 1 180px;">
+                <div class="text-center flex-fill">
+                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">SISTEMA</div>
+                  <div class="fw-bold" style="color:var(--inv-azul);">{{ c.presentacion.cantidad }}</div>
+                </div>
+                <i class="bi
+                  {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success
+                  {% elif c.cantidad_contada > c.presentacion.cantidad %}bi-arrow-up
+                  {% else %}bi-arrow-down text-danger{% endif %}"
+                  {% if c.cantidad_contada > c.presentacion.cantidad %}style="color:#9b5de5;"{% endif %}></i>
+                <div class="text-center flex-fill">
+                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">FÍSICO</div>
+                  <div class="fw-bold" style="color:var(--inv-texto);">{{ c.cantidad_contada }}</div>
+                </div>
+              </div>
+
+              <div style="flex:0 0 auto;">
+                <span class="badge
+                  {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok
+                  {% else %}inv-estado-faltante{% endif %}"
+                  style="font-size:.65rem;
+                  {% if c.cantidad_contada > c.presentacion.cantidad %}background:rgba(155,93,229,.15);color:#9b5de5;border:1px solid rgba(155,93,229,.3);{% endif %}">
+                  {% if c.cantidad_contada == c.presentacion.cantidad %}Cuadra
+                  {% elif c.cantidad_contada > c.presentacion.cantidad %}Sobrante
+                  {% else %}Faltante{% endif %}
+                </span>
+              </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-clipboard-x d-block mb-2 fs-3"></i>
+              Aún no has contado ningún producto.
+            </div>
+            {% endfor %}
           </div>
         {% else %}
           <div class="text-center py-3 text-muted">
@@ -738,59 +763,64 @@
               </div>
             </div>
           </div>
-          <div class="table-responsive">
-            <table class="table align-middle inv-table mb-0">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th class="text-center">Sistema</th>
-                  <th class="text-center">Físico</th>
-                  <th class="text-center">Diferencia</th>
-                  <th class="text-center">Estado</th>
-                  <th class="text-center">Ajustar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for d in discrepancias %}
-                <tr>
-                  <td>
-                    <div class="fw-semibold small">{{ d.presentacion.producto.nombre }}</div>
-                    <div class="text-info" style="font-size:.7rem; font-family:monospace;">{{ d.presentacion.producto.codigo }}</div>
-                  </td>
-                  <td class="text-muted small">{{ d.presentacion.producto.categoria.nombre }}</td>
-                  <td class="text-center fw-bold text-info">{{ d.en_sistema }}</td>
-                  <td class="text-center fw-bold">{{ d.fisico }}</td>
-                  <td class="text-center fw-bold">
-                    {% if d.diferencia == 0 %}<span class="text-success">0</span>
-                    {% elif d.diferencia > 0 %}<span class="text-warning">+{{ d.diferencia }}</span>
-                    {% else %}<span class="text-danger">{{ d.diferencia }}</span>{% endif %}
-                  </td>
-                  <td class="text-center">
-                    <span class="badge inv-estado-{{ d.estado }}">
-                      {% if d.estado == 'ok' %}OK
-                      {% elif d.estado == 'sobrante' %}Sobrante
-                      {% else %}Faltante{% endif %}
-                    </span>
-                  </td>
-                  <td class="text-center">
-                    {% if d.estado != 'ok' %}
-                      <form method="POST" action="{% url 'ajustar_stock_presentacion' d.presentacion.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
-                        <button type="submit" class="btn btn-sm inv-btn-primary"
-                                onclick="return confirm('¿Ajustar stock de {{ d.presentacion.producto.nombre }}?')">
-                          <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                      </form>
-                    {% else %}
-                      <span class="text-muted">—</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="d-flex flex-column gap-2" style="max-height:420px; overflow-y:auto;">
+            {% for d in discrepancias %}
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap"
+                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
+                        border-left:4px solid
+                        {% if d.estado == 'ok' %}var(--inv-verde)
+                        {% elif d.estado == 'sobrante' %}#9b5de5
+                        {% else %}var(--inv-rojo){% endif %};">
+
+              <div style="flex:1 1 220px; min-width:0;">
+                <div class="fw-semibold small text-truncate" style="color:var(--inv-texto);">{{ d.presentacion.producto.nombre }}</div>
+                <div class="text-info" style="font-size:.68rem;font-family:monospace;">{{ d.presentacion.producto.codigo|default:"s/c" }}</div>
+                <div class="text-muted" style="font-size:.68rem;">{{ d.presentacion.producto.categoria.nombre }}</div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2" style="flex:1 1 160px;">
+                <div class="text-center flex-fill">
+                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">SISTEMA</div>
+                  <div class="fw-bold" style="color:var(--inv-azul);">{{ d.en_sistema }}</div>
+                </div>
+                <i class="bi bi-arrow-right text-muted" style="font-size:.8rem;"></i>
+                <div class="text-center flex-fill">
+                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">FÍSICO</div>
+                  <div class="fw-bold" style="color:var(--inv-texto);">{{ d.fisico }}</div>
+                </div>
+              </div>
+
+              <div class="text-center" style="flex:0 0 85px;">
+                <div class="fw-bold" style="font-size:1.15rem;
+                  color:{% if d.diferencia == 0 %}var(--inv-verde){% elif d.diferencia > 0 %}#9b5de5{% else %}var(--inv-rojo){% endif %};">
+                  {% if d.diferencia > 0 %}+{% endif %}{{ d.diferencia }}
+                </div>
+                <span class="badge" style="font-size:.6rem;
+                  {% if d.estado == 'ok' %}background:rgba(39,174,96,.15);color:var(--inv-verde);border:1px solid rgba(39,174,96,.3);
+                  {% elif d.estado == 'sobrante' %}background:rgba(155,93,229,.15);color:#9b5de5;border:1px solid rgba(155,93,229,.3);
+                  {% else %}background:rgba(231,76,60,.15);color:var(--inv-rojo);border:1px solid rgba(231,76,60,.3);{% endif %}">
+                  {% if d.estado == 'ok' %}OK{% elif d.estado == 'sobrante' %}Sobrante{% else %}Faltante{% endif %}
+                </span>
+              </div>
+
+              <div style="flex:0 0 auto;">
+                {% if d.estado != 'ok' %}
+                  <form method="POST" action="{% url 'ajustar_stock_presentacion' d.presentacion.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
+                    <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                            style="width:34px;height:34px;background:var(--inv-azul-dim);border:1px solid var(--inv-azul-borde);color:var(--inv-azul);"
+                            onclick="return confirm('¿Ajustar stock de {{ d.presentacion.producto.nombre }}?')"
+                            title="Ajustar stock">
+                      <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                  </form>
+                {% else %}
+                  <i class="bi bi-check-circle-fill" style="color:var(--inv-verde);font-size:1.3rem;" title="Sin diferencia"></i>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
           </div>
         {% endif %}
       </div>
