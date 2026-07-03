@@ -348,17 +348,14 @@
           <!-- Proveedor -->
           <div class="mb-4">
             <label class="dev-form-label">Proveedor Seleccionado</label>
-            <div class="position-relative">
-              <i class="bi bi-truck position-absolute top-50 start-3 translate-middle-y"></i>
-              <select id="proveedorSeleccionado" name="proveedor_id" class="form-select form-select-lg ps-5" required>
-                <option value="">Selecciona proveedor</option>
-                {% for prov in todos_proveedores %}
-                  <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
-                    {{ prov.nombre_empresa }}
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
+            <select id="proveedorSeleccionado" name="proveedor_id" class="form-select form-select-lg" required>
+              <option value="">Selecciona proveedor</option>
+              {% for prov in todos_proveedores %}
+                <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
+                  {{ prov.nombre_empresa }}
+                </option>
+              {% endfor %}
+            </select>
           </div>
 
           <!-- Producto (Usando formulario) -->
