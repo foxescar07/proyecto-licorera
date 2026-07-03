@@ -136,21 +136,51 @@
 }
 
 /* ══════════════════════════════════════════════
-   CASO 1 — 1 o 2 tarjetas
+   CASO 1 — 1 o 2 tarjetas (Alineación Completa)
 ══════════════════════════════════════════════ */
+
+/* 1. El contenedor principal que divide las Tarjetas de la Sidebar */
 .ul-layout.cards-view-1-2 {
+  display: flex !important;
+  flex-direction: row;
   align-items: flex-start;
+  gap: 1.5rem;
+  width: 100%;
 }
+
+/* 2. El contenedor intermedio que envuelve SOLO a las tarjetas de usuario */
+.ul-layout.cards-view-1-2 .ul-cards-container {
+  display: flex !important;
+  flex: 1 1 0px;                  /* Fuerza a este contenedor a ocupar todo el espacio disponible a la izquierda */
+  gap: 1.25rem;                   /* Separación entre tarjeta 1 y tarjeta 2 */
+  width: 100%;
+}
+
+/* 3. Las tarjetas de usuario individuales (Alargadas para alinear con desplegables) */
+.ul-layout.cards-view-1-2 .user-card,
+.ul-layout.cards-view-1-2 [class*="card"] { 
+  flex: 1 1 auto !important;       
+  min-width: 360px !important;    /* Alarga las tarjetas lo suficiente para que no se vean cortas */
+  max-width: 420px !important;    /* Limita el ancho máximo para mantener la proporción ideal */
+}
+
+/* 4. La barra de estadísticas de la derecha (Sidebar) */
 .ul-layout.cards-view-1-2 .ul-sidebar {
   align-self: flex-start;
   position: sticky;
   top: 1.5rem;
+  width: 320px;                   /* Mantiene el tamaño fijo de la sección de estadísticas */
+  flex-shrink: 0;                 /* Evita que las estadísticas se encojan */
 }
+
+/* ══════════════════════════════════════════════ */
+/* Estilos de los componentes internos y desplegables (Manteniendo tu lógica original) */
 .ul-layout.cards-view-1-2 .ul-sidebar-bottom {
   display: flex;
   flex-direction: column;
   gap: .4rem;
 }
+
 .ul-layout.cards-view-1-2 #wrapperStats,
 .ul-layout.cards-view-1-2 #wrapperRecientes {
   display: flex;
@@ -161,6 +191,7 @@
   border-radius: 12px;
   overflow: hidden;
 }
+
 .ul-layout.cards-view-1-2 #wrapperStats .btn-trigger-dropdown,
 .ul-layout.cards-view-1-2 #wrapperRecientes .btn-trigger-dropdown {
   display: flex;
@@ -169,40 +200,46 @@
   border: none;
   border-radius: 0;
 }
+
 .ul-layout.cards-view-1-2 .btn-trigger-dropdown[aria-expanded="true"] {
   border-bottom: 1px solid rgba(77,168,218,.12);
 }
+
 .ul-layout.cards-view-1-2 #collapseStats,
 .ul-layout.cards-view-1-2 #collapseRecientes {
   display: none !important;
 }
+
 .ul-layout.cards-view-1-2 #collapseStats.show,
 .ul-layout.cards-view-1-2 #collapseRecientes.show,
 .ul-layout.cards-view-1-2 #collapseStats.collapsing,
 .ul-layout.cards-view-1-2 #collapseRecientes.collapsing {
   display: block !important;
 }
+
 .ul-layout.cards-view-1-2 #wrapperStats .stats-grid-inner {
   padding: .75rem;
   gap: .5rem;
 }
+
 .ul-layout.cards-view-1-2 #wrapperRecientes .ul-widget {
   border: none;
   border-radius: 0;
   background: transparent;
   padding: .75rem;
 }
+
 .ul-layout.cards-view-1-2 .widget-estado,
 .ul-layout.cards-view-1-2 .widget-rol {
   background: rgba(77,168,218,.04);
   border-radius: 10px !important;
   border: 1px solid rgba(77,168,218,.1) !important;
 }
+
 .ul-layout.cards-view-1-2 .ul-recientes-scroll {
   max-height: 260px;
   overflow-y: auto;
 }
-
 /* ══════════════════════════════════════════════
    CASO 2 — 3 o 4 tarjetas
 ══════════════════════════════════════════════ */
@@ -902,3 +939,147 @@
   }
   .btn-trigger-dropdown { display: flex !important; }
 }
+
+/* ══════════════════════════════════════════════
+   MODAL CREAR USUARIO — estilos extras
+══════════════════════════════════════════════ */
+
+/* Contraseña con ojo */
+.cu-pass-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cu-pass-input {
+  padding-right: 2.6rem !important;
+}
+.cu-eye-btn {
+  position: absolute;
+  right: .75rem;
+  background: transparent;
+  border: none;
+  color: rgba(77,168,218,.4);
+  cursor: pointer;
+  font-size: .95rem;
+  padding: 0;
+  line-height: 1;
+  transition: color .2s;
+  z-index: 2;
+}
+.cu-eye-btn:hover { color: #4DA8DA; }
+
+/* Hint coincidencia de contraseñas */
+.cu-match-hint {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .72rem;
+  margin-top: .4rem;
+}
+.cu-match-ok { color: #5edb97; }
+.cu-match-err { color: #e87070; }
+
+/* Términos y condiciones checkbox */
+.cu-tc-wrap {
+  background: rgba(77,168,218,.04);
+  border: 1px solid rgba(77,168,218,.18);
+  border-radius: 10px;
+  padding: .75rem .9rem;
+  transition: border-color .2s, background .2s;
+}
+.cu-tc-wrap--invalid {
+  border-color: #e87070 !important;
+  background: rgba(232,112,112,.06) !important;
+}
+.cu-tc-label {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  cursor: pointer;
+  margin: 0;
+  user-select: none;
+}
+.cu-tc-checkbox { display: none; }
+.cu-tc-box {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid rgba(77,168,218,.4);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #091422;
+  font-size: .9rem;
+  color: transparent;
+  transition: all .2s;
+}
+.cu-tc-checkbox:checked + .cu-tc-box {
+  background: #4DA8DA;
+  border-color: #4DA8DA;
+  color: #011936;
+  box-shadow: 0 0 10px rgba(77,168,218,.3);
+}
+.cu-tc-text {
+  font-size: .8rem;
+  color: rgba(232,237,242,.6);
+  line-height: 1.4;
+}
+.cu-tc-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #4DA8DA;
+  font-size: .8rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .2s;
+}
+.cu-tc-link:hover { color: #6dc0e8; }
+
+/* Modal T&C — items */
+.tc-banner {
+  background: rgba(77,168,218,.07);
+  border: 1px solid rgba(77,168,218,.18);
+  border-radius: 8px;
+  padding: .65rem .9rem;
+  font-size: .79rem;
+  color: rgba(232,237,242,.65);
+  line-height: 1.5;
+}
+.tc-item {
+  display: flex;
+  gap: 1rem;
+  padding: .9rem 0;
+  border-bottom: 1px solid rgba(77,168,218,.08);
+}
+.tc-item:last-child { border-bottom: none; }
+.tc-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: rgba(77,168,218,.18);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 30px;
+  text-align: right;
+  margin-top: .1rem;
+}
+.tc-content { flex: 1; }
+.tc-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .85rem;
+  letter-spacing: .07em;
+  color: #4DA8DA;
+  margin-bottom: .3rem;
+}
+.tc-content p {
+  font-size: .78rem;
+  color: rgba(232,237,242,.45);
+  line-height: 1.65;
+  margin: 0;
+}
+.tc-content p strong { color: rgba(232,237,242,.65); }

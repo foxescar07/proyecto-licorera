@@ -18,83 +18,157 @@
             <div id="fecha" class="cys-header__clock-date">Cargando fecha...</div>
         </div>
 
-          <div style="width:1px; height:32px; background:rgba(226,232,240,.15);"></div>
-       
-       <div class="dropdown">
-    <button class="btn p-0 position-relative"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            aria-label="Alertas de stock"
-            style="background:transparent; border:none; color:rgba(226,232,240,.85); line-height:1;">
-        <i class="bi bi-bell" style="font-size:1.6rem;"></i>
-        {% if notif_total > 0 %}
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-              style="background:{% if notif_criticos %}#9b5de5{% else %}#4DA8DA{% endif %};
-                     font-size:10px; min-width:18px; padding:3px 6px;
-                     border:2px solid var(--azul-oscuro);">
-            {{ notif_total }}
-        </span>
-        {% endif %}
-    </button>
+        <div style="width:1px; height:32px; background:rgba(226,232,240,.15);"></div>
 
-    <ul id="notif-dropdown-menu"
-        class="dropdown-menu dropdown-menu-end p-0"
-        style="border:1px solid rgba(77,168,218,.25);
-               min-width:270px; border-radius:10px; overflow:hidden;">
+        <div class="dropdown">
+            <button id="notif-bell-btn" class="btn p-0 position-relative"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                    aria-expanded="false"
+                    aria-label="Notificaciones"
+                    style="background:transparent; border:none; color:rgba(226,232,240,.85); line-height:1;">
+                <i id="notif-bell-icon" class="bi bi-bell" style="font-size:1.6rem;"></i>
+                <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none"
+                      style="background:#4DA8DA; font-size:10px; min-width:18px; padding:3px 6px;
+                             border:2px solid var(--azul-oscuro);">0</span>
+            </button>
 
-        <li class="px-3 pt-2 pb-1"
-            style="font-size:10px; text-transform:uppercase; letter-spacing:.07em;
-                   color:rgba(226,232,240,.4); font-weight:600; pointer-events:none;">
-            Alertas de stock {% if notif_total > 0 %}({{ notif_total }}){% endif %}
-        </li>
+            <div class="dropdown-menu dropdown-menu-end p-0"
+                style="border:1px solid rgba(77,168,218,.25); width:290px; border-radius:10px; overflow:hidden;
+                        background:#0d1f35; color:#e2e8f0;">
 
-        {% if notif_total == 0 %}
-        <li style="border-top:1px solid rgba(255,255,255,.05);">
-            <span class="dropdown-item d-flex align-items-center gap-2 py-3 px-3"
-                  style="color:rgba(226,232,240,.4); cursor:default; font-size:13px;">
-                <i class="bi bi-check-circle" style="color:#2ecc71; font-size:1rem;"></i>
-                Sin alertas — todo en orden
-            </span>
-        </li>
-        {% else %}
-            {% for p in notif_criticos %}
-            <li style="border-top:1px solid rgba(255,255,255,.05);">
-                <span class="notif-item dropdown-item d-flex align-items-start gap-2 py-2 px-3"
-                      style="color:#e2e8f0; cursor:default;">
-                    <span style="width:8px; height:8px; border-radius:50%;
-                                 background:#9b5de5; flex-shrink:0; margin-top:4px;"></span>
-                    <span style="font-size:12px; line-height:1.4;">
-                        {{ p.nombre }}<br>
-                        <small style="color:rgba(226,232,240,.4);">{{ p.total_stock }} uds — crítico</small>
-                    </span>
-                </span>
-            </li>
-            {% endfor %}
+                <div class="d-flex" style="border-bottom:1px solid rgba(255,255,255,.06);">
+                    <button id="tab-alertas" type="button" onclick="notifTab('alertas')"
+                            class="btn btn-sm flex-fill rounded-0 fw-bold"
+                            style="font-size:11px; color:#4DA8DA; border-bottom:2px solid #4DA8DA;">
+                        Alertas
+                    </button>
+                    <button id="tab-historial" type="button" onclick="notifTab('historial')"
+                            class="btn btn-sm flex-fill rounded-0 fw-bold"
+                            style="font-size:11px; color:rgba(226,232,240,.4); border-bottom:2px solid transparent;">
+                        Historial
+                    </button>
+                </div>
 
-            {% for p in notif_bajos %}
-            <li style="border-top:1px solid rgba(255,255,255,.05);">
-                <span class="notif-item dropdown-item d-flex align-items-start gap-2 py-2 px-3"
-                      style="color:#e2e8f0; cursor:default;">
-                    <span style="width:8px; height:8px; border-radius:50%;
-                                 background:#4DA8DA; flex-shrink:0; margin-top:4px;"></span>
-                    <span style="font-size:12px; line-height:1.4;">
-                        {{ p.nombre }}<br>
-                        <small style="color:rgba(226,232,240,.4);">{{ p.total_stock }} uds — bajo</small>
-                    </span>
-                </span>
-            </li>
-            {% endfor %}
-        {% endif %}
+                <div id="panel-alertas" style="max-height:320px; overflow-y:auto;">
+                    <div class="text-center py-3" style="font-size:12px; color:rgba(226,232,240,.4);">Cargando…</div>
+                </div>
 
-        <li style="border-top:1px solid rgba(255,255,255,.06);">
-            <a class="notif-footer dropdown-item text-center py-2"
-               href="{% url 'gestion_stock' %}"
-               style="font-size:12px; color:#4DA8DA;">
-                Ver stock completo →
-            </a>
-        </li>
-    </ul>
-</div>
+                <div id="panel-historial" class="d-none" style="max-height:320px; overflow-y:auto;">
+                    <div class="text-center py-3" style="font-size:12px; color:rgba(226,232,240,.4);">Sin notificaciones aún</div>
+                </div>
+
+                <a class="dropdown-item text-center py-2" href="{% url 'gestion_stock' %}"
+                   style="font-size:12px; color:#4DA8DA; border-top:1px solid rgba(255,255,255,.06);">
+                    Ver stock completo →
+                </a>
+            </div>
+        </div>
 
     </div>
 </header>
+
+<script>
+(function () {
+  const INTERVALO = 8000;
+  let historialNotif = JSON.parse(localStorage.getItem('cys_notif_historial') || '[]');
+  let vistosPrevios = new Set(JSON.parse(localStorage.getItem('cys_notif_vistos') || '[]'));
+
+  window.notifTab = function (tab) {
+    const esAlertas = tab === 'alertas';
+    document.getElementById('panel-alertas').classList.toggle('d-none', !esAlertas);
+    document.getElementById('panel-historial').classList.toggle('d-none', esAlertas);
+    document.getElementById('tab-alertas').style.color = esAlertas ? '#4DA8DA' : 'rgba(226,232,240,.4)';
+    document.getElementById('tab-alertas').style.borderBottomColor = esAlertas ? '#4DA8DA' : 'transparent';
+    document.getElementById('tab-historial').style.color = esAlertas ? 'rgba(226,232,240,.4)' : '#4DA8DA';
+    document.getElementById('tab-historial').style.borderBottomColor = esAlertas ? 'transparent' : '#4DA8DA';
+  };
+
+  function guardar() {
+    localStorage.setItem('cys_notif_historial', JSON.stringify(historialNotif.slice(0, 50)));
+    localStorage.setItem('cys_notif_vistos', JSON.stringify([...vistosPrevios]));
+  }
+
+  function itemHTML(nombre, cantidad, nivel, fecha) {
+    const c = nivel === 'critico' ? '#9b5de5' : '#4DA8DA';
+    const label = nivel === 'critico' ? 'crítico' : 'bajo';
+    return `<div class="px-3 py-2" style="border-top:1px solid rgba(255,255,255,.05);">
+      <div class="d-flex align-items-start gap-2">
+        <span style="width:8px; height:8px; border-radius:50%; background:${c}; flex-shrink:0; margin-top:5px;"></span>
+        <div style="font-size:12px; line-height:1.4; color:#e2e8f0;">
+          ${nombre}<br>
+          <small style="color:rgba(226,232,240,.4);">${cantidad} uds — ${label}${fecha ? ' · ' + fecha : ''}</small>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderAlertas(criticos, bajos) {
+    const panel = document.getElementById('panel-alertas');
+    const todos = [
+      ...(criticos || []).map(p => ({ ...p, nivel: 'critico' })),
+      ...(bajos || []).map(p => ({ ...p, nivel: 'bajo' })),
+    ];
+    panel.innerHTML = todos.length
+      ? todos.map(p => itemHTML(p.nombre, p.total_stock ?? p.cantidad, p.nivel)).join('')
+      : `<div class="text-center py-3" style="font-size:12px; color:rgba(226,232,240,.4);">
+           <i class="bi bi-check-circle" style="color:#2ecc71;"></i> Sin alertas — todo en orden
+         </div>`;
+  }
+
+  function renderHistorial() {
+    const panel = document.getElementById('panel-historial');
+    panel.innerHTML = historialNotif.length
+      ? historialNotif.map(n => itemHTML(n.nombre, n.cantidad, n.nivel, n.fecha)).join('')
+      : `<div class="text-center py-3" style="font-size:12px; color:rgba(226,232,240,.4);">Sin notificaciones aún</div>`;
+  }
+
+    function actualizarBadgeYBounce(total, hayNuevos) {
+    const badge = document.getElementById('notif-badge');
+    const icono = document.getElementById('notif-bell-icon');
+    if (total > 0) {
+      badge.textContent = total > 99 ? '99+' : total;
+      badge.classList.remove('d-none');
+      icono.classList.add('notif-bell-active');
+    } else {
+      badge.classList.add('d-none');
+      icono.classList.remove('notif-bell-active');
+    }
+  }
+  
+  function actualizar() {
+    fetch("{% url 'stock_status' %}?_=" + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    })
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => {
+        const criticos = data.criticos || [];
+        const bajos = data.bajos || [];
+        renderAlertas(criticos, bajos);
+
+        let hayNuevos = false;
+        [...criticos.map(p => ({ ...p, nivel: 'critico' })), ...bajos.map(p => ({ ...p, nivel: 'bajo' }))]
+          .forEach(p => {
+            const key = p.nombre + '|' + p.nivel;
+            if (!vistosPrevios.has(key)) {
+              historialNotif.unshift({
+                nombre: p.nombre, nivel: p.nivel, cantidad: p.total_stock ?? p.cantidad,
+                fecha: new Date().toLocaleString('es-CO', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
+              });
+              vistosPrevios.add(key);
+              hayNuevos = true;
+            }
+          });
+        if (hayNuevos) { guardar(); renderHistorial(); }
+
+        actualizarBadgeYBounce(data.total_alertas ?? (criticos.length + bajos.length), hayNuevos);
+      })
+      .catch(() => {});
+  }
+
+  renderHistorial();
+  actualizar();
+  setInterval(actualizar, INTERVALO);
+})();
+</script>

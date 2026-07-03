@@ -88,3 +88,23 @@ class Usuario(AbstractUser):
         if self.last_name:
             self.last_name = self.last_name.title()
         super().save(*args, **kwargs)
+
+
+# ── ACTIVIDAD DE USUARIOS ──────────────────────────────────────────────────────
+class RegistroActividad(models.Model):
+    usuario = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.CASCADE,
+        related_name='registros_actividad',
+        verbose_name='Usuario'
+    )
+    fecha_hora  = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora')
+    ip_address  = models.GenericIPAddressField(null=True, blank=True, verbose_name='Dirección IP')
+
+    class Meta:
+        ordering            = ['-fecha_hora']
+        verbose_name        = 'Registro de actividad'
+        verbose_name_plural = 'Registros de actividad'
+
+    def __str__(self):
+        return f'{self.usuario} - {self.fecha_hora:%d/%m/%Y %H:%M}'

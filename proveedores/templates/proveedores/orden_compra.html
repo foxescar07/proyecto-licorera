@@ -2,8 +2,9 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes/reportes.css' %}">
 <link rel="stylesheet" href="{% static 'css/proveedores/ordenes_compra.css' %}">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -90,21 +91,19 @@
         </a>
     </div>
 
-    <!-- TABLA DE ÓRDENES -->
-    <div class="ordenes-table-wrapper">
-        <div class="ordenes-table-header">
-            <h3>
-                <i class="bi bi-list-check"></i>
-                Listado de Órdenes
-            </h3>
+    <div class="cys-snap-section">
+      <section class="cys-card mb-4">
+        <div class="cys-card__title">
+          <i class="bi bi-list-check me-2" style="color: #4DA8DA;"></i>Listado de Órdenes de Compra
         </div>
 
+
         {% if ordenes %}
-        <div class="table-responsive">
-            <table class="ordenes-table">
+        <div class="table-responsive mt-3">
+            <table id="ordenes-table" class="cys-inv-table table w-100">
                 <thead>
                     <tr>
-                        <th>#ID</th>
+                        <th>#</th>
                         <th>Proveedor</th>
                         <th>Fecha</th>
                         <th>Estado</th>
@@ -114,112 +113,91 @@
                 </thead>
                 <tbody>
                     {% for orden in ordenes %}
-                    <tr>
-                        <!-- ID -->
-                        <td class="ordenes-table__id">#{{ orden.id }}</td>
-
-                        <!-- Proveedor -->
-                        <td class="ordenes-table__proveedor">
-                            {{ orden.proveedor.nombre_empresa }}
-                        </td>
-
-                        <!-- Fecha -->
-                        <td class="ordenes-table__fecha">
-                            {{ orden.fecha|date:"d/m/Y H:i" }}
-                        </td>
-
-                        <!-- Estado -->
-                        <td>
+                    <tr class="cys-tr">
+                        <td class="cys-td cys-td--muted" data-label="#">#{{ orden.id }}</td>
+                        <td class="cys-td cys-td--bold" data-label="Proveedor">{{ orden.proveedor.nombre_empresa }}</td>
+                        <td class="cys-td" data-label="Fecha">{{ orden.fecha|date:"d/m/Y H:i" }}</td>
+                        <td class="cys-td" data-label="Estado">
                             {% if orden.estado == 'pendiente' %}
-                                <span class="ordenes-badge ordenes-badge-pendiente">
-                                    <i class="bi bi-hourglass-split"></i> Pendiente
+                                <span class="cys-badge" style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.4);">
+                                    <i class="bi bi-hourglass-split me-1"></i>Pendiente
                                 </span>
                             {% elif orden.estado == 'confirmada' %}
-                                <span class="ordenes-badge ordenes-badge-confirmada">
-                                    <i class="bi bi-check-circle"></i> Confirmada
+                                <span class="cys-badge" style="background: rgba(77, 168, 218, 0.2); color: #4DA8DA; border: 1px solid rgba(77, 168, 218, 0.4);">
+                                    <i class="bi bi-check-circle me-1"></i>Confirmada
                                 </span>
                             {% elif orden.estado == 'recibida' %}
-                                <span class="ordenes-badge ordenes-badge-recibida">
-                                    <i class="bi bi-box-seam"></i> Recibida
+                                <span class="cys-badge" style="background: rgba(39, 174, 96, 0.2); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.4);">
+                                    <i class="bi bi-box-seam me-1"></i>Recibida
                                 </span>
                             {% else %}
-                                <span class="ordenes-badge ordenes-badge-cancelada">
-                                    <i class="bi bi-x-circle"></i> Cancelada
+                                <span class="cys-badge" style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.4);">
+                                    <i class="bi bi-x-circle me-1"></i>Cancelada
                                 </span>
                             {% endif %}
                         </td>
-
-                        <!-- Total -->
-                        <td class="ordenes-table__total">
-                            ${{ orden.total|floatformat:0|default:"0" }}
-                        </td>
-
-                        <!-- Acciones -->
-                        <td style="text-align: center;">
-                            <div class="dropdown">
-                                <button class="btn btn-link text-primary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Acciones" style="text-decoration: none; font-size: 1.5rem; line-height: 1;">
+                        <td class="cys-td cys-td--bold" data-label="Total">${{ orden.total|floatformat:0|default:"0" }}</td>
+                        <td class="cys-td text-center" data-label="Acciones">
+                            <div class="dropdown ordenes-actions-dropdown">
+                                <button class="btn btn-sm btn-link text-cyan p-0" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                        title="Acciones" style="text-decoration: none; font-size: 1.2rem;">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" style="min-width: 220px !important;">
-
-                                    <!-- Ver detalles -->
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end ordenes-actions-dropdown-menu" style="overflow: visible; max-height: none;">
                                     <li>
                                         <a class="dropdown-item" href="?mostrar_orden={{ orden.id }}">
                                             <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
                                         </a>
                                     </li>
-
-                                    <li><hr class="dropdown-divider"></li>
-
-                                    <!-- Cambiar estado (opciones dinámicas) -->
                                     {% if orden.estado == 'pendiente' %}
                                         <li>
-                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}" style="margin: 0;">
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="nuevo_estado" value="confirmada">
-                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
-                                                    <i class="bi bi-check-circle me-2 text-success"></i>Confirmar Orden
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-check-circle me-2 text-success"></i>Confirmar
                                                 </button>
                                             </form>
                                         </li>
                                         <li>
-                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}" style="margin: 0;">
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="nuevo_estado" value="cancelada">
-                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
-                                                    <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar Orden
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar
                                                 </button>
                                             </form>
                                         </li>
                                     {% elif orden.estado == 'confirmada' %}
                                         <li>
-                                            <form method="POST" action="{% url 'recibir_compra' pk=orden.id %}" style="margin: 0;">
+                                            <form method="POST" action="{% url 'recibir_compra' pk=orden.id %}">
                                                 {% csrf_token %}
-                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
-                                                    <i class="bi bi-box-seam me-2 text-success"></i>Recibir Compra
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-box-seam me-2 text-success"></i>Recibir
                                                 </button>
                                             </form>
                                         </li>
                                         <li>
-                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}" style="margin: 0;">
+                                            <form method="POST" action="{% url 'cambiar_estado_orden' pk=orden.id %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="nuevo_estado" value="cancelada">
-                                                <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer;">
-                                                    <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar Orden
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar
                                                 </button>
                                             </form>
                                         </li>
                                     {% elif orden.estado == 'recibida' %}
                                         <li>
-                                            <a class="dropdown-item" href="#">
-                                                <i class="bi bi-lock me-2 text-muted"></i>Orden Recibida
-                                            </a>
+                                            <button type="button" class="dropdown-item disabled">
+                                                <i class="bi bi-lock me-2"></i>Recibida
+                                            </button>
                                         </li>
                                     {% elif orden.estado == 'cancelada' %}
                                         <li>
-                                            <a class="dropdown-item" href="#">
-                                                <i class="bi bi-lock me-2 text-muted"></i>Orden Cancelada
-                                            </a>
+                                            <button type="button" class="dropdown-item disabled">
+                                                <i class="bi bi-lock me-2"></i>Cancelada
+                                            </button>
                                         </li>
                                     {% endif %}
                                 </ul>
@@ -231,33 +209,12 @@
             </table>
         </div>
 
-        <!-- PAGINACIÓN -->
-        {% if page_obj.has_other_pages %}
-        <div class="ordenes-pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page=1" class="pagination-item">« Primera</a>
-                <a href="?page={{ page_obj.previous_page_number }}" class="pagination-item">‹ Anterior</a>
-            {% else %}
-                <span class="pagination-item disabled">« Primera</span>
-                <span class="pagination-item disabled">‹ Anterior</span>
-            {% endif %}
-
-            <span class="pagination-item">
-                {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-            </span>
-
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="pagination-item">Siguiente ›</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-item">Última »</a>
-            {% else %}
-                <span class="pagination-item disabled">Siguiente ›</span>
-                <span class="pagination-item disabled">Última »</span>
-            {% endif %}
+        <div class="cys-hv-table-footer">
+            <span class="cys-hv-showing-info" id="cys-dt-info"></span>
+            <div class="cys-hv-pagination-wrap" id="cys-dt-pagination"></div>
         </div>
-        {% endif %}
 
         {% else %}
-        <!-- EMPTY STATE -->
         <div class="ordenes-empty">
             <i class="bi bi-inbox"></i>
             <p>No hay órdenes registradas</p>
@@ -268,9 +225,8 @@
             </p>
         </div>
         {% endif %}
+      </section>
     </div>
-
-</div>
 
 <!-- MODAL: NUEVA ORDEN -->
 <div class="modal fade" id="modalNuevaOrden" tabindex="-1" style="background: rgba(0,0,0,0.5) !important;">
@@ -608,25 +564,40 @@
 </div>
 
 
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  if ($.fn.dataTable.isDataTable('.ordenes-table')) {
-    $('.ordenes-table').DataTable().destroy();
-  }
-
-  $('.ordenes-table').DataTable({
-    language: {
-      url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-    },
-    pageLength: 10,
-    order: [[2, 'desc']],
-    columnDefs: [
-      { orderable: false, targets: 5 }
-    ]
-  });
+$(document).ready(function() {
+    $('#ordenes-table').DataTable({
+        paging: true,
+        searching: false,
+        info: true,
+        lengthChange: false,
+        pageLength: 10,
+        ordering: true,
+        responsive: true,
+        language: {
+            info: "Mostrando _START_ a _END_ de _TOTAL_ órdenes",
+            infoEmpty: "Mostrando 0 a 0 de 0 órdenes",
+            paginate: {
+                first:    '«',
+                previous: '‹',
+                next:     '›',
+                last:     '»'
+            }
+        },
+        dom: 'rt<"cys-hv-table-footer"ip>'
+    });
 });
+
+function aplicarFiltro() {
+    const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
+    const fechaFin = document.getElementById('filtro-fecha-fin').value;
+    let url = window.location.pathname + '?';
+    if (fechaInicio) url += 'fecha_inicio=' + fechaInicio + '&';
+    if (fechaFin) url += 'fecha_fin=' + fechaFin;
+    window.location.href = url;
+}
 </script>
 
 {% endblock %}

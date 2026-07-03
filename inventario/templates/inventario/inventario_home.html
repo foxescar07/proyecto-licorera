@@ -211,9 +211,7 @@
             {% firstof fecha_filtro dias_con_movimientos|first as fecha_efectiva %}
 <button class="btn btn-sm dropdown-toggle px-3" type="button"
         id="mov-fecha-btn" data-bs-toggle="dropdown"
-        style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
-               color:#c8d6e5; font-size:.82rem; border-radius:8px; width:200px;
-               text-align:left;">
+        style="font-size:.82rem; border-radius:8px; width:200px; text-align:left;">
   {% for dia in dias_con_movimientos %}
     {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}
       {% if dia|date:'Y-m-d' == hoy|date:'Y-m-d' %}Hoy — {{ dia|date:"d/m/Y" }}{% else %}{{ dia|date:"l d/m/Y" }}{% endif %}
@@ -222,7 +220,7 @@
     Sin movimientos
   {% endfor %}
 </button>
-<ul class="dropdown-menu" style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); min-width:200px;">
+<ul class="dropdown-menu" style="min-width:200px;">
   {% for dia in dias_con_movimientos %}
     <li>
       <a class="dropdown-item" href="?fecha_mov={{ dia|date:'Y-m-d' }}"
@@ -344,14 +342,11 @@
                style="width:190px;" placeholder="Buscar producto...">
         <div class="dropdown">
   <button class="btn btn-sm dropdown-toggle px-3" type="button"
-          id="cat-cat-btn" data-bs-toggle="dropdown"
-          style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
-                 color:#c8d6e5; font-size:.82rem; border-radius:8px; width:170px;
-                 text-align:left;">
+        id="cat-cat-btn" data-bs-toggle="dropdown"
+        style="font-size:.82rem; border-radius:8px; width:170px; text-align:left;">
     <span id="cat-cat-label">Todas las categorías</span>
   </button>
-  <ul class="dropdown-menu"
-      style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); min-width:170px;">
+  <ul class="dropdown-menu" style="min-width:170px;">
     <li>
       <a class="dropdown-item" href="#" data-cat=""
          style="color:#c8d6e5; font-size:.82rem;">Todas las categorías</a>
@@ -622,14 +617,11 @@
   <label class="form-label inv-label">Producto</label>
   <div class="dropdown w-100">
     <button class="btn dropdown-toggle w-100 text-start" type="button"
-            id="conteo-prod-btn" data-bs-toggle="dropdown"
-            style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-                   color:#c8d6e5; font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+        id="conteo-prod-btn" data-bs-toggle="dropdown"
+        style="font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
       <span id="conteo-prod-label">— Seleccionar producto —</span>
     </button>
-    <ul class="dropdown-menu w-100"
-        style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35);
-               max-height:260px; overflow-y:auto;">
+    <ul class="dropdown-menu w-100" style="max-height:260px; overflow-y:auto;">
       {% for p in productos %}
       <li>
         <a class="dropdown-item conteo-prod-item" href="#"
@@ -647,11 +639,20 @@
                 <label class="form-label inv-label">Cantidad física</label>
                 <input type="number" name="cantidad_contada" class="form-control inv-input" min="0" placeholder="0" required>
               </div>
-              <div class="col-md-2">
-                <button type="submit" class="btn inv-btn-primary w-100">
-                  <i class="bi bi-save"></i>
-                </button>
-              </div>
+              <div class="col-md-2 d-flex align-items-end">
+  <button type="submit"
+          class="btn btn-outline-info rounded-circle p-2 d-inline-flex align-items-center justify-content-center"
+          style="--bs-btn-color: var(--inv-azul);
+                --bs-btn-border-color: rgba(77,168,218,0.35);
+                --bs-btn-hover-bg: rgba(77,168,218,0.15);
+                --bs-btn-hover-color: var(--inv-azul);
+                --bs-btn-hover-border-color: var(--inv-azul);
+                --bs-btn-active-bg: rgba(77,168,218,0.25);
+                --bs-btn-active-color: var(--inv-azul);
+                width: 42px; height: 42px;">
+    <i class="bi bi-save"></i>
+  </button>
+</div>
             </div>
           </form>
           <div class="table-responsive">
@@ -851,6 +852,16 @@
             style="background: #4DA8DA; color: #0d1b2a; border: none; opacity: 1;">
             <i class="bi bi-save2 me-1"></i>Guardar
           </button>
+          <button type="button" id="scan-camara-btn" class="btn rounded-pill px-3" disabled
+            style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+            title="Escanear con cámara">
+            <i class="bi bi-camera-fill"></i>
+          </button>
+        </div>
+
+        <div id="scan-camara-panel" class="d-none mb-3 text-center">
+          <video id="scan-video" class="rounded-3 w-100" style="max-height:300px; background:#000; object-fit:cover;" playsinline muted></video>
+          <div id="scan-camara-estado" class="text-muted small mt-2">Apunta la cámara al código de barras…</div>
         </div>
         <div class="table-responsive">
           <table class="table align-middle mb-0 inv-table" id="tabla-codigos">
@@ -954,6 +965,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1032,14 +1044,18 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
   document.getElementById('form-editar-movimiento').action =
     '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
 });
-
 // ── REGISTRAR CÓDIGOS ──
 (function () {
-  let filaActiva = null;
+  let filaActiva   = null;
+  let zxingReader  = null;
   const modal      = document.getElementById('modalRegistrarCodigos');
   const scanInput  = document.getElementById('scan-input');
   const scanBtn    = document.getElementById('scan-guardar');
   const scanNombre = document.getElementById('scan-producto-nombre');
+  const camBtn     = document.getElementById('scan-camara-btn');
+  const camPanel   = document.getElementById('scan-camara-panel');
+  const camVideo   = document.getElementById('scan-video');
+  const camEstado  = document.getElementById('scan-camara-estado');
 
   function resetUI() {
     filaActiva = null;
@@ -1049,7 +1065,62 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     scanInput.disabled     = true;
     scanBtn.disabled       = true;
     scanBtn.style.opacity  = '0.45';
+    camBtn.disabled        = true;
+    detenerCamara();
   }
+
+ let html5Scanner = null;
+
+async function iniciarCamara() {
+  camPanel.classList.remove('d-none');
+  camEstado.textContent = 'Iniciando cámara…';
+
+  if (typeof Html5Qrcode === 'undefined') {
+    camEstado.textContent = 'Error: la librería no cargó. Revisa tu conexión.';
+    return;
+  }
+
+ camVideo.style.display = 'none';
+let contenedor = document.getElementById('scan-video-html5');
+if (!contenedor) {
+  contenedor = document.createElement('div');
+  contenedor.id = 'scan-video-html5';
+  camVideo.parentNode.insertBefore(contenedor, camVideo);
+}
+contenedor.style.width      = '340px';
+contenedor.style.maxWidth   = '100%';
+contenedor.style.height     = '220px';
+contenedor.style.margin     = '0 auto';
+contenedor.style.overflow   = 'hidden';
+contenedor.style.borderRadius = '12px';
+
+  html5Scanner = new Html5Qrcode('scan-video-html5');
+
+  try {
+    await html5Scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
+      (codigoDetectado) => {
+        scanInput.value = codigoDetectado;
+        camEstado.textContent = 'Código detectado: ' + codigoDetectado;
+        detenerCamara();
+      },
+      () => {} // errores de frame sin detección, se ignoran
+    );
+    camEstado.textContent = 'Apunta la cámara al código de barras…';
+  } catch (err) {
+    console.error('Error al iniciar cámara:', err);
+    camEstado.textContent = 'No se pudo acceder a la cámara: ' + (err.message || err);
+  }
+}
+
+function detenerCamara() {
+  if (html5Scanner) {
+    html5Scanner.stop().then(() => html5Scanner.clear()).catch(() => {});
+    html5Scanner = null;
+  }
+  camPanel.classList.add('d-none');
+}
 
   function guardarCodigo(fila, codigo) {
     const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -1082,9 +1153,13 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
     scanInput.disabled     = false;
     scanBtn.disabled       = false;
     scanBtn.style.opacity  = '1';
+    camBtn.disabled        = false;
     scanInput.focus();
   });
 
+  camBtn.addEventListener('click', () => {
+  html5Scanner ? detenerCamara() : iniciarCamara();
+});
   scanBtn.addEventListener('click', () => {
     if (filaActiva) guardarCodigo(filaActiva, scanInput.value.trim());
   });
@@ -1098,7 +1173,6 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
 
   modal.addEventListener('hidden.bs.modal', resetUI);
 })();
-
 // ── TABS AGENDAS ──
 document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
   btn.addEventListener('click', function () {
@@ -1262,6 +1336,14 @@ document.querySelectorAll('.conteo-prod-item').forEach(function(item) {
     e.preventDefault();
     document.getElementById('conteo-prod-label').textContent = this.textContent.trim();
     document.getElementById('conteo-prod-hidden').value = this.dataset.value;
+  });
+});
+window.addEventListener('load', function () {
+  document.querySelectorAll('.container-fluid [title]').forEach(function (el) {
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover'
+    });
   });
 });
 </script>
