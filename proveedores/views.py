@@ -164,7 +164,97 @@ def sancionar_proveedor(request, id):
 
 @login_required
 def lista_compras(request):
-    context = {}
+    todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
+    proveedor = None
+    form = None
+
+    # Obtener proveedor de sesión o parámetro GET
+    if request.method == 'POST':
+        proveedor_id = request.POST.get('proveedor_id') or request.session.get('proveedor_id')
+    else:
+        proveedor_id = request.GET.get('proveedor') or request.session.get('proveedor_id')
+
+    # Guardar proveedor en sesión
+    if proveedor_id:
+        try:
+            request.session['proveedor_id'] = int(proveedor_id)
+            proveedor = Proveedor.objects.get(id=request.session['proveedor_id'])
+        except (Proveedor.DoesNotExist, ValueError):
+            proveedor = None
+    else:
+        primer_proveedor = todos_proveedores.first()
+        if primer_proveedor:
+            request.session['proveedor_id'] = primer_proveedor.id
+            proveedor = primer_proveedor
+
+    compras = []
+    if proveedor:
+        compras = Compra.objects.filter(proveedor=proveedor).order_by('-fecha_registro')
+
+    # Calcular subtotal
+    subtotal = sum(
+        (c.cantidad * c.precio_unitario) for c in compras
+        if c.precio_unitario
+    ) or 0
+
+    # Registrar nueva compra
+    if request.method == 'POST':
+        if not proveedor:
+            messages.error(request, 'Por favor selecciona un proveedor.')
+            return redirect('lista_compras')
+
+        form = CompraForm(request.POST)
+
+        if form.is_valid():
+            try:
+                compra = form.save(commit=False)
+                compra.proveedor = proveedor
+                compra.save()
+                messages.success(request, f'Compra registrada exitosamente.')
+                return redirect('lista_compras')
+            except Exception as e:
+                messages.error(request, f'Error al registrar la compra: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = CompraForm()
+
+    # Estadísticas
+    total_gastado = sum(
+        (c.cantidad * c.precio_unitario) for c in Compra.objects.all()
+        if c.precio_unitario
+    ) or 0
+
+    from django.utils import timezone
+    from datetime import timedelta
+    ahora = timezone.now()
+    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    compras_mes = Compra.objects.filter(fecha_registro__gte=inicio_mes)
+    count_mes = compras_mes.count()
+    total_mes = sum(
+        (c.cantidad * c.precio_unitario) for c in compras_mes
+        if c.precio_unitario
+    ) or 0
+
+    # Producto top
+    from django.db.models import Sum
+    producto_top = Compra.objects.values('producto__nombre').annotate(
+        total_und=Sum('cantidad')
+    ).order_by('-total_und').first()
+
+    context = {
+        'compras': compras,
+        'proveedor': proveedor,
+        'todos_proveedores': todos_proveedores,
+        'form': form,
+        'subtotal': subtotal,
+        'total_gastado': total_gastado,
+        'count_mes': count_mes,
+        'total_mes': total_mes,
+        'producto_top': producto_top,
+    }
     return render(request, 'proveedores/compras.html', context)
 
 @login_required
