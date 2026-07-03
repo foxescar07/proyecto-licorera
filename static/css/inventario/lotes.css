@@ -1,0 +1,152 @@
+/* ══════════════════════════════════════════
+   REGISTRAR LOTE — estilos extraídos del inline
+   ══════════════════════════════════════════ */
+
+.precio-hint { font-size: .72rem; color: rgba(220,232,242,0.45); margin-top: 4px; }
+.section-divider { border: none; border-top: 1px solid rgba(77,168,218,0.14); margin: 1rem 0; }
+.precio-prefix {
+  background: rgba(77,168,218,.14);
+  border: 1px solid var(--inv-border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: var(--inv-azul);
+  padding: 0 12px;
+  font-weight: 600;
+  font-size: .9rem;
+  display: flex; align-items: center;
+}
+.inv-input-precio { border-radius: 0 8px 8px 0 !important; border-left: none !important; }
+
+.collapse-panel { background: #1e3f5e; border: 1px solid rgba(77,168,218,0.18); border-radius: 10px; }
+
+/* Inputs de fecha (registro de lote) */
+.inv-input[type="date"] { color: #ffffff !important; }
+.inv-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+  cursor: pointer;
+}
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] { color-scheme: light; }
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+/* Dropdown "presentación" del formulario de lote */
+.btn#presentacion-lote-btn,
+button#presentacion-lote-btn {
+  background-color: var(--inv-card2) !important;
+  background-image: none !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
+  color: #c8d6e5 !important;
+  font-size: .9rem !important;
+  border-radius: 8px !important;
+  padding: .55rem 1rem !important;
+  box-shadow: none !important;
+}
+.btn#presentacion-lote-btn:hover,
+.btn#presentacion-lote-btn:focus,
+.btn#presentacion-lote-btn:active,
+.btn#presentacion-lote-btn.show {
+  background-color: var(--inv-card2) !important;
+  border-color: var(--inv-azul) !important;
+  color: #c8d6e5 !important;
+  box-shadow: 0 0 0 2px rgba(77, 168, 218, .2) !important;
+}
+#presentacion-lote-btn + .dropdown-menu {
+  background-color: var(--inv-card2) !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
+}
+.lote-icon-box i {
+  color: #4DA8DA;
+  font-size: 2.1rem;
+}
+
+.lote-titulo {
+  color: #dce8f2;
+  letter-spacing: .08em;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+}
+
+.lote-subtitulo {
+  color: rgba(220, 232, 242, 0.45);
+  font-size: .7rem;
+}
+
+.lote-label-hint {
+  color: rgba(220, 232, 242, 0.38);
+  font-size: .72rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.lote-precio-input {
+  border-radius: 0 8px 8px 0 !important;
+  border-left: none !important;
+}
+
+.lote-btn-crear {
+  background: #3b9ad6;
+  color: #0d1b2a;
+  border: none;
+  font-size: .9rem;
+  white-space: nowrap;
+}
+
+/* Dropdown presentación lote — botón */
+.lote-presentacion-btn {
+  background: #0a1e38;
+  border: 1px solid rgba(77, 168, 218, .35);
+  color: #c8d6e5;
+  font-size: .9rem;
+  border-radius: 8px;
+  padding: .55rem 1rem;
+}
+
+/* Dropdown presentación lote — menú */
+.lote-presentacion-menu {
+  background: #0d1b2a;
+  border: 1px solid rgba(0, 54, 83, .46);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.lote-presentacion-menu .dropdown-header {
+  color: #4DA8DA;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.lote-presentacion-menu .dropdown-item {
+  color: #c8d6e5;
+  font-size: .85rem;
+  padding-left: 1.5rem;
+}
+
+/* Stat mini — panel derecho */
+.lote-stat-label {
+  color: rgba(220, 232, 242, 0.5);
+  font-size: .68rem;
+  letter-spacing: .05em;
+}
+.lote-stat-value-success {
+  font-family: 'Rajdhani', sans-serif;
+}
+.lote-stat-value-info {
+  color: #4DA8DA;
+  font-family: 'Rajdhani', sans-serif;
+}
+.lote-stat-mini--info {
+  border-color: rgba(77, 168, 218, 0.22) !important;
+}
+
+/* Panel gráfico proveedores */
+.lote-panel-titulo {
+  color: #dce8f2;
+  font-size: .75rem;
+  letter-spacing: .05em;
+}
+.lote-chart-wrap {
+  min-height: 175px;
+}
