@@ -176,7 +176,165 @@ def sancionar_proveedor(request, id):
 
 @login_required
 def lista_compras(request):
-    context = {}
+    todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
+    proveedor = None
+    form = None
+
+    # Obtener proveedor de sesión o parámetro GET
+    if request.method == 'POST':
+        proveedor_id = request.POST.get('proveedor_id') or request.session.get('proveedor_id')
+    else:
+        proveedor_id = request.GET.get('proveedor') or request.session.get('proveedor_id')
+
+    # Guardar proveedor en sesión
+    if proveedor_id:
+        try:
+            request.session['proveedor_id'] = int(proveedor_id)
+            proveedor = Proveedor.objects.get(id=request.session['proveedor_id'])
+        except (Proveedor.DoesNotExist, ValueError):
+            proveedor = None
+    else:
+        primer_proveedor = todos_proveedores.first()
+        if primer_proveedor:
+            request.session['proveedor_id'] = primer_proveedor.id
+            proveedor = primer_proveedor
+
+    compras = []
+    if proveedor:
+        compras = Compra.objects.filter(proveedor=proveedor).order_by('-fecha_registro')
+
+    # Calcular subtotal
+    subtotal = sum(
+        (c.cantidad * c.precio_unitario) for c in compras
+        if c.precio_unitario
+    ) or 0
+
+    # Registrar nueva compra
+    if request.method == 'POST':
+        if not proveedor:
+            messages.error(request, 'Por favor selecciona un proveedor.')
+            return redirect('lista_compras')
+
+        form = CompraForm(request.POST)
+
+        if form.is_valid():
+            try:
+                compra = form.save(commit=False)
+                compra.proveedor = proveedor
+                compra.save()
+                messages.success(request, f'Compra registrada exitosamente.')
+                return redirect('lista_compras')
+            except Exception as e:
+                messages.error(request, f'Error al registrar la compra: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = CompraForm()
+
+    # Estadísticas
+    total_gastado = sum(
+        (c.cantidad * c.precio_unitario) for c in Compra.objects.all()
+        if c.precio_unitario
+    ) or 0
+
+    ahora = timezone.now()
+    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    compras_mes = Compra.objects.filter(fecha_registro__gte=inicio_mes)
+    count_mes = compras_mes.count()
+    total_mes = sum(
+        (c.cantidad * c.precio_unitario) for c in compras_mes
+        if c.precio_unitario
+    ) or 0
+
+    # Producto top
+    producto_top = Compra.objects.values('producto__nombre').annotate(
+        total_und=Sum('cantidad')
+    ).order_by('-total_und').first()
+
+    # ====== DATOS PARA GRÁFICOS ======
+    hoy = timezone.now()
+    desde = hoy - timedelta(days=365)
+
+    # Compras por mes (últimos 12 meses)
+    compras_por_mes = (
+        Compra.objects
+        .filter(fecha_registro__gte=desde)
+        .annotate(mes=TruncMonth('fecha_registro'))
+        .values('mes')
+        .annotate(total=Count('id'))
+        .order_by('mes')
+    )
+
+    meses_labels = []
+    meses_data = []
+    meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+    # Crear diccionario con datos por mes
+    datos_por_mes = {}
+    for item in compras_por_mes:
+        if item['mes']:
+            mes_num = item['mes'].month
+            datos_por_mes[mes_num] = item['total']
+
+    # Generar últimos 12 meses en orden cronológico
+    mes_actual = hoy.month
+    año_actual = hoy.year
+
+    for i in range(12):
+        mes = (mes_actual - (11 - i) - 1) % 12 + 1
+        meses_labels.append(meses_nombres[mes - 1])
+        meses_data.append(datos_por_mes.get(mes, 0))
+
+    # Productos más comprados (top 5)
+    productos_top_list = (
+        Compra.objects
+        .values('producto__nombre')
+        .annotate(cantidad=Sum('cantidad'))
+        .order_by('-cantidad')[:5]
+    )
+
+    productos_labels = [p['producto__nombre'] for p in productos_top_list]
+    productos_data = [p['cantidad'] for p in productos_top_list]
+
+    # Gastos por proveedor
+    gastos_proveedor_dict = {}
+    for c in Compra.objects.select_related('proveedor'):
+        total = (c.cantidad * c.precio_unitario) if c.precio_unitario else 0
+        nombre = c.proveedor.nombre_empresa
+        if nombre not in gastos_proveedor_dict:
+            gastos_proveedor_dict[nombre] = 0
+        gastos_proveedor_dict[nombre] += total
+
+    # Ordenar y tomar top 5
+    gastos_ordenados = sorted(gastos_proveedor_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+    gastos_labels = [item[0] for item in gastos_ordenados]
+    gastos_data = [int(item[1]) for item in gastos_ordenados]
+
+    # Calcular porcentajes para el gráfico de pastel
+    gastos_total = sum(gastos_data) if gastos_data else 1
+    gastos_porcentajes = [int((gasto / gastos_total * 100)) for gasto in gastos_data] if gastos_data else []
+
+    context = {
+        'compras': compras,
+        'proveedor': proveedor,
+        'todos_proveedores': todos_proveedores,
+        'form': form,
+        'subtotal': subtotal,
+        'total_gastado': total_gastado,
+        'count_mes': count_mes,
+        'total_mes': total_mes,
+        'producto_top': producto_top,
+        # Datos para gráficos
+        'meses_labels_json': json.dumps(meses_labels),
+        'meses_data_json': json.dumps(meses_data),
+        'productos_labels_json': json.dumps(productos_labels),
+        'productos_data_json': json.dumps(productos_data),
+        'gastos_labels_json': json.dumps(gastos_labels),
+        'gastos_data_json': json.dumps(gastos_data),
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
+    }
     return render(request, 'proveedores/compras.html', context)
 
 @login_required
@@ -706,19 +864,31 @@ def api_orden_detalles(request, orden_id):
     from django.http import JsonResponse
 
     try:
-        orden = OrdenCompra.objects.get(id=orden_id)
+        orden = OrdenCompra.objects.select_related(
+            'proveedor'
+        ).prefetch_related(
+            'detalles__presentacion__producto'
+        ).get(id=orden_id)
+
         detalles_data = []
 
         for detalle in orden.detalles.all():
             detalles_data.append({
                 'id': detalle.id,
+                'producto': detalle.presentacion.producto.nombre,
                 'presentacion': detalle.presentacion.nombre,
                 'cantidad': detalle.cantidad,
                 'precio_unitario': f"{detalle.precio_unitario:.2f}",
                 'subtotal': f"{detalle.subtotal:.2f}"
             })
 
-        return JsonResponse({'detalles': detalles_data})
+        return JsonResponse({
+            'id': orden.id,
+            'proveedor': orden.proveedor.nombre_empresa,
+            'estado': orden.get_estado_display(),
+            'total': f"{orden.total:.2f}",
+            'detalles': detalles_data
+        })
     except OrdenCompra.DoesNotExist:
         return JsonResponse({'error': 'Orden no encontrada'}, status=404)
 

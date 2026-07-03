@@ -146,7 +146,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end ordenes-actions-dropdown-menu" style="overflow: visible; max-height: none;">
                                     <li>
-                                        <a class="dropdown-item" href="?mostrar_orden={{ orden.id }}">
+                                        <a class="dropdown-item btn-ver-detalles-orden" href="#" data-orden-id="{{ orden.id }}" data-bs-toggle="modal" data-bs-target="#modalDetalleOrdenModal">
                                             <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
                                         </a>
                                     </li>
@@ -313,179 +313,62 @@
     </div>
 </div>
 
-<!-- MODAL: DETALLE DE ORDEN (estilo análisis de ventas) -->
-{% if orden_detalle %}
-<div class="modal fade show" id="modalDetalleOrden" tabindex="-1" style="background: rgba(0,0,0,0.7) !important; display: block !important;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 1150px !important;">
+<!-- MODAL: DETALLE DE ORDEN (Dynamic Modal with Stat Cards) -->
+<div class="modal fade" id="modalDetalleOrdenModal" tabindex="-1" style="background: rgba(0,0,0,0.5) !important;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 1200px !important;">
         <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
 
             <!-- HEADER -->
-            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 2rem 2rem !important;">
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 2rem !important;">
                 <div>
                     <h4 style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem !important;">
-                        <i class="bi bi-clipboard-check"></i> Detalle de Orden
+                        <i class="bi bi-clipboard-check"></i> Detalle de Orden #<span id="modalOrdenId">-</span>
                     </h4>
                     <p style="color: #8FA3B1 !important; margin: 0 !important;">
-                        Orden #{{ orden_detalle.id }} - {{ orden_detalle.proveedor.nombre_empresa }}
+                        <span id="modalProveedorNombre">Proveedor</span>
                     </p>
                 </div>
-                <a href="{% url 'listar_ordenes' %}" class="btn-close btn-close-white" style="opacity: 0.8 !important;"></a>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="opacity: 0.8 !important;"></button>
             </div>
 
             <!-- BODY -->
             <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
 
-                <!-- INFORMACIÓN RESUMEN - Versión Simple -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem !important;">
-                    <div>
-                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Total Orden</p>
-                        <h3 style="color: #4DA8DA !important; font-weight: 700 !important; font-size: 2rem !important; margin: 0 !important;">${{ orden_detalle.total|floatformat:0 }}</h3>
-                    </div>
-                    <div>
-                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Estado</p>
-                        <p style="color: #E2E8F0 !important; font-weight: 600 !important; margin: 0 !important;">
-                            {% if orden_detalle.estado == 'pendiente' %}
-                                <span style="color: #f39c12 !important;">⏳ Pendiente</span>
-                            {% elif orden_detalle.estado == 'confirmada' %}
-                                <span style="color: #4DA8DA !important;">✓ Confirmada</span>
-                            {% elif orden_detalle.estado == 'recibida' %}
-                                <span style="color: #27ae60 !important;">📦 Recibida</span>
-                            {% elif orden_detalle.estado == 'cancelada' %}
-                                <span style="color: #e74c3c !important;">✕ Cancelada</span>
-                            {% endif %}
+                <!-- STAT CARDS SECTION -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem !important;">
+
+                    <!-- Card 1: Total Orden -->
+                    <div style="background: rgba(77, 168, 218, 0.08); border: 1px solid rgba(77, 168, 218, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #4DA8DA;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-receipt me-1"></i>Total Orden
                         </p>
+                        <h3 style="color: #4DA8DA !important; font-weight: 700 !important; font-size: 1.75rem !important; margin: 0 !important;" id="modalTotalOrden">$0</h3>
+                    </div>
+
+                    <!-- Card 2: Cantidad de Productos -->
+                    <div style="background: rgba(39, 174, 96, 0.08); border: 1px solid rgba(39, 174, 96, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #27ae60;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-box me-1"></i>Cantidad de Productos
+                        </p>
+                        <h3 style="color: #27ae60 !important; font-weight: 700 !important; font-size: 1.75rem !important; margin: 0 !important;" id="modalCantidadProductos">0</h3>
+                    </div>
+
+                    <!-- Card 3: Estado -->
+                    <div style="background: rgba(155, 93, 229, 0.08); border: 1px solid rgba(155, 93, 229, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #9b5de5;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-info-circle me-1"></i>Estado
+                        </p>
+                        <h3 style="color: #E2E8F0 !important; font-weight: 700 !important; font-size: 1.2rem !important; margin: 0 !important;" id="modalEstado">-</h3>
+                    </div>
+
+                    <!-- Card 4: Proveedor -->
+                    <div style="background: rgba(233, 212, 96, 0.08); border: 1px solid rgba(233, 212, 96, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #f0d080;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-truck me-1"></i>Proveedor
+                        </p>
+                        <p style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.95rem !important; margin: 0 !important;" id="modalProveedorCard">-</p>
                     </div>
                 </div>
-
-                <!-- INFORMACIÓN DETALLADA -->
-                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem !important; margin-bottom: 2rem !important;">
-                    <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1rem !important;">
-                        <i class="bi bi-info-circle"></i> Información General
-                    </h6>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem !important;">
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Fecha de Creación</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.fecha|date:"d/m/Y H:i" }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Registrado por</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.registrado_por.get_full_name|default:orden_detalle.registrado_por }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Proveedor</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.proveedor.nombre_empresa }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- INFORMACIÓN DE ENTREGA -->
-                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem !important; margin-bottom: 2rem !important;">
-                    <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1rem !important;">
-                        <i class="bi bi-box-seam"></i> Entrega
-                    </h6>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem !important;">
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Fecha Esperada</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">
-                                {% if orden_detalle.fecha_entrega_esperada %}
-                                    {{ orden_detalle.fecha_entrega_esperada|date:"d/m/Y" }}
-                                {% else %}
-                                    <span style="color: #8FA3B1;">No especificada</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Fecha Real</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">
-                                {% if orden_detalle.fecha_entrega_real %}
-                                    {{ orden_detalle.fecha_entrega_real|date:"d/m/Y" }}
-                                {% else %}
-                                    <span style="color: #8FA3B1;">Pendiente</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- INFORMACIÓN DE PAGO (Si existe) -->
-                {% if orden_detalle.numero_factura or orden_detalle.metodo_pago %}
-                <div style="background: rgba(39, 174, 96, 0.05); border: 1px solid rgba(39, 174, 96, 0.15); border-radius: 8px; padding: 1.5rem !important; margin-bottom: 2rem !important;">
-                    <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1rem !important;">
-                        <i class="bi bi-credit-card-2-front"></i> Pago Registrado
-                    </h6>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem !important;">
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Factura</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.numero_factura }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Método</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.get_metodo_pago_display|default:"N/A" }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Monto Pagado</p>
-                            <p style="color: #27ae60 !important; font-weight: 600 !important; margin: 0 !important;">${{ orden_detalle.monto_pagado|floatformat:2 }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Fecha Pago</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.fecha_pago|date:"d/m/Y H:i"|default:"N/A" }}</p>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- SECCIÓN DE PAGO -->
-                {% if orden_detalle.estado != 'cancelada' %}
-                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 8px; padding: 1.5rem !important; margin-bottom: 2rem !important;">
-                    <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1.5rem !important; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="bi bi-credit-card-2-front"></i> Procesar Pago
-                    </h6>
-
-                    <form method="POST" action="{% url 'procesar_pago_orden' pk=orden_detalle.id %}" style="display: flex; flex-direction: column; gap: 1rem;">
-                        {% csrf_token %}
-
-                        <!-- Número de Factura -->
-                        <div>
-                            <label style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin-bottom: 0.5rem !important; display: block; text-transform: uppercase;">
-                                Número de Factura <span style="color: #e74c3c;">*</span>
-                            </label>
-                            <input type="text" name="numero_factura" placeholder="Ej: 188888"
-                                   style="width: 100%; background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; border-radius: 8px !important; padding: 0.75rem 1rem !important; font-size: 0.95rem !important;"
-                                   required>
-                        </div>
-
-                        <!-- Método de Pago -->
-                        <div>
-                            <label style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin-bottom: 0.5rem !important; display: block; text-transform: uppercase;">
-                                Método de Pago <span style="color: #e74c3c;">*</span>
-                            </label>
-                            <select name="metodo_pago"
-                                    style="width: 100%; background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; border-radius: 8px !important; padding: 0.75rem 1rem !important; font-size: 0.95rem !important;"
-                                    required>
-                                <option value="">-- Selecciona un método --</option>
-                                <option value="efectivo">💵 Efectivo</option>
-                                <option value="transferencia">🏦 Transferencia Bancaria</option>
-                                <option value="cheque">📋 Cheque</option>
-                            </select>
-                        </div>
-
-                        <!-- Fecha de Pago -->
-                        <div>
-                            <label style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin-bottom: 0.5rem !important; display: block; text-transform: uppercase;">
-                                Fecha de Pago <span style="color: #e74c3c;">*</span>
-                            </label>
-                            <input type="datetime-local" name="fecha_pago"
-                                   style="width: 100%; background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; border-radius: 8px !important; padding: 0.75rem 1rem !important; font-size: 0.95rem !important;"
-                                   required>
-                        </div>
-
-                        <!-- Botón de Pago -->
-                        <button type="submit" style="background: #4DA8DA !important; color: #fff !important; border: none !important; border-radius: 8px !important; padding: 0.75rem 1.5rem !important; font-weight: 600 !important; cursor: pointer !important; transition: all 0.2s ease !important; margin-top: 0.5rem !important;">
-                            <i class="bi bi-check-circle"></i> Guardar Pago
-                        </button>
-                    </form>
-                </div>
-                {% endif %}
 
                 <!-- TABLA DE PRODUCTOS -->
                 <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1.5rem !important;">
@@ -500,30 +383,14 @@
                                 <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: center !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Cantidad</th>
                                 <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Precio Unit.</th>
                                 <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Subtotal</th>
-                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: center !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Acción</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for detalle in orden_detalle.detalles.all %}
-                            <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;">
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important;">
-                                    <strong>{{ detalle.presentacion.nombre }}</strong><br>
-                                    <small style="color: #8FA3B1 !important;">{{ detalle.presentacion.producto.nombre }}</small>
-                                </td>
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">{{ detalle.cantidad }}</td>
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: right !important;">${{ detalle.precio_unitario|floatformat:2 }}</td>
-                                <td style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-weight: 600 !important;">${{ detalle.subtotal|floatformat:2 }}</td>
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">
-                                    <!-- Botones de acción por detalle -->
-                                </td>
-                            </tr>
-                            {% empty %}
+                        <tbody id="modalProductosTable">
                             <tr>
                                 <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
-                                    No hay productos agregados
+                                    Cargando productos...
                                 </td>
                             </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -531,14 +398,13 @@
 
             <!-- FOOTER CON ACCIONES -->
             <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem 2rem !important;">
-                <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
                     <i class="bi bi-x-circle"></i> Cerrar
-                </a>
+                </button>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
 
 <!-- MODAL: AGREGAR PRODUCTO A ORDEN -->
 <div class="modal fade" id="modalAgregarProducto" tabindex="-1">
@@ -774,6 +640,96 @@ $(document).ready(function() {
         },
         dom: 'rt<"cys-hv-table-footer"ip>'
     });
+
+    // ════════════════════════════════════════════════════════════════
+    // MODAL: VER DETALLES DE ORDEN (Dynamic Loading)
+    // ════════════════════════════════════════════════════════════════
+
+    // Handle clicking "Ver detalles" button
+    document.querySelectorAll('.btn-ver-detalles-orden').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const ordenId = this.getAttribute('data-orden-id');
+            cargarDetalleOrden(ordenId);
+        });
+    });
+
+    // Function to load order details via AJAX
+    window.cargarDetalleOrden = function(ordenId) {
+        // Construct the URL to fetch order details
+        const url = `/proveedores/api/orden/${ordenId}/detalles/`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar los detalles');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Populate modal fields
+                document.getElementById('modalOrdenId').textContent = data.id;
+                document.getElementById('modalProveedorNombre').textContent = data.proveedor;
+                document.getElementById('modalProveedorCard').textContent = data.proveedor;
+
+                // Format total as currency
+                const total = parseFloat(data.total);
+                document.getElementById('modalTotalOrden').textContent = '$' + total.toLocaleString('es-CO', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+
+                document.getElementById('modalCantidadProductos').textContent = data.detalles.length;
+
+                // Set estado badge
+                const estadoEl = document.getElementById('modalEstado');
+                const estadoValor = data.estado.toLowerCase();
+
+                if (estadoValor === 'pendiente') {
+                    estadoEl.innerHTML = '<span style="color: #f39c12;">⏳ Pendiente</span>';
+                } else if (estadoValor === 'confirmada') {
+                    estadoEl.innerHTML = '<span style="color: #4DA8DA;">✓ Confirmada</span>';
+                } else if (estadoValor === 'recibida') {
+                    estadoEl.innerHTML = '<span style="color: #27ae60;">📦 Recibida</span>';
+                } else if (estadoValor === 'cancelada') {
+                    estadoEl.innerHTML = '<span style="color: #e74c3c;">✕ Cancelada</span>';
+                }
+
+                // Populate products table
+                const tableBody = document.getElementById('modalProductosTable');
+                if (data.detalles && data.detalles.length > 0) {
+                    tableBody.innerHTML = data.detalles.map(detalle => `
+                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;">
+                            <td style="color: #E2E8F0 !important; padding: 1rem !important;">
+                                <strong>${detalle.presentacion}</strong><br>
+                                <small style="color: #8FA3B1 !important;">${detalle.producto}</small>
+                            </td>
+                            <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">
+                                ${detalle.cantidad}
+                            </td>
+                            <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: right !important;">
+                                $${parseFloat(detalle.precio_unitario).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </td>
+                            <td style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-weight: 600 !important;">
+                                $${parseFloat(detalle.subtotal).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
+                                No hay productos agregados
+                            </td>
+                        </tr>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles de la orden: ' + error.message);
+            });
+    };
 });
 
 function aplicarFiltro() {
