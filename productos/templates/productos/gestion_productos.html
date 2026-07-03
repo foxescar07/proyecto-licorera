@@ -13,21 +13,14 @@
 
     <div class="container-fluid p-0">
     <!-- Encabezado -->
-  <div class="d-flex justify-content-end mb-4 pb-3"
-       style="border-bottom:1px solid rgba(77,168,218,0.18);">
-    <a href="{% url 'lista_productos' %}" class="btn rounded-pill fw-bold px-4"
-       style="background: var(--azul-claro); color: var(--fondo); border: none;">
-      <i class="bi bi-arrow-left me-1"></i> Productos
-    </a>
-  </div>
 
   <div class="d-flex gap-3 align-items-start" style="margin-top:20px; flex-wrap:wrap;">
 
     <!-- ══ COLUMNA IZQUIERDA: ESTADÍSTICAS ══ -->
-    <div style="width:260px;  max-width:100%; flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
+    <div style="width:260px;  max-width:100%;flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
 
       <div class="stat-box">
-        <div class="stat-label mb-2"><i class="bi bi-box me-1" style="color:#4DA8DA; py-4"></i>Productos</div>
+        <div class="stat-label mb-2"><i class="bi bi-box me-2" style="color:rgb(131, 32, 188); py-5"></i>Productos</div>
         <div class="stat-value">{{ productos|length }}</div>
         <div class="stat-sub mt-1">En inventario</div>
       </div>
@@ -57,15 +50,15 @@
 
       <div class="stat-box" style="border-color:rgba(255,193,7,0.25);">
         <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:#ffc107;"></i>Sin presentación</span>
+          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1" style="color:rgb(131, 32, 188);"></i>Sin presentación</span>
           <span class="stat-sub">Total: {{ productos|length }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center py-4">
           <span class="stat-sub">Productos incompletos</span>
-          <span style="color:#ffc107; font-weight:900; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
+          <span style="color:rgb(131, 32, 188); font-weight:900; font-size:16px;"><span id="stat-sin-pres">—</span> pds</span>
         </div>
         <div class="bar-track">
-          <div id="bar-sin-pres" class="bar-fill" style="background:#ffc107; width:0%;"></div>
+          <div id="bar-sin-pres" class="bar-fill" style="background:rgb(131, 32, 188); width:0%;"></div>
         </div>
       </div>
 
@@ -132,16 +125,16 @@
                           <i class="bi bi-three-dots"></i>
                         </button>
                           <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
-  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-warning"></i>Editar</a></li>
-  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
- <li><hr class="dropdown-divider"></li>
-{% if p.activo %}
-<li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-warning"></i>Desactivar</a></li>
-{% else %}
-<li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
-{% endif %}
-</ul>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                      {% if p.activo %}
+                          <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-info"></i>Desactivar</a></li>
+                      {% else %}
+                          <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
+                      {% endif %}
+                          </ul>
                       </div>
                     </td>
                   </tr>
@@ -176,7 +169,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
                           <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
                           <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
                           <li><hr class="dropdown-divider"></li>
                           <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
@@ -316,16 +309,37 @@
             </div>
             <div class="col-12">
               <label class="form-label small fw-semibold" style="color:rgba(226,232,240,0.55);">Categoría</label>
-              <select name="categoria" class="form-select prod-input">
-                {% for main_cat in categorias %}
-                <optgroup label="{{ main_cat.nombre }}">
-                  <option value="{{ main_cat.pk }}" {% if main_cat.pk == p.categoria.pk %}selected{% endif %}>{{ main_cat.nombre }} (Principal)</option>
-                  {% for sub_cat in main_cat.subcategorias.all %}
-                  <option value="{{ sub_cat.pk }}" {% if sub_cat.pk == p.categoria.pk %}selected{% endif %}>└ {{ sub_cat.nombre }}</option>
+              <div class="dropdown w-100">
+                <button class="btn dropdown-toggle w-100 text-start prod-input" type="button"
+                        id="editProd-cat-btn-{{ p.pk }}" data-bs-toggle="dropdown">
+                  <span id="editProd-cat-label-{{ p.pk }}">
+                    {% if p.categoria.padre %}{{ p.categoria.nombre }}{% else %}{{ p.categoria.nombre }} (Principal){% endif %}
+                  </span>
+                </button>
+                <ul class="dropdown-menu w-100 prod-dropdown-menu" style="max-height:280px; overflow-y:auto;">
+                  {% for main_cat in categorias %}
+                    <li><h6 class="dropdown-header" style="color:#4DA8DA;">{{ main_cat.nombre }}</h6></li>
+                    <li>
+                      <a class="dropdown-item edit-prod-cat-item {% if main_cat.pk == p.categoria.pk %}active{% endif %}" href="#"
+                         data-value="{{ main_cat.pk }}" data-target="{{ p.pk }}"
+                         style="color:#c8d6e5;">
+                        {{ main_cat.nombre }} (Principal)
+                      </a>
+                    </li>
+                    {% for sub_cat in main_cat.subcategorias.all %}
+                    <li>
+                      <a class="dropdown-item edit-prod-cat-item {% if sub_cat.pk == p.categoria.pk %}active{% endif %}" href="#"
+                         data-value="{{ sub_cat.pk }}" data-target="{{ p.pk }}"
+                         style="color:#c8d6e5; padding-left:2rem;">
+                        {{ sub_cat.nombre }}
+                      </a>
+                    </li>
+                    {% endfor %}
                   {% endfor %}
-                </optgroup>
-                {% endfor %}
-              </select>
+                </ul>
+                <input type="hidden" name="categoria" id="editProd-cat-hidden-{{ p.pk }}"
+                       value="{{ p.categoria.pk }}">
+              </div>
             </div>
             <div class="col-12">
               <label class="form-label small fw-semibold" style="color:rgba(226,232,240,0.55);">Descripción</label>
@@ -554,6 +568,23 @@ function confirmarToggle(url, nombre, accion) {
     form.submit();
   }
 }
+// ── DROPDOWN CATEGORÍA — Modal Editar Producto ──
+document.querySelectorAll('.edit-prod-cat-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = this.dataset.target;
+
+    // Actualiza el texto visible del botón
+    document.getElementById('editProd-cat-label-' + target).textContent = this.textContent.trim();
+
+    // Actualiza el valor real que se envía al formulario
+    document.getElementById('editProd-cat-hidden-' + target).value = this.dataset.value;
+
+    // Marca visualmente cuál quedó seleccionado
+    this.closest('ul').querySelectorAll('.edit-prod-cat-item').forEach(el => el.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
 // Tooltips de Bootstrap 5 en los botones de acciones
 window.addEventListener('load', function () {
   const tooltipTriggerList = document.querySelectorAll('.prod-table [title]');

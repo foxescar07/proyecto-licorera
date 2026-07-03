@@ -22,16 +22,6 @@
 {% endif %}
 
 <!-- Encabezado -->
-<div class="d-flex align-items-center justify-content-between gap-2 mb-4 pb-3"
-     style="border-bottom:1px solid rgba(77,168,218,0.25);">
-  <div class="d-flex align-items-center gap-2">
-    
-  </div>
-  <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
-     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
-    <i class="bi bi-arrow-left me-1"></i> Inventario
-  </a>
-</div>
 
 <!-- KPI Cards -->
 <div class="row g-3 mb-4">
@@ -284,18 +274,32 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script>
-  function formatMiles(n) {
-    var num = parseInt(String(n).replace(/\D/g, ''), 10);
-    if (isNaN(num)) return n;
-    return num.toLocaleString('es-CO');
+function formatMiles(n) {
+  var num = parseInt(String(n).replace(/\D/g, ''), 10);
+  if (isNaN(num)) return n;
+  return num.toLocaleString('es-CO');
 }
+
+// ── TOOLTIPS: inicialización simple ──
+function inicializarTooltipsLotes() {
+  document.querySelectorAll('#tablaLotes [title]').forEach(function (el) {
+    var existente = bootstrap.Tooltip.getInstance(el);
+    if (existente) existente.dispose();
+
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover',
+      container: 'body'
+    });
+  });
+}
+
 $(document).ready(function() {
-    // Prevent double init if already initialized
-    if ($.fn.DataTable.isDataTable('#tablaLotes')) {
-        $('#tablaLotes').DataTable().destroy();
-    }
-    
-    var table = $('#tablaLotes').DataTable({
+  if ($.fn.DataTable.isDataTable('#tablaLotes')) {
+    $('#tablaLotes').DataTable().destroy();
+  }
+
+  var table = $('#tablaLotes').DataTable({
     paging: true,
     searching: true,
     info: true,
@@ -304,96 +308,72 @@ $(document).ready(function() {
     ordering: true,
     responsive: true,
     language: {
-        info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
-        infoEmpty: "Mostrando 0 a 0 de 0 lotes",
-        emptyTable: "No hay lotes con stock activo.",
-        zeroRecords: "Sin resultados para tu búsqueda.",
-        paginate: {
-            first:    '«',
-            previous: '‹',
-            next:     '›',
-            last:     '»'
-        }
+      info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
+      infoEmpty: "Mostrando 0 a 0 de 0 lotes",
+      emptyTable: "No hay lotes con stock activo.",
+      zeroRecords: "Sin resultados para tu búsqueda.",
+      paginate: { first: '«', previous: '‹', next: '›', last: '»' }
     },
     dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>',
     drawCallback: function() {
-    $('#tablaLotes tbody tr').each(function() {
+      $('#tablaLotes tbody tr').each(function() {
         [5, 6].forEach(function(idx) {
-            var $td = $(this).find('td').eq(idx);
-            var $span = $td.find('span');
-            if ($span.length) {
-                var texto = $span.text().trim();
-                var num = texto.replace('$', '').replace(/\./g, '').trim();
-                if (num && !isNaN(num) && parseInt(num) > 0) {
-                    $span.text('$' + formatMiles(num));
-                }
+          var $td = $(this).find('td').eq(idx);
+          var $span = $td.find('span');
+          if ($span.length) {
+            var texto = $span.text().trim();
+            var num = texto.replace('$', '').replace(/\./g, '').trim();
+            if (num && !isNaN(num) && parseInt(num) > 0) {
+              $span.text('$' + formatMiles(num));
             }
+          }
         }.bind(this));
-    });
-}
-
-    // Tooltips por delegación: funcionan sin importar cuántas veces DataTables
-    // destruya y recree las filas (paginación, orden, búsqueda). No dependen
-    // de que el drawCallback llegue a ejecutarse completo.
-    $(document).on('mouseenter', '#tablaLotes [title]', function () {
-        var el = this;
-        var instance = bootstrap.Tooltip.getInstance(el);
-        if (!instance) {
-            instance = new bootstrap.Tooltip(el, {
-                placement: 'top',
-                trigger: 'manual',
-                container: 'body'
-            });
-        }
-        instance.show();
-    });
-    $(document).on('mouseleave', '#tablaLotes [title]', function () {
-        var instance = bootstrap.Tooltip.getInstance(this);
-        if (instance) instance.hide();
-    });
-
-    $('#buscarLote').on('input', function() {
-        table.search(this.value).draw();
-    });
-
-    var filtroEstadoActual = 'todos';
-
-$.fn.dataTable.ext.search.push(
-    function(settings, data, dataIndex, rowData, counter) {
-        if (settings.sTableId !== 'tablaLotes') {
-            return true;
-        }
-        if (filtroEstadoActual === 'todos') return true;
-        var node = settings.aoData[dataIndex].nTr;
-        var estado = $(node).attr('data-estado');
-        return estado === filtroEstadoActual;
+      });
+      inicializarTooltipsLotes();
     }
-);
-
-document.querySelectorAll('[data-estado]').forEach(function (a) {
-  a.addEventListener('click', function (e) {
-    e.preventDefault();
-    document.getElementById('filtroEstado-label').textContent = this.textContent.trim();
-    filtroEstadoActual = this.dataset.estado;
-    table.draw();
   });
-});
-    
-    // Buscar param URL
-    const params = new URLSearchParams(window.location.search);
-    const termino = params.get('buscar');
-    if (termino) {
-        $('#buscarLote').val(termino);
-        table.search(termino).draw();
-        
-        setTimeout(() => {
-            const row = table.row({search: 'applied'}).node();
-            if (row) {
-                $(row).css({transition: 'background-color 0.3s ease', backgroundColor: 'rgba(77,168,218,0.18)'});
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }, 100);
+
+  inicializarTooltipsLotes();
+
+  $('#buscarLote').on('input', function() {
+    table.search(this.value).draw();
+  });
+
+  var filtroEstadoActual = 'todos';
+
+  $.fn.dataTable.ext.search.push(
+    function(settings, data, dataIndex, rowData, counter) {
+      if (settings.sTableId !== 'tablaLotes') return true;
+      if (filtroEstadoActual === 'todos') return true;
+      var node = settings.aoData[dataIndex].nTr;
+      var estado = $(node).attr('data-estado');
+      return estado === filtroEstadoActual;
     }
+  );
+
+  document.querySelectorAll('[data-estado]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.getElementById('filtroEstado-label').textContent = this.textContent.trim();
+      filtroEstadoActual = this.dataset.estado;
+      table.draw();
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const termino = params.get('buscar');
+  if (termino) {
+    $('#buscarLote').val(termino);
+    table.search(termino).draw();
+
+    setTimeout(() => {
+      const row = table.row({search: 'applied'}).node();
+      if (row) {
+        $(row).css({transition: 'background-color 0.3s ease', backgroundColor: 'rgba(77,168,218,0.18)'});
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
 });
 </script>
 {% endblock %}

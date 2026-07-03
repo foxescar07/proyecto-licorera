@@ -23,15 +23,6 @@
 {% endif %}
 
 <!-- Header -->
-<div class="d-flex align-items-center justify-content-between mb-4 pb-3"
-     style="border-bottom:1px solid rgba(77,168,218,0.18);">
-  <div class="d-flex align-items-center gap-2">
-  </div>
-   <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
-     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
-    <i class="bi bi-arrow-left me-1"></i> Inventario
-  </a>
-</div>
 
 <div class="row g-4">
 
@@ -233,12 +224,12 @@ new Chart(document.getElementById('chartProveedores').getContext('2d'), {
       data: {{ proveedores_data|safe }},
       backgroundColor: [
         'rgba(62, 181, 229, 0.85)',
-        'rgba(155, 89, 182, 0.85)',
-        'rgba(214, 48, 117, 0.85)',
+        'rgb(190, 87, 231)',
+        'rgb(10, 74, 169)',
         'rgba(108, 92, 231, 0.85)',
-        'rgba(162, 155, 254, 0.85)'
+        'rgba(155, 254, 218, 0.85)'
       ],
-      borderColor: ['#4195c9', '#9b59b6', '#d63017', '#6c5ce7', '#a29bfe'],
+      borderColor: ['#4195c9', '#d059ff', '#014ab0', '#6c5ce7', '#9bfebc'],
       borderWidth: 1,
       borderRadius: 5
     }]

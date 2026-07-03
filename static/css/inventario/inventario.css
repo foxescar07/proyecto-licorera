@@ -689,7 +689,8 @@ table.dataTable thead > tr > td.dt-type-numeric div.dt-column-header { flex-dire
 button#presentacion-btn,
 button#lote-btn,
 button#motivo-btn,
-button#presentacion-lote-btn {
+button#presentacion-lote-btn
+button#em-tipo-btn {
   background-color: var(--inv-card2) !important;
   background-image: none !important;
   border: 1px solid rgba(77, 168, 218, 0.35) !important;
@@ -747,32 +748,7 @@ button#presentacion-lote-btn {
 .text-muted { color: var(--inv-muted) !important; }
 
 /* ── TOOLTIPS estilo CYS (dark navy + borde celeste) ── */
-.tooltip .tooltip-inner {
-  background-color: var(--inv-card2) !important;
-  color: var(--inv-azul) !important;
-  border: 1px solid rgba(77,168,218,0.45);
-  font-size: .76rem;
-  font-weight: 600;
-  padding: .45rem .8rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
-}
-.tooltip.bs-tooltip-top .tooltip-arrow::before,
-.tooltip[data-popper-placement^="top"] .tooltip-arrow::before {
-  border-top-color: var(--inv-card2) !important;
-}
-.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
-.tooltip[data-popper-placement^="bottom"] .tooltip-arrow::before {
-  border-bottom-color: var(--inv-card2) !important;
-}
-.tooltip.bs-tooltip-start .tooltip-arrow::before,
-.tooltip[data-popper-placement^="left"] .tooltip-arrow::before {
-  border-left-color: var(--inv-card2) !important;
-}
-.tooltip.bs-tooltip-end .tooltip-arrow::before,
-.tooltip[data-popper-placement^="right"] .tooltip-arrow::before {
-  border-right-color: var(--inv-card2) !important;
-}
+
 /* ── Unificar dropdowns de filtro (fecha movimientos, categoría catálogo) ── */
 .btn#mov-fecha-btn,
 .btn#cat-cat-btn,
@@ -804,20 +780,50 @@ button#conteo-prod-btn {
 /* Sus menús desplegables, mismo tono */
 #mov-fecha-btn + .dropdown-menu,
 #cat-cat-btn + .dropdown-menu,
-#conteo-prod-btn ~ .dropdown-menu {
+#em-tipo-btn + .dropdown-menu,
+#conteo-prod-btn ~ .dropdown-menu,
+#em-tipo-btn + .dropdown-menu {
   background-color: var(--inv-card2) !important;
   border: 1px solid rgba(77, 168, 218, 0.35) !important;
 }
-  .tooltip .tooltip-inner {
-    background-color: #0d2240 !important;
-    color: #e2e8f0 !important;
-    border: 1px solid rgba(77,168,218,0.45) !important;
-    font-size: .78rem !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
-    padding: 5px 12px !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,.4) !important;
-  }
-  .tooltip .tooltip-arrow::before {
-    border-top-color: #0d2240 !important;
-  }
+/* ── TOOLTIPS estilo CYS (dark navy + borde celeste) ── */
+.tooltip .tooltip-inner {
+  background-color: #0d2240 !important;
+  color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.45) !important;
+  font-size: .78rem !important;
+  font-weight: 600 !important;
+  padding: .45rem .8rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .4) !important;
+}
+
+.tooltip[data-popper-placement^="top"] .tooltip-arrow::before {
+  border-top-color: #0d2240 !important;
+}
+.tooltip[data-popper-placement^="bottom"] .tooltip-arrow::before {
+  border-bottom-color: #0d2240 !important;
+}
+.tooltip[data-popper-placement^="left"] .tooltip-arrow::before {
+  border-left-color: #0d2240 !important;
+}
+.tooltip[data-popper-placement^="right"] .tooltip-arrow::before {
+  border-right-color: #0d2240 !important;
+}
+/* ── FIX: botón Tipo (Editar Movimiento) — texto invisible ── */
+.btn#em-tipo-btn,
+button#em-tipo-btn {
+  background-color: var(--inv-card2) !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
+  color: #c8d6e5 !important;
+  opacity: 1 !important;
+}
+.btn#em-tipo-btn span,
+button#em-tipo-btn span {
+  color: #c8d6e5 !important;
+  opacity: 1 !important;
+}
+.btn#em-tipo-btn::after,
+button#em-tipo-btn::after {
+  color: #c8d6e5 !important;
+}
