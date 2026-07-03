@@ -112,9 +112,9 @@
   /* Paleta fría para cada barra de producto (se asigna por rotación) */
   .cys-rank-fill--c1 { background: #4da8da; } /* azul cielo */
   .cys-rank-fill--c2 { background: #7a5cf0; } /* morado */
-  .cys-rank-fill--c3 { background: #2ec4c4; } /* teal / cian */
-  .cys-rank-fill--c4 { background: #6a7ac0; } /* azul índigo */
-  .cys-rank-fill--c5 { background: #3ad6a0; } /* verde azulado (teal-green) */
+  .cys-rank-fill--c3 { background: #1f8080; } /* teal / cian */
+  .cys-rank-fill--c4 { background: #9a44ac; } /* azul índigo */
+  .cys-rank-fill--c5 { background: #00a56b; } /* verde azulado (teal-green) */
   .cys-rank-fill--c6 { background: #38bdf8; } /* celeste claro */
 
   /* ── Ventas tope (circular) ── */
@@ -123,8 +123,8 @@
   .cys-circular-legend { display: flex; flex-direction: column; gap: 12px; }
   .cys-circular-item { display: flex; align-items: center; gap: 10px; }
   .cys-circular-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .cys-circular-dot--a { background: #2ecc71; }
-  .cys-circular-dot--b { background: #4da8da; }
+  .cys-circular-dot--a { background: #9334a0; }
+  .cys-circular-dot--b { background: #3262ca; }
   .cys-circular-label { font-size: 0.75rem; color: #7a96b0; margin: 0; }
   .cys-circular-value { font-size: 0.9rem; color: #fff; font-weight: 700; margin: 0; }
 
@@ -315,12 +315,12 @@
             <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
             {% for v in ventas_top %}
               {% if forloop.first %}
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#2ecc71" stroke-width="12"
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#9334a0" stroke-width="12"
                       stroke-dasharray="314.159" stroke-dashoffset="{% widthratio v.porcentaje 100 -314.159 %}"
                       stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
               {% else %}
               <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
-              <circle cx="60" cy="60" r="34" fill="none" stroke="#4da8da" stroke-width="12"
+              <circle cx="60" cy="60" r="34" fill="none" stroke="#2e4d8f" stroke-width="12"
                       stroke-dasharray="213.628" stroke-dashoffset="{% widthratio v.porcentaje 100 -213.628 %}"
                       stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
               {% endif %}
