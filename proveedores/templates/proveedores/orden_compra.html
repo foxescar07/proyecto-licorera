@@ -119,7 +119,7 @@
                         <td class="cys-td" data-label="Fecha">{{ orden.fecha|date:"d/m/Y H:i" }}</td>
                         <td class="cys-td" data-label="Estado">
                             {% if orden.estado == 'pendiente' %}
-                                <span class="cys-badge" style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.4);">
+                                <span class="cys-badge" style="background: rgba(155, 93, 229, 0.2); color: #9b5de5; border: 1px solid rgba(155, 93, 229, 0.4);">
                                     <i class="bi bi-hourglass-split me-1"></i>Pendiente
                                 </span>
                             {% elif orden.estado == 'confirmada' %}
@@ -146,7 +146,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end ordenes-actions-dropdown-menu" style="overflow: visible; max-height: none;">
                                     <li>
-                                        <a class="dropdown-item" href="?mostrar_orden={{ orden.id }}">
+                                        <a class="dropdown-item btn-ver-detalles-orden" href="#" data-orden-id="{{ orden.id }}" data-bs-toggle="modal" data-bs-target="#modalDetalleOrdenModal">
                                             <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
                                         </a>
                                     </li>
@@ -313,84 +313,60 @@
     </div>
 </div>
 
-<!-- MODAL: DETALLE DE ORDEN (estilo análisis de ventas) -->
-{% if orden_detalle %}
-<div class="modal fade show" id="modalDetalleOrden" tabindex="-1" style="background: rgba(0,0,0,0.7) !important; display: block !important;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 1150px !important;">
+<!-- MODAL: DETALLE DE ORDEN (Dynamic Modal with Stat Cards) -->
+<div class="modal fade" id="modalDetalleOrdenModal" tabindex="-1" style="background: rgba(0,0,0,0.5) !important;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 1200px !important;">
         <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
 
             <!-- HEADER -->
-            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 2rem 2rem !important;">
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 2rem !important;">
                 <div>
                     <h4 style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem !important;">
-                        <i class="bi bi-clipboard-check"></i> Detalle de Orden
+                        <i class="bi bi-clipboard-check"></i> Detalle de Orden #<span id="modalOrdenId">-</span>
                     </h4>
                     <p style="color: #8FA3B1 !important; margin: 0 !important;">
-                        Orden #{{ orden_detalle.id }} - {{ orden_detalle.proveedor.nombre_empresa }}
+                        <span id="modalProveedorNombre">Proveedor</span>
                     </p>
                 </div>
-                <a href="{% url 'listar_ordenes' %}" class="btn-close btn-close-white" style="opacity: 0.8 !important;"></a>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="opacity: 0.8 !important;"></button>
             </div>
 
             <!-- BODY -->
             <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
 
-                <!-- TARJETAS DE KPI - Grid 3 columnas responsive -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem !important;">
+                <!-- STAT CARDS SECTION -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem !important;">
 
-                    <!-- Total Orden -->
-                    <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border: 1px solid rgba(77, 168, 218, 0.3); border-radius: 12px; padding: 1.5rem !important;">
-                        <div style="color: #4DA8DA !important; font-size: 1.8rem !important; margin-bottom: 0.5rem !important;">
-                            <i class="bi bi-currency-dollar"></i>
-                        </div>
-                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Total</p>
-                        <h4 style="color: #4DA8DA !important; font-weight: 700 !important; font-size: 1.5rem !important; margin: 0 !important;">${{ orden_detalle.total|floatformat:0 }}</h4>
+                    <!-- Card 1: Total Orden -->
+                    <div style="background: rgba(77, 168, 218, 0.08); border: 1px solid rgba(77, 168, 218, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #4DA8DA;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-receipt me-1"></i>Total Orden
+                        </p>
+                        <h3 style="color: #4DA8DA !important; font-weight: 700 !important; font-size: 1.75rem !important; margin: 0 !important;" id="modalTotalOrden">$0</h3>
                     </div>
 
-                    <!-- Cantidad de Productos -->
-                    <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(39, 174, 96, 0.05) 100%); border: 1px solid rgba(39, 174, 96, 0.3); border-radius: 12px; padding: 1.5rem !important;">
-                        <div style="color: #27ae60 !important; font-size: 1.8rem !important; margin-bottom: 0.5rem !important;">
-                            <i class="bi bi-box2"></i>
-                        </div>
-                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Productos</p>
-                        <h4 style="color: #27ae60 !important; font-weight: 700 !important; font-size: 1.5rem !important; margin: 0 !important;">{{ orden_detalle.detalles.count }}</h4>
+                    <!-- Card 2: Cantidad de Productos -->
+                    <div style="background: rgba(39, 174, 96, 0.08); border: 1px solid rgba(39, 174, 96, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #27ae60;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-box me-1"></i>Cantidad de Productos
+                        </p>
+                        <h3 style="color: #27ae60 !important; font-weight: 700 !important; font-size: 1.75rem !important; margin: 0 !important;" id="modalCantidadProductos">0</h3>
                     </div>
 
-                    <!-- Estado -->
-                    <div style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(243, 156, 18, 0.05) 100%); border: 1px solid rgba(243, 156, 18, 0.3); border-radius: 12px; padding: 1.5rem !important;">
-                        <div style="color: #f39c12 !important; font-size: 1.8rem !important; margin-bottom: 0.5rem !important;">
-                            <i class="bi bi-info-circle"></i>
-                        </div>
-                        <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Estado</p>
-                        <div style="margin: 0 !important;">
-                            {% if orden_detalle.estado == 'pendiente' %}
-                                <span style="color: #f39c12 !important; font-weight: 600 !important;">⏳ Pendiente</span>
-                            {% elif orden_detalle.estado == 'confirmada' %}
-                                <span style="color: #4DA8DA !important; font-weight: 600 !important;">✓ Confirmada</span>
-                            {% elif orden_detalle.estado == 'recibida' %}
-                                <span style="color: #27ae60 !important; font-weight: 600 !important;">📦 Recibida</span>
-                            {% elif orden_detalle.estado == 'cancelada' %}
-                                <span style="color: #e74c3c !important; font-weight: 600 !important;">✕ Cancelada</span>
-                            {% endif %}
-                        </div>
+                    <!-- Card 3: Estado -->
+                    <div style="background: rgba(155, 93, 229, 0.08); border: 1px solid rgba(155, 93, 229, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #9b5de5;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-info-circle me-1"></i>Estado
+                        </p>
+                        <h3 style="color: #E2E8F0 !important; font-weight: 700 !important; font-size: 1.2rem !important; margin: 0 !important;" id="modalEstado">-</h3>
                     </div>
-                </div>
 
-                <!-- INFORMACIÓN DETALLADA -->
-                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem !important; margin-bottom: 2rem !important;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem !important;">
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Fecha</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.fecha|date:"d/m/Y H:i" }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Registrado por</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.registrado_por.get_full_name|default:orden_detalle.registrado_por }}</p>
-                        </div>
-                        <div>
-                            <p style="color: #8FA3B1 !important; font-size: 0.85rem !important; margin: 0 0 0.5rem 0 !important; text-transform: uppercase !important;">Proveedor</p>
-                            <p style="color: #E2E8F0 !important; font-weight: 500 !important; margin: 0 !important;">{{ orden_detalle.proveedor.nombre_empresa }}</p>
-                        </div>
+                    <!-- Card 4: Proveedor -->
+                    <div style="background: rgba(233, 212, 96, 0.08); border: 1px solid rgba(233, 212, 96, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #f0d080;">
+                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                            <i class="bi bi-truck me-1"></i>Proveedor
+                        </p>
+                        <p style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.95rem !important; margin: 0 !important;" id="modalProveedorCard">-</p>
                     </div>
                 </div>
 
@@ -409,39 +385,26 @@
                                 <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for detalle in orden_detalle.detalles.all %}
-                            <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;">
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important;">
-                                    <strong>{{ detalle.presentacion.nombre }}</strong><br>
-                                    <small style="color: #8FA3B1 !important;">{{ detalle.presentacion.producto.nombre }}</small>
-                                </td>
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">{{ detalle.cantidad }}</td>
-                                <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: right !important;">${{ detalle.precio_unitario|floatformat:2 }}</td>
-                                <td style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-weight: 600 !important;">${{ detalle.subtotal|floatformat:2 }}</td>
-                            </tr>
-                            {% empty %}
+                        <tbody id="modalProductosTable">
                             <tr>
                                 <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
-                                    No hay productos agregados
+                                    Cargando productos...
                                 </td>
                             </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- FOOTER -->
+            <!-- FOOTER CON ACCIONES -->
             <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem 2rem !important;">
-                <a href="{% url 'listar_ordenes' %}" class="btn" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
                     <i class="bi bi-x-circle"></i> Cerrar
-                </a>
+                </button>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
 
 <!-- MODAL: AGREGAR PRODUCTO A ORDEN -->
 <div class="modal fade" id="modalAgregarProducto" tabindex="-1">
@@ -563,6 +526,95 @@
     </div>
 </div>
 
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- MODALES NUEVOS - BIEN ORGANIZADOS -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+
+<!-- MODAL: NOTAS INTERNAS -->
+{% if orden_detalle %}
+<div class="modal fade" id="modalNotas" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-sticky" style="color: #4DA8DA;"></i> Notas Internas - Orden #{{ orden_detalle.id }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'guardar_nota_orden' pk=orden_detalle.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Añade contexto o comentarios importantes:</label>
+                        <textarea class="form-control" name="notas" rows="6"
+                                  style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                                  placeholder="Ej: Proveedor pidió pago anticipado, Stock urgente, Precio especial...">{{ orden_detalle.notas }}</textarea>
+                        <small class="text-muted">Máximo 500 caracteres</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn" style="background: #4DA8DA !important; color: #fff !important;">
+                        <i class="bi bi-check-circle"></i> Guardar Nota
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- MODAL: EDITAR DETALLE (se genera dinámicamente por cada fila) -->
+<!-- Este modal se llena con datos desde los botones en la tabla de detalles -->
+
+<!-- MODAL: HISTORIAL / TIMELINE -->
+{% if orden_detalle %}
+<div class="modal fade" id="modalHistorial" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-organizado">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-clock-history" style="color: #9b5de5;"></i> Historial de Cambios - Orden #{{ orden_detalle.id }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="timeline" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Evento: Creación -->
+                    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(77,168,218,0.1);">
+                        <div style="display:flex; gap:10px;">
+                            <div style="width:12px; height:12px; background:#9b5de5; border-radius:50%; margin-top:2px; flex-shrink:0;"></div>
+                            <div>
+                                <p style="margin:0; color:#E2E8F0; font-weight:600;">Orden Creada</p>
+                                <small style="color:#8FA3B1;">{{ orden_detalle.registrado_por.get_full_name|default:"Sistema" }} • {{ orden_detalle.fecha|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Eventos del historial -->
+                    {% for evento in orden_detalle.historial.all %}
+                    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(77,168,218,0.1);">
+                        <div style="display:flex; gap:10px;">
+                            <div style="width:12px; height:12px; background:{% if evento.evento == 'creada' %}#9b5de5{% elif evento.evento == 'confirmada' %}#4DA8DA{% elif evento.evento == 'recibida' %}#27ae60{% elif evento.evento == 'cancelada' %}#e74c3c{% elif evento.evento == 'nota_agregada' %}#f39c12{% elif evento.evento == 'editada' %}#4DA8DA{% else %}#8FA3B1{% endif %}; border-radius:50%; margin-top:2px; flex-shrink:0;"></div>
+                            <div>
+                                <p style="margin:0; color:#E2E8F0; font-weight:600;">{{ evento.get_evento_display }}</p>
+                                <small style="color:#8FA3B1;">{{ evento.usuario.get_full_name|default:"Sistema" }} • {{ evento.fecha|date:"d/m/Y H:i" }}</small>
+                                {% if evento.descripcion %}<p style="margin:4px 0 0 0; color:#E2E8F0; font-size:0.9rem;">{{ evento.descripcion }}</p>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="color:#8FA3B1; text-align:center; padding:2rem;">No hay eventos registrados</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
@@ -588,6 +640,96 @@ $(document).ready(function() {
         },
         dom: 'rt<"cys-hv-table-footer"ip>'
     });
+
+    // ════════════════════════════════════════════════════════════════
+    // MODAL: VER DETALLES DE ORDEN (Dynamic Loading)
+    // ════════════════════════════════════════════════════════════════
+
+    // Handle clicking "Ver detalles" button
+    document.querySelectorAll('.btn-ver-detalles-orden').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const ordenId = this.getAttribute('data-orden-id');
+            cargarDetalleOrden(ordenId);
+        });
+    });
+
+    // Function to load order details via AJAX
+    window.cargarDetalleOrden = function(ordenId) {
+        // Construct the URL to fetch order details
+        const url = `/proveedores/api/orden/${ordenId}/detalles/`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar los detalles');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Populate modal fields
+                document.getElementById('modalOrdenId').textContent = data.id;
+                document.getElementById('modalProveedorNombre').textContent = data.proveedor;
+                document.getElementById('modalProveedorCard').textContent = data.proveedor;
+
+                // Format total as currency
+                const total = parseFloat(data.total);
+                document.getElementById('modalTotalOrden').textContent = '$' + total.toLocaleString('es-CO', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+
+                document.getElementById('modalCantidadProductos').textContent = data.detalles.length;
+
+                // Set estado badge
+                const estadoEl = document.getElementById('modalEstado');
+                const estadoValor = data.estado.toLowerCase();
+
+                if (estadoValor === 'pendiente') {
+                    estadoEl.innerHTML = '<span style="color: #f39c12;">⏳ Pendiente</span>';
+                } else if (estadoValor === 'confirmada') {
+                    estadoEl.innerHTML = '<span style="color: #4DA8DA;">✓ Confirmada</span>';
+                } else if (estadoValor === 'recibida') {
+                    estadoEl.innerHTML = '<span style="color: #27ae60;">📦 Recibida</span>';
+                } else if (estadoValor === 'cancelada') {
+                    estadoEl.innerHTML = '<span style="color: #e74c3c;">✕ Cancelada</span>';
+                }
+
+                // Populate products table
+                const tableBody = document.getElementById('modalProductosTable');
+                if (data.detalles && data.detalles.length > 0) {
+                    tableBody.innerHTML = data.detalles.map(detalle => `
+                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;">
+                            <td style="color: #E2E8F0 !important; padding: 1rem !important;">
+                                <strong>${detalle.presentacion}</strong><br>
+                                <small style="color: #8FA3B1 !important;">${detalle.producto}</small>
+                            </td>
+                            <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">
+                                ${detalle.cantidad}
+                            </td>
+                            <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: right !important;">
+                                $${parseFloat(detalle.precio_unitario).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </td>
+                            <td style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-weight: 600 !important;">
+                                $${parseFloat(detalle.subtotal).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
+                                No hay productos agregados
+                            </td>
+                        </tr>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles de la orden: ' + error.message);
+            });
+    };
 });
 
 function aplicarFiltro() {
@@ -598,6 +740,7 @@ function aplicarFiltro() {
     if (fechaFin) url += 'fecha_fin=' + fechaFin;
     window.location.href = url;
 }
+
 </script>
 
 {% endblock %}

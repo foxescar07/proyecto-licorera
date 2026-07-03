@@ -162,6 +162,11 @@ class OrdenCompra(models.Model):
         validators=[MinValueValidator(Decimal('0.00'))],
         help_text="Total de la orden (calculado automáticamente)"
     )
+    notas = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Notas internas sobre la orden"
+    )
 
     class Meta:
         ordering = ['-fecha']
@@ -234,8 +239,71 @@ class DetalleCompra(models.Model):
             raise ValidationError({'precio_unitario': 'El precio debe ser mayor a 0'})
 
 
+class HistorialOrden(models.Model):
+    """Registro de cambios en las órdenes de compra."""
+
+    EVENTO_CHOICES = [
+        ('creada', 'Orden Creada'),
+        ('confirmada', 'Confirmada'),
+        ('recibida', 'Recibida'),
+        ('cancelada', 'Cancelada'),
+        ('nota_agregada', 'Nota Agregada'),
+        ('editada', 'Editada'),
+    ]
+
+    orden = models.ForeignKey(
+        OrdenCompra,
+        on_delete=models.CASCADE,
+        related_name='historial',
+        help_text="Orden de compra"
+    )
+    evento = models.CharField(
+        max_length=20,
+        choices=EVENTO_CHOICES,
+        help_text="Tipo de evento"
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Usuario que realizó la acción"
+    )
+    fecha = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha del evento"
+    )
+    descripcion = models.TextField(
+        blank=True,
+        help_text="Descripción adicional del evento"
+    )
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Historial de Orden'
+        verbose_name_plural = 'Historial de Órdenes'
+
+    def __str__(self):
+        return f"{self.orden.id} - {self.get_evento_display()}"
+
+
 class Compra(models.Model):
     """Modelo para registrar compras a proveedores (heredado/legacy)."""
+
+    METODO_PAGO_CHOICES = [
+        ('transferencia', 'Transferencia Bancaria'),
+        ('efectivo', 'Efectivo'),
+        ('cheque', 'Cheque'),
+        ('tarjeta', 'Tarjeta de Crédito'),
+        ('credito', 'Crédito a 30 días'),
+        ('otro', 'Otro'),
+    ]
+
+    ESTADO_PAGO_CHOICES = [
+        ('pendiente', 'Pendiente de Pago'),
+        ('pagada', 'Pagada'),
+        ('parcial', 'Pago Parcial'),
+    ]
 
     proveedor = models.ForeignKey(
         Proveedor,
@@ -247,6 +315,8 @@ class Compra(models.Model):
         'productos.Producto',
         on_delete=models.CASCADE,
         related_name='compras',
+        null=True,
+        blank=True,
         help_text="Producto comprado"
     )
     lote = models.ForeignKey(
@@ -259,6 +329,7 @@ class Compra(models.Model):
     )
     cantidad = models.IntegerField(
         validators=[MinValueValidator(1)],
+        default=1,
         help_text="Cantidad comprada"
     )
     precio_unitario = models.DecimalField(
@@ -271,11 +342,44 @@ class Compra(models.Model):
     )
     fecha_registro = models.DateTimeField(
         auto_now_add=True,
+        null=True,
+        blank=True,
         help_text="Fecha de registro"
     )
     recibida = models.BooleanField(
         default=False,
         help_text="¿Ha sido recibida?"
+    )
+    numero_factura = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text="Número de factura"
+    )
+    metodo_pago = models.CharField(
+        max_length=20,
+        choices=METODO_PAGO_CHOICES,
+        null=True,
+        blank=True,
+        default='transferencia',
+        help_text="Método de pago"
+    )
+    estado_pago = models.CharField(
+        max_length=20,
+        choices=ESTADO_PAGO_CHOICES,
+        default='pendiente',
+        help_text="Estado del pago"
+    )
+    monto_pagado = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text="Monto pagado"
+    )
+    fecha_pago = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha del pago"
     )
 
     class Meta:

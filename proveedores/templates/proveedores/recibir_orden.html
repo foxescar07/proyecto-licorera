@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/ordenes_compra.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="ordenes-header" style="margin-bottom: 2rem;">
+        <h1>
+            <i class="bi bi-box-seam"></i>
+            Recibir Orden de Compra
+        </h1>
+        <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <!-- MENSAJES -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- TARJETA DE ORDEN -->
+    <div class="cys-snap-section">
+        <section class="cys-card mb-4">
+            <div class="cys-card__title">
+                <i class="bi bi-clipboard-check me-2" style="color: #4DA8DA;"></i>
+                Orden #{{ orden.id }}
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 1.5rem; background: rgba(77, 168, 218, 0.05); border-radius: 8px; margin-bottom: 2rem;">
+                <div>
+                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Proveedor</p>
+                    <p style="color: #E2E8F0; font-weight: 600;">{{ orden.proveedor.nombre_empresa }}</p>
+                </div>
+                <div>
+                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Total</p>
+                    <p style="color: #4DA8DA; font-weight: 700; font-size: 1.3rem;">${{ orden.total|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Cantidad de Productos</p>
+                    <p style="color: #E2E8F0; font-weight: 600;">{{ orden.detalles.count }}</p>
+                </div>
+            </div>
+
+            <!-- TABLA DE DETALLES -->
+            <h6 style="color: #E2E8F0; font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">
+                <i class="bi bi-list-check"></i> Detalles de la Orden
+            </h6>
+
+            <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: rgba(77, 168, 218, 0.1); border-bottom: 2px solid rgba(77, 168, 218, 0.2);">
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: left; font-size: 0.85rem; text-transform: uppercase;">Producto</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Cantidad</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: right; font-size: 0.85rem; text-transform: uppercase;">Precio Unit.</th>
+                            <th style="color: #4DA8DA; padding: 1rem; text-align: right; font-size: 0.85rem; text-transform: uppercase;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in orden.detalles.all %}
+                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1);">
+                            <td style="color: #E2E8F0; padding: 1rem;">
+                                <strong>{{ detalle.presentacion.nombre }}</strong><br>
+                                <small style="color: #8FA3B1;">{{ detalle.presentacion.producto.nombre }}</small>
+                            </td>
+                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">{{ detalle.cantidad }}</td>
+                            <td style="color: #E2E8F0; padding: 1rem; text-align: right;">${{ detalle.precio_unitario|floatformat:2 }}</td>
+                            <td style="color: #4DA8DA; padding: 1rem; text-align: right; font-weight: 600;">${{ detalle.subtotal|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FORMULARIO DE RECEPCIÓN -->
+            <form method="POST" style="margin-top: 2rem;">
+                {% csrf_token %}
+
+                <h6 style="color: #E2E8F0; font-weight: 600; text-transform: uppercase; margin-bottom: 1.5rem;">
+                    <i class="bi bi-clipboard2-check"></i> Registrar Recepción
+                </h6>
+
+                <!-- Estado -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="color: #8FA3B1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
+                        Estado de la Recepción
+                    </label>
+                    <select name="estado" class="form-select" style="background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                        <option value="completa">✓ Completa (Todo llegó)</option>
+                        <option value="parcial">⚠️ Parcial (Falta algo)</option>
+                        <option value="con_diferencias">❌ Con Diferencias (Hay problemas)</option>
+                    </select>
+                </div>
+
+                <!-- Notas -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="color: #8FA3B1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
+                        Observaciones
+                    </label>
+                    <textarea name="notas" class="form-control" rows="3" placeholder="Notas sobre la recepción..." style="background: #031e3e !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"></textarea>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn" style="background: #4DA8DA !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
+                        <i class="bi bi-check-circle"></i> Proceder a Verificar
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock %}

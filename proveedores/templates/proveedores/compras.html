@@ -107,9 +107,9 @@
           </div>
         </div>
         <div class="proveedor-actions">
-          <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary btn-sm">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedores">
             <i class="bi bi-arrow-left me-2"></i>Cambiar
-          </a>
+          </button>
         </div>
       </div>
       {% else %}
@@ -176,8 +176,9 @@
                   <th class="text-center small header-th">Cant.</th>
                   <th class="text-end small header-th">Precio</th>
                   <th class="text-end small header-th">Total</th>
+                  <th class="text-center small header-th">Pago</th>
                   <th class="text-center small header-th">Fecha</th>
-                  <th class="text-center small header-th">Ver</th>
+                  <th class="text-center small header-th">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,13 +213,38 @@
                         <span class="text-muted">—</span>
                       {% endif %}
                     </td>
+                    <td class="text-center small">
+                      {% if compra.estado_pago == 'pagada' %}
+                        <span class="badge" style="background: rgba(39, 174, 96, 0.2); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.3);">
+                          <i class="bi bi-check-circle me-1"></i>Pagada
+                        </span>
+                      {% elif compra.estado_pago == 'parcial' %}
+                        <span class="badge" style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3);">
+                          <i class="bi bi-dash-circle me-1"></i>Parcial
+                        </span>
+                      {% else %}
+                        <span class="badge" style="background: rgba(155, 93, 229, 0.2); color: #9b5de5; border: 1px solid rgba(155, 93, 229, 0.3);">
+                          <i class="bi bi-hourglass-split me-1"></i>Pendiente
+                        </span>
+                      {% endif %}
+                    </td>
                     <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
                     <td class="text-center">
-                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2"
-                              data-bs-toggle="modal"
-                              data-bs-target="#detalleCompra{{ compra.id }}">
-                        <i class="bi bi-eye"></i>
-                      </button>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary py-0 px-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#detalleCompra{{ compra.id }}"
+                                title="Ver detalles">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary py-0 px-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalPago"
+                                onclick="abrirModalPago({{ compra.id }})"
+                                title="Registrar pago">
+                          <i class="bi bi-credit-card"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 {% empty %}
@@ -322,14 +348,14 @@
           <!-- Proveedor -->
           <div class="mb-4">
             <label class="dev-form-label">Proveedor Seleccionado</label>
-            <button type="button" class="form-control btn-selector text-start d-flex align-items-center justify-content-between" data-bs-toggle="modal" data-bs-target="#modalProveedores">
-              <span class="d-flex align-items-center gap-2">
-                <i class="bi bi-truck"></i>
-                {% if proveedor %}{{ proveedor.nombre_empresa }}{% else %}Selecciona proveedor{% endif %}
-              </span>
-              <i class="bi bi-chevron-down"></i>
-            </button>
-            <input type="hidden" id="proveedorSeleccionado" name="proveedor_id" value="{{ proveedor.id|default:'' }}" required>
+            <select id="proveedorSeleccionado" name="proveedor_id" class="form-select form-select-lg" required>
+              <option value="">Selecciona proveedor</option>
+              {% for prov in todos_proveedores %}
+                <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
+                  {{ prov.nombre_empresa }}
+                </option>
+              {% endfor %}
+            </select>
           </div>
 
           <!-- Producto (Usando formulario) -->
@@ -508,7 +534,7 @@
         <div id="tablaProveedores" class="table-scroll">
           {% if todos_proveedores %}
             {% for prov in todos_proveedores %}
-            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}">
+            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" data-proveedor-name="{{ prov.nombre_empresa }}" onclick="window.location.href='?proveedor={{ prov.id }}'" style="cursor: pointer; transition: all 0.3s ease;">
               <div class="d-flex align-items-start justify-content-between">
                 <div class="d-flex gap-3">
                   <div class="icon-bg-primary">
@@ -553,6 +579,13 @@
 <!-- ====== SCRIPTS ====== -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Abrir modal de proveedores si está en parámetro GET
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('modal') === 'proveedores') {
+      const modalProveedores = new bootstrap.Modal(document.getElementById('modalProveedores'));
+      modalProveedores.show();
+    }
+
     // Búsqueda de productos
     const buscarProducto = document.getElementById('buscarProducto');
     if (buscarProducto) {
@@ -574,15 +607,16 @@
       });
     });
 
-    // Búsqueda de proveedores
+    // Búsqueda y selección de proveedores
     const buscarProveedor = document.getElementById('buscarProveedor');
-    const filas = document.querySelectorAll('.fila-proveedor');
+    const tablaProveedores = document.getElementById('tablaProveedores');
     const sinResultados = document.getElementById('sinResultados');
 
     if (buscarProveedor) {
       buscarProveedor.addEventListener('input', function() {
         const termino = this.value.toLowerCase();
         let visible = 0;
+        const filas = document.querySelectorAll('.fila-proveedor');
         filas.forEach(fila => {
           const coincide = fila.dataset.nombre.includes(termino) ||
                           fila.dataset.contacto.includes(termino) ||
@@ -594,12 +628,26 @@
       });
     }
 
-    // Selección de proveedor
-    filas.forEach(fila => {
-      fila.addEventListener('click', function() {
-        window.location.href = '?proveedor=' + this.dataset.id;
-      });
-    });
+    // Función para seleccionar proveedor sin cerrar el modal
+    window.seleccionarProveedor = function(proveedorId, proveedorNombre) {
+      // Actualizar input hidden
+      const inputProveedor = document.getElementById('proveedorSeleccionado');
+      if (inputProveedor) {
+        inputProveedor.value = proveedorId;
+      }
+
+      // Actualizar botón selector
+      const btnSelector = document.querySelector('.btn-selector');
+      if (btnSelector) {
+        btnSelector.innerHTML = `
+          <span class="d-flex align-items-center gap-2">
+            <i class="bi bi-truck"></i>
+            ${proveedorNombre}
+          </span>
+          <i class="bi bi-chevron-down"></i>
+        `;
+      }
+    };
 
     // ====== GRÁFICOS CON CHART.JS ======
 
@@ -668,7 +716,11 @@
                 drawBorder: false
               },
               ticks: {
-                color: '#8FA3B1'
+                color: '#FFFFFF',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
               }
             },
             x: {
@@ -677,7 +729,11 @@
                 drawBorder: false
               },
               ticks: {
-                color: '#8FA3B1'
+                color: '#FFFFFF',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
               }
             }
           }
@@ -717,7 +773,11 @@
                 drawBorder: false
               },
               ticks: {
-                color: '#8FA3B1'
+                color: '#FFFFFF',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
               }
             },
             y: {
@@ -726,7 +786,12 @@
                 drawBorder: false
               },
               ticks: {
-                color: '#8FA3B1'
+                color: '#FFFFFF',
+                font: {
+                  size: 13,
+                  weight: 'bold'
+                },
+                padding: 10
               }
             }
           }
@@ -760,10 +825,11 @@
             legend: {
               position: 'bottom',
               labels: {
-                color: '#8FA3B1',
+                color: '#FFFFFF',
                 padding: 15,
                 font: {
-                  size: 11
+                  size: 12,
+                  weight: 'bold'
                 }
               }
             }
@@ -773,5 +839,257 @@
     }
   });
 </script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: INFORMACIÓN DE PAGO (COMPRA) - GRANDE CON TARJETAS -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+
+<div class="modal fade" id="modalPago" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.15) !important; padding: 2rem !important;">
+                <div>
+                    <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem;">
+                        <i class="bi bi-credit-card" style="color: #f39c12; font-size: 1.5rem;"></i> Información de Pago
+                    </h5>
+                    <small style="color: #8FA3B1;">Completa los datos de pago para esta compra</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form id="formPago" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" id="compraId" name="compra_id">
+
+                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
+
+                    <!-- Número de Factura -->
+                    <div class="mb-4">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-file-earmark me-2"></i>Número de Factura
+                        </label>
+                        <input type="text" id="numeroFactura" name="numero_factura" class="form-control form-control-lg"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; font-size: 1rem;"
+                               placeholder="Ej: FAC-2026-001">
+                    </div>
+
+                    <!-- Método de Pago - TARJETAS COMPACTAS -->
+                    <div class="mb-4">
+                        <label style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: block; margin-bottom: 1rem;">
+                            <i class="bi bi-wallet2 me-2"></i>Elige Método de Pago
+                        </label>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px;">
+                            <!-- Efectivo -->
+                            <div class="metodo-pago-card-compact" data-value="efectivo">
+                                <i class="bi bi-cash-coin"></i>
+                                <span>Efectivo</span>
+                            </div>
+
+                            <!-- Tarjeta -->
+                            <div class="metodo-pago-card-compact" data-value="tarjeta">
+                                <i class="bi bi-credit-card-2-front"></i>
+                                <span>Tarjeta</span>
+                            </div>
+
+                            <!-- Transferencia -->
+                            <div class="metodo-pago-card-compact" data-value="transferencia">
+                                <i class="bi bi-bank"></i>
+                                <span>Transferencia</span>
+                            </div>
+
+                            <!-- Cheque -->
+                            <div class="metodo-pago-card-compact" data-value="cheque">
+                                <i class="bi bi-receipt"></i>
+                                <span>Cheque</span>
+                            </div>
+
+                            <!-- Crédito -->
+                            <div class="metodo-pago-card-compact" data-value="credito">
+                                <i class="bi bi-hourglass-split"></i>
+                                <span>Crédito</span>
+                            </div>
+
+                            <!-- Otro -->
+                            <div class="metodo-pago-card-compact" data-value="otro">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Otro</span>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="metodoPago" name="metodo_pago" required>
+                    </div>
+
+                    <!-- Estado de Pago -->
+                    <div class="mb-4">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-check-circle me-2"></i>Estado de Pago
+                        </label>
+                        <select id="estadoPago" name="estado_pago" class="form-select form-select-lg"
+                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                            <option value="pendiente">Pendiente de Pago</option>
+                            <option value="parcial">Pago Parcial</option>
+                            <option value="pagada">Pagada</option>
+                        </select>
+                    </div>
+
+                    <!-- Monto Pagado (si es parcial) -->
+                    <div class="mb-4" id="montoPagadoDiv" style="display: none;">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-cash me-2"></i>Monto Pagado
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text" style="background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #f39c12 !important; font-weight: 600;">$</span>
+                            <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01"
+                                   style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Pago -->
+                    <div class="mb-0">
+                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                            <i class="bi bi-calendar me-2"></i>Fecha de Pago
+                        </label>
+                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control form-control-lg"
+                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.15) !important; padding: 1.5rem 2rem !important;">
+                    <button type="button" class="btn btn-lg" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600;">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-lg" style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 700 !important;">
+                        <i class="bi bi-check-circle me-2"></i>Guardar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.metodo-pago-card-compact {
+    flex: 0 0 auto;
+    min-width: 90px;
+    border: 2px solid rgba(100, 120, 140, 0.3);
+    border-radius: 8px;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(20, 40, 80, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #8FA3B1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    user-select: none;
+}
+
+.metodo-pago-card-compact i {
+    font-size: 1.5rem;
+}
+
+/* Colores casi transparentes para cada método */
+.metodo-pago-card-compact[data-value="efectivo"] { --card-color: rgba(143, 163, 177, 0.2); }
+.metodo-pago-card-compact[data-value="tarjeta"] { --card-color: rgba(143, 163, 177, 0.2); }
+.metodo-pago-card-compact[data-value="transferencia"] { --card-color: rgba(143, 163, 177, 0.2); }
+.metodo-pago-card-compact[data-value="cheque"] { --card-color: rgba(143, 163, 177, 0.2); }
+.metodo-pago-card-compact[data-value="credito"] { --card-color: rgba(143, 163, 177, 0.2); }
+.metodo-pago-card-compact[data-value="otro"] { --card-color: rgba(143, 163, 177, 0.2); }
+
+.metodo-pago-card-compact:hover {
+    border-color: var(--card-color, #4DA8DA);
+    background: rgba(20, 40, 80, 0.9);
+    color: var(--card-color, #4DA8DA);
+    transform: translateY(-2px);
+}
+
+.metodo-pago-card-compact.active {
+    border-color: var(--card-color, #4DA8DA);
+    background: var(--card-color, #4DA8DA);
+    color: #fff;
+    box-shadow: 0 0 12px var(--card-color, rgba(77, 168, 218, 0.4));
+}
+</style>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// SELECCIÓN DE MÉTODO DE PAGO (TARJETAS COMPACTAS)
+// ════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.metodo-pago-card-compact').forEach(card => {
+    card.addEventListener('click', function() {
+        // Quitar selección anterior
+        document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
+
+        // Activar tarjeta seleccionada
+        this.classList.add('active');
+
+        // Guardar valor en input oculto
+        document.getElementById('metodoPago').value = this.dataset.value;
+    });
+});
+
+// Mostrar/ocultar monto pagado según estado
+document.getElementById('estadoPago')?.addEventListener('change', function() {
+    const montoPagadoDiv = document.getElementById('montoPagadoDiv');
+    if (this.value === 'parcial') {
+        montoPagadoDiv.style.display = 'block';
+    } else {
+        montoPagadoDiv.style.display = 'none';
+    }
+});
+
+// Abrir modal de pago con ID de compra
+function abrirModalPago(compraId) {
+    // Limpiar formulario
+    document.getElementById('formPago').reset();
+    document.querySelectorAll('.metodo-pago-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('montoPagadoDiv').style.display = 'none';
+
+    // Establecer ID de compra
+    document.getElementById('compraId').value = compraId;
+}
+
+// Enviar formulario de pago
+document.getElementById('formPago')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validar que se seleccionó método de pago
+    if (!document.getElementById('metodoPago').value) {
+        alert('Por favor selecciona un método de pago');
+        return;
+    }
+
+    const compraId = document.getElementById('compraId').value;
+    const formData = new FormData(this);
+
+    fetch(`/proveedores/compras/${compraId}/pago/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'ok') {
+            alert('✓ Pago registrado correctamente');
+            bootstrap.Modal.getInstance(document.getElementById('modalPago')).hide();
+            location.reload();
+        } else {
+            alert('Error: ' + d.message);
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error al guardar el pago');
+    });
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
 
 {% endblock %}
