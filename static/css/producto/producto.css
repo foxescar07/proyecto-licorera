@@ -677,22 +677,44 @@
 #tablaProductosCat thead tr th.dt-ordering-desc .dt-column-order::after {
   opacity: 1 !important;
 }
-/* Tooltip estilo CYS (azul, como el resto de la UI) */
-.tooltip .tooltip-inner {
-  background-color: #0D1B2A;
-  color: #4DA8DA;
-  border: 1px solid rgba(77, 168, 218, 0.35);
-  font-weight: 600;
-  font-size: 0.8rem;
-  padding: 6px 12px;
-  border-radius: 6px;
+/* ── TOOLTIP CYS — vía customClass, no depende de cascada de Bootstrap ── */
+.cys-tooltip .tooltip-inner {
+  background-color: #0d2240 !important;
+  color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.45) !important;
+  font-size: .78rem !important;
+  font-weight: 600 !important;
+  padding: .45rem .8rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .4) !important;
 }
 
-/* Flechita del tooltip (apuntando hacia el botón) */
-.tooltip .tooltip-arrow::before {
-  border-top-color: rgba(77, 168, 218, 0.35) !important;
+.cys-tooltip .tooltip-arrow::before {
+  border-top-color: #0d2240 !important;
+  border-bottom-color: #0d2240 !important;
+  border-left-color: #0d2240 !important;
+  border-right-color: #0d2240 !important;
 }
-
-.tooltip.bs-tooltip-top .tooltip-arrow::before {
-  border-top-color: #0D1B2A !important;
+/* ── Fix: dropdown Categoría (Nuevo Producto) ── */
+.btn#crear-categoria-btn,
+button#crear-categoria-btn {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-image: none !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+.btn#crear-categoria-btn:hover,
+.btn#crear-categoria-btn:focus,
+.btn#crear-categoria-btn.show {
+  border-color: #4DA8DA !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 168, 218, 0.15) !important;
+}
+#crear-categoria-btn + .dropdown-menu .dropdown-header {
+  color: rgba(226, 232, 240, 0.5) !important;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: .4rem 1rem .2rem;
 }

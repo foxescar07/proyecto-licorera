@@ -161,19 +161,33 @@
               <input type="text" name="codigo" id="crear-codigo" class="form-control prod-input"
                      placeholder="Ej: CRV-001" maxlength="50">
             </div>
-            <div class="col-md-12">
+              <div class="col-md-12">
               <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
-              <select name="categoria" id="crear-categoria" class="form-select prod-input">
-                <option value="">— Seleccionar —</option>
-                {% for main_cat in categorias %}
-                  <optgroup label="{{ main_cat.nombre }}">
-                    <option value="{{ main_cat.pk }}">{{ main_cat.nombre }} (Principal)</option>
+              <div class="dropdown w-100">
+                <button class="btn dropdown-toggle w-100 text-start prod-input" type="button"
+                    id="crear-categoria-btn" data-bs-toggle="dropdown"
+                    style="font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+                  <span id="crear-categoria-label">— Seleccionar —</span>
+                </button>
+                <ul class="dropdown-menu prod-dropdown-menu w-100" style="max-height:280px; overflow-y:auto;">
+                  {% for main_cat in categorias %}
+                    <li><h6 class="dropdown-header">{{ main_cat.nombre }}</h6></li>
+                    <li>
+                      <a class="dropdown-item crear-cat-item" href="#" data-value="{{ main_cat.pk }}" style="color:#c8d6e5;">
+                        {{ main_cat.nombre }} (Principal)
+                      </a>
+                    </li>
                     {% for sub_cat in main_cat.subcategorias.all %}
-                      <option value="{{ sub_cat.pk }}">└ {{ sub_cat.nombre }}</option>
+                    <li>
+                      <a class="dropdown-item crear-cat-item" href="#" data-value="{{ sub_cat.pk }}" style="color:#c8d6e5; padding-left:1.5rem;">
+                        └ {{ sub_cat.nombre }}
+                      </a>
+                    </li>
                     {% endfor %}
-                  </optgroup>
-                {% endfor %}
-              </select>
+                  {% endfor %}
+                </ul>
+              </div>
+              <input type="hidden" name="categoria" id="crear-categoria" required>
             </div>
             <div class="col-12">
               <label class="form-label prod-label">Descripción (opcional)</label>
@@ -665,5 +679,12 @@ function agregarPresentacionModal() {
     </li>`;
   });
 })();
+document.querySelectorAll('.crear-cat-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('crear-categoria-label').textContent = this.textContent.trim();
+    document.getElementById('crear-categoria').value = this.dataset.value;
+  });
+});
 </script>
 {% endblock %}

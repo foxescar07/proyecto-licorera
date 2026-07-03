@@ -933,10 +933,18 @@
           {% csrf_token %}
           <div class="mb-3">
             <label class="form-label inv-label">Tipo</label>
-            <select name="tipo" id="em-tipo" class="form-select inv-input">
-              <option value="entrada">Entrada</option>
-              <option value="salida">Salida</option>
-            </select>
+            <div class="dropdown w-100">
+              <button class="btn dropdown-toggle w-100 text-start" type="button"
+                  id="em-tipo-btn" data-bs-toggle="dropdown"
+                  style="font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+                <span id="em-tipo-label">Entrada</span>
+              </button>
+              <ul class="dropdown-menu w-100">
+                <li><a class="dropdown-item em-tipo-item" href="#" data-value="entrada" style="color:#c8d6e5;">Entrada</a></li>
+                <li><a class="dropdown-item em-tipo-item" href="#" data-value="salida" style="color:#c8d6e5;">Salida</a></li>
+              </ul>
+            </div>
+            <input type="hidden" name="tipo" id="em-tipo">
           </div>
           <div class="mb-3">
             <label class="form-label inv-label">Cantidad</label>
@@ -1038,11 +1046,25 @@ document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal
   const btn = e.relatedTarget;
   if (!btn) return;
   document.getElementById('em-producto-nombre').textContent = btn.dataset.nombre;
-  document.getElementById('em-tipo').value     = btn.dataset.tipo;
+
+  const tipoVal = btn.dataset.tipo;
+  document.getElementById('em-tipo').value = tipoVal;
+  document.getElementById('em-tipo-label').textContent =
+    tipoVal === 'salida' ? 'Salida' : 'Entrada';
+
   document.getElementById('em-cantidad').value = btn.dataset.cantidad;
   document.getElementById('em-motivo').value   = btn.dataset.motivo;
   document.getElementById('form-editar-movimiento').action =
     '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
+});
+
+// ── DROPDOWN TIPO (editar movimiento) ──
+document.querySelectorAll('.em-tipo-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('em-tipo-label').textContent = this.textContent.trim();
+    document.getElementById('em-tipo').value = this.dataset.value;
+  });
 });
 // ── REGISTRAR CÓDIGOS ──
 (function () {

@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.urls import reverse
 from datetime import timedelta
+from django.db import IntegrityError
 
 from .models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario, AgendaInventario
@@ -66,6 +67,7 @@ def lista_productos(request):
 # ===============================
 # CREAR PRODUCTO
 # ===============================
+
 @login_required
 def crear_producto(request):
     if request.method != 'POST':
@@ -84,6 +86,8 @@ def crear_producto(request):
         errores['nombre'] = ['El nombre es obligatorio.']
     if not categoria:
         errores['categoria'] = ['La categoría es obligatoria.']
+    if codigo and Producto.objects.filter(codigo=codigo).exists():
+        errores['codigo'] = [f'Ya existe un producto con el código "{codigo}".']
 
     if errores:
         if is_ajax:
@@ -91,19 +95,25 @@ def crear_producto(request):
         messages.error(request, 'Corrige los errores del formulario.')
         return redirect('lista_productos')
 
-    producto = Producto.objects.create(
-        nombre=nombre,
-        codigo=codigo or None,
-        categoria_id=categoria,
-        descripcion=descripcion,
-    )
+    try:
+        producto = Producto.objects.create(
+            nombre=nombre,
+            codigo=codigo,  # ya validamos que no está vacío ni duplicado; si va vacío, generamos abajo
+            categoria_id=categoria,
+            descripcion=descripcion,
+        )
+    except IntegrityError:
+        error_msg = 'No se pudo crear el producto (código duplicado).'
+        if is_ajax:
+            return JsonResponse({'ok': False, 'error': error_msg}, status=400)
+        messages.error(request, error_msg)
+        return redirect('lista_productos')
 
     if is_ajax:
         return JsonResponse({'ok': True, 'pk': producto.pk, 'nombre': producto.nombre})
 
     messages.success(request, f'✅ Producto "{producto.nombre}" creado correctamente.')
     return redirect(next_url)
-
 
 # ===============================
 # DETALLE PRODUCTO
