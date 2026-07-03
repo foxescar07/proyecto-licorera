@@ -590,3 +590,10 @@ button#cat-cat-btn {
   background-color: var(--inv-card2) !important;
   border: 1px solid rgba(77, 168, 218, 0.35) !important;
 }
+/* Ícono del selector de fecha/hora en blanco */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
