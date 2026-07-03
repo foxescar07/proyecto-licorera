@@ -600,15 +600,16 @@
       });
     });
 
-    // Búsqueda de proveedores
+    // Búsqueda y selección de proveedores
     const buscarProveedor = document.getElementById('buscarProveedor');
-    const filas = document.querySelectorAll('.fila-proveedor');
+    const tablaProveedores = document.getElementById('tablaProveedores');
     const sinResultados = document.getElementById('sinResultados');
 
     if (buscarProveedor) {
       buscarProveedor.addEventListener('input', function() {
         const termino = this.value.toLowerCase();
         let visible = 0;
+        const filas = document.querySelectorAll('.fila-proveedor');
         filas.forEach(fila => {
           const coincide = fila.dataset.nombre.includes(termino) ||
                           fila.dataset.contacto.includes(termino) ||
@@ -620,16 +621,22 @@
       });
     }
 
-    // Selección de proveedor
-    filas.forEach(fila => {
-      fila.style.cursor = 'pointer';
-      fila.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const proveedorId = this.dataset.id;
-        window.location.href = '?proveedor=' + proveedorId;
+    // Selección de proveedor con event delegation
+    if (tablaProveedores) {
+      tablaProveedores.addEventListener('click', function(e) {
+        const fila = e.target.closest('.fila-proveedor');
+        if (fila) {
+          const proveedorId = fila.dataset.id;
+          window.location.href = '?proveedor=' + proveedorId;
+        }
       });
-    });
+
+      // Agregar cursor pointer a todas las filas
+      const filas = document.querySelectorAll('.fila-proveedor');
+      filas.forEach(fila => {
+        fila.style.cursor = 'pointer';
+      });
+    }
 
     // ====== GRÁFICOS CON CHART.JS ======
 
