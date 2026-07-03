@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.urls import reverse
 from datetime import timedelta
+from django.db import IntegrityError
 
 from .models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario, AgendaInventario
@@ -55,6 +56,9 @@ def lista_productos(request):
         'resumen_categorias': resumen_categorias,
         'form': form,
         'total_criticos': total_criticos,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': None},
+        ],
     }
 
     return render(request, 'productos/productos.html', context)
@@ -63,6 +67,7 @@ def lista_productos(request):
 # ===============================
 # CREAR PRODUCTO
 # ===============================
+
 @login_required
 def crear_producto(request):
     if request.method != 'POST':
@@ -81,6 +86,8 @@ def crear_producto(request):
         errores['nombre'] = ['El nombre es obligatorio.']
     if not categoria:
         errores['categoria'] = ['La categoría es obligatoria.']
+    if codigo and Producto.objects.filter(codigo=codigo).exists():
+        errores['codigo'] = [f'Ya existe un producto con el código "{codigo}".']
 
     if errores:
         if is_ajax:
@@ -88,19 +95,25 @@ def crear_producto(request):
         messages.error(request, 'Corrige los errores del formulario.')
         return redirect('lista_productos')
 
-    producto = Producto.objects.create(
-        nombre=nombre,
-        codigo=codigo or None,
-        categoria_id=categoria,
-        descripcion=descripcion,
-    )
+    try:
+        producto = Producto.objects.create(
+            nombre=nombre,
+            codigo=codigo,  # ya validamos que no está vacío ni duplicado; si va vacío, generamos abajo
+            categoria_id=categoria,
+            descripcion=descripcion,
+        )
+    except IntegrityError:
+        error_msg = 'No se pudo crear el producto (código duplicado).'
+        if is_ajax:
+            return JsonResponse({'ok': False, 'error': error_msg}, status=400)
+        messages.error(request, error_msg)
+        return redirect('lista_productos')
 
     if is_ajax:
         return JsonResponse({'ok': True, 'pk': producto.pk, 'nombre': producto.nombre})
 
     messages.success(request, f'✅ Producto "{producto.nombre}" creado correctamente.')
     return redirect(next_url)
-
 
 # ===============================
 # DETALLE PRODUCTO
@@ -112,6 +125,10 @@ def producto_detalle(request, pk):
     context = {
         'producto': producto,
         'movimientos': movimientos,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': reverse('lista_productos')},
+            {'nombre': producto.nombre, 'url': None},
+        ],
     }
 
     return render(request, 'productos/productos.html', context)
@@ -323,6 +340,10 @@ def producto_registro(request):
             messages.success(request, '✅ Producto registrado correctamente.')
     context = {
         'form': form,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': reverse('lista_productos')},
+            {'nombre': 'Registrar Producto', 'url': None},
+        ],
     }
 
     return render(request, 'productos/productos.html', context)
@@ -422,6 +443,10 @@ def categorias_lista(request):
     context = {
         'categorias': categorias,
         'todas_cats': todas_cats,
+        'breadcrumb_items': [
+            {'nombre': 'Productos', 'url': reverse('lista_productos')},
+            {'nombre': 'Categorías', 'url': None},
+        ],
     }
     return render(request, 'productos/categorias.html', context)
 
@@ -513,6 +538,9 @@ def gestion_productos(request):
         'productos':      productos,
         'lotes':          [],
         'total_criticos': total_criticos,
+        'breadcrumb_items': [
+            {'nombre': 'Gestión de Productos', 'url': None},
+        ],
     }
     return render(request, 'productos/gestion_productos.html', context)
 

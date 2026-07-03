@@ -7,6 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventario/salida.css' %}">
 
 {% endblock %}
 
@@ -24,16 +25,6 @@
 {% endif %}
 
 <!-- Header -->
-<div class="d-flex align-items-center justify-content-between mb-4 pb-3"
-     style="border-bottom:1px solid rgba(77,168,218,0.18);">
-  <div class="d-flex align-items-center gap-2">
-    
-  </div>
- <a href="{% url 'inventario_home' %}" class="btn fw-bold rounded-pill px-4 py-2"
-     style="background:#3b9ad6;color:#0d1b2a;border:none;font-size:0.9rem;white-space:nowrap;">
-    <i class="bi bi-arrow-left me-1"></i> Inventario
-  </a>
-</div>
 
 <div class="row g-4">
 
@@ -57,13 +48,6 @@
             </small>
           </div>
         </div>
-        <button type="button" id="btn-ver-lote"
-                class="btn btn-sm rounded-pill d-none"
-                data-bs-toggle="collapse" data-bs-target="#collapseLotes"
-                style="background:rgba(77,168,218,.12);border:1px solid rgba(77,168,218,.3);
-                       color:#4DA8DA;font-size:.78rem;padding:5px 14px;">
-          <i class="bi bi-layers me-1"></i> Ver lotes
-        </button>
       </div>
 
       <form method="POST" action="{% url 'registrar_salida_view' %}" id="form-salida">
@@ -97,7 +81,7 @@
            color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
           <span id="presentacion-label">— Selecciona un producto —</span>
             </button>
-            <ul class="dropdown-menu w-100"
+            <ul class="dropdown-menu w-100 inv-dropdown-scroll"
                 style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); max-height:320px; overflow-y:auto;">
               {% for p in productos %}
                 {% if p.presentaciones.all %}
@@ -128,25 +112,6 @@
             <span style="color:#dce8f2;font-size:.85rem;">
               Stock disponible: <strong id="stock-badge-val" style="color:#4DA8DA;">—</strong> unidades
             </span>
-          </div>
-        </div>
-
-        <!-- Lotes colapsables -->
-        <div class="collapse mb-3" id="collapseLotes">
-          <div class="collapse-panel p-3">
-            <p class="mb-2 inv-label" id="lotes-producto-label">Lotes disponibles</p>
-            <div class="table-responsive rounded-3" style="border:1px solid rgba(77,168,218,0.14);">
-              <table class="table table-sm mb-0 lotes-table" style="background:transparent;">
-                <thead>
-                  <tr>
-                    <th class="ps-3">Lote</th>
-                    <th class="text-center">Cant.</th>
-                    <th>Vence</th>
-                  </tr>
-                </thead>
-                <tbody id="lotes-tbody"></tbody>
-              </table>
-            </div>
           </div>
         </div>
 
@@ -182,7 +147,7 @@
            color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
           <span id="lote-label">— Seleccionar —</span>
             </button>
-            <ul class="dropdown-menu w-100"
+            <ul class="dropdown-menu w-100 inv-dropdown-scroll"
                 style="background:#0d1b2a; border:1px solid rgba(0, 54, 83, 0.46); max-height:320px; overflow-y:auto;">
               <li>
                 <a class="dropdown-item lote-item" href="#" data-value="" data-presentacion=""
@@ -238,7 +203,7 @@
        color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
         <span id="motivo-label">— Seleccionar —</span>
       </button>
-      <ul class="dropdown-menu w-100"
+      <ul class="dropdown-menu w-100 inv-dropdown-scroll"
           style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); max-height:320px; overflow-y:auto;">
         <li><a class="dropdown-item motivo-item" href="#" data-value="Venta" style="color:#c8d6e5; font-size:.85rem;">Venta</a></li>
         <li><a class="dropdown-item motivo-item" href="#" data-value="Merma" style="color:#c8d6e5; font-size:.85rem;">Merma</a></li>
@@ -290,15 +255,15 @@
       </div>
       <div class="col-6">
         <div class="stat-mini p-3 d-flex align-items-center justify-content-between"
-             style="border-color:rgba(243,156,18,0.22)!important;">
+             style="border-color:rgba(18, 153, 243, 0.22)!important;">
           <div>
             <small class="d-block text-uppercase"
                    style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
               Por Vencer
             </small>
-            <h4 class="mb-0 fw-bold mt-1 text-warning" style="font-family:'Rajdhani',sans-serif;">0</h4>
+            <h4 class="mb-0 fw-bold mt-1 text-blue" style="font-family:'Rajdhani',sans-serif;">0</h4>
           </div>
-          <i class="bi bi-exclamation-circle fs-3 text-warning" style="opacity:.7;"></i>
+          <i class="bi bi-exclamation-circle fs-3 text-info" style="opacity:.7;"></i>
         </div>
       </div>
     </div>
@@ -320,11 +285,11 @@
         <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
           <span class="rounded-circle" style="width:8px;height:8px;background:#4DA8DA;display:inline-block;"></span>Venta
         </span>
-        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
-          <span class="rounded-circle" style="width:8px;height:8px;background:#f39c1c;display:inline-block;"></span>Merma
+        <span class="d-flex align-items-center gap-1" style="color:#1c6ef3;">
+          <span class="rounded-circle" style="width:8px;height:8px;background:#1c6ef3;display:inline-block;"></span>Merma
         </span>
-        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
-          <span class="rounded-circle" style="width:8px;height:8px;background:#e74c3c;display:inline-block;"></span>Daño
+        <span class="d-flex align-items-center gap-1" style="color:#3ce7d0;">
+          <span class="rounded-circle" style="width:8px;height:8px;background:#3ce7d0;display:inline-block;"></span>Daño
         </span>
         <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
           <span class="rounded-circle" style="width:8px;height:8px;background:#9b59b6;display:inline-block;"></span>Vencido
@@ -346,7 +311,7 @@ new Chart(document.getElementById('chartMotivos').getContext('2d'), {
     labels: ['Venta','Merma','Daño','Vencido'],
     datasets: [{
       data: {{ chart_motivos_data|safe }},
-      backgroundColor: ['#4DA8DA','#f39c1c','#e74c3c','#9b59b6'],
+      backgroundColor: ['#4DA8DA','#1c6ef3','#3ce7d0','#9b59b6'],
       borderWidth: 0
     }]
   },
@@ -378,11 +343,8 @@ const badgeWrap       = document.getElementById('stock-badge-wrap');
 const badgeVal        = document.getElementById('stock-badge-val');
 const inputQty        = document.getElementById('input-cantidad');
 const alertaExceso    = document.getElementById('alerta-exceso');
-const lotesBody       = document.getElementById('lotes-tbody');
-const lotesLabel      = document.getElementById('lotes-producto-label');
-const btnVerLote      = document.getElementById('btn-ver-lote');
 
-// Dropdown Presentación: sincroniza texto del botón + select oculto + stock/lotes
+// Dropdown Presentación: sincroniza texto del botón + select oculto + stock
 document.querySelectorAll('.presentacion-item').forEach(item => {
   item.addEventListener('click', e => {
     e.preventDefault();
@@ -410,25 +372,16 @@ document.querySelectorAll('.motivo-item').forEach(item => {
   });
 });
 
-// Al cambiar la presentación: muestra stock, filtra lotes del select oculto y rellena tabla colapsable
+// Al cambiar la presentación: muestra stock y filtra lotes del select oculto
 sel.addEventListener('change', function () {
   const d = lotesData[this.value];
   Array.from(selectLoteForm.options).forEach(opt => {
     if (!opt.value) { opt.selected = true; return; }
     opt.style.display = opt.dataset.presentacion === this.value ? '' : 'none';
   });
-  if (!d) { badgeWrap.classList.add('d-none'); btnVerLote.classList.add('d-none'); return; }
+  if (!d) { badgeWrap.classList.add('d-none'); return; }
   badgeVal.textContent = d.stock;
   badgeWrap.classList.remove('d-none');
-  btnVerLote.classList.remove('d-none');
-  lotesLabel.textContent = 'Lotes de: ' + d.nombre;
-  lotesBody.innerHTML = d.lotes.length
-    ? d.lotes.map(l => `<tr>
-        <td class="ps-3 fw-semibold">${l.numero}</td>
-        <td class="text-center">${l.cantidad}</td>
-        <td style="color:${l.vence!=='—'?'#f39c12':'rgba(220,232,242,0.4)'}">${l.vence}</td>
-      </tr>`).join('')
-    : '<tr><td colspan="3" class="text-center py-3" style="color:rgba(220,232,242,0.38)">Sin lotes registrados</td></tr>';
 });
 
 inputQty.addEventListener('input', function () {
@@ -440,7 +393,7 @@ inputQty.addEventListener('input', function () {
 document.getElementById('form-salida').addEventListener('submit', function (e) {
   if (!sel.value) {
     e.preventDefault();
-    document.getElementById('presentacion-btn').style.borderColor = '#e74c3c';
+    document.getElementById('presentacion-btn').style.borderColor = '#3ce7a8';
     document.getElementById('presentacion-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
