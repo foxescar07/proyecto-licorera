@@ -1,0 +1,111 @@
+/* Botón pill de submit del formulario de salida */
+.inv-btn {
+  background: var(--inv-azul);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  padding: 11px 28px;
+  width: 100%;
+  font-size: .95rem;
+  letter-spacing: .03em;
+  transition: background .2s, transform .1s;
+}
+.inv-btn:hover  { background: var(--inv-azul2); }
+.inv-btn:active { transform: scale(.98); }
+
+/* Tabs Entrada / Salida */
+#invTabs .nav-link:not(.active) {
+  background: var(--inv-card) !important;
+  color: var(--inv-texto) !important;
+  border: 1px solid var(--inv-azul-borde) !important;
+}
+#invTabs .nav-link:not(.active):hover {
+  border-color: var(--inv-azul) !important;
+  background: var(--inv-azul-dim) !important;
+}
+#invTabs .nav-link.active {
+  background: var(--inv-azul) !important;
+  color: #fff !important;
+  border: 1px solid var(--inv-azul) !important;
+}
+#invTabs .pill-tab {
+  background: transparent !important;
+  color: var(--inv-azul) !important;
+  border: 1.5px solid var(--inv-azul) !important;
+  border-radius: 50px !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  padding: 0.45rem 1.3rem !important;
+  letter-spacing: .03em !important;
+  transition: background 0.18s, color 0.18s !important;
+}
+#invTabs .pill-tab.active {
+  background: var(--inv-azul2) !important;
+  color: #0d1b2a !important;
+  border-color: var(--inv-azul2) !important;
+}
+#invTabs .pill-tab:hover:not(.active) { background: rgba(77,168,218,0.12) !important; }
+
+/* Escaneo de código de barras */
+.scan-row--active { background: rgba(77, 168, 218, .18) !important; outline: 1px solid var(--inv-azul); }
+.scan-row--saved   { background: rgba(39, 174, 96, .2) !important; }
+
+/* Dropdowns: presentación, lote, motivo */
+.btn#presentacion-btn,
+.btn#lote-btn,
+.btn#motivo-btn,
+button#presentacion-btn,
+button#lote-btn,
+button#motivo-btn {
+  background-color: var(--inv-card2) !important;
+  background-image: none !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
+  color: #c8d6e5 !important;
+  font-size: .9rem !important;
+  border-radius: 8px !important;
+  padding: .55rem 1rem !important;
+  box-shadow: none !important;
+}
+.btn#presentacion-btn:hover,
+.btn#lote-btn:hover,
+.btn#motivo-btn:hover,
+.btn#presentacion-btn:focus,
+.btn#lote-btn:focus,
+.btn#motivo-btn:focus,
+.btn#presentacion-btn:active,
+.btn#lote-btn:active,
+.btn#motivo-btn:active,
+.btn#presentacion-btn.show,
+.btn#lote-btn.show,
+.btn#motivo-btn.show {
+  background-color: var(--inv-card2) !important;
+  background-image: none !important;
+  border-color: var(--inv-azul) !important;
+  color: #c8d6e5 !important;
+  box-shadow: 0 0 0 2px rgba(77, 168, 218, .2) !important;
+}
+#presentacion-btn + .dropdown-menu,
+#lote-btn + .dropdown-menu,
+#motivo-btn + .dropdown-menu {
+  background-color: var(--inv-card2) !important;
+  border: 1px solid rgba(77, 168, 218, 0.35) !important;
+}
+/* ── SCROLLBAR TEMATIZADO para dropdowns largos (lote, presentación, motivo, etc.) ── */
+.inv-dropdown-scroll {
+  scrollbar-width: thin;                     /* Firefox */
+  scrollbar-color: var(--inv-azul-borde) transparent;
+}
+.inv-dropdown-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.inv-dropdown-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.inv-dropdown-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--inv-azul-borde);
+  border-radius: 8px;
+}
+.inv-dropdown-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--inv-azul);
+}

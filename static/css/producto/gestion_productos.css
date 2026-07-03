@@ -1,0 +1,100 @@
+/* ── FORM CARD ── */
+.inv-form-card .form-control,
+.inv-form-card .form-select {
+  background: var(--inv-card2) !important;
+  color: var(--inv-texto) !important;
+  border: 1px solid var(--inv-azul-borde) !important;
+  border-radius: 8px !important;
+}
+.inv-form-card .form-control:focus,
+.inv-form-card .form-select:focus {
+  border-color: var(--inv-azul) !important;
+  box-shadow: 0 0 0 2px rgba(77,168,218,.2) !important;
+}
+.inv-form-card .form-control::placeholder { color: var(--inv-muted) !important; }
+.inv-form-card .form-select option { background: var(--inv-fondo); color: var(--inv-texto); }
+.inv-form-card .form-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--inv-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.inv-form-card .form-text { font-size: .72rem; color: var(--inv-muted); }
+
+/* ── PÁGINA / STAT MINI ── */
+.inv-page-card {
+  background: #152d50 !important;
+  border: 1px solid rgba(77,168,218,0.35) !important;
+  border-radius: 12px !important;
+}
+.inv-stat-mini { background: #152d50 !important; border-radius: 10px !important; min-height: 88px !important; height: 100% !important; }
+.inv-page-card .form-select,
+.inv-page-card .form-control {
+  background-color: #0e2240 !important;
+  color: var(--inv-texto) !important;
+  border: 1px solid rgba(77,168,218,0.3) !important;
+  border-radius: 8px !important;
+}
+.inv-page-card .form-select:focus,
+.inv-page-card .form-control:focus {
+  border-color: var(--inv-azul) !important;
+  box-shadow: 0 0 0 2px rgba(77,168,218,.18) !important;
+}
+.inv-page-card .form-control::placeholder { color: rgba(226,232,240,0.4) !important; }
+.inv-page-card .form-label {
+  font-size: .75rem !important;
+  font-weight: 600 !important;
+  color: rgba(226,232,240,0.6) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+}
+.inv-btn-submit {
+  background: var(--inv-azul2) !important;
+  color: #0d1b2a !important;
+  border: none !important;
+  border-radius: 50px !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  padding: 0.55rem 1rem !important;
+  width: 100% !important;
+  transition: background 0.18s !important;
+}
+.inv-btn-submit:hover { background: #2e88c2 !important; color: #fff !important; }
+
+.stat-row { display: flex !important; }
+.stat-row .col-sm-6 { display: flex !important; flex-direction: column !important; }
+.stat-row .col-sm-6 > div { flex: 1 !important; }
+
+/* ── CATÁLOGO ── */
+.cat-card { transition: transform .15s, box-shadow .15s; cursor: default; }
+.cat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.28); }
+
+.prod-input-select,
+.prod-input-select option { background-color: #0d2240 !important; color: #9fc9ec !important; }
+.prod-input-select option:checked,
+.prod-input-select option:hover,
+.prod-input-select option:focus { background: #1d4e6e !important; color: #ffffff !important; }
+.prod-input-select:focus {
+  background-color: rgba(13,26,64,.8) !important;
+  border-color: var(--inv-azul);
+  color: var(--inv-texto) !important;
+  box-shadow: 0 0 0 .2rem rgba(77,168,218,.15);
+  outline: none;
+}
+#cat-categoria option { background-color: #0d1b2a; color: #c8d6e5; }
+
+/* Flechitas orden / hover columnas de catálogo */
+#cat-list table thead > tr > th { cursor: pointer; user-select: none; }
+#cat-list table thead > tr > th .dt-column-order:before,
+#cat-list table thead > tr > th .dt-column-order:after { color: var(--inv-azul); opacity: 0.4; }
+#cat-list table thead > tr > th.dt-ordering-asc .dt-column-order:before,
+#cat-list table thead > tr > th.dt-ordering-desc .dt-column-order:after { opacity: 1; color: var(--inv-azul); }
+#cat-list table thead > tr > th.dt-orderable-asc:hover,
+#cat-list table thead > tr > th.dt-orderable-desc:hover {
+  outline: 2px solid rgba(77, 168, 218, 0.15);
+  outline-offset: -2px;
+}
+#cat-list table thead > tr > th:last-child,
+#cat-list table tbody > tr > td:last-child { text-align: center !important; }
+#cat-list table thead > tr > th:last-child div.dt-column-header { justify-content: center !important; }
