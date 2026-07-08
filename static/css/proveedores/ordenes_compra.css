@@ -1083,3 +1083,37 @@
     gap: 4px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════ */
+/* BADGES ESTADOS */
+/* ════════════════════════════════════════════════════════════════ */
+
+.badge-pendiente {
+  background: rgba(155, 93, 229, 0.2) !important;
+  color: #9b5de5 !important;
+  border: 1px solid rgba(155, 93, 229, 0.4) !important;
+}
+.badge-confirmada {
+  background: rgba(77, 168, 218, 0.2) !important;
+  color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.4) !important;
+}
+.badge-recibida {
+  background: rgba(39, 174, 96, 0.2) !important;
+  color: #27ae60 !important;
+  border: 1px solid rgba(39, 174, 96, 0.4) !important;
+}
+.badge-cancelada {
+  background: rgba(231, 76, 60, 0.2) !important;
+  color: #e74c3c !important;
+  border: 1px solid rgba(231, 76, 60, 0.4) !important;
+}
+
+.icon-cyan { color: #4DA8DA !important; }
+.icon-green { color: #27ae60 !important; }
+.icon-purple { color: #9b5de5 !important; }
+.icon-red { color: #e74c3c !important; }
+
+.dropdown-menu-custom { overflow: visible !important; max-height: none !important; }
+.btn-link-custom { text-decoration: none !important; font-size: 1.2rem !important; }
+

@@ -8,7 +8,7 @@
 {% block content %}
 <div class="container-fluid">
     <!-- HEADER -->
-    <div class="ordenes-header" style="margin-bottom: 2rem;">
+    <div class="ordenes-header" class="mb-2">
         <h1>
             <i class="bi bi-receipt-cutoff"></i>
             Compra #{{ compra.id }}
@@ -19,11 +19,11 @@
     </div>
 
     <!-- ESTADO DE COMPRA -->
-    <div style="background: rgba(39, 174, 96, 0.1); border-left: 4px solid #27ae60; border-radius: 4px; padding: 1rem; margin-bottom: 2rem;">
-        <p style="color: #E2E8F0; font-weight: 600; margin: 0;">
+    <div>
+        <p>
             <i class="bi bi-check-circle"></i> ¡Flujo completado exitosamente!
         </p>
-        <small style="color: #8FA3B1;">
+        <small>
             Los lotes han sido creados en inventario y están listos para vender.
         </small>
     </div>
@@ -32,102 +32,102 @@
         <section class="cys-card mb-4">
             <!-- INFORMACIÓN GENERAL -->
             <div class="cys-card__title">
-                <i class="bi bi-info-circle me-2" style="color: #4DA8DA;"></i>
+                <i class="bi bi-info-circle me-2" class="text-cyan"></i>
                 Información de Compra
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; padding: 1.5rem; background: rgba(77, 168, 218, 0.05); border-radius: 8px; margin-bottom: 2rem;">
+            <div>
                 <div>
-                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Compra #</p>
-                    <p style="color: #E2E8F0; font-weight: 600; font-size: 1.2rem;">{{ compra.id }}</p>
+                    <p>Compra #</p>
+                    <p>{{ compra.id }}</p>
                 </div>
                 <div>
-                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Proveedor</p>
-                    <p style="color: #E2E8F0; font-weight: 600;">{{ compra.proveedor.nombre_empresa }}</p>
+                    <p>Proveedor</p>
+                    <p>{{ compra.proveedor.nombre_empresa }}</p>
                 </div>
                 <div>
-                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Fecha de Compra</p>
-                    <p style="color: #E2E8F0; font-weight: 600;">{{ compra.fecha_compra|date:"d/m/Y H:i" }}</p>
+                    <p>Fecha de Compra</p>
+                    <p>{{ compra.fecha_compra|date:"d/m/Y H:i" }}</p>
                 </div>
                 <div>
-                    <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Total</p>
-                    <p style="color: #4DA8DA; font-weight: 700; font-size: 1.3rem;">${{ compra.total|floatformat:2 }}</p>
+                    <p>Total</p>
+                    <p>${{ compra.total|floatformat:2 }}</p>
                 </div>
             </div>
 
             <!-- RECEPCIÓN -->
-            <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-                <h6 style="color: #E2E8F0; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">
+            <div>
+                <h6>
                     <i class="bi bi-box-seam"></i> Información de Recepción
                 </h6>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Fecha de Recepción</p>
-                        <p style="color: #E2E8F0; font-weight: 500;">{{ recepcion.fecha_recepcion|date:"d/m/Y H:i" }}</p>
+                        <p>Fecha de Recepción</p>
+                        <p>{{ recepcion.fecha_recepcion|date:"d/m/Y H:i" }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Recibido por</p>
-                        <p style="color: #E2E8F0; font-weight: 500;">{{ recepcion.recibido_por.get_full_name|default:recepcion.recibido_por }}</p>
+                        <p>Recibido por</p>
+                        <p>{{ recepcion.recibido_por.get_full_name|default:recepcion.recibido_por }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Estado</p>
-                        <p style="color: #E2E8F0; font-weight: 500;">
+                        <p>Estado</p>
+                        <p>
                             {% if recepcion.estado == 'completa' %}
-                                <span style="color: #27ae60;">✓ Completa</span>
+                                <span>✓ Completa</span>
                             {% elif recepcion.estado == 'parcial' %}
-                                <span style="color: #f39c12;">⚠️ Parcial</span>
+                                <span>⚠️ Parcial</span>
                             {% else %}
-                                <span style="color: #e74c3c;">❌ Con Diferencias</span>
+                                <span>❌ Con Diferencias</span>
                             {% endif %}
                         </p>
                     </div>
                 </div>
 
                 {% if recepcion.notas %}
-                <p style="color: #8FA3B1; font-size: 0.9rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(77, 168, 218, 0.2);">
+                <p>
                     <strong>Observaciones:</strong> {{ recepcion.notas }}
                 </p>
                 {% endif %}
             </div>
 
             <!-- DETALLES RECIBIDOS -->
-            <h6 style="color: #E2E8F0; font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">
+            <h6>
                 <i class="bi bi-list-check"></i> Detalles Recibidos
             </h6>
 
-            <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; overflow: hidden; margin-bottom: 2rem;">
-                <table style="width: 100%; border-collapse: collapse;">
+            <div>
+                <table>
                     <thead>
-                        <tr style="background: rgba(77, 168, 218, 0.1); border-bottom: 2px solid rgba(77, 168, 218, 0.2);">
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: left; font-size: 0.85rem; text-transform: uppercase;">Producto</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Esperado</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Recibido</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: right; font-size: 0.85rem; text-transform: uppercase;">Precio Unit.</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: right; font-size: 0.85rem; text-transform: uppercase;">Subtotal</th>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Esperado</th>
+                            <th>Recibido</th>
+                            <th>Precio Unit.</th>
+                            <th>Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for detalle in recepcion.detalles.all %}
-                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1);">
-                            <td style="color: #E2E8F0; padding: 1rem;">
+                        <tr>
+                            <td>
                                 <strong>{{ detalle.detalle_compra.presentacion.nombre }}</strong><br>
-                                <small style="color: #8FA3B1;">{{ detalle.detalle_compra.presentacion.producto.nombre }}</small>
+                                <small>{{ detalle.detalle_compra.presentacion.producto.nombre }}</small>
                                 {% if detalle.observaciones %}
-                                    <br><small style="color: #e74c3c;">{{ detalle.observaciones }}</small>
+                                    <br><small>{{ detalle.observaciones }}</small>
                                 {% endif %}
                             </td>
-                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">{{ detalle.cantidad_esperada }}</td>
-                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">
+                            <td>{{ detalle.cantidad_esperada }}</td>
+                            <td>
                                 {{ detalle.cantidad_recibida }}
                                 {% if detalle.diferencia != 0 %}
-                                    <br><small style="color: {% if detalle.diferencia > 0 %}#f39c12{% else %}#e74c3c{% endif %};">
+                                    <br><small>
                                         {% if detalle.diferencia > 0 %}+{% endif %}{{ detalle.diferencia }}
                                     </small>
                                 {% endif %}
                             </td>
-                            <td style="color: #E2E8F0; padding: 1rem; text-align: right;">${{ detalle.detalle_compra.precio_unitario|floatformat:2 }}</td>
-                            <td style="color: #4DA8DA; padding: 1rem; text-align: right; font-weight: 600;">${{ detalle.detalle_compra.precio_unitario|floatformat:2|mul:detalle.cantidad_recibida|floatformat:2 }}</td>
+                            <td>${{ detalle.detalle_compra.precio_unitario|floatformat:2 }}</td>
+                            <td>${{ detalle.detalle_compra.precio_unitario|floatformat:2|mul:detalle.cantidad_recibida|floatformat:2 }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -136,60 +136,60 @@
 
             <!-- INFORMACIÓN DE PAGO -->
             {% if pago %}
-            <div style="background: rgba(39, 174, 96, 0.05); border: 1px solid rgba(39, 174, 96, 0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-                <h6 style="color: #E2E8F0; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">
+            <div>
+                <h6>
                     <i class="bi bi-credit-card-2-front"></i> Información de Pago
                 </h6>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Número de Factura</p>
-                        <p style="color: #E2E8F0; font-weight: 600;">{{ pago.numero_factura }}</p>
+                        <p>Número de Factura</p>
+                        <p>{{ pago.numero_factura }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Método de Pago</p>
-                        <p style="color: #E2E8F0; font-weight: 600;">{{ pago.get_metodo_pago_display }}</p>
+                        <p>Método de Pago</p>
+                        <p>{{ pago.get_metodo_pago_display }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Monto Pagado</p>
-                        <p style="color: #27ae60; font-weight: 700; font-size: 1.2rem;">${{ pago.monto_pagado|floatformat:2 }}</p>
+                        <p>Monto Pagado</p>
+                        <p>${{ pago.monto_pagado|floatformat:2 }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Fecha de Pago</p>
-                        <p style="color: #E2E8F0; font-weight: 600;">{{ pago.fecha_pago|date:"d/m/Y H:i" }}</p>
+                        <p>Fecha de Pago</p>
+                        <p>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</p>
                     </div>
                 </div>
 
-                <p style="color: #8FA3B1; font-size: 0.9rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(39, 174, 96, 0.2);">
-                    Registrado por: <strong style="color: #E2E8F0;">{{ pago.registrado_por.get_full_name|default:pago.registrado_por }}</strong>
+                <p>
+                    Registrado por: <strong>{{ pago.registrado_por.get_full_name|default:pago.registrado_por }}</strong>
                 </p>
             </div>
 
             <!-- ESTADO FINAL -->
-            <div style="background: rgba(39, 174, 96, 0.05); border-left: 4px solid #27ae60; border-radius: 4px; padding: 1rem;">
-                <p style="color: #E2E8F0; font-weight: 600; margin: 0;">
+            <div>
+                <p>
                     <i class="bi bi-check2-circle"></i> Estado del Pago:
-                    <span style="color: #27ae60;">✓ PAGADA</span>
+                    <span>✓ PAGADA</span>
                 </p>
-                <small style="color: #8FA3B1; display: block; margin-top: 0.5rem;">
+                <small>
                     Los lotes han sido creados automáticamente en inventario.
                 </small>
             </div>
             {% else %}
-            <div style="background: rgba(243, 156, 18, 0.1); border-left: 4px solid #f39c12; border-radius: 4px; padding: 1rem; margin-bottom: 2rem;">
-                <p style="color: #E2E8F0; font-weight: 600; margin: 0;">
+            <div>
+                <p>
                     <i class="bi bi-exclamation-circle"></i> Estado del Pago:
-                    <span style="color: #f39c12;">⏳ PENDIENTE</span>
+                    <span>⏳ PENDIENTE</span>
                 </p>
-                <small style="color: #8FA3B1; display: block; margin-top: 0.5rem;">
+                <small>
                     Esta compra aún no ha sido pagada.
                 </small>
             </div>
             {% endif %}
 
             <!-- BOTONES -->
-            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">
+            <div>
+                <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Volver al Listado
                 </a>
             </div>

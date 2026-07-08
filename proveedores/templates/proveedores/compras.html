@@ -60,7 +60,7 @@
     </div>
 
     <!-- Nueva Compra (Acción → abre modal) -->
-    <div class="kpi-card kpi-card-pink" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra" style="cursor:pointer;">
+    <div class="kpi-card kpi-card-pink" data-bs-toggle="modal" data-bs-target="#modalNuevaCompra">
       <div class="kpi-card-top">
         <div class="kpi-icon-box pink"><i class="bi bi-plus-circle"></i></div>
         <span class="kpi-badge pink">ACCIÓN</span>
@@ -131,7 +131,7 @@
       <div class="card card-dev card-header-top">
 
         <!-- Header clicable para colapsar -->
-        <div class="card-header border-bottom gradient-header" style="cursor: pointer; padding: 1rem;">
+        <div class="card-header border-bottom gradient-header">
           <div class="d-flex align-items-center justify-content-between">
             <!-- Parte izquierda (solo información) -->
             <div class="d-flex align-items-center gap-3">
@@ -156,7 +156,7 @@
               <span class="badge badge-cyan">{{ compras|length|default:0 }}</span>
               <!-- Solo el chevron controla el collapse -->
               <i class="bi bi-chevron-down"
-                 style="transition: transform 0.3s ease; font-size: 1.2rem; cursor: pointer;"
+                
                  data-bs-toggle="collapse"
                  data-bs-target="#collapseHistorial"
                  aria-expanded="true"
@@ -216,15 +216,15 @@
                     </td>
                     <td class="text-center small">
                       {% if compra.estado_pago == 'pagada' %}
-                        <span class="badge" style="background: rgba(39, 174, 96, 0.2); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.3);">
+                        <span class="badge badge-success-custom">
                           <i class="bi bi-check-circle me-1"></i>Pagada
                         </span>
                       {% elif compra.estado_pago == 'parcial' %}
-                        <span class="badge" style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3);">
+                        <span class="badge badge-warning-custom">
                           <i class="bi bi-dash-circle me-1"></i>Parcial
                         </span>
                       {% else %}
-                        <span class="badge" style="background: rgba(155, 93, 229, 0.2); color: #9b5de5; border: 1px solid rgba(155, 93, 229, 0.3);">
+                        <span class="badge badge-pending-custom">
                           <i class="bi bi-hourglass-split me-1"></i>Pendiente
                         </span>
                       {% endif %}
@@ -551,7 +551,7 @@
         <div id="tablaProveedores" class="table-scroll">
           {% if todos_proveedores %}
             {% for prov in todos_proveedores %}
-            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" data-proveedor-name="{{ prov.nombre_empresa }}" onclick="window.location.href='?proveedor={{ prov.id }}'" style="cursor: pointer; transition: all 0.3s ease;">
+            <div class="card card-inner fila-proveedor mb-2 p-3" data-nombre="{{ prov.nombre_empresa|lower }}" data-contacto="{{ prov.nombre_contacto|lower }}" data-telefono="{{ prov.telefono|lower|default:'' }}" data-id="{{ prov.id }}" data-proveedor-name="{{ prov.nombre_empresa }}" onclick="window.location.href='?proveedor={{ prov.id }}'">
               <div class="d-flex align-items-start justify-content-between">
                 <div class="d-flex gap-3">
                   <div class="icon-bg-primary">
@@ -900,13 +900,13 @@
 
 <div class="modal fade" id="modalPago" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
-            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.15) !important; padding: 2rem !important;">
+        <div class="modal-content">
+            <div class="modal-header">
                 <div>
-                    <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem;">
-                        <i class="bi bi-credit-card" style="color: #f39c12; font-size: 1.5rem;"></i> Información de Pago
+                    <h5 class="modal-title">
+                        <i class="bi bi-credit-card"></i> Información de Pago
                     </h5>
-                    <small style="color: #8FA3B1;">Completa los datos de pago para esta compra</small>
+                    <small>Completa los datos de pago para esta compra</small>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -915,25 +915,25 @@
                 {% csrf_token %}
                 <input type="hidden" id="compraId" name="compra_id">
 
-                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
+                <div class="modal-body modal-custom-body">
 
                     <!-- Número de Factura -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                        <label class="form-label">
                             <i class="bi bi-file-earmark me-2"></i>Número de Factura
                         </label>
                         <input type="text" id="numeroFactura" name="numero_factura" class="form-control form-control-lg"
-                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; font-size: 1rem;"
+                              
                                placeholder="Ej: FAC-2026-001">
                     </div>
 
                     <!-- Método de Pago - TARJETAS COMPACTAS -->
                     <div class="mb-4">
-                        <label style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; display: block; margin-bottom: 1rem;">
+                        <label>
                             <i class="bi bi-wallet2 me-2"></i>Elige Método de Pago
                         </label>
 
-                        <div style="display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px;">
+                        <div>
                             <!-- Efectivo -->
                             <div class="metodo-pago-card-compact" data-value="efectivo">
                                 <i class="bi bi-cash-coin"></i>
@@ -976,11 +976,11 @@
 
                     <!-- Estado de Pago -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                        <label class="form-label">
                             <i class="bi bi-check-circle me-2"></i>Estado de Pago
                         </label>
                         <select id="estadoPago" name="estado_pago" class="form-select form-select-lg"
-                                style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                               >
                             <option value="pendiente">Pendiente de Pago</option>
                             <option value="parcial">Pago Parcial</option>
                             <option value="pagada">Pagada</option>
@@ -988,32 +988,32 @@
                     </div>
 
                     <!-- Monto Pagado (si es parcial) -->
-                    <div class="mb-4" id="montoPagadoDiv" style="display: none;">
-                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                    <div class="mb-4" id="montoPagadoDiv">
+                        <label class="form-label">
                             <i class="bi bi-cash me-2"></i>Monto Pagado
                         </label>
                         <div class="input-group input-group-lg">
-                            <span class="input-group-text" style="background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #f39c12 !important; font-weight: 600;">$</span>
+                            <span class="input-group-text">$</span>
                             <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01"
-                                   style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                                  >
                         </div>
                     </div>
 
                     <!-- Fecha de Pago -->
                     <div class="mb-0">
-                        <label class="form-label" style="color: #8FA3B1 !important; font-weight: 600; text-transform: uppercase; font-size: 0.8rem;">
+                        <label class="form-label">
                             <i class="bi bi-calendar me-2"></i>Fecha de Pago
                         </label>
                         <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control form-control-lg"
-                               style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;">
+                              >
                     </div>
                 </div>
 
-                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.15) !important; padding: 1.5rem 2rem !important;">
-                    <button type="button" class="btn btn-lg" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600;">
+                <div class="modal-footer modal-custom-footer">
+                    <button type="button" class="btn btn-lg btn-modal-secondary">
                         <i class="bi bi-x-circle me-2"></i>Cancelar
                     </button>
-                    <button type="submit" class="btn btn-lg" style="background: #f39c12 !important; border: none !important; color: #fff !important; font-weight: 700 !important;">
+                    <button type="submit" class="btn btn-lg btn-modal-primary">
                         <i class="bi bi-check-circle me-2"></i>Guardar Pago
                     </button>
                 </div>
