@@ -32,12 +32,12 @@
   <!-- ACCIONES RÁPIDAS -->
 <div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
   {% if request.session.usuario_rol == 'admin' %}
-  <a href="#" class="cys-btn cys-btn--primary">
+  <a href="{% url 'listar_ordenes' %}" class="cys-btn cys-btn--primary">
     <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
   </a>
   {% endif %}
   {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' or request.session.usuario_rol == 'empleado' %}
-  <a href="#" class="cys-btn cys-btn--danger">
+  <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn cys-btn--danger">
     <i class="bi bi-receipt"></i> Registrar Venta
   </a>
   {% endif %}

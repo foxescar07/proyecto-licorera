@@ -703,7 +703,7 @@ def crear_orden(request):
             {'nombre': 'Nueva Orden', 'url': None},
         ],
     }
-    return render(request, 'proveedores/nueva_orden.html', context)
+    return render(request, 'proveedores/orden_compra.html', context)
 
 
 @login_required
