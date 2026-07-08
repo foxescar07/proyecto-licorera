@@ -290,6 +290,14 @@ class HistorialOrden(models.Model):
 class Compra(models.Model):
     """Modelo para registrar compras a proveedores (heredado/legacy)."""
 
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('confirmada', 'Confirmada'),
+        ('recibida', 'Recibida'),
+        ('pagada', 'Pagada'),
+        ('cancelada', 'Cancelada'),
+    ]
+
     METODO_PAGO_CHOICES = [
         ('transferencia', 'Transferencia Bancaria'),
         ('efectivo', 'Efectivo'),
@@ -310,6 +318,12 @@ class Compra(models.Model):
         on_delete=models.CASCADE,
         related_name='compras_legacy',
         help_text="Proveedor"
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='pendiente',
+        help_text="Estado de la compra"
     )
     producto = models.ForeignKey(
         'productos.Producto',
@@ -340,6 +354,13 @@ class Compra(models.Model):
         validators=[MinValueValidator(Decimal('0.01'))],
         help_text="Precio por unidad"
     )
+    total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        help_text="Total de la compra"
+    )
     fecha_registro = models.DateTimeField(
         auto_now_add=True,
         null=True,
@@ -349,6 +370,17 @@ class Compra(models.Model):
     recibida = models.BooleanField(
         default=False,
         help_text="¿Ha sido recibida?"
+    )
+    cantidad_recibida = models.IntegerField(
+        null=True,
+        blank=True,
+        default=0,
+        help_text="Cantidad recibida"
+    )
+    fecha_recepcion = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha de recepción"
     )
     numero_factura = models.CharField(
         max_length=50,
@@ -387,12 +419,12 @@ class Compra(models.Model):
         verbose_name = 'Compra'
         verbose_name_plural = 'Compras'
 
-    @property
-    def total(self):
-        """Calcula el total de la compra."""
+    def save(self, *args, **kwargs):
         if self.precio_unitario:
-            return self.cantidad * self.precio_unitario
-        return None
+            self.total = self.cantidad * self.precio_unitario
+        else:
+            self.total = Decimal('0.00')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.proveedor.nombre_empresa} → {self.producto.nombre} ({self.cantidad} uds)"

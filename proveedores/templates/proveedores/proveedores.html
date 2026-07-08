@@ -4,7 +4,9 @@
 {% block page_title %}Proveedores{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes/reportes.css' %}">
 <link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -69,83 +71,78 @@
     {% endfor %}
   {% endif %}
 
-  <!-- BÚSQUEDA Y ACCIONES -->
-  <div class="card card-dev p-3 mb-2">
-    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-      <!-- Búsqueda -->
-      <form method="GET" action="/proveedores/" style="flex: 1; min-width: 250px; display: flex; gap: 0;">
-        <div style="flex: 1; display: flex; align-items: center; background: rgba(13, 27, 42, 0.5); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 8px 0 0 8px; padding: 0 12px;">
-          <input type="text" name="q" style="flex: 1; background: none; border: none; color: #e2e8f0; padding: 12px 0; outline: none; font-size: 0.95rem;" placeholder="Buscar por empresa o contacto..." value="{{ request.GET.q }}">
+  <!-- TABLA DE PROVEEDORES (ESTILO REPORTES) -->
+  <section class="cys-card mb-4">
+    <div class="cys-card__title">
+      <i class="bi bi-table cys-card__title-icon"></i>Tabla de Proveedores
+    </div>
+
+    <!-- Barra de filtros -->
+    <div class="cys-hv-filters">
+
+      <!-- Buscador -->
+      <div class="cys-hv-date-group">
+        <span class="cys-hv-date-label">&nbsp;</span>
+        <div class="cys-hv-search-wrap">
+          <i class="bi bi-search cys-hv-search-icon"></i>
+          <input type="text" id="buscar-proveedores" class="cys-hv-search-input"
+                 placeholder="Buscar proveedor...">
         </div>
-        <button type="submit" style="background: rgba(77, 168, 218, 0.2); border: 1px solid rgba(77, 168, 218, 0.2); border-left: none; border-radius: 0 8px 8px 0; color: #4DA8DA; cursor: pointer; padding: 0 16px; font-size: 1.1rem; transition: all 0.2s; display: flex; align-items: center;">
-          <i class="bi bi-search"></i>
-        </button>
-      </form>
+      </div>
 
       <!-- Nuevo proveedor -->
-      <button type="button" class="btn btn-nuevo-proveedor" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor" style="border-radius: 8px; white-space: nowrap;">
-        <i class="bi bi-plus-lg me-2"></i>Nuevo proveedor
-      </button>
-    </div>
-  </div>
-
-  <!-- TABLA DE PROVEEDORES (DESPLEGABLE) -->
-  <div class="card card-dev mb-0">
-    <!-- Encabezado Desplegable -->
-    <button class="btn btn-link w-100 text-start p-3" type="button" data-bs-toggle="collapse" data-bs-target="#tablaProveedoresCollapse" aria-expanded="true">
-      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <h5 style="margin: 0; color: #FDFFFC; font-weight: 700; font-size: 1rem;">
-          <i class="bi bi-table me-2" style="color: #4DA8DA;"></i>
-          Tabla de Proveedores
-        </h5>
-        <i class="bi bi-chevron-down" style="color: #4DA8DA; transition: transform 0.3s ease;" id="iconoExpand"></i>
+      <div class="cys-hv-date-group ms-auto">
+        <span class="cys-hv-date-label">&nbsp;</span>
+        <button type="button" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor"
+                style="background: #4DA8DA; color: #1a2b3c; border: none; border-radius: 50px; padding: 10px 28px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(77,168,218,0.3);">
+          <i class="bi bi-plus-circle"></i> Nuevo proveedor
+        </button>
       </div>
-    </button>
 
-    <!-- Tabla Desplegable -->
-    <div class="collapse show" id="tablaProveedoresCollapse">
-      <div class="card-dev p-0">
-        <div class="table-responsive" style="overflow-y: auto; overflow-x: auto; overflow: visible;">
+    </div><!-- /cys-hv-filters -->
 
-      <table class="table table-sm mb-0" id="tablaProveedores">
-        <thead style="background: rgba(77, 168, 218, 0.08);">
+    <div class="table-responsive mt-3">
+      <table class="cys-inv-table table w-100" id="tablaProveedores">
+        <thead>
           <tr>
-            <th class="fw-bold small text-cyan">Empresa</th>
-            <th class="fw-bold small text-cyan">Contacto</th>
-            <th class="fw-bold small text-cyan">Tipo</th>
-            <th class="fw-bold small text-cyan">Estado</th>
-            <th class="fw-bold small text-cyan">Responsable</th>
-            <th class="fw-bold small text-cyan">Fecha Registro</th>
-            <th class="fw-bold small text-center text-cyan">Acciones</th>
+            <th class="cys-col-num">#</th>
+            <th>Empresa</th>
+            <th>Contacto</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Responsable</th>
+            <th>Fecha Registro</th>
+            <th class="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody id="cuerpoTabla">
           {% for p in proveedores %}
-          <tr class="fila-proveedor" data-empresa="{{ p.nombre_empresa|lower }}" data-contacto="{{ p.nombre_contacto|lower }}" data-estado="{{ p.estado }}" data-tipo="{{ p.tipo_proveedor }}">
-            <td class="fw-bold small">
+          <tr class="cys-tr fila-proveedor" data-empresa="{{ p.nombre_empresa|lower }}" data-contacto="{{ p.nombre_contacto|lower }}" data-estado="{{ p.estado }}" data-tipo="{{ p.tipo_proveedor }}">
+            <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
+            <td class="cys-td cys-td--bold" data-label="Empresa">
               {{ p.nombre_empresa }}<br>
-              <span class="text-sm text-md">{{ p.email }}</span>
+              <span class="text-sm text-md" style="font-weight: normal; color: var(--texto-muted);">{{ p.email }}</span>
             </td>
-            <td class="small">{{ p.nombre_contacto }}</td>
-            <td>
-              <span class="badge badge-cyan-bg">
+            <td class="cys-td" data-label="Contacto">{{ p.nombre_contacto }}</td>
+            <td class="cys-td" data-label="Tipo">
+              <span class="cys-tag cys-tag--prov">
                 {{ p.get_tipo_proveedor_display }}
               </span>
             </td>
-            <td>
-              <span class="badge
-                {% if p.estado == 'activo' %}badge-status-activo
-                {% elif p.estado == 'inactivo' %}badge-status-inactivo
-                {% else %}badge-status-sancionado{% endif %}">
+            <td class="cys-td" data-label="Estado">
+              <span class="cys-badge
+                {% if p.estado == 'activo' %}cys-badge--verde
+                {% elif p.estado == 'inactivo' %}cys-badge--amarillo
+                {% else %}cys-badge--rojo{% endif %}">
                 {{ p.get_estado_display|upper }}
               </span>
             </td>
-            <td class="small text-md">{{ p.registrado_por.email|default:"Admin" }}</td>
-            <td class="small">
+            <td class="cys-td cys-td--muted" data-label="Responsable">{{ p.registrado_por.email|default:"Admin" }}</td>
+            <td class="cys-td" data-label="Fecha Registro">
               <div class="fw-bold">{{ p.fecha_registro|date:"d/m/Y" }}</div>
-              <span class="text-sm">{{ p.fecha_registro|date:"H:i" }}</span>
+              <span class="text-sm" style="color: var(--texto-muted);">{{ p.fecha_registro|date:"H:i" }}</span>
             </td>
-            <td class="text-center">
+            <td class="cys-td text-center" data-label="Acciones">
               <div class="dropdown">
                 <button class="btn btn-sm btn-link text-cyan p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Acciones" style="text-decoration: none; font-size: 1.2rem;">
                   <i class="bi bi-three-dots-vertical"></i>
@@ -188,95 +185,35 @@
                     </button>
                   </li>
                   {% endif %}
+                  <li>
+                    <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarProveedor{{ p.id }}" style="border: none; background: none; cursor: pointer;">
+                      <i class="bi bi-trash me-2"></i>Eliminar
+                    </button>
+                  </li>
                 </ul>
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="7" class="text-center py-5">
-              <i class="bi bi-search d-block mb-2" style="font-size: 2rem; color: var(--text-md); opacity: 0.5;"></i>
-              <small class="text-md">
-                {% if request.GET.q or request.GET.estado or request.GET.tipo %}
-                  No se encontraron proveedores con los filtros aplicados
-                {% else %}
-                  No hay proveedores registrados
-                {% endif %}
-              </small>
+            <td colspan="8" class="cys-td--empty border-0">
+              <div class="cys-empty-box">
+                <i class="bi bi-truck"></i>
+                No se encontraron proveedores.
+              </div>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-
-      <!-- PAGINACIÓN -->
-      <div style="display: flex; justify-content: center; align-items: center; gap: 0.25rem; margin: 1rem 0; flex-wrap: wrap; padding: 0.5rem 1rem;">
-        <!-- Botón Primera -->
-        {% if page_obj.has_previous %}
-          <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.4); border-radius: 4px; color: #4DA8DA; text-decoration: none; transition: all 0.2s;">
-            <i class="bi bi-chevron-double-left" style="font-size: 0.75rem;"></i>
-          </a>
-        {% else %}
-          <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 4px; color: #6b7280;">
-            <i class="bi bi-chevron-double-left" style="font-size: 0.75rem;"></i>
-          </div>
-        {% endif %}
-
-        <!-- Botón Anterior -->
-        {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.4); border-radius: 4px; color: #4DA8DA; text-decoration: none; transition: all 0.2s;">
-            <i class="bi bi-chevron-left" style="font-size: 0.75rem;"></i>
-          </a>
-        {% else %}
-          <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 4px; color: #6b7280;">
-            <i class="bi bi-chevron-left" style="font-size: 0.75rem;"></i>
-          </div>
-        {% endif %}
-
-        <!-- Números de página -->
-        {% for num in paginator.page_range %}
-          {% if page_obj.number == num %}
-            <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.2); border: 1px solid #4DA8DA; border-radius: 4px; color: #4DA8DA; font-weight: 700; font-size: 0.75rem;">
-              {{ num }}
-            </div>
-          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.4); border-radius: 4px; color: #4DA8DA; text-decoration: none; transition: all 0.2s; font-size: 0.75rem;">
-              {{ num }}
-            </a>
-          {% endif %}
-        {% endfor %}
-
-        <!-- Botón Siguiente -->
-        {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.4); border-radius: 4px; color: #4DA8DA; text-decoration: none; transition: all 0.2s;">
-            <i class="bi bi-chevron-right" style="font-size: 0.75rem;"></i>
-          </a>
-        {% else %}
-          <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 4px; color: #6b7280;">
-            <i class="bi bi-chevron-right" style="font-size: 0.75rem;"></i>
-          </div>
-        {% endif %}
-
-        <!-- Botón Última -->
-        {% if page_obj.has_next %}
-          <a href="?page={{ paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.4); border-radius: 4px; color: #4DA8DA; text-decoration: none; transition: all 0.2s;">
-            <i class="bi bi-chevron-double-right" style="font-size: 0.75rem;"></i>
-          </a>
-        {% else %}
-          <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.2); border-radius: 4px; color: #6b7280;">
-            <i class="bi bi-chevron-double-right" style="font-size: 0.75rem;"></i>
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Información de paginación -->
-      <div style="text-align: center; color: #AF8D86; font-size: 0.8rem; margin-top: 0.75rem; padding: 0 1rem;">
-        Pág. {{ page_obj.number }} de {{ paginator.num_pages }}
-      </div>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Pie DataTables (info + paginación) -->
+    <div class="cys-hv-table-footer">
+      <span class="cys-hv-showing-info" id="cys-dt-info-proveedores"></span>
+      <div class="cys-hv-pagination-wrap" id="cys-dt-pagination-proveedores"></div>
+    </div>
+  </section>
   </div>
 
   <!-- TOP PROVEEDORES POR MONTO -->
@@ -763,4 +700,43 @@
   </div>
 </div>
 
+{% endblock %}
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+  var table = $('#tablaProveedores').DataTable({
+    paging: true,
+    searching: true,
+    info: true,
+    lengthChange: false,
+    pageLength: 10,
+    ordering: true,
+    responsive: true,
+    language: {
+      info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
+      infoEmpty: "Mostrando 0 a 0 de 0 proveedores",
+      paginate: { first:'«', previous:'‹', next:'›', last:'»' }
+    },
+    dom: 'rt<"cys-hv-table-footer"ip>'
+  });
+
+  // Conectar input personalizado
+  $('#buscar-proveedores').on('keyup', function() {
+    table.search(this.value).draw();
+  });
+
+  // Sincronizar export (si se usan filtros de fecha u otros parámetros)
+  function syncExportProv() {
+    // ejemplo: añadir query de búsqueda actual si se requiere
+    var q = $('#buscar-proveedores').val() || '';
+    var p = q ? ('&q=' + encodeURIComponent(q)) : '';
+    $('#btn-export-excel-prov').attr('href', '?export=excel&tipo=proveedores' + p);
+    $('#btn-export-pdf-prov').attr('href',   '?export=pdf&tipo=proveedores' + p);
+  }
+  $('#buscar-proveedores').on('keyup change', syncExportProv);
+  syncExportProv();
+});
+</script>
 {% endblock %}

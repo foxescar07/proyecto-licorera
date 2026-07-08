@@ -177,6 +177,7 @@
                   <th class="text-end small header-th">Precio</th>
                   <th class="text-end small header-th">Total</th>
                   <th class="text-center small header-th">Pago</th>
+                  <th class="text-center small header-th">Estado</th>
                   <th class="text-center small header-th">Fecha</th>
                   <th class="text-center small header-th">Acciones</th>
                 </tr>
@@ -228,6 +229,17 @@
                         </span>
                       {% endif %}
                     </td>
+                    <td class="text-center small">
+                      {% if compra.estado == 'confirmada' %}
+                        <span class="badge bg-primary text-white">Confirmada</span>
+                      {% elif compra.estado == 'recibida' %}
+                        <span class="badge bg-success text-white">Recibida</span>
+                      {% elif compra.estado == 'cancelada' %}
+                        <span class="badge bg-danger text-white">Cancelada</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                      {% endif %}
+                    </td>
                     <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
                     <td class="text-center">
                       <div class="btn-group btn-group-sm" role="group">
@@ -244,12 +256,17 @@
                                 title="Registrar pago">
                           <i class="bi bi-credit-card"></i>
                         </button>
+                        <button type="button" class="btn btn-outline-info py-0 px-2"
+                                onclick="abrirModalEstado({{ compra.id }}, '{{ compra.estado }}')"
+                                title="Cambiar estado">
+                          <i class="bi bi-arrow-repeat"></i>
+                        </button>
                       </div>
                     </td>
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="7" class="text-center py-5">
+                    <td colspan="9" class="text-center py-5">
                       <div class="d-flex flex-column align-items-center justify-content-center">
                         <i class="bi bi-clock-history icon-empty"></i>
                         <p class="fw-semibold mb-1">Sin compras registradas aun</p>
@@ -262,11 +279,11 @@
               {% if compras %}
                 <tfoot class="tfoot-total">
                   <tr>
-                    <td colspan="4" class="text-end fw-bold text-uppercase small">
+                    <td colspan="5" class="text-end fw-bold text-uppercase small">
                       <i class="bi bi-calculator me-1"></i>Subtotal
                     </td>
                     <td class="text-end fw-bold text-success">${{ subtotal_compras|default:0|floatformat:0 }}</td>
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
                   </tr>
                 </tfoot>
               {% endif %}
@@ -571,6 +588,43 @@
 
       <div class="modal-footer gradient-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CAMBIAR ESTADO DE COMPRA -->
+<div class="modal fade" id="modalEstadoCompra" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header gradient-header">
+        <div>
+          <h5 class="modal-title fw-bold"><i class="bi bi-arrow-repeat me-2"></i>Cambiar estado</h5>
+          <small class="text-muted">Selecciona el estado de la compra</small>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="formEstadoCompra">
+          {% csrf_token %}
+          <input type="hidden" id="compraEstadoId" name="compra_id">
+
+          <div class="mb-3">
+            <label for="nuevoEstado" class="form-label">Nuevo estado</label>
+            <select id="nuevoEstado" name="estado" class="form-select form-select-lg" required>
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="recibida">Recibida</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer gradient-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="formEstadoCompra" class="btn btn-primary fw-bold">
+          <i class="bi bi-check2 me-2"></i>Actualizar estado
+        </button>
       </div>
     </div>
   </div>
@@ -968,53 +1022,7 @@
     </div>
 </div>
 
-<style>
-.metodo-pago-card-compact {
-    flex: 0 0 auto;
-    min-width: 90px;
-    border: 2px solid rgba(100, 120, 140, 0.3);
-    border-radius: 8px;
-    padding: 12px 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(20, 40, 80, 0.6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    color: #8FA3B1;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-align: center;
-    user-select: none;
-}
 
-.metodo-pago-card-compact i {
-    font-size: 1.5rem;
-}
-
-/* Colores casi transparentes para cada método */
-.metodo-pago-card-compact[data-value="efectivo"] { --card-color: rgba(143, 163, 177, 0.2); }
-.metodo-pago-card-compact[data-value="tarjeta"] { --card-color: rgba(143, 163, 177, 0.2); }
-.metodo-pago-card-compact[data-value="transferencia"] { --card-color: rgba(143, 163, 177, 0.2); }
-.metodo-pago-card-compact[data-value="cheque"] { --card-color: rgba(143, 163, 177, 0.2); }
-.metodo-pago-card-compact[data-value="credito"] { --card-color: rgba(143, 163, 177, 0.2); }
-.metodo-pago-card-compact[data-value="otro"] { --card-color: rgba(143, 163, 177, 0.2); }
-
-.metodo-pago-card-compact:hover {
-    border-color: var(--card-color, #4DA8DA);
-    background: rgba(20, 40, 80, 0.9);
-    color: var(--card-color, #4DA8DA);
-    transform: translateY(-2px);
-}
-
-.metodo-pago-card-compact.active {
-    border-color: var(--card-color, #4DA8DA);
-    background: var(--card-color, #4DA8DA);
-    color: #fff;
-    box-shadow: 0 0 12px var(--card-color, rgba(77, 168, 218, 0.4));
-}
-</style>
 
 <script>
 // ════════════════════════════════════════════════════════════════
@@ -1048,11 +1056,49 @@ document.getElementById('estadoPago')?.addEventListener('change', function() {
 function abrirModalPago(compraId) {
     // Limpiar formulario
     document.getElementById('formPago').reset();
-    document.querySelectorAll('.metodo-pago-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
     document.getElementById('montoPagadoDiv').style.display = 'none';
 
     // Establecer ID de compra
     document.getElementById('compraId').value = compraId;
+}
+
+function abrirModalEstado(compraId, estadoActual) {
+    const modal = new bootstrap.Modal(document.getElementById('modalEstadoCompra'));
+    document.getElementById('compraEstadoId').value = compraId;
+    const selectEstado = document.getElementById('nuevoEstado');
+    if (selectEstado) {
+        selectEstado.value = estadoActual || 'pendiente';
+    }
+    modal.show();
+}
+
+const formEstadoCompra = document.getElementById('formEstadoCompra');
+if (formEstadoCompra) {
+    formEstadoCompra.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const compraId = document.getElementById('compraEstadoId').value;
+        const inicio = new FormData(this);
+        fetch(`/proveedores/compras/${compraId}/cambiar-estado/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+            body: inicio
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.status === 'ok') {
+                alert('✓ Estado actualizado correctamente');
+                bootstrap.Modal.getInstance(document.getElementById('modalEstadoCompra')).hide();
+                location.reload();
+            } else {
+                alert('Error: ' + d.message);
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error al actualizar el estado');
+        });
+    });
 }
 
 // Enviar formulario de pago
