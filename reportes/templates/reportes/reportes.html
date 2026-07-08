@@ -472,18 +472,12 @@
 
         <div class="table-responsive cys-modal-table-wrap">
           <table class="cys-inv-table" id="tabla-modal-stock">
-            <colgroup>
-              <col style="width:6%">
-              <col style="width:54%">
-              <col style="width:15%">
-              <col style="width:25%">
-            </colgroup>
            <thead>
           <tr>
           <th class="cys-col-num">#</th>
-          <th style="width:60%;">PRODUCTO</th>
-        <th style="width:12%; text-align:center;">STOCK</th>
-        <th style="width:18%; text-align:center;">ESTADO</th>
+          <th class="cys-col-producto">PRODUCTO</th>
+        <th class="cys-col-stock">STOCK</th>
+        <th class="cys-col-estado">ESTADO</th>
       </tr>
 </thead>
             <tbody>
@@ -491,11 +485,10 @@
               <tr class="cys-tr inv-row">
                 <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                 <td data-label="Producto"
-    class="cys-td cys-td--bold"
-    style="width:60%; text-align:left;">
+    class="cys-td cys-td--bold cys-col-producto">
     {{ p.nombre }}
 </td>
-                <td data-label="Stock" style="width:12%; text-align:center;">
+                <td data-label="Stock" class="cys-col-stock">
                   {% if p.cantidad_disponible == 0 %}
                     <span class="cys-qty cys-qty--out">{{ p.cantidad_disponible }}</span>
                   {% elif p.cantidad_disponible <= 10 %}
@@ -504,7 +497,7 @@
                     <span class="cys-qty cys-qty--ok">{{ p.cantidad_disponible }}</span>
                   {% endif %}
                 </td>
-                <td data-label="Estado" style="width:18%; text-align:center;">
+                <td data-label="Estado" class="cys-col-estado">
                   {% if p.cantidad_disponible == 0 %}
                     <span class="cys-badge cys-badge--rojo">Agotado</span>
                   {% elif p.cantidad_disponible <= 10 %}
@@ -1711,7 +1704,7 @@ function renderReportCardChart(wrap, card) {
     });
 
     if (data.length === 0) {
-        wrap.innerHTML = '<div class="cys-empty-box" style="padding:10px 0;font-size:.75rem;">Sin datos suficientes para graficar.</div>';
+        wrap.innerHTML = '<div class="cys-empty-box cys-empty-box--mini">Sin datos suficientes para graficar.</div>';
         return;
     }
 
