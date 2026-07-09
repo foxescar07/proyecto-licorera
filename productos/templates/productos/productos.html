@@ -12,34 +12,43 @@
 
 {% block content %}
 <div class="container-fluid p-0">
+
+<!-- ═══════ HEADER: TITULO + NUEVO PRODUCTO ═══════ -->
+<div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
+
+  <button type="button" class="btn prod-btn-primary prod-btn-nuevo px-4 py-2 d-flex align-items-center gap-2"
+          data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
+    <i class="bi bi-plus-lg"></i> Nuevo Producto
+  </button>
+</div>
+
 <!-- ═══════ ESTADÍSTICAS COMPACTAS — VAN PRIMERO ═══════ -->
 <div class="row g-3 mb-4">
 
   <!-- Donut + últimos en una fila -->
   <div class="col-md-5">
-    <!-- Cámbialo por: -->
-<div class="prod-card p-3 h-100" style="border-radius:12px; border-left:3px solid #88eeb8 !important;">
-      <div class="prod-label mb-3"><i class="bi bi-pie-chart-fill me-1" style="color:#4DA8DA;"></i>Por categoría</div>
+    <div class="prod-card prod-card-donut p-3 h-100">
+      <div class="prod-label mb-3"><i class="bi bi-pie-chart-fill me-1 prod-icon-blue"></i>Por categoría</div>
       <div class="d-flex align-items-center gap-3">
-        <div style="position:relative;width:130px;height:130px;flex-shrink:0;">
+        <div class="prod-donut-wrap">
           <svg id="donut-svg" width="130" height="130" viewBox="0 0 130 130">
             <circle cx="65" cy="65" r="53" fill="none" stroke="rgba(77,168,218,.08)" stroke-width="20"/>
           </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <span style="font-size:1.3rem;font-weight:700;color:#e2e8f0;line-height:1;">{{ productos|length }}</span>
-            <span style="font-size:.6rem;color:rgba(226,232,240,.4);">total</span>
+          <div class="prod-donut-center">
+            <span class="prod-donut-total">{{ productos|length }}</span>
+            <span class="prod-donut-total-label">total</span>
           </div>
         </div>
-        <div id="donut-leyenda" style="flex:1;display:flex;flex-direction:column;gap:5px;overflow-y:auto;max-height:100px;"></div>
+        <div id="donut-leyenda" class="prod-donut-legend"></div>
       </div>
     </div>
   </div>
 
   <!-- Últimos productos -->
   <div class="col-md-7">
-    <div class="prod-card p-3 h-100" style="border-radius:12px; border-left:3px solid #c62dd4 !important;">
-      <div class="prod-label mb-2"><i class="bi bi-clock-history me-1" style="color:#27ae60;"></i>Últimos agregados</div>
-      <ul class="list-unstyled mb-0" id="lista-ultimos2" style="display:flex;flex-direction:column;gap:6px;"></ul>
+    <div class="prod-card prod-card-ultimos p-3 h-100">
+      <div class="prod-label mb-2"><i class="bi bi-clock-history me-1 prod-icon-green"></i>Últimos agregados</div>
+      <ul class="list-unstyled mb-0 prod-lista-ultimos" id="lista-ultimos2"></ul>
     </div>
   </div>
 
@@ -51,37 +60,30 @@
 
   <!-- CUADRO CATEGORÍAS -->
   <div class="col-md-3">
-    <div class="card h-100 prod-card shadow-sm" style="border-radius:14px; border-top:3px solid #4DA8DA !important; min-height:320px;">
-      <div class="card-header prod-card-header d-flex justify-content-between align-items-center px-4 py-3">
+    <div class="card h-100 prod-card prod-card-categorias shadow-sm">
+      <div class="card-header prod-card-header px-4 py-3">
         <span class="fw-semibold fs-6">
-          <i class="bi bi-tags-fill me-2" style="color:#4DA8DA;"></i>Categorías
+          <i class="bi bi-tags-fill me-2 prod-icon-blue"></i>Categorías
         </span>
-        <button class="btn btn-sm prod-btn-primary rounded-circle d-flex align-items-center justify-content-center"
-                style="width:32px;height:32px;"
-                data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
-          <i class="bi bi-plus-lg" style="font-size:.8rem;"></i>
-        </button>
       </div>
       <div class="card-body px-4 pt-0 pb-4">
-        <p class="text-uppercase prod-label mb-3" style="letter-spacing:.08em;">Selecciona una categoria</p>
-        
-        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
+        <p class="text-uppercase prod-label mb-3 prod-cat-subtitle">Selecciona una categoria</p>
+
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip prod-cat-chip-style"
                 data-cat-pk="todos"
                 data-cat-nombre="Todos los productos"
-                onclick="filtrarCategoria(this)"
-                style="font-size:.9rem; border-radius:8px;">
-          <span class="text-truncate me-2" style="max-width:120px; font-weight: 600;">Todos</span>
-          <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ productos|length }}</span>
+                onclick="filtrarCategoria(this)">
+          <span class="text-truncate me-2 prod-cat-truncate-bold">Todos</span>
+          <span class="badge rounded-pill flex-shrink-0 prod-cat-badge">{{ productos|length }}</span>
         </button>
 
         {% for cat in resumen_categorias %}
-        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip"
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip prod-cat-chip-style"
                 data-cat-pk="{{ cat.pk }}"
                 data-cat-nombre="{{ cat.nombre }}"
-                onclick="filtrarCategoria(this)"
-                style="font-size:.9rem; border-radius:8px;">
-          <span class="text-truncate me-2" style="max-width:120px;">{{ cat.nombre }}</span>
-          <span class="badge rounded-pill flex-shrink-0" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.75rem;">{{ cat.total }}</span>
+                onclick="filtrarCategoria(this)">
+          <span class="text-truncate me-2 prod-cat-truncate">{{ cat.nombre }}</span>
+          <span class="badge rounded-pill flex-shrink-0 prod-cat-badge">{{ cat.total }}</span>
         </button>
         {% empty %}
         <p class="prod-label small px-1 mb-0">Sin categorías registradas.</p>
@@ -92,40 +94,38 @@
 
   <!-- CUADRO TABLA -->
   <div class="col-md-9">
-    <div class="card h-100 prod-card shadow-sm" style="border-radius:14px; border-top:3px solid #27ae60 !important; min-height:320px;">
+    <div class="card h-100 prod-card prod-card-tabla shadow-sm">
       <div class="card-header prod-card-header d-flex justify-content-between align-items-center px-4 py-3">
         <span class="fw-semibold fs-6">
           <i class="bi bi-box-seam me-2 text-success"></i>
           <span id="cat-titulo">Productos por categoría</span>
         </span>
-        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline px-3" style="font-size:.82rem;">
+        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline prod-btn-gestion px-3">
           <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
         </a>
       </div>
-      <div class="card-body p-0" style="position:relative; min-height:280px;">
+      <div class="card-body p-0 prod-card-body-rel">
 
         <!-- Estado vacío -->
         <div id="cat-empty-state"
-             class="d-flex flex-column align-items-center justify-content-center py-5"
-             style="position:absolute; inset:0; transition:opacity .35s ease; opacity:1; pointer-events:auto;">
-          <i class="bi bi-hand-index-thumb fs-1 mb-3" style="color:#4DA8DA; opacity:.4;"></i>
+             class="d-flex flex-column align-items-center justify-content-center py-5 prod-empty-state">
+          <i class="bi bi-hand-index-thumb fs-1 mb-3 prod-icon-hand"></i>
           <span class="small prod-label">Selecciona una categoría para ver sus productos</span>
         </div>
 
         <!-- Tabla -->
-        <div id="cat-tabla-wrap"
-             style="position:absolute; inset:0; transition:opacity .35s ease; opacity:0; pointer-events:none; overflow-y:auto;">
+        <div id="cat-tabla-wrap" class="prod-tabla-wrap">
           <div class="table-responsive">
             <table class="table align-middle mb-0" id="tablaProductosCat">
   <thead>
-    <tr style="font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;">
+    <tr class="prod-thead-row">
       <th class="px-4 py-3 fw-normal prod-label text-center">#</th>
       <th class="py-3 fw-normal prod-label text-center">Nombre</th>
       <th class="py-3 fw-normal prod-label text-center">Código</th>
       <th class="py-3 fw-normal prod-label text-center">Presentaciones</th>
     </tr>
   </thead>
-  <tbody id="cat-tbody" style="font-size:.88rem;"></tbody>
+  <tbody id="cat-tbody" class="prod-tbody-font"></tbody>
 </table>
           </div>
         </div>
@@ -164,22 +164,21 @@
               <div class="col-md-12">
               <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
               <div class="dropdown w-100">
-                <button class="btn dropdown-toggle w-100 text-start prod-input" type="button"
-                    id="crear-categoria-btn" data-bs-toggle="dropdown"
-                    style="font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+                <button class="btn dropdown-toggle w-100 text-start prod-input prod-categoria-select-btn" type="button"
+                    id="crear-categoria-btn" data-bs-toggle="dropdown">
                   <span id="crear-categoria-label">— Seleccionar —</span>
                 </button>
-                <ul class="dropdown-menu prod-dropdown-menu w-100" style="max-height:280px; overflow-y:auto;">
+                <ul class="dropdown-menu prod-dropdown-menu prod-dropdown-menu-scroll w-100">
                   {% for main_cat in categorias %}
                     <li><h6 class="dropdown-header">{{ main_cat.nombre }}</h6></li>
                     <li>
-                      <a class="dropdown-item crear-cat-item" href="#" data-value="{{ main_cat.pk }}" style="color:#c8d6e5;">
+                      <a class="dropdown-item crear-cat-item prod-dropdown-item-color" href="#" data-value="{{ main_cat.pk }}">
                         {{ main_cat.nombre }} (Principal)
                       </a>
                     </li>
                     {% for sub_cat in main_cat.subcategorias.all %}
                     <li>
-                      <a class="dropdown-item crear-cat-item" href="#" data-value="{{ sub_cat.pk }}" style="color:#c8d6e5; padding-left:1.5rem;">
+                      <a class="dropdown-item crear-cat-item prod-dropdown-subitem-color" href="#" data-value="{{ sub_cat.pk }}">
                         └ {{ sub_cat.nombre }}
                       </a>
                     </li>
@@ -211,7 +210,7 @@
 <!-- ═══════ MODAL: PRESENTACIONES ═══════ -->
 <div class="modal fade" id="modalPresentacionesProducto" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content prod-modal" style="max-height:90vh; overflow-y:auto;">
+    <div class="modal-content prod-modal prod-modal-scroll">
       <div class="modal-header prod-modal-header sticky-top">
         <h6 class="modal-title">
           <i class="bi bi-layers me-2 text-info"></i>
@@ -369,6 +368,7 @@ const todoProductos = [
     nombre: "{{ producto.nombre|escapejs }}",
     codigo: "{{ producto.codigo|escapejs }}",
     categoria_pk: {{ producto.categoria.pk }},
+    categoria_padre_pk: {% if producto.categoria.padre %}{{ producto.categoria.padre.pk }}{% else %}null{% endif %},
     categoria_nombre: "{{ producto.categoria.nombre|escapejs }}",
     stock_total: {{ producto.stock_total }},
     stock_critico: {% if producto.stock_critico %}true{% else %}false{% endif %},
@@ -388,6 +388,40 @@ const todoProductos = [
   {% endfor %}
 ];
 let ultimaCatPk = null;
+let dtInstance = null;
+
+// Se inicializa UNA sola vez, con la tabla vacía
+document.addEventListener('DOMContentLoaded', function () {
+  dtInstance = $('#tablaProductosCat').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    language: {
+      zeroRecords: "Sin resultados.",
+      emptyTable: "No hay productos en esta categoría."
+    }
+  });
+});
+
+function filasHtmlDe(filtrados) {
+  return filtrados.map((p, i) => {
+    const pres = p.presentaciones.length
+      ? p.presentaciones.map(pr =>
+          `<span class="badge me-1" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.72rem; padding:3px 7px; border-radius:6px;">
+            ${pr.nombre} · ${pr.unidades} uds · $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
+          </span>`).join('')
+      : `<span class="prod-label" style="font-size:.82rem;">Sin definir</span>`;
+
+    return `<tr>
+      <td class="px-4 prod-label text-center">${i + 1}</td>
+      <td class="fw-semibold" style="color:var(--prod-texto);">${p.nombre}</td>
+      <td style="color:#4DA8DA; font-family:monospace;" class="text-center">${p.codigo || '—'}</td>
+      <td>${pres}</td>
+    </tr>`;
+  }).join('');
+}
 
 function filtrarCategoria(btn) {
   const pk     = btn.dataset.catPk;
@@ -408,55 +442,21 @@ function filtrarCategoria(btn) {
   document.querySelectorAll('.prod-cat-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  const filtrados = pk === 'todos' ? todoProductos : todoProductos.filter(p => p.categoria_pk == pk);
+  const filtrados = pk === 'todos'
+    ? todoProductos
+    : todoProductos.filter(p => String(p.categoria_pk) === String(pk) || String(p.categoria_padre_pk) === String(pk));
+
   document.getElementById('cat-titulo').textContent =
     nombre + ' — ' + filtrados.length + ' producto' + (filtrados.length !== 1 ? 's' : '');
 
   empty.style.opacity = '0'; empty.style.pointerEvents = 'none';
   tabla.style.opacity = '1'; tabla.style.pointerEvents = 'auto';
 
-  const tbody = document.getElementById('cat-tbody');
-
-  if (!filtrados.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 prod-label">
-      <i class="bi bi-box-seam d-block mb-2 fs-4"></i>No hay productos en esta categoría.</td></tr>`;
-    return;
+  dtInstance.clear();
+  if (filtrados.length) {
+    dtInstance.rows.add($(filasHtmlDe(filtrados)));
   }
-
-  tbody.innerHTML = filtrados.map((p, i) => {
-    const pres = p.presentaciones.length
-      ? p.presentaciones.map(pr =>
-          `<span class="badge me-1" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.72rem; padding:3px 7px; border-radius:6px;">
-            ${pr.nombre} · ${pr.unidades} uds · $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
-          </span>`).join('')
-      : `<span class="prod-label" style="font-size:.82rem;">Sin definir</span>`;
-
-    return `<tr>
-      <td class="px-4 prod-label text-center">${i + 1}</td>
-      <td class="fw-semibold" style="color:var(--prod-texto);">${p.nombre}</td>
-      <td style="color:#4DA8DA; font-family:monospace;" class="text-center">${p.codigo || '—'}</td>
-      <td>${pres}</td>
-    </tr>`;
-  }).join('');
-
-  inicializarTablaCategoria();
-}
-
-function inicializarTablaCategoria() {
-  if ($.fn.DataTable.isDataTable('#tablaProductosCat')) {
-    $('#tablaProductosCat').DataTable().destroy();
-  }
-  $('#tablaProductosCat').DataTable({
-    paging: false,
-    searching: false,
-    info: false,
-    ordering: true,
-    responsive: true,
-    language: {
-      zeroRecords: "Sin resultados.",
-      emptyTable: "No hay productos en esta categoría."
-    }
-  });
+  dtInstance.draw();
 }
 // ── MODAL CATEGORÍA ───────────────────────────────────────────────────────────
 document.getElementById('modalProductosCategoria').addEventListener('show.bs.modal', function(e) {
@@ -466,7 +466,7 @@ document.getElementById('modalProductosCategoria').addEventListener('show.bs.mod
   const nombre = btn.dataset.catNombre;
   document.getElementById('titulo-categoria').textContent = nombre;
 
-  const filtrados = todoProductos.filter(p => p.categoria_pk == pk);
+  const filtrados = todoProductos.filter(p => String(p.categoria_pk) === String(pk));
   const tbody     = document.getElementById('cuerpo-categoria');
 
   if (!filtrados.length) {

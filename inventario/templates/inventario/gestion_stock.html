@@ -72,7 +72,7 @@
 
 <!-- Buscador -->
 <div class="d-flex flex-wrap gap-2 mb-3">
-  <div class="input-group" id="buscarLote-grupo" style="max-width:360px; width:100%;">
+  <div class="input-group buscar-lote-grupo" id="buscarLote-grupo">
     <span class="input-group-text lotes-search-prefix">
       <i class="bi bi-search"></i>
     </span>
@@ -203,11 +203,11 @@
 <!-- MODALES EDITAR LOTE -->
 {% for lote in lotes_activos %}
 <div class="modal fade" id="modalEditarLote{{ lote.pk }}" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
+  <div class="modal-dialog modal-dialog-centered lote-modal-dialog">
     <div class="modal-content lote-modal-content">
       <div class="modal-header lote-modal-header">
         <h5 class="modal-title fw-bold lote-modal-titulo">
-          <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>
+          <i class="bi bi-pencil-square me-2 lote-modal-icono-titulo"></i>
           Editar lote {{ lote.numero_lote }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

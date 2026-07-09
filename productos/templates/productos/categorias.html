@@ -17,7 +17,7 @@
 
     <!-- Formulario Crear -->
     <div class="col-lg-4">
-      <div class="card cat-card border-0 rounded-4 shadow-sm position-sticky" style="top: 2rem;">
+      <div class="card cat-card border-0 rounded-4 shadow-sm position-sticky cat-card-sticky">
         <div class="card-body p-4">
           <h5 class="card-title fw-bold mb-4">
             <i class="bi bi-plus-circle me-2"></i> Nueva Categoría
@@ -25,48 +25,43 @@
           <form method="POST" action="{% url 'categoria_crear' %}">
             {% csrf_token %}
             <div class="mb-3">
-              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+              <label class="form-label fw-semibold small cat-label-form">
                 Nombre <span class="text-danger">*</span>
               </label>
               <input type="text" name="nombre" class="form-control" placeholder="Ej: Vinos" required>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+              <label class="form-label fw-semibold small cat-label-form">
                 Código <span class="text-danger">*</span>
               </label>
               <input type="text" name="codigo" class="form-control font-monospace text-uppercase" placeholder="Ej: VIN" required>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+              <label class="form-label fw-semibold small cat-label-form">
                 Descripción
               </label>
               <textarea name="descripcion" class="form-control" rows="2" placeholder="Opcional..."></textarea>
             </div>
            <!-- Reemplaza select padre en form crear categoría -->
 <div class="mb-4">
-  <label class="form-label fw-semibold small" style="color: rgba(var(--texto-rgb, 226,232,240),0.6);">
+  <label class="form-label fw-semibold small cat-label-form">
     Categoría Padre
   </label>
   <div class="dropdown w-100">
-    <button class="btn dropdown-toggle w-100 text-start" type="button"
-            id="crear-padre-btn" data-bs-toggle="dropdown"
-            style="background:rgba(255,255,255,0.05); border:1px solid rgba(77,168,218,0.25);
-                   color:#e2e8f0; font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+    <button class="btn dropdown-toggle w-100 text-start cat-padre-btn" type="button"
+            id="crear-padre-btn" data-bs-toggle="dropdown">
       <span id="crear-padre-label">— Es categoría principal —</span>
     </button>
-    <ul class="dropdown-menu w-100"
-        style="background:#0a2240; border:1px solid rgba(77,168,218,0.25);">
+    <ul class="dropdown-menu w-100 cat-padre-menu">
       <li>
-        <a class="dropdown-item cat-padre-item" href="#" data-value=""
-           style="color:#c8d6e5; font-size:.85rem;">
+        <a class="dropdown-item cat-padre-item cat-padre-item-style" href="#" data-value="">
           — Es categoría principal —
         </a>
       </li>
       {% for main_cat in categorias %}
       <li>
-        <a class="dropdown-item cat-padre-item" href="#"
-           data-value="{{ main_cat.pk }}"
-           style="color:#c8d6e5; font-size:.85rem;">
+        <a class="dropdown-item cat-padre-item cat-padre-item-style" href="#"
+           data-value="{{ main_cat.pk }}">
           {{ main_cat.nombre }}
         </a>
       </li>
@@ -75,8 +70,7 @@
   </div>
   <input type="hidden" name="padre" id="crear-padre-hidden">
 </div>
-            <button type="submit" class="btn w-100 rounded-pill fw-bold py-2"
-              style="background: var(--azul-claro); color: var(--fondo); border: none;">
+            <button type="submit" class="btn w-100 rounded-pill fw-bold py-2 cat-btn-crear">
               <i class="bi bi-check-circle me-1"></i> Crear Categoría
             </button>
           </form>
@@ -96,19 +90,18 @@
             {% for cat in categorias %}
             <li class="list-group-item py-3 px-0">
               <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-tag-fill fs-4" style="color: var(--azul-claro);"></i>
+                <i class="bi bi-tag-fill fs-4 cat-icon-tag"></i>
                 <div class="flex-grow-1">
                   <h6 class="mb-0 fw-bold">
                     {{ cat.nombre }}
                     <span class="badge badge-codigo font-monospace fw-normal ms-2">{{ cat.codigo }}</span>
                   </h6>
-                  <small style="color: rgba(226,232,240,0.45);">
+                  <small class="cat-text-muted-45">
                     <i class="bi bi-box me-1"></i>{{ cat.productos.count }} productos directos
                   </small>
                 </div>
                 <div class="d-flex gap-2 ms-auto">
-                  <button class="btn btn-sm rounded-pill px-3"
-  style="background: rgba(77,168,218,0.1); border: 1px solid rgba(77,168,218,0.3); color: #4DA8DA;"
+                  <button class="btn btn-sm rounded-pill px-3 cat-btn-editar"
   data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ cat.pk }}"
   title="Editar categoría">
   <i class="bi bi-pencil"></i>
@@ -116,8 +109,7 @@
 <form method="POST" action="{% url 'categoria_eliminar' cat.pk %}" class="d-inline"
   onsubmit="return confirm('¿Eliminar definitivamente «{{ cat.nombre }}»?');">
   {% csrf_token %}
-  <button type="submit" class="btn btn-sm rounded-pill px-3"
-    style="background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #e74c3c;"
+  <button type="submit" class="btn btn-sm rounded-pill px-3 cat-btn-eliminar"
     title="Eliminar categoría">
     <i class="bi bi-trash"></i>
   </button>
@@ -126,29 +118,27 @@
               </div>
 
               {% if cat.subcategorias.all %}
-              <ul class="list-group mt-3 ms-2 ps-3 subcat-list" style="border-left-style: solid;">
+              <ul class="list-group mt-3 ms-2 ps-3 subcat-list cat-subcat-list-border">
                 {% for sub in cat.subcategorias.all %}
-                <li class="list-group-item border-0 py-2 px-0 d-flex align-items-center gap-3" style="background: transparent;">
-                  <i class="bi bi-arrow-return-right" style="color: rgba(226,232,240,0.3);"></i>
+                <li class="list-group-item border-0 py-2 px-0 d-flex align-items-center gap-3 cat-bg-transparent">
+                  <i class="bi bi-arrow-return-right cat-icon-arrow"></i>
                   <div class="flex-grow-1">
                     <span class="fw-semibold">{{ sub.nombre }}</span>
                     <span class="badge badge-codigo font-monospace fw-normal ms-2">{{ sub.codigo }}</span>
-                    <small class="ms-2" style="color: rgba(226,232,240,0.4);">({{ sub.productos.count }} prod.)</small>
+                    <small class="ms-2 cat-text-muted-40">({{ sub.productos.count }} prod.)</small>
                   </div>
                   <div class="d-flex gap-2">
-                    <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
-  style="width:32px;height:32px;background:rgba(77,168,218,0.1);border:1px solid rgba(77,168,218,0.3);color:#4DA8DA;"
+                    <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-editar-sub"
   data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}"
   title="Editar subcategoría">
-  <i class="bi bi-pencil" style="font-size:12px;"></i>
+  <i class="bi bi-pencil cat-icon-sm"></i>
 </button>
 <form method="POST" action="{% url 'categoria_eliminar' sub.pk %}" class="d-inline"
   onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?');">
   {% csrf_token %}
-  <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
-    style="width:32px;height:32px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;"
+  <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-eliminar-sub"
     title="Eliminar subcategoría">
-    <i class="bi bi-trash" style="font-size:12px;"></i>
+    <i class="bi bi-trash cat-icon-sm"></i>
               </button>
               </form>
                   </div>
@@ -158,7 +148,7 @@
               {% endif %}
             </li>
             {% empty %}
-            <li class="list-group-item border-0 text-center py-5" style="background: transparent; color: rgba(226,232,240,0.35);">
+            <li class="list-group-item border-0 text-center py-5 cat-empty-list">
               <i class="bi bi-tags fs-1 d-block mb-3"></i>
               No hay categorías creadas aún.
             </li>
@@ -176,9 +166,9 @@
 <div class="modal fade" id="modalEditarCat{{ cat.pk }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content rounded-4 border-0 shadow">
-      <div class="modal-header rounded-top-4" style="border-bottom: 1px solid rgba(128,128,128,0.15);">
+      <div class="modal-header rounded-top-4 cat-modal-header-border">
         <h5 class="modal-title fw-bold">
-  <i class="bi bi-tag me-2" style="color:#4DA8DA;"></i>Editar Categoría
+  <i class="bi bi-tag me-2 cat-icon-blue"></i>Editar Categoría
 </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -186,39 +176,34 @@
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="mb-3">
-            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Nombre</label>
+            <label class="form-label fw-semibold small cat-label-modal">Nombre</label>
             <input type="text" name="nombre" class="form-control" value="{{ cat.nombre }}" required>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Código</label>
+            <label class="form-label fw-semibold small cat-label-modal">Código</label>
             <input type="text" name="codigo" class="form-control font-monospace" value="{{ cat.codigo }}" required>
           </div>
          <div class="mb-3">
-  <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Categoría Padre</label>
+  <label class="form-label fw-semibold small cat-label-modal">Categoría Padre</label>
   <div class="dropdown w-100">
-    <button class="btn dropdown-toggle w-100 text-start" type="button"
-            id="edit-padre-btn-{{ cat.pk }}" data-bs-toggle="dropdown"
-            style="background:rgba(255,255,255,0.05); border:1px solid rgba(77,168,218,0.25);
-                   color:#e2e8f0; font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+    <button class="btn dropdown-toggle w-100 text-start cat-padre-btn" type="button"
+            id="edit-padre-btn-{{ cat.pk }}" data-bs-toggle="dropdown">
       <span id="edit-padre-label-{{ cat.pk }}">
         {% if cat.padre %}{{ cat.padre.nombre }}{% else %}— Es categoría principal —{% endif %}
       </span>
     </button>
-    <ul class="dropdown-menu w-100"
-        style="background:#0a2240; border:1px solid rgba(77,168,218,0.25);">
+    <ul class="dropdown-menu w-100 cat-padre-menu">
       <li>
-        <a class="dropdown-item edit-padre-item" href="#"
-           data-value="" data-target="{{ cat.pk }}"
-           style="color:#c8d6e5; font-size:.85rem;">
+        <a class="dropdown-item edit-padre-item cat-padre-item-style" href="#"
+           data-value="" data-target="{{ cat.pk }}">
           — Es categoría principal —
         </a>
       </li>
       {% for main_cat in categorias %}
         {% if main_cat.pk != cat.pk %}
         <li>
-          <a class="dropdown-item edit-padre-item" href="#"
-             data-value="{{ main_cat.pk }}" data-target="{{ cat.pk }}"
-             style="color:#c8d6e5; font-size:.85rem;">
+          <a class="dropdown-item edit-padre-item cat-padre-item-style" href="#"
+             data-value="{{ main_cat.pk }}" data-target="{{ cat.pk }}">
             {{ main_cat.nombre }}
           </a>
         </li>
@@ -230,16 +215,14 @@
          value="{% if cat.padre %}{{ cat.padre.pk }}{% endif %}">
 </div>
           <div class="mb-2">
-            <label class="form-label fw-semibold small" style="color: rgba(226,232,240,0.55);">Descripción</label>
+            <label class="form-label fw-semibold small cat-label-modal">Descripción</label>
             <textarea name="descripcion" class="form-control" rows="2">{{ cat.descripcion }}</textarea>
           </div>
         </div>
-        <div class="modal-footer" style="border-top: 1px solid rgba(128,128,128,0.15);">
-          <button type="button" class="btn rounded-pill px-4"
-        style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+        <div class="modal-footer cat-modal-footer-border">
+          <button type="button" class="btn rounded-pill px-4 cat-btn-cancelar"
         data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn rounded-pill fw-bold px-4"
-            style="background: var(--azul-claro); color: var(--fondo); border: none;">
+          <button type="submit" class="btn rounded-pill fw-bold px-4 cat-btn-crear">
             Guardar Cambios
           </button>
         </div>

@@ -1,0 +1,18 @@
+/* ══════════════════════════════════════════════════
+   Estilos del widget de estado de inventario (stock-widget)
+   ══════════════════════════════════════════════════ */
+
+.sw-container { background: #0d1f35; border: 1px solid rgba(77,168,218,.18); }
+
+.sw-icono-wrap { font-size: 1.3rem; flex-shrink: 0; }
+
+.sw-label-superior { font-size: 9px; letter-spacing: .07em; color: rgba(226,232,240,.35); }
+
+.sw-titulo { font-size: 0.9rem; }
+
+.sw-btn-toggle {
+  font-size: 0.75rem; background: transparent;
+  color: rgba(226,232,240,.5); border: 1px solid rgba(226,232,240,.15);
+}
+
+.sw-panel { border-top: 1px solid rgba(255,255,255,.06); }

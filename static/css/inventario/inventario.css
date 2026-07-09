@@ -597,3 +597,411 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }
+/* ============================================
+   inventario_home.css
+   Generado a partir de estilos inline de inventario_home.html
+   ============================================ */
+
+.qc-borde-teal {
+  border-left: 3px solid #2dd4bf;
+}
+
+.qc-icono-bg-teal {
+  background:rgba(77,168,218,.15);
+}
+
+.qc-icono-color-teal {
+  color:#2dd4bf;
+}
+
+.qc-badge-teal {
+  background:rgba(77,168,218,.15);
+  color:#2dd4bf;
+  font-size:.65rem;
+}
+
+.qc-valor-teal {
+  font-size:1.5rem;
+  color:#2dd4bf;
+  line-height:1;
+}
+
+.qc-titulo {
+  font-size:.88rem;
+}
+
+.qc-desc {
+  font-size:.72rem;
+}
+
+.qc-footer-borde-teal {
+  border-top:1px solid rgba(77,168,218,.15);
+}
+
+.qc-footer-texto-teal {
+  font-size:.7rem;
+  color:#2dd4bf;
+}
+
+.qc-borde-verde {
+  border-left: 3px solid #27ae60;
+}
+
+.qc-icono-bg-verde {
+  background:rgba(39,174,96,.15);
+}
+
+.qc-icono-color-verde {
+  color:#27ae60;
+}
+
+.qc-badge-verde {
+  background:rgba(39,174,96,.15);
+  color:#27ae60;
+  font-size:.65rem;
+}
+
+.qc-valor-verde {
+  font-size:1.5rem;
+  color:#27ae60;
+  line-height:1;
+}
+
+.qc-footer-borde-verde {
+  border-top:1px solid rgba(39,174,96,.15);
+}
+
+.qc-footer-texto-verde {
+  font-size:.7rem;
+  color:#27ae60;
+}
+
+.qc-borde-purpura {
+  border-left: 3px solid #9b5de5;
+}
+
+.qc-icono-bg-purpura {
+  background:rgba(155,93,229,.15);
+}
+
+.qc-icono-color-purpura {
+  color:#9b5de5;
+}
+
+.qc-badge-purpura {
+  background:rgba(155,93,229,.15);
+  color:#9b5de5;
+  font-size:.65rem;
+}
+
+.qc-valor-purpura {
+  font-size:1.5rem;
+  color:#9b5de5;
+  line-height:1;
+}
+
+.qc-footer-borde-purpura {
+  border-top:1px solid rgba(155,93,229,.15);
+}
+
+.qc-footer-texto-purpura {
+  font-size:.7rem;
+  color:#9b5de5;
+}
+
+.qc-borde-azul {
+  border-left: 3px solid #4DA8DA;
+}
+
+.qc-icono-color-azul {
+  color:#4DA8DA;
+}
+
+.qc-badge-azul {
+  background:rgba(77,168,218,.15);
+  color:#4DA8DA;
+  font-size:.65rem;
+}
+
+.qc-valor-azul {
+  font-size:1.5rem;
+  color:#4DA8DA;
+  line-height:1;
+}
+
+.qc-footer-texto-azul {
+  font-size:.7rem;
+  color:#4DA8DA;
+}
+
+.agenda-tab-activo {
+  background: var(--inv-azul-dim);
+  color: var(--inv-azul);
+  border: 1px solid var(--inv-azul-borde);
+  font-size:.78rem;
+}
+
+.agenda-tab-inactivo {
+  background: transparent;
+  color: var(--inv-texto);
+  border: 1px solid var(--inv-azul-borde);
+  font-size:.78rem;
+  opacity:.6;
+}
+
+.agenda-titulo-texto {
+  color: var(--inv-texto);
+}
+
+.agenda-stepper-badge {
+  font-size:.75rem;
+}
+
+.agenda-form-inline {
+  display:inline;
+}
+
+.agenda-stepper-btn {
+  font-size:.75rem;
+  cursor:pointer;
+}
+
+.agenda-footer-borde {
+  border-color: var(--inv-azul-borde) !important;
+}
+
+.mov-fecha-btn {
+  font-size:.82rem;
+  border-radius:8px;
+  width:200px;
+  text-align:left;
+}
+
+.mov-fecha-menu {
+  min-width:200px;
+}
+
+.mov-fecha-item {
+  color:#c8d6e5;
+}
+
+.texto-mini {
+  font-size:.7rem;
+}
+
+.mov-codigo-texto {
+  font-size:.7rem;
+  font-family:monospace;
+}
+
+.cat-buscar-input {
+  width:190px;
+}
+
+.cat-cat-btn {
+  font-size:.82rem;
+  border-radius:8px;
+  width:170px;
+  text-align:left;
+}
+
+.cat-cat-menu {
+  min-width:170px;
+}
+
+.cat-cat-item {
+  color:#c8d6e5;
+  font-size:.82rem;
+}
+
+.cat-card-bg {
+  background:var(--inv-card2);
+  border:1px solid var(--inv-azul-borde);
+}
+
+.cat-card-badge {
+  background:var(--inv-azul-dim);
+  color:var(--inv-azul);
+  border:1px solid var(--inv-azul-borde);
+  font-size:.62rem;
+}
+
+.cat-card-nombre {
+  color:var(--inv-texto);
+  line-height:1.2;
+}
+
+.cat-list-codigo {
+  font-family:monospace;
+}
+
+.analitica-oculto {
+  display:none;
+}
+
+.estrella-mes-badge {
+  background:rgba(77,168,218,.15);
+  color:#4DA8DA;
+  border:1px solid rgba(77,168,218,.3);
+}
+
+.chart-rotacion-wrap {
+  position:relative;
+  width:100%;
+  min-height:300px;
+}
+
+.btn-outline-azul {
+  border:1px solid rgba(77,168,218,0.35);
+  color:#4DA8DA;
+  background:transparent;
+}
+
+.btn-solido-azul {
+  background: #4DA8DA;
+  color: #0d1b2a;
+  border: none;
+}
+
+.conteo-prod-btn {
+  font-size:.85rem;
+  border-radius:8px;
+  padding:.55rem 1rem;
+}
+
+.conteo-prod-menu {
+  max-height:260px;
+  overflow-y:auto;
+}
+
+.conteo-prod-item {
+  color:#c8d6e5;
+  font-size:.85rem;
+}
+
+.conteo-guardar-btn {
+  --bs-btn-color: var(--inv-azul);
+  --bs-btn-border-color: rgba(77,168,218,0.35);
+  --bs-btn-hover-bg: rgba(77,168,218,0.15);
+  --bs-btn-hover-color: var(--inv-azul);
+  --bs-btn-hover-border-color: var(--inv-azul);
+  --bs-btn-active-bg: rgba(77,168,218,0.25);
+  --bs-btn-active-color: var(--inv-azul);
+  width: 42px;
+  height: 42px;
+}
+
+.conteo-lista-wrap {
+  max-height:280px;
+  overflow-y:auto;
+}
+
+.conteo-item-nombre-col {
+  flex:1 1 200px;
+  min-width:0;
+}
+
+.texto-principal {
+  color:var(--inv-texto);
+}
+
+.conteo-item-comparativa {
+  flex:1 1 180px;
+}
+
+.comparativa-label {
+  font-size:.62rem;
+  letter-spacing:.04em;
+}
+
+.comparativa-valor-sistema {
+  color:var(--inv-azul);
+}
+
+.comparativa-badge-col {
+  flex:0 0 auto;
+}
+
+.comparar-lista-wrap {
+  max-height:420px;
+  overflow-y:auto;
+}
+
+.comparar-item-nombre-col {
+  flex:1 1 220px;
+  min-width:0;
+}
+
+.comparar-item-codigo {
+  font-size:.68rem;
+  font-family:monospace;
+}
+
+.texto-mini-2 {
+  font-size:.68rem;
+}
+
+.comparar-item-comparativa {
+  flex:1 1 160px;
+}
+
+.comparar-item-flecha {
+  font-size:.8rem;
+}
+
+.comparar-diferencia-col {
+  flex:0 0 85px;
+}
+
+.comparar-ajustar-btn {
+  width:34px;
+  height:34px;
+  background:var(--inv-azul-dim);
+  border:1px solid var(--inv-azul-borde);
+  color:var(--inv-azul);
+}
+
+.comparar-check-icono {
+  color:var(--inv-verde);
+  font-size:1.3rem;
+}
+
+.scan-icono-col {
+  min-width:48px;
+}
+
+.scan-nombre-texto {
+  color:var(--inv-texto);
+  min-height:1.2rem;
+}
+
+.scan-input-col {
+  flex:0 0 280px;
+}
+
+.scan-input-mono {
+  font-family:monospace;
+  font-size:.95rem;
+}
+
+.scan-guardar-btn {
+  background: #4DA8DA;
+  color: #0d1b2a;
+  border: none;
+  opacity: 1;
+}
+
+.scan-video {
+  max-height:300px;
+  background:#000;
+  object-fit:cover;
+}
+
+.fila-clickable {
+  cursor:pointer;
+}
+
+.scan-codigo-texto {
+  font-family:monospace;
+  font-size:.82rem;
+}
