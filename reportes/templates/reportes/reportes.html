@@ -472,18 +472,12 @@
 
         <div class="table-responsive cys-modal-table-wrap">
           <table class="cys-inv-table" id="tabla-modal-stock">
-            <colgroup>
-              <col style="width:6%">
-              <col style="width:54%">
-              <col style="width:15%">
-              <col style="width:25%">
-            </colgroup>
            <thead>
           <tr>
           <th class="cys-col-num">#</th>
-          <th style="width:60%;">PRODUCTO</th>
-        <th style="width:12%; text-align:center;">STOCK</th>
-        <th style="width:18%; text-align:center;">ESTADO</th>
+          <th class="cys-col-producto">PRODUCTO</th>
+        <th class="cys-col-stock">STOCK</th>
+        <th class="cys-col-estado">ESTADO</th>
       </tr>
 </thead>
             <tbody>
@@ -491,11 +485,10 @@
               <tr class="cys-tr inv-row">
                 <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                 <td data-label="Producto"
-    class="cys-td cys-td--bold"
-    style="width:60%; text-align:left;">
+    class="cys-td cys-td--bold cys-col-producto">
     {{ p.nombre }}
 </td>
-                <td data-label="Stock" style="width:12%; text-align:center;">
+                <td data-label="Stock" class="cys-col-stock">
                   {% if p.cantidad_disponible == 0 %}
                     <span class="cys-qty cys-qty--out">{{ p.cantidad_disponible }}</span>
                   {% elif p.cantidad_disponible <= 10 %}
@@ -504,7 +497,7 @@
                     <span class="cys-qty cys-qty--ok">{{ p.cantidad_disponible }}</span>
                   {% endif %}
                 </td>
-                <td data-label="Estado" style="width:18%; text-align:center;">
+                <td data-label="Estado" class="cys-col-estado">
                   {% if p.cantidad_disponible == 0 %}
                     <span class="cys-badge cys-badge--rojo">Agotado</span>
                   {% elif p.cantidad_disponible <= 10 %}
@@ -1111,16 +1104,6 @@
               <span>Top productos</span>
             </button>
 
-            <div class="cys-av-sidebar__divider"></div>
-
-            <button class="cys-av-nav-btn" id="avNav-reportes"
-                    onclick="avSetTab('reportes')">
-              <div class="cys-av-nav-btn__icon">
-                <i class="bi bi-download"></i>
-              </div>
-              <span>Reportes</span>
-            </button>
-
           </div>
 
           <!-- Contenido principal -->
@@ -1222,9 +1205,15 @@
             <!-- Panel: Por fecha -->
             <div id="avPanel-fecha" class="av-panel cys-av-panel--hidden">
               <div class="cys-av-table-card">
-                <div class="cys-av-table-card__header">
+                <div class="cys-av-table-card__header cys-av-table-card__header--search">
                   <span class="cys-av-table-card__dot cys-av-table-card__dot--azul"></span>
                   <span class="cys-av-table-card__title">VENTAS POR FECHA</span>
+                  <div class="cys-search-box cys-av-table-card__search">
+                    <input type="text" id="buscar-av-fecha" placeholder="Buscar producto, cliente..."
+                      class="cys-search-box__input cys-search-box__input--dark"
+                      oninput="filtrarTablaAVFecha(this.value)">
+                    <i class="bi bi-search cys-search-box__icon"></i>
+                  </div>
                 </div>
                 <table class="cys-inv-table" id="tabla-modal-av-ventas">
                   <thead>
@@ -1233,7 +1222,7 @@
                   <tbody>
                     {% for venta in ventas %}
                       {% for det in venta.detalles.all %}
-                      <tr class="cys-tr">
+                      <tr class="cys-tr av-fecha-row">
                         <td class="cys-td" data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
                         <td class="cys-td cys-td--bold" data-label="Cliente">{{ venta.cliente }}</td>
                         <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
@@ -1250,15 +1239,24 @@
                     {% endfor %}
                   </tbody>
                 </table>
+                <div class="cys-empty-box cys-av-no-results d-none" id="av-fecha-no-results">
+                  <i class="bi bi-search"></i>No se encontraron resultados.
+                </div>
               </div>
             </div><!-- /avPanel-fecha -->
 
             <!-- Panel: Top productos -->
             <div id="avPanel-top" class="av-panel cys-av-panel--hidden">
               <div class="cys-av-table-card">
-                <div class="cys-av-table-card__header">
+                <div class="cys-av-table-card__header cys-av-table-card__header--search">
                   <i class="bi bi-star-fill cys-av-table-card__star"></i>
                   <span class="cys-av-table-card__title">TOP PRODUCTOS MÁS VENDIDOS</span>
+                  <div class="cys-search-box cys-av-table-card__search">
+                    <input type="text" id="buscar-av-top" placeholder="Buscar producto..."
+                      class="cys-search-box__input cys-search-box__input--dark"
+                      oninput="filtrarTablaAVTop(this.value)">
+                    <i class="bi bi-search cys-search-box__icon"></i>
+                  </div>
                 </div>
                 <table class="cys-inv-table" id="tabla-modal-av-top">
                   <thead>
@@ -1266,7 +1264,7 @@
                   </thead>
                   <tbody>
                     {% for nombre, datos in top_productos_hoy %}
-                    <tr class="cys-tr">
+                    <tr class="cys-tr av-top-row">
                       <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                       <td data-label="Producto"><strong>{{ nombre }}</strong></td>
                       <td class="cys-qty cys-qty--ok" data-label="Unidades">{{ datos.cantidad }}</td>
@@ -1281,27 +1279,11 @@
                     {% endfor %}
                   </tbody>
                 </table>
+                <div class="cys-empty-box cys-av-no-results d-none" id="av-top-no-results">
+                  <i class="bi bi-search"></i>No se encontraron resultados.
+                </div>
               </div>
             </div><!-- /avPanel-top -->
-
-            <!-- Panel: Reportes -->
-            <div id="avPanel-reportes" class="av-panel cys-av-panel--hidden">
-              <div class="cys-av-export-card">
-                <div class="cys-av-export-card__title">
-                  Exportar reportes de ventas
-                </div>
-                <div class="cys-av-export-card__actions">
-                  <a href="?export=excel&tipo=ventas&{{ request.GET.urlencode }}"
-                     class="cys-btn-export cys-btn-export--excel cys-btn-export--lg" download="analisis_ventas.xlsx" target="_blank" title="Exportar Excel">
-                    <i class="bi bi-file-earmark-excel"></i>
-                  </a>
-                  <a href="?export=pdf&tipo=ventas&{{ request.GET.urlencode }}"
-                     class="cys-btn-export cys-btn-export--pdf cys-btn-export--lg" download="analisis_ventas.pdf" target="_blank" title="Exportar PDF">
-                    <i class="bi bi-file-earmark-pdf"></i>
-                  </a>
-                </div>
-              </div>
-            </div><!-- /avPanel-reportes -->
 
           </div><!-- /contenido -->
         </div><!-- /grid -->
@@ -1560,7 +1542,7 @@ document.addEventListener('DOMContentLoaded', function() { pagProv(0); });
 
 /* ── Análisis de ventas — sidebar nav ── */
 function avSetTab(tab) {
-    ['resumen','fecha','top','reportes'].forEach(function(t) {
+    ['resumen','fecha','top'].forEach(function(t) {
         var panel = document.getElementById('avPanel-'  + t);
         var btn   = document.getElementById('avNav-'    + t);
         if (!panel || !btn) return;
@@ -1572,6 +1554,44 @@ function avSetTab(tab) {
             btn.classList.remove('active');
         }
     });
+}
+
+/* ── Búsqueda: Análisis de Ventas → panel "Por fecha" ──
+   Filtra por cliente o producto. Muestra un mensaje de
+   "sin resultados" cuando ninguna fila coincide. ── */
+function filtrarTablaAVFecha(q) {
+    q = q.toLowerCase().trim();
+    const filas = document.querySelectorAll('#tabla-modal-av-ventas .av-fecha-row');
+    let visibles = 0;
+    filas.forEach(function(row) {
+        const cliente  = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const producto = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const coincide = cliente.includes(q) || producto.includes(q);
+        row.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
+    });
+    const noResults = document.getElementById('av-fecha-no-results');
+    if (noResults) {
+        noResults.classList.toggle('d-none', !(filas.length > 0 && visibles === 0));
+    }
+}
+
+/* ── Búsqueda: Análisis de Ventas → panel "Top productos" ──
+   Filtra solo por nombre de producto. ── */
+function filtrarTablaAVTop(q) {
+    q = q.toLowerCase().trim();
+    const filas = document.querySelectorAll('#tabla-modal-av-top .av-top-row');
+    let visibles = 0;
+    filas.forEach(function(row) {
+        const producto = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const coincide = producto.includes(q);
+        row.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
+    });
+    const noResults = document.getElementById('av-top-no-results');
+    if (noResults) {
+        noResults.classList.toggle('d-none', !(filas.length > 0 && visibles === 0));
+    }
 }
 
 /* ── Búsqueda devoluciones ── */
@@ -1684,7 +1704,7 @@ function renderReportCardChart(wrap, card) {
     });
 
     if (data.length === 0) {
-        wrap.innerHTML = '<div class="cys-empty-box" style="padding:10px 0;font-size:.75rem;">Sin datos suficientes para graficar.</div>';
+        wrap.innerHTML = '<div class="cys-empty-box cys-empty-box--mini">Sin datos suficientes para graficar.</div>';
         return;
     }
 
