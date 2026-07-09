@@ -179,3 +179,7 @@ button#motivo-btn {
 .sal-legend-dce8f2 { color: #dce8f2; }
 .sal-legend-1c6ef3 { color: #1c6ef3; }
 .sal-legend-3ce7d0 { color: #3ce7d0; }
+/* ── Estado de error en el dropdown de presentación ── */
+.sal-campo-error {
+  border-color: #3ce7a8 !important;
+}
