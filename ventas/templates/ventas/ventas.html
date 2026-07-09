@@ -8,16 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
-<style>
-  body, html, main, .content-wrapper, .main-content {
-    background-color: #001f38 !important;
-    background: #001f38 !important;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/venta/ventas_pos.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid p-4" style="background-color: #001f38; min-height: 100vh; font-family: sans-serif;">
+<div class="container-fluid p-4 cys-pos-wrapper">
 
  <!-- ── BARRA ESTADO DE CAJA ── -->
   <div class="mb-4">
@@ -345,17 +340,16 @@
 
               <!-- ── INDICADOR DE COMPROBANTE (solo visible si el pago no es 100% efectivo) ── -->
               <div id="comprobanteIndicador"
+                   class="cys-comprobante-indicador"
                    role="button"
                    data-bs-toggle="modal"
-                   data-bs-target="#modalComprobante"
-                   style="display:none; align-items:center; gap:.7rem; margin-top:.75rem; padding:.7rem .9rem; border-radius:10px; cursor:pointer;
-                          background: rgba(77,168,218,0.06); border: 1px dashed rgba(77,168,218,0.35); transition: background .15s;">
-                <div style="width:34px; height:34px; border-radius:9px; background: rgba(77,168,218,0.14); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                   data-bs-target="#modalComprobante">
+                <div class="cys-comprobante-indicador-icono-box">
                   <i class="bi bi-paperclip" style="color: var(--cys-acento);"></i>
                 </div>
-                <div style="flex:1; min-width:0;">
-                  <div id="comprobanteIndicadorTitulo" style="font-size:.8rem; font-weight:700; color:#fff;">Adjuntar comprobante de pago</div>
-                  <div style="font-size:.68rem; color:var(--cys-texto-muted);">Requerido para transferencia, Nequi o Daviplata</div>
+                <div class="cys-comprobante-indicador-texto">
+                  <div id="comprobanteIndicadorTitulo" class="cys-comprobante-indicador-titulo">Adjuntar comprobante de pago</div>
+                  <div class="cys-comprobante-indicador-sub">Requerido para transferencia, Nequi o Daviplata</div>
                 </div>
                 <i class="bi bi-chevron-right" style="color: var(--cys-acento);"></i>
               </div>
@@ -384,7 +378,7 @@
                     <p class="cys-modal-subtexto mb-3">
                       Adjunta la foto o PDF del comprobante de la transferencia, Nequi o Daviplata.
                     </p>
-                    <div class="cys-comprobante-box mb-0" style="border:none; padding:0;">
+                    <div class="cys-comprobante-box cys-comprobante-box--plano mb-0">
                       <div class="cys-comprobante-input-wrap">
                         <div class="cys-comprobante-icono">
                           <i class="bi bi-cloud-arrow-up"></i>
@@ -561,14 +555,14 @@
         <!-- ── COMPROBANTE DE PAGO (solo si la venta tiene uno adjunto) ── -->
         {% if venta.comprobante_pago %}
         <div class="cys-modal-seccion-titulo mb-2 mt-3">Comprobante de pago</div>
-        <a href="{{ venta.comprobante_pago.url }}" target="_blank" rel="noopener" style="text-decoration:none;">
-          <div class="cys-comprobante-input-wrap" style="cursor:pointer;">
+        <a href="{{ venta.comprobante_pago.url }}" target="_blank" rel="noopener" class="cys-comprobante-ver-link">
+          <div class="cys-comprobante-input-wrap cys-comprobante-ver-box">
             <div class="cys-comprobante-icono">
               <i class="bi bi-file-earmark-check-fill"></i>
             </div>
-            <div style="flex:1; min-width:0;">
-              <div style="font-size:.8rem; font-weight:700; color:#fff;">Ver comprobante</div>
-              <div style="font-size:.68rem; color:var(--cys-texto-muted);">Clic para abrir en una pestaña nueva</div>
+            <div class="cys-comprobante-ver-texto">
+              <div class="cys-comprobante-ver-titulo">Ver comprobante</div>
+              <div class="cys-comprobante-ver-sub">Clic para abrir en una pestaña nueva</div>
             </div>
             <i class="bi bi-box-arrow-up-right" style="color:var(--cys-acento);"></i>
           </div>
@@ -744,7 +738,7 @@
           </div>
         </div>
 
-        <button class="btn w-100 cys-btn-cancel cys-btn-block-lg py-2" id="btnConfirmarCierre" type="button" style="color: var(--cys-rojo); border-color: rgba(231, 76, 60, 0.4);">
+        <button class="btn w-100 cys-btn-cancel cys-btn-cancel--peligro cys-btn-block-lg py-2" id="btnConfirmarCierre" type="button">
           <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
         </button>
       </div>
@@ -756,590 +750,13 @@
 
 {% block extra_js %}
 <script>
-const CATALOGO = {{ catalogo_json|safe }};
+  // Datos y URLs que dependen del contexto de Django — se quedan inline
+  // porque un archivo .js estático no pasa por el motor de templates.
+  const CATALOGO = {{ catalogo_json|safe }};
+  const URLS = {
+    registrarConteo: "{% url 'ventas:registrar_conteo' %}",
+    cierreCaja: "{% url 'ventas:cierre_caja' %}"
+  };
 </script>
-
-<script>
-// ══ HELPERS DE PRESENTACIÓN ══
-function badgeStock(stock) {
-  if (stock <= 10) return { clase: 'cys-stock-badge--critico', texto: `${stock} uds` };
-  if (stock <= 50) return { clase: 'cys-stock-badge--bajo', texto: `${stock} uds` };
-  return { clase: 'cys-stock-badge--ok', texto: `${stock} uds` };
-}
-
-function tarjetaProductoHTML(prod) {
-  const minPrecio = prod.presentaciones.length
-    ? Math.min(...prod.presentaciones.map(p => p.precio))
-    : 0;
-  const badge = badgeStock(prod.stock);
-  return `
-    <div class="cys-cat-card-premium cys-cat-card-clickable">
-      <div class="cys-cat-card-top">
-        <div class="cys-cat-card-icon"><i class="bi bi-box-seam"></i></div>
-        <span class="cys-stock-badge ${badge.clase}">${badge.texto}</span>
-      </div>
-      <div class="cys-cat-card-nombre">${prod.nombre}</div>
-      <div class="cys-cat-card-precio">desde $${minPrecio.toLocaleString('es-CO')}</div>
-    </div>`;
-}
-
-// ══ NAVEGACIÓN TPV ══
-const vistaCats  = document.getElementById('vistaCategorias');
-const vistaProds = document.getElementById('vistaProductos');
-const vistaPresS = document.getElementById('vistaPresentaciones');
-
-function mostrar(vista) {
-  vistaCats.style.display  = 'none';
-  vistaProds.style.display = 'none';
-  vistaPresS.style.display = 'none';
-  vista.style.display = 'block';
-}
-
-function renderCategorias() {
-  const lista = document.getElementById('listaCategorias');
-  lista.innerHTML = '';
-
-  if (CATALOGO.length === 0) {
-    lista.innerHTML = `
-      <div class="col-12 text-center py-5">
-        <div class="cys-empty-box">
-          <i class="bi bi-tag d-block fs-2 mb-2"></i>
-          No hay categorías registradas.
-        </div>
-      </div>`;
-    return;
-  }
-
-  CATALOGO.forEach(cat => {
-    const div = document.createElement('div');
-    div.className = 'col-6 col-md-4';
-    div.innerHTML = `
-      <div class="cys-cat-card-premium cys-cat-card-premium--centrada cys-cat-card-clickable" data-cat-id="${cat.id}">
-        <div class="cys-cat-card-icon cys-cat-card-icon--lg">
-          <i class="bi bi-tag-fill"></i>
-        </div>
-        <div class="cys-cat-card-nombre">${cat.nombre}</div>
-        <div class="cys-cat-card-meta">${cat.productos.length} productos</div>
-      </div>`;
-    div.querySelector('[data-cat-id]').addEventListener('click', () => abrirCategoria(cat));
-    lista.appendChild(div);
-  });
-}
-
-function abrirCategoria(cat) {
-  document.getElementById('catTitulo').textContent = cat.nombre;
-  const lista = document.getElementById('productoLista');
-  lista.innerHTML = '';
-
-  if (cat.productos.length === 0) {
-    lista.innerHTML = `
-      <div class="col-12 text-center py-5">
-        <div class="cys-empty-box">
-          <i class="bi bi-box d-block fs-2 mb-2"></i>
-          No hay productos en esta categoría.
-        </div>
-      </div>`;
-    mostrar(vistaProds);
-    return;
-  }
-
-  cat.productos.forEach(prod => {
-    const div = document.createElement('div');
-    div.className = 'col-6 col-md-4';
-    div.innerHTML = tarjetaProductoHTML(prod);
-    div.querySelector('.cys-cat-card-premium').addEventListener('click', () => abrirPresentaciones(prod));
-    lista.appendChild(div);
-  });
-
-  mostrar(vistaProds);
-}
-
-function abrirPresentaciones(prod) {
-  document.getElementById('presTitulo').textContent = prod.nombre;
-  const lista = document.getElementById('presentacionLista');
-  lista.innerHTML = '';
-
-  if (!prod.presentaciones || prod.presentaciones.length === 0) {
-    lista.innerHTML = `
-      <div class="text-center py-4 cys-empty-box">
-        <i class="bi bi-exclamation-circle d-block fs-3 mb-2" style="color:rgba(255,193,7,0.4);"></i>
-        Este producto no tiene presentaciones configuradas.
-      </div>`;
-    mostrar(vistaPresS);
-    return;
-  }
-
-  prod.presentaciones.forEach(pr => {
-    const sinStock = pr.stock <= 0;
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <div class="cys-pres-item ${sinStock ? 'cys-pres-item--sin-stock' : ''}">
-        <div>
-          <div class="cys-pres-nombre">${pr.nombre}</div>
-          <div class="cys-pres-meta">x${pr.unidades} unidades · Stock: ${pr.stock}</div>
-        </div>
-        <div class="cys-pres-precio ${sinStock ? 'cys-pres-precio--sin-stock' : ''}">
-          ${sinStock ? 'Sin stock' : '$' + pr.precio.toLocaleString('es-CO')}
-        </div>
-      </div>`;
-    if (!sinStock) {
-      div.querySelector('div').addEventListener('click', () =>
-        agregarAlCarrito(prod.id, prod.nombre, pr.id, pr.nombre, pr.precio, pr.unidades)
-      );
-    }
-    lista.appendChild(div);
-  });
-
-  mostrar(vistaPresS);
-}
-
-document.getElementById('btnVolverCats').addEventListener('click', () => mostrar(vistaCats));
-document.getElementById('btnVolverProds').addEventListener('click', () => mostrar(vistaProds));
-
-// ══ CARRITO ══
-let carrito = [];
-
-function agregarAlCarrito(prodId, prodNombre, presId, presNombre, precio, unidades) {
-  const key = `${prodId}-${presId}`;
-  const existente = carrito.find(i => i.key === key);
-  if (existente) {
-    existente.cantidad++;
-  } else {
-    carrito.push({ key, prodId, prodNombre, presId, presNombre, precio, unidades, cantidad: 1 });
-  }
-  renderCarrito();
-  mostrar(vistaCats);
-}
-
-function renderCarrito() {
-  const listaEl  = document.getElementById('listaCarrito');
-  const camposEl = document.getElementById('camposOcultos');
-  const vacioEl  = document.getElementById('carritoVacio');
-  const itemsEl  = document.getElementById('carritoItems');
-  const totalEl  = document.getElementById('totalGeneral');
-  const descEl   = document.getElementById('seccionDescuento');
-  const pagosEl  = document.getElementById('seccionPagos');
-  const btnReg   = document.getElementById('btnRegistrar');
-
-  listaEl.innerHTML  = '';
-  camposEl.innerHTML = '';
-
-  if (carrito.length === 0) {
-    vacioEl.style.display = 'block';
-    itemsEl.style.display = 'none';
-    totalEl.style.display = 'none';
-    descEl.style.display  = 'none';
-    pagosEl.style.display = 'none';
-    btnReg.disabled = true;
-    document.getElementById('totalMonto').textContent = '$0';
-    return;
-  }
-
-  vacioEl.style.display = 'none';
-  itemsEl.style.display = 'block';
-  totalEl.style.display = 'block';
-  descEl.style.display  = 'block';
-  pagosEl.style.display = 'block';
-  btnReg.disabled = false;
-
-  let subtotal = 0;
-
-  carrito.forEach((item, idx) => {
-    subtotal += item.precio * item.cantidad;
-
-    const row = document.createElement('div');
-    row.className = 'cys-carrito-row';
-    row.innerHTML = `
-      <div style="flex:1; min-width:0;">
-        <div class="cys-carrito-nombre">${item.prodNombre}</div>
-        <div class="cys-carrito-meta">${item.presNombre} · $${item.precio.toLocaleString('es-CO')}</div>
-      </div>
-      <div class="d-flex align-items-center gap-2 ms-2">
-        <button type="button" class="cys-carrito-btn-cant" onclick="cambiarCantidad(${idx}, -1)">−</button>
-        <span class="cys-carrito-cant">${item.cantidad}</span>
-        <button type="button" class="cys-carrito-btn-cant" onclick="cambiarCantidad(${idx}, 1)">+</button>
-        <span class="cys-carrito-subtotal">$${(item.precio * item.cantidad).toLocaleString('es-CO')}</span>
-        <button type="button" class="cys-carrito-btn-quitar" onclick="quitarItem(${idx})">
-          <i class="bi bi-trash"></i>
-        </button>
-      </div>`;
-    listaEl.appendChild(row);
-
-    camposEl.innerHTML += `
-      <input type="hidden" name="producto_id[]"     value="${item.prodId}">
-      <input type="hidden" name="presentacion_id[]" value="${item.presId}">
-      <input type="hidden" name="cantidad[]"         value="${item.cantidad}">
-      <input type="hidden" name="precio[]"           value="${item.precio}">`;
-  });
-
-  // ── Descuento mejorado ──
-  const descPct    = parseFloat(document.getElementById('inputDescuento').value) || 0;
-  const descValor  = subtotal * (descPct / 100);
-  const total      = subtotal - descValor;
-
-  const desgloseEl = document.getElementById('desgloseDescuento');
-  if (descPct > 0) {
-    desgloseEl.style.display = 'block';
-    document.getElementById('descSubtotal').textContent  = '$' + Math.round(subtotal).toLocaleString('es-CO');
-    document.getElementById('descPctLabel').textContent  = descPct;
-    document.getElementById('descValor').textContent     = '-$' + Math.round(descValor).toLocaleString('es-CO');
-  } else {
-    desgloseEl.style.display = 'none';
-  }
-
-  document.getElementById('totalMonto').textContent = '$' + Math.round(total).toLocaleString('es-CO');
-  calcularPagado();
-}
-
-function cambiarCantidad(idx, delta) {
-  carrito[idx].cantidad += delta;
-  if (carrito[idx].cantidad <= 0) carrito.splice(idx, 1);
-  renderCarrito();
-}
-
-function quitarItem(idx) {
-  carrito.splice(idx, 1);
-  renderCarrito();
-}
-
-document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
-
-// ══ CALCULAR PAGADO + CAMBIO/FALTA ══
-function calcularPagado() {
-  let pagado = 0;
-  document.querySelectorAll('.pago-input').forEach(inp => {
-    pagado += parseFloat(inp.value) || 0;
-  });
-  document.getElementById('totalPagado').textContent = '$' + Math.round(pagado).toLocaleString('es-CO');
-
-  const efectivo = parseFloat(document.getElementById('pagoEfectivo').value) || 0;
-
-  let subtotal = 0;
-  carrito.forEach(item => { subtotal += item.precio * item.cantidad; });
-  const descPct = parseFloat(document.getElementById('inputDescuento').value) || 0;
-  const total   = Math.round(subtotal * (1 - descPct / 100));
-
-  const infoEl   = document.getElementById('infoEfectivo');
-  const filaFalta  = document.getElementById('filaFalta');
-  const filaCambio = document.getElementById('filaCambio');
-
-  if (efectivo > 0 && total > 0) {
-    infoEl.style.display = 'block';
-    const diferencia = efectivo - total;
-
-    if (diferencia < 0) {
-      filaFalta.style.display  = 'flex';
-      filaCambio.style.display = 'none';
-      document.getElementById('montoFalta').textContent = '$' + Math.abs(diferencia).toLocaleString('es-CO');
-    } else if (diferencia > 0) {
-      filaFalta.style.display  = 'none';
-      filaCambio.style.display = 'flex';
-      document.getElementById('montoCambio').textContent = '$' + diferencia.toLocaleString('es-CO');
-    } else {
-      filaFalta.style.display  = 'none';
-      filaCambio.style.display = 'flex';
-      document.getElementById('montoCambio').textContent = '$0 (exacto)';
-    }
-  } else {
-    infoEl.style.display     = 'none';
-    filaFalta.style.display  = 'none';
-    filaCambio.style.display = 'none';
-  }
-}
-
-document.querySelectorAll('.pago-input').forEach(inp => inp.addEventListener('input', calcularPagado));
-
-// ══ COMPROBANTE DE PAGO (ventana emergente) ══
-// Solo se pide/muestra cuando el medio de pago es Transferencia, Nequi o Daviplata.
-const pagoTransferenciaInput = document.getElementById('pagoTransferencia');
-const pagoNequiInput         = document.getElementById('pagoNequi');
-const pagoDaviplataInput     = document.getElementById('pagoDaviplata');
-const comprobanteIndicador   = document.getElementById('comprobanteIndicador');
-const comprobanteTituloEl    = document.getElementById('comprobanteIndicadorTitulo');
-const inputComprobante       = document.getElementById('inputComprobante');
-const comprobanteNombreEl    = document.getElementById('comprobanteNombreArchivo');
-const modalComprobanteEl     = document.getElementById('modalComprobante');
-const modalComprobante       = new bootstrap.Modal(modalComprobanteEl);
-
-let comprobanteYaSugerido = false;
-
-function requiereComprobante() {
-  const t = parseFloat(pagoTransferenciaInput.value) || 0;
-  const n = parseFloat(pagoNequiInput.value) || 0;
-  const d = parseFloat(pagoDaviplataInput.value) || 0;
-  return (t > 0 || n > 0 || d > 0);
-}
-
-function actualizarEstadoComprobante() {
-  if (requiereComprobante()) {
-    comprobanteIndicador.style.display = 'flex';
-    // Abre la ventana emergente automáticamente la primera vez que se detecta
-    // un pago por transferencia/Nequi/Daviplata en esta venta.
-    if (!comprobanteYaSugerido) {
-      modalComprobante.show();
-      comprobanteYaSugerido = true;
-    }
-  } else {
-    comprobanteIndicador.style.display = 'none';
-    comprobanteYaSugerido = false;
-  }
-}
-
-[pagoTransferenciaInput, pagoNequiInput, pagoDaviplataInput].forEach(inp => {
-  inp.addEventListener('input', actualizarEstadoComprobante);
-});
-
-inputComprobante.addEventListener('change', function() {
-  if (this.files.length > 0) {
-    comprobanteNombreEl.style.display = 'block';
-    comprobanteNombreEl.textContent = 'Archivo adjunto: ' + this.files[0].name;
-    comprobanteTituloEl.textContent = 'Comprobante adjuntado';
-    comprobanteIndicador.style.background = 'rgba(46,213,115,0.08)';
-    comprobanteIndicador.style.borderColor = 'rgba(46,213,115,0.35)';
-  } else {
-    comprobanteNombreEl.style.display = 'none';
-    comprobanteTituloEl.textContent = 'Adjuntar comprobante de pago';
-    comprobanteIndicador.style.background = 'rgba(77,168,218,0.06)';
-    comprobanteIndicador.style.borderColor = 'rgba(77,168,218,0.35)';
-  }
-});
-
-function resetearComprobante() {
-  inputComprobante.value = '';
-  comprobanteNombreEl.style.display = 'none';
-  comprobanteNombreEl.textContent = '';
-  comprobanteTituloEl.textContent = 'Adjuntar comprobante de pago';
-  comprobanteIndicador.style.display = 'none';
-  comprobanteIndicador.style.background = 'rgba(77,168,218,0.06)';
-  comprobanteIndicador.style.borderColor = 'rgba(77,168,218,0.35)';
-  comprobanteYaSugerido = false;
-}
-
-// ══ VALIDACIÓN CLIENTE OBLIGATORIO + COMPROBANTE REQUERIDO ══
-document.getElementById('formVenta').addEventListener('submit', function(e) {
-  const clienteVal = document.getElementById('inputClienteNombre').value.trim();
-  const errorEl    = document.getElementById('errorCliente');
-  const inputEl    = document.getElementById('inputClienteNombre');
-
-  if (!clienteVal) {
-    e.preventDefault();
-    errorEl.style.display = 'flex';
-    inputEl.classList.add('cys-input-error');
-    inputEl.focus();
-    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-  errorEl.style.display = 'none';
-  inputEl.classList.remove('cys-input-error');
-
-  if (requiereComprobante() && inputComprobante.files.length === 0) {
-    e.preventDefault();
-    modalComprobante.show();
-    return;
-  }
-});
-
-document.getElementById('inputClienteNombre').addEventListener('input', function() {
-  if (this.value.trim()) {
-    document.getElementById('errorCliente').style.display = 'none';
-    this.classList.remove('cys-input-error');
-  }
-});
-
-document.getElementById('btnCancelarVenta').addEventListener('click', function() {
-  if (carrito.length === 0 || confirm('¿Vaciar el carrito?')) {
-    carrito = [];
-    renderCarrito();
-    resetearComprobante();
-  }
-});
-
-// ── Buscador de productos (TPV) ──
-document.getElementById('buscadorProducto').addEventListener('input', function() {
-  const term = this.value.toLowerCase().trim();
-  if (!term) { mostrar(vistaCats); return; }
-
-  const lista = document.getElementById('productoLista');
-  lista.innerHTML = '';
-  let encontrados = 0;
-
-  CATALOGO.forEach(cat => {
-    cat.productos.forEach(prod => {
-      if (prod.nombre.toLowerCase().includes(term)) {
-        encontrados++;
-        const div = document.createElement('div');
-        div.className = 'col-6 col-md-4';
-        div.innerHTML = tarjetaProductoHTML(prod);
-        div.querySelector('.cys-cat-card-premium').addEventListener('click', () => abrirPresentaciones(prod));
-        lista.appendChild(div);
-      }
-    });
-  });
-
-  if (encontrados === 0) {
-    lista.innerHTML = `
-      <div class="col-12 text-center py-4" style="color:var(--cys-texto-muted);">
-        <i class="bi bi-search d-block fs-2 mb-2"></i>No se encontraron productos.
-      </div>`;
-  }
-
-  document.getElementById('catTitulo').textContent = `Resultados: "${this.value}"`;
-  mostrar(vistaProds);
-});
-
-// ══ CONTEO DE CAJA ══
-document.querySelectorAll('.denom-ct').forEach(inp => {
-  inp.addEventListener('input', () => {
-    let total = 0;
-    document.querySelectorAll('.denom-ct').forEach(i => {
-      total += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
-    });
-    document.getElementById('totalConteo').textContent = '$' + Math.round(total).toLocaleString('es-CO');
-  });
-});
-
-document.getElementById('btnConfirmarConteo').addEventListener('click', function() {
-  let total = 0;
-  const denominaciones = {};
-  document.querySelectorAll('.denom-ct').forEach(i => {
-    const cant = parseInt(i.value) || 0;
-    const val  = parseFloat(i.dataset.valor);
-    total += cant * val;
-    if (cant > 0) denominaciones[val] = cant;
-  });
-  const obs = document.getElementById('ctObservacion').value.trim();
-
-  fetch("{% url 'ventas:registrar_conteo' %}", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-    body: JSON.stringify({ monto_contado: total, observacion: obs, denominaciones })
-  })
-  .then(r => r.json())
-  .then(data => { if (data.ok) location.reload(); else alert('Error: ' + (data.error || '')); })
-  .catch(() => alert('Error de conexión.'));
-});
-
-// ══ CIERRE DE CAJA ══
-document.querySelectorAll('.denom-ci').forEach(inp => {
-  inp.addEventListener('input', () => {
-    let total = 0;
-    document.querySelectorAll('.denom-ci').forEach(i => {
-      total += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
-    });
-    document.getElementById('totalCierre').textContent         = '$' + Math.round(total).toLocaleString('es-CO');
-    document.getElementById('resumenTotalContado').textContent = '$' + Math.round(total).toLocaleString('es-CO');
-    recalcCierre();
-  });
-});
-
-document.getElementById('baseSiguiente').addEventListener('input', recalcCierre);
-
-function recalcCierre() {
-  let totalCont = 0;
-  document.querySelectorAll('.denom-ci').forEach(i => {
-    totalCont += (parseInt(i.value) || 0) * parseFloat(i.dataset.valor);
-  });
-  const base    = parseFloat(document.getElementById('baseSiguiente').value) || 0;
-  const retirar = Math.max(0, totalCont - base);
-  document.getElementById('resumenBaseSig').textContent = '$' + Math.round(base).toLocaleString('es-CO');
-  document.getElementById('resumenRetirar').textContent = '$' + Math.round(retirar).toLocaleString('es-CO');
-}
-
-document.getElementById('btnConfirmarCierre').addEventListener('click', function() {
-  let totalContado = 0;
-  const denominaciones = {};
-  document.querySelectorAll('.denom-ci').forEach(i => {
-    const cant = parseInt(i.value) || 0;
-    const val  = parseFloat(i.dataset.valor);
-    totalContado += cant * val;
-    if (cant > 0) denominaciones[val] = cant;
-  });
-  const base = parseFloat(document.getElementById('baseSiguiente').value) || 0;
-
-  fetch("{% url 'ventas:cierre_caja' %}", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-    body: JSON.stringify({ total_contado: totalContado, monto_base_siguiente: base, denominaciones })
-  })
-  .then(r => r.json())
-  .then(data => { if (data.ok) location.reload(); else alert('Error: ' + (data.error || '')); })
-  .catch(() => alert('Error de conexión.'));
-});
-
-// ══ AUTOCOMPLETAR CLIENTE ══
-const inputCliente = document.getElementById('inputClienteNombre');
-const sugerencias  = document.getElementById('sugerenciasClientes');
-
-inputCliente.addEventListener('input', function() {
-  const term = this.value.toLowerCase();
-  let alguno = false;
-  sugerencias.querySelectorAll('button').forEach(btn => {
-    const match = btn.dataset.nombre.toLowerCase().includes(term);
-    btn.style.display = match ? '' : 'none';
-    if (match) alguno = true;
-  });
-  sugerencias.style.display = (alguno && term) ? 'block' : 'none';
-});
-
-sugerencias.querySelectorAll('button').forEach(btn => {
-  btn.addEventListener('click', function() {
-    inputCliente.value = this.dataset.nombre;
-    document.getElementById('inputClienteId').value = this.dataset.id;
-    sugerencias.style.display = 'none';
-  });
-});
-
-document.addEventListener('click', e => {
-  if (!inputCliente.contains(e.target)) sugerencias.style.display = 'none';
-});
-
-// ══ BÚSQUEDA + ORDENAMIENTO DEL HISTORIAL ══
-const inputBusquedaHist = document.getElementById('buscadorHistorial');
-const selectOrdenHist   = document.getElementById('ordenHistorial');
-const tbodyHistorial    = document.getElementById('tablaHistorialBody');
-const sinResultadosEl   = document.getElementById('sinResultadosFiltro');
-
-function filasHistorial() {
-  return Array.from(tbodyHistorial.querySelectorAll('tr.fila-venta'));
-}
-
-function aplicarFiltroHistorial() {
-  const term = (inputBusquedaHist.value || '').toLowerCase().trim();
-  let visibles = 0;
-  filasHistorial().forEach(function (fila) {
-    const coincide = (fila.dataset.buscar || '').indexOf(term) !== -1;
-    fila.style.display = coincide ? '' : 'none';
-    if (coincide) visibles++;
-  });
-  if (sinResultadosEl) sinResultadosEl.style.display = visibles === 0 ? 'block' : 'none';
-}
-
-function ordenarHistorial() {
-  const criterio = selectOrdenHist.value;
-  const filas = filasHistorial();
-
-  filas.sort(function (a, b) {
-    switch (criterio) {
-      case 'reciente':
-        return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
-      case 'antiguo':
-        return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
-      case 'mayor_total':
-        return parseFloat(b.dataset.total) - parseFloat(a.dataset.total);
-      case 'menor_total':
-        return parseFloat(a.dataset.total) - parseFloat(b.dataset.total);
-      default:
-        return 0;
-    }
-  });
-
-  filas.forEach(function (fila) { tbodyHistorial.appendChild(fila); });
-}
-
-if (inputBusquedaHist) inputBusquedaHist.addEventListener('input', aplicarFiltroHistorial);
-if (selectOrdenHist)   selectOrdenHist.addEventListener('change', ordenarHistorial);
-
-// ── Inicializar ──
-renderCategorias();
-</script>
+<script src="{% static 'js/venta/ventas.js' %}"></script>
 {% endblock %}

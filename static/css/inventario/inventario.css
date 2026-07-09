@@ -1005,3 +1005,99 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   font-family:monospace;
   font-size:.82rem;
 }
+/* ── Agenda: tarjeta y estado inicial oculto ── */
+.agenda-item-card {
+  background: var(--inv-card2);
+  border: 1px solid var(--inv-azul-borde);
+}
+.agenda-oculto-inicial {
+  display: none;
+}
+
+/* ── Dropdown de fecha (movimientos) ── */
+.mov-fecha-item-link {
+  color: #c8d6e5;
+  font-size: .82rem;
+}
+.mov-fecha-item-activo {
+  font-weight: 600;
+}
+
+/* ── Stock en tarjeta de catálogo ── */
+.cat-card-stock {
+  font-size: 2rem;
+  line-height: 1;
+}
+.cat-stock-cero {
+  color: var(--inv-rojo);
+}
+.cat-stock-critico {
+  color: var(--inv-amarillo);
+}
+.cat-stock-ok {
+  color: var(--inv-verde);
+}
+
+/* ── Tarjeta de ítem (conteo y comparar) con borde de estado ── */
+.conteo-item-card {
+  background: var(--inv-card2);
+  border: 1px solid var(--inv-azul-borde);
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+.borde-ok {
+  border-left-color: var(--inv-verde);
+}
+.borde-sobrante {
+  border-left-color: #9b5de5;
+}
+.borde-faltante {
+  border-left-color: var(--inv-rojo);
+}
+
+/* ── Texto/ícono color púrpura "sobrante" ── */
+.texto-sobrante-purpura {
+  color: #9b5de5;
+}
+
+/* ── Badges de comparativa (conteo y comparar) ── */
+.badge-comparativa {
+  font-size: .65rem;
+}
+.badge-sobrante-purpura {
+  background: rgba(155, 93, 229, .15);
+  color: #9b5de5;
+  border: 1px solid rgba(155, 93, 229, .3);
+}
+.badge-estado-ok {
+  font-size: .6rem;
+  background: rgba(39, 174, 96, .15);
+  color: var(--inv-verde);
+  border: 1px solid rgba(39, 174, 96, .3);
+}
+.badge-estado-sobrante {
+  font-size: .6rem;
+  background: rgba(155, 93, 229, .15);
+  color: #9b5de5;
+  border: 1px solid rgba(155, 93, 229, .3);
+}
+.badge-estado-faltante {
+  font-size: .6rem;
+  background: rgba(231, 76, 60, .15);
+  color: var(--inv-rojo);
+  border: 1px solid rgba(231, 76, 60, .3);
+}
+
+/* ── Valor de diferencia (comparar) ── */
+.comparar-diferencia-valor {
+  font-size: 1.15rem;
+}
+.texto-ok {
+  color: var(--inv-verde);
+}
+.texto-sobrante {
+  color: #9b5de5;
+}
+.texto-faltante {
+  color: var(--inv-rojo);
+}
