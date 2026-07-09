@@ -9,6 +9,10 @@
 <link rel="stylesheet" href="{% static 'css/devoluciones/devoluciones.css' %}">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/proveedores/devoluciones.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid p-0">
   <div class="cys-snap-section px-3 py-4">
@@ -137,20 +141,6 @@
   </form>
   {% endif %}
 
-
-  <!-- Script para abrir modal si es Paso 1 -->
-  {% if paso == 1 %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const modal = new bootstrap.Modal(document.getElementById('modalSeleccionarVenta'), {
-        backdrop: 'static',
-        keyboard: false
-      });
-      modal.show();
-    });
-  </script>
-  {% endif %}
-
   {% if paso == 2 %}
   <!-- PASO 2: PRODUCTOS -->
   <form method="post" class="needs-validation">
@@ -254,64 +244,6 @@
             </div>
           </div>
         </div>
-
-        <script>
-          function updateCheckboxAndSubtotal(input, detalleId) {
-            const cantidad = parseInt(input.value) || 0;
-            const checkbox = document.querySelector(`input[type="checkbox"][value="${detalleId}"]`);
-
-            if (cantidad > 0) {
-              checkbox.checked = true;
-            } else {
-              checkbox.checked = false;
-            }
-
-            updateSubtotal(checkbox);
-          }
-
-          function updateSubtotal(checkbox) {
-            const detalleId = checkbox.value;
-            const cantidadInput = document.querySelector(`input[name="cantidad_devolucion_${detalleId}"]`);
-            const row = checkbox.closest('tr');
-            const precioUnitario = parseFloat(row.cells[4].textContent.replace('$', '').replace(',', ''));
-
-            if (checkbox.checked) {
-              cantidadInput.disabled = false;
-              if (cantidadInput.value === '0') {
-                cantidadInput.value = cantidadInput.max;
-              }
-            } else {
-              cantidadInput.disabled = true;
-              cantidadInput.value = 0;
-            }
-
-            const cantidad = parseInt(cantidadInput.value) || 0;
-            const subtotal = cantidad * precioUnitario;
-            row.querySelector(`[class*="subtotal"]`).textContent = `$${subtotal.toLocaleString('es-CO', {maximumFractionDigits: 0})}`;
-
-            calculateTotals();
-          }
-
-          function calculateTotals() {
-            let productosCount = 0;
-            let cantidadTotal = 0;
-            let montoTotal = 0;
-
-            document.querySelectorAll('.cantidad-input:not([disabled])').forEach(input => {
-              const cantidad = parseInt(input.value) || 0;
-              if (cantidad > 0) {
-                productosCount++;
-                cantidadTotal += cantidad;
-                const precioUnitario = parseFloat(input.closest('tr').cells[4].textContent.replace('$', '').replace(',', ''));
-                montoTotal += cantidad * precioUnitario;
-              }
-            });
-
-            document.getElementById('productosCount').textContent = productosCount;
-            document.getElementById('cantidadTotal').textContent = cantidadTotal;
-            document.getElementById('montoTotal').textContent = `$${montoTotal.toLocaleString('es-CO', {maximumFractionDigits: 0})}`;
-          }
-        </script>
       {% else %}
         <div class="text-center py-15 px-1">
           <i class="bi bi-inbox text-muted"></i>
@@ -496,7 +428,7 @@
           <label class="dev-form-label">
             <i class="bi bi-stack me-1"></i>Cantidad
           </label>
-          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control input-dev-premium" onchange="this.style.borderColor = 'rgba(77,168,218,0.5)'">
+          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control input-dev-premium">
           <small class="text-muted text-xs mt-1 d-block">
             <i class="bi bi-info-circle me-1"></i>Cantidad a enviar
           </small>
@@ -557,8 +489,8 @@
       <div>
 
         <!-- Efectivo -->
-        <label>
-          <input type="radio" name="metodo_pago_devolucion" value="efectivo" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+        <label class="metodo-pago-option">
+          <input type="radio" name="metodo_pago_devolucion" value="efectivo">
           <div class="p-15 border-radius-12 bg-orange-light text-center">
             <i class="bi bi-cash-coin text-orange fw-bold"></i>
             <div class="text-light fw-bold fs-small">Efectivo</div>
@@ -567,8 +499,8 @@
         </label>
 
         <!-- Tarjeta -->
-        <label>
-          <input type="radio" name="metodo_pago_devolucion" value="tarjeta" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+        <label class="metodo-pago-option">
+          <input type="radio" name="metodo_pago_devolucion" value="tarjeta">
           <div class="p-15 border-radius-12 bg-orange-light text-center">
             <i class="bi bi-credit-card text-orange fw-bold"></i>
             <div class="text-light fw-bold fs-small">Tarjeta</div>
@@ -577,8 +509,8 @@
         </label>
 
         <!-- Transferencia -->
-        <label>
-          <input type="radio" name="metodo_pago_devolucion" value="transferencia" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+        <label class="metodo-pago-option">
+          <input type="radio" name="metodo_pago_devolucion" value="transferencia">
           <div class="p-15 border-radius-12 bg-orange-light text-center">
             <i class="bi bi-bank2 text-orange fw-bold"></i>
             <div class="text-light fw-bold fs-small">Transferencia</div>
@@ -587,8 +519,8 @@
         </label>
 
         <!-- Nequi -->
-        <label>
-          <input type="radio" name="metodo_pago_devolucion" value="nequi" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+        <label class="metodo-pago-option">
+          <input type="radio" name="metodo_pago_devolucion" value="nequi">
           <div class="p-15 border-radius-12 bg-orange-light text-center">
             <i class="bi bi-phone text-orange fw-bold"></i>
             <div class="text-light fw-bold fs-small">Nequi</div>
@@ -597,8 +529,8 @@
         </label>
 
         <!-- DaviPlata -->
-        <label>
-          <input type="radio" name="metodo_pago_devolucion" value="daviplata" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+        <label class="metodo-pago-option">
+          <input type="radio" name="metodo_pago_devolucion" value="daviplata">
           <div class="p-15 border-radius-12 bg-orange-light text-center">
             <i class="bi bi-wallet2 text-orange fw-bold"></i>
             <div class="text-light fw-bold fs-small">DaviPlata</div>
@@ -632,10 +564,10 @@
 
       <!-- Botones de acción -->
       <div>
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" onmouseover="this.style.backgroundColor='rgba(232,131,74,0.1)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" onmouseover="this.style.boxShadow='0 6px 16px rgba(232,131,74,0.5)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(232,131,74,0.3)'">
+        <button type="submit" class="btn btn-primary">
           <i class="bi bi-arrow-right me-2"></i>Siguiente
         </button>
       </div>
@@ -656,9 +588,7 @@
       </div>
 
       <!-- Zona de carga de archivos mejorada -->
-      <div id="dropZone" class="border-radius-12 py-15 px-2 bg-cyan-lighter text-center mb-2"
-           onmouseover="this.style.background='rgba(77,168,218,0.1)'; this.style.borderColor='rgba(77,168,218,0.8)'"
-           onmouseout="this.style.background='rgba(77,168,218,0.05)'; this.style.borderColor='rgba(77,168,218,0.5)'">
+      <div id="dropZone" class="border-radius-12 py-15 px-2 bg-cyan-lighter text-center mb-2 dropzone-area">
         <i class="bi bi-cloud-arrow-up text-cyan fw-bold"></i>
         <div class="text-light fw-bold">Arrastra fotos aquí</div>
         <div class="text-muted fs-small mb-15">o haz clic para seleccionar archivos</div>
@@ -693,77 +623,15 @@
 
       <!-- Botones de acción -->
       <div>
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" onmouseover="this.style.boxShadow='0 6px 16px rgba(77,168,218,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(77,168,218,0.3)'; this.style.transform='translateY(0)'">
+        <button type="submit" class="btn btn-primary">
           <i class="bi bi-arrow-right me-2"></i>Siguiente
         </button>
       </div>
     </div>
   </form>
-
-  <script>
-    // Configurar drag & drop
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('evidencia');
-    const previewContainer = document.getElementById('previewContainer');
-    const fileList = document.getElementById('fileList');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.style.background = 'rgba(77,168,218,0.1)';
-      dropZone.style.borderColor = 'rgba(77,168,218,0.8)';
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.style.background = 'rgba(77,168,218,0.05)';
-      dropZone.style.borderColor = 'rgba(77,168,218,0.5)';
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      fileInput.files = e.dataTransfer.files;
-      updatePreview();
-    });
-
-    fileInput.addEventListener('change', updatePreview);
-
-    function updatePreview() {
-      fileList.innerHTML = '';
-      if (fileInput.files.length > 0) {
-        previewContainer.style.display = 'block';
-        Array.from(fileInput.files).forEach((file, index) => {
-          const fileItem = document.createElement('div');
-          fileItem.style.cssText = `
-            padding: 1rem;
-            background: rgba(77,168,218,0.1);
-            border: 1px solid rgba(77,168,218,0.25);
-            border-radius: 8px;
-            text-align: center;
-            position: relative;
-          `;
-
-          const icon = file.type.includes('image') ? 'image' : 'file-pdf';
-          const size = (file.size / 1024 / 1024).toFixed(2);
-
-          fileItem.innerHTML = `
-            <i class="bi bi-${icon}"></i>
-            <div>${file.name}</div>
-            <div>${size} MB</div>
-            <button type="button" onclick="this.closest('div').remove(); if(document.querySelectorAll('#fileList > div').length === 0) document.getElementById('previewContainer').style.display='none';">
-              <i class="bi bi-x"></i>
-            </button>
-          `;
-          fileList.appendChild(fileItem);
-        });
-      } else {
-        previewContainer.style.display = 'none';
-      }
-    }
-  </script>
   {% endif %}
 
   {% if paso == 7 %}
@@ -875,10 +743,10 @@
 
       <!-- Botones de acción -->
       <div>
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-success" onmouseover="this.style.boxShadow='0 6px 20px rgba(76,175,80,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 14px rgba(76,175,80,0.3)'; this.style.transform='translateY(0)'">
+        <button type="submit" class="btn btn-success">
           <i class="bi bi-check-circle me-2"></i>Enviar Solicitud
         </button>
       </div>
