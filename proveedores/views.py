@@ -17,7 +17,19 @@ from django.db.models.functions import TruncMonth
 
 @login_required
 def lista_proveedores(request):
+    from django.db.models import Sum, F, DecimalField, Case, When, Value
+
     proveedores = Proveedor.objects.all()
+
+    # Calcular total de compras manualmente para cada proveedor
+    for proveedor in proveedores:
+        compras = Compra.objects.filter(proveedor=proveedor)
+        total = sum(
+            (c.cantidad * c.precio_unitario if c.precio_unitario else 0)
+            for c in compras
+        ) or 0
+        proveedor.total_compras = total
+        proveedor.total_ordenes = compras.count()
 
     # Filtros
     q = request.GET.get('q', '')
@@ -44,6 +56,11 @@ def lista_proveedores(request):
         if total_proveedores > 0 else 0
     )
 
+    # Obtener máximo de compras para normalizar barras
+    max_compras = max([p.total_compras for p in proveedores], default=1)
+    if max_compras == 0:
+        max_compras = 1
+
     # Paginación
     paginator = Paginator(proveedores, 10)  # 10 proveedores por página
     page_number = request.GET.get('page', 1)
@@ -58,6 +75,7 @@ def lista_proveedores(request):
         'proveedores_inactivos': proveedores_inactivos,
         'proveedores_sancionados': proveedores_sancionados,
         'porcentaje_activos': porcentaje_activos,
+        'max_compras': max_compras,
         'breadcrumb_items': [
             {'nombre': 'Proveedores', 'url': None},
         ],

@@ -239,7 +239,7 @@ class CompraForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': '15000',
             'id': 'inputPrecio',
-            'step': '1'
+            'step': '1000'
         }),
         label='Precio Unitario (Opcional)'
     )

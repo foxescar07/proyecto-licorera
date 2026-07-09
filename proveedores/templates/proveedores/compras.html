@@ -242,25 +242,44 @@
                     </td>
                     <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
                     <td class="text-center">
-                      <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-secondary py-0 px-2"
-                                data-bs-toggle="modal"
-                                data-bs-target="#detalleCompra{{ compra.id }}"
-                                title="Ver detalles">
-                          <i class="bi bi-eye"></i>
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-cyan p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Acciones">
+                          <i class="bi bi-three-dots-vertical"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-primary py-0 px-2"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalPago"
-                                onclick="abrirModalPago({{ compra.id }})"
-                                title="Registrar pago">
-                          <i class="bi bi-credit-card"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-info py-0 px-2"
-                                onclick="abrirModalEstado({{ compra.id }}, '{{ compra.estado }}')"
-                                title="Cambiar estado">
-                          <i class="bi bi-arrow-repeat"></i>
-                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                          <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#detalleCompra{{ compra.id }}">
+                              <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
+                            </a>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPago" onclick="abrirModalPago({{ compra.id }})">
+                              <i class="bi bi-credit-card me-2 text-success"></i>Pago
+                            </button>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <button type="button" class="dropdown-item" {% if compra.estado != 'pendiente' %}disabled{% endif %} onclick="abrirModalEstado({{ compra.id }}, '{{ compra.estado }}')">
+                              <i class="bi bi-clock-history me-2 text-warning"></i>Pendiente
+                            </button>
+                          </li>
+                          <li>
+                            <button type="button" class="dropdown-item" {% if compra.estado != 'confirmada' %}disabled{% endif %} onclick="cambiarEstado({{ compra.id }}, 'confirmada')">
+                              <i class="bi bi-check2-circle me-2 text-info"></i>Confirmada
+                            </button>
+                          </li>
+                          <li>
+                            <button type="button" class="dropdown-item" {% if compra.estado != 'recibida' %}disabled{% endif %} onclick="cambiarEstado({{ compra.id }}, 'recibida')">
+                              <i class="bi bi-box-seam me-2 text-success"></i>Recibida
+                            </button>
+                          </li>
+                          <li>
+                            <button type="button" class="dropdown-item text-danger" {% if compra.estado != 'cancelada' %}disabled{% endif %} onclick="cambiarEstado({{ compra.id }}, 'cancelada')">
+                              <i class="bi bi-x-circle me-2"></i>Cancelada
+                            </button>
+                          </li>
+                        </ul>
                       </div>
                     </td>
                   </tr>

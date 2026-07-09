@@ -226,7 +226,10 @@
       {% for p in proveedores|slice:":4" %}
       <div class="top-item">
         <div class="medal" data-position="{{ forloop.counter }}">
-          {{ forloop.counter }}
+          <div class="medal-content">
+            <div class="medal-number">{{ forloop.counter }}</div>
+            <div class="medal-label">total</div>
+          </div>
         </div>
 
         <div class="top-info">
@@ -239,14 +242,18 @@
         </div>
 
         <div class="top-bar">
-          <div class="bar-visual" data-position="{{ forloop.counter }}"></div>
-          <span class="bar-monto">${{ p.id|add:"250" }}K</span>
+          {% if p.total_compras > 0 %}
+            <div class="bar-visual" data-position="{{ forloop.counter }}" style="width: {% widthratio p.total_compras max_compras 100 %}%;"></div>
+          {% else %}
+            <div class="bar-visual" data-position="{{ forloop.counter }}" style="width: 1%;"></div>
+          {% endif %}
+          <span class="bar-monto">${{ p.total_compras|floatformat:0 }}</span>
         </div>
 
         <div class="top-compras">
           <div class="text-muted text-xs uppercase fw-600">Compras</div>
           <div class="text-cyan fw-bold">
-            {% if forloop.counter == 1 %}245{% elif forloop.counter == 2 %}189{% elif forloop.counter == 3 %}156{% else %}92{% endif %}
+            {{ p.total_ordenes }}
           </div>
         </div>
       </div>
