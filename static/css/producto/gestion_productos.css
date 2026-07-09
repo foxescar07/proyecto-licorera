@@ -98,4 +98,194 @@
 #cat-list table thead > tr > th:last-child,
 #cat-list table tbody > tr > td:last-child { text-align: center !important; }
 #cat-list table thead > tr > th:last-child div.dt-column-header { justify-content: center !important; }
+/* ==========================================================================
+   gestion_productos.css — Estilos extraídos de gestion_productos.html
+   Agregar este contenido al final de: css/producto/gestion_productos.css
+   ========================================================================== */
 
+/* ── Layout general ── */
+.gp-header-row {
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.gp-columna-izq {
+  width: 260px;
+  max-width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gp-columna-der {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Colores de íconos ── */
+.gp-icon-purple {
+  color: rgb(131, 32, 188);
+}
+
+.gp-icon-blue {
+  color: #4DA8DA;
+}
+
+.gp-icon-cyan {
+  color: #0dcaf0;
+}
+
+/* ── Bloque de gráfico de categorías ── */
+.gp-grafico-categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+/* ── Barras de progreso (color base; el ancho lo controla el JS inline) ── */
+.gp-bar-cyan {
+  background: #0dcaf0;
+}
+
+.gp-bar-purple {
+  background: rgb(131, 32, 188);
+}
+
+/* ── Variante de stat-box con borde amarillo ── */
+.gp-stat-box-warning {
+  border-color: rgba(255, 193, 7, 0.25);
+}
+
+/* ── Texto morado (alertas "sin presentación") ── */
+.gp-text-purple {
+  color: rgb(131, 32, 188);
+}
+
+.gp-text-purple-bold {
+  color: rgb(131, 32, 188);
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* ── Tabla de productos ── */
+.gp-th-nombre {
+  min-width: 160px;
+}
+
+/* ── Estado vacío (sin productos) ── */
+.gp-empty-state {
+  background: #0a2240;
+  color: rgba(226, 232, 240, 0.4);
+}
+
+/* ── Modal Detalle: bloque de presentaciones ── */
+.gp-pres-box {
+  border: 1px solid rgba(77, 168, 218, 0.12);
+}
+
+.gp-pres-item {
+  border-bottom: 1px solid rgba(77, 168, 218, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.gp-lote-line {
+  font-size: .75rem;
+  color: rgba(226, 232, 240, .5);
+  padding-top: 3px;
+}
+
+.gp-lote-costo {
+  color: rgba(77, 168, 218, .8);
+}
+
+.gp-empty-pres {
+  color: rgba(226, 232, 240, 0.4);
+}
+
+/* ── Textos y labels de formularios ── */
+.gp-label-muted {
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.gp-label-muted-sm {
+  color: rgba(226, 232, 240, 0.55);
+}
+
+.gp-uppercase-label {
+  color: rgba(226, 232, 240, 0.5);
+  letter-spacing: .05em;
+}
+
+.gp-value-blue {
+  color: #4DA8DA;
+}
+
+/* ── Botones de modales ── */
+.gp-btn-outline-blue {
+  border: 1px solid rgba(77, 168, 218, 0.35);
+  color: #4DA8DA;
+  background: transparent;
+}
+
+.gp-btn-fill-blue {
+  background: #4DA8DA;
+  color: #011936;
+  border: none;
+}
+
+.gp-btn-fill-cyan {
+  background: #0dcaf0;
+  color: #011936;
+  border: none;
+}
+
+/* ── Dropdown de categoría (Editar producto) ── */
+.gp-dropdown-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.gp-cat-header {
+  color: #4DA8DA;
+}
+
+.gp-cat-item {
+  color: #c8d6e5;
+}
+
+.gp-cat-item-sub {
+  color: #c8d6e5;
+  padding-left: 2rem;
+}
+
+/* ── Costo de lote (display no editable) ── */
+.gp-costo-lote-display {
+  cursor: default;
+  opacity: .7;
+}
+
+.gp-info-icon {
+  color: rgba(77, 168, 218, .5);
+}
+
+/* ── Cajas de presentaciones (modal Presentaciones) ── */
+.gp-sin-pres-box {
+  background: rgba(255, 193, 7, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.15);
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.gp-nueva-pres-box {
+  background: rgba(77, 168, 218, 0.06);
+  border: 1px solid rgba(77, 168, 218, 0.2);
+}
+
+/* ── Estado inicial oculto de los cuerpos de acordeón ──
+   IMPORTANTE: sin !important, para que el JS (toggleAcc) pueda
+   seguir controlando el display vía body.style.display */
+.gp-acc-body-init {
+  display: none;
+}
