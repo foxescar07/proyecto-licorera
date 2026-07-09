@@ -486,13 +486,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const pct = total > 0 ? Math.round((n / total) * 100) : 0;
     catWrap.innerHTML += `
       <div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;
-                    color:rgba(226,232,240,0.5);margin-bottom:2px;">
-          <span style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cat}</span>
+        <div class="cat-stat-row">
+          <span class="cat-stat-name">${cat}</span>
           <span>${n} (${pct}%)</span>
         </div>
-        <div class="bar-track" style="height:4px;">
-          <div class="bar-fill" style="width:${pct}%;background:#4DA8DA;"></div>
+        <div class="bar-track cat-stat-track">
+          <div class="bar-fill cat-stat-fill" style="width:${pct}%;"></div>
         </div>
       </div>`;
   });

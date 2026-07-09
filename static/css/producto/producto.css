@@ -1034,3 +1034,131 @@ button#crear-categoria-btn {
   color: #4DA8DA;
   background: transparent;
 }
+/* Tabla de productos por categoría */
+.prod-pres-badge {
+  background: rgba(77, 168, 218, .2);
+  color: #4DA8DA;
+  font-size: .72rem;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+
+.prod-label-sm {
+  font-size: .82rem;
+}
+
+.prod-cell-nombre {
+  color: var(--prod-texto);
+}
+
+.prod-cell-codigo {
+  color: #4DA8DA;
+  font-family: monospace;
+}
+
+/* Leyenda del donut */
+.donut-leyenda-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.donut-leyenda-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-leyenda-label {
+  font-size: .78rem;
+  color: #e2e8f0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.donut-leyenda-pct {
+  font-size: .75rem;
+  color: rgba(226, 232, 240, .45);
+}
+
+/* Lista de últimos productos */
+.ultimos-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: rgba(77, 168, 218, .05);
+  border: 1px solid rgba(77, 168, 218, .1);
+}
+
+.ultimos-nombre {
+  font-size: .85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.ultimos-categoria {
+  font-size: .72rem;
+  color: rgba(226, 232, 240, .45);
+}
+
+.ultimos-badge {
+  font-size: .72rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(77, 168, 218, .12);
+  color: #4DA8DA;
+  white-space: nowrap;
+}
+/* Toggle vacío / tabla de categoría */
+.cat-panel {
+  transition: opacity .2s ease;
+}
+.cat-panel-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.cat-panel-oculto {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Donut: el color de cada segmento se pasa por variable, no por atributo */
+.donut-segment {
+  fill: none;
+  stroke-width: 20;
+  stroke: var(--seg-color);
+}
+
+.donut-leyenda-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--dot-color);
+}
+.donut-color-0 { --seg-color: #4DA8DA; }
+.donut-color-1 { --seg-color: #27ae60; }
+.donut-color-2 { --seg-color: #f39c12; }
+.donut-color-3 { --seg-color: #9b59b6; }
+.donut-color-4 { --seg-color: #e74c3c; }
+.donut-color-5 { --seg-color: #1abc9c; }
+.donut-color-6 { --seg-color: #e67e22; }
+
+.donut-segment {
+  fill: none;
+  stroke-width: 20;
+  stroke: var(--seg-color);
+}
+
+.donut-leyenda-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--seg-color);
+}
