@@ -161,6 +161,7 @@ def nueva_venta(request):
     pago_transferencia = to_decimal('pago_transferencia')
     pago_nequi        = to_decimal('pago_nequi')
     pago_daviplata     = to_decimal('pago_daviplata')
+    comprobante_pago    = request.FILES.get('comprobante_pago')
 
     if not producto_ids:
         messages.error(request, "El carrito está vacío.")
@@ -236,6 +237,7 @@ def nueva_venta(request):
         cliente=cliente, vendedor=vendedor, descuento_porcentaje=descuento_pct,
         total_con_descuento=total_final, pago_efectivo=pago_efectivo, pago_tarjeta=pago_tarjeta,
         pago_transferencia=pago_transferencia, pago_nequi=pago_nequi, pago_daviplata=pago_daviplata,
+        comprobante_pago=comprobante_pago,
     )
 
     for item in items_validados:

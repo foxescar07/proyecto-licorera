@@ -30,9 +30,15 @@ class DetalleVentaForm(forms.ModelForm):
 
 
 class DevolucionForm(forms.ModelForm):
-    motivo = forms.CharField(
+    motivo = forms.ChoiceField(
+        choices=Devolucion.MOTIVO_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Motivo de devolución'
+    )
+    tipo_reembolso = forms.ChoiceField(
+        choices=Devolucion.REEMBOLSO_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Tipo de reembolso'
     )
     observaciones = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe el problema con detalle...'}),
@@ -51,5 +57,5 @@ class DevolucionForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Devolucion
-        fields = ['motivo', 'observaciones', 'restaurar_stock', 'tiene_comprobante']
+        model  = Devolucion
+        fields = ['motivo', 'tipo_reembolso', 'observaciones', 'restaurar_stock', 'tiene_comprobante']

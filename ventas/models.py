@@ -50,6 +50,9 @@ class Venta(models.Model):
     pago_transferencia   = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     pago_nequi           = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     pago_daviplata       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    comprobante_pago     = models.FileField(upload_to='comprobantes_pago/%Y/%m/',
+                                            null=True, blank=True,
+                                            verbose_name='Comprobante de pago')
 
     class Meta:
         verbose_name        = 'Venta'
@@ -156,6 +159,12 @@ class Devolucion(models.Model):
         ('daviplata',    'DaviPlata'),
     ]
 
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('aprobada',  'Aprobada'),
+        ('aplicada',  'Aplicada'),
+    ]
+
     venta = models.ForeignKey(
         Venta,
         on_delete=models.PROTECT,
@@ -176,6 +185,12 @@ class Devolucion(models.Model):
         auto_now_add=True,
         help_text="Fecha de registro de la devolución"
     )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='pendiente',
+        help_text="Estado del proceso de la devolución"
+    )
     motivo = models.CharField(
         max_length=20,
         choices=MOTIVO_CHOICES,
@@ -193,6 +208,28 @@ class Devolucion(models.Model):
         choices=METODO_PAGO_CHOICES,
         blank=True,
         help_text="Método de pago para la devolución"
+    )
+    producto_cambio = models.ForeignKey(
+        Producto,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='devoluciones_cambio',
+        verbose_name='Producto de cambio',
+        help_text="Producto de reemplazo cuando el tipo de reembolso es 'cambio'"
+    )
+    cantidad_cambio = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Cantidad de cambio'
+    )
+    saldo_credito = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Saldo a crédito',
+        help_text="Monto disponible cuando el tipo de reembolso es 'nota_credito'"
     )
     observaciones = models.TextField(
         blank=True,
@@ -229,6 +266,13 @@ class Devolucion(models.Model):
         """Retorna el número de devolución formateado."""
         return f'DEV-{self.pk:04d}' if self.pk else 'NUEVA'
 
+    def calcular_total(self):
+        """Recalcula total_devuelto sumando los subtotales de los detalles y guarda."""
+        total = sum(d.subtotal for d in self.detalles.all())
+        self.total_devuelto = total
+        self.save()
+        return total
+
     def clean(self):
         """Validaciones adicionales."""
         from django.core.exceptions import ValidationError
@@ -251,12 +295,18 @@ class DetalleDevolucion(models.Model):
         related_name='detalles',
         help_text="Devolución a la que pertenece"
     )
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='detalles_devolucion',
+        help_text="Producto devuelto (referencia directa, opcional)"
+    )
     presentacion = models.ForeignKey(
         PresentacionProducto,
         on_delete=models.CASCADE,
         related_name='detalles_devolucion',
-        null=True,
-        blank=True,
         help_text="Presentación del producto devuelto"
     )
     lote = models.ForeignKey(
@@ -282,6 +332,7 @@ class DetalleDevolucion(models.Model):
         verbose_name = 'Detalle de Devolución'
         verbose_name_plural = 'Detalles de Devolución'
 
+    @property
     def subtotal(self):
         """Calcula el subtotal de este detalle."""
         return self.cantidad * self.precio_unitario
