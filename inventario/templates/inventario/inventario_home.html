@@ -8,6 +8,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/datatables.css' %}">
 <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventario/inventario_home.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -26,77 +27,77 @@
   <div class="row g-3 mb-4">
 
     <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button"
-           style="border-left: 3px solid #2dd4bf;">
+      <div class="inv-quick-card qc-borde-teal" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button"
+          >
         <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-          <div class="rounded-3 p-2" style="background:rgba(77,168,218,.15);">
-            <i class="bi bi-calendar-plus fs-4" style="color:#2dd4bf;"></i>
+          <div class="rounded-3 p-2 qc-icono-bg-teal">
+            <i class="bi bi-calendar-plus fs-4 qc-icono-color-teal"></i>
           </div>
-          <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#2dd4bf;font-size:.65rem;">ACCIÓN</span>
+          <span class="badge rounded-pill qc-badge-teal">ACCIÓN</span>
         </div>
-        <div class="fw-bold mt-1" style="font-size:1.5rem;color:#2dd4bf;line-height:1;">{{ agendas|length|default:"0" }}</div>
-        <div class="fw-semibold mt-1" style="font-size:.88rem;">Agendar Inventario</div>
-        <div class="text-muted small mt-1" style="font-size:.72rem;">Programar fecha y hora del conteo</div>
-        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
-          <span style="font-size:.7rem;color:#2dd4bf;">Abrir módulo</span>
-          <i class="bi bi-arrow-right" style="font-size:.7rem;color:#2dd4bf;"></i>
+        <div class="fw-bold mt-1 qc-valor-teal">{{ agendas|length|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Agendar Inventario</div>
+        <div class="text-muted small mt-1 qc-desc">Programar fecha y hora del conteo</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-teal">
+          <span class="qc-footer-texto-teal">Abrir módulo</span>
+          <i class="bi bi-arrow-right qc-footer-texto-teal"></i>
         </div>
       </div>
     </div>
 
     <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button"
-           style="border-left: 3px solid #27ae60;">
+      <div class="inv-quick-card qc-borde-verde" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button"
+          >
         <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-          <div class="rounded-3 p-2" style="background:rgba(39,174,96,.15);">
-            <i class="bi bi-clipboard2-check fs-4" style="color:#27ae60;"></i>
+          <div class="rounded-3 p-2 qc-icono-bg-verde">
+            <i class="bi bi-clipboard2-check fs-4 qc-icono-color-verde"></i>
           </div>
-          <span class="badge rounded-pill" style="background:rgba(39,174,96,.15);color:#27ae60;font-size:.65rem;">CONTEO</span>
+          <span class="badge rounded-pill qc-badge-verde">CONTEO</span>
         </div>
-        <div class="fw-bold mt-1" style="font-size:1.5rem;color:#27ae60;line-height:1;">{{ conteos|length|default:"0" }}</div>
-        <div class="fw-semibold mt-1" style="font-size:.88rem;">Iniciar Conteo</div>
-        <div class="text-muted small mt-1" style="font-size:.72rem;">Ingresar cantidades físicas</div>
-        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(39,174,96,.15);">
-          <span style="font-size:.7rem;color:#27ae60;">Abrir módulo</span>
-          <i class="bi bi-arrow-right" style="font-size:.7rem;color:#27ae60;"></i>
+        <div class="fw-bold mt-1 qc-valor-verde">{{ conteos|length|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Iniciar Conteo</div>
+        <div class="text-muted small mt-1 qc-desc">Ingresar cantidades físicas</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-verde">
+          <span class="qc-footer-texto-verde">Abrir módulo</span>
+          <i class="bi bi-arrow-right qc-footer-texto-verde"></i>
         </div>
       </div>
     </div>
 
     <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
-           style="border-left: 3px solid #9b5de5;">
+      <div class="inv-quick-card qc-borde-purpura" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
+          >
         <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-          <div class="rounded-3 p-2" style="background:rgba(155,93,229,.15);">
-            <i class="bi bi-upc-scan fs-4" style="color:#9b5de5;"></i>
+          <div class="rounded-3 p-2 qc-icono-bg-purpura">
+            <i class="bi bi-upc-scan fs-4 qc-icono-color-purpura"></i>
           </div>
-          <span class="badge rounded-pill" style="background:rgba(155,93,229,.15);color:#9b5de5;font-size:.65rem;">CÓDIGOS</span>
+          <span class="badge rounded-pill qc-badge-purpura">CÓDIGOS</span>
         </div>
-        <div class="fw-bold mt-1" style="font-size:1.5rem;color:#9b5de5;line-height:1;">{{ sin_codigo|default:"0" }}</div>
-        <div class="fw-semibold mt-1" style="font-size:.88rem;">Registrar Códigos</div>
-        <div class="text-muted small mt-1" style="font-size:.72rem;">Asignar códigos de barras</div>
-        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(155,93,229,.15);">
-          <span style="font-size:.7rem;color:#9b5de5;">Sin código: {{ sin_codigo|default:"0" }}</span>
-          <i class="bi bi-arrow-right" style="font-size:.7rem;color:#9b5de5;"></i>
+        <div class="fw-bold mt-1 qc-valor-purpura">{{ sin_codigo|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Registrar Códigos</div>
+        <div class="text-muted small mt-1 qc-desc">Asignar códigos de barras</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-purpura">
+          <span class="qc-footer-texto-purpura">Sin código: {{ sin_codigo|default:"0" }}</span>
+          <i class="bi bi-arrow-right qc-footer-texto-purpura"></i>
         </div>
       </div>
     </div>
 
     <div class="col-md-3">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button"
-           style="border-left: 3px solid #4DA8DA;">
+      <div class="inv-quick-card qc-borde-azul" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button"
+          >
         <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-          <div class="rounded-3 p-2" style="background:rgba(77,168,218,.15);">
-            <i class="bi bi-arrow-left-right fs-4" style="color:#4DA8DA;"></i>
+          <div class="rounded-3 p-2 qc-icono-bg-teal">
+            <i class="bi bi-arrow-left-right fs-4 qc-icono-color-azul"></i>
           </div>
-          <span class="badge rounded-pill" style="background:rgba(77,168,218,.15);color:#4DA8DA;font-size:.65rem;">COMPARAR</span>
+          <span class="badge rounded-pill qc-badge-azul">COMPARAR</span>
         </div>
-        <div class="fw-bold mt-1" style="font-size:1.5rem;color:#4DA8DA;line-height:1;">{{ discrepancias|length|default:"0" }}</div>
-        <div class="fw-semibold mt-1" style="font-size:.88rem;">Comparar Inventario</div>
-        <div class="text-muted small mt-1" style="font-size:.72rem;">Ver discrepancias físico vs sistema</div>
-        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1" style="border-top:1px solid rgba(77,168,218,.15);">
-          <span style="font-size:.7rem;color:#4DA8DA;">Abrir módulo</span>
-          <i class="bi bi-arrow-right" style="font-size:.7rem;color:#4DA8DA;"></i>
+        <div class="fw-bold mt-1 qc-valor-azul">{{ discrepancias|length|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Comparar Inventario</div>
+        <div class="text-muted small mt-1 qc-desc">Ver discrepancias físico vs sistema</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-teal">
+          <span class="qc-footer-texto-azul">Abrir módulo</span>
+          <i class="bi bi-arrow-right qc-footer-texto-azul"></i>
         </div>
       </div>
     </div>
@@ -118,12 +119,12 @@
     <div class="collapse" id="agendaBody">
       <div class="card-body">
         <div class="d-flex gap-2 mb-3">
-          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn active" data-tab="activos"
-                  style="background: var(--inv-azul-dim); color: var(--inv-azul); border: 1px solid var(--inv-azul-borde); font-size:.78rem;">
+          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn active agenda-tab-activo" data-tab="activos"
+                 >
             <i class="bi bi-clock me-1"></i>Activos
           </button>
-          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn" data-tab="historial"
-                  style="background: transparent; color: var(--inv-texto); border: 1px solid var(--inv-azul-borde); font-size:.78rem; opacity:.6;">
+          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-inactivo" data-tab="historial"
+                 >
             <i class="bi bi-archive me-1"></i>Historial
           </button>
         </div>
@@ -137,7 +138,7 @@
                         {% if estado == 'completada' or estado == 'cancelada' %}display:none;{% endif %}">
               <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
                 <div>
-                  <div class="fw-semibold" style="color: var(--inv-texto);">{{ agenda.titulo }}</div>
+                  <div class="fw-semibold agenda-titulo-texto">{{ agenda.titulo }}</div>
                   <div class="text-muted small mt-1">
                     <i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}
                   </div>
@@ -153,27 +154,27 @@
                 {% for val, label in agenda.ESTADO_CHOICES %}
                   {% if estado == 'completada' or estado == 'cancelada' %}
                     <span class="badge rounded-pill px-3 py-2
-                      {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %}"
-                      style="font-size:.75rem;">{{ label }}</span>
+                      {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %} agenda-stepper-badge"
+                     >{{ label }}</span>
                   {% else %}
-                    <form method="POST" action="{% url 'agenda_estado' agenda.pk %}" style="display:inline;">
+                    <form class="agenda-form-inline" method="POST" action="{% url 'agenda_estado' agenda.pk %}">
                       {% csrf_token %}
                       <input type="hidden" name="estado" value="{{ val }}">
                       <button type="submit"
                               class="badge rounded-pill px-3 py-2 border-0
-                                {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %}"
-                              style="font-size:.75rem; cursor:pointer;"
+                                {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %} agenda-stepper-btn"
+                             
                               {% if agenda.estado == val %}disabled{% endif %}>
                         {{ label }}
                       </button>
                     </form>
                   {% endif %}
                   {% if not forloop.last %}
-                    <i class="bi bi-arrow-right text-muted" style="font-size:.75rem;"></i>
+                    <i class="bi bi-arrow-right text-muted agenda-stepper-badge"></i>
                   {% endif %}
                 {% endfor %}
               </div>
-              <div class="pt-2 border-top" style="border-color: var(--inv-azul-borde) !important;">
+              <div class="pt-2 border-top agenda-footer-borde">
                 {% if estado == 'completada' %}
                   <small class="text-muted">Inventario finalizado · sin acciones disponibles</small>
                 {% elif estado == 'cancelada' %}
@@ -209,9 +210,9 @@
       <div class="d-flex gap-2 flex-wrap">
           <div class="dropdown" onclick="event.stopPropagation()">
             {% firstof fecha_filtro dias_con_movimientos|first as fecha_efectiva %}
-<button class="btn btn-sm dropdown-toggle px-3" type="button"
+<button class="btn btn-sm dropdown-toggle px-3 mov-fecha-btn" type="button"
         id="mov-fecha-btn" data-bs-toggle="dropdown"
-        style="font-size:.82rem; border-radius:8px; width:200px; text-align:left;">
+       >
   {% for dia in dias_con_movimientos %}
     {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}
       {% if dia|date:'Y-m-d' == hoy|date:'Y-m-d' %}Hoy — {{ dia|date:"d/m/Y" }}{% else %}{{ dia|date:"l d/m/Y" }}{% endif %}
@@ -220,7 +221,7 @@
     Sin movimientos
   {% endfor %}
 </button>
-<ul class="dropdown-menu" style="min-width:200px;">
+<ul class="dropdown-menu mov-fecha-menu">
   {% for dia in dias_con_movimientos %}
     <li>
       <a class="dropdown-item" href="?fecha_mov={{ dia|date:'Y-m-d' }}"
@@ -231,7 +232,7 @@
       </a>
     </li>
   {% empty %}
-    <li><span class="dropdown-item disabled" style="color:#c8d6e5;">Sin movimientos</span></li>
+    <li><span class="dropdown-item disabled mov-fecha-item">Sin movimientos</span></li>
   {% endfor %}
 </ul>
 </div>
@@ -270,14 +271,14 @@
                 <td class="text-muted small">{{ forloop.counter }}</td>
                 <td>
                   <div class="fw-semibold small">{{ mov.fecha_actualizada|date:"H:i" }}</div>
-                  <div class="text-muted" style="font-size:.7rem;">{{ mov.fecha_actualizada|timesince }} atrás</div>
+                  <div class="text-muted texto-mini">{{ mov.fecha_actualizada|timesince }} atrás</div>
                 </td>
                 <td>
                   {% if mov.lote.presentacion.producto.lotes.first.stock_actual <= 5 %}
-                    <i class="bi bi-exclamation-triangle-fill text-danger me-1" style="font-size:.7rem;" title="Stock crítico"></i>
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-1 texto-mini" title="Stock crítico"></i>
                   {% endif %}
                   <div class="fw-semibold small">{{ mov.lote.presentacion.producto.nombre }}</div>
-                  <div class="text-info" style="font-size:.7rem; font-family:monospace;">{{ mov.lote.presentacion.producto.codigo|default:"Sin código" }}</div>
+                  <div class="text-info mov-codigo-texto">{{ mov.lote.presentacion.producto.codigo|default:"Sin código" }}</div>
                 </td>
                 <td class="text-muted small">{{ mov.lote.presentacion.producto.categoria.nombre }}</td>
                 {% with stock_mostrado=mov.stock_resultante|default_if_none:mov.lote.stock_actual %}
@@ -338,23 +339,23 @@
         <i class="bi bi-grid me-2 text-info"></i>Catálogo de Productos
       </span>
       <div class="d-flex gap-2 align-items-center flex-wrap">
-        <input type="text" id="cat-buscar" class="form-control form-control-sm inv-input"
-               style="width:190px;" placeholder="Buscar producto...">
+        <input type="text" id="cat-buscar" class="form-control form-control-sm inv-input cat-buscar-input"
+               placeholder="Buscar producto...">
         <div class="dropdown">
-  <button class="btn btn-sm dropdown-toggle px-3" type="button"
+  <button class="btn btn-sm dropdown-toggle px-3 cat-cat-btn" type="button"
         id="cat-cat-btn" data-bs-toggle="dropdown"
-        style="font-size:.82rem; border-radius:8px; width:170px; text-align:left;">
+       >
     <span id="cat-cat-label">Todas las categorías</span>
   </button>
-  <ul class="dropdown-menu" style="min-width:170px;">
+  <ul class="dropdown-menu cat-cat-menu">
     <li>
-      <a class="dropdown-item" href="#" data-cat=""
-         style="color:#c8d6e5; font-size:.82rem;">Todas las categorías</a>
+      <a class="dropdown-item cat-cat-item" href="#" data-cat=""
+        >Todas las categorías</a>
     </li>
     {% for cat in categorias %}
     <li>
-      <a class="dropdown-item" href="#" data-cat="{{ cat.nombre }}"
-         style="color:#c8d6e5; font-size:.82rem;">{{ cat.nombre }}</a>
+      <a class="dropdown-item cat-cat-item" href="#" data-cat="{{ cat.nombre }}"
+        >{{ cat.nombre }}</a>
     </li>
     {% endfor %}
   </ul>
@@ -377,22 +378,22 @@
           <div class="col-6 col-md-4 col-lg-3 cat-item"
                data-nombre="{{ p.nombre|lower }}"
                data-cat="{{ p.categoria.nombre }}">
-            <div class="cat-card p-3 rounded-3 h-100 position-relative"
-                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);">
+            <div class="cat-card p-3 rounded-3 h-100 position-relative cat-card-bg"
+                >
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge rounded-pill" style="background:var(--inv-azul-dim);color:var(--inv-azul);border:1px solid var(--inv-azul-borde);font-size:.62rem;">
+                <span class="badge rounded-pill cat-card-badge">
                   {{ p.categoria.nombre }}
                 </span>
                 {% if p.stock_sum|default:0 <= 5 %}
-                  <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:.75rem;" title="Stock crítico"></i>
+                  <i class="bi bi-exclamation-triangle-fill text-danger agenda-stepper-badge" title="Stock crítico"></i>
                 {% endif %}
               </div>
-              <div class="fw-bold small mb-2" style="color:var(--inv-texto);line-height:1.2;">{{ p.nombre }}</div>
+              <div class="fw-bold small mb-2 cat-card-nombre">{{ p.nombre }}</div>
               <div class="fw-bold" style="font-size:2rem;line-height:1;
                 color:{% if p.stock_sum|default:0 == 0 %}var(--inv-rojo){% elif p.stock_sum|default:0 <= 5 %}var(--inv-amarillo){% else %}var(--inv-verde){% endif %};">
                 {{ p.stock_sum|default:0 }}
               </div>
-              <div class="text-muted mt-1" style="font-size:.7rem;">
+              <div class="text-muted mt-1 texto-mini">
               {{ unidad }}{% if precio %} · <span class="precio-fmt">${{ precio|floatformat:"0" }}</span>{% endif %}
               </div>
             </div>
@@ -420,12 +421,12 @@
                 <td class="text-muted small">{{ forloop.counter }}</td>
                 <td>
                   {% if p.stock_sum|default:0 <= 5 %}
-                    <i class="bi bi-exclamation-triangle-fill text-danger me-1" style="font-size:.7rem;"></i>
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-1 texto-mini"></i>
                   {% endif %}
                   <span class="fw-semibold small">{{ p.nombre }}</span>
                 </td>
                 <td>
-                  <span class="badge rounded-pill" style="background:var(--inv-azul-dim);color:var(--inv-azul);border:1px solid var(--inv-azul-borde);font-size:.62rem;">
+                  <span class="badge rounded-pill cat-card-badge">
                     {{ p.categoria.nombre }}
                   </span>
                 </td>
@@ -434,7 +435,7 @@
                     {{ p.stock_sum|default:0 }}
                   </span>
                 </td>
-                <td class="text-muted small" style="font-family:monospace;">{{ p.codigo|default:"—" }}</td>
+                <td class="text-muted small cat-list-codigo">{{ p.codigo|default:"—" }}</td>
               </tr>
               {% empty %}
                 <tr><td colspan="5" class="text-center py-4 text-muted">No hay productos.</td></tr>
@@ -450,17 +451,17 @@
   </div>
 
   <!-- ⑤ ANALÍTICA / ROTACIÓN — lectura profunda, al final -->
-  <div class="card inv-card mb-4" id="seccion-analitica" style="display:none;">
+  <div class="card inv-card mb-4 analitica-oculto" id="seccion-analitica">
     <div class="card-header inv-card-header">
       <i class="bi bi-bar-chart-line me-2 text-info"></i>
       <span class="fw-semibold">Rotación de Productos — Últimos 30 días</span>
     </div>
     <div class="card-body">
-      <div id="bloque-estrella" class="mb-4" style="display:none;">
+      <div id="bloque-estrella" class="mb-4 analitica-oculto">
         <div class="d-flex align-items-center gap-2 mb-3">
           <i class="bi bi-trophy-fill text-warning"></i>
           <span class="fw-semibold small text-uppercase text-muted">Producto Estrella del Mes</span>
-          <span class="badge ms-auto" id="estrella-mes-label" style="background:rgba(77,168,218,.15);color:#4DA8DA;border:1px solid rgba(77,168,218,.3);"></span>
+          <span class="badge ms-auto estrella-mes-badge" id="estrella-mes-label"></span>
         </div>
         <div class="row g-3">
           <div class="col-md-4">
@@ -505,10 +506,10 @@
       <div id="rotacion-loading" class="text-center py-4 text-muted small">
         <span class="spinner-border spinner-border-sm me-2"></span> Cargando datos…
       </div>
-      <div style="position:relative; width:100%; min-height:300px;">
-        <canvas id="chartRotacion" style="display:none;"></canvas>
+      <div class="chart-rotacion-wrap">
+        <canvas class="analitica-oculto" id="chartRotacion"></canvas>
       </div>
-      <div class="row g-3 mt-2" id="tablas-rotacion" style="display:none;">
+      <div class="row g-3 mt-2 analitica-oculto" id="tablas-rotacion">
         <div class="col-md-6">
           <div class="inv-stat-card">
             <div class="d-flex align-items-center gap-2 mb-2">
@@ -560,11 +561,11 @@
             <textarea name="descripcion" class="form-control inv-input" rows="3" placeholder="Notas adicionales..."></textarea>
           </div>
           <div class="d-flex gap-2 justify-content-end">
-            <button type="button" class="btn rounded-pill px-4"
-              style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+            <button type="button" class="btn rounded-pill px-4 btn-outline-azul"
+             
               data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" name="Agendar" class="btn rounded-pill fw-bold px-4"
-              style="background: #4DA8DA; color: #0d1b2a; border: none;">
+            <button type="submit" name="Agendar" class="btn rounded-pill fw-bold px-4 btn-solido-azul"
+             >
               <i class="bi bi-calendar-check me-2"></i>Agendar
             </button>
           </div>
@@ -600,8 +601,8 @@
           </div>
           <form method="POST" action="{% url 'conteo_inventario' %}">
             {% csrf_token %}
-            <button type="submit" name="iniciar_sesion" class="btn rounded-pill fw-bold px-4"
-              style="background: #4DA8DA; color: #0d1b2a; border: none;">
+            <button type="submit" name="iniciar_sesion" class="btn rounded-pill fw-bold px-4 btn-solido-azul"
+             >
               <i class="bi bi-play-fill me-1"></i>
               {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
             </button>
@@ -616,17 +617,17 @@
       <div class="col-md-7">
   <label class="form-label inv-label">Producto</label>
   <div class="dropdown w-100">
-    <button class="btn dropdown-toggle w-100 text-start" type="button"
+    <button class="btn dropdown-toggle w-100 text-start conteo-prod-btn" type="button"
         id="conteo-prod-btn" data-bs-toggle="dropdown"
-        style="font-size:.85rem; border-radius:8px; padding:.55rem 1rem;">
+       >
       <span id="conteo-prod-label">— Seleccionar producto —</span>
     </button>
-    <ul class="dropdown-menu w-100" style="max-height:260px; overflow-y:auto;">
+    <ul class="dropdown-menu w-100 conteo-prod-menu">
       {% for p in productos %}
       <li>
-        <a class="dropdown-item conteo-prod-item" href="#"
+        <a class="dropdown-item conteo-prod-item conteo-prod-item" href="#"
            data-value="{{ p.pk }}"
-           style="color:#c8d6e5; font-size:.85rem;">
+          >
           {{ p.nombre }}
         </a>
       </li>
@@ -641,21 +642,14 @@
               </div>
               <div class="col-md-2 d-flex align-items-end">
   <button type="submit"
-          class="btn btn-outline-info rounded-circle p-2 d-inline-flex align-items-center justify-content-center"
-          style="--bs-btn-color: var(--inv-azul);
-                --bs-btn-border-color: rgba(77,168,218,0.35);
-                --bs-btn-hover-bg: rgba(77,168,218,0.15);
-                --bs-btn-hover-color: var(--inv-azul);
-                --bs-btn-hover-border-color: var(--inv-azul);
-                --bs-btn-active-bg: rgba(77,168,218,0.25);
-                --bs-btn-active-color: var(--inv-azul);
-                width: 42px; height: 42px;">
+          class="btn btn-outline-info rounded-circle p-2 d-inline-flex align-items-center justify-content-center conteo-guardar-btn"
+         >
     <i class="bi bi-save"></i>
   </button>
 </div>
             </div>
           </form>
-          <div class="d-flex flex-column gap-2" style="max-height:280px; overflow-y:auto;">
+          <div class="d-flex flex-column gap-2 conteo-lista-wrap">
             {% for c in conteos %}
             <div class="p-3 rounded-3 d-flex align-items-center gap-3"
                  style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
@@ -664,15 +658,15 @@
                         {% elif c.cantidad_contada > c.presentacion.cantidad %}#9b5de5
                         {% else %}var(--inv-rojo){% endif %};">
 
-              <div style="flex:1 1 200px; min-width:0;">
-                <div class="fw-semibold small text-truncate" style="color:var(--inv-texto);">{{ c.presentacion.producto.nombre }}</div>
-                <div class="text-muted" style="font-size:.7rem;">{{ c.presentacion.nombre }}</div>
+              <div class="conteo-item-nombre-col">
+                <div class="fw-semibold small text-truncate texto-principal">{{ c.presentacion.producto.nombre }}</div>
+                <div class="text-muted texto-mini">{{ c.presentacion.nombre }}</div>
               </div>
 
-              <div class="d-flex align-items-center gap-2" style="flex:1 1 180px;">
+              <div class="d-flex align-items-center gap-2 conteo-item-comparativa">
                 <div class="text-center flex-fill">
-                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">SISTEMA</div>
-                  <div class="fw-bold" style="color:var(--inv-azul);">{{ c.presentacion.cantidad }}</div>
+                  <div class="text-muted comparativa-label">SISTEMA</div>
+                  <div class="fw-bold comparativa-valor-sistema">{{ c.presentacion.cantidad }}</div>
                 </div>
                 <i class="bi
                   {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success
@@ -680,12 +674,12 @@
                   {% else %}bi-arrow-down text-danger{% endif %}"
                   {% if c.cantidad_contada > c.presentacion.cantidad %}style="color:#9b5de5;"{% endif %}></i>
                 <div class="text-center flex-fill">
-                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">FÍSICO</div>
-                  <div class="fw-bold" style="color:var(--inv-texto);">{{ c.cantidad_contada }}</div>
+                  <div class="text-muted comparativa-label">FÍSICO</div>
+                  <div class="fw-bold texto-principal">{{ c.cantidad_contada }}</div>
                 </div>
               </div>
 
-              <div style="flex:0 0 auto;">
+              <div class="comparativa-badge-col">
                 <span class="badge
                   {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok
                   {% else %}inv-estado-faltante{% endif %}"
@@ -712,8 +706,8 @@
         {% endif %}
       </div>
       <div class="modal-footer inv-modal-footer">
-        <button type="button" class="btn rounded-pill px-4"
-          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+        <button type="button" class="btn rounded-pill px-4 btn-outline-azul"
+         
           data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -745,25 +739,25 @@
               <div class="inv-stat-card text-center">
                 <div class="text-muted small">Total Comparados</div>
                 <div class="fw-bold fs-4 text-info">{{ discrepancias|length }}</div>
-                <div class="text-muted" style="font-size:.7rem;">productos</div>
+                <div class="text-muted texto-mini">productos</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="inv-stat-card text-center">
                 <div class="text-muted small">Con Diferencia</div>
                 <div class="fw-bold fs-4 text-danger">{{ discrepancias|length }}</div>
-                <div class="text-muted" style="font-size:.7rem;">revisión necesaria</div>
+                <div class="text-muted texto-mini">revisión necesaria</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="inv-stat-card text-center">
                 <div class="text-muted small">Sesión Activa</div>
                 <div class="fw-bold text-info mt-1">{{ sesion.fecha_inicio|date:"d/m/Y" }}</div>
-                <div class="text-muted" style="font-size:.7rem;">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
+                <div class="text-muted texto-mini">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
               </div>
             </div>
           </div>
-          <div class="d-flex flex-column gap-2" style="max-height:420px; overflow-y:auto;">
+          <div class="d-flex flex-column gap-2 comparar-lista-wrap">
             {% for d in discrepancias %}
             <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap"
                  style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
@@ -772,25 +766,25 @@
                         {% elif d.estado == 'sobrante' %}#9b5de5
                         {% else %}var(--inv-rojo){% endif %};">
 
-              <div style="flex:1 1 220px; min-width:0;">
-                <div class="fw-semibold small text-truncate" style="color:var(--inv-texto);">{{ d.presentacion.producto.nombre }}</div>
-                <div class="text-info" style="font-size:.68rem;font-family:monospace;">{{ d.presentacion.producto.codigo|default:"s/c" }}</div>
-                <div class="text-muted" style="font-size:.68rem;">{{ d.presentacion.producto.categoria.nombre }}</div>
+              <div class="comparar-item-nombre-col">
+                <div class="fw-semibold small text-truncate texto-principal">{{ d.presentacion.producto.nombre }}</div>
+                <div class="text-info comparar-item-codigo">{{ d.presentacion.producto.codigo|default:"s/c" }}</div>
+                <div class="text-muted texto-mini-2">{{ d.presentacion.producto.categoria.nombre }}</div>
               </div>
 
-              <div class="d-flex align-items-center gap-2" style="flex:1 1 160px;">
+              <div class="d-flex align-items-center gap-2 comparar-item-comparativa">
                 <div class="text-center flex-fill">
-                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">SISTEMA</div>
-                  <div class="fw-bold" style="color:var(--inv-azul);">{{ d.en_sistema }}</div>
+                  <div class="text-muted comparativa-label">SISTEMA</div>
+                  <div class="fw-bold comparativa-valor-sistema">{{ d.en_sistema }}</div>
                 </div>
-                <i class="bi bi-arrow-right text-muted" style="font-size:.8rem;"></i>
+                <i class="bi bi-arrow-right text-muted comparar-item-flecha"></i>
                 <div class="text-center flex-fill">
-                  <div class="text-muted" style="font-size:.62rem;letter-spacing:.04em;">FÍSICO</div>
-                  <div class="fw-bold" style="color:var(--inv-texto);">{{ d.fisico }}</div>
+                  <div class="text-muted comparativa-label">FÍSICO</div>
+                  <div class="fw-bold texto-principal">{{ d.fisico }}</div>
                 </div>
               </div>
 
-              <div class="text-center" style="flex:0 0 85px;">
+              <div class="text-center comparar-diferencia-col">
                 <div class="fw-bold" style="font-size:1.15rem;
                   color:{% if d.diferencia == 0 %}var(--inv-verde){% elif d.diferencia > 0 %}#9b5de5{% else %}var(--inv-rojo){% endif %};">
                   {% if d.diferencia > 0 %}+{% endif %}{{ d.diferencia }}
@@ -803,20 +797,20 @@
                 </span>
               </div>
 
-              <div style="flex:0 0 auto;">
+              <div class="comparativa-badge-col">
                 {% if d.estado != 'ok' %}
                   <form method="POST" action="{% url 'ajustar_stock_presentacion' d.presentacion.pk %}">
                     {% csrf_token %}
                     <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
-                    <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
-                            style="width:34px;height:34px;background:var(--inv-azul-dim);border:1px solid var(--inv-azul-borde);color:var(--inv-azul);"
+                    <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center comparar-ajustar-btn"
+                           
                             onclick="return confirm('¿Ajustar stock de {{ d.presentacion.producto.nombre }}?')"
                             title="Ajustar stock">
                       <i class="bi bi-arrow-repeat"></i>
                     </button>
                   </form>
                 {% else %}
-                  <i class="bi bi-check-circle-fill" style="color:var(--inv-verde);font-size:1.3rem;" title="Sin diferencia"></i>
+                  <i class="bi bi-check-circle-fill comparar-check-icono" title="Sin diferencia"></i>
                 {% endif %}
               </div>
             </div>
@@ -825,8 +819,8 @@
         {% endif %}
       </div>
       <div class="modal-footer inv-modal-footer">
-        <button type="button" class="btn rounded-pill px-4"
-          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+        <button type="button" class="btn rounded-pill px-4 btn-outline-azul"
+         
           data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -862,35 +856,35 @@
             </div>
           </div>
         </div>
-        <div class="p-3 mb-3 rounded-3 d-flex align-items-center gap-3"
-             style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);">
-          <div class="text-center" style="min-width:48px;">
-            <i class="bi bi-upc-scan fs-2" style="color:var(--inv-azul);"></i>
+        <div class="p-3 mb-3 rounded-3 d-flex align-items-center gap-3 cat-card-bg"
+            >
+          <div class="text-center scan-icono-col">
+            <i class="bi bi-upc-scan fs-2 comparativa-valor-sistema"></i>
           </div>
           <div class="flex-grow-1">
             <div class="inv-label mb-1">Producto seleccionado</div>
-            <div id="scan-producto-nombre" class="fw-semibold" style="color:var(--inv-texto); min-height:1.2rem;">
+            <div id="scan-producto-nombre" class="fw-semibold scan-nombre-texto">
               — Haz clic en una fila para seleccionar —
             </div>
           </div>
-          <div style="flex:0 0 280px;">
-            <input type="text" id="scan-input" class="form-control inv-input"
+          <div class="scan-input-col">
+            <input type="text" id="scan-input" class="form-control inv-input scan-input-mono"
                    placeholder="Escanea o escribe el código…"
-                   style="font-family:monospace; font-size:.95rem;" disabled>
+                   disabled>
           </div>
-          <button type="button" id="scan-guardar" class="btn rounded-pill fw-bold px-4" disabled
-            style="background: #4DA8DA; color: #0d1b2a; border: none; opacity: 1;">
+          <button type="button" id="scan-guardar" class="btn rounded-pill fw-bold px-4 scan-guardar-btn" disabled
+           >
             <i class="bi bi-save2 me-1"></i>Guardar
           </button>
-          <button type="button" id="scan-camara-btn" class="btn rounded-pill px-3" disabled
-            style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+          <button type="button" id="scan-camara-btn" class="btn rounded-pill px-3 btn-outline-azul" disabled
+           
             title="Escanear con cámara">
             <i class="bi bi-camera-fill"></i>
           </button>
         </div>
 
         <div id="scan-camara-panel" class="d-none mb-3 text-center">
-          <video id="scan-video" class="rounded-3 w-100" style="max-height:300px; background:#000; object-fit:cover;" playsinline muted></video>
+          <video id="scan-video" class="rounded-3 w-100 scan-video" playsinline muted></video>
           <div id="scan-camara-estado" class="text-muted small mt-2">Apunta la cámara al código de barras…</div>
         </div>
         <div class="table-responsive">
@@ -906,12 +900,12 @@
             </thead>
             <tbody>
               {% for p in productos %}
-              <tr class="scan-row"
+              <tr class="scan-row fila-clickable"
                   data-pk="{{ p.pk }}"
                   data-nombre="{{ p.nombre }}"
                   data-codigo="{{ p.codigo|default:'' }}"
                   data-url="{% url 'guardar_codigo' p.pk %}"
-                  style="cursor:pointer;">
+                 >
                 <td class="text-muted small">{{ forloop.counter }}</td>
                 <td class="fw-semibold small">{{ p.nombre }}</td>
                 <td class="text-muted small">{{ p.categoria.nombre }}</td>
@@ -923,8 +917,8 @@
                   {% endif %}
                 </td>
                 <td>
-                  <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %}"
-                    style="font-family:monospace; font-size:.82rem;">
+                  <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %} scan-codigo-texto"
+                   >
                     {{ p.codigo|default:"—" }}
                   </span>
                 </td>
@@ -941,8 +935,8 @@
         </div>
       </div>
       <div class="modal-footer inv-modal-footer">
-        <button type="button" class="btn rounded-pill px-4"
-          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+        <button type="button" class="btn rounded-pill px-4 btn-outline-azul"
+         
           data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -965,13 +959,12 @@
             <label class="form-label inv-label">Tipo</label>
             <div class="dropdown w-100">
               <button class="btn dropdown-toggle w-100 text-start" type="button"
-                  id="em-tipo-btn" data-bs-toggle="dropdown"
-                  style="font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+                  id="em-tipo-btn" data-bs-toggle="dropdown">
                 <span id="em-tipo-label">Entrada</span>
               </button>
               <ul class="dropdown-menu w-100">
-                <li><a class="dropdown-item em-tipo-item" href="#" data-value="entrada" style="color:#c8d6e5;">Entrada</a></li>
-                <li><a class="dropdown-item em-tipo-item" href="#" data-value="salida" style="color:#c8d6e5;">Salida</a></li>
+                <li><a class="dropdown-item em-tipo-item mov-fecha-item" href="#" data-value="entrada">Entrada</a></li>
+                <li><a class="dropdown-item em-tipo-item mov-fecha-item" href="#" data-value="salida">Salida</a></li>
               </ul>
             </div>
             <input type="hidden" name="tipo" id="em-tipo">
@@ -987,11 +980,11 @@
         </form>
       </div>
       <div class="modal-footer inv-modal-footer">
-        <button type="button" class="btn rounded-pill px-4"
-          style="border:1px solid rgba(77,168,218,0.35); color:#4DA8DA; background:transparent;"
+        <button type="button" class="btn rounded-pill px-4 btn-outline-azul"
+         
           data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn rounded-pill fw-bold px-4"
-          style="background: #4DA8DA; color: #0d1b2a; border: none;"
+        <button type="button" class="btn rounded-pill fw-bold px-4 btn-solido-azul"
+         
           onclick="document.getElementById('form-editar-movimiento').submit()">
           <i class="bi bi-save me-1"></i>Guardar cambios
         </button>

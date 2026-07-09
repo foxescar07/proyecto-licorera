@@ -180,3 +180,17 @@
 .lote-modal-input--stock {
   font-size: 1.1rem;
 }
+/* Buscador de lotes */
+.buscar-lote-grupo {
+  max-width: 360px;
+  width: 100%;
+}
+
+/* Modal editar lote */
+.lote-modal-dialog {
+  max-width: 440px;
+}
+/* Icono título modal editar lote */
+.lote-modal-icono-titulo {
+  color: #4DA8DA;
+}

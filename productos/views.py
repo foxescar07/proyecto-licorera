@@ -13,7 +13,6 @@ from .models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario, AgendaInventario
 from .forms import ProductoForm, AgendaInventarioForm, PresentacionForm, ProductoRegistroForm
 
-
 # ===============================
 # LISTA / VISTA PRINCIPAL
 # ===============================
@@ -63,11 +62,9 @@ def lista_productos(request):
 
     return render(request, 'productos/productos.html', context)
 
-
 # ===============================
 # CREAR PRODUCTO
 # ===============================
-
 @login_required
 def crear_producto(request):
     if request.method != 'POST':
@@ -132,7 +129,6 @@ def producto_detalle(request, pk):
     }
 
     return render(request, 'productos/productos.html', context)
-
 
 # ===============================
 # EDITAR PRODUCTO
@@ -250,7 +246,6 @@ def producto_editar(request, pk):
 
     return redirect('lista_productos')
 
-
 @login_required
 def gestion_producto_desactivar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
@@ -273,7 +268,6 @@ def gestion_producto_activar(request, pk):
             return JsonResponse({'ok': True, 'nombre': producto.nombre, 'activo': True})
         messages.success(request, f'▶️ Producto "{producto.nombre}" activado correctamente.')
     return redirect('gestion_productos')
-
 
 # ===============================
 # PRESENTACIONES
@@ -319,13 +313,11 @@ def presentaciones_guardar(request, pk):
 
     return redirect('lista_productos')
 
-
 @login_required
 def presentaciones_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     data     = list(producto.presentaciones.values('id', 'nombre', 'unidades', 'precio'))
     return JsonResponse({'presentaciones': data, 'producto': producto.nombre})
-
 
 # ===============================
 # REGISTRO PRODUCTO
@@ -348,16 +340,13 @@ def producto_registro(request):
 
     return render(request, 'productos/productos.html', context)
 
-
 # ===============================
 # STOCK STATUS (Widget con URLs unificado)
 # ===============================
 
-
 # ===============================
 # SALIDA DE PRODUCTO
 # ===============================
-
 
 # ===============================
 # BUSCAR PRODUCTO

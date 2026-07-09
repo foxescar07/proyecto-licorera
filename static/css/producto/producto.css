@@ -718,3 +718,319 @@ button#crear-categoria-btn {
   letter-spacing: .06em;
   padding: .4rem 1rem .2rem;
 }
+/* ═══════════════════════════════════════════════════════════
+   ESTILOS EXTRAÍDOS DE producto.html (antes estaban inline)
+   Pegar al final de producto.css — no cambian el aspecto visual
+   ═══════════════════════════════════════════════════════════ */
+
+/* Botón "Nuevo Producto" */
+.prod-btn-nuevo {
+  border-radius: 30px !important;
+  font-size: .9rem;
+}
+
+/* Tarjeta del donut "Por categoría" */
+.prod-card-donut {
+  border-radius: 12px;
+  border-left: 3px solid #88eeb8 !important;
+}
+
+/* Íconos de color reutilizables */
+.prod-icon-blue {
+  color: #4DA8DA;
+}
+.prod-icon-green {
+  color: #27ae60;
+}
+.prod-icon-hand {
+  color: #4DA8DA;
+  opacity: .4;
+}
+
+/* Donut: contenedor circular */
+.prod-donut-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  flex-shrink: 0;
+}
+
+/* Donut: texto centrado (total) */
+.prod-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.prod-donut-total {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1;
+}
+.prod-donut-total-label {
+  font-size: .6rem;
+  color: rgba(226,232,240,.4);
+}
+
+/* Donut: leyenda lateral */
+.prod-donut-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  max-height: 100px;
+}
+
+/* Tarjeta "Últimos agregados" */
+.prod-card-ultimos {
+  border-radius: 12px;
+  border-left: 3px solid #c62dd4 !important;
+}
+.prod-lista-ultimos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Tarjeta de Categorías */
+.prod-card-categorias {
+  border-radius: 14px;
+  border-top: 3px solid #4DA8DA !important;
+  min-height: 320px;
+}
+.prod-cat-subtitle {
+  letter-spacing: .08em;
+}
+
+/* Botones/chips de categoría */
+.prod-cat-chip-style {
+  font-size: .9rem;
+  border-radius: 8px;
+}
+.prod-cat-truncate {
+  max-width: 120px;
+}
+.prod-cat-truncate-bold {
+  max-width: 120px;
+  font-weight: 600;
+}
+.prod-cat-badge {
+  background: rgba(77,168,218,.2);
+  color: #4DA8DA;
+  font-size: .75rem;
+}
+
+/* Tarjeta de la tabla de productos */
+.prod-card-tabla {
+  border-radius: 14px;
+  border-top: 3px solid #27ae60 !important;
+  min-height: 320px;
+}
+.prod-btn-gestion {
+  font-size: .82rem;
+}
+.prod-card-body-rel {
+  position: relative;
+  min-height: 280px;
+}
+
+/* Estado vacío / tabla (toggle vía JS con .style.opacity) */
+.prod-empty-state {
+  position: absolute;
+  inset: 0;
+  transition: opacity .35s ease;
+  opacity: 1;
+  pointer-events: auto;
+}
+.prod-tabla-wrap {
+  position: absolute;
+  inset: 0;
+  transition: opacity .35s ease;
+  opacity: 0;
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+/* Encabezado y cuerpo de la tabla */
+.prod-thead-row {
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.prod-tbody-font {
+  font-size: .88rem;
+}
+
+/* Dropdown de categoría en el modal "Nuevo Producto" */
+.prod-categoria-select-btn {
+  font-size: .9rem;
+  border-radius: 8px;
+  padding: .55rem 1rem;
+}
+.prod-dropdown-menu-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+}
+.prod-dropdown-item-color {
+  color: #c8d6e5;
+}
+.prod-dropdown-subitem-color {
+  color: #c8d6e5;
+  padding-left: 1.5rem;
+}
+
+/* Modal de presentaciones */
+.prod-modal-scroll {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+/* ═══════════════════════════════════════════════════════════
+   ESTILOS EXTRAÍDOS DE busqueda_producto.html (antes inline)
+   Pegar al final de producto.css — no cambian el aspecto visual
+   ═══════════════════════════════════════════════════════════ */
+
+/* Dropdown de sugerencias del buscador */
+.bp-sugerencias-dropdown {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Botón "cerrar" del resultado de búsqueda */
+.bp-close-btn {
+  font-size: .7rem;
+}
+/* ═══════════════════════════════════════════════════════════
+   ESTILOS EXTRAÍDOS DE categorias.html (antes inline)
+   Pegar al final de producto.css — no cambian el aspecto visual
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tarjeta del formulario "Nueva Categoría" (queda pegada al hacer scroll) */
+.cat-card-sticky {
+  top: 2rem;
+}
+
+/* Labels de formularios (crear categoría) */
+.cat-label-form {
+  color: rgba(var(--texto-rgb, 226,232,240), 0.6);
+}
+
+/* Labels de formularios (modal editar categoría) */
+.cat-label-modal {
+  color: rgba(226,232,240,0.55);
+}
+
+/* Botón dropdown "Categoría Padre" (crear y editar) */
+.cat-padre-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(77,168,218,0.25);
+  color: #e2e8f0;
+  font-size: .85rem;
+  border-radius: 8px;
+  padding: .55rem 1rem;
+}
+
+/* Menú desplegable de "Categoría Padre" */
+.cat-padre-menu {
+  background: #0a2240;
+  border: 1px solid rgba(77,168,218,0.25);
+}
+
+/* Items dentro del dropdown de "Categoría Padre" */
+.cat-padre-item-style {
+  color: #c8d6e5;
+  font-size: .85rem;
+}
+
+/* Botón "Crear Categoría" / "Guardar Cambios" */
+.cat-btn-crear {
+  background: var(--azul-claro);
+  color: var(--fondo);
+  border: none;
+}
+
+/* Ícono de etiqueta junto al nombre de categoría */
+.cat-icon-tag {
+  color: var(--azul-claro);
+}
+
+/* Ícono azul suelto (ej. título del modal editar) */
+.cat-icon-blue {
+  color: #4DA8DA;
+}
+
+/* Textos secundarios (contador de productos) */
+.cat-text-muted-45 {
+  color: rgba(226,232,240,0.45);
+}
+.cat-text-muted-40 {
+  color: rgba(226,232,240,0.4);
+}
+
+/* Botones editar/eliminar de categoría principal */
+.cat-btn-editar {
+  background: rgba(77,168,218,0.1);
+  border: 1px solid rgba(77,168,218,0.3);
+  color: #4DA8DA;
+}
+.cat-btn-eliminar {
+  background: rgba(231,76,60,0.1);
+  border: 1px solid rgba(231,76,60,0.3);
+  color: #e74c3c;
+}
+
+/* Lista de subcategorías */
+.cat-subcat-list-border {
+  border-left-style: solid;
+}
+.cat-bg-transparent {
+  background: transparent;
+}
+
+/* Ícono de flecha "return-right" en subcategorías */
+.cat-icon-arrow {
+  color: rgba(226,232,240,0.3);
+}
+
+/* Botones editar/eliminar de subcategoría (circulares) */
+.cat-btn-editar-sub {
+  width: 32px;
+  height: 32px;
+  background: rgba(77,168,218,0.1);
+  border: 1px solid rgba(77,168,218,0.3);
+  color: #4DA8DA;
+}
+.cat-btn-eliminar-sub {
+  width: 32px;
+  height: 32px;
+  background: rgba(231,76,60,0.1);
+  border: 1px solid rgba(231,76,60,0.3);
+  color: #e74c3c;
+}
+.cat-icon-sm {
+  font-size: 12px;
+}
+
+/* Estado vacío: "No hay categorías creadas aún" */
+.cat-empty-list {
+  background: transparent;
+  color: rgba(226,232,240,0.35);
+}
+
+/* Bordes de header/footer del modal editar */
+.cat-modal-header-border {
+  border-bottom: 1px solid rgba(128,128,128,0.15);
+}
+.cat-modal-footer-border {
+  border-top: 1px solid rgba(128,128,128,0.15);
+}
+
+/* Botón "Cancelar" del modal editar */
+.cat-btn-cancelar {
+  border: 1px solid rgba(77,168,218,0.35);
+  color: #4DA8DA;
+  background: transparent;
+}

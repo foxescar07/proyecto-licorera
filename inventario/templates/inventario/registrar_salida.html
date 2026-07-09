@@ -36,14 +36,13 @@
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div class="d-flex align-items-center gap-2">
           <div class="icon-box">
-            <i class="bi bi-box-arrow-up" style="color:#4DA8DA;font-size:2.0rem;"></i>
+            <i class="bi bi-box-arrow-up sal-icon-header"></i>
           </div>
           <div>
-            <h6 class="mb-0 fw-bold text-uppercase"
-                style="color:#dce8f2;letter-spacing:.08em;font-family:'Rajdhani',sans-serif;font-size:1.1rem;">
+            <h6 class="mb-0 fw-bold text-uppercase sal-card-titulo">
               Datos de Salida
             </h6>
-            <small style="color:rgba(220,232,242,0.45);font-size:.7rem;">
+            <small class="sal-card-subtitulo">
               Completa todos los campos requeridos
             </small>
           </div>
@@ -75,25 +74,21 @@
 
           <!-- Dropdown visual, mismo estilo que el resto del sitio -->
           <div class="dropdown">
-            <button class="btn dropdown-toggle w-100 text-start" type="button"
-                  id="presentacion-btn" data-bs-toggle="dropdown"
-                  style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-           color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+            <button class="btn dropdown-toggle w-100 text-start sal-campo" type="button"
+                  id="presentacion-btn" data-bs-toggle="dropdown">
           <span id="presentacion-label">— Selecciona un producto —</span>
             </button>
-            <ul class="dropdown-menu w-100 inv-dropdown-scroll"
-                style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); max-height:320px; overflow-y:auto;">
+            <ul class="dropdown-menu w-100 inv-dropdown-scroll sal-dropdown-menu">
               {% for p in productos %}
                 {% if p.presentaciones.all %}
                 <li>
-                  <h6 class="dropdown-header" style="color:#4DA8DA; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em;">
+                  <h6 class="dropdown-header sal-dropdown-header">
                     {{ p.nombre }} ({{ p.codigo }})
                   </h6>
                 </li>
                   {% for pr in p.presentaciones.all %}
                   <li>
-                    <a class="dropdown-item presentacion-item" href="#" data-value="{{ pr.pk }}"
-                       style="color:#c8d6e5; font-size:.85rem; padding-left:1.5rem;">
+                    <a class="dropdown-item presentacion-item sal-dropdown-item-indent" href="#" data-value="{{ pr.pk }}">
                       {{ pr.nombre }} — {{ pr.cantidad }} uds
                     </a>
                   </li>
@@ -106,11 +101,10 @@
 
         <!-- Badge stock -->
         <div id="stock-badge-wrap" class="mb-3 d-none">
-          <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
-               style="background:rgba(77,168,218,.1);border:1px solid rgba(77,168,218,.25);display:inline-flex!important;">
-            <i class="bi bi-layers" style="color:#4DA8DA;"></i>
-            <span style="color:#dce8f2;font-size:.85rem;">
-              Stock disponible: <strong id="stock-badge-val" style="color:#4DA8DA;">—</strong> unidades
+          <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 sal-stock-badge">
+            <i class="bi bi-layers sal-ic-azul"></i>
+            <span class="sal-stock-text">
+              Stock disponible: <strong id="stock-badge-val" class="sal-stock-value">—</strong> unidades
             </span>
           </div>
         </div>
@@ -121,8 +115,7 @@
         <div class="mb-3">
           <label class="inv-label">
             Lote
-            <span style="color:rgba(220,232,242,0.38);font-size:.72rem;text-transform:none;
-                         letter-spacing:0;font-weight:400;">(Opcional)</span>
+            <span class="sal-label-opcional">(Opcional)</span>
           </label>
 
           <!-- Select real: oculto, sigue siendo el que se envía con el formulario -->
@@ -141,17 +134,13 @@
 
           <!-- Dropdown visual -->
           <div class="dropdown">
-            <button class="btn dropdown-toggle w-100 text-start" type="button"
-                    id="lote-btn" data-bs-toggle="dropdown"
-                  style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-           color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+            <button class="btn dropdown-toggle w-100 text-start sal-campo" type="button"
+                    id="lote-btn" data-bs-toggle="dropdown">
           <span id="lote-label">— Seleccionar —</span>
             </button>
-            <ul class="dropdown-menu w-100 inv-dropdown-scroll"
-                style="background:#0d1b2a; border:1px solid rgba(0, 54, 83, 0.46); max-height:320px; overflow-y:auto;">
+            <ul class="dropdown-menu w-100 inv-dropdown-scroll sal-dropdown-menu-lote">
               <li>
-                <a class="dropdown-item lote-item" href="#" data-value="" data-presentacion=""
-                  style="background:#0a1e38; font-size:.85rem;">
+                <a class="dropdown-item lote-item sal-lote-item-vacio" href="#" data-value="" data-presentacion="">
                   — Sin lote específico —
                 </a>
               </li>
@@ -159,8 +148,7 @@
                 {% for pr in p.presentaciones.all %}
                   {% for lote in pr.lotes.all %}
                   <li>
-                    <a class="dropdown-item lote-item" href="#" data-value="{{ lote.pk }}" data-presentacion="{{ pr.pk }}"
-                       style="color:#c8d6e5; font-size:.85rem;">
+                    <a class="dropdown-item lote-item sal-dropdown-item" href="#" data-value="{{ lote.pk }}" data-presentacion="{{ pr.pk }}">
                       {{ lote.numero_lote }} — {{ p.nombre }} ({{ pr.nombre }})
                     </a>
                   </li>
@@ -176,9 +164,7 @@
   <div class="col-sm-5">
     <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
     <input type="number" name="cantidad" id="input-cantidad"
-          style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-                 color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;"
-           class="form-control inv-input" min="1" placeholder="0" required>
+           class="form-control inv-input sal-campo" min="1" placeholder="0" required>
   </div>
   <div class="col-sm-7">
     <label class="inv-label">Motivo <span class="text-danger">*</span></label>
@@ -197,36 +183,30 @@
 
     <!-- Dropdown visual -->
     <div class="dropdown">
-      <button class="btn dropdown-toggle w-100 text-start" type="button"
-              id="motivo-btn" data-bs-toggle="dropdown"
-              style="background:#0a1e38; border:1px solid rgba(77,168,218,0.35);
-       color:#c8d6e5; font-size:.9rem; border-radius:8px; padding:.55rem 1rem;">
+      <button class="btn dropdown-toggle w-100 text-start sal-campo" type="button"
+              id="motivo-btn" data-bs-toggle="dropdown">
         <span id="motivo-label">— Seleccionar —</span>
       </button>
-      <ul class="dropdown-menu w-100 inv-dropdown-scroll"
-          style="background:#0d1b2a; border:1px solid rgba(77,168,218,0.35); max-height:320px; overflow-y:auto;">
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Venta" style="color:#c8d6e5; font-size:.85rem;">Venta</a></li>
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Merma" style="color:#c8d6e5; font-size:.85rem;">Merma</a></li>
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Daño" style="color:#c8d6e5; font-size:.85rem;">Daño</a></li>
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Vencimiento" style="color:#c8d6e5; font-size:.85rem;">Vencimiento</a></li>
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Consumo interno" style="color:#c8d6e5; font-size:.85rem;">Consumo interno</a></li>
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Devolución" style="color:#c8d6e5; font-size:.85rem;">Devolución</a></li>
-        <li><a class="dropdown-item motivo-item" href="#" data-value="Otro" style="color:#c8d6e5; font-size:.85rem;">Otro</a></li>
+      <ul class="dropdown-menu w-100 inv-dropdown-scroll sal-dropdown-menu">
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Venta">Venta</a></li>
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Merma">Merma</a></li>
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Daño">Daño</a></li>
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Vencimiento">Vencimiento</a></li>
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Consumo interno">Consumo interno</a></li>
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Devolución">Devolución</a></li>
+        <li><a class="dropdown-item motivo-item sal-dropdown-item" href="#" data-value="Otro">Otro</a></li>
       </ul>
     </div>
   </div>
 </div>
 
         <!-- Alerta exceso -->
-        <div id="alerta-exceso" class="d-none rounded-3 px-3 py-2 mb-3 d-flex align-items-center gap-2"
-             style="background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.28);
-                    color:#f39c12;font-size:.82rem;">
+        <div id="alerta-exceso" class="d-none rounded-3 px-3 py-2 mb-3 d-flex align-items-center gap-2 sal-alerta-exceso">
           <i class="bi bi-exclamation-triangle-fill"></i>
           La cantidad supera el stock disponible.
         </div>
 
-        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100"
-        style="background:#3b9ad6; color:#0d1b2a; border:none; font-size:0.9rem; white-space:nowrap;">
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100 sal-btn-submit">
   <i class="bi bi-box-arrow-up me-2"></i>Registrar Salida
 </button>
       </form>
@@ -242,28 +222,25 @@
       <div class="col-6">
         <div class="stat-mini p-3 d-flex align-items-center justify-content-between">
           <div>
-            <small class="d-block text-uppercase"
-                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+            <small class="d-block text-uppercase sal-stat-label">
               Lotes Activos
             </small>
-            <h4 class="mb-0 fw-bold mt-1" style="color:#4DA8DA;font-family:'Rajdhani',sans-serif;">
+            <h4 class="mb-0 fw-bold mt-1 sal-stat-value-azul">
               {{ ordenes_mes }}
             </h4>
           </div>
-          <i class="bi bi-box-seam fs-3" style="color:#4DA8DA;opacity:.7;"></i>
+          <i class="bi bi-box-seam fs-3 sal-stat-icon"></i>
         </div>
       </div>
       <div class="col-6">
-        <div class="stat-mini p-3 d-flex align-items-center justify-content-between"
-             style="border-color:rgba(18, 153, 243, 0.22)!important;">
+        <div class="stat-mini p-3 d-flex align-items-center justify-content-between sal-stat-mini-border">
           <div>
-            <small class="d-block text-uppercase"
-                   style="color:rgba(220,232,242,0.5);font-size:.68rem;letter-spacing:.05em;">
+            <small class="d-block text-uppercase sal-stat-label">
               Por Vencer
             </small>
-            <h4 class="mb-0 fw-bold mt-1 text-blue" style="font-family:'Rajdhani',sans-serif;">0</h4>
+            <h4 class="mb-0 fw-bold mt-1 text-blue sal-stat-value-font">0</h4>
           </div>
-          <i class="bi bi-exclamation-circle fs-3 text-info" style="opacity:.7;"></i>
+          <i class="bi bi-exclamation-circle fs-3 text-info sal-opacity-70"></i>
         </div>
       </div>
     </div>
@@ -271,28 +248,26 @@
     <!-- Gráfico motivos -->
     <div class="inv-card p-4 flex-grow-1 d-flex flex-column">
       <div class="d-flex align-items-center gap-2 mb-3">
-        <i class="bi bi-pie-chart" style="color:#4DA8DA;"></i>
-        <h6 class="mb-0 fw-bold text-uppercase"
-            style="color:#dce8f2;font-size:.75rem;letter-spacing:.05em;">
+        <i class="bi bi-pie-chart sal-ic-azul"></i>
+        <h6 class="mb-0 fw-bold text-uppercase sal-chart-titulo">
           Motivos de Salida
         </h6>
       </div>
-      <div class="mx-auto position-relative" style="max-height:155px;width:155px;">
+      <div class="mx-auto position-relative sal-chart-wrap">
         <canvas id="chartMotivos"></canvas>
       </div>
-      <div class="d-flex flex-wrap justify-content-center gap-3 mt-3 pt-2"
-           style="border-top:1px solid rgba(77,168,218,0.12);font-size:.75rem;">
-        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
-          <span class="rounded-circle" style="width:8px;height:8px;background:#4DA8DA;display:inline-block;"></span>Venta
+      <div class="d-flex flex-wrap justify-content-center gap-3 mt-3 pt-2 sal-legend-wrap">
+        <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+          <span class="rounded-circle sal-dot sal-dot-venta"></span>Venta
         </span>
-        <span class="d-flex align-items-center gap-1" style="color:#1c6ef3;">
-          <span class="rounded-circle" style="width:8px;height:8px;background:#1c6ef3;display:inline-block;"></span>Merma
+        <span class="d-flex align-items-center gap-1 sal-legend-1c6ef3">
+          <span class="rounded-circle sal-dot sal-dot-merma"></span>Merma
         </span>
-        <span class="d-flex align-items-center gap-1" style="color:#3ce7d0;">
-          <span class="rounded-circle" style="width:8px;height:8px;background:#3ce7d0;display:inline-block;"></span>Daño
+        <span class="d-flex align-items-center gap-1 sal-legend-3ce7d0">
+          <span class="rounded-circle sal-dot sal-dot-dano"></span>Daño
         </span>
-        <span class="d-flex align-items-center gap-1" style="color:#dce8f2;">
-          <span class="rounded-circle" style="width:8px;height:8px;background:#9b59b6;display:inline-block;"></span>Vencido
+        <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+          <span class="rounded-circle sal-dot sal-dot-vencido"></span>Vencido
         </span>
       </div>
     </div>

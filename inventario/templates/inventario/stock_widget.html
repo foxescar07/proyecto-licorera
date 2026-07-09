@@ -1,21 +1,21 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/widget.css' %}">
 
-<div id="stock-widget" class="mb-4 p-3 rounded-3" style="background:#0d1f35; border:1px solid rgba(77,168,218,.18);">
+<div id="stock-widget" class="mb-4 p-3 rounded-3 sw-container">
 
   <div class="d-flex align-items-center gap-3">
-    <div id="sw-icono" style="font-size:1.3rem; flex-shrink:0;"></div>
+    <div id="sw-icono" class="sw-icono-wrap"></div>
     <div class="flex-grow-1">
-      <div class="text-uppercase fw-bold mb-1" style="font-size:9px; letter-spacing:.07em; color:rgba(226,232,240,.35);">Estado del inventario</div>
-      <div id="sw-titulo" class="fw-bold" style="font-size:0.9rem;"></div>
+      <div class="text-uppercase fw-bold mb-1 sw-label-superior">Estado del inventario</div>
+      <div id="sw-titulo" class="fw-bold sw-titulo"></div>
     </div>
-    <button id="sw-btn-toggle" class="btn btn-sm rounded-pill d-none fw-bold"
-            style="font-size:0.75rem; background:transparent; color:rgba(226,232,240,.5); border:1px solid rgba(226,232,240,.15);"
+    <button id="sw-btn-toggle" class="btn btn-sm rounded-pill d-none fw-bold sw-btn-toggle"
             onclick="swToggle()">
       Ver alertas ▾
     </button>
   </div>
 
-  <div id="sw-panel" class="d-none mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.06);">
+  <div id="sw-panel" class="d-none mt-3 pt-3 sw-panel">
     <div id="sw-grid" class="row g-2"></div>
   </div>
 
