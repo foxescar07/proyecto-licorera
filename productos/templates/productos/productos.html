@@ -107,14 +107,14 @@
       <div class="card-body p-0 prod-card-body-rel">
 
         <!-- Estado vacío -->
-        <div id="cat-empty-state"
-             class="d-flex flex-column align-items-center justify-content-center py-5 prod-empty-state">
+       <div id="cat-empty-state"
+     class="d-flex flex-column align-items-center justify-content-center py-5 prod-empty-state cat-panel cat-panel-visible">
           <i class="bi bi-hand-index-thumb fs-1 mb-3 prod-icon-hand"></i>
           <span class="small prod-label">Selecciona una categoría para ver sus productos</span>
         </div>
 
         <!-- Tabla -->
-        <div id="cat-tabla-wrap" class="prod-tabla-wrap">
+        <div id="cat-tabla-wrap" class="prod-tabla-wrap cat-panel cat-panel-oculto">
           <div class="table-responsive">
             <table class="table align-middle mb-0" id="tablaProductosCat">
   <thead>
@@ -408,19 +408,18 @@ document.addEventListener('DOMContentLoaded', function () {
 function filasHtmlDe(filtrados) {
   return filtrados.map((p, i) => {
     const pres = p.presentaciones.length
-      ? p.presentaciones.map(pr =>
-          `<span class="badge me-1" style="background:rgba(77,168,218,.2); color:#4DA8DA; font-size:.72rem; padding:3px 7px; border-radius:6px;">
-            ${pr.nombre} · ${pr.unidades} uds · $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
-          </span>`).join('')
-      : `<span class="prod-label" style="font-size:.82rem;">Sin definir</span>`;
+  ? p.presentaciones.map(pr =>
+      `<span class="badge prod-pres-badge me-1">
+        ${pr.nombre} · ${pr.unidades} uds · $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
+      </span>`).join('')
+  : `<span class="prod-label prod-label-sm">Sin definir</span>`;
 
-    return `<tr>
-      <td class="px-4 prod-label text-center">${i + 1}</td>
-      <td class="fw-semibold" style="color:var(--prod-texto);">${p.nombre}</td>
-      <td style="color:#4DA8DA; font-family:monospace;" class="text-center">${p.codigo || '—'}</td>
-      <td>${pres}</td>
-    </tr>`;
-  }).join('');
+return `<tr>
+  <td class="px-4 prod-label text-center">${i + 1}</td>
+  <td class="fw-semibold prod-cell-nombre">${p.nombre}</td>
+  <td class="prod-cell-codigo text-center">${p.codigo || '—'}</td>
+  <td>${pres}</td>
+</tr>`;
 }
 
 function filtrarCategoria(btn) {
@@ -433,8 +432,10 @@ function filtrarCategoria(btn) {
     ultimaCatPk = null;
     btn.classList.remove('active');
     document.getElementById('cat-titulo').textContent = 'Productos por categoría';
-    empty.style.opacity = '1'; empty.style.pointerEvents = 'auto';
-    tabla.style.opacity = '0'; tabla.style.pointerEvents = 'none';
+    empty.classList.add('cat-panel-visible');
+    empty.classList.remove('cat-panel-oculto');
+    tabla.classList.add('cat-panel-oculto');
+    tabla.classList.remove('cat-panel-visible');
     return;
   }
 
@@ -449,8 +450,10 @@ function filtrarCategoria(btn) {
   document.getElementById('cat-titulo').textContent =
     nombre + ' — ' + filtrados.length + ' producto' + (filtrados.length !== 1 ? 's' : '');
 
-  empty.style.opacity = '0'; empty.style.pointerEvents = 'none';
-  tabla.style.opacity = '1'; tabla.style.pointerEvents = 'auto';
+  empty.classList.add('cat-panel-oculto');
+  empty.classList.remove('cat-panel-visible');
+  tabla.classList.add('cat-panel-visible');
+  tabla.classList.remove('cat-panel-oculto');
 
   dtInstance.clear();
   if (filtrados.length) {
@@ -631,7 +634,7 @@ function agregarPresentacionModal() {
   cont.appendChild(div);
 }
 
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
   const COLS = ['#4DA8DA','#27ae60','#f39c12','#9b59b6','#e74c3c','#1abc9c','#e67e22'];
 
   // donut
@@ -646,8 +649,7 @@ function agregarPresentacionModal() {
     const dash=v/total*CIRC;
     const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
     c.setAttribute('cx',C);c.setAttribute('cy',C);c.setAttribute('r',R);
-    c.setAttribute('fill','none');c.setAttribute('stroke',COLS[i%COLS.length]);
-    c.setAttribute('stroke-width',W);
+    c.classList.add('donut-segment', 'donut-color-' + (i % 7));
     c.setAttribute('stroke-dasharray',`${dash} ${CIRC-dash}`);
     c.setAttribute('stroke-dashoffset',-off*CIRC);
     c.setAttribute('transform',`rotate(-90 ${C} ${C})`);
@@ -658,27 +660,25 @@ function agregarPresentacionModal() {
   // leyenda
   const ley=document.getElementById('donut-leyenda');
   entradas.slice(0,5).forEach(([n,v],i)=>{
-    ley.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;">
-      <span style="width:8px;height:8px;border-radius:50%;background:${COLS[i%COLS.length]};flex-shrink:0;"></span>
-      <span style="font-size:.78rem;color:#e2e8f0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${n}</span>
-      <span style="font-size:.75rem;color:rgba(226,232,240,.45);">${Math.round(v/total*100)}%</span>
-    </div>`;
+   ley.innerHTML += `<div class="donut-leyenda-row">
+  <span class="donut-leyenda-dot donut-color-${i % 7}"></span>
+  <span class="donut-leyenda-label">${n}</span>
+  <span class="donut-leyenda-pct">${Math.round(v/total*100)}%</span>
+</div>`;
   });
  
   // últimos
   const ul=document.getElementById('lista-ultimos2');
   [...todoProductos].slice(-3).reverse().forEach(p=>{
-    ul.innerHTML+=`<li style="display:flex;align-items:center;justify-content:space-between;
-      padding:5px 8px;border-radius:8px;background:rgba(77,168,218,.05);border:1px solid rgba(77,168,218,.1);">
-      <div>
-        <div style="font-size:.85rem;font-weight:600;color:#e2e8f0;">${p.nombre}</div>
-        <div style="font-size:.72rem;color:rgba(226,232,240,.45);">${p.categoria_nombre}</div>
-      </div>
-      <span style="font-size:.72rem;padding:2px 8px;border-radius:6px;
-        background:rgba(77,168,218,.12);color:#4DA8DA;white-space:nowrap;">${p.presentaciones.length} pres.</span>
-    </li>`;
+   ul.innerHTML += `<li class="ultimos-item">
+  <div>
+    <div class="ultimos-nombre">${p.nombre}</div>
+    <div class="ultimos-categoria">${p.categoria_nombre}</div>
+  </div>
+  <span class="ultimos-badge">${p.presentaciones.length} pres.</span>
+</li>`;
   });
-})();
+});
 document.querySelectorAll('.crear-cat-item').forEach(function(item) {
   item.addEventListener('click', function(e) {
     e.preventDefault();
