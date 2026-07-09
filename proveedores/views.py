@@ -17,7 +17,19 @@ from django.db.models.functions import TruncMonth
 
 @login_required
 def lista_proveedores(request):
+    from django.db.models import Sum, F, DecimalField, Case, When, Value
+
     proveedores = Proveedor.objects.all()
+
+    # Calcular total de compras manualmente para cada proveedor
+    for proveedor in proveedores:
+        compras = Compra.objects.filter(proveedor=proveedor)
+        total = sum(
+            (c.cantidad * c.precio_unitario if c.precio_unitario else 0)
+            for c in compras
+        ) or 0
+        proveedor.total_compras = total
+        proveedor.total_ordenes = compras.count()
 
     # Filtros
     q = request.GET.get('q', '')
@@ -44,13 +56,18 @@ def lista_proveedores(request):
         if total_proveedores > 0 else 0
     )
 
+    # Obtener máximo de compras para normalizar barras
+    max_compras = max([p.total_compras for p in proveedores], default=1)
+    if max_compras == 0:
+        max_compras = 1
+
     # Paginación
     paginator = Paginator(proveedores, 10)  # 10 proveedores por página
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'proveedores': page_obj.object_list,
+        'proveedores': proveedores,
         'page_obj': page_obj,
         'paginator': paginator,
         'total_proveedores': total_proveedores,
@@ -58,6 +75,7 @@ def lista_proveedores(request):
         'proveedores_inactivos': proveedores_inactivos,
         'proveedores_sancionados': proveedores_sancionados,
         'porcentaje_activos': porcentaje_activos,
+        'max_compras': max_compras,
         'breadcrumb_items': [
             {'nombre': 'Proveedores', 'url': None},
         ],
@@ -312,8 +330,10 @@ def lista_compras(request):
     gastos_labels = [item[0] for item in gastos_ordenados]
     gastos_data = [int(item[1]) for item in gastos_ordenados]
 
-    # Calcular porcentajes para el gráfico de pastel
-    gastos_total = sum(gastos_data) if gastos_data else 1
+    # Calcular porcentajes para el gráfico de pastel (evitar división por cero)
+    gastos_total = sum(gastos_data) if gastos_data else 0
+    if gastos_total == 0:
+        gastos_total = 1
     gastos_porcentajes = [int((gasto / gastos_total * 100)) for gasto in gastos_data] if gastos_data else []
 
     context = {
@@ -512,8 +532,10 @@ def registrar_compra(request):
     gastos_labels = [item[0] for item in gastos_ordenados]
     gastos_data = [int(item[1]) for item in gastos_ordenados]
 
-    # Calcular porcentajes para el gráfico de pastel
-    gastos_total = sum(gastos_data) if gastos_data else 1
+    # Calcular porcentajes para el gráfico de pastel (evitar división por cero)
+    gastos_total = sum(gastos_data) if gastos_data else 0
+    if gastos_total == 0:
+        gastos_total = 1
     gastos_porcentajes = [int((gasto / gastos_total * 100)) for gasto in gastos_data] if gastos_data else []
 
     productos = Producto.objects.all()
@@ -1042,5 +1064,43 @@ def guardar_pago_compra(request, compra_id):
         return JsonResponse({'status': 'error', 'message': 'Compra no encontrada'}, status=404)
     except ValueError:
         return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+def cambiar_estado_compra(request, compra_id):
+    """Actualizar el estado de una compra legacy."""
+    from django.http import JsonResponse
+
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+
+    try:
+        compra = Compra.objects.get(id=compra_id)
+        nuevo_estado = request.POST.get('estado')
+
+        transiciones_validas = {
+            'pendiente': ['confirmada', 'cancelada'],
+            'confirmada': ['recibida', 'cancelada'],
+            'recibida': [],
+            'cancelada': [],
+        }
+
+        if nuevo_estado not in transiciones_validas.get(compra.estado, []):
+            return JsonResponse({
+                'status': 'error',
+                'message': f'No se puede cambiar de {compra.estado} a {nuevo_estado}.'
+            }, status=400)
+
+        compra.estado = nuevo_estado
+        if nuevo_estado == 'recibida':
+            compra.recibida = True
+            compra.fecha_recepcion = timezone.now()
+        compra.save()
+
+        return JsonResponse({'status': 'ok', 'message': 'Estado de compra actualizado correctamente'})
+    except Compra.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Compra no encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

@@ -94,7 +94,7 @@
     <div class="cys-snap-section">
       <section class="cys-card mb-4">
         <div class="cys-card__title">
-          <i class="bi bi-list-check me-2" style="color: #4DA8DA;"></i>Listado de Órdenes de Compra
+          <i class="bi bi-list-check me-2" class="text-cyan"></i>Listado de Órdenes de Compra
         </div>
 
 
@@ -119,19 +119,19 @@
                         <td class="cys-td" data-label="Fecha">{{ orden.fecha|date:"d/m/Y H:i" }}</td>
                         <td class="cys-td" data-label="Estado">
                             {% if orden.estado == 'pendiente' %}
-                                <span class="cys-badge" style="background: rgba(155, 93, 229, 0.2); color: #9b5de5; border: 1px solid rgba(155, 93, 229, 0.4);">
+                                <span class="cys-badge badge-pendiente">
                                     <i class="bi bi-hourglass-split me-1"></i>Pendiente
                                 </span>
                             {% elif orden.estado == 'confirmada' %}
-                                <span class="cys-badge" style="background: rgba(77, 168, 218, 0.2); color: #4DA8DA; border: 1px solid rgba(77, 168, 218, 0.4);">
+                                <span class="cys-badge badge-confirmada">
                                     <i class="bi bi-check-circle me-1"></i>Confirmada
                                 </span>
                             {% elif orden.estado == 'recibida' %}
-                                <span class="cys-badge" style="background: rgba(39, 174, 96, 0.2); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.4);">
+                                <span class="cys-badge badge-recibida">
                                     <i class="bi bi-box-seam me-1"></i>Recibida
                                 </span>
                             {% else %}
-                                <span class="cys-badge" style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.4);">
+                                <span class="cys-badge badge-cancelada">
                                     <i class="bi bi-x-circle me-1"></i>Cancelada
                                 </span>
                             {% endif %}
@@ -139,12 +139,12 @@
                         <td class="cys-td cys-td--bold" data-label="Total">${{ orden.total|floatformat:0|default:"0" }}</td>
                         <td class="cys-td text-center" data-label="Acciones">
                             <div class="dropdown ordenes-actions-dropdown">
-                                <button class="btn btn-sm btn-link text-cyan p-0" type="button"
+                                <button class="btn btn-sm btn-link text-cyan p-0 btn-link-custom" type="button"
                                         data-bs-toggle="dropdown" aria-expanded="false"
-                                        title="Acciones" style="text-decoration: none; font-size: 1.2rem;">
+                                        title="Acciones">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end ordenes-actions-dropdown-menu" style="overflow: visible; max-height: none;">
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end ordenes-actions-dropdown-menu dropdown-menu-custom">
                                     <li>
                                         <a class="dropdown-item btn-ver-detalles-orden" href="#" data-orden-id="{{ orden.id }}" data-bs-toggle="modal" data-bs-target="#modalDetalleOrdenModal">
                                             <i class="bi bi-eye me-2 text-primary"></i>Ver detalles
@@ -229,27 +229,27 @@
     </div>
 
 <!-- MODAL: NUEVA ORDEN -->
-<div class="modal fade" id="modalNuevaOrden" tabindex="-1" style="background: rgba(0,0,0,0.5) !important;">
+<div class="modal fade" id="modalNuevaOrden" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="background-color: #02224a !important; background: #02224a !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
-            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important;">
-                <h5 class="modal-title" style="color: #E2E8F0 !important; font-weight: 700 !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
                     <i class="bi bi-plus-circle-fill"></i> Nueva Orden de Compra
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="formNuevaOrden" method="POST" action="{% url 'crear_orden' %}">
                 {% csrf_token %}
-                <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important;">
+                <div class="modal-body">
                     <!-- SECCIÓN 1: Información de la Orden -->
-                    <h6 class="text-muted text-uppercase mb-3" style="color: #E2E8F0 !important; font-weight: 600 !important;">
+                    <h6 class="text-muted text-uppercase mb-3">
                         <i class="bi bi-box"></i> Información de la Orden
                     </h6>
 
                     <!-- Proveedor -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #8FA3B1 !important;">
-                            Proveedor <span class="text-danger" style="color: #e74c3c !important;">*</span>
+                        <label class="form-label">
+                            Proveedor <span class="text-danger">*</span>
                         </label>
                         {{ form.proveedor }}
                         {% if form.proveedor.errors %}
@@ -260,13 +260,13 @@
                     <hr>
 
                     <!-- SECCIÓN 2: Agregar Primer Producto (Opcional) -->
-                    <h6 class="text-muted text-uppercase mb-3" style="color: #E2E8F0 !important; font-weight: 600 !important;">
+                    <h6 class="text-muted text-uppercase mb-3">
                         <i class="bi bi-plus-circle"></i> Agregar Primer Producto (Opcional)
                     </h6>
 
                     <!-- Presentación -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #8FA3B1 !important;">
+                        <label class="form-label">
                             Presentación
                         </label>
                         <select name="presentacion" class="form-select">
@@ -282,7 +282,7 @@
 
                     <!-- Cantidad -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #8FA3B1 !important;">
+                        <label class="form-label">
                             Cantidad
                         </label>
                         <input type="number" name="cantidad" class="form-control" min="1" step="1"
@@ -292,7 +292,7 @@
 
                     <!-- Precio Unitario -->
                     <div class="mb-4">
-                        <label class="form-label" style="color: #8FA3B1 !important;">
+                        <label class="form-label">
                             Precio Unitario
                         </label>
                         <input type="number" name="precio_unitario" class="form-control" min="0.01" step="0.01"
@@ -300,11 +300,11 @@
                         <small>Debe ser mayor a 0</small>
                     </div>
                 </div>
-                <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem !important;">
-                    <button type="button" class="btn" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn" style="background: #4DA8DA !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
+                    <button type="submit" class="btn">
                         <i class="bi bi-check-circle"></i> Crear Orden
                     </button>
                 </div>
@@ -314,80 +314,80 @@
 </div>
 
 <!-- MODAL: DETALLE DE ORDEN (Dynamic Modal with Stat Cards) -->
-<div class="modal fade" id="modalDetalleOrdenModal" tabindex="-1" style="background: rgba(0,0,0,0.5) !important;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 1200px !important;">
-        <div class="modal-content" style="background-color: #011936 !important; border: 1px solid rgba(77, 168, 218, 0.2) !important;">
+<div class="modal fade" id="modalDetalleOrdenModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
             <!-- HEADER -->
-            <div class="modal-header" style="background: transparent !important; border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 2rem !important;">
+            <div class="modal-header">
                 <div>
-                    <h4 style="color: #E2E8F0 !important; font-weight: 700 !important; margin-bottom: 0.5rem !important;">
+                    <h4>
                         <i class="bi bi-clipboard-check"></i> Detalle de Orden #<span id="modalOrdenId">-</span>
                     </h4>
-                    <p style="color: #8FA3B1 !important; margin: 0 !important;">
+                    <p>
                         <span id="modalProveedorNombre">Proveedor</span>
                     </p>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="opacity: 0.8 !important;"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
             <!-- BODY -->
-            <div class="modal-body" style="background: transparent !important; color: #E2E8F0 !important; padding: 2rem !important;">
+            <div class="modal-body">
 
                 <!-- STAT CARDS SECTION -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem !important;">
+                <div>
 
                     <!-- Card 1: Total Orden -->
-                    <div style="background: rgba(77, 168, 218, 0.08); border: 1px solid rgba(77, 168, 218, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #4DA8DA;">
-                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                    <div>
+                        <p>
                             <i class="bi bi-receipt me-1"></i>Total Orden
                         </p>
-                        <h3 style="color: #4DA8DA !important; font-weight: 700 !important; font-size: 1.75rem !important; margin: 0 !important;" id="modalTotalOrden">$0</h3>
+                        <h3 id="modalTotalOrden">$0</h3>
                     </div>
 
                     <!-- Card 2: Cantidad de Productos -->
-                    <div style="background: rgba(39, 174, 96, 0.08); border: 1px solid rgba(39, 174, 96, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #27ae60;">
-                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                    <div>
+                        <p>
                             <i class="bi bi-box me-1"></i>Cantidad de Productos
                         </p>
-                        <h3 style="color: #27ae60 !important; font-weight: 700 !important; font-size: 1.75rem !important; margin: 0 !important;" id="modalCantidadProductos">0</h3>
+                        <h3 id="modalCantidadProductos">0</h3>
                     </div>
 
                     <!-- Card 3: Estado -->
-                    <div style="background: rgba(155, 93, 229, 0.08); border: 1px solid rgba(155, 93, 229, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #9b5de5;">
-                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                    <div>
+                        <p>
                             <i class="bi bi-info-circle me-1"></i>Estado
                         </p>
-                        <h3 style="color: #E2E8F0 !important; font-weight: 700 !important; font-size: 1.2rem !important; margin: 0 !important;" id="modalEstado">-</h3>
+                        <h3 id="modalEstado">-</h3>
                     </div>
 
                     <!-- Card 4: Proveedor -->
-                    <div style="background: rgba(233, 212, 96, 0.08); border: 1px solid rgba(233, 212, 96, 0.25); border-radius: 10px; padding: 1.5rem; border-left: 4px solid #f0d080;">
-                        <p style="color: #8FA3B1 !important; font-size: 0.75rem !important; margin: 0 0 0.75rem 0 !important; text-transform: uppercase; font-weight: 600;">
+                    <div>
+                        <p>
                             <i class="bi bi-truck me-1"></i>Proveedor
                         </p>
-                        <p style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.95rem !important; margin: 0 !important;" id="modalProveedorCard">-</p>
+                        <p id="modalProveedorCard">-</p>
                     </div>
                 </div>
 
                 <!-- TABLA DE PRODUCTOS -->
-                <h6 style="color: #E2E8F0 !important; font-weight: 600 !important; font-size: 0.9rem !important; text-transform: uppercase !important; margin-bottom: 1.5rem !important;">
+                <h6>
                     <i class="bi bi-list-check"></i> Detalle de Productos
                 </h6>
 
-                <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; overflow: hidden !important;">
-                    <table style="width: 100% !important; border-collapse: collapse !important;">
+                <div>
+                    <table>
                         <thead>
-                            <tr style="background: rgba(77, 168, 218, 0.1) !important; border-bottom: 2px solid rgba(77, 168, 218, 0.2) !important;">
-                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: left !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Producto</th>
-                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: center !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Cantidad</th>
-                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Precio Unit.</th>
-                                <th style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-size: 0.85rem !important; text-transform: uppercase !important;">Subtotal</th>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
                             </tr>
                         </thead>
                         <tbody id="modalProductosTable">
                             <tr>
-                                <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
+                                <td colspan="4">
                                     Cargando productos...
                                 </td>
                             </tr>
@@ -397,8 +397,8 @@
             </div>
 
             <!-- FOOTER CON ACCIONES -->
-            <div class="modal-footer" style="background: transparent !important; border-top: 1px solid rgba(77, 168, 218, 0.2) !important; padding: 1.5rem 2rem !important;">
-                <button type="button" class="btn" data-bs-dismiss="modal" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important; font-weight: 600 !important;">
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Cerrar
                 </button>
             </div>
@@ -537,7 +537,7 @@
         <div class="modal-content modal-organizado">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="bi bi-sticky" style="color: #4DA8DA;"></i> Notas Internas - Orden #{{ orden_detalle.id }}
+                    <i class="bi bi-sticky" class="text-cyan"></i> Notas Internas - Orden #{{ orden_detalle.id }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -547,14 +547,14 @@
                     <div class="mb-3">
                         <label class="form-label">Añade contexto o comentarios importantes:</label>
                         <textarea class="form-control" name="notas" rows="6"
-                                  style="background: #02224a !important; color: #E2E8F0 !important; border: 1px solid rgba(77, 168, 218, 0.3) !important;"
+                                 
                                   placeholder="Ej: Proveedor pidió pago anticipado, Stock urgente, Precio especial...">{{ orden_detalle.notas }}</textarea>
                         <small class="text-muted">Máximo 500 caracteres</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn" style="background: #4DA8DA !important; color: #fff !important;">
+                    <button type="submit" class="btn">
                         <i class="bi bi-check-circle"></i> Guardar Nota
                     </button>
                 </div>
@@ -574,37 +574,37 @@
         <div class="modal-content modal-organizado">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="bi bi-clock-history" style="color: #9b5de5;"></i> Historial de Cambios - Orden #{{ orden_detalle.id }}
+                    <i class="bi bi-clock-history"></i> Historial de Cambios - Orden #{{ orden_detalle.id }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="timeline" style="max-height: 400px; overflow-y: auto;">
+                <div class="timeline">
                     <!-- Evento: Creación -->
-                    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(77,168,218,0.1);">
-                        <div style="display:flex; gap:10px;">
-                            <div style="width:12px; height:12px; background:#9b5de5; border-radius:50%; margin-top:2px; flex-shrink:0;"></div>
+                    <div>
+                        <div>
+                            <div></div>
                             <div>
-                                <p style="margin:0; color:#E2E8F0; font-weight:600;">Orden Creada</p>
-                                <small style="color:#8FA3B1;">{{ orden_detalle.registrado_por.get_full_name|default:"Sistema" }} • {{ orden_detalle.fecha|date:"d/m/Y H:i" }}</small>
+                                <p>Orden Creada</p>
+                                <small>{{ orden_detalle.registrado_por.get_full_name|default:"Sistema" }} • {{ orden_detalle.fecha|date:"d/m/Y H:i" }}</small>
                             </div>
                         </div>
                     </div>
 
                     <!-- Eventos del historial -->
                     {% for evento in orden_detalle.historial.all %}
-                    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(77,168,218,0.1);">
-                        <div style="display:flex; gap:10px;">
-                            <div style="width:12px; height:12px; background:{% if evento.evento == 'creada' %}#9b5de5{% elif evento.evento == 'confirmada' %}#4DA8DA{% elif evento.evento == 'recibida' %}#27ae60{% elif evento.evento == 'cancelada' %}#e74c3c{% elif evento.evento == 'nota_agregada' %}#f39c12{% elif evento.evento == 'editada' %}#4DA8DA{% else %}#8FA3B1{% endif %}; border-radius:50%; margin-top:2px; flex-shrink:0;"></div>
+                    <div>
+                        <div>
+                            <div></div>
                             <div>
-                                <p style="margin:0; color:#E2E8F0; font-weight:600;">{{ evento.get_evento_display }}</p>
-                                <small style="color:#8FA3B1;">{{ evento.usuario.get_full_name|default:"Sistema" }} • {{ evento.fecha|date:"d/m/Y H:i" }}</small>
-                                {% if evento.descripcion %}<p style="margin:4px 0 0 0; color:#E2E8F0; font-size:0.9rem;">{{ evento.descripcion }}</p>{% endif %}
+                                <p>{{ evento.get_evento_display }}</p>
+                                <small>{{ evento.usuario.get_full_name|default:"Sistema" }} • {{ evento.fecha|date:"d/m/Y H:i" }}</small>
+                                {% if evento.descripcion %}<p>{{ evento.descripcion }}</p>{% endif %}
                             </div>
                         </div>
                     </div>
                     {% empty %}
-                    <p style="color:#8FA3B1; text-align:center; padding:2rem;">No hay eventos registrados</p>
+                    <p>No hay eventos registrados</p>
                     {% endfor %}
                 </div>
             </div>
@@ -686,31 +686,31 @@ $(document).ready(function() {
                 const estadoValor = data.estado.toLowerCase();
 
                 if (estadoValor === 'pendiente') {
-                    estadoEl.innerHTML = '<span style="color: #f39c12;">⏳ Pendiente</span>';
+                    estadoEl.innerHTML = '<span>⏳ Pendiente</span>';
                 } else if (estadoValor === 'confirmada') {
-                    estadoEl.innerHTML = '<span style="color: #4DA8DA;">✓ Confirmada</span>';
+                    estadoEl.innerHTML = '<span class="text-cyan">✓ Confirmada</span>';
                 } else if (estadoValor === 'recibida') {
-                    estadoEl.innerHTML = '<span style="color: #27ae60;">📦 Recibida</span>';
+                    estadoEl.innerHTML = '<span>📦 Recibida</span>';
                 } else if (estadoValor === 'cancelada') {
-                    estadoEl.innerHTML = '<span style="color: #e74c3c;">✕ Cancelada</span>';
+                    estadoEl.innerHTML = '<span>✕ Cancelada</span>';
                 }
 
                 // Populate products table
                 const tableBody = document.getElementById('modalProductosTable');
                 if (data.detalles && data.detalles.length > 0) {
                     tableBody.innerHTML = data.detalles.map(detalle => `
-                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;">
-                            <td style="color: #E2E8F0 !important; padding: 1rem !important;">
+                        <tr>
+                            <td>
                                 <strong>${detalle.presentacion}</strong><br>
-                                <small style="color: #8FA3B1 !important;">${detalle.producto}</small>
+                                <small>${detalle.producto}</small>
                             </td>
-                            <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: center !important;">
+                            <td>
                                 ${detalle.cantidad}
                             </td>
-                            <td style="color: #E2E8F0 !important; padding: 1rem !important; text-align: right !important;">
+                            <td>
                                 $${parseFloat(detalle.precio_unitario).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </td>
-                            <td style="color: #4DA8DA !important; padding: 1rem !important; text-align: right !important; font-weight: 600 !important;">
+                            <td>
                                 $${parseFloat(detalle.subtotal).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             </td>
                         </tr>
@@ -718,7 +718,7 @@ $(document).ready(function() {
                 } else {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="4" style="color: #8FA3B1 !important; padding: 2rem !important; text-align: center !important;">
+                            <td colspan="4">
                                 No hay productos agregados
                             </td>
                         </tr>

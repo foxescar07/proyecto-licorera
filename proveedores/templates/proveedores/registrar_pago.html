@@ -8,7 +8,7 @@
 {% block content %}
 <div class="container-fluid">
     <!-- HEADER -->
-    <div class="ordenes-header" style="margin-bottom: 2rem;">
+    <div class="ordenes-header" class="mb-2">
         <h1>
             <i class="bi bi-credit-card-2-front"></i>
             Registrar Pago
@@ -19,20 +19,20 @@
     </div>
 
     <!-- PROGRESO -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center;">
-        <div style="text-align: center;">
-            <div style="width: 40px; height: 40px; background: #27ae60; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem;">✓</div>
-            <p style="color: #E2E8F0; font-size: 0.9rem;">Recibir</p>
+    <div>
+        <div class="text-center">
+            <div>✓</div>
+            <p>Recibir</p>
         </div>
-        <div style="width: 40px; border-top: 2px solid #27ae60; margin-top: 20px;"></div>
-        <div style="text-align: center;">
-            <div style="width: 40px; height: 40px; background: #27ae60; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem;">✓</div>
-            <p style="color: #E2E8F0; font-size: 0.9rem;">Verificar</p>
+        <div></div>
+        <div class="text-center">
+            <div>✓</div>
+            <p>Verificar</p>
         </div>
-        <div style="width: 40px; border-top: 2px solid #4DA8DA; margin-top: 20px;"></div>
-        <div style="text-align: center;">
-            <div style="width: 40px; height: 40px; background: #4DA8DA; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem;">3</div>
-            <p style="color: #E2E8F0; font-size: 0.9rem;">Pagar</p>
+        <div></div>
+        <div class="text-center">
+            <div>3</div>
+            <p>Pagar</p>
         </div>
     </div>
 
@@ -49,24 +49,24 @@
     <div class="cys-snap-section">
         <section class="cys-card mb-4">
             <div class="cys-card__title">
-                <i class="bi bi-receipt me-2" style="color: #4DA8DA;"></i>
+                <i class="bi bi-receipt me-2" class="text-cyan"></i>
                 Compra #{{ compra.id }} - {{ compra.proveedor.nombre_empresa }}
             </div>
 
             <!-- RESUMEN DE COMPRA -->
-            <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Proveedor</p>
-                        <p style="color: #E2E8F0; font-weight: 600;">{{ compra.proveedor.nombre_empresa }}</p>
+                        <p>Proveedor</p>
+                        <p>{{ compra.proveedor.nombre_empresa }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Total a Pagar</p>
-                        <p style="color: #27ae60; font-weight: 700; font-size: 1.5rem;">${{ compra.total|floatformat:2 }}</p>
+                        <p>Total a Pagar</p>
+                        <p>${{ compra.total|floatformat:2 }}</p>
                     </div>
                     <div>
-                        <p style="color: #8FA3B1; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Estado de Pago</p>
-                        <p style="color: #f39c12; font-weight: 600;">
+                        <p>Estado de Pago</p>
+                        <p>
                             {% if compra.estado_pago == 'pendiente' %}
                                 ⏳ Pendiente
                             {% elif compra.estado_pago == 'pagada' %}
@@ -80,30 +80,30 @@
             </div>
 
             <!-- TABLA DE DETALLES RECIBIDOS -->
-            <h6 style="color: #E2E8F0; font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">
+            <h6>
                 <i class="bi bi-list-check"></i> Detalles Recibidos
             </h6>
 
-            <div style="background: rgba(77, 168, 218, 0.05); border: 1px solid rgba(77, 168, 218, 0.15); border-radius: 8px; overflow: hidden; margin-bottom: 2rem;">
-                <table style="width: 100%; border-collapse: collapse;">
+            <div>
+                <table>
                     <thead>
-                        <tr style="background: rgba(77, 168, 218, 0.1); border-bottom: 2px solid rgba(77, 168, 218, 0.2);">
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: left; font-size: 0.85rem; text-transform: uppercase;">Producto</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: center; font-size: 0.85rem; text-transform: uppercase;">Recibido</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: right; font-size: 0.85rem; text-transform: uppercase;">Precio Unit.</th>
-                            <th style="color: #4DA8DA; padding: 1rem; text-align: right; font-size: 0.85rem; text-transform: uppercase;">Subtotal</th>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Recibido</th>
+                            <th>Precio Unit.</th>
+                            <th>Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for detalle in compra.recepcion.detalles.all %}
-                        <tr style="border-bottom: 1px solid rgba(77, 168, 218, 0.1);">
-                            <td style="color: #E2E8F0; padding: 1rem;">
+                        <tr>
+                            <td>
                                 <strong>{{ detalle.detalle_compra.presentacion.nombre }}</strong><br>
-                                <small style="color: #8FA3B1;">{{ detalle.detalle_compra.presentacion.producto.nombre }}</small>
+                                <small>{{ detalle.detalle_compra.presentacion.producto.nombre }}</small>
                             </td>
-                            <td style="color: #E2E8F0; padding: 1rem; text-align: center;">{{ detalle.cantidad_recibida }}</td>
-                            <td style="color: #E2E8F0; padding: 1rem; text-align: right;">${{ detalle.detalle_compra.precio_unitario|floatformat:2 }}</td>
-                            <td style="color: #4DA8DA; padding: 1rem; text-align: right; font-weight: 600;">${{ detalle.detalle_compra.precio_unitario|floatformat:2|mul:detalle.cantidad_recibida|floatformat:2 }}</td>
+                            <td>{{ detalle.cantidad_recibida }}</td>
+                            <td>${{ detalle.detalle_compra.precio_unitario|floatformat:2 }}</td>
+                            <td>${{ detalle.detalle_compra.precio_unitario|floatformat:2|mul:detalle.cantidad_recibida|floatformat:2 }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -114,70 +114,70 @@
             <form method="POST">
                 {% csrf_token %}
 
-                <h6 style="color: #E2E8F0; font-weight: 600; text-transform: uppercase; margin-bottom: 1.5rem;">
+                <h6>
                     <i class="bi bi-cash-coin"></i> Información de Pago
                 </h6>
 
                 <!-- Número de Factura -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="color: #8FA3B1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
-                        Número de Factura <span style="color: #e74c3c;">*</span>
+                <div>
+                    <label>
+                        Número de Factura <span>*</span>
                     </label>
                     {{ form.numero_factura }}
                     {% if form.numero_factura.errors %}
-                        <small style="color: #e74c3c;">{{ form.numero_factura.errors.0 }}</small>
+                        <small>{{ form.numero_factura.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <!-- Método de Pago -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="color: #8FA3B1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
-                        Método de Pago <span style="color: #e74c3c;">*</span>
+                <div>
+                    <label>
+                        Método de Pago <span>*</span>
                     </label>
                     {{ form.metodo_pago }}
                     {% if form.metodo_pago.errors %}
-                        <small style="color: #e74c3c;">{{ form.metodo_pago.errors.0 }}</small>
+                        <small>{{ form.metodo_pago.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <!-- Monto Pagado -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="color: #8FA3B1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
-                        Monto Pagado <span style="color: #e74c3c;">*</span>
+                <div>
+                    <label>
+                        Monto Pagado <span>*</span>
                     </label>
                     {{ form.monto_pagado }}
                     {% if form.monto_pagado.errors %}
-                        <small style="color: #e74c3c;">{{ form.monto_pagado.errors.0 }}</small>
+                        <small>{{ form.monto_pagado.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <!-- Fecha de Pago -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="color: #8FA3B1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
-                        Fecha de Pago <span style="color: #e74c3c;">*</span>
+                <div>
+                    <label>
+                        Fecha de Pago <span>*</span>
                     </label>
                     {{ form.fecha_pago }}
                     {% if form.fecha_pago.errors %}
-                        <small style="color: #e74c3c;">{{ form.fecha_pago.errors.0 }}</small>
+                        <small>{{ form.fecha_pago.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <!-- ALERTA -->
-                <div style="background: rgba(39, 174, 96, 0.1); border-left: 4px solid #27ae60; border-radius: 4px; padding: 1rem; margin-bottom: 2rem;">
-                    <p style="color: #E2E8F0; font-weight: 600; margin: 0 0 0.5rem 0;">
+                <div>
+                    <p>
                         <i class="bi bi-info-circle"></i> Importante
                     </p>
-                    <small style="color: #8FA3B1;">
+                    <small>
                         Una vez registrado el pago, se crearán automáticamente los lotes en inventario y el producto estará disponible para vender.
                     </small>
                 </div>
 
                 <!-- Botones -->
-                <div style="display: flex; gap: 1rem;">
-                    <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary" style="background: transparent !important; border: 1px solid rgba(77, 168, 218, 0.3) !important; color: #E2E8F0 !important;">
+                <div>
+                    <a href="{% url 'listar_ordenes' %}" class="btn btn-secondary">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn" style="background: #27ae60 !important; border: none !important; color: #fff !important; font-weight: 600 !important;">
+                    <button type="submit" class="btn">
                         <i class="bi bi-check-circle"></i> Registrar Pago y Crear Lotes
                     </button>
                 </div>

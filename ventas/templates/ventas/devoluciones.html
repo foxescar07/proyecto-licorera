@@ -51,20 +51,20 @@
 
   <!-- ENCABEZADO -->
   <div class="card card-dev p-4 mb-4">
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div class="flex-between flex-wrap gap-1">
       <div>
         <div class="badge-module mb-2">
           <i class="bi bi-arrow-left-right"></i> Módulo de devoluciones
         </div>
-        <h1 style="font-size: 1.4rem; font-weight: 800; color: #FDFFFC; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-          <i class="bi bi-box-arrow-in-left" style="color: #4DA8DA; font-size: 1.3rem;"></i>
+        <h1 class="text-light fw-bold mb-0">
+          <i class="bi bi-box-arrow-in-left text-cyan"></i>
           Solicitar Devolución
         </h1>
       </div>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <div class="flex-start flex-wrap gap-05">
         <button class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="offcanvas" data-bs-target="#drawerHistorial">
           <i class="bi bi-clock-history"></i> Historial
-          <span style="background: #4DA8DA; color: #011936; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 4px;">{{ devoluciones|length|default:"0" }}</span>
+          <span class="badge-dev">{{ devoluciones|length|default:"0" }}</span>
         </button>
         <a href="{% url 'ventas:lista_devoluciones' %}?nuevo=1" class="btn btn-sm btn-primary fw-bold">
           <i class="bi bi-box-arrow-in-left"></i> Registrar devolución
@@ -91,22 +91,22 @@
       <div class="d-flex align-items-center gap-3 mb-4">
         <div class="step-badge">1</div>
         <div>
-          <h3 class="fw-bold mb-1" style="color: #FDFFFC;">Seleccionar venta</h3>
-          <p class="mb-0" style="color: #AF8D86; font-size: 0.9rem;">Elige una venta de la lista</p>
+          <h3 class="fw-bold mb-1">Seleccionar venta</h3>
+          <p class="mb-0">Elige una venta de la lista</p>
         </div>
       </div>
 
       <!-- Ventas disponibles -->
       <div class="mb-4">
         {% if ventas %}
-          <div style="display: grid; gap: 1rem;">
+          <div>
             {% for v in ventas %}
-            <label class="mb-0" style="cursor: pointer;">
-              <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid rgba(77,168,218,0.25); border-radius: 8px; background: rgba(77,168,218,0.02); transition: all 0.2s;">
-                <input type="radio" name="venta_id" value="{{ v.pk }}" style="cursor: pointer; width: 20px; height: 20px;">
-                <div style="flex: 1;">
-                  <div style="color: #FDFFFC; font-weight: 700; margin-bottom: 0.5rem;">{{ v.cliente.nombre }}</div>
-                  <div style="display: flex; gap: 2rem; font-size: 0.9rem; color: #AF8D86;">
+            <label class="mb-0">
+              <div class="flex-start gap-1 p-1 border-cyan bg-cyan-lighter">
+                <input type="radio" name="venta_id" value="{{ v.pk }}">
+                <div>
+                  <div class="text-light fw-bold mb-05">{{ v.cliente.nombre }}</div>
+                  <div>
                     <span><strong>Fecha:</strong> {{ v.fecha|date:"d/m/Y H:i" }}</span>
                     <span><strong>Productos:</strong> {{ v.detalles.all|length }}</span>
                     <span><strong>Total:</strong> ${{ v.total_venta|floatformat:0 }}</span>
@@ -117,15 +117,15 @@
             {% endfor %}
           </div>
         {% else %}
-          <div style="text-align: center; padding: 2rem; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">
-            <i class="bi bi-inbox" style="font-size: 2.5rem; color: #dc3545; display: block; margin-bottom: 1rem;"></i>
-            <p style="color: #dc3545; margin: 0;">❌ No hay ventas registradas</p>
+          <div class="text-center p-2 bg-error border-radius-8">
+            <i class="bi bi-inbox text-red"></i>
+            <p class="text-red mb-0">❌ No hay ventas registradas</p>
           </div>
         {% endif %}
       </div>
 
       <!-- Botones -->
-      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+      <div class="flex-end gap-1">
         <a href="{% url 'ventas:ventas_lista' %}" class="btn btn-outline-secondary">
           <i class="bi bi-arrow-left me-1"></i>Cancelar
         </a>
@@ -156,47 +156,47 @@
   <form method="post" class="needs-validation">
     {% csrf_token %}
     <div class="section-card">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(239, 248, 226, 0.1);">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div class="flex-between mb-15 pb-1 border-bottom-cyan">
+        <div class="flex-start gap-05">
           <span class="step-badge">2</span>
           <div>
-            <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #FDFFFC;">Productos a devolver</h3>
-            <p style="margin: 0; font-size: 0.75rem; color: #AF8D86;">Selecciona los productos que deseas devolver</p>
+            <h3 class="mb-0 fw-bold text-light">Productos a devolver</h3>
+            <p class="mb-0 text-sm text-muted">Selecciona los productos que deseas devolver</p>
           </div>
         </div>
         {% if venta and venta.detalles.all %}
-          <span style="background: rgba(77, 168, 218, 0.12); border: 1px solid rgba(77, 168, 218, 0.25); color: #7ecfef; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px;">{{ venta.detalles.all|length }} producto{{ venta.detalles.all|length|pluralize }}</span>
+          <span class="badge-dev">{{ venta.detalles.all|length }} producto{{ venta.detalles.all|length|pluralize }}</span>
         {% endif %}
       </div>
 
       {% if not venta %}
-        <div style="text-align: center; padding: 3rem 1rem; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; margin-bottom: 2rem;">
-          <i class="bi bi-exclamation-circle" style="font-size: 2rem; color: #dc3545; display: block; margin-bottom: 1rem;"></i>
-          <p style="color: #dc3545; font-weight: 600; margin: 0;">Error: No se cargó la venta. Por favor intenta nuevamente.</p>
+        <div class="text-center py-15 px-1 bg-error border-radius-8 mb-2">
+          <i class="bi bi-exclamation-circle text-red"></i>
+          <p class="text-red fw-600 mb-0">Error: No se cargó la venta. Por favor intenta nuevamente.</p>
           <a href="{% url 'ventas:lista_devoluciones' %}" class="btn btn-sm btn-primary mt-3">
             <i class="bi bi-arrow-left me-1"></i>Volver
           </a>
         </div>
       {% elif venta and detalles_con_estado %}
-        <div class="table-responsive" style="margin-bottom: 2rem;">
-          <table style="width: 100%; border-collapse: collapse;">
+        <div class="table-responsive">
+          <table class="table-clean">
             <thead>
-              <tr style="border-bottom: 2px solid rgba(77, 168, 218, 0.3);">
-                <th style="padding: 1rem; text-align: center; width: 5%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">✓</th>
-                <th style="padding: 1rem; text-align: left; width: 30%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Producto</th>
-                <th style="padding: 1rem; text-align: center; width: 10%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Original</th>
-                <th style="padding: 1rem; text-align: center; width: 10%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Devuelto</th>
-                <th style="padding: 1rem; text-align: center; width: 10%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pendiente</th>
-                <th style="padding: 1rem; text-align: center; width: 12%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">A Devolver</th>
-                <th style="padding: 1rem; text-align: right; width: 16%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Precio</th>
-                <th style="padding: 1rem; text-align: right; width: 17%; color: #4DA8DA; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Subtotal</th>
+              <tr class="table-head-row">
+                <th class="table-head-cell">✓</th>
+                <th class="table-head-cell table-head-cell-left">Producto</th>
+                <th class="table-head-cell">Original</th>
+                <th class="table-head-cell">Devuelto</th>
+                <th class="table-head-cell">Pendiente</th>
+                <th class="table-head-cell">A Devolver</th>
+                <th class="table-head-cell table-head-cell-right">Precio</th>
+                <th class="table-head-cell table-head-cell-right">Subtotal</th>
               </tr>
             </thead>
             <tbody>
               {% for item in detalles_con_estado %}
                 {% with detalle=item.detalle %}
-                <tr style="border-bottom: 1px solid rgba(239, 248, 226, 0.08); {% if not item.puede_devolver %}opacity: 0.5; background: rgba(145,47,64,0.1);{% endif %}">
-                  <td style="padding: 1rem; text-align: center; width: 5%;">
+                <tr class="table-body-row {% if not item.puede_devolver %}table-body-row-disabled{% endif %}">
+                  <td class="table-body-cell table-body-cell-center">
                     <input type="checkbox"
                            name="producto_id"
                            value="{{ detalle.id }}"
@@ -204,33 +204,32 @@
                            onchange="updateSubtotal(this)"
                            {% if not item.puede_devolver %}disabled title="Ya fue completamente devuelto"{% endif %}>
                   </td>
-                  <td style="padding: 1rem; width: 30%;">
-                    <div style="font-weight: 600; color: #FDFFFC;">{{ detalle.producto.nombre }}</div>
+                  <td class="table-body-cell">
+                    <div class="product-name-cell">{{ detalle.producto.nombre }}</div>
                     {% if detalle.presentacion %}
-                      <div style="font-size: 0.8rem; color: #AF8D86;">{{ detalle.presentacion.nombre }}</div>
+                      <div class="product-subtext">{{ detalle.presentacion.nombre }}</div>
                     {% endif %}
                     {% if not item.puede_devolver %}
-                      <div style="font-size: 0.75rem; color: #912F40; margin-top: 0.25rem; font-weight: 700;">
+                      <div class="product-status-cell">
                         <i class="bi bi-check-circle"></i> Completamente devuelto
                       </div>
                     {% endif %}
                   </td>
-                  <td style="padding: 1rem; text-align: center; width: 10%; color: #FDFFFC; font-weight: 600;">{{ detalle.cantidad }}</td>
-                  <td style="padding: 1rem; text-align: center; width: 10%; color: {% if item.cantidad_devuelta > 0 %}#4caf50{% else %}#AF8D86{% endif %}; font-weight: 600;">{{ item.cantidad_devuelta }}</td>
-                  <td style="padding: 1rem; text-align: center; width: 10%; color: {% if item.cantidad_pendiente > 0 %}#E8834A{% else %}#4caf50{% endif %}; font-weight: 700;">{{ item.cantidad_pendiente }}</td>
-                  <td style="padding: 1rem; text-align: center; width: 12%;">
+                  <td class="table-body-cell table-body-cell-center table-body-cell-fw">{{ detalle.cantidad }}</td>
+                  <td class="table-body-cell table-body-cell-center table-body-cell-fw">{{ item.cantidad_devuelta }}</td>
+                  <td class="table-body-cell table-body-cell-center table-body-cell-fw-bold">{{ item.cantidad_pendiente }}</td>
+                  <td class="table-body-cell table-body-cell-center">
                     <input type="number"
                            name="cantidad_devolucion_{{ detalle.id }}"
                            min="0"
                            max="{{ item.cantidad_pendiente }}"
                            value="0"
-                           class="form-control cantidad-input"
-                           style="background: #031e3e; border: 1px solid rgba(77,168,218,0.25); color: #FDFFFC; border-radius: 6px; padding: 0.5rem; font-size: 0.9rem; text-align: center; font-weight: 600;"
+                           class="form-control cantidad-input table-cell-input"
                            onchange="updateCheckboxAndSubtotal(this, {{ detalle.id }})"
                            {% if not item.puede_devolver %}disabled{% endif %}>
                   </td>
-                  <td style="padding: 1rem; text-align: right; width: 16%; color: #FDFFFC; font-weight: 600;">${{ detalle.precio_unitario|floatformat:0 }}</td>
-                  <td style="padding: 1rem; text-align: right; width: 17%; color: #4DA8DA; font-weight: 700; subtotal-{{ detalle.id }}">${{ detalle.subtotal|floatformat:0 }}</td>
+                  <td class="table-body-cell table-body-cell-right table-body-cell-fw">${{ detalle.precio_unitario|floatformat:0 }}</td>
+                  <td class="table-body-cell table-body-cell-right table-body-cell-fw-bold table-body-cell-cyan" data-subtotal="{{ detalle.id }}">${{ detalle.subtotal|floatformat:0 }}</td>
                 </tr>
                 {% endwith %}
               {% endfor %}
@@ -239,19 +238,19 @@
         </div>
 
         <!-- Resumen de devolución -->
-        <div style="background: linear-gradient(135deg, rgba(77,168,218,0.1), rgba(77,168,218,0.05)); border: 1px solid rgba(77,168,218,0.2); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
+        <div class="card-info-box mb-2">
+          <div class="grid-3col">
             <div>
-              <div style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Productos seleccionados</div>
-              <div style="color: #4DA8DA; font-size: 1.5rem; font-weight: 900;" id="productosCount">0</div>
+              <div class="text-muted text-xs uppercase fw-bold mb-05">Productos seleccionados</div>
+              <div class="text-cyan fw-bold" id="productosCount">0</div>
             </div>
             <div>
-              <div style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Cantidad total</div>
-              <div style="color: #4DA8DA; font-size: 1.5rem; font-weight: 900;" id="cantidadTotal">0</div>
+              <div class="text-muted text-xs uppercase fw-bold mb-05">Cantidad total</div>
+              <div class="text-cyan fw-bold" id="cantidadTotal">0</div>
             </div>
             <div>
-              <div style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Monto a devolver</div>
-              <div style="color: #4DA8DA; font-size: 1.5rem; font-weight: 900;" id="montoTotal">$0</div>
+              <div class="text-muted text-xs uppercase fw-bold mb-05">Monto a devolver</div>
+              <div class="text-cyan fw-bold" id="montoTotal">$0</div>
             </div>
           </div>
         </div>
@@ -314,17 +313,17 @@
           }
         </script>
       {% else %}
-        <div style="text-align: center; padding: 3rem 1rem;">
-          <i class="bi bi-inbox" style="font-size: 2.5rem; color: #6b7280; display: block; margin-bottom: 1rem;"></i>
-          <p style="color: #AF8D86; font-size: 0.9rem;">No hay productos. Selecciona una venta.</p>
+        <div class="text-center py-15 px-1">
+          <i class="bi bi-inbox text-muted"></i>
+          <p class="text-muted fs-small">No hay productos. Selecciona una venta.</p>
         </div>
       {% endif %}
 
-      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 24px; color: #7ecfef; border-color: rgba(77,168,218,0.25); border: 1px solid rgba(77,168,218,0.25);" formnovalidate>
+      <div class="flex-end gap-1">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary btn-dev btn-dev-outline" formnovalidate>
           <i class="bi bi-arrow-left me-1"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 24px;">
+        <button type="submit" class="btn btn-primary btn-dev">
           <i class="bi bi-arrow-right me-1"></i>Siguiente
         </button>
       </div>
@@ -339,7 +338,7 @@
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">3</span>
-        <span class="section-title"><i class="bi bi-question-circle" style="color: #4DA8DA;"></i> Motivo de devolución</span>
+        <span class="section-title"><i class="bi bi-question-circle"></i> Motivo de devolución</span>
       </div>
 
       <div class="motivo-grid mb-4" id="motivoGrid">
@@ -398,13 +397,13 @@
         </label>
       </div>
 
-      <textarea placeholder="Describe el problema con detalle…" name="observaciones" style="width:100%;background:#031e3e;border:1px solid rgba(239,248,226,.12);color:#FDFFFC;border-radius:8px;padding:.65rem .85rem;font-size:.85rem;resize:vertical;margin-bottom:2rem;min-height:70px;outline:none;"></textarea>
+      <textarea placeholder="Describe el problema con detalle…" name="observaciones" class="textarea-dev"></textarea>
 
-      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 24px; color: #7ecfef; border-color: rgba(77,168,218,0.25); border: 1px solid rgba(77,168,218,0.25);" formnovalidate>
+      <div class="flex-end gap-1">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary btn-dev btn-dev-outline" formnovalidate>
           <i class="bi bi-arrow-left me-1"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 24px;">
+        <button type="submit" class="btn btn-primary btn-dev">
           <i class="bi bi-arrow-right me-1"></i>Siguiente
         </button>
       </div>
@@ -419,40 +418,40 @@
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">4</span>
-        <span class="section-title"><i class="bi bi-cash-coin" style="color: #4DA8DA;"></i> Tipo de reembolso</span>
+        <span class="section-title"><i class="bi bi-cash-coin"></i> Tipo de reembolso</span>
       </div>
 
-      <div class="reembolso-grid" style="margin-bottom: 2rem;">
+      <div class="reembolso-grid">
         <input type="radio" id="reembolso_cambio" name="tipo_reembolso" value="cambio" class="d-none">
-        <label for="reembolso_cambio" class="reembolso-card" style="border-color: rgba(77,168,218,.25); border-top: 4px solid #4DA8DA;">
-          <div class="r-opt" style="color: #4DA8DA;">Opción 1</div>
-          <i class="bi bi-arrow-repeat r-icon" style="color: #4DA8DA;"></i>
+        <label for="reembolso_cambio" class="reembolso-card">
+          <div class="r-opt">Opción 1</div>
+          <i class="bi bi-arrow-repeat r-icon"></i>
           <div class="r-title">Cambio de producto</div>
           <div class="r-sub">Misma referencia u otra</div>
         </label>
 
         <input type="radio" id="reembolso_nota_credito" name="tipo_reembolso" value="nota_credito" class="d-none">
-        <label for="reembolso_nota_credito" class="reembolso-card" style="border-color: rgba(29,158,117,.25); border-top: 4px solid #1D9E75;">
-          <div class="r-opt" style="color: #1D9E75;">Opción 2</div>
-          <i class="bi bi-file-earmark-text r-icon" style="color: #1D9E75;"></i>
+        <label for="reembolso_nota_credito" class="reembolso-card">
+          <div class="r-opt">Opción 2</div>
+          <i class="bi bi-file-earmark-text r-icon"></i>
           <div class="r-title">Nota crédito</div>
           <div class="r-sub">Abono a próxima factura</div>
         </label>
 
         <input type="radio" id="reembolso_reembolso" name="tipo_reembolso" value="reembolso" class="d-none">
-        <label for="reembolso_reembolso" class="reembolso-card" style="border-color: rgba(232,131,74,.25); border-top: 4px solid #E8834A;">
-          <div class="r-opt" style="color: #E8834A;">Opción 3</div>
-          <i class="bi bi-bank r-icon" style="color: #E8834A;"></i>
+        <label for="reembolso_reembolso" class="reembolso-card">
+          <div class="r-opt">Opción 3</div>
+          <i class="bi bi-bank r-icon"></i>
           <div class="r-title">Reembolso</div>
           <div class="r-sub">Devolución al método de pago</div>
         </label>
       </div>
 
-      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 24px; color: #7ecfef; border-color: rgba(77,168,218,0.25); border: 1px solid rgba(77,168,218,0.25);" formnovalidate>
+      <div>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" formnovalidate>
           <i class="bi bi-arrow-left me-1"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 24px;">
+        <button type="submit" class="btn btn-primary">
           <i class="bi bi-arrow-right me-1"></i>Siguiente
         </button>
       </div>
@@ -470,56 +469,56 @@
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">5</span>
-        <span class="section-title"><i class="bi bi-arrow-repeat" style="color: #4DA8DA;"></i> Producto de reemplazo</span>
+        <span class="section-title"><i class="bi bi-arrow-repeat"></i> Producto de reemplazo</span>
       </div>
 
       <!-- Contenedor principal con grid -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+      <div class="grid-2col mb-2">
 
         <!-- Columna 1: Producto y Cantidad -->
         <div>
-          <label class="dev-form-label" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4DA8DA; margin-bottom: 0.75rem; display: block;">
-            <i class="bi bi-box" style="margin-right: 0.5rem;"></i>Producto a recibir
+          <label class="dev-form-label">
+            <i class="bi bi-box me-1"></i>Producto a recibir
           </label>
-          <select name="producto_cambio" required class="form-select dev-select-premium" style="background: #031e3e; border: 2px solid rgba(77,168,218,0.25); color: #FDFFFC; border-radius: 8px; padding: 0.85rem; font-size: 0.95rem; transition: all 0.2s;">
+          <select name="producto_cambio" required class="form-select input-dev-premium">
             <option value="">-- Selecciona un producto --</option>
             {% for prod in productos %}
               <option value="{{ prod.pk }}">{{ prod.nombre }} - ${{ prod.precio_unitario|floatformat:0 }}</option>
             {% endfor %}
           </select>
-          <small style="color: #AF8D86; display: block; margin-top: 0.5rem; font-size: 0.8rem;">
+          <small class="text-muted text-xs mt-1 d-block">
             <i class="bi bi-info-circle me-1"></i>Elige el producto que prefieres recibir
           </small>
         </div>
 
         <!-- Columna 2: Cantidad -->
         <div>
-          <label class="dev-form-label" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4DA8DA; margin-bottom: 0.75rem; display: block;">
-            <i class="bi bi-stack" style="margin-right: 0.5rem;"></i>Cantidad
+          <label class="dev-form-label">
+            <i class="bi bi-stack me-1"></i>Cantidad
           </label>
-          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control" style="background: #031e3e; border: 2px solid rgba(77,168,218,0.25); color: #FDFFFC; border-radius: 8px; padding: 0.85rem; font-size: 0.95rem; transition: all 0.2s; font-weight: 600;" onchange="this.style.borderColor = 'rgba(77,168,218,0.5)'">
-          <small style="color: #AF8D86; display: block; margin-top: 0.5rem; font-size: 0.8rem;">
+          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control input-dev-premium" onchange="this.style.borderColor = 'rgba(77,168,218,0.5)'">
+          <small class="text-muted text-xs mt-1 d-block">
             <i class="bi bi-info-circle me-1"></i>Cantidad a enviar
           </small>
         </div>
       </div>
 
       <!-- Alert Box - Resumen -->
-      <div style="background: linear-gradient(135deg, rgba(77,168,218,0.1), rgba(77,168,218,0.05)); border-left: 4px solid #4DA8DA; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; border: 1px solid rgba(77,168,218,0.2);">
-        <div style="display: flex; gap: 1rem; align-items: flex-start;">
-          <i class="bi bi-info-circle" style="color: #4DA8DA; font-size: 1.2rem; flex-shrink: 0; margin-top: 2px;"></i>
-          <div style="flex: 1;">
-            <div style="margin-bottom: 0.75rem;">
-              <span style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Monto a devolver</span>
-              <div style="color: #4DA8DA; font-size: 1.4rem; font-weight: 800; margin-top: 0.25rem;">${{ total_devolver|floatformat:0 }}</div>
+      <div class="card-info-box mb-2">
+        <div class="flex-start gap-1">
+          <i class="bi bi-info-circle text-cyan fw-bold"></i>
+          <div>
+            <div class="mb-1">
+              <span class="text-muted text-xs uppercase fw-bold letter-spacing">Monto a devolver</span>
+              <div class="text-cyan fw-bold">${{ total_devolver|floatformat:0 }}</div>
             </div>
-            <div style="border-top: 1px solid rgba(77,168,218,0.2); padding-top: 0.75rem;">
-              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500;">
-                <i class="bi bi-clock me-1" style="color: #4DA8DA;"></i>
+            <div class="border-top-cyan pt-1">
+              <div class="text-light fw-500">
+                <i class="bi bi-clock me-1 text-cyan"></i>
                 <strong>Plazo:</strong> 3-5 días hábiles para recibir el cambio
               </div>
-              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500; margin-top: 0.5rem;">
-                <i class="bi bi-truck me-1" style="color: #4DA8DA;"></i>
+              <div class="text-light fw-500 mt-05">
+                <i class="bi bi-truck me-1 text-cyan"></i>
                 <strong>Devolución:</strong> Esperamos retorno del producto original
               </div>
             </div>
@@ -528,11 +527,11 @@
       </div>
 
       <!-- Botones de acción -->
-      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid rgba(77,168,218,0.15);">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 28px; color: #7ecfef; border-color: rgba(77,168,218,0.3); border: 1px solid rgba(77,168,218,0.3); font-weight: 600; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.1)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+      <div class="flex-end gap-1 pt-1">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary btn-dev btn-dev-outline" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 28px; background: linear-gradient(135deg, #4DA8DA, #2E8DAB); border: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(77,168,218,0.3);" onmouseover="this.style.boxShadow='0 6px 16px rgba(77,168,218,0.5)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(77,168,218,0.3)'">
+        <button type="submit" class="btn btn-primary btn-dev btn-dev-primary">
           <i class="bi bi-arrow-right me-2"></i>Siguiente
         </button>
       </div>
@@ -546,84 +545,84 @@
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">5</span>
-        <span class="section-title"><i class="bi bi-bank" style="color: #E8834A;"></i> Método de devolución</span>
+        <span class="section-title"><i class="bi bi-bank"></i> Método de devolución</span>
       </div>
 
       <!-- Etiqueta superior -->
-      <label style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #E8834A; margin-bottom: 1.25rem; display: block;">
-        <i class="bi bi-credit-card" style="margin-right: 0.5rem;"></i>Elige cómo deseas recibir tu reembolso
+      <label class="dev-form-label text-orange mb-15">
+        <i class="bi bi-credit-card me-1"></i>Elige cómo deseas recibir tu reembolso
       </label>
 
       <!-- Grid de opciones de pago -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div>
 
         <!-- Efectivo -->
-        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
-          <input type="radio" name="metodo_pago_devolucion" value="efectivo" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
-          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
-            <i class="bi bi-cash-coin" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
-            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Efectivo</div>
-            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">Retira en nuestro local</div>
+        <label>
+          <input type="radio" name="metodo_pago_devolucion" value="efectivo" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div class="p-15 border-radius-12 bg-orange-light text-center">
+            <i class="bi bi-cash-coin text-orange fw-bold"></i>
+            <div class="text-light fw-bold fs-small">Efectivo</div>
+            <div class="text-muted text-xs mt-05">Retira en nuestro local</div>
           </div>
         </label>
 
         <!-- Tarjeta -->
-        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
-          <input type="radio" name="metodo_pago_devolucion" value="tarjeta" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
-          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
-            <i class="bi bi-credit-card" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
-            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Tarjeta</div>
-            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu tarjeta de débito</div>
+        <label>
+          <input type="radio" name="metodo_pago_devolucion" value="tarjeta" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div class="p-15 border-radius-12 bg-orange-light text-center">
+            <i class="bi bi-credit-card text-orange fw-bold"></i>
+            <div class="text-light fw-bold fs-small">Tarjeta</div>
+            <div class="text-muted text-xs mt-05">A tu tarjeta de débito</div>
           </div>
         </label>
 
         <!-- Transferencia -->
-        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
-          <input type="radio" name="metodo_pago_devolucion" value="transferencia" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
-          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
-            <i class="bi bi-bank2" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
-            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Transferencia</div>
-            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu cuenta bancaria</div>
+        <label>
+          <input type="radio" name="metodo_pago_devolucion" value="transferencia" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div class="p-15 border-radius-12 bg-orange-light text-center">
+            <i class="bi bi-bank2 text-orange fw-bold"></i>
+            <div class="text-light fw-bold fs-small">Transferencia</div>
+            <div class="text-muted text-xs mt-05">A tu cuenta bancaria</div>
           </div>
         </label>
 
         <!-- Nequi -->
-        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
-          <input type="radio" name="metodo_pago_devolucion" value="nequi" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
-          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
-            <i class="bi bi-phone" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
-            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">Nequi</div>
-            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu billetera Nequi</div>
+        <label>
+          <input type="radio" name="metodo_pago_devolucion" value="nequi" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div class="p-15 border-radius-12 bg-orange-light text-center">
+            <i class="bi bi-phone text-orange fw-bold"></i>
+            <div class="text-light fw-bold fs-small">Nequi</div>
+            <div class="text-muted text-xs mt-05">A tu billetera Nequi</div>
           </div>
         </label>
 
         <!-- DaviPlata -->
-        <label style="position: relative; cursor: pointer; transition: all 0.3s;">
-          <input type="radio" name="metodo_pago_devolucion" value="daviplata" style="position: absolute; opacity: 0; cursor: pointer;" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
-          <div style="padding: 1.5rem; border: 2px solid rgba(232,131,74,0.25); border-radius: 12px; transition: all 0.3s; text-align: center; background: rgba(232,131,74,0.02);">
-            <i class="bi bi-wallet2" style="color: #E8834A; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
-            <div style="color: #FDFFFC; font-weight: 700; font-size: 0.95rem;">DaviPlata</div>
-            <div style="color: #AF8D86; font-size: 0.75rem; margin-top: 0.5rem;">A tu billetera DaviPlata</div>
+        <label>
+          <input type="radio" name="metodo_pago_devolucion" value="daviplata" onchange="this.closest('label').style.borderColor='#E8834A'; this.closest('label').style.background='rgba(232,131,74,0.08)'">
+          <div class="p-15 border-radius-12 bg-orange-light text-center">
+            <i class="bi bi-wallet2 text-orange fw-bold"></i>
+            <div class="text-light fw-bold fs-small">DaviPlata</div>
+            <div class="text-muted text-xs mt-05">A tu billetera DaviPlata</div>
           </div>
         </label>
       </div>
 
       <!-- Alert Box - Resumen -->
-      <div style="background: linear-gradient(135deg, rgba(232,131,74,0.1), rgba(232,131,74,0.05)); border-left: 4px solid #E8834A; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; border: 1px solid rgba(232,131,74,0.2);">
-        <div style="display: flex; gap: 1rem; align-items: flex-start;">
-          <i class="bi bi-info-circle" style="color: #E8834A; font-size: 1.2rem; flex-shrink: 0; margin-top: 2px;"></i>
-          <div style="flex: 1;">
-            <div style="margin-bottom: 0.75rem;">
-              <span style="color: #AF8D86; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Monto del reembolso</span>
-              <div style="color: #E8834A; font-size: 1.4rem; font-weight: 800; margin-top: 0.25rem;">${{ total_devolver|floatformat:0 }}</div>
+      <div>
+        <div>
+          <i class="bi bi-info-circle"></i>
+          <div>
+            <div>
+              <span>Monto del reembolso</span>
+              <div>${{ total_devolver|floatformat:0 }}</div>
             </div>
-            <div style="border-top: 1px solid rgba(232,131,74,0.2); padding-top: 0.75rem;">
-              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500;">
-                <i class="bi bi-clock me-1" style="color: #E8834A;"></i>
+            <div>
+              <div>
+                <i class="bi bi-clock me-1"></i>
                 <strong>Plazo:</strong> 3-7 días hábiles según método
               </div>
-              <div style="color: #FDFFFC; font-size: 0.85rem; font-weight: 500; margin-top: 0.5rem;">
-                <i class="bi bi-check-circle me-1" style="color: #E8834A;"></i>
+              <div>
+                <i class="bi bi-check-circle me-1"></i>
                 <strong>Requiere:</strong> Devolución del producto original
               </div>
             </div>
@@ -632,11 +631,11 @@
       </div>
 
       <!-- Botones de acción -->
-      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid rgba(232,131,74,0.15);">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 10px 28px; color: #E8834A; border-color: rgba(232,131,74,0.3); border: 1px solid rgba(232,131,74,0.3); font-weight: 600; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(232,131,74,0.1)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+      <div>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" onmouseover="this.style.backgroundColor='rgba(232,131,74,0.1)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 10px 28px; background: linear-gradient(135deg, #E8834A, #D46E36); border: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(232,131,74,0.3);" onmouseover="this.style.boxShadow='0 6px 16px rgba(232,131,74,0.5)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(232,131,74,0.3)'">
+        <button type="submit" class="btn btn-primary" onmouseover="this.style.boxShadow='0 6px 16px rgba(232,131,74,0.5)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(232,131,74,0.3)'">
           <i class="bi bi-arrow-right me-2"></i>Siguiente
         </button>
       </div>
@@ -653,35 +652,35 @@
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">6</span>
-        <span class="section-title"><i class="bi bi-camera" style="color: #4DA8DA;"></i> Evidencia fotográfica</span>
+        <span class="section-title"><i class="bi bi-camera"></i> Evidencia fotográfica</span>
       </div>
 
       <!-- Zona de carga de archivos mejorada -->
-      <div id="dropZone" style="border: 2px dashed rgba(77,168,218,0.5); border-radius: 12px; padding: 3rem 2rem; text-align: center; background: rgba(77,168,218,0.05); cursor: pointer; transition: all 0.3s; margin-bottom: 2rem;"
+      <div id="dropZone" class="border-radius-12 py-15 px-2 bg-cyan-lighter text-center mb-2"
            onmouseover="this.style.background='rgba(77,168,218,0.1)'; this.style.borderColor='rgba(77,168,218,0.8)'"
            onmouseout="this.style.background='rgba(77,168,218,0.05)'; this.style.borderColor='rgba(77,168,218,0.5)'">
-        <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #4DA8DA; display: block; margin-bottom: 1rem;"></i>
-        <div style="font-size: 1.1rem; font-weight: 700; color: #FDFFFC; margin-bottom: 0.5rem;">Arrastra fotos aquí</div>
-        <div style="font-size: 0.9rem; color: #AF8D86; margin-bottom: 1.5rem;">o haz clic para seleccionar archivos</div>
-        <input type="file" id="evidencia" name="evidencia" multiple accept="image/*,.pdf" style="display: none;">
-        <small style="color: #7ecfef; display: block;">JPG, PNG o PDF — máx. 10 MB por archivo</small>
+        <i class="bi bi-cloud-arrow-up text-cyan fw-bold"></i>
+        <div class="text-light fw-bold">Arrastra fotos aquí</div>
+        <div class="text-muted fs-small mb-15">o haz clic para seleccionar archivos</div>
+        <input type="file" id="evidencia" name="evidencia" multiple accept="image/*,.pdf">
+        <small class="text-cyan">JPG, PNG o PDF — máx. 10 MB por archivo</small>
       </div>
 
       <!-- Vista previa de archivos subidos -->
-      <div id="previewContainer" style="display: none; margin-bottom: 2rem;">
-        <div style="font-size: 0.9rem; font-weight: 700; color: #4DA8DA; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+      <div id="previewContainer">
+        <div>
           <i class="bi bi-check-circle me-2"></i>Archivos seleccionados
         </div>
-        <div id="fileList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem;"></div>
+        <div id="fileList"></div>
       </div>
 
       <!-- Recomendaciones -->
-      <div style="background: linear-gradient(135deg, rgba(77,168,218,0.1), rgba(77,168,218,0.05)); border-left: 4px solid #4DA8DA; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; border: 1px solid rgba(77,168,218,0.2);">
-        <div style="display: flex; gap: 1rem;">
-          <i class="bi bi-lightbulb" style="color: #4DA8DA; font-size: 1.2rem; flex-shrink: 0;"></i>
+      <div class="card-info-box mb-2">
+        <div class="flex-start gap-1">
+          <i class="bi bi-lightbulb text-cyan fw-bold"></i>
           <div>
-            <div style="color: #FDFFFC; font-weight: 700; margin-bottom: 0.75rem;">Recomendaciones para fotos:</div>
-            <ul style="color: #AF8D86; font-size: 0.9rem; margin: 0; padding-left: 1.5rem; line-height: 1.6;">
+            <div class="text-light fw-bold mb-1">Recomendaciones para fotos:</div>
+            <ul class="text-muted fs-small mb-0">
               <li>📦 Foto del producto en su empaque original</li>
               <li>🔢 Foto clara del lote y fecha de vencimiento</li>
               <li>🔒 Foto del sello o cierre (si aplica)</li>
@@ -693,11 +692,11 @@
       </div>
 
       <!-- Botones de acción -->
-      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 2px solid rgba(77,168,218,0.15);">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 12px 32px; color: #7ecfef; border-color: rgba(77,168,218,0.3); border: 1.5px solid rgba(77,168,218,0.3); font-weight: 600; transition: all 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+      <div>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding: 12px 32px; background: linear-gradient(135deg, #4DA8DA, #2E8DAB); border: none; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(77,168,218,0.3); font-size: 0.95rem;" onmouseover="this.style.boxShadow='0 6px 16px rgba(77,168,218,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(77,168,218,0.3)'; this.style.transform='translateY(0)'">
+        <button type="submit" class="btn btn-primary" onmouseover="this.style.boxShadow='0 6px 16px rgba(77,168,218,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(77,168,218,0.3)'; this.style.transform='translateY(0)'">
           <i class="bi bi-arrow-right me-2"></i>Siguiente
         </button>
       </div>
@@ -751,11 +750,11 @@
           const size = (file.size / 1024 / 1024).toFixed(2);
 
           fileItem.innerHTML = `
-            <i class="bi bi-${icon}" style="color: #4DA8DA; font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
-            <div style="font-size: 0.75rem; color: #FDFFFC; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
-            <div style="font-size: 0.7rem; color: #AF8D86; margin-top: 0.25rem;">${size} MB</div>
-            <button type="button" onclick="this.closest('div').remove(); if(document.querySelectorAll('#fileList > div').length === 0) document.getElementById('previewContainer').style.display='none';" style="position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.2); border: none; color: #FDFFFC; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-x" style="font-size: 0.9rem;"></i>
+            <i class="bi bi-${icon}"></i>
+            <div>${file.name}</div>
+            <div>${size} MB</div>
+            <button type="button" onclick="this.closest('div').remove(); if(document.querySelectorAll('#fileList > div').length === 0) document.getElementById('previewContainer').style.display='none';">
+              <i class="bi bi-x"></i>
             </button>
           `;
           fileList.appendChild(fileItem);
@@ -774,79 +773,79 @@
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">7</span>
-        <span class="section-title"><i class="bi bi-check-circle" style="color: #4DA8DA;"></i> Confirmar solicitud</span>
+        <span class="section-title"><i class="bi bi-check-circle"></i> Confirmar solicitud</span>
       </div>
 
       <!-- Tarjeta de Resumen Principal -->
-      <div style="background: linear-gradient(135deg, rgba(77,168,218,0.08), rgba(77,168,218,0.02)); border: 2px solid rgba(77,168,218,0.25); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(77,168,218,0.1);">
+      <div class="card-section mb-2">
 
         <!-- Encabezado -->
-        <div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid rgba(77,168,218,0.2);">
-          <div style="font-size: 0.75rem; color: #4DA8DA; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 1rem;">Resumen de tu devolución</div>
-          <div style="font-size: 2.5rem; font-weight: 900; color: #4DA8DA; margin-bottom: 0.5rem;">${{ total_devolver|floatformat:0 }}</div>
-          <div style="font-size: 0.9rem; color: #AF8D86;">Monto total a devolver</div>
+        <div class="text-center mb-2 pb-2">
+          <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">Resumen de tu devolución</div>
+          <div class="text-cyan fw-bold">${{ total_devolver|floatformat:0 }}</div>
+          <div class="text-muted fs-small">Monto total a devolver</div>
         </div>
 
         <!-- Detalles según tipo -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div class="grid-2col mb-15">
 
           <!-- Columna 1: Información del tipo -->
-          <div style="padding: 1.25rem; background: rgba(77,168,218,0.05); border-radius: 8px; border: 1px solid rgba(77,168,218,0.15);">
+          <div class="p-15 bg-cyan-light border-radius-8">
             {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
-              <div style="color: #4DA8DA; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">
                 <i class="bi bi-arrow-repeat me-2"></i>Tipo de reembolso
               </div>
-              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Cambio de Producto</div>
-              <div style="color: #AF8D86; font-size: 0.85rem;">Recibirás un producto de reemplazo en lugar del que devuelves</div>
+              <div class="text-light fw-bold">Cambio de Producto</div>
+              <div class="text-muted fs-small">Recibirás un producto de reemplazo en lugar del que devuelves</div>
             {% elif tipo_reembolso_seleccionado == 'Nota crédito' %}
-              <div style="color: #1D9E75; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              <div>
                 <i class="bi bi-file-earmark-text me-2"></i>Tipo de reembolso
               </div>
-              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Nota de Crédito</div>
-              <div style="color: #AF8D86; font-size: 0.85rem;">Este monto estará disponible para tu próxima compra</div>
+              <div class="text-light fw-bold">Nota de Crédito</div>
+              <div class="text-muted fs-small">Este monto estará disponible para tu próxima compra</div>
             {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
-              <div style="color: #E8834A; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              <div class="text-orange text-xs uppercase fw-bold letter-spacing mb-1">
                 <i class="bi bi-bank me-2"></i>Tipo de reembolso
               </div>
-              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Reembolso en Efectivo</div>
-              <div style="color: #AF8D86; font-size: 0.85rem;">Se devolverá el dinero a tu cuenta</div>
+              <div class="text-light fw-bold">Reembolso en Efectivo</div>
+              <div class="text-muted fs-small">Se devolverá el dinero a tu cuenta</div>
             {% endif %}
           </div>
 
           <!-- Columna 2: Timeline -->
-          <div style="padding: 1.25rem; background: rgba(77,168,218,0.05); border-radius: 8px; border: 1px solid rgba(77,168,218,0.15);">
-            <div style="color: #4DA8DA; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+          <div class="p-15 bg-cyan-light border-radius-8">
+            <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">
               <i class="bi bi-calendar-event me-2"></i>Plazo estimado
             </div>
             {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
-              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">3-5 días hábiles</div>
-              <div style="color: #AF8D86; font-size: 0.85rem;">Después de validar la devolución</div>
+              <div class="text-light fw-bold">3-5 días hábiles</div>
+              <div class="text-muted fs-small">Después de validar la devolución</div>
             {% elif tipo_reembolso_seleccionado == 'Nota crédito' %}
-              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">Inmediato</div>
-              <div style="color: #AF8D86; font-size: 0.85rem;">Disponible ahora en tu cuenta</div>
+              <div class="text-light fw-bold">Inmediato</div>
+              <div class="text-muted fs-small">Disponible ahora en tu cuenta</div>
             {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
-              <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">3-7 días hábiles</div>
-              <div style="color: #AF8D86; font-size: 0.85rem;">Según el método de pago</div>
+              <div class="text-light fw-bold">3-7 días hábiles</div>
+              <div class="text-muted fs-small">Según el método de pago</div>
             {% endif %}
           </div>
         </div>
 
         <!-- Proceso de validación -->
-        <div style="background: rgba(77,168,218,0.1); border-radius: 8px; padding: 1rem; border-left: 4px solid #4DA8DA;">
-          <div style="color: #4DA8DA; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+        <div class="bg-cyan-light border-radius-8 p-1">
+          <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">
             <i class="bi bi-info-circle me-1"></i>¿Qué sucede después?
           </div>
-          <div style="color: #FDFFFC; font-size: 0.9rem; line-height: 1.6;">
-            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem;">
-              <span style="background: #4DA8DA; color: #011936; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 0.75rem; font-weight: 700;">1</span>
+          <div class="text-light fs-small">
+            <div class="flex-start gap-05 mb-05">
+              <span class="step-badge-dev">1</span>
               <div>Tu solicitud se registra inmediatamente</div>
             </div>
-            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem;">
-              <span style="background: #4DA8DA; color: #011936; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 0.75rem; font-weight: 700;">2</span>
+            <div class="flex-start gap-05 mb-05">
+              <span class="step-badge-dev">2</span>
               <div>Un asesor la revisará en 2-5 días hábiles</div>
             </div>
-            <div style="display: flex; gap: 0.75rem;">
-              <span style="background: #4DA8DA; color: #011936; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-size: 0.75rem; font-weight: 700;">3</span>
+            <div class="flex-start gap-05">
+              <span class="step-badge-dev">3</span>
               <div>Te contactaremos para confirmar los detalles</div>
             </div>
           </div>
@@ -854,32 +853,32 @@
       </div>
 
       <!-- Checklist de confirmación -->
-      <div style="background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.2); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
-        <div style="color: #4caf50; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 1rem;">
+      <div class="bg-green-light border-radius-8 p-15 mb-2">
+        <div>
           <i class="bi bi-check-all me-1"></i>Confirma que todo esté correcto
         </div>
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem; color: #FDFFFC; font-size: 0.9rem;">
-            <i class="bi bi-check-circle" style="color: #4caf50; font-size: 1.1rem;"></i>
+        <div>
+          <div class="flex-start gap-05 text-light fs-small">
+            <i class="bi bi-check-circle"></i>
             <span>He seleccionado el tipo de reembolso correcto</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.75rem; color: #FDFFFC; font-size: 0.9rem;">
-            <i class="bi bi-check-circle" style="color: #4caf50; font-size: 1.1rem;"></i>
+          <div class="flex-start gap-05 text-light fs-small">
+            <i class="bi bi-check-circle"></i>
             <span>Entiendo que debo devolver el producto original</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.75rem; color: #FDFFFC; font-size: 0.9rem;">
-            <i class="bi bi-check-circle" style="color: #4caf50; font-size: 1.1rem;"></i>
+          <div class="flex-start gap-05 text-light fs-small">
+            <i class="bi bi-check-circle"></i>
             <span>He aceptado los términos de la política de devoluciones</span>
           </div>
         </div>
       </div>
 
       <!-- Botones de acción -->
-      <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 2px solid rgba(77,168,218,0.15);">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" style="border-radius: 20px; padding: 12px 32px; color: #7ecfef; border-color: rgba(77,168,218,0.3); border: 1.5px solid rgba(77,168,218,0.3); font-weight: 600; transition: all 0.2s; font-size: 0.95rem;" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
+      <div>
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary" onmouseover="this.style.backgroundColor='rgba(77,168,218,0.08)'" onmouseout="this.style.backgroundColor='transparent'" formnovalidate>
           <i class="bi bi-arrow-left me-2"></i>Atrás
         </button>
-        <button type="submit" class="btn btn-success" style="border-radius: 20px; padding: 12px 32px; background: linear-gradient(135deg, #4caf50, #388e3c); border: none; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 14px rgba(76,175,80,0.3); font-size: 0.95rem;" onmouseover="this.style.boxShadow='0 6px 20px rgba(76,175,80,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 14px rgba(76,175,80,0.3)'; this.style.transform='translateY(0)'">
+        <button type="submit" class="btn btn-success" onmouseover="this.style.boxShadow='0 6px 20px rgba(76,175,80,0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 14px rgba(76,175,80,0.3)'; this.style.transform='translateY(0)'">
           <i class="bi bi-check-circle me-2"></i>Enviar Solicitud
         </button>
       </div>
@@ -891,10 +890,10 @@
   <div class="card card-dev p-4 mb-4">
     <div class="d-flex align-items-center justify-content-between gap-3">
       <div class="d-flex align-items-center gap-3">
-        <i class="bi bi-shield-check" style="color:var(--green);font-size:1.3rem;"></i>
+        <i class="bi bi-shield-check"></i>
         <div>
-          <div class="fw-bold" style="color:var(--text-hi);">Política de devoluciones</div>
-          <div class="small" style="color:var(--text-md);">Antes de enviar, revisa nuestras políticas</div>
+          <div class="fw-bold">Política de devoluciones</div>
+          <div class="small">Antes de enviar, revisa nuestras políticas</div>
         </div>
       </div>
       <button type="button" class="btn btn-sm btn-cyan fw-bold" data-bs-toggle="modal" data-bs-target="#modalProceso">
@@ -904,12 +903,12 @@
   </div>
 
   <!-- AYUDA RÁPIDA -->
-  <div class="section-card" style="margin-bottom: 0;">
+  <div class="section-card">
     <div class="section-head section-sep">
-      <span class="step-badge" style="background: #031e3e; border: 1px solid rgba(77,168,218,.3);">
-        <i class="bi bi-info" style="color: #4DA8DA; font-weight: 700;"></i>
+      <span class="step-badge">
+        <i class="bi bi-info"></i>
       </span>
-      <span style="font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #4DA8DA;">Ayuda rápida</span>
+      <span>Ayuda rápida</span>
     </div>
     <div class="help-grid">
       <div class="help-item">
@@ -939,67 +938,67 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          <i class="bi bi-list-ol me-2" style="color:var(--cyan);"></i>Proceso de devolución
+          <i class="bi bi-list-ol me-2"></i>Proceso de devolución
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
-        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+        <div class="d-flex gap-3 mb-4 pb-4">
           <div class="step-badge flex-shrink-0">1</div>
           <div class="flex-grow-1">
-            <div class="fw-bold" style="color:var(--text-hi);">Completa el formulario</div>
-            <div class="small" style="color:var(--text-md);">Datos del pedido, productos y motivo</div>
+            <div class="fw-bold">Completa el formulario</div>
+            <div class="small">Datos del pedido, productos y motivo</div>
           </div>
         </div>
-        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+        <div class="d-flex gap-3 mb-4 pb-4">
           <div class="step-badge flex-shrink-0">2</div>
           <div class="flex-grow-1">
-            <div class="fw-bold" style="color:var(--text-hi);">Adjunta evidencia</div>
-            <div class="small" style="color:var(--text-md);">Fotos del producto y embalaje</div>
+            <div class="fw-bold">Adjunta evidencia</div>
+            <div class="small">Fotos del producto y embalaje</div>
           </div>
         </div>
-        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+        <div class="d-flex gap-3 mb-4 pb-4">
           <div class="step-badge flex-shrink-0">3</div>
           <div class="flex-grow-1">
-            <div class="fw-bold" style="color:var(--text-hi);">Revisión del caso</div>
-            <div class="small" style="color:var(--text-md);">Un asesor analizará tu solicitud</div>
+            <div class="fw-bold">Revisión del caso</div>
+            <div class="small">Un asesor analizará tu solicitud</div>
           </div>
         </div>
-        <div class="d-flex gap-3 mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+        <div class="d-flex gap-3 mb-4 pb-4">
           <div class="step-badge flex-shrink-0">4</div>
           <div class="flex-grow-1">
-            <div class="fw-bold" style="color:var(--text-hi);">Aprobación</div>
-            <div class="small" style="color:var(--text-md);">Recibirás confirmación en 2–5 días hábiles</div>
+            <div class="fw-bold">Aprobación</div>
+            <div class="small">Recibirás confirmación en 2–5 días hábiles</div>
           </div>
         </div>
         <div class="d-flex gap-3 mb-4">
           <div class="step-badge flex-shrink-0">5</div>
           <div class="flex-grow-1">
-            <div class="fw-bold" style="color:var(--text-hi);">Reembolso o cambio</div>
-            <div class="small" style="color:var(--text-md);">Según la opción seleccionada</div>
+            <div class="fw-bold">Reembolso o cambio</div>
+            <div class="small">Según la opción seleccionada</div>
           </div>
         </div>
 
-        <div class="mt-4 pt-4" style="border-top:1px solid var(--border);">
-          <div class="fw-bold text-uppercase mb-3 small" style="letter-spacing:.12em;color:var(--cyan);">
+        <div class="mt-4 pt-4">
+          <div class="fw-bold text-uppercase mb-3 small">
             <i class="bi bi-shield-check me-2"></i>Política de devoluciones
           </div>
           <div class="d-flex flex-column gap-2">
             <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-check-circle flex-shrink-0" style="color:var(--green);margin-top:2px;"></i>
-              <div class="small" style="color:var(--text-md);">Productos defectuosos o mal despachados: <strong style="color:var(--text-hi);">hasta 30 días</strong></div>
+              <i class="bi bi-check-circle flex-shrink-0"></i>
+              <div class="small">Productos defectuosos o mal despachados: <strong>hasta 30 días</strong></div>
             </div>
             <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-check-circle flex-shrink-0" style="color:var(--green);margin-top:2px;"></i>
-              <div class="small" style="color:var(--text-md);">Producto debe estar <strong style="color:var(--text-hi);">sellado</strong> salvo defecto de fábrica</div>
+              <i class="bi bi-check-circle flex-shrink-0"></i>
+              <div class="small">Producto debe estar <strong>sellado</strong> salvo defecto de fábrica</div>
             </div>
             <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-x-circle flex-shrink-0" style="color:var(--red);margin-top:2px;"></i>
-              <div class="small" style="color:var(--text-md);">No aplica por arrepentimiento o cambio de gusto</div>
+              <i class="bi bi-x-circle flex-shrink-0"></i>
+              <div class="small">No aplica por arrepentimiento o cambio de gusto</div>
             </div>
             <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-clock flex-shrink-0" style="color:var(--yellow);margin-top:2px;"></i>
-              <div class="small" style="color:var(--text-md);">Resolución en <strong style="color:var(--text-hi);">2–5 días hábiles</strong> tras recibir evidencia</div>
+              <i class="bi bi-clock flex-shrink-0"></i>
+              <div class="small">Resolución en <strong>2–5 días hábiles</strong> tras recibir evidencia</div>
             </div>
           </div>
         </div>
@@ -1014,93 +1013,57 @@
 </div>
 
 <!-- OFFCANVAS — HISTORIAL DE DEVOLUCIONES -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="drawerHistorial" style="max-width:400px;">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="drawerHistorial">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title fw-bold">
-      <i class="bi bi-clock-history me-2" style="color:var(--cyan);"></i>Historial de devoluciones
+      <i class="bi bi-clock-history me-2"></i>Historial de devoluciones
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
   </div>
 
   <div class="offcanvas-body p-3">
-    <div class="row g-2 mb-4 pb-4 border-bottom border-1" style="border-color:var(--border);">
+    <div class="row g-2 mb-4 pb-4 border-bottom border-1">
       <div class="col-4">
         <div class="card card-dev-inner p-3 text-center rounded-3">
-          <div class="fw-bold h6" style="color:var(--cyan);">{{ devoluciones|length|default:"0" }}</div>
-          <div class="text-uppercase fw-bold small" style="color:var(--text-md);">Total</div>
+          <div class="fw-bold h6">{{ devoluciones|length|default:"0" }}</div>
+          <div class="text-uppercase fw-bold small">Total</div>
         </div>
       </div>
       <div class="col-4">
         <div class="card card-dev-inner p-3 text-center rounded-3">
-          <div class="fw-bold h6" style="color:var(--yellow);">—</div>
-          <div class="text-uppercase fw-bold small" style="color:var(--text-md);">Pendientes</div>
+          <div class="fw-bold h6">—</div>
+          <div class="text-uppercase fw-bold small">Pendientes</div>
         </div>
       </div>
       <div class="col-4">
         <div class="card card-dev-inner p-3 text-center rounded-3">
-          <div class="fw-bold h6" style="color:var(--green);">{{ devoluciones|length|default:"0" }}</div>
-          <div class="text-uppercase fw-bold small" style="color:var(--text-md);">Aprobadas</div>
+          <div class="fw-bold h6">{{ devoluciones|length|default:"0" }}</div>
+          <div class="text-uppercase fw-bold small">Aprobadas</div>
         </div>
       </div>
     </div>
 
-    <div id="listaDevolucionesContainer" style="display: grid; gap: 1rem;">
+    <div id="listaDevolucionesContainer">
       {% if devoluciones %}
         {% for dev in devoluciones %}
-        <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" style="text-decoration: none;">
-          <div style="
-            display: flex;
-            align-items: flex-start;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border-left: 4px solid #4DA8DA;
-            background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%);
-            border: 1px solid rgba(77, 168, 218, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-          " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(77, 168, 218, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" class="devolucion-item">
 
             <!-- ICONO -->
-            <div style="
-              flex-shrink: 0;
-              width: 50px;
-              height: 50px;
-              background: rgba(77, 168, 218, 0.15);
-              border-radius: 10px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #4DA8DA;
-              font-size: 1.5rem;
-            ">
+            <div class="devolucion-icon">
               <i class="bi bi-arrow-repeat"></i>
             </div>
 
             <!-- CONTENIDO -->
-            <div style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+            <div class="devolucion-content">
+              <div class="devolucion-header">
                 <div>
-                  <div style="color: #FDFFFC; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem;">
-                    {{ dev.venta.cliente.nombre }}
-                  </div>
-                  <div style="color: #7ecfef; font-size: 0.85rem; font-weight: 600;">{{ dev.numero }}</div>
+                  <div class="devolucion-cliente">{{ dev.venta.cliente.nombre }}</div>
+                  <div class="devolucion-numero">{{ dev.numero }}</div>
                 </div>
-                <span style="
-                  background: rgba(77, 168, 218, 0.2);
-                  color: #4DA8DA;
-                  padding: 0.35rem 0.8rem;
-                  border-radius: 12px;
-                  font-size: 0.75rem;
-                  font-weight: 700;
-                  text-transform: uppercase;
-                  letter-spacing: 0.5px;
-                ">
-                  {{ dev.get_motivo_display }}
-                </span>
+                <span class="devolucion-badge">{{ dev.get_motivo_display }}</span>
               </div>
 
-              <div style="color: #AF8D86; font-size: 0.85rem; line-height: 1.5;">
+              <div class="devolucion-details">
                 <div><strong>Cliente:</strong> {{ dev.venta.cliente.nombre }}</div>
                 <div><strong>Fecha:</strong> {{ dev.fecha|date:"d/m/Y H:i" }}</div>
                 <div><strong>Monto:</strong> ${{ dev.total_devuelto|floatformat:0 }}</div>
@@ -1108,16 +1071,15 @@
             </div>
 
             <!-- ICONO VER -->
-            <div style="flex-shrink: 0; color: #4DA8DA; font-size: 1.2rem;">
+            <div class="devolucion-icon-view">
               <i class="bi bi-eye"></i>
             </div>
-          </div>
-        </a>
+          </a>
         {% endfor %}
       {% else %}
-        <div style="text-align: center; padding: 3rem 1rem;">
-          <i class="bi bi-inbox" style="font-size: 3rem; color: #6b7280; display: block; margin-bottom: 1rem;"></i>
-          <p style="color: #AF8D86; margin: 0;">No hay devoluciones registradas aún.</p>
+        <div class="text-center py-15 px-1">
+          <i class="bi bi-inbox text-muted"></i>
+          <p class="text-muted mb-0">No hay devoluciones registradas aún.</p>
         </div>
       {% endif %}
     </div>

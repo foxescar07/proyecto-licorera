@@ -19,7 +19,7 @@
           <span class="badge badge-cyan small mb-2 d-inline-block">
             <i class="bi bi-pencil me-1"></i>EDITAR
           </span>
-          <h1 class="editar-title mb-0" style="color: var(--cyan); font-weight: 800; font-size: 1.8rem;">
+          <h1 class="editar-title mb-0">
             <i class="bi bi-building"></i> {{ proveedor.nombre_empresa }}
           </h1>
         </div>
@@ -53,11 +53,11 @@
         {% csrf_token %}
 
         <!-- INFORMACIÓN BÁSICA -->
-        <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem;">
-          <h5 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800;"><i class="bi bi-building me-2"></i>Información Básica</h5>
+        <div>
+          <h5><i class="bi bi-building me-2"></i>Información Básica</h5>
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <label for="{{ form.nombre_empresa.id_for_label }}" class="form-label fw-bold" style="color: var(--cyan);">Empresa *</label>
+              <label for="{{ form.nombre_empresa.id_for_label }}" class="form-label fw-bold">Empresa *</label>
               {{ form.nombre_empresa }}
               {% if form.nombre_empresa.errors %}
                 <div class="invalid-feedback d-block">
@@ -66,7 +66,7 @@
               {% endif %}
             </div>
             <div class="col-12 col-md-6">
-              <label for="{{ form.nombre_contacto.id_for_label }}" class="form-label fw-bold" style="color: var(--cyan);">Responsable/Contacto *</label>
+              <label for="{{ form.nombre_contacto.id_for_label }}" class="form-label fw-bold">Responsable/Contacto *</label>
               {{ form.nombre_contacto }}
               {% if form.nombre_contacto.errors %}
                 <div class="invalid-feedback d-block">
@@ -78,11 +78,11 @@
         </div>
 
         <!-- CONTACTO -->
-        <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem;">
-          <h5 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800;"><i class="bi bi-telephone me-2"></i>Datos de Contacto</h5>
+        <div>
+          <h5><i class="bi bi-telephone me-2"></i>Datos de Contacto</h5>
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <label for="{{ form.email.id_for_label }}" class="form-label fw-bold" style="color: var(--cyan);">Correo *</label>
+              <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Correo *</label>
               {{ form.email }}
               {% if form.email.errors %}
                 <div class="invalid-feedback d-block">
@@ -91,7 +91,7 @@
               {% endif %}
             </div>
             <div class="col-12 col-md-6">
-              <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold" style="color: var(--cyan);">Número de Teléfono</label>
+              <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">Número de Teléfono</label>
               {{ form.telefono }}
               {% if form.telefono.errors %}
                 <div class="invalid-feedback d-block">
@@ -103,11 +103,11 @@
         </div>
 
         <!-- CLASIFICACIÓN -->
-        <div style="background: linear-gradient(135deg, rgba(77, 168, 218, 0.1) 0%, rgba(77, 168, 218, 0.05) 100%); border-left: 5px solid var(--cyan); padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem;">
-          <h5 style="color: var(--cyan); margin-bottom: 1rem; font-weight: 800;"><i class="bi bi-tag me-2"></i>Clasificación</h5>
+        <div>
+          <h5><i class="bi bi-tag me-2"></i>Clasificación</h5>
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <label for="{{ form.tipo_proveedor.id_for_label }}" class="form-label fw-bold" style="color: var(--cyan);">Tipo de Proveedor *</label>
+              <label for="{{ form.tipo_proveedor.id_for_label }}" class="form-label fw-bold">Tipo de Proveedor *</label>
               {{ form.tipo_proveedor }}
               {% if form.tipo_proveedor.errors %}
                 <div class="invalid-feedback d-block">
@@ -116,7 +116,7 @@
               {% endif %}
             </div>
             <div class="col-12 col-md-6">
-              <label for="{{ form.estado.id_for_label }}" class="form-label fw-bold" style="color: var(--cyan);">Estado *</label>
+              <label for="{{ form.estado.id_for_label }}" class="form-label fw-bold">Estado *</label>
               {{ form.estado }}
               {% if form.estado.errors %}
                 <div class="invalid-feedback d-block">

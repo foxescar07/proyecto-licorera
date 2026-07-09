@@ -12,6 +12,8 @@ urlpatterns = [
     path('eliminar/<int:id>/', views.eliminar_proveedor, name='eliminar_proveedor'),
     path('compras/', views.lista_compras, name='lista_compras'),
     path('registrar-compra/', views.registrar_compra, name='registrar_compra'),
+    path('compras/<int:compra_id>/pago/', views.guardar_pago_compra, name='guardar_pago_compra'),
+    path('compras/<int:compra_id>/cambiar-estado/', views.cambiar_estado_compra, name='cambiar_estado_compra'),
 
     # Órdenes de Compra
     path('ordenes/', views.listar_ordenes, name='listar_ordenes'),
