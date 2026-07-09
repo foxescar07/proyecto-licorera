@@ -278,101 +278,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<div id="salida-config"
+     data-chart-motivos="{{ chart_motivos_data|safe }}"
+     data-lotes='{% load json %}{{ lotes_json|safe }}'
+     class="d-none"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-new Chart(document.getElementById('chartMotivos').getContext('2d'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Venta','Merma','Daño','Vencido'],
-    datasets: [{
-      data: {{ chart_motivos_data|safe }},
-      backgroundColor: ['#4DA8DA','#1c6ef3','#3ce7d0','#9b59b6'],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    cutout: '74%'
-  }
-});
-
-const lotesData = {
-  {% for p in productos %}{% for pr in p.presentaciones.all %}
-  "{{ pr.pk }}": {
-    nombre: "{{ p.nombre }} — {{ pr.nombre }}",
-    stock: {{ pr.cantidad }},
-    lotes: [{% for lote in pr.lotes.all %}{
-      numero: "{{ lote.numero_lote }}",
-      cantidad: {{ lote.stock_actual|default:0 }},
-      vence: "{% if lote.fecha_vencimiento %}{{ lote.fecha_vencimiento|date:'d/m/Y' }}{% else %}—{% endif %}"
-    },{% endfor %}]
-  },
-  {% endfor %}{% endfor %}
-};
-
-const sel             = document.getElementById('select-presentacion');
-const selectLoteForm  = document.getElementById('select-lote-form');
-const selectMotivo    = document.getElementById('select-motivo');
-const badgeWrap       = document.getElementById('stock-badge-wrap');
-const badgeVal        = document.getElementById('stock-badge-val');
-const inputQty        = document.getElementById('input-cantidad');
-const alertaExceso    = document.getElementById('alerta-exceso');
-
-// Dropdown Presentación: sincroniza texto del botón + select oculto + stock
-document.querySelectorAll('.presentacion-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    sel.value = item.dataset.value;
-    document.getElementById('presentacion-label').textContent = item.textContent.trim();
-    document.getElementById('presentacion-btn').classList.remove('sal-campo-error');
-    sel.dispatchEvent(new Event('change'));
-  });
-});
-
-// Dropdown Lote: sincroniza texto del botón + select oculto
-document.querySelectorAll('.lote-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    selectLoteForm.value = item.dataset.value;
-    document.getElementById('lote-label').textContent = item.textContent.trim();
-  });
-});
-
-// Dropdown Motivo: sincroniza texto del botón + select oculto
-document.querySelectorAll('.motivo-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    selectMotivo.value = item.dataset.value;
-    document.getElementById('motivo-label').textContent = item.textContent.trim();
-  });
-});
-
-// Al cambiar la presentación: muestra stock y filtra lotes del select oculto
-sel.addEventListener('change', function () {
-  const d = lotesData[this.value];
-  Array.from(selectLoteForm.options).forEach(opt => {
-    if (!opt.value) { opt.selected = true; return; }
-    opt.style.display = opt.dataset.presentacion === this.value ? '' : 'none';
-  });
-  if (!d) { badgeWrap.classList.add('d-none'); return; }
-  badgeVal.textContent = d.stock;
-  badgeWrap.classList.remove('d-none');
-});
-
-inputQty.addEventListener('input', function () {
-  const d = lotesData[sel.value];
-  alertaExceso.classList.toggle('d-none', !(d && +this.value > d.stock));
-});
-
-// Validación manual: como el select real ya no tiene "required" visible, revisamos antes de enviar
-document.getElementById('form-salida').addEventListener('submit', function (e) {
-  if (!sel.value) {
-    e.preventDefault();
-    const btn = document.getElementById('presentacion-btn');
-    btn.classList.add('sal-campo-error');
-    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-});
-</script>
+<script src="{% static 'js/inventario/registrar_salida.js' %}"></script>
 {% endblock %}

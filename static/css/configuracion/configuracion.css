@@ -414,3 +414,44 @@ input:checked + .slider-sw::before { transform: translateX(18px); }
 }
 .cfg-backup-item__nombre { color: var(--texto); font-weight: 600; }
 .cfg-backup-item__meta   { color: var(--texto-muted); font-size: .7rem; margin-top: .15rem; }
+/* Previsualizaciones de degradados de los temas */
+.cfg-preview-oscuro { background: linear-gradient(135deg, #011936, #0a2240); }
+.cfg-preview-claro { background: linear-gradient(135deg, #f0f4f8, #dde8f0); }
+.cfg-preview-contraste { background: #000; border: 2px solid #fff; }
+.cfg-preview-basecys { background: #D9A441; }
+.cfg-preview-sepia { background: linear-gradient(135deg, #1a0f05, #3d2b14); }
+
+/* Ajustes globales de iconos inline */
+.cfg-icon-inline {
+    font-size: 1.2rem;
+    margin-bottom: .3rem;
+}
+
+/* Colores específicos de iconos */
+.cfg-icon-blue { color: var(--azul-claro); }
+.cfg-icon-blue-lg { color: var(--azul-claro); font-size: 1.3rem; }
+.cfg-icon-red { color: #e87070; }
+.cfg-icon-muted { color: var(--texto-muted); }
+
+/* Tipografía y márgenes reubicados */
+.cfg-text-muted-sm {
+    font-size: .68rem;
+    color: var(--texto-muted);
+    margin-top: .25rem;
+}
+.cfg-text-muted-xs {
+    font-size: .68rem;
+    color: var(--texto-muted);
+    margin-top: .3rem;
+}
+.cfg-hint-text {
+    font-size: .8rem;
+    color: var(--texto-muted);
+    margin-bottom: 1rem;
+}
+.cfg-title--nomargin {
+    margin-bottom: 0 !important;
+}
+.cfg-backups-list {
+    margin-top: 1.25rem;
+}

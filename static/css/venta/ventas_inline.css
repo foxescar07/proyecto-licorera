@@ -1,0 +1,265 @@
+/* ════════════════════════════════════════════════════════════════
+   VENTAS_INLINE.CSS — Estilos extraídos de HTML
+   Antes estaban inline style="..." — Ahora en este archivo
+   ════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────
+   CAJA.HTML — Modal de Caja/Login
+   ──────────────────────────────────────────────────────────────── */
+
+.caja-card-container {
+  width: 100%;
+  max-width: 380px;
+  border-radius: 16px;
+}
+
+.caja-info-container {
+  background: #E6F1FB;
+  color: #0C447C;
+}
+
+.caja-info-info {
+  background: #F1EFE8;
+  border: 0.5px solid #D3D1C7;
+}
+
+.caja-base-futura {
+  color: #1D9E75;
+}
+
+.caja-icono-cerrada {
+  color: #E24B4A;
+}
+
+.caja-icono-abierta {
+  color: #1D9E75;
+}
+
+.caja-badge-box {
+  width: 52px;
+  height: 52px;
+  background: #E6F1FB;
+}
+
+.caja-badge-icon {
+  color: #185FA5;
+}
+
+.caja-btn-punto-venta {
+  background: #185FA5;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.caja-btn-punto-venta:hover {
+  background: #134080;
+  color: #fff;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   VENTAS.HTML — Punto de Venta Principal
+   ──────────────────────────────────────────────────────────────── */
+
+/* Búsqueda de productos */
+#vistaProductos {
+  display: none;
+}
+
+#vistaPresentaciones {
+  display: none;
+}
+
+/* Secciones de descuento, pagos, total */
+#seccionDescuento {
+  display: none;
+}
+
+#desgloseDescuento {
+  display: none;
+}
+
+#totalGeneral {
+  display: none;
+  border-radius: 24px;
+  padding: 12px;
+}
+
+#seccionPagos {
+  display: none;
+}
+
+#carritoItems {
+  display: none;
+  margin-bottom: 12px;
+}
+
+#infoEfectivo {
+  display: none;
+}
+
+#filaFalta {
+  display: none;
+}
+
+#filaCambio {
+  display: none;
+}
+
+#comprobanteNombreArchivo {
+  display: none;
+}
+
+/* Botones de carrito */
+.caja-btn-registrar {
+  flex: 3 1 0% !important;
+}
+
+.caja-btn-cancelar {
+  flex: 1 1 0% !important;
+}
+
+/* Input de cliente */
+.caja-input-cliente-error {
+  color: var(--cys-rojo);
+}
+
+#errorCliente {
+  display: none;
+}
+
+/* Comprobante modal */
+.caja-comprobante-icon-check {
+  color: var(--cys-acento);
+}
+
+.caja-comprobante-icon-arrow {
+  color: var(--cys-acento);
+}
+
+/* Input file oculto */
+#inputLogoEmpresa {
+  display: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   VENTAS_DIA.HTML — Reporte Diario
+   ──────────────────────────────────────────────────────────────── */
+
+#sinResultadosDia {
+  display: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   SVG GRÁFICOS — Círculos y barras
+   ──────────────────────────────────────────────────────────────── */
+
+.cys-circular-svg {
+  width: 120px;
+  height: 120px;
+}
+
+/* Barra de progreso dinámica */
+.cys-rank-fill-dynamic {
+  width: var(--porcentaje, 0%);
+  display: block;
+}
+
+/* Elemento oculto para datos */
+.hidden-data-container {
+  display: none;
+}
+
+/* Estilos de tabla de historial */
+.cys-hist-table th {
+  text-align: left;
+}
+
+.cys-hist-table-th-num {
+  width: 60px;
+  text-align: center;
+}
+
+.cys-hist-table-th-cant {
+  text-align: center;
+  width: 80px;
+}
+
+.cys-hist-table-th-precio {
+  text-align: right;
+  width: 130px;
+}
+
+.cys-hist-table-th-total {
+  text-align: right;
+  width: 130px;
+}
+
+.cys-hist-table-th-fecha {
+  width: 160px;
+}
+
+.cys-hist-table-th-estado {
+  text-align: center;
+  width: 110px;
+}
+
+.cys-hist-table-th-acciones {
+  width: 60px;
+}
+
+/* Tabla de historial — filas */
+.cys-hist-id {
+  text-align: center;
+}
+
+.cys-hist-cantidad {
+  text-align: center;
+  color: #fff;
+  font-weight: 700;
+}
+
+.cys-hist-precio-muted {
+  text-align: right;
+  color: var(--cys-texto-muted);
+}
+
+.cys-hist-total {
+  text-align: right;
+}
+
+.cys-hist-total-alineado {
+  text-align: right;
+}
+
+/* Botones flex en modales */
+.caja-btn-modal-flex {
+  flex: 1;
+}
+
+.caja-btn-modal-flex-center {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Iconos con color acento */
+.caja-icono-acento {
+  color: var(--cys-acento);
+}
+
+/* Centrado de celdas */
+.cys-td-estado {
+  text-align: center;
+}
+
+.cys-cliente-cell-subtitle {
+  font-size: 0.7rem;
+  color: var(--cys-texto-muted);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   RESPONSIVIDAD EN TABLA
+   ──────────────────────────────────────────────────────────────── */
+
+@media print {
+  /* Estilos para impresión si es necesario */
+}
