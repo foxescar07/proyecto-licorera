@@ -1,0 +1,41 @@
+/* ============================================================
+   ASIDE/SIDEBAR — ESTILOS EN LÍNEA EXTRAÍDOS
+   ============================================================ */
+
+/* Contenedores flex para links padres */
+.sb-link-parent-flex {
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Link dentro del contenedor flex */
+.sb-link-parent-inner {
+  color: inherit;
+  padding: 10px 14px;
+}
+
+/* Botones chevron para submenús */
+.sb-submenu-toggle {
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  padding: 10px 14px !important;
+  cursor: pointer !important;
+}
+
+/* Links flex-grow */
+.sb-link-flex-grow {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2 !important;
+  flex-grow: 1 !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  padding: 10px 14px !important;
+}
+
+/* Span para nombres de menú */
+.sb-link-flex-grow > span {
+  flex-grow: 1;
+}
