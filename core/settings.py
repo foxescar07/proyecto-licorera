@@ -1,13 +1,14 @@
 from pathlib import Path
+from decouple import config, Csv
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-uggsyqrry&+w9=_u7vsjy&74f9#^11p(*$v7$fmgw(tvgb6s6q'
+SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,6 +101,6 @@ EMAIL_HOST          = 'smtp.gmail.com'
 EMAIL_PORT          = 587
 EMAIL_USE_TLS       = True
 EMAIL_USE_SSL       = False
-EMAIL_HOST_USER     = 'licoreracys@gmail.com'
-EMAIL_HOST_PASSWORD = 'yjhwcdkgpqcdnebp'
-DEFAULT_FROM_EMAIL  = 'CYS Ltda <licoreracys@gmail.com>'
+EMAIL_HOST_USER     = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL  = f'CYS Ltda <{EMAIL_HOST_USER}>'

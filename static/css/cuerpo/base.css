@@ -875,3 +875,22 @@ body.sidebar-open .cys-main {
   display: inline-block;
   animation: campanaAlerta 3s ease-in-out infinite;
 }
+
+/* ============================================================
+   DROPDOWN DE NOTIFICACIONES
+   ============================================================ */
+#notif-dropdown-menu {
+  background: #0d1b2a !important;
+}
+#notif-dropdown-menu .notif-item:hover,
+#notif-dropdown-menu .notif-item:focus,
+#notif-dropdown-menu .dropdown-item:hover,
+#notif-dropdown-menu .dropdown-item:focus {
+  background: rgba(77, 168, 218, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+#notif-dropdown-menu .notif-footer:hover,
+#notif-dropdown-menu .notif-footer:focus {
+  background: rgba(77, 168, 218, 0.12) !important;
+  color: #4DA8DA !important;
+}

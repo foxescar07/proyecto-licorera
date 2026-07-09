@@ -301,13 +301,14 @@ class DetalleDevolucion(models.Model):
         null=True,
         blank=True,
         related_name='detalles_devolucion',
-        help_text="Producto devuelto (referencia directa, opcional)"
+        help_text="Producto devuelto (referencia directa, opcionxxal)"
     )
     presentacion = models.ForeignKey(
-        PresentacionProducto,
-        on_delete=models.CASCADE,
-        related_name='detalles_devolucion',
-        help_text="Presentación del producto devuelto"
+       PresentacionProducto,
+       on_delete=models.CASCADE,
+       related_name='detalles_devolucion',
+       default=1,
+       help_text="Presentación del producto devuelto"
     )
     lote = models.ForeignKey(
         'inventario.Lote',
