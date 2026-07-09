@@ -59,8 +59,8 @@
 
         <!-- TABLA PRODUCTOS -->
         {% if devolucion.detalles.all %}
-        <div style="margin-bottom: 2rem;">
-          <h3 style="color: #7ecfef; margin-bottom: 1rem; font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div class="productos-section">
+          <h3 class="productos-title">
             <i class="bi bi-box-seam me-2"></i>Productos a Devolver
           </h3>
           <table class="productos-table">
@@ -70,7 +70,7 @@
                 <th>Presentación</th>
                 <th>Cantidad</th>
                 <th>Precio Unitario</th>
-                <th style="text-align: right;">Subtotal</th>
+                <th class="precio-right">Subtotal</th>
               </tr>
             </thead>
             <tbody>
@@ -116,7 +116,7 @@
             </div>
             <div class="resumen-item">
               <div class="resumen-label">Estado</div>
-              <div style="margin-top: 0.5rem;">
+              <div class="estado-margin-top">
                 <span class="estado-badge">
                   <i class="bi bi-check-circle me-1"></i>Registrada
                 </span>
