@@ -1,7 +1,9 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/cuerpo/header-inline.css' %}">
 <header class="cys-header">
+<header class="cys-header" data-url-stock-status="{% url 'stock_status' %}">
     <div class="cys-header__brand">
-        <img src="{% static 'img/logo.jpeg' %}" alt="Logo CYS" class="cys-header__logo">
+        <img src="{% static 'img/logo.jpeg' %}" alt="Logo CYS" class="cys-header__logo" loading="lazy">
         <div>
             <div class="cys-header__title">Tablero de Control</div>
             <div class="cys-header__sub">
@@ -18,48 +20,41 @@
             <div id="fecha" class="cys-header__clock-date">Cargando fecha...</div>
         </div>
 
-        <div style="width:1px; height:32px; background:rgba(226,232,240,.15);"></div>
+        <div class="header-divider"></div>
 
         <div class="dropdown">
-            <button id="notif-bell-btn" class="btn p-0 position-relative"
+            <button id="notif-bell-btn" class="btn p-0 position-relative notif-bell-btn"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     aria-expanded="false"
-                    aria-label="Notificaciones"
-                    style="background:transparent; border:none; color:rgba(226,232,240,.85); line-height:1;">
-                <i id="notif-bell-icon" class="bi bi-bell" style="font-size:1.6rem;"></i>
-                <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none"
-                      style="background:#4DA8DA; font-size:10px; min-width:18px; padding:3px 6px;
-                             border:2px solid var(--azul-oscuro);">0</span>
+                    aria-label="Notificaciones">
+                <i id="notif-bell-icon" class="bi bi-bell notif-bell-icon"></i>
+                <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none notif-badge">0</span>
             </button>
 
-            <div class="dropdown-menu dropdown-menu-end p-0"
-                style="border:1px solid rgba(77,168,218,.25); width:290px; border-radius:10px; overflow:hidden;
-                        background:#0d1f35; color:#e2e8f0;">
+            <div class="dropdown-menu dropdown-menu-end p-0 notif-dropdown-menu"
+                id="notif-dropdown-menu">
 
-                <div class="d-flex" style="border-bottom:1px solid rgba(255,255,255,.06);">
+                <div class="d-flex notif-tabs-divider">
                     <button id="tab-alertas" type="button" onclick="notifTab('alertas')"
-                            class="btn btn-sm flex-fill rounded-0 fw-bold"
-                            style="font-size:11px; color:#4DA8DA; border-bottom:2px solid #4DA8DA;">
+                            class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn active">
                         Alertas
                     </button>
                     <button id="tab-historial" type="button" onclick="notifTab('historial')"
-                            class="btn btn-sm flex-fill rounded-0 fw-bold"
-                            style="font-size:11px; color:rgba(226,232,240,.4); border-bottom:2px solid transparent;">
+                            class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn">
                         Historial
                     </button>
                 </div>
 
-                <div id="panel-alertas" style="max-height:320px; overflow-y:auto;">
-                    <div class="text-center py-3" style="font-size:12px; color:rgba(226,232,240,.4);">Cargando…</div>
+                <div id="panel-alertas" class="notif-panel">
+                    <div class="text-center py-3 notif-empty-text">Cargando…</div>
                 </div>
 
-                <div id="panel-historial" class="d-none" style="max-height:320px; overflow-y:auto;">
-                    <div class="text-center py-3" style="font-size:12px; color:rgba(226,232,240,.4);">Sin notificaciones aún</div>
+                <div id="panel-historial" class="d-none notif-panel">
+                    <div class="text-center py-3 notif-empty-text">Sin notificaciones aún</div>
                 </div>
 
-                <a class="dropdown-item text-center py-2" href="{% url 'gestion_stock' %}"
-                   style="font-size:12px; color:#4DA8DA; border-top:1px solid rgba(255,255,255,.06);">
+                <a class="dropdown-item text-center py-2 notif-footer-link" href="{% url 'gestion_stock' %}">
                     Ver stock completo →
                 </a>
             </div>
@@ -76,12 +71,12 @@
 
   window.notifTab = function (tab) {
     const esAlertas = tab === 'alertas';
+    const tabAlertas = document.getElementById('tab-alertas');
+    const tabHistorial = document.getElementById('tab-historial');
     document.getElementById('panel-alertas').classList.toggle('d-none', !esAlertas);
     document.getElementById('panel-historial').classList.toggle('d-none', esAlertas);
-    document.getElementById('tab-alertas').style.color = esAlertas ? '#4DA8DA' : 'rgba(226,232,240,.4)';
-    document.getElementById('tab-alertas').style.borderBottomColor = esAlertas ? '#4DA8DA' : 'transparent';
-    document.getElementById('tab-historial').style.color = esAlertas ? 'rgba(226,232,240,.4)' : '#4DA8DA';
-    document.getElementById('tab-historial').style.borderBottomColor = esAlertas ? 'transparent' : '#4DA8DA';
+    tabAlertas.classList.toggle('active', esAlertas);
+    tabHistorial.classList.toggle('active', !esAlertas);
   };
 
   function guardar() {
@@ -141,30 +136,38 @@
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' }
     })
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(r => {
+        if (!r.ok) throw new Error(`Error ${r.status}: ${r.statusText}`);
+        return r.json();
+      })
       .then(data => {
-        const criticos = data.criticos || [];
-        const bajos = data.bajos || [];
+        if (!data || typeof data !== 'object') throw new Error('Respuesta inválida del servidor');
+        const criticos = Array.isArray(data.criticos) ? data.criticos : [];
+        const bajos = Array.isArray(data.bajos) ? data.bajos : [];
         renderAlertas(criticos, bajos);
 
         let hayNuevos = false;
         [...criticos.map(p => ({ ...p, nivel: 'critico' })), ...bajos.map(p => ({ ...p, nivel: 'bajo' }))]
           .forEach(p => {
-            const key = p.nombre + '|' + p.nivel;
-            if (!vistosPrevios.has(key)) {
-              historialNotif.unshift({
-                nombre: p.nombre, nivel: p.nivel, cantidad: p.total_stock ?? p.cantidad,
-                fecha: new Date().toLocaleString('es-CO', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
-              });
-              vistosPrevios.add(key);
-              hayNuevos = true;
+            if (p && p.nombre) {
+              const key = p.nombre + '|' + p.nivel;
+              if (!vistosPrevios.has(key)) {
+                historialNotif.unshift({
+                  nombre: p.nombre, nivel: p.nivel, cantidad: p.total_stock ?? p.cantidad,
+                  fecha: new Date().toLocaleString('es-CO', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
+                });
+                vistosPrevios.add(key);
+                hayNuevos = true;
+              }
             }
           });
         if (hayNuevos) { guardar(); renderHistorial(); }
 
         actualizarBadgeYBounce(data.total_alertas ?? (criticos.length + bajos.length), hayNuevos);
       })
-      .catch(() => {});
+      .catch(error => {
+        console.error('Error actualizando notificaciones:', error);
+      });
   }
 
   renderHistorial();
@@ -172,3 +175,4 @@
   setInterval(actualizar, INTERVALO);
 })();
 </script>
+<script src="{% static 'js/cuerpo/header.js' %}" defer></script>
