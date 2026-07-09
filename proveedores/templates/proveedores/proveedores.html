@@ -242,11 +242,7 @@
         </div>
 
         <div class="top-bar">
-          {% if p.total_compras > 0 %}
-            <div class="bar-visual" data-position="{{ forloop.counter }}" style="width: {% widthratio p.total_compras max_compras 100 %}%;"></div>
-          {% else %}
-            <div class="bar-visual" data-position="{{ forloop.counter }}" style="width: 1%;"></div>
-          {% endif %}
+          <div class="bar-visual" data-position="{{ forloop.counter }}" data-width="{{ p.bar_width }}"></div>
           <span class="bar-monto">${{ p.total_compras|floatformat:0 }}</span>
         </div>
 
@@ -710,39 +706,5 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
-<script>
-$(document).ready(function() {
-  var table = $('#tablaProveedores').DataTable({
-    paging: true,
-    searching: true,
-    info: true,
-    lengthChange: false,
-    pageLength: 10,
-    ordering: true,
-    responsive: true,
-    language: {
-      info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
-      infoEmpty: "Mostrando 0 a 0 de 0 proveedores",
-      paginate: { first:'«', previous:'‹', next:'›', last:'»' }
-    },
-    dom: 'rt<"cys-hv-table-footer"ip>'
-  });
-
-  // Conectar input personalizado
-  $('#buscar-proveedores').on('keyup', function() {
-    table.search(this.value).draw();
-  });
-
-  // Sincronizar export (si se usan filtros de fecha u otros parámetros)
-  function syncExportProv() {
-    // ejemplo: añadir query de búsqueda actual si se requiere
-    var q = $('#buscar-proveedores').val() || '';
-    var p = q ? ('&q=' + encodeURIComponent(q)) : '';
-    $('#btn-export-excel-prov').attr('href', '?export=excel&tipo=proveedores' + p);
-    $('#btn-export-pdf-prov').attr('href',   '?export=pdf&tipo=proveedores' + p);
-  }
-  $('#buscar-proveedores').on('keyup change', syncExportProv);
-  syncExportProv();
-});
-</script>
+<script src="{% static 'js/proveedores/proveedores.js' %}"></script>
 {% endblock %}
