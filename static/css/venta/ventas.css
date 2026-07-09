@@ -1107,3 +1107,173 @@
   font-size: 0.82rem;
   margin-bottom: 1rem;
 }
+/* ── COMPROBANTE DE PAGO ── */
+.cys-comprobante-box {
+  background: rgba(77, 168, 218, 0.04);
+  border: 1px dashed var(--cys-borde);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.cys-comprobante-titulo {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: .6rem;
+}
+
+.cys-comprobante-titulo i { color: var(--cys-acento); }
+
+.cys-comprobante-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(77, 168, 218, 0.06);
+  border: 1px solid var(--cys-borde);
+  border-radius: 10px;
+  padding: .6rem .8rem;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.cys-comprobante-input-wrap:hover,
+.cys-comprobante-input-wrap:focus-within {
+  border-color: var(--cys-acento);
+  background: rgba(77, 168, 218, 0.1);
+}
+
+.cys-comprobante-icono {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(77, 168, 218, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cys-acento);
+  flex-shrink: 0;
+}
+
+.cys-comprobante-input-wrap input[type="file"] {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: .8rem;
+}
+
+.cys-comprobante-input-wrap input[type="file"]::file-selector-button {
+  background: var(--cys-acento);
+  color: #001f38;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: .72rem;
+  font-weight: 700;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.cys-comprobante-nota {
+  font-size: .68rem;
+  color: var(--cys-texto-muted);
+  margin-top: .5rem;
+}/* ══════════════════════════════════════════════════════
+   AGREGAR AL FINAL DE ventas.css
+   Refactor de inline styles -> clases cys- (Estado de Caja,
+   tarjetas de producto/presentación y filas del carrito)
+   ══════════════════════════════════════════════════════ */
+
+/* ── Estado de Caja (tarjetas KPI) ── */
+.cys-caja-card {
+  background: var(--cys-bg-card);
+  border: 1px solid var(--cys-borde);
+  border-left: 3px solid var(--cys-acento);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+.cys-caja-card--abierta  { border-left-color: #2ed573; }
+.cys-caja-card--cerrada  { border-left-color: var(--cys-rojo); }
+.cys-caja-card--base     { border-left-color: var(--cys-acento); }
+.cys-caja-card--ventas   { border-left-color: var(--cys-verde); }
+
+.cys-caja-card-icono-box {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cys-caja-card-icono-box--verde  { background: rgba(46, 213, 115, 0.12); }
+.cys-caja-card-icono-box--rojo   { background: rgba(231, 76, 60, 0.12); }
+.cys-caja-card-icono-box--acento { background: rgba(77, 168, 218, 0.12); }
+
+.cys-caja-card-icono-box i { font-size: 1rem; }
+.cys-caja-card-icono-box--verde i  { color: #2ed573; }
+.cys-caja-card-icono-box--rojo i   { color: var(--cys-rojo); }
+.cys-caja-card-icono-box--acento i { color: var(--cys-acento); }
+.cys-caja-card-icono-box--verde i.bi-circle-fill { font-size: 0.6rem; }
+
+.cys-caja-badge {
+  font-size: .62rem; font-weight: 700;
+  border-radius: 6px; padding: 3px 9px;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.cys-caja-badge--verde  { color: #2ed573; background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.25); }
+.cys-caja-badge--rojo   { color: var(--cys-rojo); background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.25); }
+.cys-caja-badge--acento { color: var(--cys-acento); background: rgba(77, 168, 218, 0.1); border: 1px solid rgba(77, 168, 218, 0.25); }
+
+.cys-caja-titulo       { font-size: 1.35rem; font-weight: 800; line-height: 1.2; }
+.cys-caja-titulo--verde  { color: #2ed573; }
+.cys-caja-titulo--rojo   { color: var(--cys-rojo); }
+.cys-caja-titulo--acento { color: var(--cys-acento); }
+.cys-caja-titulo--muted  { color: var(--cys-texto-muted); }
+
+.cys-caja-sub { font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px; }
+.cys-caja-sub strong { color: #fff; font-weight: 700; }
+
+/* ── Tarjetas de categoría/producto generadas por JS ── */
+.cys-cat-card-clickable { cursor: pointer; }
+
+/* ── Presentaciones (lista clickeable generada por JS) ── */
+.cys-pres-item {
+  display: flex; justify-content: space-between; align-items: center;
+  border-radius: .75rem; padding: 1rem;
+  background: rgba(77,168,218,0.05);
+  border: 1px solid var(--cys-borde);
+  cursor: pointer;
+}
+.cys-pres-item--sin-stock { cursor: not-allowed; opacity: .5; }
+.cys-pres-nombre { font-weight: 700; color: #fff; font-size: .9rem; }
+.cys-pres-meta   { font-size: .72rem; color: var(--cys-texto-muted); }
+.cys-pres-precio { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--cys-acento); }
+.cys-pres-precio--sin-stock { color: var(--cys-rojo); }
+
+/* ── Fila del carrito (generada por JS) ── */
+.cys-carrito-row {
+  display: flex; justify-content: space-between; align-items: center;
+  border-radius: .75rem; padding: .5rem .75rem;
+  background: rgba(77,168,218,0.04);
+  border: 1px solid var(--cys-borde);
+}
+.cys-carrito-nombre {
+  font-weight: 700; font-size: .83rem; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cys-carrito-meta { font-size: .7rem; color: var(--cys-texto-muted); }
+.cys-carrito-btn-cant {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(77,168,218,0.1); border: 1px solid var(--cys-borde);
+  color: #fff; font-size: .8rem; line-height: 1; padding: 0;
+}
+.cys-carrito-cant { min-width: 20px; text-align: center; font-weight: 700; color: #fff; }
+.cys-carrito-subtotal {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--cys-acento);
+  min-width: 70px; text-align: right; font-size: .9rem;
+}
+.cys-carrito-btn-quitar {
+  background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.2);
+  color: #e74c3c; border-radius: 6px; padding: 2px 7px; font-size: .8rem;
+}

@@ -42,58 +42,58 @@
 
       <div class="col-12 col-md-4">
         {% if caja_abierta %}
-        <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-left: 3px solid #2ed573; border-radius: 12px; padding: 1.25rem;">
+        <div class="cys-caja-card cys-caja-card--abierta">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(46, 213, 115, 0.12); display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-circle-fill" style="color: #2ed573; font-size: 0.6rem;"></i>
+            <div class="cys-caja-card-icono-box cys-caja-card-icono-box--verde">
+              <i class="bi bi-circle-fill"></i>
             </div>
-            <span style="font-size: .62rem; font-weight: 700; color: #2ed573; background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.25); border-radius: 6px; padding: 3px 9px; text-transform: uppercase; letter-spacing: 0.4px;">Abierta</span>
+            <span class="cys-caja-badge cys-caja-badge--verde">Abierta</span>
           </div>
-          <div style="font-size: 1.35rem; font-weight: 800; color: #2ed573; line-height: 1.2;">CAJA ABIERTA</div>
-          <div style="font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px;">Apertura: <span style="color:#fff; font-weight:700;">{{ caja_abierta.creado_en|time:"H:i" }}</span></div>
+          <div class="cys-caja-titulo cys-caja-titulo--verde">CAJA ABIERTA</div>
+          <div class="cys-caja-sub">Apertura: <strong>{{ caja_abierta.creado_en|time:"H:i" }}</strong></div>
         </div>
         {% else %}
-        <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-left: 3px solid var(--cys-rojo); border-radius: 12px; padding: 1.25rem;">
+        <div class="cys-caja-card cys-caja-card--cerrada">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(231, 76, 60, 0.12); display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-lock-fill" style="color: var(--cys-rojo); font-size: 1rem;"></i>
+            <div class="cys-caja-card-icono-box cys-caja-card-icono-box--rojo">
+              <i class="bi bi-lock-fill"></i>
             </div>
-            <span style="font-size: .62rem; font-weight: 700; color: var(--cys-rojo); background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.25); border-radius: 6px; padding: 3px 9px; text-transform: uppercase; letter-spacing: 0.4px;">Cerrada</span>
+            <span class="cys-caja-badge cys-caja-badge--rojo">Cerrada</span>
           </div>
-          <div style="font-size: 1.35rem; font-weight: 800; color: var(--cys-rojo); line-height: 1.2;">CAJA CERRADA</div>
-          <div style="font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px;">Aún no se ha abierto hoy</div>
+          <div class="cys-caja-titulo cys-caja-titulo--rojo">CAJA CERRADA</div>
+          <div class="cys-caja-sub">Aún no se ha abierto hoy</div>
         </div>
         {% endif %}
       </div>
 
       <div class="col-12 col-md-4">
-        <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-left: 3px solid var(--cys-acento); border-radius: 12px; padding: 1.25rem;">
+        <div class="cys-caja-card cys-caja-card--base">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(77, 168, 218, 0.12); display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-wallet2" style="color: var(--cys-acento); font-size: 1rem;"></i>
+            <div class="cys-caja-card-icono-box cys-caja-card-icono-box--acento">
+              <i class="bi bi-wallet2"></i>
             </div>
-            <span style="font-size: .62rem; font-weight: 700; color: var(--cys-acento); background: rgba(77, 168, 218, 0.1); border: 1px solid rgba(77, 168, 218, 0.25); border-radius: 6px; padding: 3px 9px; text-transform: uppercase; letter-spacing: 0.4px;">Base</span>
+            <span class="cys-caja-badge cys-caja-badge--acento">Base</span>
           </div>
           {% if caja_abierta %}
-          <div style="font-size: 1.6rem; font-weight: 800; color: var(--cys-acento); line-height: 1.2;">${{ caja_abierta.monto_base|floatformat:0 }}</div>
-          <div style="font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px;">Monto de apertura</div>
+          <div class="cys-caja-titulo cys-caja-titulo--acento">${{ caja_abierta.monto_base|floatformat:0 }}</div>
+          <div class="cys-caja-sub">Monto de apertura</div>
           {% else %}
-          <div style="font-size: 1.6rem; font-weight: 800; color: var(--cys-texto-muted); line-height: 1.2;">—</div>
-          <div style="font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px;">Caja sin abrir</div>
+          <div class="cys-caja-titulo cys-caja-titulo--muted">—</div>
+          <div class="cys-caja-sub">Caja sin abrir</div>
           {% endif %}
         </div>
       </div>
 
       <div class="col-12 col-md-4">
-        <div style="background: var(--cys-bg-card); border: 1px solid var(--cys-borde); border-left: 3px solid var(--cys-verde); border-radius: 12px; padding: 1.25rem;">
+        <div class="cys-caja-card cys-caja-card--ventas">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(46, 213, 115, 0.12); display: flex; align-items: center; justify-content: center;">
-              <i class="bi bi-graph-up-arrow" style="color: var(--cys-verde); font-size: 1rem;"></i>
+            <div class="cys-caja-card-icono-box cys-caja-card-icono-box--verde">
+              <i class="bi bi-graph-up-arrow"></i>
             </div>
-            <span style="font-size: .62rem; font-weight: 700; color: var(--cys-verde); background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.25); border-radius: 6px; padding: 3px 9px; text-transform: uppercase; letter-spacing: 0.4px;">Hoy</span>
-            </div>
-          <div style="font-size: 1.6rem; font-weight: 800; color: var(--cys-verde); line-height: 1.2;">${{ total_dia|floatformat:0 }}</div>
-          <div style="font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px;">Total vendido hoy</div>
+            <span class="cys-caja-badge cys-caja-badge--verde">Hoy</span>
+          </div>
+          <div class="cys-caja-titulo cys-caja-titulo--verde">${{ total_dia|floatformat:0 }}</div>
+          <div class="cys-caja-sub">Total vendido hoy</div>
         </div>
       </div>
 
@@ -170,7 +170,7 @@
         </div>
 
         <div class="p-4">
-          <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta" novalidate>
+          <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             <!-- ── CLIENTE (OBLIGATORIO) ── -->
@@ -277,7 +277,7 @@
                       <i class="bi bi-credit-card-2-front"></i>
                       <span>Tarjeta</span>
                     </div>
-                    <input type="number" name="pago_tarjeta"
+                    <input type="number" name="pago_tarjeta" id="pagoTarjeta"
                            value="0" min="0"
                            class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
@@ -290,7 +290,7 @@
                       <i class="bi bi-arrow-left-right"></i>
                       <span>Transfer.</span>
                     </div>
-                    <input type="number" name="pago_transferencia"
+                    <input type="number" name="pago_transferencia" id="pagoTransferencia"
                            value="0" min="0"
                            class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
@@ -303,7 +303,7 @@
                       <i class="bi bi-phone"></i>
                       <span>Nequi</span>
                     </div>
-                    <input type="number" name="pago_nequi"
+                    <input type="number" name="pago_nequi" id="pagoNequi"
                            value="0" min="0"
                            class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
@@ -316,7 +316,7 @@
                       <i class="bi bi-phone-fill"></i>
                       <span>Daviplata</span>
                     </div>
-                    <input type="number" name="pago_daviplata"
+                    <input type="number" name="pago_daviplata" id="pagoDaviplata"
                            value="0" min="0"
                            class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
@@ -342,6 +342,23 @@
                   </div>
                 </div>
               </div>
+
+              <!-- ── INDICADOR DE COMPROBANTE (solo visible si el pago no es 100% efectivo) ── -->
+              <div id="comprobanteIndicador"
+                   role="button"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modalComprobante"
+                   style="display:none; align-items:center; gap:.7rem; margin-top:.75rem; padding:.7rem .9rem; border-radius:10px; cursor:pointer;
+                          background: rgba(77,168,218,0.06); border: 1px dashed rgba(77,168,218,0.35); transition: background .15s;">
+                <div style="width:34px; height:34px; border-radius:9px; background: rgba(77,168,218,0.14); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <i class="bi bi-paperclip" style="color: var(--cys-acento);"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div id="comprobanteIndicadorTitulo" style="font-size:.8rem; font-weight:700; color:#fff;">Adjuntar comprobante de pago</div>
+                  <div style="font-size:.68rem; color:var(--cys-texto-muted);">Requerido para transferencia, Nequi o Daviplata</div>
+                </div>
+                <i class="bi bi-chevron-right" style="color: var(--cys-acento);"></i>
+              </div>
             </div>
 
             <div class="d-flex gap-2">
@@ -351,6 +368,38 @@
               <button type="button" class="btn cys-btn-cancel" id="btnCancelarVenta" style="flex: 1 1 0%;">
                 <i class="bi bi-trash"></i>
               </button>
+            </div>
+
+            <!-- ══ MODAL: COMPROBANTE DE PAGO (ventana emergente) ══ -->
+            <div class="modal fade" id="modalComprobante" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content cys-modal-content">
+                  <div class="modal-header cys-modal-header">
+                    <h5 class="modal-title fw-bold cys-modal-titulo--acento">
+                      <i class="bi bi-paperclip me-2"></i>Comprobante de pago
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="cys-modal-subtexto mb-3">
+                      Adjunta la foto o PDF del comprobante de la transferencia, Nequi o Daviplata.
+                    </p>
+                    <div class="cys-comprobante-box mb-0" style="border:none; padding:0;">
+                      <div class="cys-comprobante-input-wrap">
+                        <div class="cys-comprobante-icono">
+                          <i class="bi bi-cloud-arrow-up"></i>
+                        </div>
+                        <input type="file" name="comprobante_pago" id="inputComprobante"
+                               accept="image/*,application/pdf">
+                      </div>
+                    </div>
+                    <div id="comprobanteNombreArchivo" class="cys-comprobante-nota mt-2" style="display:none;"></div>
+                    <button type="button" class="btn w-100 cys-btn-submit mt-3" data-bs-dismiss="modal">
+                      <i class="bi bi-check-circle me-1"></i> Listo
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </form>
@@ -508,6 +557,23 @@
           <div class="cys-detalle-item-total">${{ det.subtotal|floatformat:0 }}</div>
         </div>
         {% endfor %}
+
+        <!-- ── COMPROBANTE DE PAGO (solo si la venta tiene uno adjunto) ── -->
+        {% if venta.comprobante_pago %}
+        <div class="cys-modal-seccion-titulo mb-2 mt-3">Comprobante de pago</div>
+        <a href="{{ venta.comprobante_pago.url }}" target="_blank" rel="noopener" style="text-decoration:none;">
+          <div class="cys-comprobante-input-wrap" style="cursor:pointer;">
+            <div class="cys-comprobante-icono">
+              <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:.8rem; font-weight:700; color:#fff;">Ver comprobante</div>
+              <div style="font-size:.68rem; color:var(--cys-texto-muted);">Clic para abrir en una pestaña nueva</div>
+            </div>
+            <i class="bi bi-box-arrow-up-right" style="color:var(--cys-acento);"></i>
+          </div>
+        </a>
+        {% endif %}
 
         <div class="cys-total-contado-box mt-3">
           <span class="cys-total-contado-label">Total de la venta</span>
@@ -707,7 +773,7 @@ function tarjetaProductoHTML(prod) {
     : 0;
   const badge = badgeStock(prod.stock);
   return `
-    <div class="cys-cat-card-premium" style="cursor:pointer;">
+    <div class="cys-cat-card-premium cys-cat-card-clickable">
       <div class="cys-cat-card-top">
         <div class="cys-cat-card-icon"><i class="bi bi-box-seam"></i></div>
         <span class="cys-stock-badge ${badge.clase}">${badge.texto}</span>
@@ -748,7 +814,7 @@ function renderCategorias() {
     const div = document.createElement('div');
     div.className = 'col-6 col-md-4';
     div.innerHTML = `
-      <div class="cys-cat-card-premium cys-cat-card-premium--centrada" style="cursor:pointer;" data-cat-id="${cat.id}">
+      <div class="cys-cat-card-premium cys-cat-card-premium--centrada cys-cat-card-clickable" data-cat-id="${cat.id}">
         <div class="cys-cat-card-icon cys-cat-card-icon--lg">
           <i class="bi bi-tag-fill"></i>
         </div>
@@ -807,15 +873,12 @@ function abrirPresentaciones(prod) {
     const sinStock = pr.stock <= 0;
     const div = document.createElement('div');
     div.innerHTML = `
-      <div class="d-flex justify-content-between align-items-center rounded-3 p-3"
-           style="background:rgba(77,168,218,0.05); border:1px solid var(--cys-borde);
-                  cursor:${sinStock ? 'not-allowed' : 'pointer'};
-                  opacity:${sinStock ? '0.5' : '1'};">
+      <div class="cys-pres-item ${sinStock ? 'cys-pres-item--sin-stock' : ''}">
         <div>
-          <div style="font-weight:700; color:#fff; font-size:.9rem;">${pr.nombre}</div>
-          <div style="font-size:.72rem; color:var(--cys-texto-muted);">x${pr.unidades} unidades · Stock: ${pr.stock}</div>
+          <div class="cys-pres-nombre">${pr.nombre}</div>
+          <div class="cys-pres-meta">x${pr.unidades} unidades · Stock: ${pr.stock}</div>
         </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:800; color:${sinStock ? 'var(--cys-rojo)' : 'var(--cys-acento)'};">
+        <div class="cys-pres-precio ${sinStock ? 'cys-pres-precio--sin-stock' : ''}">
           ${sinStock ? 'Sin stock' : '$' + pr.precio.toLocaleString('es-CO')}
         </div>
       </div>`;
@@ -885,26 +948,18 @@ function renderCarrito() {
     subtotal += item.precio * item.cantidad;
 
     const row = document.createElement('div');
-    row.className = 'd-flex justify-content-between align-items-center rounded-3 p-2 px-3';
-    row.style.cssText = 'background:rgba(77,168,218,0.04); border:1px solid var(--cys-borde);';
+    row.className = 'cys-carrito-row';
     row.innerHTML = `
       <div style="flex:1; min-width:0;">
-        <div style="font-weight:700; font-size:.83rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          ${item.prodNombre}
-        </div>
-        <div style="font-size:.7rem; color:var(--cys-texto-muted);">${item.presNombre} · $${item.precio.toLocaleString('es-CO')}</div>
+        <div class="cys-carrito-nombre">${item.prodNombre}</div>
+        <div class="cys-carrito-meta">${item.presNombre} · $${item.precio.toLocaleString('es-CO')}</div>
       </div>
       <div class="d-flex align-items-center gap-2 ms-2">
-        <button type="button" onclick="cambiarCantidad(${idx}, -1)"
-                style="width:24px;height:24px;border-radius:50%;background:rgba(77,168,218,0.1);border:1px solid var(--cys-borde);color:#fff;font-size:.8rem;line-height:1;padding:0;">−</button>
-        <span style="min-width:20px;text-align:center;font-weight:700;color:#fff;">${item.cantidad}</span>
-        <button type="button" onclick="cambiarCantidad(${idx}, 1)"
-                style="width:24px;height:24px;border-radius:50%;background:rgba(77,168,218,0.1);border:1px solid var(--cys-borde);color:#fff;font-size:.8rem;line-height:1;padding:0;">+</button>
-        <span style="font-family:'Rajdhani',sans-serif; font-weight:700;color:var(--cys-acento);min-width:70px;text-align:right;font-size:.9rem;">
-          $${(item.precio * item.cantidad).toLocaleString('es-CO')}
-        </span>
-        <button type="button" onclick="quitarItem(${idx})"
-                style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:6px;padding:2px 7px;font-size:.8rem;">
+        <button type="button" class="cys-carrito-btn-cant" onclick="cambiarCantidad(${idx}, -1)">−</button>
+        <span class="cys-carrito-cant">${item.cantidad}</span>
+        <button type="button" class="cys-carrito-btn-cant" onclick="cambiarCantidad(${idx}, 1)">+</button>
+        <span class="cys-carrito-subtotal">$${(item.precio * item.cantidad).toLocaleString('es-CO')}</span>
+        <button type="button" class="cys-carrito-btn-quitar" onclick="quitarItem(${idx})">
           <i class="bi bi-trash"></i>
         </button>
       </div>`;
@@ -994,7 +1049,73 @@ function calcularPagado() {
 
 document.querySelectorAll('.pago-input').forEach(inp => inp.addEventListener('input', calcularPagado));
 
-// ══ VALIDACIÓN CLIENTE OBLIGATORIO ══
+// ══ COMPROBANTE DE PAGO (ventana emergente) ══
+// Solo se pide/muestra cuando el medio de pago es Transferencia, Nequi o Daviplata.
+const pagoTransferenciaInput = document.getElementById('pagoTransferencia');
+const pagoNequiInput         = document.getElementById('pagoNequi');
+const pagoDaviplataInput     = document.getElementById('pagoDaviplata');
+const comprobanteIndicador   = document.getElementById('comprobanteIndicador');
+const comprobanteTituloEl    = document.getElementById('comprobanteIndicadorTitulo');
+const inputComprobante       = document.getElementById('inputComprobante');
+const comprobanteNombreEl    = document.getElementById('comprobanteNombreArchivo');
+const modalComprobanteEl     = document.getElementById('modalComprobante');
+const modalComprobante       = new bootstrap.Modal(modalComprobanteEl);
+
+let comprobanteYaSugerido = false;
+
+function requiereComprobante() {
+  const t = parseFloat(pagoTransferenciaInput.value) || 0;
+  const n = parseFloat(pagoNequiInput.value) || 0;
+  const d = parseFloat(pagoDaviplataInput.value) || 0;
+  return (t > 0 || n > 0 || d > 0);
+}
+
+function actualizarEstadoComprobante() {
+  if (requiereComprobante()) {
+    comprobanteIndicador.style.display = 'flex';
+    // Abre la ventana emergente automáticamente la primera vez que se detecta
+    // un pago por transferencia/Nequi/Daviplata en esta venta.
+    if (!comprobanteYaSugerido) {
+      modalComprobante.show();
+      comprobanteYaSugerido = true;
+    }
+  } else {
+    comprobanteIndicador.style.display = 'none';
+    comprobanteYaSugerido = false;
+  }
+}
+
+[pagoTransferenciaInput, pagoNequiInput, pagoDaviplataInput].forEach(inp => {
+  inp.addEventListener('input', actualizarEstadoComprobante);
+});
+
+inputComprobante.addEventListener('change', function() {
+  if (this.files.length > 0) {
+    comprobanteNombreEl.style.display = 'block';
+    comprobanteNombreEl.textContent = 'Archivo adjunto: ' + this.files[0].name;
+    comprobanteTituloEl.textContent = 'Comprobante adjuntado';
+    comprobanteIndicador.style.background = 'rgba(46,213,115,0.08)';
+    comprobanteIndicador.style.borderColor = 'rgba(46,213,115,0.35)';
+  } else {
+    comprobanteNombreEl.style.display = 'none';
+    comprobanteTituloEl.textContent = 'Adjuntar comprobante de pago';
+    comprobanteIndicador.style.background = 'rgba(77,168,218,0.06)';
+    comprobanteIndicador.style.borderColor = 'rgba(77,168,218,0.35)';
+  }
+});
+
+function resetearComprobante() {
+  inputComprobante.value = '';
+  comprobanteNombreEl.style.display = 'none';
+  comprobanteNombreEl.textContent = '';
+  comprobanteTituloEl.textContent = 'Adjuntar comprobante de pago';
+  comprobanteIndicador.style.display = 'none';
+  comprobanteIndicador.style.background = 'rgba(77,168,218,0.06)';
+  comprobanteIndicador.style.borderColor = 'rgba(77,168,218,0.35)';
+  comprobanteYaSugerido = false;
+}
+
+// ══ VALIDACIÓN CLIENTE OBLIGATORIO + COMPROBANTE REQUERIDO ══
 document.getElementById('formVenta').addEventListener('submit', function(e) {
   const clienteVal = document.getElementById('inputClienteNombre').value.trim();
   const errorEl    = document.getElementById('errorCliente');
@@ -1010,6 +1131,12 @@ document.getElementById('formVenta').addEventListener('submit', function(e) {
   }
   errorEl.style.display = 'none';
   inputEl.classList.remove('cys-input-error');
+
+  if (requiereComprobante() && inputComprobante.files.length === 0) {
+    e.preventDefault();
+    modalComprobante.show();
+    return;
+  }
 });
 
 document.getElementById('inputClienteNombre').addEventListener('input', function() {
@@ -1023,6 +1150,7 @@ document.getElementById('btnCancelarVenta').addEventListener('click', function()
   if (carrito.length === 0 || confirm('¿Vaciar el carrito?')) {
     carrito = [];
     renderCarrito();
+    resetearComprobante();
   }
 });
 
