@@ -8,7 +8,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
 <link rel="stylesheet" href="{% static 'css/datatables.css' %}">
-<link rel="stylesheet" href="{% static 'js/producto/productos.js' %}">
 {% endblock %}
 
 {% block content %}
@@ -148,7 +147,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
-        <div id="crear-feedback" class="mb-3" style="display:none;"></div>
+        <div id="crear-feedback" class="mb-3 d-none"></div>
         <form id="form-nuevo-producto-modal">
           {% csrf_token %}
           <div class="row g-3">
@@ -283,7 +282,7 @@
           </div>
           <div class="col-6">
             <div class="prod-label">Código</div>
-            <div id="det-codigo" class="text-info fw-semibold" style="font-family:monospace;"></div>
+            <div id="det-codigo" class="text-info fw-semibold"></div>
           </div>
           <div class="col-6">
             <div class="prod-label">Categoría</div>
@@ -351,45 +350,42 @@
 
 {% block extra_js %}
 
+<div id="productos-config"
+     data-gestion-url="{% url 'gestion_productos' %}"
+     data-crear-url="{% url 'crear_producto' %}"
+     data-pres-url="{% url 'presentaciones_guardar' 0 %}"
+     data-csrf-token="{{ csrf_token }}"
+     data-next-path="{{ request.path }}"
+     data-productos='[
+       {% for producto in productos %}
+       {
+         "pk": {{ producto.pk }},
+         "nombre": "{{ producto.nombre|escapejs }}",
+         "codigo": "{{ producto.codigo|escapejs }}",
+         "categoria_pk": {{ producto.categoria.pk }},
+         "categoria_padre_pk": {% if producto.categoria.padre %}{{ producto.categoria.padre.pk }}{% else %}null{% endif %},
+         "categoria_nombre": "{{ producto.categoria.nombre|escapejs }}",
+         "stock_total": {{ producto.stock_total }},
+         "stock_critico": {% if producto.stock_critico %}true{% else %}false{% endif %},
+         "descripcion": "{{ producto.descripcion|default:''|escapejs }}",
+         "presentaciones": [
+           {% for pres in producto.presentaciones.all %}
+           {
+             "id": {{ pres.pk }},
+             "nombre": "{{ pres.nombre|escapejs }}",
+             "unidades": {{ pres.unidades }},
+             "precio": "{{ pres.precio }}",
+             "stock_actual": {% with s=pres.lotes.all %}{{ s|length }}{% endwith %}
+           }{% if not forloop.last %},{% endif %}
+           {% endfor %}
+         ]
+       }{% if not forloop.last %},{% endif %}
+       {% endfor %}
+     ]'
+     class="d-none"></div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
-
-<script>
-// ── Datos que Django debe rellenar (esto no se puede mover al .js externo) ──
-const GESTION_URL  = "{% url 'gestion_productos' %}";
-const CREAR_URL    = "{% url 'crear_producto' %}";
-const PRES_URL     = "{% url 'presentaciones_guardar' 0 %}";
-const CSRF_TOKEN   = "{{ csrf_token }}";
-const NEXT_PATH    = "{{ request.path }}";
-
-const todoProductos = [
-  {% for producto in productos %}
-  {
-    pk: {{ producto.pk }},
-    nombre: "{{ producto.nombre|escapejs }}",
-    codigo: "{{ producto.codigo|escapejs }}",
-    categoria_pk: {{ producto.categoria.pk }},
-    categoria_padre_pk: {% if producto.categoria.padre %}{{ producto.categoria.padre.pk }}{% else %}null{% endif %},
-    categoria_nombre: "{{ producto.categoria.nombre|escapejs }}",
-    stock_total: {{ producto.stock_total }},
-    stock_critico: {% if producto.stock_critico %}true{% else %}false{% endif %},
-    descripcion: "{{ producto.descripcion|default:''|escapejs }}",
-    presentaciones: [
-      {% for pres in producto.presentaciones.all %}
-      {
-        id: {{ pres.pk }},
-        nombre: "{{ pres.nombre|escapejs }}",
-        unidades: {{ pres.unidades }},
-        precio: "{{ pres.precio }}",
-        stock_actual: {% with s=pres.lotes.all %}{{ s|length }}{% endwith %}
-      }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ]
-  }{% if not forloop.last %},{% endif %}
-  {% endfor %}
-];
-</script>
-
-<script src="{% static 'js/producto/productos.js' %}"></script>
+<script src="{% static 'js/productos/productos.js' %}"></script>
 
 {% endblock %}
