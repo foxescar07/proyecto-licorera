@@ -61,6 +61,13 @@ def lista_proveedores(request):
     if max_compras == 0:
         max_compras = 1
 
+    # Calcular porcentaje de ancho para cada proveedor
+    for proveedor in proveedores:
+        if proveedor.total_compras > 0:
+            proveedor.bar_width = int((proveedor.total_compras / max_compras) * 100)
+        else:
+            proveedor.bar_width = 1
+
     # Paginación
     paginator = Paginator(proveedores, 10)  # 10 proveedores por página
     page_number = request.GET.get('page', 1)
