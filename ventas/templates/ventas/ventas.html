@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/ventas_pos.css' %}">
+<link rel="stylesheet" href="{% static 'css/venta/ventas_inline.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -128,7 +129,7 @@
           </div>
 
           <!-- Vista de Productos -->
-          <div id="vistaProductos" style="display:none;">
+          <div id="vistaProductos">
             <div class="d-flex align-items-center gap-2 mb-3">
               <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverProds-Cats">
               </button>
@@ -141,7 +142,7 @@
           </div>
 
           <!-- Vista de Presentaciones -->
-          <div id="vistaPresentaciones" style="display:none;">
+          <div id="vistaPresentaciones">
             <div class="d-flex align-items-center gap-2 mb-3">
               <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverProds">
                 <i class="bi bi-arrow-left"></i> Volver
@@ -171,7 +172,7 @@
             <!-- ── CLIENTE (OBLIGATORIO) ── -->
             <div class="mb-3 position-relative cys-input-icon-wrap cys-input-icon-wrap--con-label">
               <label class="cys-form-label">
-                Cliente <span style="color: var(--cys-rojo);">*</span>
+                Cliente <span class="caja-input-cliente-error">*</span>
               </label>
               <i class="bi bi-person"></i>
               <input type="text" name="cliente_nombre" id="inputClienteNombre"
@@ -181,7 +182,7 @@
               <input type="hidden" name="cliente_id" id="inputClienteId">
 
               <!-- Mensaje de error — mismo estilo inline que el resto de la UI -->
-              <div id="errorCliente" class="cys-campo-error" style="display:none;">
+              <div id="errorCliente" class="cys-campo-error">
                 <i class="bi bi-exclamation-circle"></i>El nombre del cliente es obligatorio
               </div>
 
@@ -205,14 +206,14 @@
             </div>
 
             <!-- ── ITEMS DEL CARRITO ── -->
-            <div id="carritoItems" style="display:none;" class="mb-3">
+            <div id="carritoItems" class="mb-3">
               <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
             </div>
 
             <div id="camposOcultos"></div>
 
             <!-- ── DESCUENTO MEJORADO ── -->
-            <div id="seccionDescuento" style="display:none;" class="mb-3">
+            <div id="seccionDescuento" class="mb-3">
               <div class="cys-descuento-box-nuevo">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <span class="cys-descuento-label">
@@ -223,7 +224,7 @@
                          class="form-control text-center cys-descuento-input">
                 </div>
                 <!-- Desglose de descuento -->
-                <div id="desgloseDescuento" style="display:none;" class="cys-descuento-desglose">
+                <div id="desgloseDescuento" class="cys-descuento-desglose">
                   <div class="cys-descuento-fila">
                     <span class="cys-descuento-fila-label">Subtotal</span>
                     <span id="descSubtotal" class="cys-descuento-fila-valor">$0</span>
@@ -237,7 +238,7 @@
             </div>
 
             <!-- ── TOTAL ── -->
-            <div id="totalGeneral" style="display:none;" class="mb-3 rounded-3 p-3 cys-total-box">
+            <div id="totalGeneral" class="mb-3 cys-total-box">
               <div class="d-flex justify-content-between align-items-center">
                 <span class="cys-total-label">Total</span>
                 <span id="totalMonto" class="cys-total-monto">$0</span>
@@ -245,7 +246,7 @@
             </div>
 
             <!-- ── MÉTODOS DE PAGO ── -->
-            <div id="seccionPagos" style="display:none;" class="mb-3 cys-pagos-box">
+            <div id="seccionPagos" class="mb-3 cys-pagos-box">
               <div class="cys-pagos-titulo">
                 <i class="bi bi-wallet2 me-1"></i> Método de Pago
               </div>
@@ -326,12 +327,12 @@
                   <span id="totalPagado" class="cys-pagos-footer-valor">$0</span>
                 </div>
                 <!-- Cambio / Faltante (solo si hay efectivo) -->
-                <div id="infoEfectivo" style="display:none;" class="cys-efectivo-info">
-                  <div id="filaFalta" style="display:none;" class="cys-efectivo-fila cys-efectivo-fila--falta">
+                <div id="infoEfectivo" class="cys-efectivo-info">
+                  <div id="filaFalta" class="cys-efectivo-fila cys-efectivo-fila--falta">
                     <span><i class="bi bi-exclamation-triangle me-1"></i>Falta</span>
                     <span id="montoFalta" class="cys-efectivo-monto">$0</span>
                   </div>
-                  <div id="filaCambio" style="display:none;" class="cys-efectivo-fila cys-efectivo-fila--cambio">
+                  <div id="filaCambio" class="cys-efectivo-fila cys-efectivo-fila--cambio">
                     <span><i class="bi bi-arrow-return-left me-1"></i>Cambio</span>
                     <span id="montoCambio" class="cys-efectivo-monto">$0</span>
                   </div>
@@ -345,21 +346,21 @@
                    data-bs-toggle="modal"
                    data-bs-target="#modalComprobante">
                 <div class="cys-comprobante-indicador-icono-box">
-                  <i class="bi bi-paperclip" style="color: var(--cys-acento);"></i>
+                  <i class="bi bi-paperclip caja-comprobante-icon-check"></i>
                 </div>
                 <div class="cys-comprobante-indicador-texto">
                   <div id="comprobanteIndicadorTitulo" class="cys-comprobante-indicador-titulo">Adjuntar comprobante de pago</div>
                   <div class="cys-comprobante-indicador-sub">Requerido para transferencia, Nequi o Daviplata</div>
                 </div>
-                <i class="bi bi-chevron-right" style="color: var(--cys-acento);"></i>
+                <i class="bi bi-chevron-right caja-comprobante-icon-arrow"></i>
               </div>
             </div>
 
             <div class="d-flex gap-2">
-              <button type="submit" class="btn cys-btn-submit" id="btnRegistrar" disabled style="flex: 3 1 0%;">
+              <button type="submit" class="btn cys-btn-submit caja-btn-registrar" id="btnRegistrar" disabled>
                 <i class="bi bi-save me-1"></i> Registrar Venta
               </button>
-              <button type="button" class="btn cys-btn-cancel" id="btnCancelarVenta" style="flex: 1 1 0%;">
+              <button type="button" class="btn cys-btn-cancel caja-btn-cancelar" id="btnCancelarVenta">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -387,7 +388,7 @@
                                accept="image/*,application/pdf">
                       </div>
                     </div>
-                    <div id="comprobanteNombreArchivo" class="cys-comprobante-nota mt-2" style="display:none;"></div>
+                    <div id="comprobanteNombreArchivo" class="cys-comprobante-nota mt-2"></div>
                     <button type="button" class="btn w-100 cys-btn-submit mt-3" data-bs-dismiss="modal">
                       <i class="bi bi-check-circle me-1"></i> Listo
                     </button>
@@ -432,15 +433,15 @@
       <table class="cys-hist-table w-100" id="tablaHistorial">
         <thead>
           <tr>
-            <th style="width: 60px; text-align: center;">#</th>
+            <th class="cys-hist-table-th-num">#</th>
             <th>Cliente</th>
             <th>Producto</th>
-            <th style="text-align: center; width: 80px;">Cant.</th>
-            <th style="text-align: right; width: 130px;">Precio Uni.</th>
-            <th style="text-align: right; width: 130px;">Total</th>
-            <th style="width: 160px;">Fecha</th>
-            <th style="text-align: center; width: 110px;">Estado</th>
-            <th style="width: 60px;"></th>
+            <th class="cys-hist-table-th-cant">Cant.</th>
+            <th class="cys-hist-table-th-precio">Precio Uni.</th>
+            <th class="cys-hist-table-th-total">Total</th>
+            <th class="cys-hist-table-th-fecha">Fecha</th>
+            <th class="cys-hist-table-th-estado">Estado</th>
+            <th class="cys-hist-table-th-acciones"></th>
           </tr>
         </thead>
         <tbody id="tablaHistorialBody">
@@ -456,13 +457,13 @@
                 data-total="{{ venta.total_venta }}"
                 data-fecha="{{ venta.fecha|date:'c' }}"
                 data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
-              <td class="cys-hist-id" style="text-align: center;">{{ forloop.parentloop.counter }}</td>
+              <td class="cys-hist-id">{{ forloop.parentloop.counter }}</td>
               <td>
                 <div class="cys-cliente-cell">
                   <div class="cys-avatar">{{ venta.cliente.nombre|slice:":2"|upper }}</div>
                   <div>
                     <div class="cys-hist-cliente">{{ venta.cliente.nombre }}</div>
-                    <div style="font-size: 0.7rem; color: var(--cys-texto-muted);">Cliente</div>
+                    <div class="cys-cliente-cell-subtitle">Cliente</div>
                   </div>
                 </div>
               </td>
@@ -472,14 +473,14 @@
                   {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
                 </span>
               </td>
-              <td style="text-align: center; color: #fff; font-weight: 700;">{{ det.cantidad }}</td>
-              <td style="text-align: right; color: var(--cys-texto-muted);">${{ det.precio_unitario|floatformat:0 }}</td>
-              <td class="cys-hist-total" style="text-align: right;">${{ venta.total_venta|floatformat:0 }}</td>
+              <td class="cys-hist-cantidad">{{ det.cantidad }}</td>
+              <td class="cys-hist-precio-muted">${{ det.precio_unitario|floatformat:0 }}</td>
+              <td class="cys-hist-total cys-hist-total-alineado">${{ venta.total_venta|floatformat:0 }}</td>
               <td>
                 <span class="cys-hist-fecha">{{ venta.fecha|date:"d/m/Y" }}</span>
                 <span class="cys-hist-hora">{{ venta.fecha|date:"H:i" }}</span>
               </td>
-              <td style="text-align: center;">
+              <td class="cys-td-estado">
                 <span class="cys-estado-pagado">
                   <i class="bi bi-check-circle-fill"></i> Pagado
                 </span>
@@ -504,7 +505,7 @@
         </tbody>
       </table>
 
-      <div id="sinResultadosFiltro" style="display:none;" class="cys-hist-sin-resultados">
+      <div id="sinResultadosFiltro" class="cys-hist-sin-resultados">
         <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
         Sin resultados para esa búsqueda.
       </div>
@@ -564,7 +565,7 @@
               <div class="cys-comprobante-ver-titulo">Ver comprobante</div>
               <div class="cys-comprobante-ver-sub">Clic para abrir en una pestaña nueva</div>
             </div>
-            <i class="bi bi-box-arrow-up-right" style="color:var(--cys-acento);"></i>
+            <i class="bi bi-box-arrow-up-right caja-icono-acento"></i>
           </div>
         </a>
         {% endif %}
@@ -614,8 +615,8 @@
 
         <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" class="d-flex gap-2">
           {% csrf_token %}
-          <button type="button" class="btn cys-btn-cancel" style="flex:1;" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn cys-btn-action-rojo" style="flex:1; justify-content:center;">
+          <button type="button" class="btn cys-btn-cancel caja-btn-modal-flex" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn cys-btn-action-rojo caja-btn-modal-flex-center">
             <i class="bi bi-trash me-1"></i> Sí, eliminar
           </button>
         </form>
@@ -749,14 +750,10 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  // Datos y URLs que dependen del contexto de Django — se quedan inline
-  // porque un archivo .js estático no pasa por el motor de templates.
-  const CATALOGO = {{ catalogo_json|safe }};
-  const URLS = {
-    registrarConteo: "{% url 'ventas:registrar_conteo' %}",
-    cierreCaja: "{% url 'ventas:cierre_caja' %}"
-  };
-</script>
-<script src="{% static 'js/venta/ventas.js' %}"></script>
+<div id="ventas-config"
+     data-catalogo="{{ catalogo_json|safe }}"
+     data-url-conteo="{% url 'ventas:registrar_conteo' %}"
+     data-url-cierre="{% url 'ventas:cierre_caja' %}"
+     class="hidden-data-container"></div>
+<script src="{% static 'js/ventas/ventas.js' %}"></script>
 {% endblock %}

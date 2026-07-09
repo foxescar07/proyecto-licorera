@@ -1162,3 +1162,33 @@ button#crear-categoria-btn {
   flex-shrink: 0;
   background: var(--seg-color);
 }
+
+/* ═══════════════════════════════════════════════════
+   ESTILOS EXTRAÍDOS DE TEMPLATES (sin inline style=)
+   ═══════════════════════════════════════════════════ */
+
+/* Texto de promedio de presentaciones */
+#txt-prom-pres {
+  font-size: 18px;
+}
+
+/* Icono de búsqueda en search-prefix */
+.search-prefix i {
+  font-size: 14px;
+}
+
+/* Código del producto (monospace font) */
+#det-codigo {
+  font-family: monospace;
+}
+
+/* Etiqueta de subcategoría en gestion productos */
+.gp-subcategory-label {
+  color: rgba(77, 168, 218, 0.6);
+}
+
+/* Barras de progreso iniciales (se actualizan dinámicamente con JS) */
+#bar-prom-pres,
+#bar-sin-pres {
+  width: 0%;
+}
