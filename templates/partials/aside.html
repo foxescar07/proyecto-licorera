@@ -1,6 +1,7 @@
 {% load static %}
 
 <link rel="stylesheet" href="{% static 'css/cuerpo/aside.css' %}">
+<link rel="stylesheet" href="{% static 'css/cuerpo/aside-inline.css' %}">
 
 <div class="offcanvas offcanvas-end"
      id="sidebarRight"
@@ -10,7 +11,7 @@
        <!-- HEADER-->
   <div class="cys-sb-header">
     <div class="cys-sb-brand">
-      <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo">
+      <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo" loading="lazy">
       <div>
         <div class="cys-sb-brand-name">CYS Ltda</div>
         <div class="cys-sb-brand-sub">Distribución</div>
@@ -32,7 +33,7 @@
             {% if request.user.foto %}
               <img src="{{ request.user.foto.url }}"
                    alt="Foto"
-                   loading="eager"
+                   loading="lazy"
                    onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'bi bi-person-fill cys-sb-avatar__icon\'></i>';">
             {% else %}
               <i class="bi bi-person-fill cys-sb-avatar__icon"></i>
@@ -73,16 +74,15 @@
         </a>
 
         <!-- VENTAS -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'ventas:ventas_lista' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-receipt"></i>
             <span class="flex-grow-1">Ventas</span>
           </a>
           <button id="btnVentas"
                   onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuVentas')"
-                  style="background:none; border:none; color:inherit; padding:10px 14px; cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
@@ -96,15 +96,14 @@
         </div>
 
         <!-- PRODUCTOS -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'lista_productos' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-box-seam-fill"></i>
             <span class="flex-grow-1">Productos</span>
           </a>
           <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuProductos')"
-                  style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
@@ -118,15 +117,14 @@
         </div>
 
         <!-- INVENTARIO -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'inventario_home' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-clipboard-data-fill"></i>
             <span class="flex-grow-1">Inventario</span>
           </a>
           <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuInventario')"
-                  style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
@@ -143,15 +141,14 @@
         </div>
 
         <!-- PROVEEDORES -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'lista_proveedores' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-box-seam-fill"></i>
             <span class="flex-grow-1">Proveedores</span>
           </a>
           <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuProveedores')"
-                  style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
