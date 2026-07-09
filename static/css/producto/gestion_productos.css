@@ -289,3 +289,25 @@
 .gp-acc-body-init {
   display: none;
 }
+.cat-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(226, 232, 240, 0.5);
+  margin-bottom: 2px;
+}
+
+.cat-stat-name {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-stat-track {
+  height: 4px;
+}
+
+.cat-stat-fill {
+  background: #4DA8DA;
+}
