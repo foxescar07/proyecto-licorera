@@ -1,6 +1,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/cuerpo/header-inline.css' %}">
 <header class="cys-header">
+<header class="cys-header" data-url-stock-status="{% url 'stock_status' %}">
     <div class="cys-header__brand">
         <img src="{% static 'img/logo.jpeg' %}" alt="Logo CYS" class="cys-header__logo" loading="lazy">
         <div>
@@ -174,3 +175,4 @@
   setInterval(actualizar, INTERVALO);
 })();
 </script>
+<script src="{% static 'js/cuerpo/header.js' %}" defer></script>

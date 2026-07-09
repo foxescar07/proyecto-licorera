@@ -1,4 +1,4 @@
-  :root {
+:root {
     --azul-oscuro: #011936;
     --azul-claro: #4DA8DA;
     --azul-borde: rgba(77,168,218,.30);
@@ -23,6 +23,7 @@
   body {
     font-family: 'Inter', sans-serif;
     color: var(--texto);
+    background-color: #060c16;
     min-height: 100vh;
     position: relative;
     overflow-y: auto;
@@ -711,6 +712,7 @@
   html {
     height: 100%;
     overflow-y: auto !important;
+    background-color: #060c16;
   }
   body {
     min-height: 100%;

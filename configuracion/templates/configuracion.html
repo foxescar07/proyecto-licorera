@@ -13,6 +13,14 @@
 
   {% csrf_token %}
 
+  <div id="cfg-data"
+       data-url-actividad="{% url 'actividad_usuarios' %}"
+       data-url-guardar-empresa="{% url 'configuracion:guardar_empresa' %}"
+       data-url-guardar-impuestos="{% url 'configuracion:guardar_impuestos' %}"
+       data-url-crear-backup="{% url 'configuracion:crear_backup' %}"
+       style="display:none;"></div>
+
+  <!-- ① VISUALIZACIÓN: BRILLO / FUENTE / AUMENTO (3 TARJETAS CON PERILLA) -->
   <div class="cfg-section">
     <div class="cfg-title"><i class="bi bi-sliders2"></i> Visualización</div>
 
@@ -49,43 +57,45 @@
     </div>
   </div>
 
+  <!-- ② TEMA -->
   <div class="cfg-section">
     <div class="cfg-title"><i class="bi bi-palette-fill"></i> Tema y apariencia</div>
     <div class="cfg-options" id="opcionesTema">
 
       <div class="cfg-opt" data-tema="oscuro" onclick="seleccionarTema('oscuro', this)">
-        <div class="tema-preview cfg-preview-oscuro"></div>
-        <i class="bi bi-moon-stars-fill cfg-icon-inline"></i>
+        <div class="tema-preview" style="background:linear-gradient(135deg,#011936,#0a2240);"></div>
+        <i class="bi bi-moon-stars-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Oscuro
       </div>
 
       <div class="cfg-opt" data-tema="claro" onclick="seleccionarTema('claro', this)">
-        <div class="tema-preview cfg-preview-claro"></div>
-        <i class="bi bi-sun-fill cfg-icon-inline"></i>
+        <div class="tema-preview" style="background:linear-gradient(135deg,#f0f4f8,#dde8f0);"></div>
+        <i class="bi bi-sun-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Claro
       </div>
 
       <div class="cfg-opt" data-tema="alto-contraste" onclick="seleccionarTema('alto-contraste', this)">
-        <div class="tema-preview cfg-preview-contraste"></div>
-        <i class="bi bi-circle-half" class="cfg-icon-inline"></i>
+        <div class="tema-preview" style="background:#000; border:2px solid #fff;"></div>
+        <i class="bi bi-circle-half" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Alto contraste
       </div>
 
       <div class="cfg-opt" data-tema="basecys" onclick="seleccionarTema('basecys', this)">
-        <div class="tema-preview cfg-preview-basecys"></div>
-        <i class="bi bi-cup-straw cfg-icon-inline"></i>
+        <div class="tema-preview" style="background:#D9A441;"></div>
+        <i class="bi bi-cup-straw" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Base CyS
       </div>
 
       <div class="cfg-opt" data-tema="sepia" onclick="seleccionarTema('sepia', this)">
-        <div class="tema-preview cfg-preview-sepia"></div>
-        <i class="bi bi-book-fill cfg-icon-inline"></i>
+        <div class="tema-preview" style="background:linear-gradient(135deg,#1a0f05,#3d2b14);"></div>
+        <i class="bi bi-book-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
         Sepia
       </div>
 
     </div>
   </div>
 
+  <!-- ③ PÁGINA DE INICIO + ④ BARRA LATERAL -->
   <div class="row g-3">
     <div class="col-lg-6">
       <div class="cfg-section">
@@ -93,21 +103,21 @@
         <div class="cfg-options" id="opcionesInicio">
 
           <div class="cfg-opt" data-inicio="tablero" onclick="seleccionarInicio('tablero', this)">
-            <i class="bi bi-grid-1x2-fill cfg-icon-inline"></i>
+            <i class="bi bi-grid-1x2-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
             Tablero
-            <div class="cfg-text-muted-sm">Vista general del negocio</div>
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Vista general del negocio</div>
           </div>
 
           <div class="cfg-opt" data-inicio="ventas" onclick="seleccionarInicio('ventas', this)">
-            <i class="bi bi-receipt cfg-icon-inline"></i>
+            <i class="bi bi-receipt" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
             Ventas
-            <div class="cfg-text-muted-sm">Directo a registrar ventas</div>
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Directo a registrar ventas</div>
           </div>
 
           <div class="cfg-opt" data-inicio="productos" onclick="seleccionarInicio('productos', this)">
-            <i class="bi bi-box-seam-fill cfg-icon-inline"></i>
+            <i class="bi bi-box-seam-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
             Productos
-            <div class="cfg-text-muted-sm">Gestión de productos</div>
+            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Gestión de productos</div>
           </div>
 
         </div>
@@ -120,7 +130,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-pin-angle cfg-icon-blue"></i>
+            <i class="bi bi-pin-angle" style="color:var(--azul-claro);"></i>
             <div>
               Abrir automáticamente al entrar
               <span>La barra lateral se abre al cargar cualquier página</span>
@@ -134,7 +144,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-bar-chart-steps cfg-icon-blue"></i>
+            <i class="bi bi-bar-chart-steps" style="color:var(--azul-claro);"></i>
             <div>
               Mostrar sección Resumen
               <span>Stock total, crítico y categorías en el sidebar</span>
@@ -150,16 +160,17 @@
     </div>
   </div>
 
+  <!-- ⑤ ACTIVIDAD DE USUARIOS + ⑥ NOTIFICACIONES -->
   <div class="row g-3 cfg-row">
     <div class="col-lg-6">
       <div class="cfg-section">
         <div class="cfg-title"><i class="bi bi-clock-history"></i> Actividad de usuarios</div>
 
-        <p class="cfg-hint-text" id="actividadHint">
+        <p style="font-size:.8rem; color:var(--texto-muted); margin-bottom:1rem;" id="actividadHint">
           Consulta los inicios de sesión registrados en el sistema.
         </p>
 
-       <div class="modal fade" id="modalActividad" data-url="{% url 'actividad_usuarios' %}" tabindex="-1" aria-hidden="true">
+        <button type="button" class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#modalActividad">
           <i class="bi bi-eye me-1"></i> Ver actividad
         </button>
       </div>
@@ -171,7 +182,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-exclamation-triangle-fill cfg-icon-red"></i>
+            <i class="bi bi-exclamation-triangle-fill" style="color:#e87070;"></i>
             <div>
               Alertas de stock crítico
               <span>Muestra el banner rojo cuando hay productos en 0 o bajo mínimo</span>
@@ -185,7 +196,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-bar-chart-fill cfg-icon-blue"></i>
+            <i class="bi bi-bar-chart-fill" style="color:var(--azul-claro);"></i>
             <div>
               Widget de estadísticas en productos
               <span>Muestra la sección de rotación y producto estrella</span>
@@ -199,7 +210,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-bell-slash cfg-icon-muted"></i>
+            <i class="bi bi-bell-slash" style="color:var(--texto-muted);"></i>
             <div>
               Modo silencioso
               <span>Oculta todas las alertas visuales del sistema</span>
@@ -215,12 +226,13 @@
     </div>
   </div>
 
+  <!-- ⑦ INFORMACIÓN DE LA EMPRESA (LOGO + DATOS, CONECTADO A guardar_empresa) -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title-row">
-      <div class="cfg-title cfg-title--nomargin"><i class="bi bi-building"></i> Información de la empresa</div>
-      <button type="button" id="btnGuardarEmpresa" data-url="{% url 'configuracion:guardar_empresa' %}" onclick="guardarInfoEmpresa()" class="cfg-btn-mini">
-    Guardar Empresa
-</button>
+      <div class="cfg-title" style="margin-bottom:0;"><i class="bi bi-building"></i> Información de la empresa</div>
+      <button onclick="guardarInfoEmpresa()" class="cfg-btn-mini" id="btnGuardarEmpresa">
+        <i class="bi bi-check-lg"></i> Guardar
+      </button>
     </div>
 
     <div class="cfg-empresa-header">
@@ -263,12 +275,13 @@
     </div>
   </div>
 
+  <!-- ⑧ IMPUESTOS Y MONEDA (CONECTADO A guardar_impuestos) -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title-row">
-      <div class="cfg-title cfg-title--nomargin"><i class="bi bi-cash-coin"></i> Impuestos y moneda</div>
-      <button type="button" id="btnGuardarImpuestos" data-url="{% url 'configuracion:guardar_impuestos' %}" onclick="guardarImpuestos()" class="cfg-btn-mini">
-    Guardar Impuestos
-</button>
+      <div class="cfg-title" style="margin-bottom:0;"><i class="bi bi-cash-coin"></i> Impuestos y moneda</div>
+      <button onclick="guardarImpuestos()" class="cfg-btn-mini" id="btnGuardarImpuestos">
+        <i class="bi bi-check-lg"></i> Guardar
+      </button>
     </div>
 
     <div class="row g-3">
@@ -288,11 +301,12 @@
         <input type="text" class="cfg-input" id="unidadesMedida"
                value="{{ config.unidades_medida|join:', ' }}"
                placeholder="unidad, caja, paquete">
-        <div class="cfg-text-muted-xs">Sepáralas con comas</div>
+        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.3rem;">Sepáralas con comas</div>
       </div>
     </div>
   </div>
 
+  <!-- ⑨ BASE DE DATOS (CONECTADO A crear_backup) -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title"><i class="bi bi-database-fill"></i> Base de datos</div>
 
@@ -303,7 +317,7 @@
             <div class="lbl">Tablas</div>
             <div class="val" id="dbTablas">{{ db_stats.tablas }}</div>
           </div>
-          <i class="bi bi-hdd-stack cfg-icon-blue-lg"></i>
+          <i class="bi bi-hdd-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
@@ -312,7 +326,7 @@
             <div class="lbl">Registros totales</div>
             <div class="val" id="dbRegistros">{{ db_stats.registros }}</div>
           </div>
-          <i class="bi bi-stack cfg-icon-blue-lg"></i>
+          <i class="bi bi-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
@@ -321,7 +335,7 @@
             <div class="lbl">Tamaño BD</div>
             <div class="val" id="dbTamano">{{ db_stats.tamaño }}</div>
           </div>
-          <i class="bi bi-hdd cfg-icon-blue-lg"></i>
+          <i class="bi bi-hdd" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
@@ -332,28 +346,28 @@
               {% if backups.0 %}{{ backups.0.fecha|date:"d/m/Y H:i" }}{% else %}Sin registrar{% endif %}
             </div>
           </div>
-          <i class="bi bi-clock-history cfg-icon-blue-lg"></i>
+          <i class="bi bi-clock-history" style="color:var(--azul-claro); font-size:1.3rem;"></i>
         </div>
       </div>
     </div>
 
     <div class="cfg-db-actions">
-      <button type="button" id="btnBackup" data-url="{% url 'configuracion:crear_backup' %}" onclick="generarRespaldo()" class="cys-btn cys-btn--primary">
-    Generar Respaldo
-</button>
+      <button onclick="generarRespaldo()" class="cys-btn cys-btn--primary" id="btnBackup">
+        <i class="bi bi-cloud-arrow-down me-1"></i> Generar respaldo
+      </button>
     </div>
 
-    <div id="listaBackups" class="cfg-backups-list">
+    <div id="listaBackups" style="margin-top:1.25rem;">
       {% for b in backups %}
         <div class="cfg-backup-item" data-backup-item>
           <div>
-            <div class="cfg-backup-item__nombre">${b.nombre}</div>
+            <div class="cfg-backup-item__nombre">{{ b.nombre }}</div>
             <div class="cfg-backup-item__meta">{{ b.fecha|date:"d/m/Y H:i" }} · {{ b.tamaño_mb }} MB</div>
           </div>
-          <i class="bi bi-file-earmark-zip cfg-icon-blue"></i>
+          <i class="bi bi-file-earmark-zip" style="color:var(--azul-claro);"></i>
         </div>
       {% empty %}
-        <div class="cfg-text-muted-sm" data-backup-empty>
+        <div style="font-size:.8rem; color:var(--texto-muted);" data-backup-empty>
           Todavía no hay respaldos generados.
         </div>
       {% endfor %}
@@ -364,6 +378,7 @@
 
 <div id="cfg-toast"><i class="bi bi-check-circle-fill me-2"></i> Configuración guardada</div>
 
+<!-- MODAL: ACTIVIDAD DE USUARIOS -->
 <div class="modal fade" id="modalActividad" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content cfg-modal-content">
@@ -392,318 +407,7 @@
 </div>
 
 {% endblock %}
+
 {% block extra_js %}
-<script>
-// CSRF helper
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-}
-const CSRF_TOKEN = getCookie('csrftoken') || document.querySelector('input[name=csrfmiddlewaretoken]')?.value;
-
-const CFG_DEFAULT = {
-  tema: 'oscuro', paginaInicio: 'tablero', brillo: 100, fuente: 14, zoom: 100,
-  sidebarAuto: false, resumenSidebar: true,
-  alertaStock: true, widgetRotacion: true, silencioso: false,
-};
-
-function cargarCfg() {
-  let cfg = { ...CFG_DEFAULT };
-  try {
-    const g = JSON.parse(localStorage.getItem('cys_config') || '{}');
-    cfg = { ...cfg, ...g };
-  } catch (e) {}
-  return cfg;
-}
-function guardarCfg(cfg) {
-  localStorage.setItem('cys_config', JSON.stringify(cfg));
-}
-
-let cfgActual = cargarCfg();
-let perillaBrillo, perillaFuente, perillaZoom;
-let logoEmpresaFile = null;
-let toastPrefTimeout = null;
-
-function crearPerilla(container) {
-  const min    = parseFloat(container.dataset.min);
-  const max    = parseFloat(container.dataset.max);
-  const step   = parseFloat(container.dataset.step) || 1;
-  const unidad = container.dataset.unit || '';
-
-  container.innerHTML = `
-    <div class="cfg-knob__dial">
-      <svg class="cfg-knob__ring" viewBox="0 0 100 100">
-        <path class="cfg-knob__track" pathLength="100" d="M20,80 A38,38 0 1 1 80,80"></path>
-        <path class="cfg-knob__progress" pathLength="100" d="M20,80 A38,38 0 1 1 80,80"></path>
-      </svg>
-      <div class="cfg-knob__handle"><span class="cfg-knob__dot"></span></div>
-      <div class="cfg-knob__center">
-        <span class="cfg-knob__value">0</span><span class="cfg-knob__unit">${unidad}</span>
-      </div>
-    </div>
-    <div class="cfg-knob__minmax"><span>${min}${unidad}</span><span>${max}${unidad}</span></div>
-  `;
-
-  const dial     = container.querySelector('.cfg-knob__dial');
-  const progress = container.querySelector('.cfg-knob__progress');
-  const handle   = container.querySelector('.cfg-knob__handle');
-  const valorEl  = container.querySelector('.cfg-knob__value');
-
-  const MIN_ANGLE = -135;
-  const MAX_ANGLE = 135;
-
-  function pintar(val) {
-    val = Math.max(min, Math.min(max, val));
-    const pct = (val - min) / (max - min);
-    const angulo = MIN_ANGLE + pct * (MAX_ANGLE - MIN_ANGLE);
-    progress.style.strokeDasharray = `${pct * 100} 100`;
-    handle.style.transform = `rotate(${angulo}deg)`;
-    valorEl.textContent = val;
-    container.dataset.value = val;
-  }
-
-  function anguloDesdeEvento(e) {
-    const rect = dial.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-    let deg = Math.atan2(x - cx, -(y - cy)) * 180 / Math.PI;
-    if (deg > MAX_ANGLE + 45 || deg < MIN_ANGLE - 45) {
-      deg = deg > 0 ? MAX_ANGLE : MIN_ANGLE;
-    }
-    return Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, deg));
-  }
-
-  let arrastrando = false;
-
-  function mover(e) {
-    if (!arrastrando) return;
-    e.preventDefault();
-    const angulo = anguloDesdeEvento(e);
-    const pct = (angulo - MIN_ANGLE) / (MAX_ANGLE - MIN_ANGLE);
-    let val = min + pct * (max - min);
-    val = Math.round(val / step) * step;
-    pintar(val);
-    container.dispatchEvent(new CustomEvent('cambio', { detail: val }));
-  }
-
-  dial.addEventListener('pointerdown', (e) => {
-    arrastrando = true;
-    dial.setPointerCapture(e.pointerId);
-    mover(e);
-  });
-  dial.addEventListener('pointermove', mover);
-  dial.addEventListener('pointerup', () => arrastrando = false);
-  dial.addEventListener('pointercancel', () => arrastrando = false);
-
-  return { pintar };
-}
-
-function aplicarBrillo(val) {
-  document.documentElement.style.filter = val === 100 ? '' : `brightness(${val}%)`;
-}
-function aplicarFuente(val) {
-  document.documentElement.style.fontSize = val + 'px';
-}
-function aplicarZoom(val) {
-  document.body.style.zoom = val === 100 ? '' : (val / 100);
-}
-
-const TEMAS = {
-  oscuro: {'--fondo':'#011936','--fondo-card':'#0a2240','--fondo-card2':'#0d2a4d','--texto':'#e2e8f0','--texto-muted':'#7a9bbf','--azul-claro':'#4DA8DA','--azul-borde':'rgba(77,168,218,.2)','--azul-oscuro':'#05244a','--verde':'#2ecc71','--rojo':'#c0392b','--blanco':'#e8edf2','--gris-claro':'#8899aa'},
-  claro: {'--fondo':'#f0f4f8','--fondo-card':'#ffffff','--fondo-card2':'#e8eef5','--texto':'#1a2a3a','--texto-muted':'#4a6a8a','--azul-claro':'#B22A1A','--azul-borde':'rgba(178,42,26,.18)','--azul-oscuro':'#ddeaf5','--verde':'#1a8a4a','--rojo':'#B22A1A','--blanco':'#1a2a3a','--gris-claro':'#3a5a7a'},
-  'alto-contraste': {'--fondo':'#000000','--fondo-card':'#0a0a0a','--fondo-card2':'#111111','--texto':'#ffffff','--texto-muted':'#cccccc','--azul-claro':'#00cfff','--azul-borde':'rgba(0,207,255,.4)','--azul-oscuro':'#001a22','--verde':'#00ff88','--rojo':'#ff4444','--blanco':'#ffffff','--gris-claro':'#aaaaaa'},
-  basecys: {'--fondo':'#241008','--fondo-card':'#34160D','--fondo-card2':'#421B10','--texto':'#F2DFB8','--texto-muted':'#C9A876','--azul-claro':'#D9A441','--azul-borde':'rgba(217,164,65,.25)','--azul-oscuro':'#1A0A06','--verde':'#8AB86F','--rojo':'#B0392E','--blanco':'#F2DFB8','--gris-claro':'#B89868'},
-  sepia: {'--fondo':'#1a0f05','--fondo-card':'#2c1f0e','--fondo-card2':'#3d2b14','--texto':'#f5e6c8','--texto-muted':'#a08060','--azul-claro':'#d4a060','--azul-borde':'rgba(212,160,96,.25)','--azul-oscuro':'#150c04','--verde':'#7ab870','--rojo':'#c05030','--blanco':'#f5e6c8','--gris-claro':'#907060'},
-};
-
-function aplicarTema(tema) {
-  const vars = TEMAS[tema] || TEMAS.oscuro;
-  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  perillaBrillo = crearPerilla(document.getElementById('knobBrillo'));
-  perillaFuente = crearPerilla(document.getElementById('knobFuente'));
-  perillaZoom   = crearPerilla(document.getElementById('knobZoom'));
-
-  document.getElementById('knobBrillo').addEventListener('cambio', e => {
-    cfgActual.brillo = e.detail;
-    aplicarBrillo(e.detail);
-    guardarCfg(cfgActual);
-  });
-  document.getElementById('knobFuente').addEventListener('cambio', e => {
-    cfgActual.fuente = e.detail;
-    aplicarFuente(e.detail);
-    guardarCfg(cfgActual);
-  });
-  document.getElementById('knobZoom').addEventListener('cambio', e => {
-    cfgActual.zoom = e.detail;
-    aplicarZoom(e.detail);
-    guardarCfg(cfgActual);
-  });
-
-  document.querySelectorAll('#opcionesTema .cfg-opt').forEach(el =>
-    el.classList.toggle('activo', el.dataset.tema === cfgActual.tema));
-  document.querySelectorAll('#opcionesInicio .cfg-opt').forEach(el =>
-    el.classList.toggle('activo', el.dataset.inicio === cfgActual.paginaInicio));
-
-  document.getElementById('toggleSidebarAuto').checked    = cfgActual.sidebarAuto;
-  document.getElementById('toggleResumenSidebar').checked = cfgActual.resumenSidebar;
-  document.getElementById('toggleAlertaStock').checked    = cfgActual.alertaStock;
-  document.getElementById('toggleWidgetRotacion').checked = cfgActual.widgetRotacion;
-  document.getElementById('toggleSilencioso').checked     = cfgActual.silencioso;
-
-  perillaBrillo.pintar(cfgActual.brillo);
-  perillaFuente.pintar(cfgActual.fuente);
-  perillaZoom.pintar(cfgActual.zoom);
-
-  const togglesMap = {
-    toggleSidebarAuto:    'sidebarAuto',
-    toggleResumenSidebar: 'resumenSidebar',
-    toggleAlertaStock:    'alertaStock',
-    toggleWidgetRotacion: 'widgetRotacion',
-    toggleSilencioso:     'silencioso',
-  };
-  Object.entries(togglesMap).forEach(([id, key]) => {
-    document.getElementById(id).addEventListener('change', function () {
-      cfgActual[key] = this.checked;
-      guardarCfg(cfgActual);
-      window.dispatchEvent(new CustomEvent('cys-config-changed', { detail: cfgActual }));
-    });
-  });
-});
-
-function seleccionarTema(tema, el) {
-  document.querySelectorAll('#opcionesTema .cfg-opt').forEach(o => o.classList.remove('activo'));
-  el.classList.add('activo');
-  cfgActual.tema = tema;
-  aplicarTema(tema);
-  guardarCfg(cfgActual);
-}
-
-function seleccionarInicio(valor, el) {
-  document.querySelectorAll('#opcionesInicio .cfg-opt').forEach(o => o.classList.remove('activo'));
-  el.classList.add('activo');
-  cfgActual.paginaInicio = valor;
-  guardarCfg(cfgActual);
-  document.cookie = `cys_pagina_inicio=${valor}; path=/; max-age=31536000; SameSite=Lax`;
-}
-
-document.getElementById('modalActividad').addEventListener('show.bs.modal', function () {
-  const tbody = document.getElementById('tablaActividad');
-  tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>';
-
-  fetch("{% url 'actividad_usuarios' %}")
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('tituloActividad').textContent = data.es_admin ? 'Actividad de todos los usuarios' : 'Mi actividad';
-      document.getElementById('colUsuario').style.display = data.es_admin ? '' : 'none';
-
-      tbody.innerHTML = '';
-      if (data.registros.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center">Sin registros</td></tr>';
-        return;
-      }
-      data.registros.forEach(r => {
-        const fila = document.createElement('tr');
-        fila.innerHTML = `
-          ${data.es_admin ? `<td>${r.usuario}</td>` : ''}
-          <td>${r.fecha_hora}</td>
-          <td>${r.ip}</td>
-        `;
-        tbody.appendChild(fila);
-      });
-    })
-    .catch(() => {
-      tbody.innerHTML = '<tr><td colspan="3" class="text-center">Error al cargar la actividad</td></tr>';
-    });
-});
-
-function previewLogoEmpresa(input) {
-  if (!input.files || !input.files[0]) return;
-  logoEmpresaFile = input.files[0];
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    document.getElementById('logoEmpresaPreview').innerHTML = `<img src="${e.target.result}" alt="Logo empresa">`;
-  };
-  reader.readAsDataURL(logoEmpresaFile);
-}
-
-async function guardarInfoEmpresa() {
-  const btn = document.getElementById('btnGuardarEmpresa');
-  btn.disabled = true;
-  const fd = new FormData();
-  fd.append('nombre_empresa', document.getElementById('empresaNombre').value.trim());
-  fd.append('nit',            document.getElementById('empresaNit').value.trim());
-  fd.append('telefono',       document.getElementById('empresaTelefono').value.trim());
-  fd.append('email',          document.getElementById('empresaEmail').value.trim());
-  fd.append('direccion',      document.getElementById('empresaDireccion').value.trim());
-  if (logoEmpresaFile) fd.append('logo', logoEmpresaFile);
-
-  try {
-    const resp = await fetch("{% url 'configuracion:guardar_empresa' %}", {
-      method: 'POST',
-      headers: { 'X-CSRFToken': CSRF_TOKEN },
-      body: fd,
-    });
-    const data = await resp.json();
-    if (data.ok) {
-      mostrarToast('Información de la empresa guardada');
-      logoEmpresaFile = null;
-    }
-  } catch (e) {} finally { btn.disabled = false; }
-}
-
-async function guardarImpuestos() {
-  const btn = document.getElementById('btnGuardarImpuestos');
-  btn.disabled = true;
-  const fd = new FormData();
-  fd.append('iva_porcentaje', document.getElementById('ivaPorcentaje').value);
-  fd.append('moneda', document.getElementById('monedaSelect').value);
-  document.getElementById('unidadesMedida').value.split(',').map(u => u.trim()).filter(Boolean).forEach(u => {
-    fd.append('unidades[]', u);
-  });
-
-  try {
-    const resp = await fetch("{% url 'configuracion:guardar_impuestos' %}", {
-      method: 'POST',
-      headers: { 'X-CSRFToken': CSRF_TOKEN },
-      body: fd,
-    });
-    const data = await resp.json();
-    if (data.ok) mostrarToast('Impuestos guardados');
-  } catch (e) {} finally { btn.disabled = false; }
-}
-
-async function generarRespaldo() {
-  const btn = document.getElementById('btnBackup');
-  btn.disabled = true;
-  try {
-    const resp = await fetch("{% url 'configuracion:crear_backup' %}", {
-      method: 'POST',
-      headers: { 'X-CSRFToken': CSRF_TOKEN },
-    });
-    const data = await resp.json();
-    if (data.ok) {
-      document.getElementById('dbUltimoRespaldo').textContent = data.fecha;
-      const lista = document.getElementById('listaBackups');
-      const vacio = lista.querySelector('[data-backup-empty]');
-      if (vacio) vacio.remove();
-      const item = document.createElement('div');
-      item.className = 'cfg-backup-item';
-      item.innerHTML = `<div><div class="cfg-backup-item__nombre">${data.nombre}</div><div class="cfg-backup-item__meta">${data.fecha} · ${data.tamaño}</div></div><i class="bi bi-file-earmark-zip cfg-icon-blue"></i>`;
-      lista.prepend(item);
-    }
-  } catch (e) {} finally { btn.disabled = false; }
-}
-
-function mostrarToast(msg = 'Configuración guardada') {
-  const t = document.getElementById('cfg-toast');
-  t.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>${msg}`;
-}
-</script>
+<script src="{% static 'js/configuracion/configuracion.js' %}" defer></script>
 {% endblock %}
