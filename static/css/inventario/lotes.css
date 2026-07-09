@@ -150,3 +150,16 @@ button#presentacion-lote-btn {
 .lote-chart-wrap {
   min-height: 175px;
 }
+/* ── Íconos con color/opacidad (antes inline) ── */
+.lote-icon-opacidad {
+  opacity: .7;
+}
+
+.lote-icon-info {
+  color: #4DA8DA;
+  opacity: .7;
+}
+
+.lote-icon-azul {
+  color: #4DA8DA;
+}

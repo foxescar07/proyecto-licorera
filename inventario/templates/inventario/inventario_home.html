@@ -132,10 +132,8 @@
         <div class="d-flex flex-column gap-3" id="lista-agendas">
           {% for agenda in agendas %}
             {% with estado=agenda.estado %}
-            <div class="agenda-item p-3 rounded-3
-                        {% if estado == 'completada' or estado == 'cancelada' %}agenda-historial{% else %}agenda-activo{% endif %}"
-                 style="background: var(--inv-card2); border: 1px solid var(--inv-azul-borde);
-                        {% if estado == 'completada' or estado == 'cancelada' %}display:none;{% endif %}">
+            <div class="agenda-item p-3 rounded-3 agenda-item-card ...
+            {% if estado == 'completada' or estado == 'cancelada' %}agenda-oculto-inicial{% endif %}">
               <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
                 <div>
                   <div class="fw-semibold agenda-titulo-texto">{{ agenda.titulo }}</div>
@@ -224,9 +222,9 @@
 <ul class="dropdown-menu mov-fecha-menu">
   {% for dia in dias_con_movimientos %}
     <li>
-      <a class="dropdown-item" href="?fecha_mov={{ dia|date:'Y-m-d' }}"
-         style="color:#c8d6e5; font-size:.82rem;
-                {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}font-weight:600;{% endif %}">
+      <a class="dropdown-item mov-fecha-item-link
+          {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}mov-fecha-item-activo{% endif %}"
+            href="?fecha_mov={{ dia|date:'Y-m-d' }}">
         {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}<i class="bi bi-check2 me-1"></i>{% endif %}
         {% if dia|date:'Y-m-d' == hoy|date:'Y-m-d' %}Hoy — {{ dia|date:"d/m/Y" }}{% else %}{{ dia|date:"l d/m/Y" }}{% endif %}
       </a>
@@ -389,9 +387,8 @@
                 {% endif %}
               </div>
               <div class="fw-bold small mb-2 cat-card-nombre">{{ p.nombre }}</div>
-              <div class="fw-bold" style="font-size:2rem;line-height:1;
-                color:{% if p.stock_sum|default:0 == 0 %}var(--inv-rojo){% elif p.stock_sum|default:0 <= 5 %}var(--inv-amarillo){% else %}var(--inv-verde){% endif %};">
-                {{ p.stock_sum|default:0 }}
+              <div class="fw-bold cat-card-stock
+              {% if p.stock_sum|default:0 == 0 %}cat-stock-cero{% elif p.stock_sum|default:0 <= 5 %}cat-stock-critico{% else %}cat-stock-ok{% endif %}">
               </div>
               <div class="text-muted mt-1 texto-mini">
               {{ unidad }}{% if precio %} · <span class="precio-fmt">${{ precio|floatformat:"0" }}</span>{% endif %}
@@ -651,12 +648,10 @@
           </form>
           <div class="d-flex flex-column gap-2 conteo-lista-wrap">
             {% for c in conteos %}
-            <div class="p-3 rounded-3 d-flex align-items-center gap-3"
-                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
-                        border-left:4px solid
-                        {% if c.cantidad_contada == c.presentacion.cantidad %}var(--inv-verde)
-                        {% elif c.cantidad_contada > c.presentacion.cantidad %}#9b5de5
-                        {% else %}var(--inv-rojo){% endif %};">
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 conteo-item-card
+  {% if c.cantidad_contada == c.presentacion.cantidad %}borde-ok
+  {% elif c.cantidad_contada > c.presentacion.cantidad %}borde-sobrante
+  {% else %}borde-faltante{% endif %}">
 
               <div class="conteo-item-nombre-col">
                 <div class="fw-semibold small text-truncate texto-principal">{{ c.presentacion.producto.nombre }}</div>
@@ -669,10 +664,9 @@
                   <div class="fw-bold comparativa-valor-sistema">{{ c.presentacion.cantidad }}</div>
                 </div>
                 <i class="bi
-                  {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success
-                  {% elif c.cantidad_contada > c.presentacion.cantidad %}bi-arrow-up
-                  {% else %}bi-arrow-down text-danger{% endif %}"
-                  {% if c.cantidad_contada > c.presentacion.cantidad %}style="color:#9b5de5;"{% endif %}></i>
+  {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success
+  {% elif c.cantidad_contada > c.presentacion.cantidad %}bi-arrow-up texto-sobrante-purpura
+  {% else %}bi-arrow-down text-danger{% endif %}"></i>
                 <div class="text-center flex-fill">
                   <div class="text-muted comparativa-label">FÍSICO</div>
                   <div class="fw-bold texto-principal">{{ c.cantidad_contada }}</div>
@@ -680,12 +674,11 @@
               </div>
 
               <div class="comparativa-badge-col">
-                <span class="badge
-                  {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok
-                  {% else %}inv-estado-faltante{% endif %}"
-                  style="font-size:.65rem;
-                  {% if c.cantidad_contada > c.presentacion.cantidad %}background:rgba(155,93,229,.15);color:#9b5de5;border:1px solid rgba(155,93,229,.3);{% endif %}">
-                  {% if c.cantidad_contada == c.presentacion.cantidad %}Cuadra
+              <span class="badge badge-comparativa
+  {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok
+  {% elif c.cantidad_contada > c.presentacion.cantidad %}badge-sobrante-purpura
+  {% else %}inv-estado-faltante{% endif %}">
+
                   {% elif c.cantidad_contada > c.presentacion.cantidad %}Sobrante
                   {% else %}Faltante{% endif %}
                 </span>
@@ -759,12 +752,10 @@
           </div>
           <div class="d-flex flex-column gap-2 comparar-lista-wrap">
             {% for d in discrepancias %}
-            <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap"
-                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
-                        border-left:4px solid
-                        {% if d.estado == 'ok' %}var(--inv-verde)
-                        {% elif d.estado == 'sobrante' %}#9b5de5
-                        {% else %}var(--inv-rojo){% endif %};">
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap conteo-item-card
+  {% if d.estado == 'ok' %}borde-ok
+  {% elif d.estado == 'sobrante' %}borde-sobrante
+  {% else %}borde-faltante{% endif %}">
 
               <div class="comparar-item-nombre-col">
                 <div class="fw-semibold small text-truncate texto-principal">{{ d.presentacion.producto.nombre }}</div>
@@ -785,14 +776,14 @@
               </div>
 
               <div class="text-center comparar-diferencia-col">
-                <div class="fw-bold" style="font-size:1.15rem;
-                  color:{% if d.diferencia == 0 %}var(--inv-verde){% elif d.diferencia > 0 %}#9b5de5{% else %}var(--inv-rojo){% endif %};">
+                <div class="fw-bold comparar-diferencia-valor
+  {% if d.diferencia == 0 %}texto-ok{% elif d.diferencia > 0 %}texto-sobrante{% else %}texto-faltante{% endif %}">
                   {% if d.diferencia > 0 %}+{% endif %}{{ d.diferencia }}
                 </div>
-                <span class="badge" style="font-size:.6rem;
-                  {% if d.estado == 'ok' %}background:rgba(39,174,96,.15);color:var(--inv-verde);border:1px solid rgba(39,174,96,.3);
-                  {% elif d.estado == 'sobrante' %}background:rgba(155,93,229,.15);color:#9b5de5;border:1px solid rgba(155,93,229,.3);
-                  {% else %}background:rgba(231,76,60,.15);color:var(--inv-rojo);border:1px solid rgba(231,76,60,.3);{% endif %}">
+                <span class="badge badge-comparativa
+  {% if d.estado == 'ok' %}badge-estado-ok
+  {% elif d.estado == 'sobrante' %}badge-estado-sobrante
+  {% else %}badge-estado-faltante{% endif %}">
                   {% if d.estado == 'ok' %}OK{% elif d.estado == 'sobrante' %}Sobrante{% else %}Faltante{% endif %}
                 </span>
               </div>

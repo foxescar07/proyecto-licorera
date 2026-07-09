@@ -325,6 +325,7 @@ document.querySelectorAll('.presentacion-item').forEach(item => {
     e.preventDefault();
     sel.value = item.dataset.value;
     document.getElementById('presentacion-label').textContent = item.textContent.trim();
+    document.getElementById('presentacion-btn').classList.remove('sal-campo-error');
     sel.dispatchEvent(new Event('change'));
   });
 });
@@ -368,8 +369,9 @@ inputQty.addEventListener('input', function () {
 document.getElementById('form-salida').addEventListener('submit', function (e) {
   if (!sel.value) {
     e.preventDefault();
-    document.getElementById('presentacion-btn').style.borderColor = '#3ce7a8';
-    document.getElementById('presentacion-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const btn = document.getElementById('presentacion-btn');
+    btn.classList.add('sal-campo-error');
+    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
 </script>

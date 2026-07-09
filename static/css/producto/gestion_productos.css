@@ -311,3 +311,8 @@
 .cat-stat-fill {
   background: #4DA8DA;
 }
+/* ── Tabla compacta (opcional, más apretada que table-sm) ── */
+.prod-table.table-sm td,
+.prod-table.table-sm th {
+  font-size: .82rem;
+}
