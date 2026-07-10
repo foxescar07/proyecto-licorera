@@ -27,6 +27,8 @@ class UsuarioForm(forms.Form):
         val = self.cleaned_data['identificacion']
         if Usuario.objects.filter(identificacion=val).exists():
             raise forms.ValidationError('Ya existe un usuario con esa identificación.')
+        if Usuario.objects.filter(username=val).exists():
+            raise forms.ValidationError('Ya existe un usuario con ese número como nombre de usuario.')
         return val
 
     def clean_email(self):
@@ -55,28 +57,12 @@ class UsuarioForm(forms.Form):
             raise forms.ValidationError('La contraseña debe contener al menos 1 letra mayúscula.')
         return clave
 
-    def _generar_username(self, nombre, apellidos):
-        """
-        Genera username como nombre.apellido, sin tildes ni espacios.
-        Si ya existe, agrega sufijo numérico: nombre.apellido2, nombre.apellido3 ...
-        """
-        primer_nombre   = _normalizar(nombre.strip().split()[0])
-        primer_apellido = _normalizar(apellidos.strip().split()[0])
-        base     = f"{primer_nombre}.{primer_apellido}"
-        username = base
-        contador = 2
-        while Usuario.objects.filter(username=username).exists():
-            username = f"{base}{contador}"
-            contador += 1
-        return username
-
     def save(self):
         data           = self.cleaned_data
         identificacion = data['identificacion']
-        username       = self._generar_username(data['nombre'], data['apellidos'])
 
         usuario = Usuario.objects.create_user(
-            username=username,
+            username=identificacion,
             password=data['clave'],
             first_name=data['nombre'],
             last_name=data['apellidos'],
