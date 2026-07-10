@@ -49,13 +49,3 @@ document.addEventListener('DOMContentLoaded', function () {
     if (path.startsWith('/productos/')) abrir('submenuProductos', 'btnProductos');
     if (path.startsWith('/inventario/')) abrir('submenuInventario', 'btnInventario');
 });
-
-// ── SUBMENÚS (se queda global porque se llama con onclick="" desde el HTML) ──
-function toggleSubmenu(e, btn, submenuId) {
-    e.preventDefault();
-    const s = document.getElementById(submenuId);
-    if (!s) return;
-    s.classList.toggle('abierto');
-    btn.classList.toggle('abierto');
-    btn.querySelector('.cys-chevron')?.classList.toggle('abierto');
-}
