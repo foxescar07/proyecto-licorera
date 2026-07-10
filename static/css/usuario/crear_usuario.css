@@ -1,3 +1,11 @@
+/* ════════════════════════════════════════════════
+   ESTILOS EN LÍNEA EXTRAÍDOS
+   ════════════════════════════════════════════════ */
+
+.usuario-creado-highlight {
+  color: var(--azul-claro);
+}
+
 :root {
     --azul-oscuro: #011936;
     --azul-claro: #4DA8DA;
@@ -772,3 +780,7 @@
   .cys-rule.valid i {
     color: var(--verde);
   }
+/* Error message oculta */
+.cys-error-hidden {
+  display: none;
+}

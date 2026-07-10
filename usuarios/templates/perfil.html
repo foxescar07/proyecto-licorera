@@ -18,22 +18,22 @@
       <div class="cys-card cys-perfil-hero text-center w-100">
 
         <!-- AVATAR -->
-        <div class="cys-perfil-avatar-wrap" style="display:inline-block; position:relative;">
+        <div class="cys-perfil-avatar-wrap avatar-inline-display">
           <div class="cys-perfil-avatar {% if request.user.foto %}cys-perfil-avatar--foto{% endif %}"
                id="avatarBtn"
                data-bs-toggle="modal" data-bs-target="#modalFoto"
-               style="cursor:pointer; position:relative;">
+               class="avatar-clickable">
             {% if request.user.foto %}
               <img id="fotoPreview" src="{{ request.user.foto.url }}" alt="Foto de perfil"
-                   style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
+                   class="foto-preview-perfil">
               <div class="cys-perfil-avatar__overlay"><i class="bi bi-camera-fill"></i></div>
             {% else %}
               <i class="bi bi-person-fill cys-perfil-avatar__icon"></i>
             {% endif %}
-          </div>a
+          </div>
         </div>
 
-        <input type="file" id="inputFoto" accept="image/*" style="display:none;">
+        <input type="file" id="inputFoto" accept="image/*" class="input-file-hidden">
 
         <div class="cys-perfil-nombre mt-3">{{ nombre }} {{ apellidos }}</div>
         <div class="cys-perfil-user">@{{ usuario }}</div>
@@ -85,7 +85,7 @@
             <div class="cys-perfil-field">
               <span class="cys-perfil-field__label">Correo electrónico</span>
               <span class="cys-perfil-field__val">
-                <i class="bi bi-envelope-fill me-1" style="color:var(--azul-claro);font-size:.8rem;"></i>
+                <i class="bi bi-envelope-fill me-1 email-icon-inline"></i>
                 {{ email|default:"—" }}
               </span>
             </div>
@@ -99,8 +99,8 @@
           <div class="col-sm-6">
             <div class="cys-perfil-field">
               <span class="cys-perfil-field__label">Estado</span>
-              <span class="cys-perfil-field__val" style="color:#2ecc71;">
-                <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle;"></i>
+              <span class="cys-perfil-field__val active-badge">
+                <i class="bi bi-circle-fill me-1 active-dot"></i>
                 Activo
               </span>
             </div>
@@ -144,7 +144,7 @@
 </div>
 
 <!-- TOAST BOOTSTRAP -->
-<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index:9999;">
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3 toast-container-custom">
   <div id="fotoToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">
       <div class="toast-body" id="fotoToastBody"></div>
@@ -156,7 +156,7 @@
 
 <!-- MODAL FOTO -->
 <div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-custom">
     <div class="modal-content cys-modal-content">
       <div class="modal-header cys-modal-header">
         <div class="cys-modal-title-wrap">
@@ -166,37 +166,29 @@
           </div>
           <div>
             <h5 class="cys-modal-title">Foto de Perfil</h5>
-            <div style="font-size:.72rem; color:var(--azul-claro); margin-top:.1rem;">Elige o elimina tu foto</div>
+            <div class="modal-subtitle-custom">Elige o elimina tu foto</div>
           </div>
         </div>
         <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" style="padding:1.75rem; background:#0a1e35; text-align:center;">
-        <div id="modalAvatarPreview" style="
-          width:120px; height:120px; border-radius:50%;
-          margin:0 auto 1.25rem;
-          border:2px solid rgba(77,168,218,.45);
-          box-shadow:0 0 0 4px rgba(77,168,218,.12), 0 0 24px rgba(77,168,218,.15);
-          overflow:hidden; background:linear-gradient(135deg,#1a3a5c,#2a5080);
-          display:flex; align-items:center; justify-content:center;">
+      <div class="modal-body modal-body-centered">
+        <div id="modalAvatarPreview" class="modal-avatar-preview">
           {% if request.user.foto %}
-            <img src="{{ request.user.foto.url }}"
-                 style="width:100%;height:100%;object-fit:cover;display:block;" alt="">
+            <img src="{{ request.user.foto.url }}" class="modal-avatar-foto" alt="">
           {% else %}
-            <i class="bi bi-person-fill" style="font-size:3rem; color:var(--azul-claro);"></i>
+            <i class="bi bi-person-fill modal-avatar-icon-large"></i>
           {% endif %}
         </div>
-        <p style="font-size:.8rem; color:rgba(232,237,242,.5); margin-bottom:1.5rem; line-height:1.6;">
+        <p class="modal-hint-text">
           JPG, PNG o WEBP · máximo 5 MB
         </p>
-        <div id="msgModalFoto" class="cys-modal-alert mb-3" style="display:none;"></div>
+        <div id="msgModalFoto" class="cys-modal-alert mb-3 hidden-display"></div>
         <div class="d-flex flex-column gap-2">
           <button type="button" class="cys-btn-primary" id="btnModalSubirFoto">
             <i class="bi bi-upload me-2"></i> Subir nueva foto
           </button>
-          <button type="button" class="cys-btn-link w-100 justify-content-center"
+          <button type="button" class="cys-btn-link w-100 justify-content-center modal-btn-link"
                   id="btnModalQuitarFoto"
-                  style="color:#e87070; border-color:rgba(192,57,43,.35);"
                   {% if not request.user.foto %}disabled{% endif %}>
             <i class="bi bi-trash3 me-1"></i> Quitar foto actual
           </button>
@@ -214,11 +206,9 @@
       <div class="modal-header cys-modal-header">
 
         <!-- AVATAR EN MODAL EDITAR -->
-        <div class="cys-modal-avatar" id="modalEditarAvatar"
-             style="overflow:hidden; flex-shrink:0;">
+        <div class="cys-modal-avatar modal-avatar-editar" id="modalEditarAvatar">
           {% if request.user.foto %}
-            <img src="{{ request.user.foto.url }}"
-                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="">
+            <img src="{{ request.user.foto.url }}" class="modal-avatar-foto-inline" alt="">
           {% else %}
             <i class="bi bi-person-fill cys-modal-avatar__icon"></i>
           {% endif %}
@@ -231,7 +221,7 @@
         <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body cys-modal-body">
-        <div id="msgEditarInfo" class="cys-modal-alert mb-3" style="display:none;"></div>
+        <div id="msgEditarInfo" class="cys-modal-alert mb-3 hidden-display"></div>
         <div class="row gx-3">
           <div class="col-sm-6 mb-3">
             <label class="cys-form-label">Nombres</label>
@@ -294,7 +284,7 @@
           <input type="password" id="usuP1Clave" class="cys-input" placeholder="••••••••">
           <button type="button" class="cys-eye-btn" data-toggle-target="usuP1Clave"><i class="bi bi-eye"></i></button>
         </div>
-        <div class="cys-form-error mt-2" id="errUsuP1" style="display:none;">
+        <div class="cys-form-error mt-2 hidden-display" id="errUsuP1">
           <i class="bi bi-x-circle me-1"></i><span id="errUsuP1Txt"></span>
         </div>
       </div>
@@ -333,7 +323,7 @@
           <i class="bi bi-at cys-input-icon"></i>
           <input type="text" id="usuP2Nuevo" class="cys-input" placeholder="nuevo_usuario">
         </div>
-        <div class="cys-form-error mt-2" id="errUsuP2" style="display:none;">
+        <div class="cys-form-error mt-2 hidden-display" id="errUsuP2">
           <i class="bi bi-x-circle me-1"></i><span id="errUsuP2Txt"></span>
         </div>
       </div>
@@ -372,7 +362,7 @@
           <input type="password" id="clvP1Actual" class="cys-input" placeholder="••••••••">
           <button type="button" class="cys-eye-btn" data-toggle-target="clvP1Actual"><i class="bi bi-eye"></i></button>
         </div>
-        <div class="cys-form-error mt-2" id="errClvP1" style="display:none;">
+        <div class="cys-form-error mt-2 hidden-display" id="errClvP1">
           <i class="bi bi-x-circle me-1"></i><span id="errClvP1Txt"></span>
         </div>
       </div>
@@ -416,7 +406,7 @@
           <input type="password" id="clvP2Confirmar" class="cys-input" placeholder="••••••••">
           <button type="button" class="cys-eye-btn" data-toggle-target="clvP2Confirmar"><i class="bi bi-eye"></i></button>
         </div>
-        <div class="cys-form-error mt-2" id="errClvP2" style="display:none;">
+        <div class="cys-form-error mt-2 hidden-display" id="errClvP2">
           <i class="bi bi-x-circle me-1"></i><span id="errClvP2Txt"></span>
         </div>
       </div>
@@ -435,218 +425,8 @@
 
 {% block extra_js %}
 <script>
-(function () {
-  const EDITAR_URL = "{% url 'perfil_editar' %}";
-  const FOTO_URL   = "{% url 'actualizar_foto' %}";
-
-  const csrf = () => document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] ?? '';
-
-  /* ── TOAST BOOTSTRAP ── */
-  const toastEl   = document.getElementById('fotoToast');
-  const toastBody = document.getElementById('fotoToastBody');
-  const bsToast   = new bootstrap.Toast(toastEl, { delay: 3200 });
-  const showToast = (txt, tipo) => {
-    toastBody.textContent = txt;
-    toastEl.className = `toast align-items-center border-0 text-bg-${tipo === 'ok' ? 'success' : 'danger'}`;
-    bsToast.show();
-  };
-
-  /* ── HELPERS ── */
-  const $         = id => document.getElementById(id);
-  const showErr   = (spanId, divId, txt) => { $(spanId).textContent = txt; $(divId).style.display = 'flex'; };
-  const hideErr   = id => $(id).style.display = 'none';
-  const showAlert = (id, txt, tipo) => {
-    const el = $(id);
-    el.className   = `cys-modal-alert mb-3 cys-modal-alert--${tipo === 'ok' ? 'ok' : 'err'}`;
-    el.textContent = txt; el.style.display = 'block';
-  };
-  const postAjax  = (url, fd, onOk, onErr) => {
-    fd.append('csrfmiddlewaretoken', csrf());
-    fetch(url, { method:'POST', body:fd, headers:{'X-Requested-With':'XMLHttpRequest'} })
-      .then(r => r.json())
-      .then(d => d.ok ? onOk(d) : onErr(d.error || 'Error desconocido.'))
-      .catch(() => onErr('Error de conexión.'));
-  };
-  const modalChain = (hideEl, showEl) => {
-    const m = bootstrap.Modal.getInstance(hideEl) || new bootstrap.Modal(hideEl);
-    m.hide();
-    hideEl.addEventListener('hidden.bs.modal', () => new bootstrap.Modal(showEl).show(), { once: true });
-  };
-
-  /* ── ACTUALIZAR TODOS LOS AVATARES ── */
-  function sincronizarAvatares(src) {
-    $('modalAvatarPreview').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block;" alt="">`;
-    const btn = $('avatarBtn');
-    btn.classList.add('cys-perfil-avatar--foto');
-    btn.innerHTML = `<img id="fotoPreview" src="${src}" alt="Foto"
-      style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
-      <div class="cys-perfil-avatar__overlay"><i class="bi bi-camera-fill"></i></div>`;
-    const editarAvatar = $('modalEditarAvatar');
-    if (editarAvatar) editarAvatar.innerHTML = `<img src="${src}"
-      style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="">`;
-    const sbAvatar = document.querySelector('.cys-sb-avatar');
-    if (sbAvatar) {
-      sbAvatar.innerHTML = `<img src="${src}"
-        style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="">`;
-      sbAvatar.style.padding = '0';
-      sbAvatar.style.overflow = 'hidden';
-    }
-  }
-
-  function restaurarAvatares() {
-    $('modalAvatarPreview').innerHTML = `<i class="bi bi-person-fill" style="font-size:3rem;color:var(--azul-claro);"></i>`;
-    const btn = $('avatarBtn');
-    btn.classList.remove('cys-perfil-avatar--foto');
-    btn.innerHTML = `<i class="bi bi-person-fill cys-perfil-avatar__icon"></i>`;
-    const editarAvatar = $('modalEditarAvatar');
-    if (editarAvatar) editarAvatar.innerHTML = `<i class="bi bi-person-fill cys-modal-avatar__icon"></i>`;
-    const sbAvatar = document.querySelector('.cys-sb-avatar');
-    if (sbAvatar) {
-      sbAvatar.innerHTML = `<i class="bi bi-person-fill cys-sb-avatar__icon"></i>`;
-      sbAvatar.style.padding = '';
-      sbAvatar.style.overflow = '';
-    }
-  }
-
-  /* ── OJO CONTRASEÑA ── */
-  document.addEventListener('click', e => {
-    const btn = e.target.closest('[data-toggle-target]');
-    if (!btn) return;
-    const field = $(btn.dataset.toggleTarget), icon = btn.querySelector('i');
-    if (!field || !icon) return;
-    const isPwd = field.type === 'password';
-    field.type = isPwd ? 'text' : 'password';
-    icon.classList.toggle('bi-eye',      !isPwd);
-    icon.classList.toggle('bi-eye-slash', isPwd);
-  });
-
-  /* ── FOTO PERFIL ── */
-  const inputFoto      = $('inputFoto');
-  const btnModalSubir  = $('btnModalSubirFoto');
-  const btnModalQuitar = $('btnModalQuitarFoto');
-
-  btnModalSubir.addEventListener('click', () => inputFoto.click());
-
-  inputFoto.addEventListener('change', function () {
-    if (!this.files.length) return;
-    const file = this.files[0];
-    const reader = new FileReader();
-    reader.onload = e => {
-      sincronizarAvatares(e.target.result);
-      btnModalSubir.disabled = true;
-      btnModalSubir.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Subiendo…';
-      const fd = new FormData(); fd.append('foto', file);
-      postAjax(FOTO_URL, fd,
-        () => {
-          btnModalSubir.disabled = false;
-          btnModalSubir.innerHTML = '<i class="bi bi-upload me-2"></i> Subir nueva foto';
-          btnModalQuitar.disabled = false;
-          showAlert('msgModalFoto', '✅ Foto actualizada.', 'ok');
-          showToast('✅ Foto actualizada.', 'ok');
-        },
-        err => {
-          btnModalSubir.disabled = false;
-          btnModalSubir.innerHTML = '<i class="bi bi-upload me-2"></i> Subir nueva foto';
-          showAlert('msgModalFoto', err, 'err');
-        }
-      );
-    };
-    reader.readAsDataURL(file);
-    this.value = '';
-  });
-
-  btnModalQuitar.addEventListener('click', function () {
-    this.disabled = true;
-    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Eliminando…';
-    const fd = new FormData(); fd.append('quitar', '1');
-    postAjax(FOTO_URL, fd,
-      () => {
-        this.innerHTML = '<i class="bi bi-trash3 me-1"></i> Quitar foto actual';
-        this.disabled  = true;
-        restaurarAvatares();
-        showAlert('msgModalFoto', '✅ Foto eliminada.', 'ok');
-        showToast('✅ Foto eliminada.', 'ok');
-      },
-      err => {
-        this.disabled = false;
-        this.innerHTML = '<i class="bi bi-trash3 me-1"></i> Quitar foto actual';
-        showAlert('msgModalFoto', err, 'err');
-      }
-    );
-  });
-
-  $('modalFoto').addEventListener('show.bs.modal', () => {
-    $('msgModalFoto').style.display = 'none';
-  });
-
-  /* ── EDITAR INFO ── */
-  $('btnGuardarInfo')?.addEventListener('click', function () {
-    const nombre = $('epNombre').value.trim(), apellidos = $('epApellidos').value.trim(),
-          email  = $('epEmail').value.trim(),  telefono  = $('epTelefono').value.trim();
-    if (!nombre || !apellidos || !email) { showAlert('msgEditarInfo', 'Nombre, apellidos y correo son obligatorios.', 'err'); return; }
-    this.disabled = true; this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando…';
-    const fd = new FormData();
-    fd.append('accion','info'); fd.append('nombre',nombre); fd.append('apellidos',apellidos);
-    fd.append('email',email); fd.append('telefono',telefono);
-    postAjax(EDITAR_URL, fd,
-      () => { showAlert('msgEditarInfo','✅ Perfil actualizado.','ok'); setTimeout(() => location.reload(), 1400); },
-      err => { this.disabled=false; this.innerHTML='<i class="bi bi-check-lg"></i> Guardar Cambios'; showAlert('msgEditarInfo',err,'err'); }
-    );
-  });
-
-  /* ── CAMBIAR USUARIO ── */
-  const elUsuP1 = $('modalUsuarioPaso1'), elUsuP2 = $('modalUsuarioPaso2');
-  $('btnAbrirCambioUsuario')?.addEventListener('click', () => { $('usuP1Clave').value=''; hideErr('errUsuP1'); new bootstrap.Modal(elUsuP1).show(); });
-  elUsuP1?.addEventListener('hidden.bs.modal', () => { $('usuP1Clave').value=''; hideErr('errUsuP1'); });
-  $('btnUsuP1Siguiente')?.addEventListener('click', function () {
-    const clave = $('usuP1Clave').value;
-    if (!clave) { showErr('errUsuP1Txt','errUsuP1','Ingresa tu contraseña actual.'); return; }
-    hideErr('errUsuP1'); this.disabled=true; this.innerHTML='<span class="spinner-border spinner-border-sm"></span>';
-    const fd = new FormData(); fd.append('accion','verificar_clave'); fd.append('clave_actual',clave);
-    postAjax(EDITAR_URL, fd,
-      () => { this.disabled=false; this.innerHTML='Siguiente <i class="bi bi-arrow-right ms-1"></i>'; $('usuP2Nuevo').value=''; hideErr('errUsuP2'); modalChain(elUsuP1,elUsuP2); },
-      err => { this.disabled=false; this.innerHTML='Siguiente <i class="bi bi-arrow-right ms-1"></i>'; showErr('errUsuP1Txt','errUsuP1',err); }
-    );
-  });
-  $('btnUsuP2Volver')?.addEventListener('click', () => modalChain(elUsuP2, elUsuP1));
-  $('btnUsuP2Guardar')?.addEventListener('click', function () {
-    const nuevo = $('usuP2Nuevo').value.trim();
-    if (!nuevo) { showErr('errUsuP2Txt','errUsuP2','Escribe el nuevo nombre de usuario.'); return; }
-    if (!/^[a-zA-Z0-9_]{3,30}$/.test(nuevo)) { showErr('errUsuP2Txt','errUsuP2','Solo letras, números y _ (3–30 caracteres).'); return; }
-    hideErr('errUsuP2'); this.disabled=true; this.innerHTML='<span class="spinner-border spinner-border-sm"></span>';
-    const fd = new FormData(); fd.append('accion','cambiar_usuario'); fd.append('usuario',nuevo);
-    postAjax(EDITAR_URL, fd, () => location.reload(),
-      err => { this.disabled=false; this.innerHTML='<i class="bi bi-check-lg me-1"></i> Confirmar'; showErr('errUsuP2Txt','errUsuP2',err); }
-    );
-  });
-
-  /* ── CAMBIAR CLAVE ── */
-  const elClvP1 = $('modalClavePaso1'), elClvP2 = $('modalClavePaso2');
-  $('btnAbrirCambioClave')?.addEventListener('click', () => { $('clvP1Actual').value=''; hideErr('errClvP1'); new bootstrap.Modal(elClvP1).show(); });
-  elClvP1?.addEventListener('hidden.bs.modal', () => { $('clvP1Actual').value=''; hideErr('errClvP1'); });
-  $('btnClvP1Siguiente')?.addEventListener('click', function () {
-    const clave = $('clvP1Actual').value;
-    if (!clave) { showErr('errClvP1Txt','errClvP1','Ingresa tu contraseña actual.'); return; }
-    hideErr('errClvP1'); this.disabled=true; this.innerHTML='<span class="spinner-border spinner-border-sm"></span>';
-    const fd = new FormData(); fd.append('accion','verificar_clave'); fd.append('clave_actual',clave);
-    postAjax(EDITAR_URL, fd,
-      () => { this.disabled=false; this.innerHTML='Siguiente <i class="bi bi-arrow-right ms-1"></i>'; $('clvP2Nueva').value=''; $('clvP2Confirmar').value=''; hideErr('errClvP2'); modalChain(elClvP1,elClvP2); },
-      err => { this.disabled=false; this.innerHTML='Siguiente <i class="bi bi-arrow-right ms-1"></i>'; showErr('errClvP1Txt','errClvP1',err); }
-    );
-  });
-  $('btnClvP2Volver')?.addEventListener('click', () => modalChain(elClvP2, elClvP1));
-  $('btnClvP2Guardar')?.addEventListener('click', function () {
-    const nueva=$('clvP2Nueva').value, confirmar=$('clvP2Confirmar').value;
-    if (!nueva)              { showErr('errClvP2Txt','errClvP2','Escribe la nueva contraseña.'); return; }
-    if (nueva.length < 6)    { showErr('errClvP2Txt','errClvP2','Mínimo 6 caracteres.'); return; }
-    if (nueva !== confirmar) { showErr('errClvP2Txt','errClvP2','Las contraseñas no coinciden.'); return; }
-    hideErr('errClvP2'); this.disabled=true; this.innerHTML='<span class="spinner-border spinner-border-sm"></span>';
-    const fd = new FormData(); fd.append('accion','cambiar_clave'); fd.append('clave_nueva',nueva);
-    postAjax(EDITAR_URL, fd, () => location.reload(),
-      err => { this.disabled=false; this.innerHTML='<i class="bi bi-check-lg me-1"></i> Guardar'; showErr('errClvP2Txt','errClvP2',err); }
-    );
-  });
-
-})();
+  window.EDITAR_URL = "{% url 'perfil_editar' %}";
+  window.FOTO_URL   = "{% url 'actualizar_foto' %}";
 </script>
+<script src="{% static 'js/usuario/perfil.js' %}"></script>
 {% endblock %}
