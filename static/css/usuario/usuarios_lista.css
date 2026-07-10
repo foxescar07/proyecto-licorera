@@ -3,13 +3,12 @@
    ════════════════════════════════════════════════ */
 
 .hidden-display {
+  display: none; 
+}
+
+.usuario-rol-selector.hidden-display {
   display: none;
 }
-
-.hidden-important {
-  display: none !important;
-}
-
 .avatar-image-cover {
   width: 100%;
   height: 100%;

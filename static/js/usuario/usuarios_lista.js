@@ -1,4 +1,4 @@
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
 
   const $    = id => document.getElementById(id);
   const csrf = () => (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
@@ -39,7 +39,7 @@
      STATS
   ══════════════════════════════════════════════ */
   function calcularStats() {
-    let activos = 0, inactivos = 0, admin = 0, cajero = 0, empleado = 0;
+    let activos = 0, inactivos = 0, cajero = 0, empleado = 0;
     document.querySelectorAll('[id^="fila-"]').forEach(card => {
       const pk = card.id.slice(5);
       const eb = $('estado-badge-' + pk);
@@ -47,17 +47,17 @@
       if (!eb || !rb) return;
       eb.classList.contains('usuario-estado--activo') ? activos++ : inactivos++;
       const r = rb.textContent.trim().toLowerCase();
-      r.includes('admin') ? admin++ : r.includes('caj') ? cajero++ : empleado++;
+      r.includes('caj') ? cajero++ : empleado++;
     });
     const total = activos + inactivos;
-    $('cnt-activos').textContent   = activos;
-    $('cnt-inactivos').textContent = inactivos;
-    $('cnt-admin').textContent     = admin;
-    $('cnt-cajero').textContent    = cajero;
-    $('cnt-empleado').textContent  = empleado;
+    if ($('cnt-activos'))   $('cnt-activos').textContent   = activos;
+    if ($('cnt-inactivos')) $('cnt-inactivos').textContent = inactivos;
+    if ($('cnt-admin'))     $('cnt-admin').textContent     = 1; // Admin fijo, no se cuenta desde las tarjetas
+    if ($('cnt-cajero'))    $('cnt-cajero').textContent    = cajero;
+    if ($('cnt-empleado'))  $('cnt-empleado').textContent  = empleado;
     const pct = total > 0 ? Math.round(activos / total * 100) : 0;
-    $('pct-activos').textContent = pct + '%';
-    $('bar-activos').style.width = pct + '%';
+    if ($('pct-activos')) $('pct-activos').textContent = pct + '%';
+    if ($('bar-activos'))  $('bar-activos').style.width = pct + '%';
   }
 
   /* ══════════════════════════════════════════════
@@ -71,7 +71,7 @@
 
   function sincronizarAlturaRecientes() {
     const layout = $('layout-principal');
-    if (!layout.classList.contains('cards-view-3-4')) return;
+    if (!layout || !layout.classList.contains('cards-view-3-4')) return;
     const main   = $('ul-main-ref');
     const widget = document.querySelector('#wrapperRecientes .widget-recientes');
     const scroll = document.querySelector('#wrapperRecientes .ul-recientes-scroll');
@@ -88,6 +88,7 @@
   function reajustarLayout() {
     const total  = contarVisibles();
     const layout = $('layout-principal');
+    if (!layout) return;
     const cS     = $('collapseStats');
     const cR     = $('collapseRecientes');
 
@@ -106,7 +107,48 @@
     requestAnimationFrame(() => requestAnimationFrame(sincronizarAlturaRecientes));
   }
 
+  /* ══════════════════════════════════════════════
+     SINCRONIZAR ESTADO BOTONES ACTIVAR/DESACTIVAR/ELIMINAR
+     (fix: al cargar la página, garantiza que solo se vea el
+     botón correcto según el badge de estado de cada usuario)
+  ══════════════════════════════════════════════ */
+  function inicializarEstadoUsuarios() {
+    document.querySelectorAll('[id^="wrap-toggle-"]').forEach(wrap => {
+      const pk    = wrap.id.replace('wrap-toggle-', '');
+      const badge = $('estado-badge-' + pk);
+      const btnT  = $('btn-toggle-'   + pk);
+      const btnE  = $('btn-eliminar-' + pk);
+      if (!badge || !btnT || !btnE) return;
+
+      const activo = badge.classList.contains('usuario-estado--activo');
+
+      // El botón toggle siempre se ve
+      btnT.classList.remove('hidden-display');
+      btnT.style.display = '';
+
+      if (activo) {
+        // Usuario activo -> solo "Desactivar", ocultar "Eliminar"
+        btnT.className = btnT.className.replace('usuario-btn-activar', 'usuario-btn-desactivar');
+        btnT.innerHTML  = '<i class="bi bi-person-dash me-1"></i> Desactivar';
+        btnT.onclick    = () => toggleActivo(pk, true);
+        btnE.classList.add('hidden-display');
+        btnE.style.display = 'none';
+      } else {
+        // Usuario inactivo -> "Activar" + "Eliminar" visibles
+        btnT.className = btnT.className.replace('usuario-btn-desactivar', 'usuario-btn-activar');
+        btnT.innerHTML  = '<i class="bi bi-person-check me-1"></i> Activar';
+        btnT.onclick    = () => toggleActivo(pk, false);
+        btnE.classList.remove('hidden-display');
+        btnE.style.display = 'block';
+      }
+    });
+  }
+
   /* ── INIT ── */
+  const srInicial = $('sin-resultados');
+  if (srInicial) srInicial.style.setProperty('display', 'none', 'important');
+
+  inicializarEstadoUsuarios();
   calcularStats();
   reajustarLayout();
   window.addEventListener('resize', () => requestAnimationFrame(sincronizarAlturaRecientes));
@@ -374,6 +416,10 @@
       card.style.transform = 'scale(1)';
     });
 
+    // Nueva tarjeta siempre nace "Activo" -> asegurar botón eliminar oculto
+    const btnE = $('btn-eliminar-' + d.pk);
+    if (btnE) { btnE.classList.add('hidden-display'); btnE.style.display = 'none'; }
+
     const recientesScroll = $('recientes-scroll');
     if (recientesScroll) {
       const item = document.createElement('div');
@@ -532,6 +578,7 @@
         btnT.className  = btnT.className.replace('usuario-btn-activar','usuario-btn-desactivar');
         btnT.innerHTML  = '<i class="bi bi-person-dash me-1"></i> Desactivar';
         btnT.onclick    = () => toggleActivo(pk, true);
+        btnE.classList.add('hidden-display');
         btnE.style.display = 'none';
       } else {
         badge.className = 'usuario-estado usuario-estado--inactivo';
@@ -539,6 +586,7 @@
         btnT.className  = btnT.className.replace('usuario-btn-desactivar','usuario-btn-activar');
         btnT.innerHTML  = '<i class="bi bi-person-check me-1"></i> Activar';
         btnT.onclick    = () => toggleActivo(pk, false);
+        btnE.classList.remove('hidden-display');
         btnE.style.display = 'block';
       }
       calcularStats();
@@ -566,4 +614,4 @@
     });
   };
 
-})();
+});
