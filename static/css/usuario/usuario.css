@@ -324,3 +324,51 @@ body {
   background: rgba(94,219,151,.08);
   border-color: rgba(94,219,151,.22);
 }
+
+/* ════════════════════════════════════════════════
+   ESTILOS EN LÍNEA EXTRAÍDOS
+   ════════════════════════════════════════════════ */
+
+.hidden-display {
+  display: none;
+}
+
+.msg-display-block {
+  display: block;
+}
+
+.icon-small {
+  font-size: 0.75rem;
+}
+
+.cys-desc {
+  font-size: 0.78rem;
+  color: var(--texto-muted);
+  line-height: 1.6;
+}
+
+.btn-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-subtitle {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.input-email-left-padding {
+  padding-left: 2.6rem !important;
+}
+
+.otp-input-custom {
+  letter-spacing: 0.5rem;
+  font-size: 1.4rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.timer-span {
+  font-weight: 700;
+  margin-left: 0.25rem;
+}

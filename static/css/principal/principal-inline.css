@@ -1,0 +1,32 @@
+/* ============================================================
+   PRINCIPAL — ESTILOS EN LÍNEA EXTRAÍDOS
+   ============================================================ */
+
+/* Alert acceso denegado */
+.alert-acceso-denegado {
+  background: rgba(192, 57, 43, 0.12) !important;
+  border: 1px solid rgba(192, 57, 43, 0.35) !important;
+  color: #e87070 !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+}
+
+/* Transición chevron botón resumen */
+#btn-resumen-meses .bi-chevron-down {
+  transition: transform 0.25s ease;
+}
+
+#btn-resumen-meses[aria-expanded="true"] .bi-chevron-down {
+  transform: rotate(180deg);
+}
+
+/* Sin categorías */
+.sin-categorias {
+  color: var(--texto-muted);
+}
+
+/* Subtítulo stat card */
+.stat-card-subtitle {
+  font-size: 0.65rem;
+  color: var(--texto-muted);
+}

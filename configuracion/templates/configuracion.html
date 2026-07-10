@@ -14,11 +14,11 @@
   {% csrf_token %}
 
   <div id="cfg-data"
+       class="cfg-data"
        data-url-actividad="{% url 'actividad_usuarios' %}"
        data-url-guardar-empresa="{% url 'configuracion:guardar_empresa' %}"
        data-url-guardar-impuestos="{% url 'configuracion:guardar_impuestos' %}"
-       data-url-crear-backup="{% url 'configuracion:crear_backup' %}"
-       style="display:none;"></div>
+       data-url-crear-backup="{% url 'configuracion:crear_backup' %}"></div>
 
   <!-- ① VISUALIZACIÓN: BRILLO / FUENTE / AUMENTO (3 TARJETAS CON PERILLA) -->
   <div class="cfg-section">
@@ -63,32 +63,32 @@
     <div class="cfg-options" id="opcionesTema">
 
       <div class="cfg-opt" data-tema="oscuro" onclick="seleccionarTema('oscuro', this)">
-        <div class="tema-preview" style="background:linear-gradient(135deg,#011936,#0a2240);"></div>
-        <i class="bi bi-moon-stars-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        <div class="tema-preview tema-preview-oscuro"></div>
+        <i class="bi bi-moon-stars-fill tema-icon"></i>
         Oscuro
       </div>
 
       <div class="cfg-opt" data-tema="claro" onclick="seleccionarTema('claro', this)">
-        <div class="tema-preview" style="background:linear-gradient(135deg,#f0f4f8,#dde8f0);"></div>
-        <i class="bi bi-sun-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        <div class="tema-preview tema-preview-claro"></div>
+        <i class="bi bi-sun-fill tema-icon"></i>
         Claro
       </div>
 
       <div class="cfg-opt" data-tema="alto-contraste" onclick="seleccionarTema('alto-contraste', this)">
-        <div class="tema-preview" style="background:#000; border:2px solid #fff;"></div>
-        <i class="bi bi-circle-half" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        <div class="tema-preview tema-preview-alto-contraste"></div>
+        <i class="bi bi-circle-half tema-icon"></i>
         Alto contraste
       </div>
 
       <div class="cfg-opt" data-tema="basecys" onclick="seleccionarTema('basecys', this)">
-        <div class="tema-preview" style="background:#D9A441;"></div>
-        <i class="bi bi-cup-straw" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        <div class="tema-preview tema-preview-base-cys"></div>
+        <i class="bi bi-cup-straw tema-icon"></i>
         Base CyS
       </div>
 
       <div class="cfg-opt" data-tema="sepia" onclick="seleccionarTema('sepia', this)">
-        <div class="tema-preview" style="background:linear-gradient(135deg,#1a0f05,#3d2b14);"></div>
-        <i class="bi bi-book-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+        <div class="tema-preview tema-preview-sepia"></div>
+        <i class="bi bi-book-fill tema-icon"></i>
         Sepia
       </div>
 
@@ -103,21 +103,21 @@
         <div class="cfg-options" id="opcionesInicio">
 
           <div class="cfg-opt" data-inicio="tablero" onclick="seleccionarInicio('tablero', this)">
-            <i class="bi bi-grid-1x2-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+            <i class="bi bi-grid-1x2-fill cfg-opt-icon-lg"></i>
             Tablero
-            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Vista general del negocio</div>
+            <div class="cfg-opt-desc">Vista general del negocio</div>
           </div>
 
           <div class="cfg-opt" data-inicio="ventas" onclick="seleccionarInicio('ventas', this)">
-            <i class="bi bi-receipt" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+            <i class="bi bi-receipt cfg-opt-icon-lg"></i>
             Ventas
-            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Directo a registrar ventas</div>
+            <div class="cfg-opt-desc">Directo a registrar ventas</div>
           </div>
 
           <div class="cfg-opt" data-inicio="productos" onclick="seleccionarInicio('productos', this)">
-            <i class="bi bi-box-seam-fill" style="font-size:1.2rem; margin-bottom:.3rem;"></i>
+            <i class="bi bi-box-seam-fill cfg-opt-icon-lg"></i>
             Productos
-            <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.25rem;">Gestión de productos</div>
+            <div class="cfg-opt-desc">Gestión de productos</div>
           </div>
 
         </div>
@@ -130,7 +130,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-pin-angle" style="color:var(--azul-claro);"></i>
+            <i class="bi bi-pin-angle icon-azul"></i>
             <div>
               Abrir automáticamente al entrar
               <span>La barra lateral se abre al cargar cualquier página</span>
@@ -144,7 +144,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-bar-chart-steps" style="color:var(--azul-claro);"></i>
+            <i class="bi bi-bar-chart-steps icon-azul"></i>
             <div>
               Mostrar sección Resumen
               <span>Stock total, crítico y categorías en el sidebar</span>
@@ -166,7 +166,7 @@
       <div class="cfg-section">
         <div class="cfg-title"><i class="bi bi-clock-history"></i> Actividad de usuarios</div>
 
-        <p style="font-size:.8rem; color:var(--texto-muted); margin-bottom:1rem;" id="actividadHint">
+        <p class="cfg-hint" id="actividadHint">
           Consulta los inicios de sesión registrados en el sistema.
         </p>
 
@@ -182,7 +182,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-exclamation-triangle-fill" style="color:#e87070;"></i>
+            <i class="bi bi-exclamation-triangle-fill icon-rojo-alert"></i>
             <div>
               Alertas de stock crítico
               <span>Muestra el banner rojo cuando hay productos en 0 o bajo mínimo</span>
@@ -196,7 +196,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-bar-chart-fill" style="color:var(--azul-claro);"></i>
+            <i class="bi bi-bar-chart-fill icon-azul"></i>
             <div>
               Widget de estadísticas en productos
               <span>Muestra la sección de rotación y producto estrella</span>
@@ -210,7 +210,7 @@
 
         <div class="cfg-toggle-row">
           <div class="cfg-toggle-label">
-            <i class="bi bi-bell-slash" style="color:var(--texto-muted);"></i>
+            <i class="bi bi-bell-slash icon-muted"></i>
             <div>
               Modo silencioso
               <span>Oculta todas las alertas visuales del sistema</span>
@@ -229,7 +229,7 @@
   <!-- ⑦ INFORMACIÓN DE LA EMPRESA (LOGO + DATOS, CONECTADO A guardar_empresa) -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title-row">
-      <div class="cfg-title" style="margin-bottom:0;"><i class="bi bi-building"></i> Información de la empresa</div>
+      <div class="cfg-title cfg-title-no-margin"><i class="bi bi-building"></i> Información de la empresa</div>
       <button onclick="guardarInfoEmpresa()" class="cfg-btn-mini" id="btnGuardarEmpresa">
         <i class="bi bi-check-lg"></i> Guardar
       </button>
@@ -244,7 +244,7 @@
           <i class="bi bi-image"></i>
         {% endif %}
       </div>
-      <input type="file" id="inputLogoEmpresa" accept="image/*" style="display:none;"
+      <input type="file" id="inputLogoEmpresa" accept="image/*" class="input-file-hidden"
              onchange="previewLogoEmpresa(this)">
 
       <div class="cfg-empresa-header__campos">
@@ -278,7 +278,7 @@
   <!-- ⑧ IMPUESTOS Y MONEDA (CONECTADO A guardar_impuestos) -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title-row">
-      <div class="cfg-title" style="margin-bottom:0;"><i class="bi bi-cash-coin"></i> Impuestos y moneda</div>
+      <div class="cfg-title cfg-title-no-margin"><i class="bi bi-cash-coin"></i> Impuestos y moneda</div>
       <button onclick="guardarImpuestos()" class="cfg-btn-mini" id="btnGuardarImpuestos">
         <i class="bi bi-check-lg"></i> Guardar
       </button>
@@ -301,7 +301,7 @@
         <input type="text" class="cfg-input" id="unidadesMedida"
                value="{{ config.unidades_medida|join:', ' }}"
                placeholder="unidad, caja, paquete">
-        <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.3rem;">Sepáralas con comas</div>
+        <div class="cfg-hint-sm">Sepáralas con comas</div>
       </div>
     </div>
   </div>
@@ -317,7 +317,7 @@
             <div class="lbl">Tablas</div>
             <div class="val" id="dbTablas">{{ db_stats.tablas }}</div>
           </div>
-          <i class="bi bi-hdd-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
+          <i class="bi bi-hdd-stack db-stat-icon"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
@@ -326,7 +326,7 @@
             <div class="lbl">Registros totales</div>
             <div class="val" id="dbRegistros">{{ db_stats.registros }}</div>
           </div>
-          <i class="bi bi-stack" style="color:var(--azul-claro); font-size:1.3rem;"></i>
+          <i class="bi bi-stack db-stat-icon"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
@@ -335,7 +335,7 @@
             <div class="lbl">Tamaño BD</div>
             <div class="val" id="dbTamano">{{ db_stats.tamaño }}</div>
           </div>
-          <i class="bi bi-hdd" style="color:var(--azul-claro); font-size:1.3rem;"></i>
+          <i class="bi bi-hdd db-stat-icon"></i>
         </div>
       </div>
       <div class="col-sm-6 col-lg-3">
@@ -346,7 +346,7 @@
               {% if backups.0 %}{{ backups.0.fecha|date:"d/m/Y H:i" }}{% else %}Sin registrar{% endif %}
             </div>
           </div>
-          <i class="bi bi-clock-history" style="color:var(--azul-claro); font-size:1.3rem;"></i>
+          <i class="bi bi-clock-history db-stat-icon"></i>
         </div>
       </div>
     </div>
@@ -357,17 +357,17 @@
       </button>
     </div>
 
-    <div id="listaBackups" style="margin-top:1.25rem;">
+    <div id="listaBackups" class="mt-backups">
       {% for b in backups %}
         <div class="cfg-backup-item" data-backup-item>
           <div>
             <div class="cfg-backup-item__nombre">{{ b.nombre }}</div>
             <div class="cfg-backup-item__meta">{{ b.fecha|date:"d/m/Y H:i" }} · {{ b.tamaño_mb }} MB</div>
           </div>
-          <i class="bi bi-file-earmark-zip" style="color:var(--azul-claro);"></i>
+          <i class="bi bi-file-earmark-zip icon-azul"></i>
         </div>
       {% empty %}
-        <div style="font-size:.8rem; color:var(--texto-muted);" data-backup-empty>
+        <div class="backup-empty-text" data-backup-empty>
           Todavía no hay respaldos generados.
         </div>
       {% endfor %}

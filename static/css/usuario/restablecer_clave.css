@@ -89,6 +89,17 @@ body::after {
   margin-bottom: 1rem;
 }
 
+.cys-title--success {
+  color: #5edb97;
+}
+
+.cys-desc {
+  font-size: 0.78rem;
+  color: var(--texto-muted);
+  line-height: 1.6;
+  text-align: center;
+}
+
 .cys-label {
   font-size: .68rem;
   font-weight: 600;
