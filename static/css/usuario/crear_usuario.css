@@ -784,3 +784,203 @@
 .cys-error-hidden {
   display: none;
 }
+
+/* ══════════════════════════════════
+   PANTALLA DE ÉXITO — REDISEÑADA
+══════════════════════════════════ */
+
+.cys-success-wrap {
+  padding: 2.25rem 2rem 1.75rem;
+  text-align: center;
+}
+
+.cys-success-icon {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
+  background: rgba(46, 204, 113, .1);
+  border: 1px solid rgba(46, 204, 113, .35);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--verde);
+  box-shadow: 0 0 30px rgba(94, 219, 151, .25);
+}
+
+.cys-success-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(94, 219, 151, .35);
+  animation: successPulse 1.8s ease-out infinite;
+}
+
+@keyframes successPulse {
+  0%   { transform: scale(.85); opacity: .9; }
+  70%  { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.cys-success-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--verde);
+  margin-bottom: .5rem;
+}
+
+.cys-success-sub {
+  font-size: .82rem;
+  color: var(--texto-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.65;
+}
+
+/* ── Caja de credenciales ── */
+.cys-credential-box {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.1rem;
+  text-align: left;
+  box-shadow: 0 0 24px rgba(0,0,0,.25) inset;
+}
+
+.cys-credential-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--azul-claro);
+  margin-bottom: .9rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid rgba(77,168,218,.15);
+}
+
+.cys-credential-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .5rem 0;
+}
+
+.cys-credential-row + .cys-credential-row {
+  border-top: 1px dashed rgba(77,168,218,.12);
+}
+
+.cys-credential-label {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .7rem;
+  color: var(--texto-sub);
+  letter-spacing: .03em;
+  flex-shrink: 0;
+}
+
+.cys-credential-label i {
+  color: var(--azul-claro);
+  opacity: .75;
+  font-size: .8rem;
+}
+
+.cys-credential-value-wrap {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+}
+
+.cys-credential-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .95rem;
+  letter-spacing: .04em;
+  color: var(--texto);
+  background: var(--fondo-input);
+  border: 1px solid var(--azul-borde);
+  border-radius: 6px;
+  padding: .25rem .6rem;
+  white-space: nowrap;
+}
+
+.cys-credential-muted {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: .76rem;
+  color: var(--texto-muted);
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.cys-copy-btn {
+  background: transparent;
+  border: 1px solid var(--azul-borde);
+  border-radius: 6px;
+  color: var(--azul-claro);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: .8rem;
+  transition: all .2s ease;
+}
+
+.cys-copy-btn:hover {
+  background: var(--azul-glow);
+  border-color: var(--azul-borde-hover);
+}
+
+.cys-copy-btn-ok {
+  color: var(--verde) !important;
+  border-color: rgba(94,219,151,.4) !important;
+  background: rgba(94,219,151,.1) !important;
+}
+
+/* ── Alerta informativa (regla del primer ingreso) ── */
+.cys-alert-info {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  background: rgba(255, 193, 7, .08);
+  border: 1px solid rgba(255, 193, 7, .3);
+  border-left: 3px solid #ffc107;
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  font-size: .76rem;
+  color: var(--texto-sub);
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.cys-alert-info i {
+  color: #ffc107;
+  font-size: 1rem;
+  margin-top: .1rem;
+  flex-shrink: 0;
+}
+
+.cys-alert-info strong {
+  color: var(--texto);
+}
+
+/* ══ FIX: evitar parpadeo de "sin resultados" antes de que cargue el JS ══ */
+#sin-resultados {
+  display: none;
+}

@@ -16,6 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el.id === 'id_clave') el.setAttribute('placeholder', '••••••••');
   });
 
+  // ── Copiar usuario (N.º de documento) en pantalla de éxito ──
+  const btnCopiarUsuario = document.getElementById('btnCopiarUsuario');
+  const valorUsuario     = document.getElementById('valorUsuario');
+  if (btnCopiarUsuario && valorUsuario) {
+    btnCopiarUsuario.addEventListener('click', () => {
+      const texto = valorUsuario.textContent.trim();
+      navigator.clipboard.writeText(texto).then(() => {
+        const icono = btnCopiarUsuario.querySelector('i');
+        icono.classList.remove('bi-clipboard');
+        icono.classList.add('bi-clipboard-check');
+        btnCopiarUsuario.classList.add('cys-copy-btn-ok');
+        setTimeout(() => {
+          icono.classList.remove('bi-clipboard-check');
+          icono.classList.add('bi-clipboard');
+          btnCopiarUsuario.classList.remove('cys-copy-btn-ok');
+        }, 1500);
+      });
+    });
+  }
+
   // ── Modales ──
   const modalConfClaveEl = document.getElementById('modalConfClave');
   const modalTCEl        = document.getElementById('modalTC');
