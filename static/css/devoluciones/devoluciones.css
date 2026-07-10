@@ -1782,3 +1782,216 @@ input[type="radio"]:checked + label.reembolso-card::after {
       padding: 1.5rem;
     }
   }
+
+  /* POLICY ICON */
+  .policy-icon {
+    font-size: 1.5rem !important;
+    display: inline-block;
+  }
+
+  /* COLLAPSIBLE HEADER */
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 1rem;
+    background: rgba(77, 168, 218, 0.08) !important;
+    border: 1px solid rgba(77, 168, 218, 0.2) !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .collapsible-header:hover {
+    background: rgba(77, 168, 218, 0.12) !important;
+    border-color: rgba(77, 168, 218, 0.3) !important;
+  }
+
+  .chevron-toggle {
+    font-size: 1.2rem;
+    color: #4DA8DA;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .collapsible-header.active .chevron-toggle {
+    transform: rotate(180deg);
+  }
+
+  .collapsible-content {
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* SEARCH BOX */
+  .search-box {
+    position: relative;
+  }
+
+  .dev-search-wrapper {
+    position: relative;
+  }
+
+  .dev-search-icon {
+    position: absolute !important;
+    left: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #AF8D86 !important;
+    font-size: 1rem !important;
+    pointer-events: none;
+  }
+
+  .dev-search-input {
+    padding-left: 38px !important;
+    background: #031e3e !important;
+    border: 1px solid rgba(239, 248, 226, 0.12) !important;
+    color: #FDFFFC !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+  }
+
+  .dev-search-input:focus {
+    border-color: #4DA8DA !important;
+    box-shadow: 0 0 0 3px rgba(77, 168, 218, 0.15) !important;
+    background: #031e3e !important;
+    color: #FDFFFC !important;
+  }
+
+  .dev-search-input::placeholder {
+    color: #AF8D86 !important;
+  }
+
+  /* DEVOLUCION CARD */
+  .devolucion-card {
+    background: #031e3e !important;
+    border: 1px solid rgba(239, 248, 226, 0.08) !important;
+    border-radius: 10px !important;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .devolucion-card:hover {
+    background: rgba(77, 168, 218, 0.05) !important;
+    border-color: rgba(77, 168, 218, 0.15) !important;
+  }
+
+  .devolucion-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .devolucion-row-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .devolucion-row-left i {
+    font-size: 1.2rem;
+  }
+
+  .devolucion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .devolucion-numero {
+    font-size: 0.85rem;
+    color: #4DA8DA;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .devolucion-cliente {
+    font-size: 0.95rem;
+    color: #FDFFFC;
+    font-weight: 600;
+  }
+
+  .devolucion-row-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .devolucion-monto {
+    font-size: 1rem;
+    color: #4DA8DA;
+    font-weight: 700;
+    text-align: right;
+    min-width: 70px;
+  }
+
+  .devolucion-fecha {
+    font-size: 0.8rem;
+    color: #AF8D86;
+    text-align: right;
+    min-width: 70px;
+  }
+
+  .chevron-detalle {
+    color: #4DA8DA;
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .devolucion-card.expanded .chevron-detalle {
+    transform: rotate(180deg);
+  }
+
+  /* DEVOLUCION DETALLE */
+  .devolucion-detalle {
+    padding: 1rem;
+    background: rgba(77, 168, 218, 0.03) !important;
+    border-top: 1px solid rgba(77, 168, 218, 0.15) !important;
+  }
+
+  .devolucion-detalle .text-muted {
+    color: #AF8D86 !important;
+  }
+
+  .devolucion-detalle .text-light {
+    color: #FDFFFC !important;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .devolucion-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .devolucion-row-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .devolucion-detalle {
+      padding: 0.75rem;
+    }
+
+    .grid-2col {
+      grid-template-columns: 1fr !important;
+    }
+  }
