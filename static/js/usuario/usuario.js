@@ -4,6 +4,28 @@ function sacudir() {
   if (t) { t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
 }
 
+// ── Overlay Acceso Denegado ──
+const overlayDenegado = document.getElementById('overlayDenegado');
+if (overlayDenegado) {
+  sacudir();
+  const btnCerrar = document.getElementById('btnCerrarDenegado');
+  if (btnCerrar) {
+    btnCerrar.addEventListener('click', () => {
+      overlayDenegado.style.opacity = '0';
+      setTimeout(() => overlayDenegado.remove(), 200);
+    });
+  }
+}
+
+// ── Overlay Acceso Concedido (redirige automáticamente a inicio) ──
+const overlayConcedido = document.getElementById('overlayConcedido');
+if (overlayConcedido) {
+  const destino = overlayConcedido.dataset.redirect || '/';
+  setTimeout(() => {
+    window.location.href = destino;
+  }, 1600);
+}
+
 // ── Toggle password login ──
 const btnToggleLogin = document.getElementById('btnToggleLogin');
 if (btnToggleLogin) {

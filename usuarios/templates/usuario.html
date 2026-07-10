@@ -20,9 +20,31 @@
 
       {% if messages %}
         {% for message in messages %}
-          <div class="cys-msg cys-msg--{% if message.tags == 'error' %}err{% else %}ok{% endif %} msg-display-block" role="alert">
-            {{ message }}
+          {% if message.tags == 'error' %}
+          <div class="cys-access-overlay" id="overlayDenegado">
+            <div class="cys-access-box cys-access-box--err">
+              <div class="cys-access-icon cys-access-icon--err">
+                <i class="bi bi-shield-x"></i>
+              </div>
+              <div class="cys-access-title cys-access-title--err">Acceso Denegado</div>
+              <div class="cys-access-sub">{{ message }}</div>
+              <button type="button" class="cys-access-btn" id="btnCerrarDenegado">
+                Entendido
+              </button>
+            </div>
           </div>
+          {% else %}
+          <div class="cys-access-overlay" id="overlayConcedido" data-redirect="{% url 'inicio' %}">
+            <div class="cys-access-box cys-access-box--ok">
+              <div class="cys-access-icon cys-access-icon--ok">
+                <i class="bi bi-check-lg"></i>
+              </div>
+              <div class="cys-access-title cys-access-title--ok">Acceso Concedido</div>
+              <div class="cys-access-sub">{{ message }}</div>
+              <div class="cys-access-spinner"></div>
+            </div>
+          </div>
+          {% endif %}
         {% endfor %}
       {% endif %}
 
@@ -204,16 +226,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // ── Sacudir tarjeta si hay errores ──
-    function sacudir() {
-      const t = document.getElementById('tarjeta');
-      if (t) { t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
-    }
-    {% if messages %}
-      window.addEventListener('DOMContentLoaded', () => sacudir());
-    {% endif %}
-  </script>
   <script src="{% static 'js/usuario/usuario.js' %}"></script>
 </body>
 </html>
