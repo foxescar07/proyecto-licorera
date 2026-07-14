@@ -3,20 +3,23 @@
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-  --cys-bg-card:       #11233f;
-  --cys-surface:       #0d1c33;
-  --cys-borde:         rgba(77, 168, 218, 0.25);
-  --cys-borde-focus:   #4da8da;
-  --cys-texto-muted:   #6b8296;
-  --cys-acento:        #4da8da;
-  --cys-verde:         #2ecc71;
-  --cys-rojo:          #e74c3c;
-  --cys-cian-brillante:#00c2ff;
+  /* Estas variables ahora heredan del tema global (base.js).
+     El valor tras la coma es el fallback si la variable global
+     no existe todavía, para no romper nada si algo carga fuera de orden. */
+  --cys-bg-card:       var(--fondo-card, #11233f);
+  --cys-surface:       var(--fondo-card2, #0d1c33);
+  --cys-borde:         var(--azul-borde, rgba(77, 168, 218, 0.25));
+  --cys-borde-focus:   var(--azul-claro, #4da8da);
+  --cys-texto-muted:   var(--texto-muted, #6b8296);
+  --cys-acento:        var(--azul-claro, #4da8da);
+  --cys-verde:         var(--verde, #2ecc71);
+  --cys-rojo:          var(--rojo, #e74c3c);
+  --cys-cian-brillante:#00c2ff; /* color de acción fijo del módulo, no forma parte de los 5 temas */
 }
 
 /* ── CONTENEDOR GENERAL ── */
 .cys-page-wrapper {
-  background-color: #0a1628;
+  background-color: var(--fondo, #0a1628);
   min-height: 100vh;
   font-family: sans-serif;
 }
@@ -50,7 +53,7 @@
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.2;
-  color: #fff;
+  color: var(--texto, #fff);
   display: block;
   margin: 2px 0;
 }
@@ -61,7 +64,7 @@
 .cys-btn-action-cian {
   background: var(--cys-cian-brillante);
   border: none;
-  color: #000;
+  color: #000; /* texto sobre botón cian fijo, no depende del tema */
   border-radius: 50px;
   padding: 8px 24px;
   font-size: 0.9rem;
@@ -96,7 +99,7 @@
 }
 .cys-btn-action-dark:hover {
   border-color: var(--cys-acento);
-  color: #fff;
+  color: var(--texto, #fff);
 }
 .cys-btn-action-dark.cys-btn-sm-pill {
   border-radius: 8px;
@@ -200,7 +203,7 @@
 .cys-kpi-value {
   font-size: 1.45rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--texto, #fff);
   line-height: 1.1;
 }
 
@@ -216,7 +219,7 @@
 .cys-input-dark {
   background: var(--cys-surface) !important;
   border: 1px solid var(--cys-borde) !important;
-  color: #fff !important;
+  color: var(--texto, #fff) !important;
   border-radius: 8px !important;
   padding: 8px 12px;
   font-size: 0.85rem;
@@ -262,7 +265,7 @@
   background: rgba(231, 76, 60, 0.08);
   border: 1px solid rgba(231, 76, 60, 0.25);
   border-radius: 6px;
-  color: var(--cys-rojo);          /* rojo CYS */
+  color: var(--cys-rojo);
   font-family: sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
@@ -290,7 +293,7 @@
   border-radius: 12px;
   padding: 1.1rem 1rem;
   text-align: left;
-  color: #fff;
+  color: var(--texto, #fff);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
@@ -335,7 +338,7 @@
 .cys-cat-card-nombre {
   font-weight: 700;
   font-size: 0.85rem;
-  color: #fff;
+  color: var(--texto, #fff);
 }
 
 .cys-cat-card-precio {
@@ -390,7 +393,7 @@
 .cys-sugerencias-item {
   background: var(--cys-surface) !important;
   border-color: var(--cys-borde) !important;
-  color: #fff !important;
+  color: var(--texto, #fff) !important;
   font-size: 0.85rem;
 }
 .cys-sugerencias-item:hover {
@@ -419,7 +422,7 @@
 .cys-carrito-vacio-titulo {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--texto, #fff);
   margin-bottom: 2px;
 }
 .cys-carrito-vacio-subtitulo {
@@ -494,7 +497,7 @@
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--texto, #fff);
 }
 
 .cys-descuento-fila-valor--rojo {
@@ -512,7 +515,7 @@
   padding: 0.75rem 1rem;
 }
 .cys-total-label {
-  color: #fff;
+  color: var(--texto, #fff);
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -526,9 +529,6 @@
 
 /* ══════════════════════════════════════
    FIX 2 — MÉTODOS DE PAGO
-   Transferencia → azul acero
-   Daviplata → morado/índigo
-   (eliminado blanco en iconos)
 ══════════════════════════════════════ */
 .cys-pagos-box {
   background: var(--cys-surface);
@@ -602,15 +602,10 @@
   padding: 4px 2px;
 }
 
-/* Efectivo — verde */
 .cys-pago-card-header--verde        { color: var(--cys-verde); }
-/* Tarjeta — azul acento */
 .cys-pago-card-header--acento       { color: var(--cys-acento); }
-/* Transferencia — azul acero frío */
 .cys-pago-card-header--transferencia { color: #60a5fa; }
-/* Nequi — morado violeta */
 .cys-pago-card-header--morado       { color: #a78bfa; }
-/* Daviplata — índigo / morado oscuro */
 .cys-pago-card-header--daviplata    { color: #818cf8; }
 
 .cys-pago-input {
@@ -731,7 +726,6 @@
 
 /* ══════════════════════════════════════
    HISTORIAL — TOOLBAR (buscador + orden)
-   Igual estilo que "Ventas del día"
 ══════════════════════════════════════ */
 .cys-hist-toolbar {
   display: flex;
@@ -761,7 +755,7 @@
   width: 100%;
   background: var(--cys-surface);
   border: 1px solid var(--cys-borde);
-  color: #fff;
+  color: var(--texto, #fff);
   border-radius: 50px;
   padding: 9px 16px 9px 38px;
   font-size: 0.88rem;
@@ -786,7 +780,7 @@
   -webkit-appearance: none;
   background-color: var(--cys-surface);
   border: 1px solid var(--cys-borde);
-  color: #fff;
+  color: var(--texto, #fff);
   border-radius: 50px;
   padding: 9px 34px 9px 38px;
   font-size: 0.85rem;
@@ -799,17 +793,15 @@
   background-size: 14px;
 }
 .cys-hist-sort-select:focus { border-color: var(--cys-acento); }
-.cys-hist-sort-select option { background: var(--cys-surface); color: #fff; }
+.cys-hist-sort-select option { background: var(--cys-surface); color: var(--texto, #fff); }
 
 /* ══════════════════════════════════════
    HISTORIAL — TABLA ESTILO "INVENTARIO"
-   Fondo plano, sin tarjetas por fila,
-   avatar de cliente + badges
 ══════════════════════════════════════ */
 .cys-hist-table {
   width: 100%;
   border-collapse: collapse;
-  background: #050d1a;
+  background: var(--fondo, #050d1a);
 }
 
 .cys-hist-table thead tr {
@@ -839,7 +831,7 @@
 .cys-hist-table tbody td {
   padding: 13px 16px;
   font-size: 0.85rem;
-  color: #cfe3f5;
+  color: var(--texto, #cfe3f5);
   vertical-align: middle;
 }
 
@@ -849,7 +841,7 @@
 }
 
 .cys-hist-cliente {
-  color: #fff;
+  color: var(--texto, #fff);
   font-weight: 700;
 }
 
@@ -862,7 +854,7 @@
 
 .cys-hist-fecha {
   display: block;
-  color: #e2e8f0;
+  color: var(--texto, #e2e8f0);
   font-weight: 600;
   font-size: 0.82rem;
 }
@@ -879,7 +871,7 @@
 }
 .cys-hist-sin-resultados i { color: rgba(77, 168, 218, 0.2); }
 
-/* ── Avatar + celda cliente (igual a "Ventas del día") ── */
+/* ── Avatar + celda cliente ── */
 .cys-avatar {
   width: 32px;
   height: 32px;
@@ -932,7 +924,7 @@
 .cys-alert {
   background: var(--cys-bg-card);
   border: 1px solid var(--cys-borde);
-  color: #fff;
+  color: var(--texto, #fff);
 }
 
 /* ══════════════════════════════════════
@@ -941,7 +933,7 @@
 .cys-modal-content {
   background: var(--cys-bg-card);
   border: 1px solid var(--cys-borde);
-  color: #fff;
+  color: var(--texto, #fff);
   border-radius: 12px;
 }
 .cys-modal-header {
@@ -1020,7 +1012,7 @@
   justify-content: space-between;
 }
 .cys-resumen-fila-label  { color: var(--cys-texto-muted); }
-.cys-resumen-fila-valor  { font-weight: 700; color: #fff; }
+.cys-resumen-fila-valor  { font-weight: 700; color: var(--texto, #fff); }
 .cys-resumen-fila-valor--verde  { font-weight: 700; color: var(--cys-verde); }
 .cys-resumen-fila-valor--acento { font-weight: 700; color: var(--cys-acento); }
 .cys-resumen-total {
@@ -1031,13 +1023,14 @@
   margin-top: 0.25rem;
   font-size: 0.95rem;
 }
-.cys-resumen-total-label { font-weight: 700; color: #fff; }
+.cys-resumen-total-label { font-weight: 700; color: var(--texto, #fff); }
 .cys-resumen-total-valor {
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--cys-verde);
 }
+
 /* ══════════════════════════════════════
    MODAL DETALLE DE VENTA
 ══════════════════════════════════════ */
@@ -1053,7 +1046,7 @@
 }
 .cys-detalle-item-nombre {
   font-weight: 700;
-  color: #fff;
+  color: var(--texto, #fff);
   font-size: 0.9rem;
 }
 .cys-detalle-item-meta {
@@ -1075,7 +1068,7 @@
   font-size: 0.85rem;
 }
 .cys-detalle-info-label { color: var(--cys-texto-muted); }
-.cys-detalle-info-valor { color: #fff; font-weight: 700; }
+.cys-detalle-info-valor { color: var(--texto, #fff); font-weight: 700; }
 
 /* Fila clickeable en historial */
 .cys-hist-table tbody tr.fila-venta { cursor: pointer; }
@@ -1096,7 +1089,7 @@
 .cys-confirm-icono-box i { font-size: 1.6rem; color: var(--cys-rojo); }
 .cys-confirm-texto {
   text-align: center;
-  color: #fff;
+  color: var(--texto, #fff);
   font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
@@ -1107,6 +1100,7 @@
   font-size: 0.82rem;
   margin-bottom: 1rem;
 }
+
 /* ── COMPROBANTE DE PAGO ── */
 .cys-comprobante-box {
   background: rgba(77, 168, 218, 0.04);
@@ -1118,7 +1112,7 @@
 .cys-comprobante-titulo {
   font-size: .78rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--texto, #fff);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1162,7 +1156,7 @@
   min-width: 0;
   background: transparent;
   border: none;
-  color: #fff;
+  color: var(--texto, #fff);
   font-size: .8rem;
 }
 
@@ -1182,8 +1176,9 @@
   font-size: .68rem;
   color: var(--cys-texto-muted);
   margin-top: .5rem;
-}/* ══════════════════════════════════════════════════════
-   AGREGAR AL FINAL DE ventas.css
+}
+
+/* ══════════════════════════════════════════════════════
    Refactor de inline styles -> clases cys- (Estado de Caja,
    tarjetas de producto/presentación y filas del carrito)
    ══════════════════════════════════════════════════════ */
@@ -1232,7 +1227,7 @@
 .cys-caja-titulo--muted  { color: var(--cys-texto-muted); }
 
 .cys-caja-sub { font-size: .78rem; color: var(--cys-texto-muted); margin-top: 4px; }
-.cys-caja-sub strong { color: #fff; font-weight: 700; }
+.cys-caja-sub strong { color: var(--texto, #fff); font-weight: 700; }
 
 /* ── Tarjetas de categoría/producto generadas por JS ── */
 .cys-cat-card-clickable { cursor: pointer; }
@@ -1246,7 +1241,7 @@
   cursor: pointer;
 }
 .cys-pres-item--sin-stock { cursor: not-allowed; opacity: .5; }
-.cys-pres-nombre { font-weight: 700; color: #fff; font-size: .9rem; }
+.cys-pres-nombre { font-weight: 700; color: var(--texto, #fff); font-size: .9rem; }
 .cys-pres-meta   { font-size: .72rem; color: var(--cys-texto-muted); }
 .cys-pres-precio { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--cys-acento); }
 .cys-pres-precio--sin-stock { color: var(--cys-rojo); }
@@ -1259,16 +1254,16 @@
   border: 1px solid var(--cys-borde);
 }
 .cys-carrito-nombre {
-  font-weight: 700; font-size: .83rem; color: #fff;
+  font-weight: 700; font-size: .83rem; color: var(--texto, #fff);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .cys-carrito-meta { font-size: .7rem; color: var(--cys-texto-muted); }
 .cys-carrito-btn-cant {
   width: 24px; height: 24px; border-radius: 50%;
   background: rgba(77,168,218,0.1); border: 1px solid var(--cys-borde);
-  color: #fff; font-size: .8rem; line-height: 1; padding: 0;
+  color: var(--texto, #fff); font-size: .8rem; line-height: 1; padding: 0;
 }
-.cys-carrito-cant { min-width: 20px; text-align: center; font-weight: 700; color: #fff; }
+.cys-carrito-cant { min-width: 20px; text-align: center; font-weight: 700; color: var(--texto, #fff); }
 .cys-carrito-subtotal {
   font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--cys-acento);
   min-width: 70px; text-align: right; font-size: .9rem;
