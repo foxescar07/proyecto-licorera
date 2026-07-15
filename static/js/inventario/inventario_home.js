@@ -225,25 +225,52 @@ document.querySelectorAll('.em-tipo-item').forEach(function(item) {
   modal.addEventListener('hidden.bs.modal', resetUI);
 })();
 
-// ── TABS AGENDAS ──
-document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.agenda-tab-btn').forEach(b => {
-      b.style.background = 'transparent';
-      b.style.opacity    = '0.6';
-    });
-    this.style.background = 'var(--inv-azul-dim)';
-    this.style.opacity    = '1';
-    const tab = this.dataset.tab;
+// ── ACORDEÓN "Inventarios Programados": recuerda si estaba abierto ──
+(function () {
+  const collapseEl = document.getElementById('agendaBody');
+  if (!collapseEl) return;
+  const KEY = 'cys_agenda_abierta';
+
+  if (sessionStorage.getItem(KEY) === '1') {
+    collapseEl.classList.add('show');
+  }
+
+  collapseEl.addEventListener('shown.bs.collapse', () => sessionStorage.setItem(KEY, '1'));
+  collapseEl.addEventListener('hidden.bs.collapse', () => sessionStorage.setItem(KEY, '0'));
+})();
+
+// ── TABS AGENDAS: recuerda el último tab visto (Activos / Historial) ──
+(function () {
+  const TAB_KEY = 'cys_agenda_tab';
+
+  function filtrarAgendas(tab) {
     document.querySelectorAll('.agenda-item').forEach(item => {
-      if (tab === 'activos') {
-        item.style.display = item.classList.contains('agenda-activo') ? '' : 'none';
-      } else {
-        item.style.display = item.classList.contains('agenda-historial') ? '' : 'none';
-      }
+      item.style.display = (item.dataset.categoria === tab) ? '' : 'none';
+    });
+  }
+
+  document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.agenda-tab-btn').forEach(b => {
+        b.classList.remove('agenda-tab-activo');
+        b.classList.add('agenda-tab-inactivo');
+      });
+      this.classList.remove('agenda-tab-inactivo');
+      this.classList.add('agenda-tab-activo');
+      sessionStorage.setItem(TAB_KEY, this.dataset.tab);
+      filtrarAgendas(this.dataset.tab);
     });
   });
-});
+
+  // Al cargar la página: restaurar el último tab visto (por defecto "activos")
+  const tabGuardado = sessionStorage.getItem(TAB_KEY) || 'activos';
+  document.querySelectorAll('.agenda-tab-btn').forEach(b => {
+    const esGuardado = b.dataset.tab === tabGuardado;
+    b.classList.toggle('agenda-tab-activo', esGuardado);
+    b.classList.toggle('agenda-tab-inactivo', !esGuardado);
+  });
+  filtrarAgendas(tabGuardado);
+})();
 
 // ── CATÁLOGO ──
 (function () {
@@ -270,7 +297,12 @@ document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
 
   buscar.addEventListener('input', filtrar);
 
-  document.querySelectorAll('[data-cat]').forEach(function(a) {
+  // FIX: antes el selector era '[data-cat]', que también capturaba las
+  // tarjetas de producto (.cat-item) porque ELLAS TAMBIÉN tienen data-cat.
+  // Eso hacía que al hacer clic en una tarjeta se sobreescribiera el label
+  // del dropdown de categorías con el texto completo de la tarjeta.
+  // Ahora apuntamos solo a los items del dropdown (.cat-cat-item).
+  document.querySelectorAll('.cat-cat-item').forEach(function(a) {
     a.addEventListener('click', function(e) {
       e.preventDefault();
       document.getElementById('cat-cat-label').textContent = this.textContent.trim();

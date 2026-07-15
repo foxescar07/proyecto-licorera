@@ -133,7 +133,10 @@ def inventario_home(request):
 def agenda_estado(request, pk):
     if request.method == 'POST':
         agenda = get_object_or_404(AgendaInventario, pk=pk)
-        agenda.estado = request.POST.get('estado', agenda.estado)
+        nuevo_estado = request.POST.get('estado', agenda.estado)
+        agenda.estado = nuevo_estado
+        if nuevo_estado == 'completada':
+            agenda.completado_por = request.user
         agenda.save()
         messages.success(request, 'Estado actualizado.')
     return redirect('inventario_home')

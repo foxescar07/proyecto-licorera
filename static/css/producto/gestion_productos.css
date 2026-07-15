@@ -1,106 +1,5 @@
-/* ── FORM CARD ── */
-.inv-form-card .form-control,
-.inv-form-card .form-select {
-  background: var(--inv-card2) !important;
-  color: var(--inv-texto) !important;
-  border: 1px solid var(--inv-azul-borde) !important;
-  border-radius: 8px !important;
-}
-.inv-form-card .form-control:focus,
-.inv-form-card .form-select:focus {
-  border-color: var(--inv-azul) !important;
-  box-shadow: 0 0 0 2px rgba(77,168,218,.2) !important;
-}
-.inv-form-card .form-control::placeholder { color: var(--inv-muted) !important; }
-.inv-form-card .form-select option { background: var(--inv-fondo); color: var(--inv-texto); }
-.inv-form-card .form-label {
-  font-size: .75rem;
-  font-weight: 600;
-  color: var(--inv-muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-.inv-form-card .form-text { font-size: .72rem; color: var(--inv-muted); }
-
-/* ── PÁGINA / STAT MINI ── */
-.inv-page-card {
-  background: #152d50 !important;
-  border: 1px solid rgba(77,168,218,0.35) !important;
-  border-radius: 12px !important;
-}
-.inv-stat-mini { background: #152d50 !important; border-radius: 10px !important; min-height: 88px !important; height: 100% !important; }
-.inv-page-card .form-select,
-.inv-page-card .form-control {
-  background-color: #0e2240 !important;
-  color: var(--inv-texto) !important;
-  border: 1px solid rgba(77,168,218,0.3) !important;
-  border-radius: 8px !important;
-}
-.inv-page-card .form-select:focus,
-.inv-page-card .form-control:focus {
-  border-color: var(--inv-azul) !important;
-  box-shadow: 0 0 0 2px rgba(77,168,218,.18) !important;
-}
-.inv-page-card .form-control::placeholder { color: rgba(226,232,240,0.4) !important; }
-.inv-page-card .form-label {
-  font-size: .75rem !important;
-  font-weight: 600 !important;
-  color: rgba(226,232,240,0.6) !important;
-  text-transform: uppercase !important;
-  letter-spacing: .06em !important;
-}
-.inv-btn-submit {
-  background: var(--inv-azul2) !important;
-  color: #0d1b2a !important;
-  border: none !important;
-  border-radius: 50px !important;
-  font-weight: 700 !important;
-  font-size: 0.95rem !important;
-  padding: 0.55rem 1rem !important;
-  width: 100% !important;
-  transition: background 0.18s !important;
-}
-.inv-btn-submit:hover { background: #2e88c2 !important; color: #fff !important; }
-
-.stat-row { display: flex !important; }
-.stat-row .col-sm-6 { display: flex !important; flex-direction: column !important; }
-.stat-row .col-sm-6 > div { flex: 1 !important; }
-
-/* ── CATÁLOGO ── */
-.cat-card { transition: transform .15s, box-shadow .15s; cursor: default; }
-.cat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.28); }
-
-.prod-input-select,
-.prod-input-select option { background-color: #0d2240 !important; color: #9fc9ec !important; }
-.prod-input-select option:checked,
-.prod-input-select option:hover,
-.prod-input-select option:focus { background: #1d4e6e !important; color: #ffffff !important; }
-.prod-input-select:focus {
-  background-color: rgba(13,26,64,.8) !important;
-  border-color: var(--inv-azul);
-  color: var(--inv-texto) !important;
-  box-shadow: 0 0 0 .2rem rgba(77,168,218,.15);
-  outline: none;
-}
-#cat-categoria option { background-color: #0d1b2a; color: #c8d6e5; }
-
-/* Flechitas orden / hover columnas de catálogo */
-#cat-list table thead > tr > th { cursor: pointer; user-select: none; }
-#cat-list table thead > tr > th .dt-column-order:before,
-#cat-list table thead > tr > th .dt-column-order:after { color: var(--inv-azul); opacity: 0.4; }
-#cat-list table thead > tr > th.dt-ordering-asc .dt-column-order:before,
-#cat-list table thead > tr > th.dt-ordering-desc .dt-column-order:after { opacity: 1; color: var(--inv-azul); }
-#cat-list table thead > tr > th.dt-orderable-asc:hover,
-#cat-list table thead > tr > th.dt-orderable-desc:hover {
-  outline: 2px solid rgba(77, 168, 218, 0.15);
-  outline-offset: -2px;
-}
-#cat-list table thead > tr > th:last-child,
-#cat-list table tbody > tr > td:last-child { text-align: center !important; }
-#cat-list table thead > tr > th:last-child div.dt-column-header { justify-content: center !important; }
 /* ==========================================================================
-   gestion_productos.css — Estilos extraídos de gestion_productos.html
-   Agregar este contenido al final de: css/producto/gestion_productos.css
+   gestion_productos.css — Versión consolidada y corregida
    ========================================================================== */
 
 /* ── Layout general ── */
@@ -168,11 +67,6 @@
   color: rgb(131, 32, 188);
   font-weight: 900;
   font-size: 16px;
-}
-
-/* ── Tabla de productos ── */
-.gp-th-nombre {
-  min-width: 160px;
 }
 
 /* ── Estado vacío (sin productos) ── */
@@ -283,12 +177,11 @@
   border: 1px solid rgba(77, 168, 218, 0.2);
 }
 
-/* ── Estado inicial oculto de los cuerpos de acordeón ──
-   IMPORTANTE: sin !important, para que el JS (toggleAcc) pueda
-   seguir controlando el display vía body.style.display */
+/* ── Estado inicial oculto de los cuerpos de acordeón ── */
 .gp-acc-body-init {
   display: none;
 }
+
 .cat-stat-row {
   display: flex;
   justify-content: space-between;
@@ -311,8 +204,209 @@
 .cat-stat-fill {
   background: #4DA8DA;
 }
-/* ── Tabla compacta (opcional, más apretada que table-sm) ── */
-.prod-table.table-sm td,
-.prod-table.table-sm th {
+
+/* ── Badge de presentaciones ── */
+.gp-badge-pres {
+  background: rgba(77, 168, 218, 0.15);
+  color: #4DA8DA;
+  font-weight: 500;
+  font-size: .75rem;
+  padding: .3rem .65rem;
+  border-radius: 20px;
+}
+
+.min-w-0 { min-width: 0; }
+
+/* Categoría: texto muted */
+.gp-subcategory-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .76rem;
+  color: rgba(226, 232, 240, 0.45);
+  margin-top: 2px;
+}
+
+.gp-cat-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4DA8DA;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Botón de acciones */
+.gp-dots-btn.dropdown-toggle::after {
+  display: none !important;
+}
+
+.gp-dots-btn {
+  color: rgba(226, 232, 240, 0.45);
+  border: none !important;
+  background: transparent !important;
+}
+
+.gp-dots-btn:hover {
+  color: #4DA8DA;
+  background: rgba(77, 168, 218, 0.08) !important;
+}
+
+/* Crítico */
+.tag-crit {
+  font-size: .68rem;
+  font-weight: 500;
+  background: rgba(226, 75, 74, 0.12);
+  color: #e88a89;
+  border-radius: 20px;
+  padding: .2rem .55rem;
+}
+
+/* ==========================================================================
+   TABLA DE PRODUCTOS — GRID FIJO
+   Header y filas comparten exactamente las mismas columnas.
+   Ajusta los px de grid-template-columns si necesitas más/menos espacio.
+   ========================================================================== */
+
+.gp-prod-list-wrap {
+  border: 1px solid rgba(77, 168, 218, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gp-prod-list-header,
+.gp-prod-list .list-group-item.producto-row {
+  display: grid;
+  grid-template-columns: 130px 280px 1fr 44px;
+  align-items: stretch;
+  gap: 0;
+  margin: 0;
+}
+
+.gp-prod-list-header {
+  background: rgba(77, 168, 218, 0.04);
+  border-bottom: 1px solid rgba(77, 168, 218, 0.15);
+  padding: 0;
+  font-size: .72rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.45);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.gp-prod-list .list-group-item.producto-row {
+  background: transparent;
+  padding: 0;
+  border-color: rgba(77, 168, 218, 0.1);
+  color: inherit;
+}
+
+.gp-prod-list .list-group-item.producto-row:hover {
+  background: rgba(77, 168, 218, 0.04);
+}
+
+.gp-col {
+  padding: .75rem 1rem;
+  border-right: 1px solid rgba(77, 168, 218, 0.1);
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.gp-col:last-child {
+  border-right: none;
+}
+
+/* Columna Código */
+.gp-col-codigo {
+  overflow: hidden;
+}
+
+.gp-col-codigo .badge {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(226, 232, 240, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-weight: 500;
+  font-size: .72rem;
+  padding: .35em .6em;
+}
+
+/* Columna Producto */
+.gp-col-nombre {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gp-col-nombre .fw-semibold {
+  font-size: .95rem;
+  color: #e2e8f0;
+  max-width: 100%;
+}
+
+/* Columna Presentaciones: SIEMPRE alineada a la izquierda */
+.gp-col-pres {
+  justify-content: flex-start !important;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+/* Columna Acciones */
+.gp-col-acciones {
+  justify-content: center;
+}
+
+/* ── Ver más / Ver menos: filas extra ── */
+.gp-row-extra.gp-row-oculta {
+  display: none !important;
+}
+
+.gp-ver-mas-wrap {
+  display: flex;
+  justify-content: center;
+  padding: .75rem;
+  border-top: 1px solid rgba(77, 168, 218, 0.1);
+}
+
+.gp-ver-mas-btn {
+  background: rgba(77, 168, 218, 0.08);
+  color: #4DA8DA;
+  border: 1px solid rgba(77, 168, 218, 0.25);
+  border-radius: 20px;
+  padding: .4rem 1.1rem;
   font-size: .82rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.gp-ver-mas-btn:hover {
+  background: rgba(77, 168, 218, 0.16);
+}
+
+.gp-toggle-icon-rotado {
+  transform: rotate(180deg);
+}
+
+.gp-ver-mas-icon {
+  transition: transform 0.2s ease;
+}
+
+@media (max-width: 767.98px) {
+  .gp-prod-list-header,
+  .gp-prod-list .list-group-item.producto-row {
+    grid-template-columns: 100px 1fr 44px;
+  }
+  .gp-col-pres {
+    display: none;
+  }
 }

@@ -65,7 +65,7 @@
 
     </div>
 
-    <!-- ══ COLUMNA DERECHA: BUSCADOR + TABLA ══ -->
+   <!-- ══ COLUMNA DERECHA: BUSCADOR + LISTA ══ -->
     <div class="gp-columna-der">
 
       <div class="search-box">
@@ -76,123 +76,93 @@
         </div>
       </div>
 
-      <div id="accordion-categorias">
-        {% for cat in categorias %}
-        {% if cat %}
-        <div class="acc-item categoria-item" data-cat="{{ cat.nombre }}">
-          <button class="acc-hdr" aria-expanded="false" aria-controls="acc-body-{{ cat.pk }}"
-                  onclick="toggleAcc(this, 'acc-body-{{ cat.pk }}')">
-            <i class="bi bi-tag-fill gp-icon-blue"></i>
-            {{ cat.nombre }}
-            <span class="tag-info ms-1">{{ cat.productos.all|length }} productos</span>
-            <i class="bi bi-chevron-down chevron"></i>
-          </button>
-          <div id="acc-body-{{ cat.pk }}" class="acc-body gp-acc-body-init">
-            <div class="tbl-wrap">
-              <table class="prod-table table-sm align-middle">
-                <thead>
-                  <tr>
-                    <th class="gp-th-nombre">Nombre</th>
-                    <th>Código</th>
-                    <th>Presentaciones</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
+      <div class="gp-prod-list-wrap">
 
-                  {% for p in cat.productos.all %}
-                  <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                    <td>
-                      <div class="fw-semibold">{{ p.nombre }}</div>
-                      {% if p.stock_critico %}
-                      <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-                      {% endif %}
-                    </td>
-                    <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
-                    <td>
-                      <div class="d-flex flex-wrap gap-1">
-                        {% for pr in p.presentaciones.all %}
-                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — <span class="precio-fmt">${{ pr.precio|floatformat:0 }}</span></span>
-                        {% empty %}
-                        <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td class="text-end">
-                      <div class="dropdown">
-                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown"
-                                title="Acciones">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                          <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                      {% if p.activo %}
-                          <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-info"></i>Desactivar</a></li>
-                      {% else %}
-                          <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
-                      {% endif %}
-                          </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  {% endfor %}
+        <div class="gp-prod-list-header d-none d-md-grid">
+          <div class="gp-col gp-col-codigo">Código</div>
+          <div class="gp-col gp-col-nombre">Producto</div>
+          <div class="gp-col gp-col-pres">Presentaciones</div>
+          <div class="gp-col gp-col-acciones"></div>
+        </div>
 
-                  {% for sub in cat.subcategorias.all %}
-                  {% for p in sub.productos.all %}
-                  <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                    <td>
-                      <div class="fw-semibold">{{ p.nombre }}</div>
-                      <small class="gp-subcategory-label"><i class="bi bi-arrow-return-right me-1"></i>{{ sub.nombre }}</small>
-                      {% if p.stock_critico %}
-                      <br><span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-                      {% endif %}
-                    </td>
-                    <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
-                    <td>
-                      <div class="d-flex flex-wrap gap-1">
-                        {% for pr in p.presentaciones.all %}
-                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
-                        {% empty %}
-                        <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td class="text-end">
-                      <div class="dropdown">
-                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown"
-                            title="Acciones">
-                            <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                  {% endfor %}
+        <div class="list-group list-group-flush gp-prod-list" id="listaProductos">
+          {% for p in productos %}
+          <div class="list-group-item producto-row{% if forloop.counter > 5 %} gp-row-extra gp-row-oculta{% endif %}"
+               data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
 
-                </tbody>
-              </table>
+            <div class="gp-col gp-col-codigo">
+              <span class="badge rounded-pill text-bg-secondary font-monospace">{{ p.codigo }}</span>
             </div>
+
+            <div class="gp-col gp-col-nombre">
+              <div class="fw-semibold text-truncate">{{ p.nombre }}</div>
+              {% if p.categoria %}
+              <small class="gp-subcategory-label">
+                {% if p.categoria.padre %}<i class="bi bi-arrow-return-right me-1"></i>{{ p.categoria.padre.nombre }} / {{ p.categoria.nombre }}
+                {% else %}{{ p.categoria.nombre }}{% endif %}
+              </small>
+              {% endif %}
+              {% if p.stock_critico %}
+              <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+              {% endif %}
+            </div>
+
+            <div class="gp-col gp-col-pres">
+              {% for pr in p.presentaciones.all %}
+              <span class="badge rounded-pill gp-badge-pres">{{ pr.nombre }} (x{{ pr.unidades }}) — <span class="precio-fmt">${{ pr.precio|floatformat:0 }}</span></span>
+              {% empty %}
+              <span class="badge rounded-pill text-bg-warning"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
+              {% endfor %}
+            </div>
+
+            <div class="gp-col gp-col-acciones">
+              <div class="dropdown">
+                <button class="btn btn-sm gp-dots-btn dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" title="Acciones">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if p.activo %}
+                  <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-info"></i>Desactivar</a></li>
+                  {% else %}
+                  <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+
           </div>
+          {% empty %}
+          <div class="text-center p-5 rounded-4 gp-empty-state">
+            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+            No hay productos registrados aún.
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if productos|length > 5 %}
+        <div class="gp-ver-mas-wrap">
+          <button type="button" class="gp-ver-mas-btn" id="gpVerMasBtn" data-expandido="false"
+                  onclick="
+                    var btn = this;
+                    var expandido = btn.getAttribute('data-expandido') === 'true';
+                    document.querySelectorAll('.gp-row-extra').forEach(function(row){
+                      row.classList.toggle('gp-row-oculta', expandido);
+                    });
+                    btn.setAttribute('data-expandido', (!expandido).toString());
+                    btn.querySelector('.gp-ver-mas-text').textContent = expandido ? 'Ver {{ productos|length|add:'-5' }} más' : 'Ver menos';
+                    btn.querySelector('.gp-ver-mas-icon').classList.toggle('gp-toggle-icon-rotado', !expandido);
+                  ">
+            <span class="gp-ver-mas-text">Ver {{ productos|length|add:"-5" }} más</span>
+            <i class="bi bi-chevron-down gp-ver-mas-icon"></i>
+          </button>
         </div>
         {% endif %}
-        {% empty %}
-        <div class="text-center p-5 rounded-4 gp-empty-state">
-          <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
-          No hay productos registrados aún.
-        </div>
-        {% endfor %}
+
       </div>
 
       <div id="noResultados" class="text-center p-5 d-none rounded-4 gp-empty-state">
