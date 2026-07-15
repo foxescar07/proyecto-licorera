@@ -119,8 +119,7 @@
     <div class="collapse" id="agendaBody">
       <div class="card-body">
         <div class="d-flex gap-2 mb-3">
-          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn active agenda-tab-activo" data-tab="activos"
-                 >
+          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-activo" data-tab="activos">
             <i class="bi bi-clock me-1"></i>Activos
           </button>
           <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-inactivo" data-tab="historial"
@@ -132,8 +131,8 @@
         <div class="d-flex flex-column gap-3" id="lista-agendas">
           {% for agenda in agendas %}
             {% with estado=agenda.estado %}
-            <div class="agenda-item p-3 rounded-3 agenda-item-card ...
-            {% if estado == 'completada' or estado == 'cancelada' %}agenda-oculto-inicial{% endif %}">
+            <div class="agenda-item p-3 rounded-3 agenda-item-card"
+              data-categoria="{% if estado == 'completada' or estado == 'cancelada' %}historial{% else %}activos{% endif %}">
               <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
                 <div>
                   <div class="fw-semibold agenda-titulo-texto">{{ agenda.titulo }}</div>
@@ -173,14 +172,21 @@
                 {% endfor %}
               </div>
               <div class="pt-2 border-top agenda-footer-borde">
-                {% if estado == 'completada' %}
-                  <small class="text-muted">Inventario finalizado · sin acciones disponibles</small>
-                {% elif estado == 'cancelada' %}
-                  <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
-                {% else %}
-                  <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
-                {% endif %}
-              </div>
+  {% if estado == 'completada' %}
+    <small class="text-muted">
+      {% if agenda.completado_por %}
+        <i class="bi bi-person-fill me-1 text-info"></i>
+        Finalizado por <strong class="agenda-responsable-texto">{{ agenda.completado_por.get_full_name|default:agenda.completado_por.username }}</strong>
+      {% else %}
+        Inventario finalizado · sin acciones disponibles
+      {% endif %}
+    </small>
+  {% elif estado == 'cancelada' %}
+    <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
+  {% else %}
+    <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
+  {% endif %}
+</div>
             </div>
             {% endwith %}
           {% empty %}
@@ -387,9 +393,10 @@
                 {% endif %}
               </div>
               <div class="fw-bold small mb-2 cat-card-nombre">{{ p.nombre }}</div>
-              <div class="fw-bold cat-card-stock
-              {% if p.stock_sum|default:0 == 0 %}cat-stock-cero{% elif p.stock_sum|default:0 <= 5 %}cat-stock-critico{% else %}cat-stock-ok{% endif %}">
-              </div>
+                  <div class="fw-bold cat-card-stock
+                {% if p.stock_sum|default:0 == 0 %}cat-stock-cero{% elif p.stock_sum|default:0 <= 5 %}cat-stock-critico{% else %}cat-stock-ok{% endif %}">
+             {{ p.stock_sum|default:0 }} <span class="cat-card-stock-label">uds</span>
+             </div>
               <div class="text-muted mt-1 texto-mini">
               {{ unidad }}{% if precio %} · <span class="precio-fmt">${{ precio|floatformat:"0" }}</span>{% endif %}
               </div>

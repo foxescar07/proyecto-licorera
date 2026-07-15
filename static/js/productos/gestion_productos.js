@@ -1,6 +1,6 @@
 /**
  * GESTION_PRODUCTOS.JS — Gestión de Productos
- * Estadísticas, filtrado, dropdowns, acordeón, tooltips
+ * Estadísticas, filtrado, dropdowns, tooltips
  */
 
 function formatMiles(n) {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const conteoCats = {};
 
   rows.forEach(row => {
-    const cantPres = row.querySelectorAll('td:nth-child(3) .tag-info').length;
+    const cantPres = row.querySelectorAll('.gp-badge-pres').length;
     if (cantPres === 0) {
       sinPres++;
     } else {
@@ -28,14 +28,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (cantPres > maxPres) maxPres = cantPres;
       if (cantPres < minPres) minPres = cantPres;
     }
+
+    const cat = row.dataset.categoria || 'Sin categoría';
+    conteoCats[cat] = (conteoCats[cat] || 0) + 1;
   });
   if (minPres === Infinity) minPres = 0;
-
-  document.querySelectorAll('.categoria-item').forEach(item => {
-    const nombre = item.querySelector('.acc-hdr').textContent.split('productos')[0].trim();
-    const cant   = item.querySelectorAll('.producto-row').length;
-    if (cant > 0) conteoCats[nombre] = cant;
-  });
 
   const catWrap = document.getElementById('grafico-categorias');
   Object.entries(conteoCats).forEach(([cat, n]) => {
@@ -122,33 +119,17 @@ document.addEventListener('DOMContentLoaded', function () {
   }, true);
 });
 
-function toggleAcc(btn, bodyId) {
-  const body   = document.getElementById(bodyId);
-  const isOpen = btn.getAttribute('aria-expanded') === 'true';
-  btn.setAttribute('aria-expanded', String(!isOpen));
-  body.style.display = isOpen ? 'none' : 'block';
-}
-
 function filtrarProductos(q) {
   const term = q.toLowerCase().trim();
-  let alguno = false;
-  document.querySelectorAll('.categoria-item').forEach(item => {
-    let visibles = 0;
-    item.querySelectorAll('.producto-row').forEach(row => {
-      const match = !term || row.dataset.nombre.includes(term) || row.dataset.codigo.includes(term);
-      row.style.display = match ? '' : 'none';
-      if (match) visibles++;
-    });
-    item.style.display = visibles ? '' : 'none';
-    if (term && visibles) {
-      const btn    = item.querySelector('.acc-hdr');
-      const bodyId = btn.getAttribute('aria-controls');
-      btn.setAttribute('aria-expanded', 'true');
-      document.getElementById(bodyId).style.display = 'block';
-    }
-    if (visibles) alguno = true;
+  let visibles = 0;
+
+  document.querySelectorAll('.producto-row').forEach(row => {
+    const match = !term || row.dataset.nombre.includes(term) || row.dataset.codigo.includes(term);
+    row.style.display = match ? '' : 'none';
+    if (match) visibles++;
   });
-  document.getElementById('noResultados').classList.toggle('d-none', alguno || !term);
+
+  document.getElementById('noResultados').classList.toggle('d-none', visibles > 0 || !term);
 }
 
 function confirmarToggle(url, nombre, accion) {
@@ -166,3 +147,11 @@ function confirmarEliminar(url, nombre) {
     form.submit();
   }
 }
+// ── Toggle: colapsar/expandir la lista de productos ──
+window.toggleListaProductos = function() {
+  const lista = document.getElementById('listaProductos');
+  const icon = document.getElementById('gpToggleIcon');
+  if (!lista || !icon) return;
+  const colapsada = lista.classList.toggle('gp-lista-colapsada');
+  icon.classList.toggle('gp-toggle-icon-rotado', colapsada);
+};
