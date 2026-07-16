@@ -27,7 +27,8 @@
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     aria-expanded="false"
-                    aria-label="Notificaciones">
+                    aria-label="Notificaciones"
+                    title="Alertas">
                 <i id="notif-bell-icon" class="bi bi-bell notif-bell-icon"></i>
                 <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill d-none notif-badge">0</span>
             </button>
@@ -35,11 +36,11 @@
             <div class="dropdown-menu dropdown-menu-end p-0 notif-dropdown-menu"
                 id="notif-dropdown-menu">
 
-                <div class="d-flex notif-tabs-divider">
+            <div class="d-flex notif-tabs-divider">
                      <button id="tab-alertas" type="button" onclick="notifTab('alertas')"
-        class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn">
-    Alertas
-</button>
+                 class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn">
+                 Alertas
+               </button>
                     <button id="tab-historial" type="button" onclick="notifTab('historial')"
                             class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn">
                         Historial
