@@ -301,6 +301,8 @@ def editar_movimiento(request, pk):
             messages.error(request, '❌ Cantidad inválida.')
     return redirect('inventario_home')
 
+import json
+
 @login_required
 def registrar_salida_view(request):
     hoy         = timezone.now().date()
@@ -325,10 +327,23 @@ def registrar_salida_view(request):
         motivos_dict.get('vencido', 0),
     ]
 
+    lotes_activos = Lote.objects.filter(stock_actual__gt=0).select_related('presentacion')
+    lotes_json = json.dumps([
+        {
+            'id': l.pk,
+            'presentacion_id': l.presentacion_id,
+            'numero_lote': l.numero_lote,
+            'stock_actual': l.stock_actual,
+            'fecha_vencimiento': l.fecha_vencimiento.isoformat() if l.fecha_vencimiento else None,
+        }
+        for l in lotes_activos
+    ])
+
     context = {
         'productos':          productos,
         'ordenes_mes':        ordenes_mes,
         'chart_motivos_data': chart_motivos_data,
+        'lotes_json':         lotes_json,
         'breadcrumb_items': [
             {'nombre': 'Inventario', 'url': reverse('inventario_home')},
             {'nombre': 'Registrar Salida', 'url': None},

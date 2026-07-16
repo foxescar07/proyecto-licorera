@@ -490,7 +490,6 @@ def categoria_editar(request, pk):
 
     return redirect('categorias_lista')
 
-
 @login_required
 def categoria_eliminar(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
@@ -503,12 +502,9 @@ def categoria_eliminar(request, pk):
             messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
     return redirect('categorias_lista')
 
-
 # ===============================
 # AGENDA INVENTARIO
 # ===============================
-
-
 
 
 # ===============================
