@@ -19,12 +19,17 @@ class ProveedorForm(forms.ModelForm):
 
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'email', 'telefono', 'tipo_proveedor']
+        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono', 'tipo_proveedor']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nombre de la empresa',
                 'required': True,
+                'maxlength': '200'
+            }),
+            'nombre_contacto': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Juan Pérez',
                 'maxlength': '200'
             }),
             'email': forms.EmailInput(attrs={
@@ -34,21 +39,11 @@ class ProveedorForm(forms.ModelForm):
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '3001234567',
+                'placeholder': '+56 9 1234 5678',
                 'pattern': r'^\d{7,15}$'
             }),
             'tipo_proveedor': forms.Select(attrs={
-                'class': 'form-select',
-                'required': True
-            }),
-            'estado': forms.Select(attrs={
-                'class': 'form-select',
-                'required': True
-            }),
-            'motivo_sancion': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Explica el motivo de la sanción (si aplica)'
+                'class': 'form-select'
             }),
         }
 
