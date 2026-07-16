@@ -877,20 +877,19 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   DROPDOWN DE NOTIFICACIONES
+   TOOLTIPS — estilo CYS global (aplica en todo el sitio)
    ============================================================ */
-#notif-dropdown-menu {
-  background: #0d1b2a !important;
-}
-#notif-dropdown-menu .notif-item:hover,
-#notif-dropdown-menu .notif-item:focus,
-#notif-dropdown-menu .dropdown-item:hover,
-#notif-dropdown-menu .dropdown-item:focus {
-  background: rgba(77, 168, 218, 0.08) !important;
-  color: #e2e8f0 !important;
-}
-#notif-dropdown-menu .notif-footer:hover,
-#notif-dropdown-menu .notif-footer:focus {
-  background: rgba(77, 168, 218, 0.12) !important;
+.tooltip .tooltip-inner {
+  background-color: #0d2240 !important;
   color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.45) !important;
+  font-size: .78rem !important;
+  font-weight: 600 !important;
+  padding: .45rem .8rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .4) !important;
 }
+.tooltip[data-popper-placement^="top"] .tooltip-arrow::before { border-top-color: #0d2240 !important; }
+.tooltip[data-popper-placement^="bottom"] .tooltip-arrow::before { border-bottom-color: #0d2240 !important; }
+.tooltip[data-popper-placement^="left"] .tooltip-arrow::before { border-left-color: #0d2240 !important; }
+.tooltip[data-popper-placement^="right"] .tooltip-arrow::before { border-right-color: #0d2240 !important; }

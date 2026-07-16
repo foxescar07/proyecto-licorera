@@ -36,6 +36,16 @@ $(document).ready(function() {
     pageLength: 10,
     ordering: true,
     responsive: true,
+    columnDefs: [
+    { responsivePriority: 1, targets: 0 },  // Producto / Presentación — siempre visible
+    { responsivePriority: 2, targets: 2 },  // Stock
+    { responsivePriority: 3, targets: 4 },  // Estado
+    { responsivePriority: 4, targets: 7 },  // Acciones
+    { responsivePriority: 5, targets: 3 },  // Vencimiento
+    { responsivePriority: 6, targets: 1 },  // Nº Lote
+    { responsivePriority: 7, targets: 5 },  // Costo unit.
+    { responsivePriority: 8, targets: 6 }   // Valor total
+  ],
     language: {
       info: "Mostrando _START_ a _END_ de _TOTAL_ lotes",
       infoEmpty: "Mostrando 0 a 0 de 0 lotes",

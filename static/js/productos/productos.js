@@ -340,3 +340,11 @@ function inicializarDropdownCategorias() {
     });
   });
 }
+window.addEventListener('load', function () {
+  document.querySelectorAll('[title]').forEach(function (el) {
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover'
+    });
+  });
+});

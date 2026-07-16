@@ -735,18 +735,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .agenda-tab-activo {
-  background: var(--inv-azul-dim);
-  color: var(--inv-azul);
-  border: 1px solid var(--inv-azul-borde);
+  background: var(--inv-azul-dim) !important;
+  color: var(--inv-azul) !important;
+  border: 1px solid var(--inv-azul-borde) !important;
   font-size:.78rem;
+  opacity: 1 !important;
 }
 
 .agenda-tab-inactivo {
-  background: transparent;
-  color: var(--inv-texto);
-  border: 1px solid var(--inv-azul-borde);
+  background: transparent !important;
+  color: var(--inv-texto) !important;
+  border: 1px solid var(--inv-azul-borde) !important;
   font-size:.78rem;
-  opacity:.6;
+  opacity:.6 !important;
 }
 
 .agenda-titulo-texto {
@@ -1037,6 +1038,32 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .cat-stock-ok {
   color: var(--inv-verde);
 }
+/* ── Tipografía Rajdhani para el número de stock (mismo estilo que TABLERO DE CONTROL) ── */
+.cat-card-stock {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+.cat-card-stock-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  font-size: .75rem;
+  color: rgba(226, 232, 240, 0.45);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-left: 3px;
+}
+/* ── Tipografía Rajdhani para los números de Acceso Rápido ── */
+.qc-valor-teal,
+.qc-valor-verde,
+.qc-valor-purpura,
+.qc-valor-azul {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: .02em;
+  font-size: 1.5rem; 
+}
 
 /* ── Tarjeta de ítem (conteo y comparar) con borde de estado ── */
 .conteo-item-card {
@@ -1100,4 +1127,31 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 .texto-faltante {
   color: var(--inv-rojo);
+}
+.agenda-responsable-texto {
+  color: var(--inv-texto);
+}
+/* ── Números "Producto Estrella del Mes" — igual al catálogo pero más grueso ── */
+.estrella-valor {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: .02em;
+}
+.estrella-valor-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  font-size: .75rem;
+  color: rgba(226, 232, 240, 0.45);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-left: 3px;
+}
+/* Centra título + flecha de orden como bloque, no cada uno por separado */
+#tabla-codigos thead th.dt-head-center div.dt-column-header {
+  justify-content: center;
+}
+#tabla-codigos thead th.dt-head-center div.dt-column-header .dt-column-title {
+  flex-grow: 0;
 }

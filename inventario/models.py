@@ -184,6 +184,13 @@ class AgendaInventario(models.Model):
         on_delete=models.PROTECT,
         related_name='agendas_asignadas'
     )
+    completado_por   = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='agendas_completadas',
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name        = 'Agenda de Inventario'
