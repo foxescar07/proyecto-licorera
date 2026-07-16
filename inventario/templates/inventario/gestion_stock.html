@@ -72,24 +72,24 @@
 
 <!-- Buscador -->
 <div class="d-flex flex-wrap gap-2 mb-3">
-  <div class="input-group buscar-lote-grupo" id="buscarLote-grupo">
-    <span class="input-group-text lotes-search-prefix">
-      <i class="bi bi-search"></i>
-    </span>
-    <input type="text" id="buscarLote" class="form-control lotes-search-input"
-           placeholder="Buscar producto, lote…">
-  </div>
+  <div class="d-flex align-items-center buscar-lote-grupo" id="buscarLote-grupo">
+  <span class="lotes-search-prefix">
+    <i class="bi bi-search"></i>
+  </span>
+  <input type="text" id="buscarLote" class="form-control lotes-search-input"
+         placeholder="Buscar producto, lote…">
+</div>
   <div class="dropdown" id="filtroEstado-wrap">
     <button class="btn btn-sm dropdown-toggle px-3 lotes-filtro-btn" type="button"
           id="filtroEstado-btn" data-bs-toggle="dropdown">
       <span id="filtroEstado-label">Todos</span>
     </button>
     <ul class="dropdown-menu lotes-filtro-menu">
-  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="todos">Todos</a></li>
-  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="ok">En orden</a></li>
-  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="por_vencer">Por vencer</a></li>
-  <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="vencido">Vencido</a></li>
-</ul>
+      <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="todos">Todos</a></li>
+      <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="ok">En orden</a></li>
+      <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="por_vencer">Por vencer</a></li>
+      <li><a class="dropdown-item filtro-estado-item" href="#" data-estado="vencido">Vencido</a></li>
+    </ul>
   </div>
 </div>
 

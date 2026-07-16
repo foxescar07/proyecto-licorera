@@ -1,5 +1,6 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/cuerpo/header-inline.css' %}">
+<link rel="stylesheet" href="{% static 'css/cuerpo/header.css' %}">
 <header class="cys-header" data-url-stock-status="{% url 'stock_status' %}">
     <div class="cys-header__brand">
         <img src="{% static 'img/logo.jpeg' %}" alt="Logo CYS" class="cys-header__logo" loading="lazy">
@@ -35,10 +36,10 @@
                 id="notif-dropdown-menu">
 
                 <div class="d-flex notif-tabs-divider">
-                    <button id="tab-alertas" type="button" onclick="notifTab('alertas')"
-                            class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn active">
-                        Alertas
-                    </button>
+                     <button id="tab-alertas" type="button" onclick="notifTab('alertas')"
+        class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn">
+    Alertas
+</button>
                     <button id="tab-historial" type="button" onclick="notifTab('historial')"
                             class="btn btn-sm flex-fill rounded-0 fw-bold notif-tab-btn">
                         Historial

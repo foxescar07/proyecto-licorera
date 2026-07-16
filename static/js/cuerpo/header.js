@@ -5,15 +5,13 @@
   let historialNotif = JSON.parse(localStorage.getItem('cys_notif_historial') || '[]');
   let vistosPrevios = new Set(JSON.parse(localStorage.getItem('cys_notif_vistos') || '[]'));
 
-  window.notifTab = function (tab) {
+ window.notifTab = function (tab) {
     const esAlertas = tab === 'alertas';
     document.getElementById('panel-alertas').classList.toggle('d-none', !esAlertas);
     document.getElementById('panel-historial').classList.toggle('d-none', esAlertas);
-    document.getElementById('tab-alertas').style.color = esAlertas ? '#4DA8DA' : 'rgba(226,232,240,.4)';
-    document.getElementById('tab-alertas').style.borderBottomColor = esAlertas ? '#4DA8DA' : 'transparent';
-    document.getElementById('tab-historial').style.color = esAlertas ? 'rgba(226,232,240,.4)' : '#4DA8DA';
-    document.getElementById('tab-historial').style.borderBottomColor = esAlertas ? 'transparent' : '#4DA8DA';
-  };
+    document.getElementById('tab-alertas').classList.toggle('active', esAlertas);
+    document.getElementById('tab-historial').classList.toggle('active', !esAlertas);
+};
 
   function guardar() {
     localStorage.setItem('cys_notif_historial', JSON.stringify(historialNotif.slice(0, 50)));

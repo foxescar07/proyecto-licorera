@@ -65,3 +65,12 @@
     window.aplicarTemaCYS = aplicarTema;
     window.aplicarDensidadCYS = aplicarDensidad;
 })();
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('[title]').forEach(function (el) {
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover',
+      container: 'body'
+    });
+  });
+});
