@@ -74,3 +74,182 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+/* ============================================================
+   WIDGET DE ACCESIBILIDAD — agregado al final de base.js
+   Se guarda todo en localStorage bajo la clave 'cys_a11y' y se
+   reaplica solo en cada carga de página, en cualquier plantilla
+   que extienda base.html (por eso funciona igual en Reportes,
+   Ventas, Inventario, etc. sin repetir nada).
+
+   El "Modo de color" (Predeterminado / Oscuro / Claro) reutiliza
+   window.aplicarTemaCYS() definida arriba en este mismo archivo,
+   así nunca queda desincronizado con el sistema de temas.
+   ============================================================ */
+(function () {
+
+    const A11Y_STORAGE_KEY = 'cys_a11y';
+    const a11yRoot = document.documentElement;
+
+    const a11yDefaults = {
+        fontSize: 100,       // porcentaje
+        modo: 'predeterminado',
+        contraste: false,
+        espaciado: false,
+        enlaces: false,
+        fuente: false,
+    };
+
+    function cargarConfigA11y() {
+        try {
+            return { ...a11yDefaults, ...JSON.parse(localStorage.getItem(A11Y_STORAGE_KEY) || '{}') };
+        } catch (e) {
+            return { ...a11yDefaults };
+        }
+    }
+
+    function guardarConfigA11y(cfg) {
+        localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify(cfg));
+    }
+
+    let configA11y = cargarConfigA11y();
+
+    function aplicarTodoA11y(cfg) {
+        // Tamaño de texto
+        a11yRoot.style.fontSize = cfg.fontSize + '%';
+
+        // Modo de color -> delega en aplicarTemaCYS (definida arriba en este archivo)
+        if (typeof window.aplicarTemaCYS === 'function' && cfg.modo !== 'predeterminado') {
+            window.aplicarTemaCYS(cfg.modo === 'oscuro' ? 'oscuro' : 'claro');
+        } else if (typeof window.aplicarTemaCYS === 'function' && cfg.modo === 'predeterminado') {
+            window.aplicarTemaCYS('oscuro'); // tema base del proyecto
+        }
+
+        // Alto contraste
+        a11yRoot.classList.toggle('cys-a11y-contraste', cfg.contraste);
+        // Espaciado de texto
+        a11yRoot.classList.toggle('cys-a11y-espaciado', cfg.espaciado);
+        // Resaltar enlaces
+        a11yRoot.classList.toggle('cys-a11y-enlaces', cfg.enlaces);
+        // Fuente legible
+        a11yRoot.classList.toggle('cys-a11y-fuente', cfg.fuente);
+    }
+
+    // Aplica de inmediato al cargar la página (antes de esperar el DOM completo)
+    aplicarTodoA11y(configA11y);
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const toggleBtn   = document.getElementById('cysA11yToggle');
+        const panel       = document.getElementById('cysA11yPanel');
+        const closeBtn    = document.getElementById('cysA11yClose');
+
+        const fontMinus   = document.getElementById('cysA11yFontMinus');
+        const fontPlus    = document.getElementById('cysA11yFontPlus');
+        const fontVal     = document.getElementById('cysA11yFontVal');
+
+        const modoBtns    = document.querySelectorAll('.cys-a11y-colormode__btn');
+
+        const chkContraste = document.getElementById('cysA11yContraste');
+        const chkEspaciado = document.getElementById('cysA11yEspaciado');
+        const chkEnlaces   = document.getElementById('cysA11yEnlaces');
+        const chkFuente    = document.getElementById('cysA11yFuente');
+
+        const resetBtn    = document.getElementById('cysA11yReset');
+
+        if (!toggleBtn || !panel) return; // por si algún template no tiene el panel, no rompe la página
+
+        // ---- Refleja el estado guardado en los controles del panel ----
+        function sincronizarUIA11y() {
+            fontVal.textContent = configA11y.fontSize + '%';
+
+            modoBtns.forEach(btn => {
+                btn.classList.toggle('cys-a11y-colormode__btn--active', btn.dataset.modo === configA11y.modo);
+            });
+
+            chkContraste.checked = configA11y.contraste;
+            chkEspaciado.checked = configA11y.espaciado;
+            chkEnlaces.checked   = configA11y.enlaces;
+            chkFuente.checked    = configA11y.fuente;
+        }
+        sincronizarUIA11y();
+
+        // ---- Abrir / cerrar panel ----
+        function abrirPanelA11y() {
+            panel.classList.add('cys-a11y-panel--open');
+            toggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        function cerrarPanelA11y() {
+            panel.classList.remove('cys-a11y-panel--open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        toggleBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            panel.classList.contains('cys-a11y-panel--open') ? cerrarPanelA11y() : abrirPanelA11y();
+        });
+        closeBtn.addEventListener('click', cerrarPanelA11y);
+
+        // Cierra si haces click fuera del panel
+        document.addEventListener('click', function (e) {
+            if (!panel.contains(e.target) && e.target !== toggleBtn) {
+                cerrarPanelA11y();
+            }
+        });
+
+        // ---- Tamaño de texto ----
+        fontMinus.addEventListener('click', function () {
+            configA11y.fontSize = Math.max(70, configA11y.fontSize - 10);
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+            sincronizarUIA11y();
+        });
+        fontPlus.addEventListener('click', function () {
+            configA11y.fontSize = Math.min(150, configA11y.fontSize + 10);
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+            sincronizarUIA11y();
+        });
+
+        // ---- Modo de color ----
+        modoBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                configA11y.modo = btn.dataset.modo;
+                aplicarTodoA11y(configA11y);
+                guardarConfigA11y(configA11y);
+                sincronizarUIA11y();
+            });
+        });
+
+        // ---- Switches ----
+        chkContraste.addEventListener('change', function () {
+            configA11y.contraste = chkContraste.checked;
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+        });
+        chkEspaciado.addEventListener('change', function () {
+            configA11y.espaciado = chkEspaciado.checked;
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+        });
+        chkEnlaces.addEventListener('change', function () {
+            configA11y.enlaces = chkEnlaces.checked;
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+        });
+        chkFuente.addEventListener('change', function () {
+            configA11y.fuente = chkFuente.checked;
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+        });
+
+        // ---- Restablecer ----
+        resetBtn.addEventListener('click', function () {
+            configA11y = { ...a11yDefaults };
+            aplicarTodoA11y(configA11y);
+            guardarConfigA11y(configA11y);
+            sincronizarUIA11y();
+        });
+    });
+
+})();
