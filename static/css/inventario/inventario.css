@@ -1148,3 +1148,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   letter-spacing: .05em;
   margin-left: 3px;
 }
+/* Centra título + flecha de orden como bloque, no cada uno por separado */
+#tabla-codigos thead th.dt-head-center div.dt-column-header {
+  justify-content: center;
+}
+#tabla-codigos thead th.dt-head-center div.dt-column-header .dt-column-title {
+  flex-grow: 0;
+}

@@ -32,14 +32,30 @@
   border: 2px solid var(--azul-oscuro) !important;
 }
 
-/* Dropdown de notificaciones */
+/* ============================================================
+   DROPDOWN DE NOTIFICACIONES
+   ============================================================ */
 .notif-dropdown-menu {
   border: 1px solid rgba(77, 168, 218, 0.25) !important;
   width: 290px !important;
   border-radius: 10px !important;
   overflow: hidden !important;
-  background: #0d1f35 !important;
+  background: #142b49 !important;
   color: #e2e8f0 !important;
+}
+
+.notif-dropdown-menu .notif-item:hover,
+.notif-dropdown-menu .notif-item:focus,
+.notif-dropdown-menu .dropdown-item:hover,
+.notif-dropdown-menu .dropdown-item:focus {
+  background: rgba(77, 168, 218, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+
+.notif-dropdown-menu .notif-footer:hover,
+.notif-dropdown-menu .notif-footer:focus {
+  background: rgba(77, 168, 218, 0.12) !important;
+  color: #4DA8DA !important;
 }
 
 /* Divisor de tabs */
