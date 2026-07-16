@@ -61,11 +61,15 @@
   <!-- CUADRO CATEGORÍAS -->
   <div class="col-md-3">
     <div class="card h-100 prod-card prod-card-categorias shadow-sm">
-      <div class="card-header prod-card-header px-4 py-3">
-        <span class="fw-semibold fs-6">
-          <i class="bi bi-tags-fill me-2 prod-icon-blue"></i>Categorías
-        </span>
-      </div>
+            <div class="card-header prod-card-header px-4 py-3 d-flex justify-content-between align-items-center">
+  <span class="fw-semibold fs-6">
+    <i class="bi bi-tags-fill me-2 prod-icon-blue"></i>Categorías
+  </span>
+  <a href="{% url 'categorias_lista' %}" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center prod-cat-btn-add"
+     title="Ir a gestión de categorías">
+    <i class="bi bi-plus-lg"></i>
+  </a>
+</div>
       <div class="card-body px-4 pt-0 pb-4">
         <p class="text-uppercase prod-label mb-3 prod-cat-subtitle">Selecciona una categoria</p>
 
@@ -100,8 +104,9 @@
           <i class="bi bi-box-seam me-2 text-success"></i>
           <span id="cat-titulo">Productos por categoría</span>
         </span>
-        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline prod-btn-gestion px-3">
-          <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
+        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline prod-btn-gestion px-3"
+          title="Ir a gestión de productos">
+          <i class="bi bi-arrow-right-circle me-1"></i> Gestión de productos
         </a>
       </div>
       <div class="card-body p-0 prod-card-body-rel">
