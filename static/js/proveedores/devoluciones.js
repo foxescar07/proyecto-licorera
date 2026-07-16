@@ -16,6 +16,115 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ════════════════════════════════════════════════════════════════
+  // ACTUALIZAR PRODUCTOS CUANDO CAMBIA LA VENTA
+  // ════════════════════════════════════════════════════════════════
+
+  const ventaRadios = document.querySelectorAll('input[name="venta_id"]');
+
+  ventaRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        cargarProductosDeLaVenta(this.value);
+      }
+    });
+  });
+
+  window.cargarProductosDeLaVenta = function(ventaId) {
+    // Hacer petición AJAX al servidor
+    fetch(`/ventas/devoluciones/detalle/${ventaId}/`)
+      .then(response => {
+        if (!response.ok) throw new Error('Error al cargar detalles de la venta');
+        return response.json();
+      })
+      .then(data => {
+        actualizarTablaProductos(data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al cargar los productos. Por favor intenta de nuevo.');
+      });
+  };
+
+  window.actualizarTablaProductos = function(ventaData) {
+    const tbody = document.querySelector('.table-clean tbody');
+    const emptyState = document.querySelector('.section-card:has(.section-head:has(.section-title:contains("Selecciona qué devuelves"))) .text-center');
+
+    if (!ventaData.detalles || ventaData.detalles.length === 0) {
+      // Si no hay productos
+      if (tbody) {
+        tbody.closest('.table-responsive').innerHTML = '<div class="text-center py-4 px-2"><i class="bi bi-inbox text-muted"></i><p class="text-muted fs-small">No hay productos en esta venta.</p></div>';
+      }
+      return;
+    }
+
+    // Reconstruir la tabla
+    let html = `
+      <table class="table-clean">
+        <thead>
+          <tr class="table-head-row">
+            <th class="table-head-cell">✓</th>
+            <th class="table-head-cell table-head-cell-left">Producto</th>
+            <th class="table-head-cell">Original</th>
+            <th class="table-head-cell">Devuelto</th>
+            <th class="table-head-cell">Pendiente</th>
+            <th class="table-head-cell">A Devolver</th>
+            <th class="table-head-cell table-head-cell-right">Precio</th>
+            <th class="table-head-cell table-head-cell-right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    ventaData.detalles.forEach(detalle => {
+      html += `
+        <tr class="table-body-row">
+          <td class="table-body-cell table-body-cell-center">
+            <input type="checkbox"
+                   name="producto_id"
+                   value="${detalle.detalle_id}"
+                   class="form-check-input producto-checkbox"
+                   onchange="updateSubtotal(this)">
+          </td>
+          <td class="table-body-cell">
+            <div class="product-name-cell">${detalle.producto}</div>
+            ${detalle.presentacion ? `<div class="product-subtext">${detalle.presentacion}</div>` : ''}
+          </td>
+          <td class="table-body-cell table-body-cell-center table-body-cell-fw">${detalle.cantidad}</td>
+          <td class="table-body-cell table-body-cell-center table-body-cell-fw">0</td>
+          <td class="table-body-cell table-body-cell-center table-body-cell-fw-bold">${detalle.cantidad}</td>
+          <td class="table-body-cell table-body-cell-center">
+            <input type="number"
+                   name="cantidad_devolucion_${detalle.detalle_id}"
+                   min="0"
+                   max="${detalle.cantidad}"
+                   value="0"
+                   class="form-control cantidad-input table-cell-input"
+                   onchange="updateCheckboxAndSubtotal(this, ${detalle.detalle_id})">
+          </td>
+          <td class="table-body-cell table-body-cell-right table-body-cell-fw">$${Math.round(detalle.precio).toLocaleString('es-CO')}</td>
+          <td class="table-body-cell table-body-cell-right table-body-cell-fw-bold table-body-cell-cyan" data-subtotal="${detalle.detalle_id}">$0</td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    // Actualizar el contenedor
+    const tableContainer = document.querySelector('.table-responsive');
+    if (tableContainer) {
+      tableContainer.innerHTML = html;
+    }
+
+    // Resetear totales
+    document.getElementById('productosCount').textContent = '0';
+    document.getElementById('cantidadTotal').textContent = '0';
+    document.getElementById('montoTotal').textContent = '$0';
+  };
+
+  // ════════════════════════════════════════════════════════════════
   // FUNCIONES PARA PASO 2 — ACTUALIZAR CHECKBOX Y SUBTOTALES
   // ════════════════════════════════════════════════════════════════
 
@@ -132,4 +241,167 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
+
+  // ════════════════════════════════════════════════════════════════
+  // HISTORIAL DESPLEGABLE — BUSCADOR Y DETALLES
+  // ════════════════════════════════════════════════════════════════
+
+  const historialToggle = document.getElementById('historialToggle');
+  const historialContent = document.getElementById('historialContent');
+  const searchInput = document.getElementById('searchHistorial');
+  const sinResultados = document.getElementById('sinResultados');
+
+  // Toggle del historial desplegable
+  if (historialToggle) {
+    historialToggle.addEventListener('click', function() {
+      historialContent.classList.toggle('d-none');
+      historialToggle.classList.toggle('active');
+    });
+  }
+
+  // Búsqueda en tiempo real
+  if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.devolucion-card');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const cliente = card.dataset.cliente.toLowerCase();
+        const numero = card.dataset.numero.toLowerCase();
+        const fecha = card.dataset.fecha.toLowerCase();
+
+        const matches = cliente.includes(searchTerm) ||
+                       numero.includes(searchTerm) ||
+                       fecha.includes(searchTerm);
+
+        if (matches || searchTerm === '') {
+          card.style.display = '';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Mostrar mensaje de sin resultados
+      if (visibleCount === 0 && searchTerm !== '') {
+        sinResultados.classList.remove('d-none');
+      } else {
+        sinResultados.classList.add('d-none');
+      }
+    });
+  }
 });
+
+// ════════════════════════════════════════════════════════════════
+// MODAL COMPROBANTE — FUNCIONES GLOBALES
+// ════════════════════════════════════════════════════════════════
+
+// Toggle detalles de devolución y abrir modal
+window.toggleDetalleDevolucion = function(element) {
+  const card = element.closest('.devolucion-card');
+  const detalle = card.querySelector('.devolucion-detalle');
+
+  // Si no está expandido, lo expandimos y abrimos el modal
+  if (detalle.classList.contains('d-none')) {
+    detalle.classList.remove('d-none');
+    card.classList.add('expanded');
+    abrirModalComprobante(card);
+  } else {
+    // Si ya está expandido, solo lo colapsamos
+    detalle.classList.add('d-none');
+    card.classList.remove('expanded');
+  }
+};
+
+// Abrir modal con datos de la devolución
+function abrirModalComprobante(card) {
+  // Obtener datos del card
+  const devolucionId = card.getAttribute('data-id');
+  const numero = card.querySelector('.devolucion-numero').textContent.trim();
+  const cliente = card.querySelector('.devolucion-cliente').textContent.trim();
+  const fecha = card.querySelector('.devolucion-fecha').textContent.trim();
+  const monto = card.querySelector('.devolucion-monto').textContent.trim();
+
+  // Obtener detalles expandidos
+  const detalleDiv = card.querySelector('.devolucion-detalle');
+  let motivo = '—';
+  let tipoReembolso = '—';
+  let observaciones = 'Sin observaciones';
+
+  if (detalleDiv) {
+    // Extraer motivo (primer bloque de información)
+    const estadoDiv = detalleDiv.querySelector('.grid-2col');
+    if (estadoDiv) {
+      const divs = estadoDiv.querySelectorAll('div');
+      if (divs.length > 0) {
+        const motivoBlocks = divs[0].querySelectorAll('div');
+        if (motivoBlocks.length > 1) {
+          motivo = motivoBlocks[1].textContent.trim() || '—';
+        }
+      }
+      // Extraer tipo de reembolso
+      if (divs.length > 1) {
+        const tipoBlocks = divs[1].querySelectorAll('div');
+        if (tipoBlocks.length > 1) {
+          tipoReembolso = tipoBlocks[1].textContent.trim() || '—';
+        }
+      }
+    }
+
+    // Extraer observaciones
+    const textContent = detalleDiv.textContent;
+    if (textContent) {
+      const obsMatch = textContent.match(/Observaciones(.+?)(?:Ver comprobante|$)/s);
+      if (obsMatch) {
+        observaciones = obsMatch[1].trim() || 'Sin observaciones';
+      }
+    }
+  }
+
+  // Llenar el modal
+  document.getElementById('modalId').textContent = devolucionId || '—';
+  document.getElementById('modalNumero').textContent = numero;
+  document.getElementById('modalCliente').textContent = cliente;
+  document.getElementById('modalFecha').textContent = fecha;
+  document.getElementById('modalMonto').textContent = monto;
+  document.getElementById('modalMotivo').textContent = motivo;
+  document.getElementById('modalTipoReembolso').textContent = tipoReembolso;
+  document.getElementById('modalObservaciones').textContent = observaciones;
+
+  // Actualizar botón del comprobante completo
+  const linkBtn = document.getElementById('modalLinkComprobante');
+
+  // Obtener ID del link de comprobante
+  const comprobanteLink = card.querySelector('a[data-devolucion-id]');
+  const devId = comprobanteLink ? comprobanteLink.getAttribute('data-devolucion-id') : devolucionId;
+
+  // Remover onclick anterior si existe
+  linkBtn.onclick = null;
+
+  if (devId) {
+    // Usar la URL correcta de Django
+    const comprobanteUrl = `/ventas/devoluciones/comprobante/${devId}/`;
+
+    linkBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.location.href = comprobanteUrl;
+      return false;
+    };
+
+    console.log('URL del comprobante:', comprobanteUrl);
+  }
+
+  // Abrir modal con Bootstrap
+  try {
+    const modalElement = document.getElementById('modalComprobante');
+    const modal = new bootstrap.Modal(modalElement, {
+      backdrop: true,
+      keyboard: true
+    });
+    modal.show();
+  } catch (e) {
+    console.error('Error al abrir modal:', e);
+  }
+}

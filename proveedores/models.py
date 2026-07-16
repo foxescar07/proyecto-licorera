@@ -24,6 +24,11 @@ class Proveedor(models.Model):
         unique=True,
         help_text="Nombre comercial único del proveedor"
     )
+    nombre_contacto = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Nombre del contacto responsable"
+    )
     email = models.EmailField(
         unique=True,
         help_text="Correo electrónico para comunicación"
@@ -42,6 +47,7 @@ class Proveedor(models.Model):
         max_length=20,
         choices=TIPO_CHOICES,
         default='distribuidor',
+        blank=True,
         help_text="Tipo de negocio del proveedor"
     )
     estado = models.CharField(
