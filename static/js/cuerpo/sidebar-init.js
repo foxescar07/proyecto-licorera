@@ -9,9 +9,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const menuBtn = document.getElementById('menuBtn');
 
         // Abrir automáticamente según preferencia de Configuración (cys_config.sidebarAuto)
+        // Solo en pantallas de escritorio — en móvil el menú siempre inicia cerrado
         let cysCfg = {};
         try { cysCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
-        if (cysCfg.sidebarAuto === true) {
+        const esEscritorio = window.innerWidth > 768;
+        if (cysCfg.sidebarAuto === true && esEscritorio) {
             sidebarEl.classList.add('show');
             document.body.classList.add('sidebar-open');
             sidebarEl.style.visibility = 'visible';

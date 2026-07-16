@@ -94,7 +94,6 @@ function ocultarSugerencias() {
   ulSugest.classList.remove('show');
   ulSugest.innerHTML = '';
 }
-
 // Detalle completo del producto
 window.bpBuscarDetalle = async function (q) {
   if (!q) return;
@@ -115,39 +114,62 @@ window.bpBuscarDetalle = async function (q) {
       return;
     }
 
-    const p          = data.producto;
-    const esAgotado  = p.stock_total === 0;
-    const esCritico  = p.stock_total > 0 && p.stock_total <= 10;
-    const badgeClass = esAgotado ? 'bg-danger' : esCritico ? 'bg-warning text-dark' : 'bg-success';
-    const badgeText  = esAgotado ? 'Sin stock'  : esCritico ? 'Stock crítico'        : 'Disponible';
+    const p         = data.producto;
+    const esAgotado = p.stock_total === 0;
+    const esCritico = p.stock_total > 0 && p.stock_total <= 10;
+    const estado    = esAgotado ? 'agotado' : esCritico ? 'critico' : 'ok';
+    const badgeText = esAgotado ? 'Sin stock' : esCritico ? 'Stock crítico' : 'Disponible';
+
+    const filasPresentaciones = p.presentaciones.map(pr => `
+      <tr>
+        <td class="bp-td-nombre">${pr.nombre}</td>
+        <td class="bp-td-centro">${pr.unidades}</td>
+        <td class="bp-td-centro bp-td-stock">${pr.stock_actual}</td>
+        <td class="bp-td-precio">$${parseInt(pr.precio || 0).toLocaleString('es-CO')}</td>
+      </tr>
+    `).join('');
 
     out.innerHTML = `
-      <div class="card prod-card p-3">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <div>
-            <div class="fw-bold">${p.nombre}</div>
-            <div class="text-muted small">${p.categoria} · Cód: ${p.codigo}</div>
+      <div class="bp-resultado-card">
+        <div class="bp-resultado-top">
+          <div class="bp-resultado-info">
+            <div class="bp-resultado-nombre">${p.nombre}</div>
+            <div class="bp-resultado-meta">${p.categoria} · Cód: ${p.codigo}</div>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <span class="badge ${badgeClass}">${badgeText}</span>
+          <div class="bp-resultado-actions">
+            <span class="bp-badge bp-badge--${estado}">${badgeText}</span>
             <button onclick="document.getElementById('bp-resultado').innerHTML='';document.getElementById('bp-input').value='';"
-                    class="btn-close btn-close-white bp-close-btn"></button>
+                    class="bp-close-btn" title="Cerrar">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
         </div>
-        <div class="d-flex gap-4 small mt-2">
-          <div>
-            <span class="text-muted">Stock total: </span>
-            <strong class="${esAgotado ? 'text-danger' : esCritico ? 'text-warning' : 'text-success'}">${p.stock_total}</strong>
-          </div>
+
+        <div class="bp-stock-total bp-stock-total--${estado}">
+          <i class="bi bi-box-seam"></i>
+          <span class="bp-stock-total-label">Stock total</span>
+          <span class="bp-stock-total-valor">${p.stock_total} uds</span>
         </div>
+
         ${p.presentaciones.length ? `
-          <hr class="border-secondary my-2">
-          <div class="small text-muted mb-1 fw-semibold">Presentaciones</div>
-          ${p.presentaciones.map(pr => `
-            <div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
-              <span>${pr.nombre} <span class="text-muted">(${pr.unidades} uds)</span></span>
-              <span class="text-info">Stock: ${pr.stock_actual} — $${parseInt(pr.precio||0).toLocaleString('es-CO')}</span>
-            </div>`).join('')}
+        <div class="bp-presentaciones">
+          <div class="bp-presentaciones-titulo">Presentaciones</div>
+          <div class="table-responsive">
+            <table class="bp-tabla">
+              <thead>
+                <tr>
+                  <th>Presentación</th>
+                  <th class="bp-th-centro">Uds</th>
+                  <th class="bp-th-centro">Stock</th>
+                  <th class="bp-th-derecha">Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasPresentaciones}
+              </tbody>
+            </table>
+          </div>
+        </div>
         ` : ''}
       </div>`;
 
