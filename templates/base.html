@@ -39,6 +39,83 @@
     </main>
 </div>
 
+    <!-- ===== WIDGET DE ACCESIBILIDAD (global, en todas las páginas) ===== -->
+    <button type="button" class="cys-a11y-toggle" id="cysA11yToggle" title="Accesibilidad" aria-label="Abrir panel de accesibilidad">
+        <i class="bi bi-universal-access-circle"></i>
+    </button>
+
+    <div class="cys-a11y-panel" id="cysA11yPanel" role="dialog" aria-label="Panel de accesibilidad">
+        <div class="cys-a11y-panel__header">
+            <span class="cys-a11y-panel__title">Accesibilidad</span>
+            <button type="button" class="cys-a11y-panel__close" id="cysA11yClose" aria-label="Cerrar panel">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="cys-a11y-panel__body">
+
+            <div class="cys-a11y-block">
+                <span class="cys-a11y-block__label">Tamaño de texto</span>
+                <div class="cys-a11y-fontsize">
+                    <button type="button" class="cys-a11y-fontsize__btn" id="cysA11yFontMinus" aria-label="Disminuir texto">A-</button>
+                    <span class="cys-a11y-fontsize__val" id="cysA11yFontVal">100%</span>
+                    <button type="button" class="cys-a11y-fontsize__btn" id="cysA11yFontPlus" aria-label="Aumentar texto">A+</button>
+                </div>
+            </div>
+
+            <div class="cys-a11y-block">
+                <span class="cys-a11y-block__label">Modo de color</span>
+                <div class="cys-a11y-colormode">
+                    <button type="button" class="cys-a11y-colormode__btn" data-modo="predeterminado" aria-label="Modo predeterminado">
+                        <i class="bi bi-circle-half"></i><span>Predeterminado</span>
+                    </button>
+                    <button type="button" class="cys-a11y-colormode__btn" data-modo="oscuro" aria-label="Modo oscuro">
+                        <i class="bi bi-moon-stars"></i><span>Oscuro</span>
+                    </button>
+                    <button type="button" class="cys-a11y-colormode__btn" data-modo="claro" aria-label="Modo claro">
+                        <i class="bi bi-sun"></i><span>Claro</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="cys-a11y-block">
+                <div class="cys-a11y-switch-row">
+                    <span>Alto contraste</span>
+                    <label class="cys-a11y-switch">
+                        <input type="checkbox" id="cysA11yContraste">
+                        <span class="cys-a11y-switch__track"></span>
+                    </label>
+                </div>
+                <div class="cys-a11y-switch-row">
+                    <span>Espaciado de texto</span>
+                    <label class="cys-a11y-switch">
+                        <input type="checkbox" id="cysA11yEspaciado">
+                        <span class="cys-a11y-switch__track"></span>
+                    </label>
+                </div>
+                <div class="cys-a11y-switch-row">
+                    <span>Resaltar enlaces</span>
+                    <label class="cys-a11y-switch">
+                        <input type="checkbox" id="cysA11yEnlaces">
+                        <span class="cys-a11y-switch__track"></span>
+                    </label>
+                </div>
+                <div class="cys-a11y-switch-row">
+                    <span>Fuente legible</span>
+                    <label class="cys-a11y-switch">
+                        <input type="checkbox" id="cysA11yFuente">
+                        <span class="cys-a11y-switch__track"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="button" class="cys-a11y-reset" id="cysA11yReset">
+                <i class="bi bi-arrow-counterclockwise"></i> Restablecer configuración
+            </button>
+        </div>
+    </div>
+    <!-- ===== FIN WIDGET DE ACCESIBILIDAD ===== -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="{% static 'js/cuerpo/reloj.js' %}" defer></script>
     <script src="{% static 'js/cuerpo/principal.js' %}" defer></script>
