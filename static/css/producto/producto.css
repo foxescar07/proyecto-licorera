@@ -947,11 +947,16 @@ button#crear-categoria-btn {
 
 /* Botón "Crear Categoría" / "Guardar Cambios" */
 .cat-btn-crear {
-  background: var(--azul-claro);
-  color: var(--fondo);
+  background: var(--prod-azul);
+  color: var(--prod-fondo);
   border: none;
 }
 
+.cat-btn-crear:hover {
+  background: var(--prod-azul);
+  opacity: 0.88;
+  color: var(--prod-fondo);
+}
 /* Ícono de etiqueta junto al nombre de categoría */
 .cat-icon-tag {
   color: var(--azul-claro);

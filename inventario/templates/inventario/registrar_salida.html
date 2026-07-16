@@ -253,24 +253,23 @@
           Motivos de Salida
         </h6>
       </div>
-      <div class="mx-auto position-relative sal-chart-wrap">
-        <canvas id="chartMotivos"></canvas>
-      </div>
-      <div class="d-flex flex-wrap justify-content-center gap-3 mt-3 pt-2 sal-legend-wrap">
-        <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
-          <span class="rounded-circle sal-dot sal-dot-venta"></span>Venta
-        </span>
-        <span class="d-flex align-items-center gap-1 sal-legend-1c6ef3">
-          <span class="rounded-circle sal-dot sal-dot-merma"></span>Merma
-        </span>
-        <span class="d-flex align-items-center gap-1 sal-legend-3ce7d0">
-          <span class="rounded-circle sal-dot sal-dot-dano"></span>Daño
-        </span>
-        <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
-          <span class="rounded-circle sal-dot sal-dot-vencido"></span>Vencido
-        </span>
-      </div>
-    </div>
+     <div class="mx-auto position-relative sal-chart-wrap">
+  <canvas id="chartMotivos"></canvas>
+</div>
+<div class="d-flex flex-nowrap justify-content-center gap-2 mt-3 pt-2 sal-legend-wrap">
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-venta"></span>Venta
+  </span>
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-merma"></span>Merma
+  </span>
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-dano"></span>Daño
+  </span>
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-vencido"></span>Vencido
+  </span>
+</div>
 
   </div>
 </div>
@@ -280,7 +279,7 @@
 {% block extra_js %}
 <div id="salida-config"
      data-chart-motivos="{{ chart_motivos_data|safe }}"
-     data-lotes='{% load json %}{{ lotes_json|safe }}'
+     data-lotes='{{ lotes_json|safe }}'
      class="d-none"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/inventario/registrar_salida.js' %}"></script>

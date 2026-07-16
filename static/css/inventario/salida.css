@@ -137,10 +137,27 @@ button#motivo-btn {
   background: #0d1b2a; border: 1px solid rgba(0, 54, 83, 0.46);
   max-height: 320px; overflow-y: auto;
 }
-.sal-dropdown-header { color: #4DA8DA; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
-.sal-dropdown-item { color: #c8d6e5; font-size: .85rem; }
-.sal-dropdown-item-indent { color: #c8d6e5; font-size: .85rem; padding-left: 1.5rem; }
-.sal-lote-item-vacio { background: #0a1e38; font-size: .85rem; }
+.sal-dropdown-header {
+  color: #4DA8DA !important;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.sal-dropdown-item {
+  color: #c8d6e5 !important;
+  font-size: .85rem;
+}
+.sal-dropdown-item-indent {
+  color: #c8d6e5 !important;
+  font-size: .85rem;
+  padding-left: 1.5rem;
+}
+.sal-lote-item-vacio {
+  background: #0a1e38;
+  color: #c8d6e5 !important;
+  font-size: .85rem;
+}
+
 
 /* Badge de stock disponible */
 .sal-stock-badge { background: rgba(77,168,218,.1); border: 1px solid rgba(77,168,218,.25); display: inline-flex!important; }
@@ -155,10 +172,22 @@ button#motivo-btn {
 .sal-alerta-exceso { background: rgba(243,156,18,.1); border: 1px solid rgba(243,156,18,.28); color: #f39c12; font-size: .82rem; }
 
 /* Botón submit */
-.sal-btn-submit { background: #3b9ad6; color: #0d1b2a; border: none; font-size: 0.9rem; white-space: nowrap; }
+.sal-btn-submit {
+  background: #3b9ad6;
+  color: #0d1b2a;
+  border: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.sal-btn-submit:hover {
+  background: #3b9ad6;
+  opacity: 0.88;
+  color: #0d1b2a;
+}
 
 /* Mini stats panel derecho */
-.sal-stat-label { color: rgba(220,232,242,0.5); font-size: .68rem; letter-spacing: .05em; }
+.sal-stat-label { color: rgba(220,232,242,0.5); font-size: .75rem; letter-spacing: .05em; }
 .sal-stat-value-azul { color: #4DA8DA; font-family: 'Rajdhani', sans-serif; }
 .sal-stat-icon { color: #4DA8DA; opacity: .7; }
 .sal-stat-mini-border { border-color: rgba(18, 153, 243, 0.22)!important; }
