@@ -122,7 +122,10 @@
               {{ p.nombre_empresa }}<br>
               <span class="text-sm text-muted fw-400">{{ p.email }}</span>
             </td>
-            <td class="cys-td" data-label="Contacto">{{ p.nombre_contacto }}</td>
+            <td class="cys-td" data-label="Contacto">
+              {{ p.nombre_contacto }}<br>
+              <span class="text-sm text-muted">{{ p.telefono }}</span>
+            </td>
             <td class="cys-td" data-label="Tipo">
               <span class="cys-tag cys-tag--prov">
                 {{ p.get_tipo_proveedor_display }}
@@ -497,8 +500,8 @@
                 <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control" placeholder="Ej: ABC Distribuciones" required>
               </div>
               <div class="col-12 col-md-6">
-                <label for="id_nombre_contacto" class="form-label fw-bold">Responsable/Contacto *</label>
-                <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control" placeholder="Ej: Juan Pérez" required>
+                <label for="id_nombre_contacto" class="form-label fw-bold">Responsable/Contacto</label>
+                <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control" placeholder="Ej: Juan Pérez">
               </div>
             </div>
           </div>

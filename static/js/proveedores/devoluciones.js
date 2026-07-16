@@ -16,6 +16,115 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ════════════════════════════════════════════════════════════════
+  // ACTUALIZAR PRODUCTOS CUANDO CAMBIA LA VENTA
+  // ════════════════════════════════════════════════════════════════
+
+  const ventaRadios = document.querySelectorAll('input[name="venta_id"]');
+
+  ventaRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        cargarProductosDeLaVenta(this.value);
+      }
+    });
+  });
+
+  window.cargarProductosDeLaVenta = function(ventaId) {
+    // Hacer petición AJAX al servidor
+    fetch(`/ventas/devoluciones/detalle/${ventaId}/`)
+      .then(response => {
+        if (!response.ok) throw new Error('Error al cargar detalles de la venta');
+        return response.json();
+      })
+      .then(data => {
+        actualizarTablaProductos(data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al cargar los productos. Por favor intenta de nuevo.');
+      });
+  };
+
+  window.actualizarTablaProductos = function(ventaData) {
+    const tbody = document.querySelector('.table-clean tbody');
+    const emptyState = document.querySelector('.section-card:has(.section-head:has(.section-title:contains("Selecciona qué devuelves"))) .text-center');
+
+    if (!ventaData.detalles || ventaData.detalles.length === 0) {
+      // Si no hay productos
+      if (tbody) {
+        tbody.closest('.table-responsive').innerHTML = '<div class="text-center py-4 px-2"><i class="bi bi-inbox text-muted"></i><p class="text-muted fs-small">No hay productos en esta venta.</p></div>';
+      }
+      return;
+    }
+
+    // Reconstruir la tabla
+    let html = `
+      <table class="table-clean">
+        <thead>
+          <tr class="table-head-row">
+            <th class="table-head-cell">✓</th>
+            <th class="table-head-cell table-head-cell-left">Producto</th>
+            <th class="table-head-cell">Original</th>
+            <th class="table-head-cell">Devuelto</th>
+            <th class="table-head-cell">Pendiente</th>
+            <th class="table-head-cell">A Devolver</th>
+            <th class="table-head-cell table-head-cell-right">Precio</th>
+            <th class="table-head-cell table-head-cell-right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    ventaData.detalles.forEach(detalle => {
+      html += `
+        <tr class="table-body-row">
+          <td class="table-body-cell table-body-cell-center">
+            <input type="checkbox"
+                   name="producto_id"
+                   value="${detalle.detalle_id}"
+                   class="form-check-input producto-checkbox"
+                   onchange="updateSubtotal(this)">
+          </td>
+          <td class="table-body-cell">
+            <div class="product-name-cell">${detalle.producto}</div>
+            ${detalle.presentacion ? `<div class="product-subtext">${detalle.presentacion}</div>` : ''}
+          </td>
+          <td class="table-body-cell table-body-cell-center table-body-cell-fw">${detalle.cantidad}</td>
+          <td class="table-body-cell table-body-cell-center table-body-cell-fw">0</td>
+          <td class="table-body-cell table-body-cell-center table-body-cell-fw-bold">${detalle.cantidad}</td>
+          <td class="table-body-cell table-body-cell-center">
+            <input type="number"
+                   name="cantidad_devolucion_${detalle.detalle_id}"
+                   min="0"
+                   max="${detalle.cantidad}"
+                   value="0"
+                   class="form-control cantidad-input table-cell-input"
+                   onchange="updateCheckboxAndSubtotal(this, ${detalle.detalle_id})">
+          </td>
+          <td class="table-body-cell table-body-cell-right table-body-cell-fw">$${Math.round(detalle.precio).toLocaleString('es-CO')}</td>
+          <td class="table-body-cell table-body-cell-right table-body-cell-fw-bold table-body-cell-cyan" data-subtotal="${detalle.detalle_id}">$0</td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    // Actualizar el contenedor
+    const tableContainer = document.querySelector('.table-responsive');
+    if (tableContainer) {
+      tableContainer.innerHTML = html;
+    }
+
+    // Resetear totales
+    document.getElementById('productosCount').textContent = '0';
+    document.getElementById('cantidadTotal').textContent = '0';
+    document.getElementById('montoTotal').textContent = '$0';
+  };
+
+  // ════════════════════════════════════════════════════════════════
   // FUNCIONES PARA PASO 2 — ACTUALIZAR CHECKBOX Y SUBTOTALES
   // ════════════════════════════════════════════════════════════════
 
