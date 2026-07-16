@@ -132,20 +132,52 @@ function filtrarProductos(q) {
   document.getElementById('noResultados').classList.toggle('d-none', visibles > 0 || !term);
 }
 
+function mostrarModalConfirmacion(mensaje, onAceptar, opciones) {
+  opciones = opciones || {};
+  const modalEl   = document.getElementById('modalConfirmarAccion');
+  const mensajeEl = document.getElementById('confirmar-mensaje');
+  const tituloEl  = document.getElementById('confirmar-titulo');
+  const btnAceptar = document.getElementById('confirmar-btn-aceptar');
+
+  mensajeEl.textContent = mensaje;
+  tituloEl.innerHTML = '<i class="bi bi-question-circle me-2 text-info"></i>' + (opciones.titulo || 'Confirmar acción');
+
+  btnAceptar.className = 'btn ' + (opciones.claseBoton || 'prod-btn-primary');
+  btnAceptar.textContent = opciones.textoBoton || 'Aceptar';
+
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+  const nuevoBtn = btnAceptar.cloneNode(true);
+  btnAceptar.parentNode.replaceChild(nuevoBtn, btnAceptar);
+  nuevoBtn.addEventListener('click', function () {
+    modal.hide();
+    onAceptar();
+  });
+
+  modal.show();
+}
+
 function confirmarToggle(url, nombre, accion) {
-  if (confirm('¿Deseas ' + accion + ' "' + nombre + '"?')) {
-    const form = document.getElementById('form-eliminar');
-    form.action = url;
-    form.submit();
-  }
+  mostrarModalConfirmacion(
+    '¿Deseas ' + accion + ' "' + nombre + '"?',
+    function () {
+      const form = document.getElementById('form-eliminar');
+      form.action = url;
+      form.submit();
+    }
+  );
 }
 
 function confirmarEliminar(url, nombre) {
-  if (confirm('¿Eliminar definitivamente «' + nombre + '»?')) {
-    const form = document.getElementById('form-eliminar');
-    form.action = url;
-    form.submit();
-  }
+  mostrarModalConfirmacion(
+    '¿Eliminar definitivamente «' + nombre + '»?',
+    function () {
+      const form = document.getElementById('form-eliminar');
+      form.action = url;
+      form.submit();
+    },
+    { titulo: 'Eliminar', claseBoton: 'btn-danger', textoBoton: 'Eliminar' }
+  );
 }
 // ── Toggle: colapsar/expandir la lista de productos ──
 window.toggleListaProductos = function() {
@@ -155,3 +187,32 @@ window.toggleListaProductos = function() {
   const colapsada = lista.classList.toggle('gp-lista-colapsada');
   icon.classList.toggle('gp-toggle-icon-rotado', colapsada);
 };
+window.addEventListener('load', function () {
+  document.querySelectorAll('[title]').forEach(function (el) {
+    new bootstrap.Tooltip(el, {
+      placement: 'top',
+      trigger: 'hover'
+    });
+  });
+});
+// ── ÍCONO DE CATEGORÍA POR PRODUCTO ──
+(function () {
+  const REGLAS = [
+    { match: /cerveza/,          clase: 'gp-cat-cerveza', icono: 'bi-cup-straw' },
+    { match: /gaseosa|soda/,     clase: 'gp-cat-gaseosa', icono: 'bi-cup-fill' },
+    { match: /whisky|whiskey/,   clase: 'gp-cat-whisky',  icono: 'bi-cup-hot-fill' },
+    { match: /vino/,             clase: 'gp-cat-vino',    icono: 'bi-flower1' },
+    { match: /licor|ron|aguardiente/, clase: 'gp-cat-licor', icono: 'bi-droplet-fill' },
+  ];
+  const DEFAULT = { clase: '', icono: 'bi-box-seam' };
+
+  document.querySelectorAll('.producto-row').forEach(function (row) {
+    const cat = row.dataset.categoria || '';
+    const box = row.querySelector('[data-cat-icon]');
+    if (!box) return;
+
+    const regla = REGLAS.find(function (r) { return r.match.test(cat); }) || DEFAULT;
+    if (regla.clase) box.classList.add(regla.clase);
+    box.innerHTML = '<i class="bi ' + regla.icono + '"></i>';
+  });
+})();

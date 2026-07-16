@@ -78,34 +78,40 @@
 
       <div class="gp-prod-list-wrap">
 
-        <div class="gp-prod-list-header d-none d-md-grid">
-          <div class="gp-col gp-col-codigo">Código</div>
-          <div class="gp-col gp-col-nombre">Producto</div>
-          <div class="gp-col gp-col-pres">Presentaciones</div>
-          <div class="gp-col gp-col-acciones"></div>
-        </div>
+        <div class="gp-prod-list-header d-none d-md-grid gp-row-grid">
+  <div class="gp-col gp-col-icono"></div>
+  <div class="gp-col gp-col-nombre">Producto</div>
+  <div class="gp-col gp-col-codigo">Código</div>
+  <div class="gp-col gp-col-pres">Presentaciones</div>
+  <div class="gp-col gp-col-acciones"></div>
+</div>
 
         <div class="list-group list-group-flush gp-prod-list" id="listaProductos">
           {% for p in productos %}
-          <div class="list-group-item producto-row{% if forloop.counter > 5 %} gp-row-extra gp-row-oculta{% endif %}"
-               data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+          <div class="list-group-item producto-row gp-row-grid{% if forloop.counter > 5 %} gp-row-extra gp-row-oculta{% endif %}"
+     data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}"
+     data-categoria="{{ p.categoria.nombre|default:''|lower }}">
 
-            <div class="gp-col gp-col-codigo">
-              <span class="badge rounded-pill text-bg-secondary font-monospace">{{ p.codigo }}</span>
-            </div>
+  <div class="gp-col gp-col-icono">
+    <div class="gp-cat-icon-box" data-cat-icon></div>
+  </div>
 
-            <div class="gp-col gp-col-nombre">
-              <div class="fw-semibold text-truncate">{{ p.nombre }}</div>
-              {% if p.categoria %}
-              <small class="gp-subcategory-label">
-                {% if p.categoria.padre %}<i class="bi bi-arrow-return-right me-1"></i>{{ p.categoria.padre.nombre }} / {{ p.categoria.nombre }}
-                {% else %}{{ p.categoria.nombre }}{% endif %}
-              </small>
-              {% endif %}
-              {% if p.stock_critico %}
-              <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-              {% endif %}
-            </div>
+  <div class="gp-col gp-col-nombre">
+    <div class="fw-semibold text-truncate">{{ p.nombre }}</div>
+    {% if p.categoria %}
+    <small class="gp-subcategory-label">
+      {% if p.categoria.padre %}<i class="bi bi-arrow-return-right me-1"></i>{{ p.categoria.padre.nombre }} / {{ p.categoria.nombre }}
+      {% else %}{{ p.categoria.nombre }}{% endif %}
+    </small>
+    {% endif %}
+    {% if p.stock_critico %}
+    <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+    {% endif %}
+  </div>
+
+  <div class="gp-col gp-col-codigo">
+    <span class="badge rounded-pill text-bg-secondary font-monospace">{{ p.codigo }}</span>
+  </div>
 
             <div class="gp-col gp-col-pres">
               {% for pr in p.presentaciones.all %}
@@ -412,7 +418,29 @@
   </div>
 </div>
 
+<!-- DESPUÉS (con el modal nuevo agregado) -->
 {% endfor %}
+
+<!-- Modal de confirmación (reemplaza confirm() nativo) -->
+<div class="modal fade" id="modalConfirmarAccion" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title" id="confirmar-titulo">
+          <i class="bi bi-question-circle me-2 text-info"></i>Confirmar acción
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="mb-0" id="confirmar-mensaje">¿Estás seguro?</p>
+      </div>
+      <div class="modal-footer prod-modal-footer">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn prod-btn-primary" id="confirmar-btn-aceptar">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <form id="form-eliminar" method="POST" class="d-none">
   {% csrf_token %}

@@ -369,7 +369,9 @@ const ROTACION_URL = document.getElementById('rotacion-config')?.getAttribute('d
           document.getElementById('estrella-presentacion').textContent = data.estrella_presentacion || '—';
           document.getElementById('estrella-rotacion').innerHTML       = calcRotacion(data.estrella_vendido || 0);
           const critico = data.estrella_stock_critico;
-          document.getElementById('estrella-stock').innerHTML = `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
+          document.getElementById('estrella-stock').innerHTML =
+          `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock}</span>` +
+          `<span class="estrella-valor-label">uds${critico ? ' ⚠' : ''}</span>`;
           document.getElementById('bloque-estrella').style.display = 'block';
         }
         const rotacion      = data.rotacion || [];

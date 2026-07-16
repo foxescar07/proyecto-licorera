@@ -1131,3 +1131,20 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .agenda-responsable-texto {
   color: var(--inv-texto);
 }
+/* ── Números "Producto Estrella del Mes" — igual al catálogo pero más grueso ── */
+.estrella-valor {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: .02em;
+}
+.estrella-valor-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  font-size: .75rem;
+  color: rgba(226, 232, 240, 0.45);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-left: 3px;
+}
