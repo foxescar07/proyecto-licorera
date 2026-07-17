@@ -722,18 +722,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color:#4DA8DA;
   font-size:.65rem;
 }
-
 .qc-valor-azul {
   font-size:1.5rem;
   color:#4DA8DA;
   line-height:1;
 }
-
 .qc-footer-texto-azul {
   font-size:.7rem;
   color:#4DA8DA;
 }
-
 .agenda-tab-activo {
   background: var(--inv-azul-dim) !important;
   color: var(--inv-azul) !important;

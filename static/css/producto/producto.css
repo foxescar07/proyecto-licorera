@@ -1228,3 +1228,149 @@ button#crear-categoria-btn {
 .tooltip[data-popper-placement^="bottom"] .tooltip-arrow::before { border-bottom-color: #0d2240 !important; }
 .tooltip[data-popper-placement^="left"] .tooltip-arrow::before { border-left-color: #0d2240 !important; }
 .tooltip[data-popper-placement^="right"] .tooltip-arrow::before { border-right-color: #0d2240 !important; }
+/* Buscador de productos — esquinas redondeadas estilo pill */
+#bp-input {
+  border-radius: 30px 0 0 30px !important;
+}
+
+#bp-btn {
+  border-radius: 0 10px 10px 0 !important;
+}
+/* ═══════════════════════════════════════════════════
+   RESULTADO DETALLE — Búsqueda de Producto (rediseño)
+   ═══════════════════════════════════════════════════ */
+
+.bp-resultado-card {
+  background: var(--prod-card);
+  border: 1px solid rgba(77, 168, 218, 0.15);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.bp-resultado-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bp-resultado-nombre {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--prod-texto);
+}
+
+.bp-resultado-meta {
+  font-size: .8rem;
+  color: rgba(226, 232, 240, 0.5);
+  margin-top: 2px;
+}
+
+.bp-resultado-actions {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-shrink: 0;
+}
+
+/* Badge de estado */
+.bp-badge {
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.bp-badge--ok       { background: rgba(39,174,96,.15); color: var(--prod-verde); border: 1px solid rgba(39,174,96,.3); }
+.bp-badge--critico  { background: rgba(243,156,18,.15); color: var(--prod-amarillo); border: 1px solid rgba(243,156,18,.3); }
+.bp-badge--agotado  { background: rgba(231,76,60,.15); color: var(--prod-rojo); border: 1px solid rgba(231,76,60,.3); }
+
+/* Botón cerrar */
+.bp-close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(226,232,240,0.2);
+  background: rgba(255,255,255,0.05);
+  color: rgba(226,232,240,0.6);
+  font-size: .7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.bp-close-btn:hover {
+  background: rgba(231,76,60,0.15);
+  color: var(--prod-rojo);
+}
+
+/* Bloque de stock total destacado */
+.bp-stock-total {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(77,168,218,0.12);
+  border-radius: 10px;
+  padding: .7rem 1rem;
+  margin-bottom: 1rem;
+}
+.bp-stock-total i {
+  font-size: 1.1rem;
+  color: var(--prod-azul);
+}
+.bp-stock-total-label {
+  font-size: .8rem;
+  color: rgba(226,232,240,0.55);
+}
+.bp-stock-total-valor {
+  margin-left: auto;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.bp-stock-total--ok       .bp-stock-total-valor { color: var(--prod-verde); }
+.bp-stock-total--critico  .bp-stock-total-valor { color: var(--prod-amarillo); }
+.bp-stock-total--agotado  .bp-stock-total-valor { color: var(--prod-rojo); }
+
+/* Sección presentaciones */
+.bp-presentaciones-titulo {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--prod-azul);
+  margin-bottom: .5rem;
+}
+
+/* Tabla compacta de presentaciones */
+.bp-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+.bp-tabla thead th {
+  text-align: left;
+  color: rgba(226,232,240,0.45);
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(77,168,218,0.15);
+}
+.bp-th-centro { text-align: center !important; }
+.bp-th-derecha { text-align: right !important; }
+
+.bp-tabla tbody td {
+  padding: 8px 10px;
+  color: var(--prod-texto);
+  border-bottom: 1px solid rgba(77,168,218,0.08);
+}
+.bp-tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+.bp-td-nombre { font-weight: 600; }
+.bp-td-centro { text-align: center; }
+.bp-td-stock { color: var(--prod-azul); font-weight: 600; }
+.bp-td-precio { text-align: right; color: var(--prod-azul); font-weight: 600; }
