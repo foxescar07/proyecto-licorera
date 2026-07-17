@@ -111,23 +111,30 @@
 
         <hr class="section-divider">
 
-        <!-- Precio de costo -->
         <div class="mb-3">
-          <label class="inv-label">
-            Precio de Costo
-            <span class="lote-label-hint">(por unidad)</span>
-          </label>
-          <div class="d-flex">
-            <span class="precio-prefix">$</span>
-            <input type="number" name="costo_unitario"
-                   class="form-control inv-input inv-input-precio lote-precio-input"
-                   min="0" step="1" placeholder="0">
-          </div>
-          <p class="precio-hint">
-            <i class="bi bi-info-circle me-1"></i>
-            Este valor se actualizará en la presentación y será visible en Stock y Gestión de Productos.
-          </p>
-        </div>
+  <label class="inv-label">
+    Precio de Costo
+    <span class="lote-label-hint">(por unidad)</span>
+  </label>
+  <div class="d-flex lote-precio-wrap">
+    <span class="precio-prefix">$</span>
+    <input type="number" name="costo_unitario" id="input-costo-unitario"
+           class="form-control inv-input inv-input-precio lote-precio-input"
+           min="0" step="1" placeholder="0">
+    <div class="lote-precio-spinners">
+      <button type="button" class="lote-spin-btn lote-spin-up" data-target="input-costo-unitario">
+        <i class="bi bi-caret-up-fill"></i>
+      </button>
+      <button type="button" class="lote-spin-btn lote-spin-down" data-target="input-costo-unitario">
+        <i class="bi bi-caret-down-fill"></i>
+      </button>
+    </div>
+  </div>
+  <p class="precio-hint">
+    <i class="bi bi-info-circle me-1"></i>
+    Este valor se actualizará en la presentación y será visible en Stock y Gestión de Productos.
+  </p>
+</div>
 
         <hr class="section-divider">
 

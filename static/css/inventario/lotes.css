@@ -163,3 +163,56 @@ button#presentacion-lote-btn {
 .lote-icon-azul {
   color: #4DA8DA;
 }
+/* Ocultar spinner nativo (se reemplaza por el propio) */
+.lote-precio-input::-webkit-outer-spin-button,
+.lote-precio-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.lote-precio-input[type="number"] {
+  appearance: textfield;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* Contenedor del input + spinners propios */
+.lote-precio-wrap {
+  position: relative;
+}
+.lote-precio-wrap .inv-input-precio {
+  padding-right: 34px !important;
+}
+
+.lote-precio-spinners {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  display: flex;
+  flex-direction: column;
+  width: 28px;
+  border-left: 1px solid rgba(77,168,218,0.25);
+}
+
+.lote-spin-btn {
+  flex: 1;
+  background: rgba(77,168,218,0.08);
+  border: none;
+  color: #4DA8DA;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s;
+}
+.lote-spin-btn:hover {
+  background: rgba(77,168,218,0.22);
+}
+.lote-spin-up {
+  border-radius: 0 8px 0 0;
+  border-bottom: 1px solid rgba(77,168,218,0.2);
+}
+.lote-spin-down {
+  border-radius: 0 0 8px 0;
+}

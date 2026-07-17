@@ -112,3 +112,16 @@ function inicializarValidacionFormulario() {
     }
   });
 }
+document.querySelectorAll('.lote-spin-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.target);
+    if (!input) return;
+    const step = parseFloat(input.step) || 1;
+    const min = input.min !== '' ? parseFloat(input.min) : -Infinity;
+    let valor = parseFloat(input.value) || 0;
+    valor = btn.classList.contains('lote-spin-up') ? valor + step : valor - step;
+    if (valor < min) valor = min;
+    input.value = valor;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+});
