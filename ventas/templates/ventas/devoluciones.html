@@ -9,10 +9,6 @@
 <link rel="stylesheet" href="{% static 'css/devoluciones/devoluciones.css' %}">
 {% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/proveedores/devoluciones.js' %}"></script>
-{% endblock %}
-
 {% block content %}
 <div class="container-fluid p-0">
   <div class="cys-snap-section px-3 py-4">
@@ -37,22 +33,21 @@
         <span class="kpi-badge green">PRODUCTOS</span>
       </div>
       <div class="kpi-value green">{{ detalles_venta|length|default:"0" }}</div>
-      <p class="kpi-title">Seleccionados</p>
-      <p class="kpi-sub">En la última devolución</p>
+      <p class="kpi-title">Disponibles</p>
+      <p class="kpi-sub">De la venta seleccionada</p>
     </div>
 
     <!-- Alertas/Pendientes -->
     <div class="kpi-card kpi-card-orange">
       <div class="kpi-card-top">
         <div class="kpi-icon-box orange"><i class="bi bi-exclamation-circle"></i></div>
-        <span class="kpi-badge orange">ALERTAS</span>
+        <span class="kpi-badge orange">PASO</span>
       </div>
-      <div class="kpi-value orange">{{ devoluciones|length|default:"0" }}</div>
-      <p class="kpi-title">Devoluciones</p>
-      <p class="kpi-sub">Registro activo</p>
+      <div class="kpi-value orange">{{ paso }}</div>
+      <p class="kpi-title">Actual</p>
+      <p class="kpi-sub">De 7 pasos</p>
     </div>
   </div>
-
 
   <!-- MOSTRAR MENSAJES -->
   {% if messages %}
@@ -64,116 +59,53 @@
     {% endfor %}
   {% endif %}
 
-  <!-- SECCIÓN DESPLEGABLE: HISTORIAL DE DEVOLUCIONES -->
-  <div class="section-card">
+  <!-- SECCIÓN HISTORIAL DE DEVOLUCIONES -->
+  <div class="section-card mb-4">
     <div class="collapsible-header" id="historialToggle">
       <i class="bi bi-chevron-down chevron-toggle"></i>
       <div>
-        <div class="fw-bold text-light">Mis devoluciones anteriores</div>
+        <div class="fw-bold text-light">Historial de devoluciones</div>
         <div class="text-muted text-xs">{{ devoluciones|length|default:"0" }} solicitudes registradas</div>
       </div>
     </div>
 
     <div id="historialContent" class="collapsible-content d-none mt-3 pt-3 border-top-cyan">
-      <!-- Buscador -->
-      <div class="search-box mb-3">
-        <div class="dev-search-wrapper">
-          <i class="bi bi-search dev-search-icon"></i>
-          <input type="text"
-                 id="searchHistorial"
-                 class="dev-search-input form-control"
-                 placeholder="Buscar por cliente, número o fecha...">
+      {% if devoluciones %}
+        {% for dev in devoluciones %}
+        <div class="devolucion-card mb-3">
+          <div class="devolucion-row">
+            <div class="devolucion-row-left">
+              <i class="bi bi-check-circle text-green"></i>
+              <div class="devolucion-info">
+                <div class="devolucion-numero">{{ dev.numero }}</div>
+                <div class="devolucion-cliente">{{ dev.venta.cliente.nombre }}</div>
+              </div>
+            </div>
+            <div class="devolucion-row-right">
+              <div class="devolucion-monto">${{ dev.total_devuelto|floatformat:0 }}</div>
+              <div class="devolucion-fecha">{{ dev.fecha|date:"d/m/Y" }}</div>
+              <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" class="btn btn-sm btn-cyan fw-bold">
+                <i class="bi bi-file-earmark me-1"></i>Ver
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <!-- Lista de devoluciones -->
-      <div id="listaDevolucionesHistorial">
-        {% if devoluciones %}
-          {% for dev in devoluciones %}
-          <div class="devolucion-card"
-               data-id="{{ dev.pk }}"
-               data-cliente="{{ dev.venta.cliente.nombre }}"
-               data-numero="{{ dev.numero }}"
-               data-fecha="{{ dev.fecha|date:'Y-m-d' }}"
-               data-observaciones="{{ dev.observaciones|escapejs }}">
-            <div class="devolucion-row" onclick="toggleDetalleDevolucion(this)">
-              <div class="devolucion-row-left">
-                <i class="bi bi-check-circle text-green"></i>
-                <div class="devolucion-info">
-                  <div class="devolucion-numero">{{ dev.numero }}</div>
-                  <div class="devolucion-cliente">{{ dev.venta.cliente.nombre }}</div>
-                </div>
-              </div>
-              <div class="devolucion-row-right">
-                <div class="devolucion-monto">${{ dev.total_devuelto|floatformat:0 }}</div>
-                <div class="devolucion-fecha">{{ dev.fecha|date:"d/m/Y" }}</div>
-                <i class="bi bi-chevron-down chevron-detalle"></i>
-              </div>
-            </div>
-
-            <!-- Detalles ocultos -->
-            <div class="devolucion-detalle d-none mt-2 pt-2 border-top-cyan">
-              <div class="grid-2col mb-2">
-                <div>
-                  <span class="text-muted text-xs uppercase">Estado</span>
-                  <div class="text-light fw-bold">{{ dev.get_motivo_display }}</div>
-                </div>
-                <div>
-                  <span class="text-muted text-xs uppercase">Tipo de reembolso</span>
-                  <div class="text-light fw-bold">{{ dev.get_tipo_reembolso_display|default:"—" }}</div>
-                </div>
-              </div>
-
-              <div class="mb-2">
-                <span class="text-muted text-xs uppercase">Productos devueltos</span>
-                <div class="text-light text-sm">
-                  {% if dev.detalles_devolucion %}
-                    {{ dev.detalles_devolucion.count }} producto{{ dev.detalles_devolucion.count|pluralize }}
-                  {% else %}
-                    —
-                  {% endif %}
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <span class="text-muted text-xs uppercase">Observaciones</span>
-                <div class="text-light text-sm" style="max-height: 80px; overflow-y: auto;">
-                  {{ dev.observaciones|default:"Sin observaciones" }}
-                </div>
-              </div>
-
-              <div class="flex-end gap-1">
-                <a href="#"
-                   onclick="return false"
-                   data-devolucion-id="{{ dev.pk }}"
-                   class="btn btn-sm btn-cyan fw-bold">
-                  <i class="bi bi-eye me-1"></i>Ver comprobante
-                </a>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div class="text-center py-4 px-2">
-            <i class="bi bi-inbox text-muted"></i>
-            <p class="text-muted mb-0">No hay devoluciones registradas aún.</p>
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Sin resultados en búsqueda -->
-      <div id="sinResultados" class="text-center py-4 px-2 d-none">
-        <i class="bi bi-search text-muted"></i>
-        <p class="text-muted mb-0">No se encontraron devoluciones que coincidan.</p>
-      </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 px-2">
+          <i class="bi bi-inbox text-muted"></i>
+          <p class="text-muted mb-0">No hay devoluciones registradas aún.</p>
+        </div>
+      {% endif %}
     </div>
   </div>
 
-  <!-- FORMULARIO COMPLETO - UNA SOLA PÁGINA -->
-  <form method="post" class="needs-validation" enctype="multipart/form-data">
+  <!-- FORMULARIO DE DEVOLUCIONES -->
+  <form method="post" enctype="multipart/form-data" id="formDevoluciones">
     {% csrf_token %}
 
-    <!-- SECCIÓN 1: SELECCIONAR VENTA -->
+    <!-- PASO 1: SELECCIONAR VENTA -->
+    {% if paso == 1 %}
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">1</span>
@@ -182,10 +114,9 @@
 
       <div class="alert alert-info-dev mb-3">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Tip:</strong> Solo se muestran ventas de los últimos 30 días. Si no encuentras tu venta, verifica la fecha o contacta a soporte.
+        <strong>Tip:</strong> Solo se muestran las ventas de los últimos 30 días. Si no encuentras tu venta, verifica la fecha.
       </div>
 
-      <!-- Ventas disponibles -->
       {% if ventas %}
         <div class="mb-4">
           {% for v in ventas %}
@@ -210,9 +141,20 @@
           <p class="text-red mb-0">❌ No hay ventas registradas</p>
         </div>
       {% endif %}
-    </div>
 
-    <!-- SECCIÓN 2: PRODUCTOS A DEVOLVER -->
+      <div class="flex-end gap-2">
+        <a href="{% url 'ventas:ventas_lista' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Cancelar
+        </a>
+        <button type="submit" class="btn btn-success" {% if not ventas %}disabled{% endif %}>
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- PASO 2: SELECCIONAR PRODUCTOS -->
+    {% if paso == 2 and venta %}
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">2</span>
@@ -221,7 +163,7 @@
 
       <div class="alert alert-info-dev mb-3">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Cómo usar:</strong> Marca cada producto con su checkbox o ingresa la cantidad directamente. Los productos ya devueltos completamente aparecen deshabilitados.
+        <strong>Cómo usar:</strong> Marca cada producto con su checkbox. Solo aparecen productos que aún tienen cantidad pendiente de devolver.
       </div>
 
       {% if detalles_con_estado %}
@@ -234,32 +176,26 @@
                 <th class="table-head-cell">Original</th>
                 <th class="table-head-cell">Devuelto</th>
                 <th class="table-head-cell">Pendiente</th>
-                <th class="table-head-cell">A Devolver</th>
                 <th class="table-head-cell table-head-cell-right">Precio</th>
-                <th class="table-head-cell table-head-cell-right">Subtotal</th>
               </tr>
             </thead>
             <tbody>
               {% for item in detalles_con_estado %}
                 {% with detalle=item.detalle %}
-                <tr class="table-body-row {% if not item.puede_devolver %}table-body-row-disabled{% endif %}">
+                <tr class="table-body-row {% if not item.puede_devolver %}opacity-50{% endif %}">
                   <td class="table-body-cell table-body-cell-center">
                     <input type="checkbox"
                            name="producto_id"
                            value="{{ detalle.id }}"
-                           class="form-check-input producto-checkbox"
-                           onchange="updateSubtotal(this)"
-                           {% if not item.puede_devolver %}disabled title="Ya fue completamente devuelto"{% endif %}>
+                           class="form-check-input producto-check"
+                           data-max="{{ item.cantidad_pendiente }}"
+                           data-detalle="{{ detalle.id }}"
+                           checked>
                   </td>
                   <td class="table-body-cell">
                     <div class="product-name-cell">{{ detalle.producto.nombre }}</div>
                     {% if detalle.presentacion %}
                       <div class="product-subtext">{{ detalle.presentacion.nombre }}</div>
-                    {% endif %}
-                    {% if not item.puede_devolver %}
-                      <div class="product-status-cell">
-                        <i class="bi bi-check-circle"></i> Completamente devuelto
-                      </div>
                     {% endif %}
                   </td>
                   <td class="table-body-cell table-body-cell-center table-body-cell-fw">{{ detalle.cantidad }}</td>
@@ -272,44 +208,42 @@
                            max="{{ item.cantidad_pendiente }}"
                            value="0"
                            class="form-control cantidad-input table-cell-input"
-                           onchange="updateCheckboxAndSubtotal(this, {{ detalle.id }})"
-                           {% if not item.puede_devolver %}disabled{% endif %}>
+                           disabled>
                   </td>
                   <td class="table-body-cell table-body-cell-right table-body-cell-fw">${{ detalle.precio_unitario|floatformat:0 }}</td>
-                  <td class="table-body-cell table-body-cell-right table-body-cell-fw-bold table-body-cell-cyan" data-subtotal="{{ detalle.id }}">${{ detalle.subtotal|floatformat:0 }}</td>
                 </tr>
                 {% endwith %}
               {% endfor %}
             </tbody>
           </table>
         </div>
-
-        <!-- Resumen de devolución -->
-        <div class="card-info-box mb-3">
-          <div class="grid-3col">
-            <div>
-              <div class="text-muted text-xs uppercase fw-bold mb-05">Productos seleccionados</div>
-              <div class="text-cyan fw-bold" id="productosCount">0</div>
-            </div>
-            <div>
-              <div class="text-muted text-xs uppercase fw-bold mb-05">Cantidad total</div>
-              <div class="text-cyan fw-bold" id="cantidadTotal">0</div>
-            </div>
-            <div>
-              <div class="text-muted text-xs uppercase fw-bold mb-05">Monto a devolver</div>
-              <div class="text-cyan fw-bold" id="montoTotal">$0</div>
-            </div>
-          </div>
-        </div>
       {% else %}
         <div class="text-center py-4 px-2">
           <i class="bi bi-inbox text-muted"></i>
-          <p class="text-muted fs-small">No hay productos. Selecciona una venta arriba.</p>
+          <p class="text-muted fs-small">✓ Todos los productos de esta venta ya fueron devueltos completamente.</p>
+          <p class="text-muted fs-small">Selecciona otra venta o continúa si deseas proceder.</p>
         </div>
       {% endif %}
-    </div>
 
-    <!-- SECCIÓN 3: MOTIVO DE DEVOLUCIÓN -->
+      <div class="flex-end gap-2">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        {% if detalles_con_estado %}
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- PASO 3: MOTIVO DE DEVOLUCIÓN -->
+    {% if paso == 3 %}
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">3</span>
@@ -318,70 +252,36 @@
 
       <div class="alert alert-info-dev mb-3">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Importante:</strong> Selecciona el motivo que mejor describe tu situación. Si tienes un motivo no listado, selecciona "Otro motivo" y completa el campo de observaciones.
+        <strong>Selecciona el motivo</strong> que mejor describe tu situación.
       </div>
 
-      <div class="motivo-grid mb-3" id="motivoGrid">
-        <input type="radio" id="motivo_defectuoso" name="motivo" value="defectuoso" class="d-none">
-        <label for="motivo_defectuoso" class="motivo-item">
-          <span class="motivo-num">1</span>
+      <div class="motivo-grid mb-3">
+        {% for motivo_code, motivo_label in motivo_choices %}
+        <label class="motivo-item">
+          <input type="radio" name="motivo" value="{{ motivo_code }}" required>
           <div>
-            <div class="motivo-title">Producto defectuoso</div>
-            <div class="motivo-sub">Fuga, sello roto o deteriorado</div>
+            <div class="motivo-title">{{ motivo_label }}</div>
           </div>
         </label>
-
-        <input type="radio" id="motivo_equivocado" name="motivo" value="equivocado" class="d-none">
-        <label for="motivo_equivocado" class="motivo-item">
-          <span class="motivo-num">2</span>
-          <div>
-            <div class="motivo-title">Error en el pedido</div>
-            <div class="motivo-sub">Referencia o cantidad incorrecta</div>
-          </div>
-        </label>
-
-        <input type="radio" id="motivo_insatisfecho" name="motivo" value="insatisfecho" class="d-none">
-        <label for="motivo_insatisfecho" class="motivo-item">
-          <span class="motivo-num">3</span>
-          <div>
-            <div class="motivo-title">Cliente insatisfecho</div>
-            <div class="motivo-sub">Motivos de insatisfacción</div>
-          </div>
-        </label>
-
-        <input type="radio" id="motivo_otro1" name="motivo" value="otro" class="d-none">
-        <label for="motivo_otro1" class="motivo-item">
-          <span class="motivo-num">4</span>
-          <div>
-            <div class="motivo-title">Problema de calidad</div>
-            <div class="motivo-sub">Defectos o daños en transporte</div>
-          </div>
-        </label>
-
-        <input type="radio" id="motivo_otro2" name="motivo" value="otro" class="d-none">
-        <label for="motivo_otro2" class="motivo-item">
-          <span class="motivo-num">5</span>
-          <div>
-            <div class="motivo-title">Empaque dañado</div>
-            <div class="motivo-sub">Caja, estuche o etiqueta</div>
-          </div>
-        </label>
-
-        <input type="radio" id="motivo_otro3" name="motivo" value="otro" class="d-none">
-        <label for="motivo_otro3" class="motivo-item">
-          <span class="motivo-num">6</span>
-          <div>
-            <div class="motivo-title">Otro motivo</div>
-            <div class="motivo-sub">Especificar en observaciones</div>
-          </div>
-        </label>
+        {% endfor %}
       </div>
 
-      <label class="dev-form-label">Observaciones</label>
-      <textarea placeholder="Describe el problema con detalle…" name="observaciones" class="textarea-dev"></textarea>
+      <label class="dev-form-label">Observaciones adicionales</label>
+      <textarea name="observaciones" class="textarea-dev" placeholder="Describe el problema con detalle…" rows="4"></textarea>
+
+      <div class="flex-end gap-2">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
+      </div>
     </div>
+    {% endif %}
 
-    <!-- SECCIÓN 4: TIPO DE REEMBOLSO -->
+    <!-- PASO 4: TIPO DE REEMBOLSO -->
+    {% if paso == 4 %}
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">4</span>
@@ -390,143 +290,147 @@
 
       <div class="alert alert-info-dev mb-3">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Opciones disponibles:</strong> Selecciona una opción. Cambio inmediato, Nota crédito instantánea, o Reembolso en 3-7 días.
+        <strong>Selecciona una opción:</strong> Cambio, Nota Crédito o Reembolso.
       </div>
 
       <div class="reembolso-grid mb-4">
-        <input type="radio" id="reembolso_cambio" name="tipo_reembolso" value="cambio" class="d-none">
-        <label for="reembolso_cambio" class="reembolso-card">
-          <div class="r-opt">Opción 1</div>
+        <label class="reembolso-card">
+          <input type="radio" name="tipo_reembolso" value="cambio" required>
           <i class="bi bi-arrow-repeat r-icon"></i>
           <div class="r-title">Cambio de producto</div>
           <div class="r-sub">Misma referencia u otra</div>
         </label>
 
-        <input type="radio" id="reembolso_nota_credito" name="tipo_reembolso" value="nota_credito" class="d-none">
-        <label for="reembolso_nota_credito" class="reembolso-card">
-          <div class="r-opt">Opción 2</div>
+        <label class="reembolso-card">
+          <input type="radio" name="tipo_reembolso" value="nota_credito" required>
           <i class="bi bi-file-earmark-text r-icon"></i>
           <div class="r-title">Nota crédito</div>
           <div class="r-sub">Abono a próxima factura</div>
         </label>
 
-        <input type="radio" id="reembolso_reembolso" name="tipo_reembolso" value="reembolso" class="d-none">
-        <label for="reembolso_reembolso" class="reembolso-card">
-          <div class="r-opt">Opción 3</div>
+        <label class="reembolso-card">
+          <input type="radio" name="tipo_reembolso" value="reembolso" required>
           <i class="bi bi-bank r-icon"></i>
           <div class="r-title">Reembolso</div>
           <div class="r-sub">Devolución al método de pago</div>
         </label>
       </div>
 
-      <!-- Detalles específicos según tipo de reembolso -->
-      <div id="detalles-cambio" class="detalles-reembolso d-none mb-4">
-        <label class="dev-form-label">
-          <i class="bi bi-box me-1"></i>Producto a recibir
-        </label>
-        <select name="producto_cambio" class="form-select input-dev-premium mb-2">
-          <option value="">-- Selecciona un producto --</option>
-          {% for prod in productos %}
-            <option value="{{ prod.pk }}">{{ prod.nombre }} - ${{ prod.precio_unitario|floatformat:0 }}</option>
-          {% endfor %}
-        </select>
-        <small class="text-muted text-xs d-block mb-3">
-          <i class="bi bi-info-circle me-1"></i>Elige el producto que prefieres recibir
-        </small>
-
-        <label class="dev-form-label">
-          <i class="bi bi-stack me-1"></i>Cantidad
-        </label>
-        <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control input-dev-premium mb-3">
-        <small class="text-muted text-xs d-block">
-          <i class="bi bi-info-circle me-1"></i>Cantidad a enviar
-        </small>
-      </div>
-
-      <div id="detalles-reembolso" class="detalles-reembolso d-none mb-4">
-        <label class="dev-form-label text-orange mb-3">
-          <i class="bi bi-credit-card me-1"></i>Elige cómo deseas recibir tu reembolso
-        </label>
-
-        <div class="metodo-pago-grid">
-          <label class="metodo-pago-option">
-            <input type="radio" name="metodo_pago_devolucion" value="efectivo">
-            <div class="p-15 border-radius-12 bg-orange-light text-center">
-              <i class="bi bi-cash-coin text-orange fw-bold"></i>
-              <div class="text-light fw-bold fs-small">Efectivo</div>
-              <div class="text-muted text-xs mt-05">Retira en nuestro local</div>
-            </div>
-          </label>
-
-          <label class="metodo-pago-option">
-            <input type="radio" name="metodo_pago_devolucion" value="tarjeta">
-            <div class="p-15 border-radius-12 bg-orange-light text-center">
-              <i class="bi bi-credit-card text-orange fw-bold"></i>
-              <div class="text-light fw-bold fs-small">Tarjeta</div>
-              <div class="text-muted text-xs mt-05">A tu tarjeta de débito</div>
-            </div>
-          </label>
-
-          <label class="metodo-pago-option">
-            <input type="radio" name="metodo_pago_devolucion" value="transferencia">
-            <div class="p-15 border-radius-12 bg-orange-light text-center">
-              <i class="bi bi-bank2 text-orange fw-bold"></i>
-              <div class="text-light fw-bold fs-small">Transferencia</div>
-              <div class="text-muted text-xs mt-05">A tu cuenta bancaria</div>
-            </div>
-          </label>
-
-          <label class="metodo-pago-option">
-            <input type="radio" name="metodo_pago_devolucion" value="nequi">
-            <div class="p-15 border-radius-12 bg-orange-light text-center">
-              <i class="bi bi-phone text-orange fw-bold"></i>
-              <div class="text-light fw-bold fs-small">Nequi</div>
-              <div class="text-muted text-xs mt-05">A tu billetera Nequi</div>
-            </div>
-          </label>
-
-          <label class="metodo-pago-option">
-            <input type="radio" name="metodo_pago_devolucion" value="daviplata">
-            <div class="p-15 border-radius-12 bg-orange-light text-center">
-              <i class="bi bi-wallet2 text-orange fw-bold"></i>
-              <div class="text-light fw-bold fs-small">DaviPlata</div>
-              <div class="text-muted text-xs mt-05">A tu billetera DaviPlata</div>
-            </div>
-          </label>
-        </div>
+      <div class="flex-end gap-2">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
       </div>
     </div>
+    {% endif %}
 
-    <!-- SECCIÓN 5: EVIDENCIA FOTOGRÁFICA -->
+    <!-- PASO 5: DETALLES ESPECÍFICOS (CAMBIO O REEMBOLSO) -->
+    {% if paso == 5 %}
     <div class="section-card">
       <div class="section-head">
         <span class="step-badge">5</span>
+        <span class="section-title">Detalles del reembolso</span>
+      </div>
+
+      {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
+        <div class="detalles-reembolso mb-4">
+          <label class="dev-form-label">Producto a recibir</label>
+          <select name="producto_cambio" class="form-select input-dev-premium mb-3">
+            <option value="">-- Selecciona un producto --</option>
+            {% for prod in productos %}
+              <option value="{{ prod.pk }}">{{ prod.nombre }} - ${{ prod.precio|floatformat:0 }}</option>
+            {% endfor %}
+          </select>
+          <small class="text-muted text-xs d-block">Elige el producto que prefieres recibir</small>
+        </div>
+
+        <div class="detalles-reembolso mb-4">
+          <label class="dev-form-label">Cantidad</label>
+          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control input-dev-premium">
+          <small class="text-muted text-xs d-block">Cantidad a enviar</small>
+        </div>
+      {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
+        <div class="detalles-reembolso mb-4">
+          <label class="dev-form-label">Método de reembolso</label>
+          <div class="metodo-pago-grid">
+            <label class="metodo-pago-option">
+              <input type="radio" name="metodo_pago_devolucion" value="efectivo">
+              <div class="p-15 border-radius-12 bg-orange-light text-center">
+                <i class="bi bi-cash-coin text-orange fw-bold"></i>
+                <div class="text-light fw-bold fs-small">Efectivo</div>
+              </div>
+            </label>
+
+            <label class="metodo-pago-option">
+              <input type="radio" name="metodo_pago_devolucion" value="tarjeta">
+              <div class="p-15 border-radius-12 bg-orange-light text-center">
+                <i class="bi bi-credit-card text-orange fw-bold"></i>
+                <div class="text-light fw-bold fs-small">Tarjeta</div>
+              </div>
+            </label>
+
+            <label class="metodo-pago-option">
+              <input type="radio" name="metodo_pago_devolucion" value="transferencia">
+              <div class="p-15 border-radius-12 bg-orange-light text-center">
+                <i class="bi bi-bank2 text-orange fw-bold"></i>
+                <div class="text-light fw-bold fs-small">Transferencia</div>
+              </div>
+            </label>
+
+            <label class="metodo-pago-option">
+              <input type="radio" name="metodo_pago_devolucion" value="nequi">
+              <div class="p-15 border-radius-12 bg-orange-light text-center">
+                <i class="bi bi-phone text-orange fw-bold"></i>
+                <div class="text-light fw-bold fs-small">Nequi</div>
+              </div>
+            </label>
+
+            <label class="metodo-pago-option">
+              <input type="radio" name="metodo_pago_devolucion" value="daviplata">
+              <div class="p-15 border-radius-12 bg-orange-light text-center">
+                <i class="bi bi-wallet2 text-orange fw-bold"></i>
+                <div class="text-light fw-bold fs-small">DaviPlata</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="flex-end gap-2">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- PASO 6: EVIDENCIA FOTOGRÁFICA -->
+    {% if paso == 6 %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="step-badge">6</span>
         <span class="section-title">Sube fotos del producto</span>
       </div>
 
       <div class="alert alert-warning-dev mb-3">
         <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>Requisito importante:</strong> Las fotos son obligatorias para procesar tu devolución. Toma fotos claras y bien iluminadas.
+        <strong>Requisito importante:</strong> Las fotos son opcionales pero altamente recomendadas para acelerar el proceso.
       </div>
 
-      <!-- Zona de carga de archivos -->
-      <div id="dropZone" class="border-radius-12 py-15 px-2 bg-cyan-lighter text-center mb-3 dropzone-area">
+      <div class="dropzone-area mb-3">
         <i class="bi bi-cloud-arrow-up text-cyan fw-bold"></i>
         <div class="text-light fw-bold">Arrastra fotos aquí</div>
         <div class="text-muted fs-small mb-15">o haz clic para seleccionar archivos</div>
-        <input type="file" id="evidencia" name="evidencia" multiple accept="image/*,.pdf">
+        <input type="file" name="evidencia" multiple accept="image/*,.pdf" style="display:none;">
         <small class="text-cyan">JPG, PNG o PDF — máx. 10 MB por archivo</small>
       </div>
 
-      <!-- Vista previa de archivos subidos -->
-      <div id="previewContainer" class="mb-3 d-none">
-        <div class="fw-bold mb-2">
-          <i class="bi bi-check-circle me-2"></i>Archivos seleccionados
-        </div>
-        <div id="fileList"></div>
-      </div>
-
-      <!-- Recomendaciones -->
       <div class="card-info-box">
         <div class="flex-start gap-2">
           <i class="bi bi-lightbulb text-cyan fw-bold flex-shrink-0"></i>
@@ -542,81 +446,74 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- SECCIÓN 6: RESUMEN Y CONFIRMACIÓN -->
+      <div class="flex-end gap-2 mt-4">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-arrow-right me-1"></i>Continuar
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- PASO 7: RESUMEN Y CONFIRMACIÓN -->
+    {% if paso == 7 %}
     <div class="section-card">
       <div class="section-head">
-        <span class="step-badge">6</span>
+        <span class="step-badge">7</span>
         <span class="section-title">Revisa y confirma</span>
       </div>
 
       <div class="alert alert-success-dev mb-3">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Último paso:</strong> Verifica que toda la información esté correcta antes de enviar. Una vez enviado, recibirás un número de radicado.
+        <strong>Último paso:</strong> Verifica que toda la información esté correcta antes de enviar.
       </div>
 
-      <!-- Resumen -->
-      <div class="card-section mb-3">
-        <div class="text-center mb-3">
+      <div class="card-info-box mb-3">
+        <div class="text-center">
           <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">Resumen de tu devolución</div>
-          <div class="text-cyan fw-bold fs-3" id="resumenMonto">$0</div>
+          <div class="text-cyan fw-bold fs-3">${{ total_devolver|floatformat:0 }}</div>
           <div class="text-muted fs-small">Monto total a devolver</div>
         </div>
+      </div>
 
-        <div class="grid-2col mb-3">
-          <div class="p-15 bg-cyan-light border-radius-8">
-            <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">
-              <i class="bi bi-arrow-repeat me-2"></i>Tipo de reembolso
-            </div>
-            <div class="text-light fw-bold" id="resumenTipo">No seleccionado</div>
-          </div>
-
-          <div class="p-15 bg-cyan-light border-radius-8">
-            <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">
-              <i class="bi bi-calendar-event me-2"></i>Plazo estimado
-            </div>
-            <div class="text-light fw-bold" id="resumenPlazo">—</div>
-          </div>
+      <div class="bg-green-light border-radius-8 p-15">
+        <div class="fw-bold mb-2">
+          <i class="bi bi-check-all me-1"></i>Confirma que todo esté correcto
         </div>
-
-        <!-- Checklist -->
-        <div class="bg-green-light border-radius-8 p-15">
-          <div class="fw-bold mb-2">
-            <i class="bi bi-check-all me-1"></i>Confirma que todo esté correcto
+        <div class="text-light fs-small">
+          <div class="flex-start gap-2 mb-2">
+            <i class="bi bi-check-circle"></i>
+            <span>He revisado todos los datos de la devolución</span>
           </div>
-          <div class="text-light fs-small">
-            <div class="flex-start gap-2 mb-2">
-              <i class="bi bi-check-circle"></i>
-              <span>He seleccionado el tipo de reembolso correcto</span>
-            </div>
-            <div class="flex-start gap-2 mb-2">
-              <i class="bi bi-check-circle"></i>
-              <span>Entiendo que debo devolver el producto original</span>
-            </div>
-            <div class="flex-start gap-2">
-              <i class="bi bi-check-circle"></i>
-              <span>He aceptado los términos de la política de devoluciones</span>
-            </div>
+          <div class="flex-start gap-2 mb-2">
+            <i class="bi bi-check-circle"></i>
+            <span>Entiendo que debo devolver el producto original</span>
+          </div>
+          <div class="flex-start gap-2">
+            <i class="bi bi-check-circle"></i>
+            <span>He aceptado los términos de la política de devoluciones</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- BOTONES DE ACCIÓN -->
-    <div class="flex-end gap-2 mb-4">
-      <a href="{% url 'ventas:ventas_lista' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i>Cancelar
-      </a>
-      <button type="submit" class="btn btn-success">
-        <i class="bi bi-check-circle me-2"></i>Enviar Solicitud
-      </button>
+      <div class="flex-end gap-2 mt-4">
+        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Atrás
+        </button>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle me-1"></i>Enviar Solicitud
+        </button>
+      </div>
     </div>
+    {% endif %}
 
   </form>
 
   <!-- AYUDA RÁPIDA -->
-  <div class="section-card">
+  <div class="section-card mt-4">
     <div class="section-head section-sep">
       <span class="step-badge">
         <i class="bi bi-info"></i>
@@ -645,241 +542,62 @@
   </div>
 </div>
 
-<!-- MODAL — PREVIEW DEL COMPROBANTE -->
-<div class="modal fade" id="modalComprobante" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, #031e3e 0%, rgba(77, 168, 218, 0.08) 100%);">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-file-earmark-check text-cyan me-2"></i>Preview del comprobante
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
+<script>
+// Toggle historial
+const historialToggle = document.getElementById('historialToggle');
+if (historialToggle) {
+  historialToggle.addEventListener('click', function() {
+    const content = document.getElementById('historialContent');
+    const chevron = this.querySelector('.chevron-toggle');
+    content.classList.toggle('d-none');
+    if (chevron) {
+      chevron.style.transform = content.classList.contains('d-none') ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+  });
+}
 
-        <!-- NÚMERO DE RADICADO -->
-        <div class="text-center mb-4 pb-3 border-bottom border-cyan">
-          <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-1">Número de radicado</div>
-          <div class="text-light fw-bold fs-3" id="modalNumero">DEV-0000</div>
-          <div class="text-muted text-xs mt-2">ID: <span id="modalId">—</span></div>
-        </div>
+// Habilitar/deshabilitar campos de cantidad según checkboxes
+const productosChecks = document.querySelectorAll('.producto-check');
+productosChecks.forEach(check => {
+  check.addEventListener('change', function() {
+    const detalleId = this.dataset.detalle;
+    const cantidadInput = document.querySelector(`input[name="cantidad_devolucion_${detalleId}"]`);
+    const max = this.dataset.max;
 
-        <!-- INFO GRID -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <div class="p-2">
-              <div class="text-muted text-xs uppercase fw-bold mb-1">👤 Cliente</div>
-              <div class="text-light fw-bold" id="modalCliente">—</div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="p-2">
-              <div class="text-muted text-xs uppercase fw-bold mb-1">📅 Fecha solicitud</div>
-              <div class="text-light fw-bold" id="modalFecha">—</div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="p-2">
-              <div class="text-muted text-xs uppercase fw-bold mb-1">❓ Motivo</div>
-              <div class="text-light fw-bold" id="modalMotivo">—</div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="p-2">
-              <div class="text-muted text-xs uppercase fw-bold mb-1">💰 Monto devuelto</div>
-              <div class="text-cyan fw-bold fs-5" id="modalMonto">$0</div>
-            </div>
-          </div>
-        </div>
+    if (cantidadInput) {
+      if (this.checked) {
+        cantidadInput.disabled = false;
+        cantidadInput.value = max; // Establece al máximo disponible
+      } else {
+        cantidadInput.disabled = true;
+        cantidadInput.value = 0;
+      }
+    }
+  });
+});
 
-        <!-- TIPO REEMBOLSO -->
-        <div class="bg-cyan-light border-radius-8 p-15 mb-4">
-          <div class="text-cyan text-xs uppercase fw-bold letter-spacing mb-2">
-            <i class="bi bi-arrow-repeat me-1"></i>Tipo de reembolso
-          </div>
-          <div class="text-light fw-bold" id="modalTipoReembolso">—</div>
-          <div class="text-muted text-xs mt-1">Verifica el estado y plazo en el comprobante completo</div>
-        </div>
+// Dropzone simple para archivos
+const dropzoneArea = document.querySelector('.dropzone-area');
+const fileInput = dropzoneArea?.querySelector('input[type="file"]');
 
-        <!-- OBSERVACIONES -->
-        <div class="mb-3">
-          <div class="text-muted text-xs uppercase fw-bold mb-2">📝 Observaciones</div>
-          <div class="text-light text-sm p-2 bg-surface-1 border-radius-8" id="modalObservaciones" style="max-height: 120px; overflow-y: auto; border: 1px solid rgba(77, 168, 218, 0.15);">
-            —
-          </div>
-        </div>
+if (dropzoneArea && fileInput) {
+  dropzoneArea.addEventListener('click', () => fileInput.click());
 
-        <!-- NOTA IMPORTANTE -->
-        <div class="alert alert-info-dev mb-0">
-          <i class="bi bi-info-circle me-2"></i>
-          <strong>Nota:</strong> Este es un preview. Haz click en "Ver comprobante completo" para ver todos los detalles, productos y opciones de descarga.
-        </div>
+  dropzoneArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzoneArea.style.background = 'rgba(77,168,218,0.1)';
+  });
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x me-1"></i>Cerrar
-        </button>
-        <button id="modalLinkComprobante" type="button" class="btn btn-primary">
-          <i class="bi bi-file-earmark-arrow-up me-1"></i>Ver comprobante completo
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+  dropzoneArea.addEventListener('dragleave', () => {
+    dropzoneArea.style.background = '';
+  });
 
-<!-- MODAL — PROCESO Y POLÍTICA -->
-<div class="modal fade" id="modalProceso" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-list-ol me-2"></i>Proceso de devolución
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="d-flex gap-3 mb-4 pb-4">
-          <div class="step-badge flex-shrink-0">1</div>
-          <div class="flex-grow-1">
-            <div class="fw-bold">Completa el formulario</div>
-            <div class="small">Datos del pedido, productos y motivo</div>
-          </div>
-        </div>
-        <div class="d-flex gap-3 mb-4 pb-4">
-          <div class="step-badge flex-shrink-0">2</div>
-          <div class="flex-grow-1">
-            <div class="fw-bold">Adjunta evidencia</div>
-            <div class="small">Fotos del producto y embalaje</div>
-          </div>
-        </div>
-        <div class="d-flex gap-3 mb-4 pb-4">
-          <div class="step-badge flex-shrink-0">3</div>
-          <div class="flex-grow-1">
-            <div class="fw-bold">Revisión del caso</div>
-            <div class="small">Un asesor analizará tu solicitud</div>
-          </div>
-        </div>
-        <div class="d-flex gap-3 mb-4 pb-4">
-          <div class="step-badge flex-shrink-0">4</div>
-          <div class="flex-grow-1">
-            <div class="fw-bold">Aprobación</div>
-            <div class="small">Recibirás confirmación en 2–5 días hábiles</div>
-          </div>
-        </div>
-        <div class="d-flex gap-3 mb-4">
-          <div class="step-badge flex-shrink-0">5</div>
-          <div class="flex-grow-1">
-            <div class="fw-bold">Reembolso o cambio</div>
-            <div class="small">Según la opción seleccionada</div>
-          </div>
-        </div>
-
-        <div class="mt-4 pt-4">
-          <div class="fw-bold text-uppercase mb-3 small">
-            <i class="bi bi-shield-check me-2"></i>Política de devoluciones
-          </div>
-          <div class="d-flex flex-column gap-2">
-            <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-check-circle flex-shrink-0"></i>
-              <div class="small">Productos defectuosos o mal despachados: <strong>hasta 30 días</strong></div>
-            </div>
-            <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-check-circle flex-shrink-0"></i>
-              <div class="small">Producto debe estar <strong>sellado</strong> salvo defecto de fábrica</div>
-            </div>
-            <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-x-circle flex-shrink-0"></i>
-              <div class="small">No aplica por arrepentimiento o cambio de gusto</div>
-            </div>
-            <div class="d-flex gap-2 align-items-start py-2">
-              <i class="bi bi-clock flex-shrink-0"></i>
-              <div class="small">Resolución en <strong>2–5 días hábiles</strong> tras recibir evidencia</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-dismiss="modal">
-          <i class="bi bi-check me-1"></i>Entendido
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- OFFCANVAS — HISTORIAL DE DEVOLUCIONES -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="drawerHistorial">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title fw-bold">
-      <i class="bi bi-clock-history me-2"></i>Historial de devoluciones
-    </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-  </div>
-
-  <div class="offcanvas-body p-3">
-    <div class="row g-2 mb-4 pb-4 border-bottom border-1">
-      <div class="col-4">
-        <div class="card card-dev-inner p-3 text-center rounded-3">
-          <div class="fw-bold h6">{{ devoluciones|length|default:"0" }}</div>
-          <div class="text-uppercase fw-bold small">Total</div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card card-dev-inner p-3 text-center rounded-3">
-          <div class="fw-bold h6">—</div>
-          <div class="text-uppercase fw-bold small">Pendientes</div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card card-dev-inner p-3 text-center rounded-3">
-          <div class="fw-bold h6">{{ devoluciones|length|default:"0" }}</div>
-          <div class="text-uppercase fw-bold small">Aprobadas</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="listaDevolucionesContainer">
-      {% if devoluciones %}
-        {% for dev in devoluciones %}
-        <a href="{% url 'ventas:comprobante_devolucion' dev.pk %}" class="devolucion-item">
-
-            <!-- ICONO -->
-            <div class="devolucion-icon">
-              <i class="bi bi-arrow-repeat"></i>
-            </div>
-
-            <!-- CONTENIDO -->
-            <div class="devolucion-content">
-              <div class="devolucion-header">
-                <div>
-                  <div class="devolucion-cliente">{{ dev.venta.cliente.nombre }}</div>
-                  <div class="devolucion-numero">{{ dev.numero }}</div>
-                </div>
-                <span class="devolucion-badge">{{ dev.get_motivo_display }}</span>
-              </div>
-
-              <div class="devolucion-details">
-                <div><strong>Cliente:</strong> {{ dev.venta.cliente.nombre }}</div>
-                <div><strong>Fecha:</strong> {{ dev.fecha|date:"d/m/Y H:i" }}</div>
-                <div><strong>Monto:</strong> ${{ dev.total_devuelto|floatformat:0 }}</div>
-              </div>
-            </div>
-
-            <!-- ICONO VER -->
-            <div class="devolucion-icon-view">
-              <i class="bi bi-eye"></i>
-            </div>
-          </a>
-        {% endfor %}
-      {% else %}
-        <div class="text-center py-15 px-1">
-          <i class="bi bi-inbox text-muted"></i>
-          <p class="text-muted mb-0">No hay devoluciones registradas aún.</p>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-</div>
+  dropzoneArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzoneArea.style.background = '';
+    fileInput.files = e.dataTransfer.files;
+  });
+}
+</script>
 
 {% endblock %}

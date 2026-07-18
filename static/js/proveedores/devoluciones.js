@@ -3,18 +3,6 @@
 // ════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Abrir modal si es Paso 1
-  const urlParams = new URLSearchParams(window.location.search);
-  const paso = document.querySelector('[data-paso]')?.dataset.paso;
-
-  if (paso === '1') {
-    const modal = new bootstrap.Modal(document.getElementById('modalSeleccionarVenta'), {
-      backdrop: 'static',
-      keyboard: false
-    });
-    modal.show();
-  }
-
   // ════════════════════════════════════════════════════════════════
   // ACTUALIZAR PRODUCTOS CUANDO CAMBIA LA VENTA
   // ════════════════════════════════════════════════════════════════
@@ -30,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   window.cargarProductosDeLaVenta = function(ventaId) {
-    // Hacer petición AJAX al servidor
     fetch(`/ventas/devoluciones/detalle/${ventaId}/`)
       .then(response => {
         if (!response.ok) throw new Error('Error al cargar detalles de la venta');
@@ -46,33 +33,34 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   window.actualizarTablaProductos = function(ventaData) {
-    const tbody = document.querySelector('.table-clean tbody');
-    const emptyState = document.querySelector('.section-card:has(.section-head:has(.section-title:contains("Selecciona qué devuelves"))) .text-center');
+    const tablasContenedor = document.getElementById('tablasContenedor');
 
-    if (!ventaData.detalles || ventaData.detalles.length === 0) {
-      // Si no hay productos
-      if (tbody) {
-        tbody.closest('.table-responsive').innerHTML = '<div class="text-center py-4 px-2"><i class="bi bi-inbox text-muted"></i><p class="text-muted fs-small">No hay productos en esta venta.</p></div>';
-      }
+    if (!tablasContenedor) {
+      console.error('No se encontró el contenedor de tablas');
       return;
     }
 
-    // Reconstruir la tabla
+    if (!ventaData.detalles || ventaData.detalles.length === 0) {
+      tablasContenedor.innerHTML = '<div class="text-center py-4 px-2"><i class="bi bi-inbox text-muted"></i><p class="text-muted fs-small">No hay productos en esta venta.</p></div>';
+      return;
+    }
+
     let html = `
-      <table class="table-clean">
-        <thead>
-          <tr class="table-head-row">
-            <th class="table-head-cell">✓</th>
-            <th class="table-head-cell table-head-cell-left">Producto</th>
-            <th class="table-head-cell">Original</th>
-            <th class="table-head-cell">Devuelto</th>
-            <th class="table-head-cell">Pendiente</th>
-            <th class="table-head-cell">A Devolver</th>
-            <th class="table-head-cell table-head-cell-right">Precio</th>
-            <th class="table-head-cell table-head-cell-right">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div class="table-responsive mb-3">
+        <table class="table-clean">
+          <thead>
+            <tr class="table-head-row">
+              <th class="table-head-cell">✓</th>
+              <th class="table-head-cell table-head-cell-left">Producto</th>
+              <th class="table-head-cell">Original</th>
+              <th class="table-head-cell">Devuelto</th>
+              <th class="table-head-cell">Pendiente</th>
+              <th class="table-head-cell">A Devolver</th>
+              <th class="table-head-cell table-head-cell-right">Precio</th>
+              <th class="table-head-cell table-head-cell-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
     `;
 
     ventaData.detalles.forEach(detalle => {
@@ -108,20 +96,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     html += `
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-info-box mb-3">
+        <div class="grid-3col">
+          <div>
+            <div class="text-muted text-xs uppercase fw-bold mb-05">Productos seleccionados</div>
+            <div class="text-cyan fw-bold" id="productosCount">0</div>
+          </div>
+          <div>
+            <div class="text-muted text-xs uppercase fw-bold mb-05">Cantidad total</div>
+            <div class="text-cyan fw-bold" id="cantidadTotal">0</div>
+          </div>
+          <div>
+            <div class="text-muted text-xs uppercase fw-bold mb-05">Monto a devolver</div>
+            <div class="text-cyan fw-bold" id="montoTotal">$0</div>
+          </div>
+        </div>
+      </div>
     `;
 
-    // Actualizar el contenedor
-    const tableContainer = document.querySelector('.table-responsive');
-    if (tableContainer) {
-      tableContainer.innerHTML = html;
-    }
-
-    // Resetear totales
-    document.getElementById('productosCount').textContent = '0';
-    document.getElementById('cantidadTotal').textContent = '0';
-    document.getElementById('montoTotal').textContent = '$0';
+    tablasContenedor.innerHTML = html;
   };
 
   // ════════════════════════════════════════════════════════════════
@@ -182,10 +178,62 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('productosCount').textContent = productosCount;
     document.getElementById('cantidadTotal').textContent = cantidadTotal;
     document.getElementById('montoTotal').textContent = `$${montoTotal.toLocaleString('es-CO', {maximumFractionDigits: 0})}`;
+    document.getElementById('resumenMonto').textContent = `$${montoTotal.toLocaleString('es-CO', {maximumFractionDigits: 0})}`;
   };
 
   // ════════════════════════════════════════════════════════════════
-  // PASO 6 — DRAG & DROP DE ARCHIVOS
+  // PASO 3 — MOSTRAR/OCULTAR DETALLES DE REEMBOLSO
+  // ════════════════════════════════════════════════════════════════
+
+  const reembolsoRadios = document.querySelectorAll('input[name="tipo_reembolso"]');
+
+  reembolsoRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const cambioDiv = document.getElementById('detalles-cambio');
+      const reembolsoDiv = document.getElementById('detalles-reembolso');
+
+      if (cambioDiv) cambioDiv.classList.add('d-none');
+      if (reembolsoDiv) reembolsoDiv.classList.add('d-none');
+
+      if (this.value === 'cambio' && cambioDiv) {
+        cambioDiv.classList.remove('d-none');
+      } else if (this.value === 'reembolso' && reembolsoDiv) {
+        reembolsoDiv.classList.remove('d-none');
+      }
+
+      updateResumenReembolso();
+    });
+  });
+
+  window.updateResumenReembolso = function() {
+    const tipoSeleccionado = document.querySelector('input[name="tipo_reembolso"]:checked');
+    const resumenTipo = document.getElementById('resumenTipo');
+    const resumenPlazo = document.getElementById('resumenPlazo');
+
+    if (!tipoSeleccionado) {
+      if (resumenTipo) resumenTipo.textContent = 'No seleccionado';
+      if (resumenPlazo) resumenPlazo.textContent = '—';
+      return;
+    }
+
+    const tiposTexto = {
+      'cambio': 'Cambio de producto',
+      'nota_credito': 'Nota crédito',
+      'reembolso': 'Reembolso'
+    };
+
+    const plazos = {
+      'cambio': 'Inmediato',
+      'nota_credito': 'Instantáneo',
+      'reembolso': '3-7 días hábiles'
+    };
+
+    if (resumenTipo) resumenTipo.textContent = tiposTexto[tipoSeleccionado.value] || tipoSeleccionado.value;
+    if (resumenPlazo) resumenPlazo.textContent = plazos[tipoSeleccionado.value] || '—';
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  // PASO 5 — DRAG & DROP DE ARCHIVOS
   // ════════════════════════════════════════════════════════════════
 
   const dropZone = document.getElementById('dropZone');
@@ -250,16 +298,19 @@ document.addEventListener('DOMContentLoaded', function() {
   const historialContent = document.getElementById('historialContent');
   const searchInput = document.getElementById('searchHistorial');
   const sinResultados = document.getElementById('sinResultados');
+  const listaDevolucionesHistorial = document.getElementById('listaDevolucionesHistorial');
 
-  // Toggle del historial desplegable
   if (historialToggle) {
     historialToggle.addEventListener('click', function() {
       historialContent.classList.toggle('d-none');
       historialToggle.classList.toggle('active');
+      const chevron = historialToggle.querySelector('.chevron-toggle');
+      if (chevron) {
+        chevron.style.transform = historialContent.classList.contains('d-none') ? 'rotate(0deg)' : 'rotate(180deg)';
+      }
     });
   }
 
-  // Búsqueda en tiempo real
   if (searchInput) {
     searchInput.addEventListener('input', function(e) {
       const searchTerm = e.target.value.toLowerCase();
@@ -283,7 +334,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
 
-      // Mostrar mensaje de sin resultados
       if (visibleCount === 0 && searchTerm !== '') {
         sinResultados.classList.remove('d-none');
       } else {
