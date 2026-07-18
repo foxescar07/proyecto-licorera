@@ -524,7 +524,8 @@ def gestion_productos(request):
         'lotes':          [],
         'total_criticos': total_criticos,
         'breadcrumb_items': [
-            {'nombre': 'Gestión de Productos', 'url': None},
+    {'nombre': 'Productos', 'url': reverse('lista_productos')},
+    {'nombre': 'Gestión de Productos', 'url': None},
         ],
     }
     return render(request, 'productos/gestion_productos.html', context)
