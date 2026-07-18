@@ -28,5 +28,7 @@ urlpatterns = [
 
     # App configuracion
     path('configuracion/', include('configuracion.urls')),
+    
+    path('ayuda/', include('ayuda.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

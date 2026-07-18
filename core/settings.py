@@ -1,8 +1,50 @@
 from pathlib import Path
-from decouple import config, Csv
 import os
 
+# dotenv may not be installed in all environments (e.g., some editors/LS). Provide
+# a lightweight fallback so loading .env doesn't break static analysis or runtime.
+try:
+    from dotenv import load_dotenv  # type: ignore
+except Exception:
+    def load_dotenv(path=None):
+        """Minimal .env loader: reads KEY=VALUE lines and sets os.environ if not set."""
+        if path is None:
+            return False
+        try:
+            with open(path, encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#') or '=' not in line:
+                        continue
+                    key, val = line.split('=', 1)
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    if key and os.getenv(key) is None:
+                        os.environ[key] = val
+            return True
+        except FileNotFoundError:
+            return False
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
+
+class Csv:
+    pass
+
+
+def config(key, default=None, cast=None):
+    value = os.getenv(key, default)
+    if value is None:
+        return value
+    if cast is bool:
+        return str(value).lower() in ('1', 'true', 'yes', 'on')
+    if isinstance(cast, Csv):
+        return [item.strip() for item in str(value).split(',') if item.strip()]
+    if cast:
+        return cast(value)
+    return value
+
 
 SECRET_KEY = config('SECRET_KEY')
 
@@ -27,6 +69,7 @@ INSTALLED_APPS = [
     'productos',
     'reportes',
     'configuracion',
+    'ayuda',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
