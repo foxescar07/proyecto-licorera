@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Ayuda{% endblock %}
+{% block title %}Ayuda — CYS Ltda{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ayuda/ayuda.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- ═══════ HEADER ═══════ -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h5 class="ayd-titulo mb-1"><i class="bi bi-question-circle-fill me-2"></i>Centro de Ayuda</h5>
+      <p class="ayd-subtitulo mb-0">Encuentra respuestas rápidas o contáctanos si necesitas más apoyo.</p>
+    </div>
+  </div>
+
+  <!-- ═══════ BUSCADOR ═══════ -->
+  <div class="ayd-search-box mb-4">
+    <div class="input-group">
+      <span class="input-group-text ayd-search-prefix"><i class="bi bi-search"></i></span>
+      <input type="text" id="ayd-buscador" class="form-control ayd-input"
+             placeholder="Busca por palabra clave, ej: 'devolución', 'stock', 'orden de compra'...">
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <!-- ═══════ COLUMNA CATEGORÍAS ═══════ -->
+    <div class="col-md-3">
+      <div class="ayd-card h-100 p-3">
+        <div class="ayd-label mb-3"><i class="bi bi-collection-fill me-1"></i>Categorías</div>
+
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 ayd-cat-chip active"
+                data-cat="todas" onclick="aydFiltrarCategoria(this)">
+          <span>Todas</span>
+          <span class="badge rounded-pill ayd-cat-badge">{{ total_articulos }}</span>
+        </button>
+
+        {% for cat in categorias %}
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 ayd-cat-chip"
+                data-cat="{{ cat.pk }}" onclick="aydFiltrarCategoria(this)">
+          <span class="text-truncate me-2">
+            <i class="bi {{ cat.icono }} me-1"></i>{{ cat.nombre }}
+          </span>
+          <span class="badge rounded-pill ayd-cat-badge">{{ cat.articulos.count }}</span>
+        </button>
+        {% empty %}
+        <p class="ayd-label small px-1 mb-0">Aún no hay categorías cargadas.</p>
+        {% endfor %}
+
+        <hr class="ayd-divider my-3">
+
+        <a href="#ayd-soporte" class="btn ayd-btn-outline w-100">
+          <i class="bi bi-headset me-1"></i> Contactar soporte
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══════ COLUMNA CONTENIDO ═══════ -->
+    <div class="col-md-9">
+
+      <!-- GUÍAS RÁPIDAS -->
+      <div class="ayd-card p-4 mb-3">
+        <div class="ayd-section-title mb-3">
+          <i class="bi bi-signpost-split-fill me-2"></i>Guías rápidas
+        </div>
+
+        {% if guias %}
+        <div class="row g-3" id="ayd-guias-wrap">
+          {% for guia in guias %}
+          <div class="col-md-6 ayd-item" data-cat="{{ guia.categoria.pk }}"
+               data-texto="{{ guia.titulo|lower }} {{ guia.contenido|striptags|lower }}">
+            <div class="ayd-guia-card h-100">
+              <div class="ayd-guia-icono">
+                <i class="bi {{ guia.categoria.icono }}"></i>
+              </div>
+              <div>
+                <div class="ayd-guia-titulo">{{ guia.titulo }}</div>
+                <div class="ayd-guia-cat">{{ guia.categoria.nombre }}</div>
+                <div class="ayd-guia-contenido">{{ guia.contenido|linebreaks }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="ayd-empty">Aún no hay guías cargadas para este proyecto.</p>
+        {% endif %}
+      </div>
+
+      <!-- PREGUNTAS FRECUENTES -->
+      <div class="ayd-card p-4 mb-3">
+        <div class="ayd-section-title mb-3">
+          <i class="bi bi-patch-question-fill me-2"></i>Preguntas frecuentes
+        </div>
+
+        {% if faqs %}
+        <div class="accordion" id="ayd-accordion-faq">
+          {% for faq in faqs %}
+          <div class="accordion-item ayd-acc-item ayd-item"
+               data-cat="{{ faq.categoria.pk }}"
+               data-texto="{{ faq.titulo|lower }} {{ faq.contenido|striptags|lower }}">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed ayd-acc-btn" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#ayd-faq-{{ faq.pk }}">
+                <span class="ayd-acc-cat-tag">{{ faq.categoria.nombre }}</span>
+                {{ faq.titulo }}
+              </button>
+            </h2>
+            <div id="ayd-faq-{{ faq.pk }}" class="accordion-collapse collapse"
+                 data-bs-parent="#ayd-accordion-faq">
+              <div class="accordion-body ayd-acc-body">
+                {{ faq.contenido|linebreaks }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="ayd-empty">Aún no hay preguntas frecuentes cargadas.</p>
+        {% endif %}
+
+        <p class="ayd-empty d-none" id="ayd-sin-resultados">
+          No encontramos resultados para tu búsqueda.
+        </p>
+      </div>
+
+      <!-- SOPORTE -->
+      <div class="ayd-card p-4" id="ayd-soporte">
+        <div class="ayd-section-title mb-1">
+          <i class="bi bi-headset me-2"></i>¿No encontraste lo que buscabas?
+        </div>
+        <p class="ayd-subtitulo mb-3">Cuéntanos tu duda y te responderemos lo antes posible.</p>
+
+        <form method="POST" action="{% url 'ayuda:index' %}#ayd-soporte">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label ayd-label">Asunto</label>
+              {{ form.asunto }}
+            </div>
+            <div class="col-12">
+              <label class="form-label ayd-label">Mensaje</label>
+              {{ form.mensaje }}
+            </div>
+          </div>
+          <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn ayd-btn-primary px-4">
+              <i class="bi bi-send-fill me-1"></i> Enviar mensaje
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/ayuda/ayuda.js' %}"></script>
+{% endblock %}
