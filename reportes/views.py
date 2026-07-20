@@ -1103,6 +1103,7 @@ def index_reportes(request):
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
         'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
             {'nombre': 'Reportes', 'url': None},
         ],
     }
