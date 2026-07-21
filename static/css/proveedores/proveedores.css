@@ -1173,6 +1173,88 @@ h1, h2, h3, h4, h5, h6 {
   border-left: 4px solid #E05C7A !important;
 }
 
+/* ── MODAL NUEVO PROVEEDOR - DARK THEME ── */
+#modalNuevoProveedor .modal-content {
+  background-color: #0f2742 !important;
+  border: 1px solid rgba(77, 168, 218, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+#modalNuevoProveedor .modal-header {
+  background-color: #0f2742 !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.15) !important;
+}
+
+#modalNuevoProveedor .modal-title {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+}
+
+#modalNuevoProveedor .modal-body {
+  background-color: #0d1b2a !important;
+  color: #E8EDF2 !important;
+  padding: 1.5rem !important;
+}
+
+#modalNuevoProveedor .modal-body h6 {
+  color: #E8EDF2 !important;
+  font-weight: 600 !important;
+  margin-bottom: 1rem !important;
+  text-transform: none !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0 !important;
+}
+
+#modalNuevoProveedor .form-control,
+#modalNuevoProveedor .form-select {
+  background-color: #1a2d3f !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: #E8EDF2 !important;
+}
+
+#modalNuevoProveedor .form-label {
+  color: #9ab1c8 !important;
+  font-size: 0.85rem !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+}
+
+#modalNuevoProveedor .modal-footer {
+  background-color: #0d1b2a !important;
+  border-top: 1px solid rgba(77, 168, 218, 0.15) !important;
+  display: flex !important;
+  gap: 1rem !important;
+  justify-content: flex-end !important;
+}
+
+#modalNuevoProveedor .btn-outline-secondary {
+  color: #06B6D4 !important;
+  border-color: #06B6D4 !important;
+  background-color: transparent !important;
+  border-radius: 50px !important;
+}
+
+#modalNuevoProveedor .btn-outline-secondary:hover {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+  color: #06B6D4 !important;
+  border-color: #06B6D4 !important;
+}
+
+#modalNuevoProveedor .btn-success {
+  background-color: #06B6D4 !important;
+  border-color: #06B6D4 !important;
+  color: #0d1b2a !important;
+  border-radius: 50px !important;
+  font-weight: 600 !important;
+}
+
+#modalNuevoProveedor .btn-success:hover {
+  background-color: #0891b2 !important;
+  border-color: #0891b2 !important;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .cys-snap-section {

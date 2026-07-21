@@ -361,6 +361,10 @@ def lista_compras(request):
         'gastos_labels_json': json.dumps(gastos_labels),
         'gastos_data_json': json.dumps(gastos_data),
         'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
+        'breadcrumb_items': [
+        {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
+        {'nombre': 'Compras', 'url': None},
+],
     }
     return render(request, 'proveedores/compras.html', context)
 
@@ -576,12 +580,11 @@ def registrar_compra(request):
         'productos_data_json': json.dumps(productos_data),      # Cantidad comprada por producto
         'gastos_labels_json': json.dumps(gastos_labels),        # Top 5 proveedores
         'gastos_data_json': json.dumps(gastos_data),            # Monto gasto por proveedor
-        'gastos_porcentajes_json': json.dumps(gastos_porcentajes), # Porcentaje de gasto
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
         'breadcrumb_items': [
             {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
-            {'nombre': 'Registrar Compra', 'url': None},
+            {'nombre': 'Compras', 'url': None},
         ],
-
     }
 
     return render(request, 'proveedores/compras.html', context)
