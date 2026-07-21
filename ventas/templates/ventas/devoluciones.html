@@ -153,7 +153,6 @@
           <i class="bi bi-arrow-left me-1"></i>Cancelar
         </a>
         <button type="submit" class="btn btn-success">
-        <button type="submit" class="btn btn-success" {% if not ventas %}disabled{% endif %}>
           <i class="bi bi-arrow-right me-1"></i>Continuar
         </button>
       </div>
@@ -190,13 +189,6 @@
             <tbody>
               {% for item in detalles_con_estado %}
                 {% with detalle=item.detalle %}
-                <tr class="{% if not item.puede_devolver %}opacity-50{% endif %}">
-                  <td class="text-center">
-                    <input type="checkbox"
-                           name="producto_id"
-                           value="{{ detalle.id }}"
-                           class="form-check-input"
-                           {% if item.puede_devolver %}checked{% else %}disabled{% endif %}>
                 <tr class="table-body-row {% if not item.puede_devolver %}opacity-50{% endif %}">
                   <td class="table-body-cell table-body-cell-center">
                     <input type="checkbox"
@@ -211,7 +203,6 @@
                     <div class="fw-bold text-light">{{ detalle.producto.nombre }}</div>
                     {% if detalle.presentacion %}
                       <div class="text-muted text-xs">{{ detalle.presentacion.nombre }}</div>
-                      <div class="product-subtext">{{ detalle.presentacion.nombre }}</div>
                     {% endif %}
                   </td>
                   <td class="text-center">{{ detalle.cantidad }}</td>
@@ -227,11 +218,6 @@
                            {% if not item.puede_devolver %}disabled{% endif %}>
                   </td>
                   <td class="text-end fw-bold text-green">${{ detalle.precio_unitario|floatformat:0 }}</td>
-                           value="0"
-                           class="form-control cantidad-input table-cell-input"
-                           disabled>
-                  </td>
-                  <td class="table-body-cell table-body-cell-right table-body-cell-fw">${{ detalle.precio_unitario|floatformat:0 }}</td>
                 </tr>
                 {% endwith %}
               {% endfor %}
@@ -253,15 +239,6 @@
         <button type="submit" class="btn btn-success">
           <i class="bi bi-arrow-right me-1"></i>Continuar
         </button>
-        {% if detalles_con_estado %}
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-        {% else %}
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-        {% endif %}
       </div>
     </div>
     {% endif %}
@@ -283,7 +260,6 @@
         {% for motivo_code, motivo_label in motivo_choices %}
         <label class="motivo-item">
           <input type="radio" name="motivo" value="{{ motivo_code }}" {% if request.session.dev_motivo == motivo_code %}checked{% endif %} required>
-          <input type="radio" name="motivo" value="{{ motivo_code }}" required>
           <div>
             <div class="motivo-title">{{ motivo_label }}</div>
           </div>
@@ -293,7 +269,6 @@
 
       <label class="dev-form-label">Observaciones adicionales</label>
       <textarea name="observaciones" class="textarea-dev" placeholder="Describe el problema con detalle…" rows="4">{{ observaciones }}</textarea>
-      <textarea name="observaciones" class="textarea-dev" placeholder="Describe el problema con detalle…" rows="4"></textarea>
 
       <div class="flex-end gap-2">
         <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
@@ -321,8 +296,7 @@
 
       <div class="reembolso-grid mb-4">
         <label class="reembolso-card">
-          <input type="radio" name="tipo_reembolso" value="cambio" {% if request.session.dev_tipo_reembolso == 'cambio' %}checked{% endif %}>
-          <input type="radio" name="tipo_reembolso" value="cambio" required>
+          <input type="radio" name="tipo_reembolso" value="cambio" {% if request.session.dev_tipo_reembolso == 'cambio' %}checked{% endif %} required>
           <i class="bi bi-arrow-repeat r-icon"></i>
           <div class="r-title">Cambio de producto</div>
           <div class="r-sub">Misma referencia u otra</div>
@@ -330,7 +304,6 @@
 
         <label class="reembolso-card">
           <input type="radio" name="tipo_reembolso" value="nota_credito" {% if request.session.dev_tipo_reembolso == 'nota_credito' %}checked{% endif %} required>
-          <input type="radio" name="tipo_reembolso" value="nota_credito" required>
           <i class="bi bi-file-earmark-text r-icon"></i>
           <div class="r-title">Nota crédito</div>
           <div class="r-sub">Abono a próxima factura</div>
@@ -338,7 +311,6 @@
 
         <label class="reembolso-card">
           <input type="radio" name="tipo_reembolso" value="reembolso" {% if request.session.dev_tipo_reembolso == 'reembolso' %}checked{% endif %} required>
-          <input type="radio" name="tipo_reembolso" value="reembolso" required>
           <i class="bi bi-bank r-icon"></i>
           <div class="r-title">Reembolso</div>
           <div class="r-sub">Devolución al método de pago</div>
@@ -371,10 +343,6 @@
             <option value="">-- Selecciona un producto --</option>
             {% for prod in productos %}
               <option value="{{ prod.pk }}" {% if request.session.dev_producto_cambio_id == prod.pk %}selected{% endif %}>{{ prod.nombre }} - ${{ prod.precio_unitario|floatformat:0 }}</option>
-          <select name="producto_cambio" class="form-select input-dev-premium mb-3">
-            <option value="">-- Selecciona un producto --</option>
-            {% for prod in productos %}
-              <option value="{{ prod.pk }}">{{ prod.nombre }} - ${{ prod.precio|floatformat:0 }}</option>
             {% endfor %}
           </select>
           <small class="text-muted text-xs d-block">Elige el producto que prefieres recibir</small>
@@ -383,7 +351,6 @@
         <div class="detalles-reembolso mb-4">
           <label class="dev-form-label">Cantidad</label>
           <input type="number" name="cantidad_cambio" min="1" value="{{ request.session.dev_cantidad_cambio|default:"1" }}" class="form-control input-dev-premium" required>
-          <input type="number" name="cantidad_cambio" min="1" value="1" class="form-control input-dev-premium">
           <small class="text-muted text-xs d-block">Cantidad a enviar</small>
         </div>
       {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
@@ -392,7 +359,6 @@
           <div class="metodo-pago-grid">
             <label class="metodo-pago-option">
               <input type="radio" name="metodo_pago_devolucion" value="efectivo" {% if request.session.dev_metodo_devolucion == 'efectivo' %}checked{% endif %} required>
-              <input type="radio" name="metodo_pago_devolucion" value="efectivo">
               <div class="p-15 border-radius-12 bg-orange-light text-center">
                 <i class="bi bi-cash-coin text-orange fw-bold"></i>
                 <div class="text-light fw-bold fs-small">Efectivo</div>
@@ -401,7 +367,6 @@
 
             <label class="metodo-pago-option">
               <input type="radio" name="metodo_pago_devolucion" value="tarjeta" {% if request.session.dev_metodo_devolucion == 'tarjeta' %}checked{% endif %} required>
-              <input type="radio" name="metodo_pago_devolucion" value="tarjeta">
               <div class="p-15 border-radius-12 bg-orange-light text-center">
                 <i class="bi bi-credit-card text-orange fw-bold"></i>
                 <div class="text-light fw-bold fs-small">Tarjeta</div>
@@ -410,7 +375,6 @@
 
             <label class="metodo-pago-option">
               <input type="radio" name="metodo_pago_devolucion" value="transferencia" {% if request.session.dev_metodo_devolucion == 'transferencia' %}checked{% endif %} required>
-              <input type="radio" name="metodo_pago_devolucion" value="transferencia">
               <div class="p-15 border-radius-12 bg-orange-light text-center">
                 <i class="bi bi-bank2 text-orange fw-bold"></i>
                 <div class="text-light fw-bold fs-small">Transferencia</div>
@@ -419,7 +383,6 @@
 
             <label class="metodo-pago-option">
               <input type="radio" name="metodo_pago_devolucion" value="nequi" {% if request.session.dev_metodo_devolucion == 'nequi' %}checked{% endif %} required>
-              <input type="radio" name="metodo_pago_devolucion" value="nequi">
               <div class="p-15 border-radius-12 bg-orange-light text-center">
                 <i class="bi bi-phone text-orange fw-bold"></i>
                 <div class="text-light fw-bold fs-small">Nequi</div>
@@ -428,7 +391,6 @@
 
             <label class="metodo-pago-option">
               <input type="radio" name="metodo_pago_devolucion" value="daviplata" {% if request.session.dev_metodo_devolucion == 'daviplata' %}checked{% endif %} required>
-              <input type="radio" name="metodo_pago_devolucion" value="daviplata">
               <div class="p-15 border-radius-12 bg-orange-light text-center">
                 <i class="bi bi-wallet2 text-orange fw-bold"></i>
                 <div class="text-light fw-bold fs-small">DaviPlata</div>

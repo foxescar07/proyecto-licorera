@@ -22,14 +22,9 @@
   --border: rgba(239, 248, 226, 0.12) !important;
 }
 
-/* FONDO GENERAL */
-html,
-body {
+.cys-snap-section {
   background: #011936 !important;
   color: #FDFFFC !important;
-}
-
-.cys-snap-section {
   scroll-snap-align: start;
   min-height: calc(100vh - var(--header-h) - var(--nav-h) - 3.5rem);
   display: flex;
@@ -44,10 +39,6 @@ body {
     margin-bottom: 1.5rem;
   }
 }
-
-.container-fluid {
-  background: #011936 !important;
-  color: #FDFFFC !important;
 }
 
 main {
@@ -474,10 +465,6 @@ main {
 
 /* LABELS */
 .form-label {
-  color: #FDFFFC !important;
-}
-
-label {
   color: #FDFFFC !important;
 }
 
