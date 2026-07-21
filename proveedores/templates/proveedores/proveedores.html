@@ -477,11 +477,13 @@
 <!-- MODAL NUEVO PROVEEDOR -->
 <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" role="dialog" aria-labelledby="modalNuevoProveedorLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header">
-        <h6 class="modal-title" id="modalNuevoProveedorLabel">
-          <i class="bi bi-plus-circle me-2 text-info"></i>Nuevo Proveedor
-        </h6>
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header border-0">
+        <div>
+          <h5 class="modal-title fw-bold" id="modalNuevoProveedorLabel">
+            <i class="bi bi-plus-circle me-2"></i>Nuevo Proveedor
+          </h5>
+        </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body p-4">
@@ -529,7 +531,7 @@
         <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <button type="submit" form="formNuevoProveedor" class="btn prod-btn-primary fw-bold">
+        <button type="submit" form="formNuevoProveedor" class="btn btn-success btn-sm fw-bold">
           <i class="bi bi-check-circle me-1"></i>Guardar Proveedor
         </button>
       </div>

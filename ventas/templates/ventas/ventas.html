@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load pesos %}
 
 {% block title %}Ventas — CYS Ltda{% endblock %}
 {% block page_title %}Punto de Venta{% endblock %}
@@ -15,7 +16,7 @@
 {% block content %}
 <div class="container-fluid p-4 cys-pos-wrapper">
 
- <!-- ── BARRA ESTADO DE CAJA ── -->
+  <!-- ── BARRA ESTADO DE CAJA ── -->
   <div class="mb-4">
 
     <div class="d-flex gap-2 flex-wrap justify-content-end mb-3">
@@ -71,7 +72,7 @@
             <span class="cys-caja-badge cys-caja-badge--acento">Base</span>
           </div>
           {% if caja_abierta %}
-          <div class="cys-caja-titulo cys-caja-titulo--acento">${{ caja_abierta.monto_base|floatformat:0 }}</div>
+          <div class="cys-caja-titulo cys-caja-titulo--acento">${{ caja_abierta.monto_base|pesos }}</div>
           <div class="cys-caja-sub">Monto de apertura</div>
           {% else %}
           <div class="cys-caja-titulo cys-caja-titulo--muted">—</div>
@@ -88,7 +89,7 @@
             </div>
             <span class="cys-caja-badge cys-caja-badge--verde">Hoy</span>
           </div>
-          <div class="cys-caja-titulo cys-caja-titulo--verde">${{ total_dia|floatformat:0 }}</div>
+          <div class="cys-caja-titulo cys-caja-titulo--verde">${{ total_dia|pesos }}</div>
           <div class="cys-caja-sub">Total vendido hoy</div>
         </div>
       </div>
@@ -105,6 +106,18 @@
   {% endif %}
 
   <!-- ── REJILLA PRINCIPAL ── -->
+  {% if not caja_abierta %}
+    <div class="cys-panel p-5 text-center mb-4">
+      <div class="cys-carrito-vacio-icono-box mx-auto mb-3">
+        <i class="bi bi-lock-fill"></i>
+      </div>
+      <div class="cys-carrito-vacio-titulo mb-1">La caja está cerrada</div>
+      <div class="cys-carrito-vacio-subtitulo mb-3">Debes abrir la caja antes de poder vender.</div>
+      <button class="cys-btn-action-cian" data-bs-toggle="modal" data-bs-target="#modalConteo">
+        <i class="bi bi-unlock"></i> Abrir Caja
+      </button>
+    </div>
+  {% else %}
   <div class="row g-4">
 
     <!-- COLUMNA IZQUIERDA: SELECCIÓN DE PRODUCTOS -->
@@ -118,39 +131,144 @@
         </div>
 
         <div class="p-4 flex-grow-1">
-          <div class="mb-4 position-relative cys-input-icon-wrap">
-            <i class="bi bi-search"></i>
-            <input type="text" id="buscadorProducto" class="form-control cys-input-dark" placeholder="Buscar producto por nombre...">
-          </div>
 
-          <!-- Vista de Categorías -->
-          <div id="vistaCategorias">
-            <div class="row g-3" id="listaCategorias"></div>
-          </div>
-
-          <!-- Vista de Productos -->
-          <div id="vistaProductos">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverProds-Cats">
-              </button>
-              <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverCats">
-                <i class="bi bi-arrow-left"></i> Volver
-              </button>
-              <span class="cys-volver-titulo" id="catTitulo"></span>
+          {% if vista == 'categorias' %}
+            <div class="row g-3">
+              {% for cat in categorias %}
+              <div class="col-6 col-md-4">
+                <form method="POST" class="h-100">
+                  {% csrf_token %}
+                  <input type="hidden" name="accion" value="ver_categoria">
+                  <input type="hidden" name="categoria_id" value="{{ cat.pk }}">
+                  <button type="submit"
+                          class="btn p-0 border-0 w-100 h-100 text-start cys-cat-card-premium cys-cat-card-premium--centrada cys-cat-card-clickable cys-cat-card-cuadrada">
+                    <div class="cys-cat-card-icon cys-cat-card-icon--lg">
+                      <i class="bi bi-tag"></i>
+                    </div>
+                    <div class="cys-cat-card-nombre">{{ cat.nombre }}</div>
+                    <div class="cys-cat-card-meta">{{ cat.productos.count }} producto{{ cat.productos.count|pluralize }}</div>
+                  </button>
+                </form>
+              </div>
+              {% empty %}
+              <p class="text-muted">No hay categorías registradas.</p>
+              {% endfor %}
             </div>
-            <div class="row g-3" id="productoLista"></div>
-          </div>
 
-          <!-- Vista de Presentaciones -->
-          <div id="vistaPresentaciones">
+          {% elif vista == 'productos' and categoria_actual %}
             <div class="d-flex align-items-center gap-2 mb-3">
-              <button class="btn btn-sm cys-btn-action-dark cys-btn-sm-pill" id="btnVolverProds">
-                <i class="bi bi-arrow-left"></i> Volver
-              </button>
-              <span class="cys-volver-titulo" id="presTitulo"></span>
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="volver_categorias">
+                <button type="submit" class="btn cys-btn-action-dark cys-btn-sm-pill">
+                  <i class="bi bi-arrow-left"></i> Volver
+                </button>
+              </form>
+              <span class="cys-volver-titulo">{{ categoria_actual.nombre }}</span>
             </div>
-            <div class="d-flex flex-column gap-2" id="presentacionLista"></div>
-          </div>
+
+            <div class="row g-3">
+              {% for prod in categoria_actual.productos.all %}
+              <div class="col-6 col-md-4">
+                {% if prod.presentaciones.all %}
+                  <form method="POST" class="h-100">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="ver_producto">
+                    <input type="hidden" name="producto_id" value="{{ prod.pk }}">
+                    <button type="submit"
+                            class="btn p-0 border-0 w-100 h-100 text-start cys-cat-card-premium cys-cat-card-premium--centrada cys-cat-card-clickable cys-cat-card-cuadrada">
+                      <div class="cys-cat-card-icon cys-cat-card-icon--lg">
+                        <i class="bi bi-tag"></i>
+                      </div>
+                      <div class="cys-cat-card-nombre">{{ prod.nombre }}</div>
+                      <div class="cys-cat-card-meta">
+                        {{ prod.presentaciones.count }} presentaci{{ prod.presentaciones.count|pluralize:"ón,ones" }}
+                        · Stock: {{ prod.stock_total }}
+                      </div>
+                    </button>
+                  </form>
+
+                {% elif prod.stock_total > 0 %}
+                  <div class="cys-cat-card-premium cys-cat-card-premium--centrada cys-cat-card-cuadrada h-100 d-flex flex-column">
+                    <div class="cys-cat-card-icon cys-cat-card-icon--lg mx-auto">
+                      <i class="bi bi-tag"></i>
+                    </div>
+                    <div class="cys-cat-card-nombre">{{ prod.nombre }}</div>
+                    <div class="cys-cat-card-precio">${{ prod.precio_unitario|pesos }}</div>
+                    <div class="cys-cat-card-meta mb-3">Stock: {{ prod.stock_total }}</div>
+
+                    <form method="POST" class="d-flex gap-2 mt-auto">
+                      {% csrf_token %}
+                      <input type="hidden" name="accion" value="agregar_carrito">
+                      <input type="hidden" name="producto_id" value="{{ prod.pk }}">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" name="cantidad" value="1"
+                             class="form-control form-control-sm text-center cys-input-dark" style="width:56px;">
+                      <button type="submit" class="btn cys-btn-action-cian btn-sm flex-grow-1">
+                        <i class="bi bi-cart-plus"></i> Agregar
+                      </button>
+                    </form>
+                  </div>
+
+                {% else %}
+                  <div class="cys-cat-card-premium cys-cat-card-premium--centrada cys-cat-card-cuadrada h-100 d-flex flex-column">
+                    <div class="cys-cat-card-icon cys-cat-card-icon--lg mx-auto">
+                      <i class="bi bi-tag"></i>
+                    </div>
+                    <div class="cys-cat-card-nombre">{{ prod.nombre }}</div>
+                    <div class="cys-cat-card-meta mb-3">Sin stock disponible</div>
+                    <button type="button" class="btn cys-btn-action-dark btn-sm w-100 mt-auto" disabled>Sin stock</button>
+                  </div>
+                {% endif %}
+              </div>
+              {% empty %}
+              <p class="text-muted">Sin productos en esta categoría.</p>
+              {% endfor %}
+            </div>
+
+          {% elif vista == 'presentaciones' and producto_actual %}
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="volver_productos">
+                <button type="submit" class="btn cys-btn-action-dark cys-btn-sm-pill">
+                  <i class="bi bi-arrow-left"></i> Volver
+                </button>
+              </form>
+              <span class="cys-volver-titulo">{{ producto_actual.nombre }}</span>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+              {% for pres in producto_actual.presentaciones.all %}
+              <div class="cys-pres-item {% if pres.stock_real <= 0 %}cys-pres-item--sin-stock{% endif %}">
+                <div>
+                  <div class="cys-pres-nombre">{{ pres.nombre }}</div>
+                  <div class="cys-pres-meta">Stock: {{ pres.stock_real }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="cys-pres-precio {% if pres.stock_real <= 0 %}cys-pres-precio--sin-stock{% endif %}">
+                    ${{ pres.precio|pesos }}
+                  </span>
+                  {% if pres.stock_real > 0 %}
+                  <form method="POST" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="agregar_carrito">
+                    <input type="hidden" name="producto_id" value="{{ producto_actual.pk }}">
+                    <input type="hidden" name="presentacion_id" value="{{ pres.pk }}">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="cantidad" value="1"
+                           class="form-control form-control-sm text-center cys-input-dark" style="width:52px;">
+                    <button type="submit" class="btn cys-btn-action-cian btn-sm">
+                      <i class="bi bi-cart-plus"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+              {% empty %}
+              <p class="text-muted">Este producto no tiene presentaciones.</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
         </div>
       </div>
     </div>
@@ -159,323 +277,302 @@
     <div class="col-12 col-lg-5">
       <div class="cys-panel">
 
-        <div class="cys-panel-header">
+        <div class="cys-panel-header d-flex justify-content-between align-items-center">
           <div class="cys-panel-header-title">
             <i class="bi bi-cart3 me-2"></i>Carrito de Venta
           </div>
+          {% if carrito_items %}
+          <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="vaciar_carrito">
+            <button type="submit" class="btn btn-sm cys-btn-cancel">
+              <i class="bi bi-trash"></i> Vaciar
+            </button>
+          </form>
+          {% endif %}
         </div>
 
         <div class="p-4">
-          <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
 
-            <!-- ── CLIENTE (OBLIGATORIO) ── -->
-            <div class="mb-3 position-relative cys-input-icon-wrap cys-input-icon-wrap--con-label">
-              <label class="cys-form-label">
-                Cliente <span class="caja-input-cliente-error">*</span>
-              </label>
-              <i class="bi bi-person"></i>
-              <input type="text" name="cliente_nombre" id="inputClienteNombre"
-                     class="form-control cys-input-dark"
-                     placeholder="Nombre del cliente (obligatorio)"
-                     autocomplete="off">
-              <input type="hidden" name="cliente_id" id="inputClienteId">
-
-              <!-- Mensaje de error — mismo estilo inline que el resto de la UI -->
-              <div id="errorCliente" class="cys-campo-error">
-                <i class="bi bi-exclamation-circle"></i>El nombre del cliente es obligatorio
-              </div>
-
-              <div id="sugerenciasClientes" class="list-group mt-1 shadow-lg cys-sugerencias-dropdown">
-                {% for cliente in clientes %}
-                <button type="button" class="list-group-item list-group-item-action cys-sugerencias-item"
-                        data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
-                  {{ cliente.nombre }}
-                </button>
-                {% endfor %}
-              </div>
-            </div>
-
-            <!-- ── CARRITO VACÍO ── -->
-            <div id="carritoVacio" class="text-center py-5 mb-3 rounded-3 cys-carrito-vacio">
+          <!-- ── ITEMS DEL CARRITO ── -->
+          {% if not carrito_items %}
+            <div class="text-center py-5 mb-3 rounded-3 cys-carrito-vacio">
               <div class="cys-carrito-vacio-icono-box">
                 <i class="bi bi-cart3"></i>
               </div>
               <div class="cys-carrito-vacio-titulo">Carrito vacío</div>
               <div class="cys-carrito-vacio-subtitulo">Selecciona productos para comenzar</div>
             </div>
-
-            <!-- ── ITEMS DEL CARRITO ── -->
-            <div id="carritoItems" class="mb-3">
-              <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
+          {% else %}
+            <div class="d-flex flex-column gap-2 mb-3">
+              {% for item in carrito_items %}
+              <div class="cys-carrito-row">
+                <div>
+                  <div class="cys-carrito-nombre">{{ item.nombre }}</div>
+                  <div class="cys-carrito-meta">{{ item.cantidad }} x ${{ item.precio|pesos }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="cys-carrito-subtotal">${{ item.subtotal|pesos }}</span>
+                  <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="quitar_item">
+                    <input type="hidden" name="index" value="{{ item.index }}">
+                    <button type="submit" class="cys-carrito-btn-quitar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
             </div>
 
-            <div id="camposOcultos"></div>
+            <!-- ── FORMULARIO DE CONFIRMACIÓN (cliente, descuento, pagos) — solo si hay productos en el carrito ── -->
+            <form method="POST" enctype="multipart/form-data" id="formConfirmarVenta"
+                  data-subtotal="{{ subtotal|floatformat:2 }}">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="confirmar_venta">
 
-            <!-- ── DESCUENTO MEJORADO ── -->
-            <div id="seccionDescuento" class="mb-3">
-              <div class="cys-descuento-box-nuevo">
+              <div class="mb-3">
+                <label class="cys-form-label">Cliente <span class="text-danger">*</span></label>
+                <input type="text" name="cliente_nombre" list="listaClientes"
+                       class="form-control cys-input-dark"
+                       placeholder="Nombre del cliente (obligatorio)"
+                       value="{{ cliente_sticky }}" autocomplete="off">
+                <datalist id="listaClientes">
+                  {% for cliente in clientes %}
+                  <option value="{{ cliente.nombre }}"></option>
+                  {% endfor %}
+                </datalist>
+              </div>
+
+              <div class="mb-3 cys-descuento-box-nuevo">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="cys-descuento-label">
-                    <i class="bi bi-tag me-1"></i>% Descuento
-                  </span>
-                  <input type="number" id="inputDescuento" name="descuento_porcentaje"
-                         value="0" min="0" max="100"
+                  <span class="cys-descuento-label"><i class="bi bi-tag me-1"></i>% Descuento</span>
+                  <input type="text" inputmode="numeric" pattern="[0-9]*" name="descuento_porcentaje"
+                         value="{{ descuento_pct|floatformat:0 }}" id="inputDescuentoPct"
                          class="form-control text-center cys-descuento-input">
                 </div>
-                <!-- Desglose de descuento -->
-                <div id="desgloseDescuento" class="cys-descuento-desglose">
+                <div class="cys-descuento-desglose">
                   <div class="cys-descuento-fila">
                     <span class="cys-descuento-fila-label">Subtotal</span>
-                    <span id="descSubtotal" class="cys-descuento-fila-valor">$0</span>
+                    <span class="cys-descuento-fila-valor" id="displaySubtotal">${{ subtotal|pesos }}</span>
                   </div>
                   <div class="cys-descuento-fila">
-                    <span class="cys-descuento-fila-label">Descuento (<span id="descPctLabel">0</span>%)</span>
-                    <span id="descValor" class="cys-descuento-fila-valor--rojo">-$0</span>
+                    <span class="cys-descuento-fila-label">Descuento</span>
+                    <span class="cys-descuento-fila-valor--rojo" id="displayDescuento">-${{ monto_descuento|pesos }}</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- ── TOTAL ── -->
-            <div id="totalGeneral" class="mb-3 cys-total-box">
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="cys-total-label">Total</span>
-                <span id="totalMonto" class="cys-total-monto">$0</span>
-              </div>
-            </div>
-
-            <!-- ── MÉTODOS DE PAGO ── -->
-            <div id="seccionPagos" class="mb-3 cys-pagos-box">
-              <div class="cys-pagos-titulo">
-                <i class="bi bi-wallet2 me-1"></i> Método de Pago
+              <div class="mb-3 cys-total-box">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="cys-total-label">Total</span>
+                  <span class="cys-total-monto" id="displayTotalFinal">${{ total_final|pesos }}</span>
+                </div>
               </div>
 
-              <div class="row g-2 mb-2">
+              <div class="mb-3 cys-pagos-box">
+                <div class="cys-pagos-titulo"><i class="bi bi-wallet2 me-1"></i> Método de Pago</div>
 
-                <!-- EFECTIVO -->
-                <div class="col-6">
-                  <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--verde">
-                      <i class="bi bi-cash-stack"></i>
-                      <span>Efectivo</span>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <div class="cys-pago-card">
+                      <div class="cys-pago-card-header cys-pago-card-header--verde">
+                        <i class="bi bi-cash-stack"></i><span>Efectivo</span>
+                      </div>
+                      <input type="text" inputmode="numeric" name="pago_efectivo"
+                             value="{{ pagos_sticky.pago_efectivo|floatformat:0 }}"
+                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
                     </div>
-                    <input type="number" name="pago_efectivo" id="pagoEfectivo"
-                           value="0" min="0"
-                           class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
-                </div>
-
-                <!-- TARJETA -->
-                <div class="col-6">
-                  <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--acento">
-                      <i class="bi bi-credit-card-2-front"></i>
-                      <span>Tarjeta</span>
+                  <div class="col-6">
+                    <div class="cys-pago-card">
+                      <div class="cys-pago-card-header cys-pago-card-header--acento">
+                        <i class="bi bi-credit-card-2-front"></i><span>Tarjeta</span>
+                      </div>
+                      <input type="text" inputmode="numeric" name="pago_tarjeta"
+                             value="{{ pagos_sticky.pago_tarjeta|floatformat:0 }}"
+                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
                     </div>
-                    <input type="number" name="pago_tarjeta" id="pagoTarjeta"
-                           value="0" min="0"
-                           class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
-                </div>
-
-                <!-- TRANSFERENCIA — azul acero frío -->
-                <div class="col-4">
-                  <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--transferencia">
-                      <i class="bi bi-arrow-left-right"></i>
-                      <span>Transfer.</span>
+                  <div class="col-4">
+                    <div class="cys-pago-card">
+                      <div class="cys-pago-card-header cys-pago-card-header--transferencia">
+                        <i class="bi bi-arrow-left-right"></i><span>Transfer.</span>
+                      </div>
+                      <input type="text" inputmode="numeric" name="pago_transferencia"
+                             value="{{ pagos_sticky.pago_transferencia|floatformat:0 }}"
+                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
                     </div>
-                    <input type="number" name="pago_transferencia" id="pagoTransferencia"
-                           value="0" min="0"
-                           class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
-                </div>
-
-                <!-- NEQUI -->
-                <div class="col-4">
-                  <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--morado">
-                      <i class="bi bi-phone"></i>
-                      <span>Nequi</span>
+                  <div class="col-4">
+                    <div class="cys-pago-card">
+                      <div class="cys-pago-card-header cys-pago-card-header--morado">
+                        <i class="bi bi-phone"></i><span>Nequi</span>
+                      </div>
+                      <input type="text" inputmode="numeric" name="pago_nequi"
+                             value="{{ pagos_sticky.pago_nequi|floatformat:0 }}"
+                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
                     </div>
-                    <input type="number" name="pago_nequi" id="pagoNequi"
-                           value="0" min="0"
-                           class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
-                </div>
-
-                <!-- DAVIPLATA — cian apagado frío -->
-                <div class="col-4">
-                  <div class="cys-pago-card">
-                    <div class="cys-pago-card-header cys-pago-card-header--daviplata">
-                      <i class="bi bi-phone-fill"></i>
-                      <span>Daviplata</span>
+                  <div class="col-4">
+                    <div class="cys-pago-card">
+                      <div class="cys-pago-card-header cys-pago-card-header--daviplata">
+                        <i class="bi bi-phone-fill"></i><span>Daviplata</span>
+                      </div>
+                      <input type="text" inputmode="numeric" name="pago_daviplata"
+                             value="{{ pagos_sticky.pago_daviplata|floatformat:0 }}"
+                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
                     </div>
-                    <input type="number" name="pago_daviplata" id="pagoDaviplata"
-                           value="0" min="0"
-                           class="form-control pago-input cys-input-dark cys-pago-input">
                   </div>
                 </div>
 
-              </div>
-
-              <!-- ── RESUMEN DE PAGO ── -->
-              <div class="cys-pagos-resumen">
-                <div class="cys-pagos-footer">
-                  <span class="cys-pagos-footer-label">Total pagado</span>
-                  <span id="totalPagado" class="cys-pagos-footer-valor">$0</span>
+                <div class="cys-pagos-resumen">
+                  <div class="cys-pagos-footer">
+                    <span class="cys-pagos-footer-label">Total pagado</span>
+                    <span class="cys-pagos-footer-valor" id="displayTotalPagado">${{ total_pagado|pesos }}</span>
+                  </div>
+                  <div class="cys-efectivo-info" id="displayDiferencia">
+                    {% if diferencia_pago < 0 %}
+                    <div class="cys-efectivo-fila cys-efectivo-fila--falta">
+                      <span><i class="bi bi-exclamation-triangle me-1"></i>Falta</span>
+                      <span class="cys-efectivo-monto">${{ diferencia_pago|pesos }}</span>
+                    </div>
+                    {% elif diferencia_pago > 0 %}
+                    <div class="cys-efectivo-fila cys-efectivo-fila--cambio">
+                      <span><i class="bi bi-arrow-return-left me-1"></i>Cambio</span>
+                      <span class="cys-efectivo-monto">${{ diferencia_pago|pesos }}</span>
+                    </div>
+                    {% endif %}
+                  </div>
                 </div>
-                <!-- Cambio / Faltante (solo si hay efectivo) -->
-                <div id="infoEfectivo" class="cys-efectivo-info">
-                  <div id="filaFalta" class="cys-efectivo-fila cys-efectivo-fila--falta">
-                    <span><i class="bi bi-exclamation-triangle me-1"></i>Falta</span>
-                    <span id="montoFalta" class="cys-efectivo-monto">$0</span>
-                  </div>
-                  <div id="filaCambio" class="cys-efectivo-fila cys-efectivo-fila--cambio">
-                    <span><i class="bi bi-arrow-return-left me-1"></i>Cambio</span>
-                    <span id="montoCambio" class="cys-efectivo-monto">$0</span>
-                  </div>
+
+                <div class="mb-0 mt-3">
+                  <label class="cys-modal-form-label mb-1">Comprobante de pago (si aplica)</label>
+                  <input type="file" name="comprobante_pago" accept="image/*,application/pdf"
+                         class="form-control cys-input-dark">
                 </div>
               </div>
 
-              <!-- ── INDICADOR DE COMPROBANTE (solo visible si el pago no es 100% efectivo) ── -->
-              <div id="comprobanteIndicador"
-                   class="cys-comprobante-indicador"
-                   role="button"
-                   data-bs-toggle="modal"
-                   data-bs-target="#modalComprobante">
-                <div class="cys-comprobante-indicador-icono-box">
-                  <i class="bi bi-paperclip caja-comprobante-icon-check"></i>
-                </div>
-                <div class="cys-comprobante-indicador-texto">
-                  <div id="comprobanteIndicadorTitulo" class="cys-comprobante-indicador-titulo">Adjuntar comprobante de pago</div>
-                  <div class="cys-comprobante-indicador-sub">Requerido para transferencia, Nequi o Daviplata</div>
-                </div>
-                <i class="bi bi-chevron-right caja-comprobante-icon-arrow"></i>
-              </div>
-            </div>
-
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn cys-btn-submit caja-btn-registrar" id="btnRegistrar" disabled>
+              <button type="submit" class="btn w-100 cys-btn-submit caja-btn-registrar">
                 <i class="bi bi-save me-1"></i> Registrar Venta
               </button>
-              <button type="button" class="btn cys-btn-cancel caja-btn-cancelar" id="btnCancelarVenta">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
+            </form>
+          {% endif %}
 
-            <!-- ══ MODAL: COMPROBANTE DE PAGO (ventana emergente) ══ -->
-            <div class="modal fade" id="modalComprobante" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content cys-modal-content">
-                  <div class="modal-header cys-modal-header">
-                    <h5 class="modal-title fw-bold cys-modal-titulo--acento">
-                      <i class="bi bi-paperclip me-2"></i>Comprobante de pago
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <p class="cys-modal-subtexto mb-3">
-                      Adjunta la foto o PDF del comprobante de la transferencia, Nequi o Daviplata.
-                    </p>
-                    <div class="cys-comprobante-box cys-comprobante-box--plano mb-0">
-                      <div class="cys-comprobante-input-wrap">
-                        <div class="cys-comprobante-icono">
-                          <i class="bi bi-cloud-arrow-up"></i>
-                        </div>
-                        <input type="file" name="comprobante_pago" id="inputComprobante"
-                               accept="image/*,application/pdf">
-                      </div>
-                    </div>
-                    <div id="comprobanteNombreArchivo" class="cys-comprobante-nota mt-2"></div>
-                    <button type="button" class="btn w-100 cys-btn-submit mt-3" data-bs-dismiss="modal">
-                      <i class="bi bi-check-circle me-1"></i> Listo
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </form>
         </div>
       </div>
     </div>
   </div>
+  {% endif %}
 
- <!-- ── HISTORIAL DE VENTAS ── -->
+  <!-- ── HISTORIAL DE VENTAS ── -->
   <section class="mt-4 cys-panel">
 
-    <div class="cys-panel-header">
-      <div class="cys-panel-header-title">
-        <i class="bi bi-clock-history me-2"></i>Historial de Ventas
-      </div>
-    </div>
-
-    <div class="cys-hist-toolbar">
-      <div class="cys-hist-search-wrap">
-        <i class="bi bi-search"></i>
-        <input type="text" id="buscadorHistorial" class="cys-hist-search-input" placeholder="Buscar por cliente o producto...">
+    <form method="GET" class="cys-lotes-toolbar">
+      <div class="cys-lotes-search-box">
+        <span class="cys-lotes-search-icon"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q_historial }}" class="cys-lotes-search-input"
+               placeholder="Buscar producto, cliente...">
       </div>
 
-      <div class="cys-hist-sort-wrap">
-        <i class="bi bi-sort-down"></i>
-        <select id="ordenHistorial" class="cys-hist-sort-select">
-          <option value="reciente">Más reciente</option>
-          <option value="antiguo">Más antiguo</option>
-          <option value="mayor_total">Mayor total</option>
-          <option value="menor_total">Menor total</option>
+      <div class="cys-lotes-select-wrap">
+        <select name="metodo" class="cys-lotes-select">
+          <option value="todos"         {% if metodo_historial == 'todos' %}selected{% endif %}>Todos</option>
+          <option value="efectivo"      {% if metodo_historial == 'efectivo' %}selected{% endif %}>Efectivo</option>
+          <option value="tarjeta"       {% if metodo_historial == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+          <option value="transferencia" {% if metodo_historial == 'transferencia' %}selected{% endif %}>Transferencia</option>
+          <option value="nequi"         {% if metodo_historial == 'nequi' %}selected{% endif %}>Nequi</option>
+          <option value="daviplata"     {% if metodo_historial == 'daviplata' %}selected{% endif %}>Daviplata</option>
         </select>
       </div>
-    </div>
+
+      <button type="submit" class="btn cys-btn-action-cian btn-sm">Filtrar</button>
+    </form>
 
     <div class="table-responsive">
-      <table class="cys-hist-table w-100" id="tablaHistorial">
+      <table class="cys-hist-table w-100">
         <thead>
           <tr>
-            <th class="cys-hist-table-th-num">#</th>
-            <th>Cliente</th>
-            <th>Producto</th>
-            <th class="cys-hist-table-th-cant">Cant.</th>
-            <th class="cys-hist-table-th-precio">Precio Uni.</th>
-            <th class="cys-hist-table-th-total">Total</th>
-            <th class="cys-hist-table-th-fecha">Fecha</th>
+            <th>
+              <a href="?q={{ q_historial }}&metodo={{ metodo_historial }}&orden={{ orden_links.producto }}" class="cys-th-orden">
+                Producto / Presentación
+                <span class="cys-th-carets">
+                  <i class="bi bi-caret-up-fill {% if orden_estado.producto == 'asc' %}cys-caret-activa{% endif %}"></i>
+                  <i class="bi bi-caret-down-fill {% if orden_estado.producto == 'desc' %}cys-caret-activa{% endif %}"></i>
+                </span>
+              </a>
+            </th>
+            <th>
+              <a href="?q={{ q_historial }}&metodo={{ metodo_historial }}&orden={{ orden_links.cliente }}" class="cys-th-orden">
+                Cliente
+                <span class="cys-th-carets">
+                  <i class="bi bi-caret-up-fill {% if orden_estado.cliente == 'asc' %}cys-caret-activa{% endif %}"></i>
+                  <i class="bi bi-caret-down-fill {% if orden_estado.cliente == 'desc' %}cys-caret-activa{% endif %}"></i>
+                </span>
+              </a>
+            </th>
+            <th class="cys-hist-table-th-cant">
+              <a href="?q={{ q_historial }}&metodo={{ metodo_historial }}&orden={{ orden_links.cantidad }}" class="cys-th-orden">
+                Cant.
+                <span class="cys-th-carets">
+                  <i class="bi bi-caret-up-fill {% if orden_estado.cantidad == 'asc' %}cys-caret-activa{% endif %}"></i>
+                  <i class="bi bi-caret-down-fill {% if orden_estado.cantidad == 'desc' %}cys-caret-activa{% endif %}"></i>
+                </span>
+              </a>
+            </th>
+            <th class="cys-hist-table-th-precio">
+              <a href="?q={{ q_historial }}&metodo={{ metodo_historial }}&orden={{ orden_links.precio }}" class="cys-th-orden">
+                Precio Uni.
+                <span class="cys-th-carets">
+                  <i class="bi bi-caret-up-fill {% if orden_estado.precio == 'asc' %}cys-caret-activa{% endif %}"></i>
+                  <i class="bi bi-caret-down-fill {% if orden_estado.precio == 'desc' %}cys-caret-activa{% endif %}"></i>
+                </span>
+              </a>
+            </th>
+            <th class="cys-hist-table-th-total">
+              <a href="?q={{ q_historial }}&metodo={{ metodo_historial }}&orden={{ orden_links.total }}" class="cys-th-orden">
+                Total
+                <span class="cys-th-carets">
+                  <i class="bi bi-caret-up-fill {% if orden_estado.total == 'asc' %}cys-caret-activa{% endif %}"></i>
+                  <i class="bi bi-caret-down-fill {% if orden_estado.total == 'desc' %}cys-caret-activa{% endif %}"></i>
+                </span>
+              </a>
+            </th>
+            <th class="cys-hist-table-th-fecha">
+              <a href="?q={{ q_historial }}&metodo={{ metodo_historial }}&orden={{ orden_links.fecha }}" class="cys-th-orden">
+                Fecha
+                <span class="cys-th-carets">
+                  <i class="bi bi-caret-up-fill {% if orden_estado.fecha == 'asc' %}cys-caret-activa{% endif %}"></i>
+                  <i class="bi bi-caret-down-fill {% if orden_estado.fecha == 'desc' %}cys-caret-activa{% endif %}"></i>
+                </span>
+              </a>
+            </th>
             <th class="cys-hist-table-th-estado">Estado</th>
-            <th class="cys-hist-table-th-acciones"></th>
+            <th class="cys-hist-table-th-acciones">Acciones</th>
           </tr>
         </thead>
-        <tbody id="tablaHistorialBody">
+        <tbody>
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
-            <tr class="fila-venta"
-                data-bs-toggle="modal"
-                data-bs-target="#modalDetalle{{ venta.pk }}"
-                data-id="{{ venta.pk }}"
-                data-cliente="{{ venta.cliente.nombre|lower }}"
-                data-cantidad="{{ det.cantidad }}"
-                data-precio="{{ det.precio_unitario }}"
-                data-total="{{ venta.total_venta }}"
-                data-fecha="{{ venta.fecha|date:'c' }}"
-                data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
-              <td class="cys-hist-id">{{ forloop.parentloop.counter }}</td>
+            <tr class="fila-venta" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ venta.pk }}">
+              <td>
+                <div class="cys-prodpres-nombre">{{ det.producto.nombre }}</div>
+                {% if det.presentacion %}
+                <div class="cys-prodpres-sub">{{ det.presentacion.nombre }}</div>
+                {% endif %}
+              </td>
               <td>
                 <div class="cys-cliente-cell">
                   <div class="cys-avatar">{{ venta.cliente.nombre|slice:":2"|upper }}</div>
-                  <div>
-                    <div class="cys-hist-cliente">{{ venta.cliente.nombre }}</div>
-                    <div class="cys-cliente-cell-subtitle">Cliente</div>
-                  </div>
+                  <div class="cys-hist-cliente">{{ venta.cliente.nombre }}</div>
                 </div>
               </td>
-              <td>
-                <span class="cys-producto-badge">
-                  <i class="bi bi-box me-1"></i>
-                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
-                </span>
+              <td class="cys-hist-cantidad">
+                <span class="cys-cantidad-pill">{{ det.cantidad }} uds</span>
               </td>
-              <td class="cys-hist-cantidad">{{ det.cantidad }}</td>
-              <td class="cys-hist-precio-muted">${{ det.precio_unitario|floatformat:0 }}</td>
-              <td class="cys-hist-total cys-hist-total-alineado">${{ venta.total_venta|floatformat:0 }}</td>
+              <td class="cys-hist-precio-muted">${{ det.precio_unitario|pesos }}</td>
+              <td class="cys-hist-total cys-hist-total-alineado">${{ venta.total_venta|pesos }}</td>
               <td>
                 <span class="cys-hist-fecha">{{ venta.fecha|date:"d/m/Y" }}</span>
                 <span class="cys-hist-hora">{{ venta.fecha|date:"H:i" }}</span>
@@ -495,8 +592,8 @@
             </tr>
             {% endfor %}
           {% empty %}
-          <tr id="filaVacia">
-            <td colspan="9" class="cys-empty-box">
+          <tr>
+            <td colspan="8" class="cys-empty-box">
               <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
               No hay ventas registradas aún.
             </td>
@@ -504,11 +601,6 @@
           {% endfor %}
         </tbody>
       </table>
-
-      <div id="sinResultadosFiltro" class="cys-hist-sin-resultados">
-        <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
-        Sin resultados para esa búsqueda.
-      </div>
     </div>
   </section>
 </div>
@@ -516,7 +608,6 @@
 <!-- ══ MODALES POR VENTA: DETALLE + CONFIRMAR ELIMINACIÓN ══ -->
 {% for venta in ventas %}
 
-<!-- Detalle de Venta #{{ venta.pk }} -->
 <div class="modal fade" id="modalDetalle{{ venta.pk }}" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content cys-modal-content">
@@ -547,13 +638,12 @@
             <div class="cys-detalle-item-nombre">
               {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
             </div>
-            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|floatformat:0 }}</div>
+            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|pesos }}</div>
           </div>
-          <div class="cys-detalle-item-total">${{ det.subtotal|floatformat:0 }}</div>
+          <div class="cys-detalle-item-total">${{ det.subtotal|pesos }}</div>
         </div>
         {% endfor %}
 
-        <!-- ── COMPROBANTE DE PAGO (solo si la venta tiene uno adjunto) ── -->
         {% if venta.comprobante_pago %}
         <div class="cys-modal-seccion-titulo mb-2 mt-3">Comprobante de pago</div>
         <a href="{{ venta.comprobante_pago.url }}" target="_blank" rel="noopener" class="cys-comprobante-ver-link">
@@ -572,14 +662,13 @@
 
         <div class="cys-total-contado-box mt-3">
           <span class="cys-total-contado-label">Total de la venta</span>
-          <span class="cys-total-contado-valor">${{ venta.total_venta|floatformat:0 }}</span>
+          <span class="cys-total-contado-valor">${{ venta.total_venta|pesos }}</span>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Confirmar Eliminación de Venta #{{ venta.pk }} -->
 <div class="modal fade" id="modalEliminar{{ venta.pk }}" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content cys-modal-content">
@@ -602,15 +691,15 @@
             <div class="cys-detalle-item-nombre">
               {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
             </div>
-            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|floatformat:0 }}</div>
+            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|pesos }}</div>
           </div>
-          <div class="cys-detalle-item-total">${{ det.subtotal|floatformat:0 }}</div>
+          <div class="cys-detalle-item-total">${{ det.subtotal|pesos }}</div>
         </div>
         {% endfor %}
 
         <div class="cys-total-contado-box mb-3 mt-2">
           <span class="cys-total-contado-label">Total</span>
-          <span class="cys-total-contado-valor">${{ venta.total_venta|floatformat:0 }}</span>
+          <span class="cys-total-contado-valor">${{ venta.total_venta|pesos }}</span>
         </div>
 
         <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" class="d-flex gap-2">
@@ -638,37 +727,60 @@
       <div class="modal-body">
         <p class="cys-modal-subtexto mb-3">Cuenta el dinero disponible e ingresa la cantidad por denominación.</p>
 
-        <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
-        <div class="row g-2 mb-3">
-          {% for valor in billetes_denom %}
-          <div class="col-6 col-md-3">
-            <label class="cys-denom-label">${{ valor|floatformat:0 }}</label>
-            <input type="number" min="0" value="0" class="form-control text-center denom-ct cys-input-dark" data-valor="{{ valor }}">
+        {% if error_apertura %}
+        <div class="alert alert-danger mb-3">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error_apertura.texto }}
+        </div>
+        {% endif %}
+
+        {% if base_esperada is not None %}
+        <div class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-2"></i>
+          La base dejada en el último cierre fue de ${{ base_esperada|pesos }}. El conteo debe coincidir con ese valor.
+        </div>
+        {% endif %}
+
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="accion" value="confirmar_apertura">
+
+          <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
+          <div class="row g-2 mb-3">
+            {% for campo in apertura_billetes %}
+            <div class="col-6 col-md-3">
+              <label class="cys-denom-label">${{ campo.valor|pesos }}</label>
+              <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
+                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura">
+            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
-        </div>
 
-        <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
-        <div class="row g-2 mb-3">
-          {% for valor in monedas_denom %}
-          <div class="col-6 col-md-3">
-            <label class="cys-denom-label">${{ valor }}</label>
-            <input type="number" min="0" value="0" class="form-control text-center denom-ct cys-input-dark" data-valor="{{ valor }}">
+          <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
+          <div class="row g-2 mb-3">
+            {% for campo in apertura_monedas %}
+            <div class="col-6 col-md-3">
+              <label class="cys-denom-label">${{ campo.valor }}</label>
+              <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
+                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura">
+            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
-        </div>
 
-        <div class="cys-total-contado-box mb-3">
-          <span class="cys-total-contado-label">Total contado</span>
-          <span class="cys-total-contado-valor" id="totalConteo">$0</span>
-        </div>
+          <!-- ── TOTAL CONTADO — ubicado antes de Observación ── -->
+          <div class="cys-total-contado-box mb-4">
+            <span class="cys-total-contado-label">Total contado</span>
+            <span class="cys-total-contado-valor" id="totalConteoApertura">$0</span>
+          </div>
 
-        <label class="cys-modal-form-label mb-1">Observación (opcional)</label>
-        <input type="text" class="form-control mb-4 cys-input-dark" id="ctObservacion" placeholder="Ej: todo en orden">
+          <label class="cys-modal-form-label mb-1">Observación (opcional)</label>
+          <input type="text" name="ct_observacion" class="form-control mb-4 cys-input-dark" placeholder="Ej: todo en orden">
 
-        <button class="btn w-100 cys-btn-submit cys-btn-block-lg py-2" id="btnConfirmarConteo" type="button">
-          <i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar
-        </button>
+          <button class="btn w-100 cys-btn-submit cys-btn-block-lg py-2" type="submit">
+            <i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -685,75 +797,193 @@
       <div class="modal-body">
         <p class="cys-modal-subtexto mb-3">Cuenta todo el dinero físico en caja.</p>
 
-        <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
-        <div class="row g-2 mb-3">
-          {% for valor in billetes_denom %}
-          <div class="col-6 col-md-3">
-            <label class="cys-denom-label">${{ valor|floatformat:0 }}</label>
-            <input type="number" min="0" value="0" class="form-control text-center denom-ci cys-input-dark" data-valor="{{ valor }}">
-          </div>
-          {% endfor %}
-        </div>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="accion" value="confirmar_cierre">
 
-        <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
-        <div class="row g-2 mb-3">
-          {% for valor in monedas_denom %}
-          <div class="col-6 col-md-3">
-            <label class="cys-denom-label">${{ valor }}</label>
-            <input type="number" min="0" value="0" class="form-control text-center denom-ci cys-input-dark" data-valor="{{ valor }}">
+          <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
+          <div class="row g-2 mb-3">
+            {% for campo in cierre_billetes %}
+            <div class="col-6 col-md-3">
+              <label class="cys-denom-label">${{ campo.valor|pesos }}</label>
+              <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
+                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre">
+            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
-        </div>
 
-        <div class="cys-total-contado-box mb-3">
-          <span class="cys-total-contado-label">Total contado</span>
-          <span class="cys-total-contado-valor" id="totalCierre">$0</span>
-        </div>
+          <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
+          <div class="row g-2 mb-3">
+            {% for campo in cierre_monedas %}
+            <div class="col-6 col-md-3">
+              <label class="cys-denom-label">${{ campo.valor }}</label>
+              <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
+                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre">
+            </div>
+            {% endfor %}
+          </div>
 
-        <label class="cys-modal-form-label mb-1">Monto base para mañana ($)</label>
-        <input type="number" class="form-control mb-3 cys-input-dark" id="baseSiguiente" placeholder="Ej: 100000" min="0">
+          <!-- ── TOTAL CONTADO — ubicado antes del monto base ── -->
+          <div class="cys-total-contado-box mb-4">
+            <span class="cys-total-contado-label">Total contado</span>
+            <span class="cys-total-contado-valor" id="totalConteoCierre">$0</span>
+          </div>
 
-        <div class="cys-resumen-box mb-4">
-          <div class="cys-resumen-titulo">Resumen del día</div>
-          {% if caja_abierta %}
-          <div class="cys-resumen-fila">
-            <span class="cys-resumen-fila-label">Base de apertura</span>
-            <span class="cys-resumen-fila-valor">${{ caja_abierta.monto_base|floatformat:0 }}</span>
-          </div>
-          {% endif %}
-          <div class="cys-resumen-fila">
-            <span class="cys-resumen-fila-label">Ventas del día</span>
-            <span class="cys-resumen-fila-valor--verde">${{ total_dia|floatformat:0 }}</span>
-          </div>
-          <div class="cys-resumen-fila">
-            <span class="cys-resumen-fila-label">Total contado</span>
-            <span class="cys-resumen-fila-valor--acento" id="resumenTotalContado">$0</span>
-          </div>
-          <div class="cys-resumen-fila">
-            <span class="cys-resumen-fila-label">Base para mañana</span>
-            <span class="cys-resumen-fila-valor" id="resumenBaseSig">$0</span>
-          </div>
-          <div class="cys-resumen-total">
-            <span class="cys-resumen-total-label">Total a retirar</span>
-            <span class="cys-resumen-total-valor" id="resumenRetirar">$0</span>
-          </div>
-        </div>
+          <label class="cys-modal-form-label mb-1">Monto base para mañana ($)</label>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" name="base_siguiente"
+                 class="form-control mb-3 cys-input-dark" placeholder="Ej: 100000">
 
-        <button class="btn w-100 cys-btn-cancel cys-btn-cancel--peligro cys-btn-block-lg py-2" id="btnConfirmarCierre" type="button">
-          <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
-        </button>
+          <div class="cys-resumen-box mb-4">
+            <div class="cys-resumen-titulo">Resumen del día</div>
+            {% if caja_abierta %}
+            <div class="cys-resumen-fila">
+              <span class="cys-resumen-fila-label">Base de apertura</span>
+              <span class="cys-resumen-fila-valor">${{ caja_abierta.monto_base|pesos }}</span>
+            </div>
+            {% endif %}
+            <div class="cys-resumen-fila">
+              <span class="cys-resumen-fila-label">Ventas del día</span>
+              <span class="cys-resumen-fila-valor--verde">${{ total_dia|pesos }}</span>
+            </div>
+          </div>
+
+          <button class="btn w-100 cys-btn-cancel cys-btn-cancel--peligro cys-btn-block-lg py-2" type="submit">
+            <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-{% endblock %}
+<script>
+  function formatearMoneda(numero) {
+    return '$' + Math.round(numero).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
 
-{% block extra_js %}
-<div id="ventas-config"
-     data-catalogo="{{ catalogo_json|safe }}"
-     data-url-conteo="{% url 'ventas:registrar_conteo' %}"
-     data-url-cierre="{% url 'ventas:cierre_caja' %}"
-     class="hidden-data-container"></div>
-<script src="{% static 'js/ventas/ventas.js' %}"></script>
+  function actualizarTotalConteo(tipo) {
+    const inputs = document.querySelectorAll(
+      '.cys-denom-input-conteo[data-conteo="' + tipo + '"]'
+    );
+    let total = 0;
+    inputs.forEach(function (input) {
+      const denom = parseInt(input.dataset.denom, 10) || 0;
+      const cantidad = parseInt(input.value, 10) || 0;
+      total += denom * cantidad;
+    });
+    const destino = document.getElementById(
+      tipo === 'apertura' ? 'totalConteoApertura' : 'totalConteoCierre'
+    );
+    if (destino) {
+      destino.textContent = formatearMoneda(total);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    ['apertura', 'cierre'].forEach(function (tipo) {
+      const inputs = document.querySelectorAll(
+        '.cys-denom-input-conteo[data-conteo="' + tipo + '"]'
+      );
+      inputs.forEach(function (input) {
+        input.addEventListener('input', function () {
+          actualizarTotalConteo(tipo);
+        });
+      });
+      actualizarTotalConteo(tipo);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // CÁLCULO EN VIVO — DESCUENTO, TOTAL Y MÉTODOS DE PAGO
+  // ═══════════════════════════════════════════════════════════
+  (function () {
+    const form = document.getElementById('formConfirmarVenta');
+    if (!form) return; // el formulario solo existe si hay items en el carrito
+
+    const subtotal = parseFloat(form.dataset.subtotal) || 0;
+    const inputDescuento = document.getElementById('inputDescuentoPct');
+    const pagoInputs = form.querySelectorAll('.cys-pago-input-money');
+
+    function soloDigitos(valor) {
+      return (valor || '').toString().replace(/\D/g, '');
+    }
+
+    function parseMoneyInput(input) {
+      return parseInt(soloDigitos(input.value), 10) || 0;
+    }
+
+    // Formatea el input de dinero con puntos de miles mientras se escribe,
+    // preservando la posición del cursor de forma razonable.
+    function formatearInputDinero(input) {
+      const crudoAntes = soloDigitos(input.value);
+      const cursorDesdeElFinal = input.value.length - input.selectionStart;
+
+      const numero = parseInt(crudoAntes, 10) || 0;
+      const formateado = numero === 0 ? '' : formatearMoneda(numero).replace('$', '');
+
+      input.value = formateado;
+
+      const nuevaPos = Math.max(0, input.value.length - cursorDesdeElFinal);
+      input.setSelectionRange(nuevaPos, nuevaPos);
+    }
+
+    function recalcular() {
+      const pct = parseInt(soloDigitos(inputDescuento.value), 10) || 0;
+      const montoDescuento = Math.round((subtotal * pct) / 100);
+      const totalFinal = subtotal - montoDescuento;
+
+      document.getElementById('displaySubtotal').textContent = formatearMoneda(subtotal);
+      document.getElementById('displayDescuento').textContent = '-' + formatearMoneda(montoDescuento);
+      document.getElementById('displayTotalFinal').textContent = formatearMoneda(totalFinal);
+
+      let totalPagado = 0;
+      pagoInputs.forEach(function (input) {
+        totalPagado += parseMoneyInput(input);
+      });
+
+      document.getElementById('displayTotalPagado').textContent = formatearMoneda(totalPagado);
+
+      const diferencia = totalPagado - totalFinal;
+      const contenedorDiferencia = document.getElementById('displayDiferencia');
+
+      if (diferencia < 0) {
+        contenedorDiferencia.innerHTML =
+          '<div class="cys-efectivo-fila cys-efectivo-fila--falta">' +
+          '<span><i class="bi bi-exclamation-triangle me-1"></i>Falta</span>' +
+          '<span class="cys-efectivo-monto">' + formatearMoneda(Math.abs(diferencia)) + '</span>' +
+          '</div>';
+      } else if (diferencia > 0) {
+        contenedorDiferencia.innerHTML =
+          '<div class="cys-efectivo-fila cys-efectivo-fila--cambio">' +
+          '<span><i class="bi bi-arrow-return-left me-1"></i>Cambio</span>' +
+          '<span class="cys-efectivo-monto">' + formatearMoneda(diferencia) + '</span>' +
+          '</div>';
+      } else {
+        contenedorDiferencia.innerHTML = '';
+      }
+    }
+
+    inputDescuento.addEventListener('input', recalcular);
+
+    pagoInputs.forEach(function (input) {
+      input.addEventListener('input', function () {
+        formatearInputDinero(input);
+        recalcular();
+      });
+    });
+
+    // Antes de enviar, se quitan los puntos de miles de los campos de dinero
+    // para que el backend (que espera solo dígitos) los procese correctamente.
+    form.addEventListener('submit', function () {
+      pagoInputs.forEach(function (input) {
+        input.value = soloDigitos(input.value);
+      });
+    });
+
+    recalcular();
+  })();
+</script>
+
 {% endblock %}
