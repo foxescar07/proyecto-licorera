@@ -1283,3 +1283,101 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.75rem !important;
   }
 }
+
+/* ══════════════════════════════════════════
+   ESTILOS MODALES PROVEEDORES — mismo diseño
+   que el form de productos (prod-*)
+   ══════════════════════════════════════════ */
+
+/* Variables locales del sistema de modales */
+:root {
+  --prov-azul:       #4DA8DA;
+  --prov-azul-dim:   rgba(77, 168, 218, 0.15);
+  --prov-azul-borde: rgba(77, 168, 218, 0.25);
+  --prov-fondo:      #011936;
+  --prov-card:       #0a2240;
+  --prov-texto:      #e2e8f0;
+  --prov-muted:      rgba(226, 232, 240, 0.5);
+  --prov-radius:     10px;
+}
+
+/* === MODAL CONTENIDO === */
+.prod-modal {
+  background: var(--prov-card) !important;
+  color: var(--prov-texto) !important;
+  border: 1px solid rgba(77, 168, 218, 0.15);
+  border-radius: 12px;
+}
+
+/* === MODAL HEADER === */
+.prod-modal-header {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.12) !important;
+  color: var(--prov-texto);
+}
+
+/* === MODAL FOOTER === */
+.prod-modal-footer {
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-top: 1px solid rgba(77, 168, 218, 0.12) !important;
+}
+
+/* === INPUTS === */
+.prod-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  color: var(--prov-texto) !important;
+  border-radius: 8px;
+}
+
+.prod-input:focus {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--prov-azul) !important;
+  color: var(--prov-texto) !important;
+  box-shadow: 0 0 0 0.2rem rgba(77, 168, 218, 0.15) !important;
+}
+
+.prod-input::placeholder {
+  color: rgba(226, 232, 240, 0.3);
+}
+
+.prod-input option {
+  background: var(--prov-card);
+  color: var(--prov-texto);
+}
+
+/* === LABELS === */
+.prod-label {
+  color: rgba(226, 232, 240, 0.55);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* === BOTÓN PRIMARIO (Guardar) === */
+.prod-btn-primary {
+  background: var(--prov-azul);
+  color: var(--prov-fondo);
+  border: none;
+  font-weight: 700;
+  border-radius: 20px;
+}
+
+.prod-btn-primary:hover {
+  background: var(--prov-azul);
+  opacity: 0.88;
+  color: var(--prov-fondo);
+}
+
+/* === BOTÓN OUTLINE (Cancelar) === */
+.prod-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(77, 168, 218, 0.35);
+  color: var(--prov-azul);
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.prod-btn-outline:hover {
+  background: rgba(77, 168, 218, 0.1);
+  color: var(--prov-azul);
+}

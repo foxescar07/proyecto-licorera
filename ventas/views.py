@@ -1115,6 +1115,10 @@ def devoluciones_flujo(request):
                 cantidad_str = request.POST.get(f'cantidad_devolucion_{detalle_id_int}', '0')
                 cantidad = int(cantidad_str)
 
+<<<<<<<<< Temporary merge branch 1
+=========
+                # Validar cantidad contra lo pendiente real
+>>>>>>>>> Temporary merge branch 2
                 detalle = venta_actual.detalles.get(pk=detalle_id_int)
                 if cantidad <= 0 or cantidad > detalle.cantidad:
                     messages.error(request, f'⚠️ Cantidad inválida para {detalle.producto.nombre}. Debe ser entre 1 y {detalle.cantidad}.')
@@ -1286,6 +1290,10 @@ def devoluciones_flujo(request):
                 devolucion.save()
                 messages.info(request, f'💰 Reembolso programado: ${total_devuelto:,.0f} a {metodo_devolucion}'.replace(',', '.'))
 
+<<<<<<<<< Temporary merge branch 1
+=========
+            # Crear detalles de devolución con cantidades especificadas y restaurar stock
+>>>>>>>>> Temporary merge branch 2
             for detalle_venta in detalles_venta:
                 cantidad_devolucion = productos_con_cantidad.get(detalle_venta.pk, detalle_venta.cantidad)
                 DetalleDevolucion.objects.create(
@@ -1296,6 +1304,19 @@ def devoluciones_flujo(request):
                     precio_unitario=detalle_venta.precio_unitario,
                 )
 
+<<<<<<<<< Temporary merge branch 1
+=========
+                # Restaurar stock si está marcado
+                if devolucion.restaurar_stock:
+                    if detalle_venta.lote:
+                        detalle_venta.lote.stock_actual += cantidad_devolucion
+                        detalle_venta.lote.save()
+                    if detalle_venta.presentacion:
+                        detalle_venta.presentacion.cantidad += cantidad_devolucion
+                        detalle_venta.presentacion.save()
+
+            # Limpiar sesión
+>>>>>>>>> Temporary merge branch 2
             for key in list(request.session.keys()):
                 if key.startswith('dev_'):
                     del request.session[key]
@@ -1332,7 +1353,11 @@ def devoluciones_flujo(request):
 
             detalles_venta = venta.detalles.select_related('producto', 'presentacion').all()
 
+<<<<<<<<< Temporary merge branch 1
             from django.db.models import Sum # type: ignore
+=========
+            # Calcular cantidades devueltas para cada detalle
+>>>>>>>>> Temporary merge branch 2
             for detalle in detalles_venta:
                 # Contar devoluciones por detalle específico
                 cantidad_devuelta = DetalleDevolucion.objects.filter(
