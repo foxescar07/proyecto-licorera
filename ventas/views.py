@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db import transaction 
-from django.db.models import Sum
+from django.db import transaction
+from django.db.models import Sum, Q, Min, Max
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from decimal import Decimal, InvalidOperation
@@ -18,10 +18,8 @@ from usuarios.models import Usuario
 
 BILLETES_DENOM = [100000, 50000, 20000, 10000, 5000, 2000, 1000]
 MONEDAS_DENOM  = [500, 200, 100, 50]
+TODAS_DENOM    = BILLETES_DENOM + MONEDAS_DENOM
 
-# Meta de ventas diaria — ajusta este valor según el objetivo del negocio.
-# Si más adelante quieres hacerla configurable desde la base de datos,
-# este es el único punto que habría que cambiar por una consulta a un modelo.
 META_VENTA_DIARIA = 500000
 
 
@@ -39,7 +37,7 @@ def session_required(view_func):
 
 
 # ════════════════════════════════════════
-# HELPERS FEFO
+# HELPERS GENERALES
 # ════════════════════════════════════════
 
 def _descontar_stock_fefo(presentacion, cantidad_a_descontar, vendedor):
@@ -73,64 +71,312 @@ def _descontar_stock_fefo(presentacion, cantidad_a_descontar, vendedor):
     return tocados
 
 
+def _to_decimal(valor, default='0'):
+    try:
+        return Decimal(str(valor))
+    except (InvalidOperation, TypeError):
+        return Decimal(default)
+
+
+def _nombre_usuario(usuario):
+    """
+    Devuelve un nombre legible para un usuario, sin asumir la forma exacta
+    del modelo Usuario (puede tener 'nombre', heredar de AbstractUser con
+    get_full_name(), o solo tener username/str()).
+    """
+    if not usuario:
+        return 'N/A'
+
+    nombre = getattr(usuario, 'nombre', None)
+    if nombre:
+        return nombre
+
+    get_full_name = getattr(usuario, 'get_full_name', None)
+    if callable(get_full_name):
+        nombre_completo = get_full_name()
+        if nombre_completo:
+            return nombre_completo
+
+    return str(usuario)
+
+
+def _historial_caja(limite=30):
+    """
+    Devuelve el historial de aperturas/cierres de caja de TODOS los vendedores,
+    del más reciente al más antiguo. Cada registro parte de una AperturaCaja
+    y adjunta los datos del CierreCaja asociado si ya existe (caja cerrada).
+    """
+    aperturas = (
+        AperturaCaja.objects
+        .select_related('usuario')
+        .order_by('-fecha', '-creado_en')[:limite]
+    )
+
+    historial = []
+    for apertura in aperturas:
+        cierre = getattr(apertura, 'cierre', None)
+
+        historial.append({
+            'fecha':                 apertura.fecha,
+            'usuario':               _nombre_usuario(apertura.usuario),
+            'hora_apertura':         apertura.creado_en,
+            'monto_base':            apertura.monto_base,
+            'cerrada':               cierre is not None,
+            'total_contado':         cierre.total_contado if cierre else None,
+            'monto_base_siguiente':  cierre.monto_base_siguiente if cierre else None,
+            'total_retirado':        cierre.total_retirado if cierre else None,
+        })
+
+    return historial
+
+
 # ════════════════════════════════════════
-# VENTAS
+# CARRITO EN SESIÓN
 # ════════════════════════════════════════
 
-@session_required
-def ventas_lista(request):
-    ventas     = Venta.objects.prefetch_related('detalles__producto', 'detalles__presentacion').order_by('-fecha')
-    form       = VentaForm()
-    categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
-    clientes   = Cliente.objects.all().order_by('nombre')
-    hoy        = timezone.localdate()
-    total_dia  = int(sum(v.total_venta for v in Venta.objects.filter(fecha__date=hoy)))
+def _carrito(request):
+    return request.session.setdefault('pv_carrito', [])
 
-    usuario_id    = request.session.get('usuario_id')
+
+def _carrito_detallado(request):
+    """Carrito con subtotales ya calculados, listo para el template."""
+    items = []
+    subtotal_total = Decimal('0')
+    for idx, item in enumerate(_carrito(request)):
+        precio = _to_decimal(item.get('precio', 0))
+        cantidad = int(item.get('cantidad', 0))
+        subtotal = precio * cantidad
+        subtotal_total += subtotal
+        items.append({
+            'index':           idx,
+            'nombre':          item.get('nombre', ''),
+            'cantidad':        cantidad,
+            'precio':          precio,
+            'subtotal':        subtotal,
+            'producto_id':     item.get('producto_id'),
+            'presentacion_id': item.get('presentacion_id'),
+        })
+    return items, subtotal_total
+
+
+def _agregar_item_carrito(request, producto, presentacion, cantidad):
+    if cantidad <= 0:
+        messages.error(request, 'La cantidad debe ser mayor a 0.')
+        return False
+
+    stock_disponible = presentacion.stock_real if presentacion else producto.stock_total
+    carrito = _carrito(request)
+
+    existente = None
+    for item in carrito:
+        mismo_producto     = item.get('producto_id') == producto.pk
+        misma_presentacion = item.get('presentacion_id') == (presentacion.pk if presentacion else None)
+        if mismo_producto and misma_presentacion:
+            existente = item
+            break
+
+    cantidad_previa = existente['cantidad'] if existente else 0
+    cantidad_total  = cantidad_previa + cantidad
+
+    if cantidad_total > stock_disponible:
+        messages.error(request, f'Stock insuficiente: solo hay {stock_disponible} disponibles.')
+        return False
+
+    nombre = producto.nombre + (f' ({presentacion.nombre})' if presentacion else '')
+    precio = float(presentacion.precio) if presentacion else float(producto.precio_unitario)
+
+    if existente:
+        existente['cantidad'] = cantidad_total
+    else:
+        carrito.append({
+            'producto_id':     producto.pk,
+            'presentacion_id': presentacion.pk if presentacion else None,
+            'nombre':          nombre,
+            'cantidad':        cantidad_total,
+            'precio':          precio,
+        })
+
+    request.session.modified = True
+    messages.success(request, f'{nombre} agregado al carrito.')
+    return True
+
+
+# ════════════════════════════════════════
+# RENDER PRINCIPAL DEL PUNTO DE VENTA
+# ════════════════════════════════════════
+
+def _render_pos(request, sticky=None, error_apertura=None, error_cierre=None):
+    sticky = sticky or {}
+    hoy = timezone.localdate()
+    usuario_id = request.session.get('usuario_id')
+
+    form = VentaForm()
+    clientes = Cliente.objects.all().order_by('nombre')
+    total_dia = int(sum(v.total_venta for v in Venta.objects.filter(fecha__date=hoy)))
+
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
 
-    # Catálogo serializado para el TPV
-    catalogo = []
-    for cat in categorias:
-        productos_list = []
-        for prod in cat.productos.all():
-            presentaciones_list = []
-            for pr in prod.presentaciones.all():
-                presentaciones_list.append({
-                    'id':       pr.id,
-                    'nombre':   pr.nombre,
-                    'precio':   float(pr.precio),
-                    'unidades': pr.unidades,
-                    'stock':    pr.stock_real,
-                })
-            productos_list.append({
-                'id':             prod.id,
-                'nombre':         prod.nombre,
-                'stock':          prod.stock_total,
-                'presentaciones': presentaciones_list,
-            })
-        catalogo.append({
-            'id':       cat.id,
-            'nombre':   cat.nombre,
-            'productos': productos_list,
-        })
+    cierre_anterior = (
+        CierreCaja.objects
+        .filter(usuario_id=usuario_id)
+        .exclude(fecha=hoy)
+        .order_by('-fecha')
+        .first()
+    )
+    base_esperada = cierre_anterior.monto_base_siguiente if cierre_anterior else None
 
-    import json as _json
-    catalogo_json = _json.dumps(catalogo, ensure_ascii=False)
+    historial_caja = _historial_caja()
+
+    # ── Navegación del catálogo (categorías → productos → presentaciones) ──
+    vista = request.session.get('pv_vista', 'categorias')
+    categoria_actual = None
+    producto_actual  = None
+
+    if vista in ('productos', 'presentaciones'):
+        cat_id = request.session.get('pv_categoria_id')
+        if cat_id:
+            categoria_actual = (
+                Categoria.objects
+                .prefetch_related('productos__presentaciones')
+                .filter(pk=cat_id)
+                .first()
+            )
+        if not categoria_actual:
+            vista = 'categorias'
+
+    if vista == 'presentaciones':
+        prod_id = request.session.get('pv_producto_id')
+        if prod_id:
+            producto_actual = (
+                Producto.objects
+                .prefetch_related('presentaciones')
+                .filter(pk=prod_id)
+                .first()
+            )
+        if not producto_actual:
+            vista = 'productos'
+
+    categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
+
+    carrito_items, subtotal = _carrito_detallado(request)
+
+    descuento_pct = _to_decimal(sticky.get('descuento_porcentaje', '0'))
+    monto_descuento = (subtotal * descuento_pct) / Decimal('100')
+    total_final = subtotal - monto_descuento
+
+    pagos_sticky = {
+        'pago_efectivo':      sticky.get('pago_efectivo', '0'),
+        'pago_tarjeta':       sticky.get('pago_tarjeta', '0'),
+        'pago_transferencia': sticky.get('pago_transferencia', '0'),
+        'pago_nequi':         sticky.get('pago_nequi', '0'),
+        'pago_daviplata':     sticky.get('pago_daviplata', '0'),
+    }
+    total_pagado = sum(_to_decimal(v) for v in pagos_sticky.values())
+    diferencia_pago = total_pagado - total_final
+
+    # ── Historial: búsqueda + filtro por método + orden por columna, todo vía GET, sin JS ──
+    ventas_qs = (
+        Venta.objects
+        .prefetch_related('detalles__producto', 'detalles__presentacion')
+        .annotate(
+            cantidad_total=Sum('detalles__cantidad'),
+            producto_principal=Min('detalles__producto__nombre'),
+            precio_max=Max('detalles__precio_unitario'),
+        )
+    )
+
+    q = request.GET.get('q', '').strip()
+    if q:
+        ventas_qs = ventas_qs.filter(
+            Q(cliente__nombre__icontains=q) | Q(detalles__producto__nombre__icontains=q)
+        ).distinct()
+
+    metodo = request.GET.get('metodo', 'todos')
+    metodo_filtros = {
+        'efectivo':      Q(pago_efectivo__gt=0),
+        'tarjeta':       Q(pago_tarjeta__gt=0),
+        'transferencia': Q(pago_transferencia__gt=0),
+        'nequi':         Q(pago_nequi__gt=0),
+        'daviplata':     Q(pago_daviplata__gt=0),
+    }
+    if metodo in metodo_filtros:
+        ventas_qs = ventas_qs.filter(metodo_filtros[metodo])
+
+    orden = request.GET.get('orden', 'fecha_desc')
+    orden_map = {
+        'producto_asc':  'producto_principal',
+        'producto_desc': '-producto_principal',
+        'cantidad_asc':  'cantidad_total',
+        'cantidad_desc': '-cantidad_total',
+        'precio_asc':    'precio_max',
+        'precio_desc':   '-precio_max',
+        'total_asc':     'total_con_descuento',
+        'total_desc':    '-total_con_descuento',
+        'fecha_asc':     'fecha',
+        'fecha_desc':    '-fecha',
+        'cliente_asc':   'cliente__nombre',
+        'cliente_desc':  '-cliente__nombre',
+    }
+    ventas_qs = ventas_qs.order_by(orden_map.get(orden, '-fecha'))
+
+    def _opuesto(campo):
+        return f'{campo}_asc' if orden != f'{campo}_asc' else f'{campo}_desc'
+
+    columnas_orden = ['cliente', 'producto', 'cantidad', 'precio', 'total', 'fecha']
+    orden_links   = {c: _opuesto(c) for c in columnas_orden}
+    orden_estado  = {}
+    for c in columnas_orden:
+        if orden == f'{c}_asc':
+            orden_estado[c] = 'asc'
+        elif orden == f'{c}_desc':
+            orden_estado[c] = 'desc'
+        else:
+            orden_estado[c] = None
+
+    # ── Denominaciones para apertura/cierre (con valores pegajosos tras un error) ──
+    valores_ap = request.session.get('pv_apertura_valores', {})
+    valores_ci = request.session.get('pv_cierre_valores', {})
+
+    apertura_billetes = [{'valor': v, 'cantidad': valores_ap.get(str(v), 0)} for v in BILLETES_DENOM]
+    apertura_monedas  = [{'valor': v, 'cantidad': valores_ap.get(str(v), 0)} for v in MONEDAS_DENOM]
+    cierre_billetes   = [{'valor': v, 'cantidad': valores_ci.get(str(v), 0)} for v in BILLETES_DENOM]
+    cierre_monedas    = [{'valor': v, 'cantidad': valores_ci.get(str(v), 0)} for v in MONEDAS_DENOM]
 
     context = {
-        'ventas':         ventas,
-        'form':           form,
-        'categorias':     categorias,
-        'clientes':       clientes,
-        'total_dia':      total_dia,
-        'hoy':            hoy,
-        'caja_abierta':   caja_abierta,
-        'ultimo_cierre':  ultimo_cierre,
-        'billetes_denom': BILLETES_DENOM,
-        'monedas_denom':  MONEDAS_DENOM,
-        'catalogo_json':  catalogo_json,
+        'ventas':            ventas_qs,
+        'form':              form,
+        'categorias':        categorias,
+        'clientes':          clientes,
+        'total_dia':         total_dia,
+        'hoy':               hoy,
+        'caja_abierta':      caja_abierta,
+        'ultimo_cierre':     ultimo_cierre,
+        'base_esperada':     base_esperada,
+        'historial_caja':    historial_caja,
+        'vista':             vista,
+        'categoria_actual':  categoria_actual,
+        'producto_actual':   producto_actual,
+        'carrito_items':     carrito_items,
+        'subtotal':          subtotal,
+        'descuento_pct':     descuento_pct,
+        'monto_descuento':   monto_descuento,
+        'total_final':       total_final,
+        'pagos_sticky':      pagos_sticky,
+        'total_pagado':      total_pagado,
+        'diferencia_pago':   diferencia_pago,
+        'cliente_sticky':    sticky.get('cliente_nombre', ''),
+        'apertura_billetes': apertura_billetes,
+        'apertura_monedas':  apertura_monedas,
+        'cierre_billetes':   cierre_billetes,
+        'cierre_monedas':    cierre_monedas,
+        'error_apertura':    error_apertura,
+        'error_cierre':      error_cierre,
+        'q_historial':       q,
+        'metodo_historial':  metodo,
+        'orden_historial':   orden,
+        'orden_links':       orden_links,
+        'orden_estado':      orden_estado,
         'breadcrumb_items': [
             {'nombre': 'Ventas', 'url': None},
         ],
@@ -138,90 +384,148 @@ def ventas_lista(request):
     return render(request, 'ventas/ventas.html', context)
 
 
-@session_required
-@transaction.atomic
-def nueva_venta(request):
-    if request.method != 'POST':
+# ════════════════════════════════════════
+# ACCIONES DEL CATÁLOGO / CARRITO (sin JS)
+# ════════════════════════════════════════
+
+def _accion_ver_categoria(request):
+    request.session['pv_categoria_id'] = request.POST.get('categoria_id')
+    request.session['pv_vista'] = 'productos'
+    request.session.pop('pv_producto_id', None)
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_volver_categorias(request):
+    request.session['pv_vista'] = 'categorias'
+    request.session.pop('pv_categoria_id', None)
+    request.session.pop('pv_producto_id', None)
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_ver_producto(request):
+    request.session['pv_producto_id'] = request.POST.get('producto_id')
+    request.session['pv_vista'] = 'presentaciones'
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_volver_productos(request):
+    request.session['pv_vista'] = 'productos'
+    request.session.pop('pv_producto_id', None)
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_agregar_carrito(request):
+    hoy = timezone.localdate()
+    usuario_id = request.session.get('usuario_id')
+    caja_abierta = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).exists()
+
+    if not caja_abierta:
+        messages.error(request, 'Debes abrir la caja antes de agregar productos.')
         return redirect('ventas:ventas_lista')
 
-    producto_ids     = request.POST.getlist('producto_id[]')
-    presentacion_ids = request.POST.getlist('presentacion_id[]')
-    cantidades       = request.POST.getlist('cantidad[]')
-    precios          = request.POST.getlist('precio[]')
+    producto_id      = request.POST.get('producto_id')
+    presentacion_id  = request.POST.get('presentacion_id', '').strip()
+    cantidad_str     = request.POST.get('cantidad', '1').strip()
+    cantidad         = int(cantidad_str) if cantidad_str.isdigit() else 1
 
-    def to_decimal(key, default='0'):
-        try:
-            return Decimal(request.POST.get(key, default) or default)
-        except (InvalidOperation, TypeError):
-            return Decimal('0')
+    producto = get_object_or_404(Producto, pk=producto_id)
+    presentacion = None
+    if presentacion_id:
+        presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id, producto=producto)
 
-    descuento_pct      = to_decimal('descuento_porcentaje')
-    pago_efectivo      = to_decimal('pago_efectivo')
-    pago_tarjeta       = to_decimal('pago_tarjeta')
-    pago_transferencia = to_decimal('pago_transferencia')
-    pago_nequi        = to_decimal('pago_nequi')
-    pago_daviplata     = to_decimal('pago_daviplata')
+    _agregar_item_carrito(request, producto, presentacion, cantidad)
+
+    request.session['pv_vista'] = 'categorias'
+    request.session.pop('pv_categoria_id', None)
+    request.session.pop('pv_producto_id', None)
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_quitar_item(request):
+    try:
+        index = int(request.POST.get('index'))
+        carrito = _carrito(request)
+        if 0 <= index < len(carrito):
+            carrito.pop(index)
+            request.session.modified = True
+    except (TypeError, ValueError):
+        pass
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_vaciar_carrito(request):
+    request.session['pv_carrito'] = []
+    return redirect('ventas:ventas_lista')
+
+
+@transaction.atomic
+def _accion_confirmar_venta(request):
+    hoy = timezone.localdate()
+    usuario_id = request.session.get('usuario_id')
+    caja_abierta = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).exists()
+
+    if not caja_abierta:
+        messages.error(request, 'Debes abrir la caja antes de registrar una venta.')
+        return redirect('ventas:ventas_lista')
+
+    carrito = _carrito(request)
+    if not carrito:
+        messages.error(request, 'El carrito está vacío.')
+        return redirect('ventas:ventas_lista')
+
+    cliente_nombre     = request.POST.get('cliente_nombre', 'Consumidor final').strip() or 'Consumidor final'
+    descuento_pct       = _to_decimal(request.POST.get('descuento_porcentaje', '0'))
+    pago_efectivo       = _to_decimal(request.POST.get('pago_efectivo', '0'))
+    pago_tarjeta        = _to_decimal(request.POST.get('pago_tarjeta', '0'))
+    pago_transferencia  = _to_decimal(request.POST.get('pago_transferencia', '0'))
+    pago_nequi          = _to_decimal(request.POST.get('pago_nequi', '0'))
+    pago_daviplata       = _to_decimal(request.POST.get('pago_daviplata', '0'))
     comprobante_pago    = request.FILES.get('comprobante_pago')
 
-    if not producto_ids:
-        messages.error(request, "El carrito está vacío.")
-        return redirect('ventas:ventas_lista')
+    sticky = {
+        'cliente_nombre':       cliente_nombre,
+        'descuento_porcentaje': str(descuento_pct),
+        'pago_efectivo':        str(pago_efectivo),
+        'pago_tarjeta':         str(pago_tarjeta),
+        'pago_transferencia':   str(pago_transferencia),
+        'pago_nequi':           str(pago_nequi),
+        'pago_daviplata':       str(pago_daviplata),
+    }
 
-    cliente_id     = request.POST.get('cliente_id', '').strip()
-    cliente_nombre = request.POST.get('cliente_nombre', 'Consumidor final').strip() or 'Consumidor final'
-
-    if cliente_id:
-        cliente = get_object_or_404(Cliente, pk=cliente_id)
-    else:
-        cliente, _ = Cliente.objects.get_or_create(nombre=cliente_nombre)
+    cliente, _creado = Cliente.objects.get_or_create(nombre=cliente_nombre)
 
     vendedor    = None
     vendedor_id = request.session.get('usuario_id')
     if vendedor_id:
         vendedor = Usuario.objects.filter(pk=vendedor_id).first()
 
+    # Revalidar stock al confirmar, por si el carrito quedó desactualizado
     items_validados = []
     subtotal_venta  = Decimal('0')
 
-    for i, prod_id in enumerate(producto_ids):
-        try:
-            cantidad = int(cantidades[i])
-            precio   = Decimal(precios[i])
-            if cantidad <= 0 or precio < 0:
-                raise ValueError
-        except (ValueError, TypeError, InvalidOperation, IndexError):
-            messages.error(request, f"Datos inválidos en el ítem {i+1}.")
-            return redirect('ventas:ventas_lista')
+    for item in carrito:
+        producto = Producto.objects.filter(pk=item['producto_id']).first()
+        if not producto:
+            messages.error(request, 'Uno de los productos del carrito ya no existe.')
+            return _render_pos(request, sticky=sticky)
 
-        try:
-            producto = Producto.objects.prefetch_related('presentaciones').get(pk=prod_id)
-        except Producto.DoesNotExist:
-            messages.error(request, f"Producto {i+1} no encontrado.")
-            return redirect('ventas:ventas_lista')
-
-        pres_id      = presentacion_ids[i] if i < len(presentacion_ids) else ''
         presentacion = None
+        if item.get('presentacion_id'):
+            presentacion = PresentacionProducto.objects.filter(
+                pk=item['presentacion_id'], producto=producto
+            ).first()
 
-        if pres_id:
-            try:
-                presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
-            except PresentacionProducto.DoesNotExist:
-                messages.error(request, f"Presentación inválida para {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+        cantidad   = int(item['cantidad'])
+        precio     = _to_decimal(item['precio'])
+        disponible = presentacion.stock_real if presentacion else producto.stock_total
 
-            if cantidad > presentacion.stock_real:
-                messages.error(request, f"Stock insuficiente: solo hay {presentacion.stock_real} de '{presentacion.nombre}'.")
-                return redirect('ventas:ventas_lista')
-        else:
-            if cantidad > producto.stock_total:
-                messages.error(request, f"Stock insuficiente: solo hay {producto.stock_total} unidades de {producto.nombre}.")
-                return redirect('ventas:ventas_lista')
+        if cantidad > disponible:
+            messages.error(request, f"Stock insuficiente para {item['nombre']}: solo hay {disponible}.")
+            return _render_pos(request, sticky=sticky)
 
         items_validados.append({
-            'producto':     producto,
-            'presentacion': presentacion,
-            'cantidad':     cantidad,
-            'precio':       precio,
+            'producto': producto, 'presentacion': presentacion,
+            'cantidad': cantidad, 'precio': precio,
         })
         subtotal_venta += precio * cantidad
 
@@ -230,8 +534,11 @@ def nueva_venta(request):
     total_pagado    = pago_efectivo + pago_tarjeta + pago_transferencia + pago_nequi + pago_daviplata
 
     if total_pagado < total_final:
-        messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.'))
-        return redirect('ventas:ventas_lista')
+        messages.error(
+            request,
+            f"El total pagado (${total_pagado:,.0f}) no cubre el total (${total_final:,.0f}).".replace(',', '.')
+        )
+        return _render_pos(request, sticky=sticky)
 
     venta = Venta.objects.create(
         cliente=cliente, vendedor=vendedor, descuento_porcentaje=descuento_pct,
@@ -252,12 +559,7 @@ def nueva_venta(request):
         )
 
         if presentacion:
-            try:
-                lotes_tocados = _descontar_stock_fefo(presentacion, cantidad, vendedor)
-            except ValueError as e:
-                messages.error(request, str(e))
-                raise
-
+            lotes_tocados = _descontar_stock_fefo(presentacion, cantidad, vendedor)
             for lt in lotes_tocados:
                 Inventario.objects.create(
                     presentacion=presentacion, lote=lt['lote'], registrado_por=vendedor,
@@ -271,8 +573,127 @@ def nueva_venta(request):
                 tipo='salida', cantidad=cantidad, motivo='Venta registrada',
             )
 
+    request.session['pv_carrito'] = []
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
     return redirect('ventas:ventas_lista')
+
+
+# ════════════════════════════════════════
+# CAJA — APERTURA / CIERRE (sin JS)
+# ════════════════════════════════════════
+
+def _accion_confirmar_apertura(request):
+    hoy        = timezone.localdate()
+    usuario_id = request.session.get('usuario_id')
+
+    if AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).exists():
+        messages.error(request, 'Ya hay una caja abierta hoy.')
+        return redirect('ventas:ventas_lista')
+
+    valores = {}
+    total = Decimal('0')
+    for valor in TODAS_DENOM:
+        cantidad_str = request.POST.get(f'apertura_{valor}', '0').strip()
+        cantidad = int(cantidad_str) if cantidad_str.isdigit() else 0
+        valores[str(valor)] = cantidad
+        total += Decimal(valor) * cantidad
+
+    observacion = request.POST.get('ct_observacion', '').strip()
+    request.session['pv_apertura_valores'] = valores
+
+    cierre_anterior = (
+        CierreCaja.objects
+        .filter(usuario_id=usuario_id)
+        .exclude(fecha=hoy)
+        .order_by('-fecha')
+        .first()
+    )
+
+    if cierre_anterior:
+        base_esperada = cierre_anterior.monto_base_siguiente
+        diferencia = total - base_esperada
+        if diferencia != 0:
+            texto = (
+                f"El total contado (${total:,.0f}) no coincide con la base dejada en el cierre "
+                f"anterior (${base_esperada:,.0f}). Diferencia: ${abs(diferencia):,.0f}. "
+                f"Corrige el conteo antes de abrir la caja."
+            ).replace(',', '.')
+            messages.error(request, texto)
+            return _render_pos(request, error_apertura={'total': total, 'texto': texto})
+
+    AperturaCaja.objects.create(
+        fecha=hoy, usuario_id=usuario_id, monto_base=total,
+        observacion=observacion, denominaciones=valores,
+    )
+    request.session.pop('pv_apertura_valores', None)
+    messages.success(request, f"Caja abierta con ${total:,.0f}.".replace(',', '.'))
+    return redirect('ventas:ventas_lista')
+
+
+def _accion_confirmar_cierre(request):
+    hoy        = timezone.localdate()
+    usuario_id = request.session.get('usuario_id')
+
+    apertura = AperturaCaja.objects.filter(fecha=hoy, usuario_id=usuario_id).first()
+    if not apertura:
+        messages.error(request, 'No hay caja abierta.')
+        return redirect('ventas:ventas_lista')
+    if hasattr(apertura, 'cierre'):
+        messages.error(request, 'La caja ya fue cerrada hoy.')
+        return redirect('ventas:ventas_lista')
+
+    valores = {}
+    total = Decimal('0')
+    for valor in TODAS_DENOM:
+        cantidad_str = request.POST.get(f'cierre_{valor}', '0').strip()
+        cantidad = int(cantidad_str) if cantidad_str.isdigit() else 0
+        valores[str(valor)] = cantidad
+        total += Decimal(valor) * cantidad
+
+    request.session['pv_cierre_valores'] = valores
+
+    base_siguiente = _to_decimal(request.POST.get('base_siguiente', '0'))
+    total_retirado = max(Decimal('0'), total - base_siguiente)
+
+    CierreCaja.objects.create(
+        fecha=hoy, apertura=apertura, usuario_id=usuario_id,
+        total_contado=total, monto_base_siguiente=base_siguiente,
+        total_retirado=total_retirado, denominaciones=valores,
+    )
+    request.session.pop('pv_cierre_valores', None)
+    messages.success(request, f"Caja cerrada. Total contado: ${total:,.0f}.".replace(',', '.'))
+    return redirect('ventas:ventas_lista')
+
+
+# ════════════════════════════════════════
+# DISPATCHER DE ACCIONES + VISTA PRINCIPAL
+# ════════════════════════════════════════
+
+_ACCIONES_POS = {
+    'ver_categoria':       _accion_ver_categoria,
+    'volver_categorias':   _accion_volver_categorias,
+    'ver_producto':        _accion_ver_producto,
+    'volver_productos':    _accion_volver_productos,
+    'agregar_carrito':     _accion_agregar_carrito,
+    'quitar_item':         _accion_quitar_item,
+    'vaciar_carrito':      _accion_vaciar_carrito,
+    'confirmar_venta':     _accion_confirmar_venta,
+    'confirmar_apertura':  _accion_confirmar_apertura,
+    'confirmar_cierre':    _accion_confirmar_cierre,
+}
+
+
+@session_required
+def ventas_lista(request):
+    if request.method == 'POST':
+        accion  = request.POST.get('accion', '')
+        handler = _ACCIONES_POS.get(accion)
+        if handler:
+            return handler(request)
+        messages.error(request, 'Acción no reconocida.')
+        return redirect('ventas:ventas_lista')
+
+    return _render_pos(request)
 
 
 @session_required
@@ -317,6 +738,7 @@ def eliminar_venta(request, pk):
 
 
 def producto_stock_json(request, pk):
+    # Se conserva por compatibilidad con urls.py, aunque ya no se usa desde el template.
     producto = get_object_or_404(Producto.objects.prefetch_related('presentaciones'), pk=pk)
     return JsonResponse({
         'stock':  producto.stock_total,
@@ -349,7 +771,6 @@ def ventas_del_dia(request):
         for det in v.detalles.all()
     )
 
-    # ── Producto más vendido del día (para la tarjeta KPI "Top") ──
     producto_top = (
         DetalleVenta.objects
         .filter(venta__in=ventas)
@@ -359,7 +780,6 @@ def ventas_del_dia(request):
         .first()
     )
 
-    # ── Ranking de productos más vendidos (con barra proporcional) ──
     productos_top_qs = (
         DetalleVenta.objects
         .filter(venta__in=ventas)
@@ -377,7 +797,6 @@ def ventas_del_dia(request):
         for p in productos_top_qs
     ]
 
-    # ── Ventas tope del día (para el diseño circular) ──
     ventas_top_qs = sorted(ventas, key=lambda v: v.total_con_descuento, reverse=True)[:2]
     ventas_top = [
         {
@@ -388,7 +807,6 @@ def ventas_del_dia(request):
         for v in ventas_top_qs
     ]
 
-    # ── Progreso hacia la meta de ventas del día (solo texto, sin barra) ──
     meta_diaria = META_VENTA_DIARIA
     porcentaje_meta = 0
     if meta_diaria:
@@ -413,7 +831,8 @@ def ventas_del_dia(request):
 
 
 # ════════════════════════════════════════
-# CONTROL DE CAJA
+# CONTROL DE CAJA — VERSIÓN ANTERIOR (AJAX)
+# Se conserva sin usar por si urls.py aún la referencia.
 # ════════════════════════════════════════
 
 @session_required
@@ -481,17 +900,15 @@ def cierre_caja(request):
 
 
 # ════════════════════════════════════════
-# DEVOLUCIONES
+# DEVOLUCIONES — SIN CAMBIOS
 # ════════════════════════════════════════
 
 @session_required
 def lista_devoluciones(request):
     """Lista principal de devoluciones con flujo integrado"""
     try:
-        # Reiniciar flujo si viene desde el botón "Nueva devolución"
         if request.GET.get('nuevo'):
             request.session['dev_paso'] = 1
-            # Limpiar todas las variables de devolución previas
             for key in list(request.session.keys()):
                 if key.startswith('dev_'):
                     del request.session[key]
@@ -576,7 +993,6 @@ def registrar_devolucion(request, venta_id):
     venta = get_object_or_404(Venta, pk=venta_id)
     form = DevolucionForm(request.POST)
 
-    # Obtener detalles seleccionados
     detalles_seleccionados = request.POST.getlist('detalle_id')
 
     if not detalles_seleccionados:
@@ -587,14 +1003,12 @@ def registrar_devolucion(request, venta_id):
         messages.error(request, '⚠️ Debes completar todos los campos obligatorios.')
         return redirect('ventas:seleccionar_venta_devolucion', venta_id=venta_id)
 
-    # Calcular total devuelto
     total_devuelto = Decimal('0')
     detalles_venta = venta.detalles.filter(pk__in=detalles_seleccionados)
 
     for detalle in detalles_venta:
         total_devuelto += detalle.subtotal()
 
-    # Crear devolución
     devolucion = Devolucion.objects.create(
         venta=venta,
         motivo=form.cleaned_data['motivo'],
@@ -605,7 +1019,6 @@ def registrar_devolucion(request, venta_id):
         restaurar_stock=True,
     )
 
-    # Crear detalles de devolución
     for detalle_venta in detalles_venta:
         DetalleDevolucion.objects.create(
             devolucion=devolucion,
@@ -615,7 +1028,6 @@ def registrar_devolucion(request, venta_id):
             precio_unitario=detalle_venta.precio_unitario,
         )
 
-        # Restaurar stock
         if detalle_venta.presentacion:
             detalle_venta.presentacion.cantidad += detalle_venta.cantidad
             detalle_venta.presentacion.save()
@@ -641,14 +1053,12 @@ def comprobante_devolucion(request, pk):
     })
 
 
-# FLUJO DE DEVOLUCIONES - 100% SERVER-SIDE SIN JAVASCRIPT
 @session_required
 def devoluciones_flujo(request):
     """Maneja TODO el flujo de devoluciones en un único HTML - Sin JavaScript"""
     paso = request.session.get('dev_paso', 1)
     venta_id = request.session.get('dev_venta_id')
 
-    # PASO 1: Seleccionar venta
     if request.method == 'POST' and paso == 1:
         venta_id_post = request.POST.get('venta_id', '').strip()
 
@@ -665,7 +1075,6 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, '⚠️ Debes seleccionar una venta.')
 
-    # PASO 2: Seleccionar productos y cantidades
     elif request.method == 'POST' and paso == 2:
         if not venta_id:
             messages.error(request, '⚠️ Primero debes seleccionar una venta.')
@@ -678,7 +1087,6 @@ def devoluciones_flujo(request):
             messages.error(request, '⚠️ Debes seleccionar al menos un producto para devolver.')
             return redirect('ventas:lista_devoluciones')
 
-        # Procesar cantidades de devolución
         productos_con_cantidad = {}
         venta_actual = Venta.objects.get(pk=venta_id)
 
@@ -688,7 +1096,6 @@ def devoluciones_flujo(request):
                 cantidad_str = request.POST.get(f'cantidad_devolucion_{detalle_id_int}', '0')
                 cantidad = int(cantidad_str)
 
-                # Validar cantidad
                 detalle = venta_actual.detalles.get(pk=detalle_id_int)
                 if cantidad <= 0 or cantidad > detalle.cantidad:
                     messages.error(request, f'⚠️ Cantidad inválida para {detalle.producto.nombre}. Debe ser entre 1 y {detalle.cantidad}.')
@@ -708,7 +1115,6 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, '⚠️ Debes especificar al menos 1 unidad para devolver.')
 
-    # PASO 3: Motivo de devolución
     elif request.method == 'POST' and paso == 3:
         motivo = request.POST.get('motivo', '').strip()
         observaciones = request.POST.get('observaciones', '').strip()
@@ -723,26 +1129,23 @@ def devoluciones_flujo(request):
         else:
             messages.error(request, '⚠️ Selecciona un motivo válido.')
 
-    # PASO 4: Tipo de reembolso
     elif request.method == 'POST' and paso == 4:
         tipo_reembolso = request.POST.get('tipo_reembolso', '').strip()
 
         tipos_validos = [choice[0] for choice in Devolucion.REEMBOLSO_CHOICES]
         if tipo_reembolso in tipos_validos:
             request.session['dev_tipo_reembolso'] = tipo_reembolso
-            # Pasos adicionales según tipo
             if tipo_reembolso == 'cambio':
                 request.session['dev_paso'] = 5
             elif tipo_reembolso == 'reembolso':
                 request.session['dev_paso'] = 5
-            else:  # nota_credito
-                request.session['dev_paso'] = 6  # Ir a evidencia fotográfica
+            else:
+                request.session['dev_paso'] = 6
             request.session.modified = True
             return redirect('ventas:lista_devoluciones')
         else:
             messages.error(request, '⚠️ Selecciona un tipo de reembolso válido.')
 
-    # PASO 5: Detalles específicos según tipo (Cambio o Reembolso)
     elif request.method == 'POST' and paso == 5:
         tipo_reembolso = request.session.get('dev_tipo_reembolso')
 
@@ -774,14 +1177,11 @@ def devoluciones_flujo(request):
             else:
                 messages.error(request, '⚠️ Selecciona un método de devolución válido.')
 
-    # PASO 6: Evidencia fotográfica
     elif request.method == 'POST' and paso == 6:
-        # Procesar archivos de evidencia si existen
         request.session['dev_paso'] = 7
         request.session.modified = True
         return redirect('ventas:lista_devoluciones')
 
-    # PASO 7: Confirmación y crear devolución
     elif request.method == 'POST' and paso == 7:
         try:
             venta = Venta.objects.get(pk=venta_id)
@@ -790,7 +1190,6 @@ def devoluciones_flujo(request):
             tipo_reembolso = request.session.get('dev_tipo_reembolso')
             observaciones = request.session.get('dev_observaciones', '')
 
-            # Convertir lista antigua a diccionario si es necesario
             if isinstance(productos_data, list):
                 productos_con_cantidad = {pid: venta.detalles.get(pk=pid).cantidad if venta.detalles.filter(pk=pid).exists() else 1 for pid in productos_data}
             else:
@@ -802,13 +1201,11 @@ def devoluciones_flujo(request):
                 request.session.modified = True
                 return redirect('ventas:lista_devoluciones')
 
-            # Convertir claves de string a int si es necesario
             if productos_con_cantidad:
                 keys_list = list(productos_con_cantidad.keys())
                 if keys_list and isinstance(keys_list[0], str):
                     productos_con_cantidad = {int(k): v for k, v in productos_con_cantidad.items()}
 
-            # Calcular total devuelto
             total_devuelto = Decimal('0')
             detalles_venta = venta.detalles.filter(pk__in=productos_con_cantidad.keys())
 
@@ -823,7 +1220,6 @@ def devoluciones_flujo(request):
                 subtotal = Decimal(str(cantidad_devolucion)) * detalle.precio_unitario
                 total_devuelto += subtotal
 
-            # Crear devolución con datos base
             devolucion = Devolucion.objects.create(
                 venta=venta,
                 motivo=motivo,
@@ -834,7 +1230,6 @@ def devoluciones_flujo(request):
                 restaurar_stock=True,
             )
 
-            # Procesar según tipo de reembolso
             if tipo_reembolso == 'cambio':
                 producto_cambio_id = request.session.get('dev_producto_cambio_id')
                 cantidad_cambio = request.session.get('dev_cantidad_cambio')
@@ -860,7 +1255,6 @@ def devoluciones_flujo(request):
                 devolucion.save()
                 messages.info(request, f'💰 Reembolso programado: ${total_devuelto:,.0f} a {metodo_devolucion}'.replace(',', '.'))
 
-            # Crear detalles de devolución con cantidades especificadas
             for detalle_venta in detalles_venta:
                 cantidad_devolucion = productos_con_cantidad.get(detalle_venta.pk, detalle_venta.cantidad)
                 DetalleDevolucion.objects.create(
@@ -871,7 +1265,6 @@ def devoluciones_flujo(request):
                     precio_unitario=detalle_venta.precio_unitario,
                 )
 
-            # Limpiar sesión
             for key in list(request.session.keys()):
                 if key.startswith('dev_'):
                     del request.session[key]
@@ -886,20 +1279,18 @@ def devoluciones_flujo(request):
             request.session.modified = True
             return redirect('ventas:lista_devoluciones')
 
-    # Botón atrás
     if request.method == 'POST' and request.POST.get('action') == 'atras':
         nuevo_paso = max(1, paso - 1)
         request.session['dev_paso'] = nuevo_paso
         request.session.modified = True
         return redirect('ventas:lista_devoluciones')
 
-    # Obtener datos para renderizar
     ventas = Venta.objects.select_related('cliente').prefetch_related('detalles').order_by('-fecha')
     devoluciones = Devolucion.objects.select_related('venta').prefetch_related('detalles').order_by('-fecha')
 
     venta = None
     detalles_venta = []
-    detalles_con_estado = []  # Detalles con información de devoluciones
+    detalles_con_estado = []
 
     if venta_id:
         try:
@@ -910,7 +1301,6 @@ def devoluciones_flujo(request):
 
             detalles_venta = venta.detalles.select_related('producto', 'presentacion').all()
 
-            # Calcular cantidades devueltas para cada detalle
             from django.db.models import Sum # type: ignore
             for detalle in detalles_venta:
                 cantidad_devuelta = DetalleDevolucion.objects.filter(
@@ -929,31 +1319,25 @@ def devoluciones_flujo(request):
                 })
         except (Venta.DoesNotExist, ValueError, TypeError):
             venta = None
-            # Reiniciar si hay error
             request.session['dev_paso'] = 1
             request.session.modified = True
 
-    # Obtener nombres de motivos y tipos para mostrar
     motivo_dict = dict(Devolucion.MOTIVO_CHOICES)
     tipo_dict = dict(Devolucion.REEMBOLSO_CHOICES)
     metodos_dict = dict(Devolucion._meta.get_field('metodo_pago_devolucion').choices)
 
-    # Para paso 5 y 6: obtener productos disponibles
     productos = Producto.objects.all() if paso >= 5 else []
 
-    # Calcular total a devolver para mostrar en paso 5-6
     total_devolver = Decimal('0')
     if venta_id:
         productos_data = request.session.get('dev_productos', {})
 
-        # Convertir lista antigua a diccionario si es necesario
         if isinstance(productos_data, list):
             productos_con_cantidad = {pid: venta.detalles.get(pk=pid).cantidad if venta.detalles.filter(pk=pid).exists() else 1 for pid in productos_data}
         else:
             productos_con_cantidad = productos_data
 
         if productos_con_cantidad and len(productos_con_cantidad) > 0:
-            # Convertir claves de string a int si es necesario
             keys_list = list(productos_con_cantidad.keys())
             if keys_list and isinstance(keys_list[0], str):
                 productos_con_cantidad = {int(k): v for k, v in productos_con_cantidad.items()}
