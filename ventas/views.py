@@ -421,7 +421,7 @@ def _accion_agregar_carrito(request):
 
     if not caja_abierta:
         messages.error(request, 'Debes abrir la caja antes de agregar productos.')
-        return redirect('ventas:ventas_lista')
+        raise
 
     producto_id      = request.POST.get('producto_id')
     presentacion_id  = request.POST.get('presentacion_id', '').strip()
@@ -1055,11 +1055,18 @@ def comprobante_devolucion(request, pk):
 
 @session_required
 def devoluciones_flujo(request):
-    """Maneja TODO el flujo de devoluciones en un único HTML - Sin JavaScript"""
     paso = request.session.get('dev_paso', 1)
     venta_id = request.session.get('dev_venta_id')
 
- Ventas
+    # El flujo actual termina en el paso 6. Las sesiones antiguas podían quedar
+    # en el paso 7 sin registrar nada y dejaban la pantalla bloqueada.
+    if paso == 7:
+        for key in list(request.session.keys()):
+            if key.startswith('dev_'):
+                del request.session[key]
+        request.session['dev_paso'] = 1
+        request.session.modified = True
+        return redirect(reverse('ventas:lista_devoluciones'))
 
     # Si estamos en paso 2 o superior pero no hay venta_id, volver a paso 1
     if paso > 1 and not venta_id:
@@ -1068,7 +1075,6 @@ def devoluciones_flujo(request):
         return redirect(reverse('ventas:lista_devoluciones') + '#formDevoluciones')
 
     # PASO 1: Seleccionar venta
- main
     if request.method == 'POST' and paso == 1:
         venta_id_post = request.POST.get('venta_id', '').strip()
 
@@ -1115,10 +1121,7 @@ def devoluciones_flujo(request):
                 cantidad_str = request.POST.get(f'cantidad_devolucion_{detalle_id_int}', '0')
                 cantidad = int(cantidad_str)
 
-<<<<<<<<< Temporary merge branch 1
-=========
                 # Validar cantidad contra lo pendiente real
->>>>>>>>> Temporary merge branch 2
                 detalle = venta_actual.detalles.get(pk=detalle_id_int)
                 if cantidad <= 0 or cantidad > detalle.cantidad:
                     messages.error(request, f'⚠️ Cantidad inválida para {detalle.producto.nombre}. Debe ser entre 1 y {detalle.cantidad}.')
@@ -1184,18 +1187,28 @@ def devoluciones_flujo(request):
     elif request.method == 'POST' and paso == 5:
         tipo_reembolso = request.session.get('dev_tipo_reembolso')
 
+        if request.POST.get('action') == 'atras':
+            request.session['dev_paso'] = 4
+            request.session.modified = True
+            return redirect(reverse('ventas:lista_devoluciones') + '#formDevoluciones')
+
         if tipo_reembolso == 'cambio':
             producto_cambio_id = request.POST.get('producto_cambio', '').strip()
             cantidad_cambio = request.POST.get('cantidad_cambio', '').strip()
 
             if producto_cambio_id and cantidad_cambio:
                 try:
-                    request.session['dev_producto_cambio_id'] = int(producto_cambio_id)
-                    request.session['dev_cantidad_cambio'] = int(cantidad_cambio)
+                    producto_cambio_id = int(producto_cambio_id)
+                    cantidad_cambio = int(cantidad_cambio)
+                    if cantidad_cambio < 1:
+                        raise ValueError
+                    Producto.objects.get(pk=producto_cambio_id)
+                    request.session['dev_producto_cambio_id'] = producto_cambio_id
+                    request.session['dev_cantidad_cambio'] = cantidad_cambio
                     request.session['dev_paso'] = 6
                     request.session.modified = True
                     return redirect(reverse('ventas:lista_devoluciones') + '#formDevoluciones')
-                except (ValueError, TypeError):
+                except (Producto.DoesNotExist, ValueError, TypeError):
                     messages.error(request, '⚠️ Datos inválidos. Intenta nuevamente.')
             else:
                 messages.error(request, '⚠️ Debes seleccionar un producto de reemplazo y cantidad.')
@@ -1213,12 +1226,13 @@ def devoluciones_flujo(request):
                 messages.error(request, '⚠️ Selecciona un método de devolución válido.')
 
     elif request.method == 'POST' and paso == 6:
-        request.session['dev_paso'] = 7
-        request.session.modified = True
-        return redirect('ventas:lista_devoluciones')
-
-    elif request.method == 'POST' and paso == 7:
         try:
+            if request.POST.get('action') == 'atras':
+                tipo_reembolso = request.session.get('dev_tipo_reembolso')
+                request.session['dev_paso'] = 5 if tipo_reembolso in ('cambio', 'reembolso') else 4
+                request.session.modified = True
+                return redirect(reverse('ventas:lista_devoluciones') + '#formDevoluciones')
+
             venta = Venta.objects.get(pk=venta_id)
             productos_data = request.session.get('dev_productos', {})
             motivo = request.session.get('dev_motivo')
@@ -1290,10 +1304,7 @@ def devoluciones_flujo(request):
                 devolucion.save()
                 messages.info(request, f'💰 Reembolso programado: ${total_devuelto:,.0f} a {metodo_devolucion}'.replace(',', '.'))
 
-<<<<<<<<< Temporary merge branch 1
-=========
             # Crear detalles de devolución con cantidades especificadas y restaurar stock
->>>>>>>>> Temporary merge branch 2
             for detalle_venta in detalles_venta:
                 cantidad_devolucion = productos_con_cantidad.get(detalle_venta.pk, detalle_venta.cantidad)
                 DetalleDevolucion.objects.create(
@@ -1304,8 +1315,6 @@ def devoluciones_flujo(request):
                     precio_unitario=detalle_venta.precio_unitario,
                 )
 
-<<<<<<<<< Temporary merge branch 1
-=========
                 # Restaurar stock si está marcado
                 if devolucion.restaurar_stock:
                     if detalle_venta.lote:
@@ -1316,7 +1325,6 @@ def devoluciones_flujo(request):
                         detalle_venta.presentacion.save()
 
             # Limpiar sesión
->>>>>>>>> Temporary merge branch 2
             for key in list(request.session.keys()):
                 if key.startswith('dev_'):
                     del request.session[key]
@@ -1353,11 +1361,7 @@ def devoluciones_flujo(request):
 
             detalles_venta = venta.detalles.select_related('producto', 'presentacion').all()
 
-<<<<<<<<< Temporary merge branch 1
-            from django.db.models import Sum # type: ignore
-=========
             # Calcular cantidades devueltas para cada detalle
->>>>>>>>> Temporary merge branch 2
             for detalle in detalles_venta:
                 # Contar devoluciones por detalle específico
                 cantidad_devuelta = DetalleDevolucion.objects.filter(
@@ -1423,6 +1427,7 @@ def devoluciones_flujo(request):
         'tipo_reembolso_seleccionado': tipo_dict.get(request.session.get('dev_tipo_reembolso'), ''),
         'observaciones': request.session.get('dev_observaciones', ''),
         'productos': productos,
+        'metodos_pago': Devolucion.METODO_PAGO_CHOICES,
         'total_devolver': total_devolver,
         'metodo_pago_original': request.session.get('dev_metodo_original', ''),
         'breadcrumb_items': [
