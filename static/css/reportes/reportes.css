@@ -248,32 +248,32 @@
 
 .cys-report-card-icon--inv {
   background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  color: #FDFFFC;
 }
 
 .cys-report-card-icon--prov {
   background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  color: #FDFFFC;
 }
 
 .cys-report-card-icon--compras {
   background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  color: #FDFFFC;
 }
 
 .cys-report-card-icon--diario {
   background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  color: #FDFFFC;
 }
 
 .cys-report-card-icon--analisis {
   background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  color: #FDFFFC;
 }
 
 .cys-report-card-icon--devoluciones {
   background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  color: #FDFFFC;
 }
 
 .cys-report-card-icon--proxima {
@@ -2526,10 +2526,10 @@ table.dataTable {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background: rgba(77, 168, 218, 0.12) !important;
-    border: 1px solid rgba(77, 168, 218, 0.25) !important;
+    background: rgba(255, 255, 255, 0.10) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
     border-radius: 8px !important;
-    color: #4DA8DA !important;
+    color: #FDFFFC !important;
     font-size: 16px !important;
     cursor: pointer !important;
     z-index: 3 !important;
@@ -2565,16 +2565,16 @@ table.dataTable {
 }
 
 .cys-report-card__chart-toggle:hover {
-    background: rgba(77, 168, 218, 0.25) !important;
+    background: rgba(255, 255, 255, 0.22) !important;
     transform: translateY(-3px) scale(1.05) !important;
-    box-shadow: 0 8px 20px rgba(77, 168, 218, 0.35) !important;
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25) !important;
 }
 
 .cys-report-card__chart-toggle.is-active {
-    background: #4DA8DA !important;
-    color: #02224a !important;
+    background: #FDFFFC !important;
+    color: #011936 !important;
     transform: translateY(0) scale(1.05) !important;
-    box-shadow: 0 4px 14px rgba(77, 168, 218, 0.35) !important;
+    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.3) !important;
 }
 
 .cys-report-card__chart-wrap {
