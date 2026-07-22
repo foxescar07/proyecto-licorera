@@ -4,7 +4,7 @@
 
 /* Contenedor Principal */
 .cys-page-wrapper {
-    background-color: #040a0f !important;
+    background-color: #0d1c33!important;
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #ffffff;
@@ -454,3 +454,32 @@
     padding: 2.5rem 1rem;
     color: #7a96b0;
   }
+
+/* ══════════════════════════════════════
+   FIX — Variantes de color para tarjetas KPI
+   (Ventas del Día: antes usaban clases cys-kpi
+   que no existían en ningún CSS del proyecto)
+══════════════════════════════════════ */
+.cys-kpi-card--info    { border-left: 3px solid #4da8da; }
+.cys-kpi-card--success { border-left: 3px solid #2ecc71; }
+
+.cys-kpi-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cys-kpi-icon--info    { background: rgba(77, 168, 218, 0.12); color: #4da8da; }
+.cys-kpi-icon--success { background: rgba(46, 204, 113, 0.12); color: #2ecc71; }
+.cys-kpi-icon--info i, .cys-kpi-icon--success i { font-size: 1.1rem; }
+
+.cys-kpi-badge--info {
+    color: #4da8da;
+    background: rgba(77, 168, 218, 0.1);
+    border-color: rgba(77, 168, 218, 0.3);
+}
+.cys-kpi-badge--success {
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+    border-color: rgba(46, 204, 113, 0.3);
+}

@@ -38,10 +38,10 @@
   <div class="row g-3 mb-3 justify-content-center">
 
     <div class="col-12 col-sm-6 col-xl-4">
-      <div class="cys-kpi cys-kpi--info">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-info fs-4"><i class="bi bi-receipt"></i></div>
-          <span class="badge bg-dark text-info border border-info">Hoy</span>
+      <div class="cys-kpi-card cys-kpi-card--info">
+        <div class="cys-kpi-card-top mb-2">
+          <div class="cys-kpi-icon cys-kpi-icon--info"><i class="bi bi-receipt"></i></div>
+          <span class="cys-kpi-badge cys-kpi-badge--info">Hoy</span>
         </div>
         <div class="cys-kpi-value">{{ ventas.count }}</div>
         <div class="cys-kpi-label">Transacciones</div>
@@ -50,10 +50,10 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4">
-      <div class="cys-kpi cys-kpi--success">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-success fs-4"><i class="bi bi-cash-stack"></i></div>
-          <span class="badge bg-dark text-success border border-success">Ingresos</span>
+      <div class="cys-kpi-card cys-kpi-card--success">
+        <div class="cys-kpi-card-top mb-2">
+          <div class="cys-kpi-icon cys-kpi-icon--success"><i class="bi bi-cash-stack"></i></div>
+          <span class="cys-kpi-badge cys-kpi-badge--success">Ingresos</span>
         </div>
         <div class="cys-kpi-value text-success">${{ total_dia|pesos }}</div>
         <div class="cys-kpi-label">Total acumulado</div>
@@ -62,10 +62,10 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4">
-      <div class="cys-kpi cys-kpi--info">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-info fs-4"><i class="bi bi-box-seam"></i></div>
-          <span class="badge bg-dark text-info border border-info">Unidades</span>
+      <div class="cys-kpi-card cys-kpi-card--info">
+        <div class="cys-kpi-card-top mb-2">
+          <div class="cys-kpi-icon cys-kpi-icon--info"><i class="bi bi-box-seam"></i></div>
+          <span class="cys-kpi-badge cys-kpi-badge--info">Unidades</span>
         </div>
         <div class="cys-kpi-value">{{ total_productos }}</div>
         <div class="cys-kpi-label">Productos vendidos</div>
