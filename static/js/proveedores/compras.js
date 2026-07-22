@@ -10,28 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     modalProveedores.show();
   }
 
-  // Búsqueda de productos
-  const buscarProducto = document.getElementById('buscarProducto');
-  if (buscarProducto) {
-    buscarProducto.addEventListener('input', function(e) {
-      const busqueda = e.target.value.toLowerCase();
-      document.querySelectorAll('#gridProductos > div').forEach(item => {
-        const nombre = item.dataset.nombre;
-        const categoria = item.dataset.categoria;
-        const coincide = nombre.includes(busqueda) || categoria.includes(busqueda);
-        item.style.display = coincide ? '' : 'none';
-      });
-    });
-  }
-
-  // Selección de producto
-  document.querySelectorAll('.producto-radio').forEach(radio => {
-    radio.addEventListener('change', function() {
-      document.getElementById('productoSeleccionado').value = this.value;
-    });
-  });
-
-  // Búsqueda y selección de proveedores
+  // Búsqueda de proveedores
   const buscarProveedor = document.getElementById('buscarProveedor');
   const tablaProveedores = document.getElementById('tablaProveedores');
   const sinResultados = document.getElementById('sinResultados');
@@ -52,37 +31,50 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Función para seleccionar proveedor sin cerrar el modal
-  window.seleccionarProveedor = function(proveedorId, proveedorNombre) {
-    // Actualizar input hidden
-    const inputProveedor = document.getElementById('proveedorSeleccionado');
-    if (inputProveedor) {
-      inputProveedor.value = proveedorId;
-    }
+  // Mostrar/ocultar monto pagado según estado
+  const estadoPago = document.getElementById('estadoPago');
+  if (estadoPago) {
+    estadoPago.addEventListener('change', function() {
+      const montoPagadoDiv = document.getElementById('montoPagadoDiv');
+      if (this.value === 'parcial') {
+        montoPagadoDiv.style.display = 'block';
+      } else {
+        montoPagadoDiv.style.display = 'none';
+      }
+    });
+  }
 
-    // Actualizar botón selector
-    const btnSelector = document.querySelector('.btn-selector');
-    if (btnSelector) {
-      btnSelector.innerHTML = `
-        <span class="d-flex align-items-center gap-2">
-          <i class="bi bi-truck"></i>
-          ${proveedorNombre}
-        </span>
-        <i class="bi bi-chevron-down"></i>
-      `;
-    }
-  };
+  // Preparar modal de pago
+  const modalPago = document.getElementById('modalPago');
+  if (modalPago) {
+    modalPago.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      if (button && button.dataset.compraId) {
+        document.getElementById('compraId').value = button.dataset.compraId;
+        // Actualizar action del formulario con el ID de compra
+        const formPago = document.getElementById('formPago');
+        if (formPago) {
+          formPago.action = `/proveedores/compras/${button.dataset.compraId}/pago/`;
+        }
+      }
+      // Limpiar y ocultar campos
+      const formPago = document.getElementById('formPago');
+      if (formPago) {
+        formPago.reset();
+      }
+      document.getElementById('montoPagadoDiv').style.display = 'none';
+    });
+  }
 
-  // ====== GRÁFICOS CON CHART.JS ======
+  // Inicializar gráficas
   initializeCharts();
 });
 
 // ════════════════════════════════════════════════════════════════
-// GRÁFICOS
+// GRÁFICOS CON CHART.JS
 // ════════════════════════════════════════════════════════════════
 
 function initializeCharts() {
-  // Colores para los gráficos
   const colores = {
     principal: '#4DA8DA',
     secundario: '#00C9A7',
@@ -91,7 +83,6 @@ function initializeCharts() {
     quinto: '#E05C7A'
   };
 
-  // Datos dinámicos del servidor
   const meseslabels = window.meseslabels || [];
   const mesesa = window.mesesa || [];
   const productosLabels = window.productosLabels || [];
@@ -100,7 +91,6 @@ function initializeCharts() {
   const gastosData = window.gastosData || [];
   const gastosPorcentajes = window.gastosPorcentajes || [];
 
-  // Generar colores dinámicos para los gráficos
   const coloresGraficos = [
     colores.principal,
     colores.secundario,
@@ -109,7 +99,7 @@ function initializeCharts() {
     colores.quinto
   ];
 
-  // 1. Gráfico de línea: Compras por mes
+  // Gráfico de línea: Compras por mes
   const ctxComprasMes = document.getElementById('chartComprasMes');
   if (ctxComprasMes && meseslabels.length > 0) {
     new Chart(ctxComprasMes, {
@@ -172,7 +162,7 @@ function initializeCharts() {
     });
   }
 
-  // 2. Gráfico de barras: Productos más comprados
+  // Gráfico de barras: Productos más comprados
   const ctxProductosTop = document.getElementById('chartProductosTop');
   if (ctxProductosTop && productosLabels.length > 0) {
     new Chart(ctxProductosTop, {
@@ -230,10 +220,9 @@ function initializeCharts() {
     });
   }
 
-  // 3. Gráfico de pastel: Gastos por proveedor
+  // Gráfico de pastel: Gastos por proveedor
   const ctxGastosProveedor = document.getElementById('chartGastosProveedor');
   if (ctxGastosProveedor && gastosLabels.length > 0) {
-    // Crear labels con porcentajes
     const gastosLabelsConPorcentaje = gastosLabels.map((label, idx) =>
       `${label} - ${gastosPorcentajes[idx]}%`
     );
@@ -268,147 +257,4 @@ function initializeCharts() {
       }
     });
   }
-}
-
-// ════════════════════════════════════════════════════════════════
-// SELECCIÓN DE MÉTODO DE PAGO (TARJETAS COMPACTAS)
-// ════════════════════════════════════════════════════════════════
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.metodo-pago-card-compact').forEach(card => {
-    card.addEventListener('click', function() {
-      // Quitar selección anterior
-      document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
-
-      // Activar tarjeta seleccionada
-      this.classList.add('active');
-
-      // Guardar valor en input oculto
-      document.getElementById('metodoPago').value = this.dataset.value;
-    });
-  });
-
-  // Mostrar/ocultar monto pagado según estado
-  document.getElementById('estadoPago')?.addEventListener('change', function() {
-    const montoPagadoDiv = document.getElementById('montoPagadoDiv');
-    if (this.value === 'parcial') {
-      montoPagadoDiv.style.display = 'block';
-    } else {
-      montoPagadoDiv.style.display = 'none';
-    }
-  });
-
-  // Enviar formulario de pago
-  document.getElementById('formPago')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    // Validar que se seleccionó método de pago
-    if (!document.getElementById('metodoPago').value) {
-      alert('Por favor selecciona un método de pago');
-      return;
-    }
-
-    const compraId = document.getElementById('compraId').value;
-    const formData = new FormData(this);
-
-    fetch(`/proveedores/compras/${compraId}/pago/`, {
-      method: 'POST',
-      headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-      body: formData
-    })
-    .then(r => r.json())
-    .then(d => {
-      if (d.status === 'ok') {
-        alert('✓ Pago registrado correctamente');
-        bootstrap.Modal.getInstance(document.getElementById('modalPago')).hide();
-        location.reload();
-      } else {
-        alert('Error: ' + d.message);
-      }
-    })
-    .catch(err => {
-      console.error('Error:', err);
-      alert('Error al guardar el pago');
-    });
-  });
-
-  // Formulario de cambio de estado
-  const formEstadoCompra = document.getElementById('formEstadoCompra');
-  if (formEstadoCompra) {
-    formEstadoCompra.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const compraId = document.getElementById('compraEstadoId').value;
-      const formDataEstado = new FormData(this);
-      fetch(`/proveedores/compras/${compraId}/cambiar-estado/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-        body: formDataEstado
-      })
-      .then(r => r.json())
-      .then(d => {
-        if (d.status === 'ok') {
-          alert('✓ Estado actualizado correctamente');
-          bootstrap.Modal.getInstance(document.getElementById('modalEstadoCompra')).hide();
-          location.reload();
-        } else {
-          alert('Error: ' + d.message);
-        }
-      })
-      .catch(err => {
-        console.error('Error:', err);
-        alert('Error al actualizar el estado');
-      });
-    });
-  }
-});
-
-// ════════════════════════════════════════════════════════════════
-// FUNCIONES DE MODALES
-// ════════════════════════════════════════════════════════════════
-
-function abrirModalPago(compraId) {
-  // Limpiar formulario
-  document.getElementById('formPago').reset();
-  document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
-  document.getElementById('montoPagadoDiv').style.display = 'none';
-
-  // Establecer ID de compra
-  document.getElementById('compraId').value = compraId;
-}
-
-function abrirModalEstado(compraId, estadoActual) {
-  const modal = new bootstrap.Modal(document.getElementById('modalEstadoCompra'));
-  document.getElementById('compraEstadoId').value = compraId;
-  const selectEstado = document.getElementById('nuevoEstado');
-  if (selectEstado) {
-    selectEstado.value = estadoActual || 'pendiente';
-  }
-  modal.show();
-}
-
-function cambiarEstado(compraId, nuevoEstado) {
-  // Esta función puede ser llamada directamente desde onclick en el HTML
-  // Para máxima compatibilidad con el markup actual
-  const formData = new FormData();
-  formData.append('estado', nuevoEstado);
-  formData.append('compra_id', compraId);
-
-  fetch(`/proveedores/compras/${compraId}/cambiar-estado/`, {
-    method: 'POST',
-    headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-    body: formData
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.status === 'ok') {
-      alert('✓ Estado actualizado correctamente');
-      location.reload();
-    } else {
-      alert('Error: ' + d.message);
-    }
-  })
-  .catch(err => {
-    console.error('Error:', err);
-    alert('Error al actualizar el estado');
-  });
 }

@@ -1049,11 +1049,11 @@ def editar_detalle_orden(request, detalle_id):
 @login_required
 def guardar_pago_compra(request, compra_id):
     """Guardar información de pago en una compra legacy."""
-    from django.http import JsonResponse
     from django.utils.dateparse import parse_datetime
+    from django.contrib import messages
 
     if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+        return redirect('lista_compras')
 
     try:
         compra = Compra.objects.get(id=compra_id)
@@ -1061,30 +1061,33 @@ def guardar_pago_compra(request, compra_id):
         compra.numero_factura = request.POST.get('numero_factura', '').strip()
         compra.metodo_pago = request.POST.get('metodo_pago')
         compra.estado_pago = request.POST.get('estado_pago')
-        compra.monto_pagado = float(request.POST.get('monto_pagado', 0))
+        monto = request.POST.get('monto_pagado', '0')
+        if monto:
+            compra.monto_pagado = float(monto)
 
         fecha_pago = request.POST.get('fecha_pago')
         if fecha_pago:
             compra.fecha_pago = parse_datetime(fecha_pago)
 
         compra.save()
-
-        return JsonResponse({'status': 'ok', 'message': 'Pago registrado correctamente'})
+        messages.success(request, '✓ Pago registrado correctamente')
     except Compra.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Compra no encontrada'}, status=404)
-    except ValueError:
-        return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
+        messages.error(request, 'Compra no encontrada')
+    except (ValueError, TypeError):
+        messages.error(request, 'Datos inválidos en el formulario')
     except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        messages.error(request, f'Error al guardar pago: {str(e)}')
+
+    return redirect('lista_compras')
 
 
 @login_required
 def cambiar_estado_compra(request, compra_id):
     """Actualizar el estado de una compra legacy."""
-    from django.http import JsonResponse
+    from django.contrib import messages
 
     if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+        return redirect('lista_compras')
 
     try:
         compra = Compra.objects.get(id=compra_id)
@@ -1098,19 +1101,17 @@ def cambiar_estado_compra(request, compra_id):
         }
 
         if nuevo_estado not in transiciones_validas.get(compra.estado, []):
-            return JsonResponse({
-                'status': 'error',
-                'message': f'No se puede cambiar de {compra.estado} a {nuevo_estado}.'
-            }, status=400)
-
-        compra.estado = nuevo_estado
-        if nuevo_estado == 'recibida':
-            compra.recibida = True
-            compra.fecha_recepcion = timezone.now()
-        compra.save()
-
-        return JsonResponse({'status': 'ok', 'message': 'Estado de compra actualizado correctamente'})
+            messages.error(request, f'No se puede cambiar de {compra.estado} a {nuevo_estado}.')
+        else:
+            compra.estado = nuevo_estado
+            if nuevo_estado == 'recibida':
+                compra.recibida = True
+                compra.fecha_recepcion = timezone.now()
+            compra.save()
+            messages.success(request, f'✓ Estado actualizado a {nuevo_estado.capitalize()}')
     except Compra.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Compra no encontrada'}, status=404)
+        messages.error(request, 'Compra no encontrada')
     except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        messages.error(request, f'Error al actualizar estado: {str(e)}')
+
+    return redirect('lista_compras')

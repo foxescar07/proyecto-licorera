@@ -5,7 +5,7 @@ $(document).ready(function() {
     info: true,
     lengthChange: false,
     pageLength: 10,
-    ordering: true,
+    ordering: false,
     responsive: true,
     language: {
       info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
