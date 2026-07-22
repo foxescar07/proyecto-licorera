@@ -21,394 +21,45 @@
   </div>
   {% endif %}
 
-  <!-- FORMULARIO DE DEVOLUCIONES -->
-  <form method="post" enctype="multipart/form-data" id="formDevoluciones">
-    {% csrf_token %}
+  <section class="dev-kpis" aria-label="Resumen de devoluciones">
+    <article class="dev-kpi dev-kpi--cyan"><i class="bi bi-receipt"></i><div><span>Devoluciones</span><strong>{{ devoluciones|length }}</strong><small>registradas</small></div></article>
+    <article class="dev-kpi dev-kpi--green"><i class="bi bi-box-seam"></i><div><span>Productos</span><strong>{{ detalles_con_estado|length|default:0 }}</strong><small>{% if venta %}en venta seleccionada{% else %}por seleccionar{% endif %}</small></div></article>
+    <article class="dev-kpi dev-kpi--purple"><i class="bi bi-signpost-split"></i><div><span>Proceso</span><strong>{{ paso }}/6</strong><small>paso actual</small></div></article>
+    <article class="dev-kpi dev-kpi--orange"><i class="bi bi-bag-check"></i><div><span>Ventas</span><strong>{{ ventas|length }}</strong><small>disponibles para gestionar</small></div></article>
+  </section>
 
-    <!-- PASO 1: SELECCIONAR VENTA -->
-    {% if paso == 1 %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">1</span>
-        <span class="section-title">Selecciona la venta a devolver</span>
-      </div>
-
-      <div class="alert alert-info-dev mb-3">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Tip:</strong> Solo se muestran las ventas de los últimos 30 días. Si no encuentras tu venta, verifica la fecha.
-      </div>
-
-      {% if ventas %}
-        <div class="mb-4">
-          {% for v in ventas %}
-          <label class="venta-option mb-2">
-            <div class="d-flex align-items-center justify-content-between p-3">
-              <div class="d-flex align-items-center gap-3">
-                <input type="radio" name="venta_id" value="{{ v.pk }}" {% if request.session.dev_venta_id == v.pk %}checked{% endif %} required>
-                <div>
-                  <div class="text-light fw-bold mb-1"><i class="bi bi-person-fill text-cyan me-1"></i>{{ v.cliente.nombre }}</div>
-                  <div class="text-sm text-muted">
-                    <span class="me-3"><i class="bi bi-calendar3 me-1"></i>{{ v.fecha|date:"d/m/Y H:i" }}</span>
-                    <span class="me-3"><i class="bi bi-box-seam me-1"></i>{{ v.detalles.all|length }} refs</span>
-                    <span><i class="bi bi-tag-fill me-1"></i>Venta #{{ v.pk }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="text-end">
-                <div class="text-green fw-bold fs-5">${{ v.total_venta|floatformat:0 }}</div>
-                <span class="badge badge-dev">PAGADO</span>
-              </div>
-            </div>
-          </label>
-          {% endfor %}
+  <div class="dev-layout">
+    <main>
+      <section class="dev-card dev-process">
+        <div class="dev-card__head">
+          <div><span class="dev-section-label">Proceso guiado</span><h2>Solicitud de devolución</h2></div>
+          <button class="dev-policy-link" type="button" data-bs-toggle="modal" data-bs-target="#modalPolitica"><i class="bi bi-shield-check"></i> Ver política</button>
         </div>
-      {% else %}
-        <div class="text-center p-3 bg-error border-radius-8">
-          <i class="bi bi-inbox text-red"></i>
-          <p class="text-red mb-0">❌ No hay ventas registradas</p>
-        </div>
-      {% endif %}
 
-      <div class="flex-end gap-2">
-        <a href="{% url 'ventas:ventas_lista' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Cancelar
-        </a>
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-      </div>
-    </div>
-    {% endif %}
+        <ol class="dev-stepper" aria-label="Progreso de la devolución">
+          <li class="{% if paso >= 1 %}is-done{% endif %} {% if paso == 1 %}is-current{% endif %}"><span>1</span><small>Venta</small></li>
+          <li class="{% if paso >= 2 %}is-done{% endif %} {% if paso == 2 %}is-current{% endif %}"><span>2</span><small>Productos</small></li>
+          <li class="{% if paso >= 3 %}is-done{% endif %} {% if paso == 3 %}is-current{% endif %}"><span>3</span><small>Motivo</small></li>
+          <li class="{% if paso >= 4 %}is-done{% endif %} {% if paso == 4 %}is-current{% endif %}"><span>4</span><small>Solución</small></li>
+          <li class="{% if paso >= 5 %}is-done{% endif %} {% if paso == 5 %}is-current{% endif %}"><span>5</span><small>Detalles</small></li>
+          <li class="{% if paso >= 6 %}is-done{% endif %} {% if paso == 6 %}is-current{% endif %}"><span>6</span><small>Confirmar</small></li>
+        </ol>
 
-    <!-- PASO 2: SELECCIONAR PRODUCTOS -->
-    {% if paso == 2 and venta %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">2</span>
-        <span class="section-title">Selecciona qué devuelves</span>
-      </div>
-
-      <div class="alert alert-info-dev mb-3">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Cómo usar:</strong> Marca cada producto con su checkbox y digita la cantidad a devolver.
-      </div>
-
-      {% if detalles_con_estado %}
-        <div class="table-responsive mb-3">
-          <table class="cys-inv-table">
-            <thead>
-              <tr>
-                <th class="text-center">✓</th>
-                <th>Producto</th>
-                <th class="text-center">Original</th>
-                <th class="text-center">Devuelto</th>
-                <th class="text-center">Pendiente</th>
-                <th class="text-center" style="width: 150px;">A Devolver</th>
-                <th class="text-end">Precio</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in detalles_con_estado %}
-                {% with detalle=item.detalle %}
-                <tr class="table-body-row {% if not item.puede_devolver %}opacity-50{% endif %}">
-                  <td class="table-body-cell table-body-cell-center">
-                    <input type="checkbox"
-                           name="producto_id"
-                           value="{{ detalle.id }}"
-                           class="form-check-input producto-check"
-                           data-max="{{ item.cantidad_pendiente }}"
-                           data-detalle="{{ detalle.id }}"
-                           checked>
-                  </td>
-                  <td>
-                    <div class="fw-bold text-light">{{ detalle.producto.nombre }}</div>
-                    {% if detalle.presentacion %}
-                      <div class="text-muted text-xs">{{ detalle.presentacion.nombre }}</div>
-                    {% endif %}
-                  </td>
-                  <td class="text-center">{{ detalle.cantidad }}</td>
-                  <td class="text-center text-muted">{{ item.cantidad_devuelta }}</td>
-                  <td class="text-center text-cyan fw-bold">{{ item.cantidad_pendiente }}</td>
-                  <td class="text-center">
-                    <input type="number"
-                           name="cantidad_devolucion_{{ detalle.id }}"
-                           min="1"
-                           max="{{ item.cantidad_pendiente }}"
-                           value="{{ item.cantidad_pendiente }}"
-                           class="form-control table-cell-input"
-                           {% if not item.puede_devolver %}disabled{% endif %}>
-                  </td>
-                  <td class="text-end fw-bold text-green">${{ detalle.precio_unitario|floatformat:0 }}</td>
-                </tr>
-                {% endwith %}
+        <form method="post" id="formDevoluciones" class="dev-form" novalidate>
+          {% csrf_token %}
+          {% if paso == 1 %}
+            <div class="dev-form__intro"><i class="bi bi-search"></i><div><h3>Selecciona la venta</h3><p>Elige la venta original para consultar los productos disponibles.</p></div></div>
+            <div class="dev-sales-list">
+              {% for v in ventas %}
+              <label class="dev-sale-option">
+                <input type="radio" name="venta_id" value="{{ v.pk }}" required>
+                <span class="dev-sale-option__check"><i class="bi bi-check-lg"></i></span>
+                <span class="dev-sale-option__data"><strong>{{ v.cliente.nombre }}</strong><small>Venta #{{ v.pk }} · {{ v.fecha|date:'d/m/Y, H:i' }} · {{ v.detalles.all|length }} productos</small></span>
+                <span class="dev-money">${{ v.total_venta|floatformat:0 }}</span>
+              </label>
+              {% empty %}
+              <div class="dev-empty"><i class="bi bi-inbox"></i><strong>No hay ventas disponibles</strong><span>Registra una venta antes de crear una devolución.</span></div>
               {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <div class="text-center py-4 px-2">
-          <i class="bi bi-inbox text-muted"></i>
-          <p class="text-muted fs-small">✓ Todos los productos de esta venta ya fueron devueltos completamente.</p>
-          <p class="text-muted fs-small">Selecciona otra venta o continúa si deseas proceder.</p>
-        </div>
-      {% endif %}
-
-      <div class="flex-end gap-2">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Atrás
-        </button>
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- PASO 3: MOTIVO DE DEVOLUCIÓN -->
-    {% if paso == 3 %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">3</span>
-        <span class="section-title">¿Cuál es el motivo?</span>
-      </div>
-
-      <div class="alert alert-info-dev mb-3">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Selecciona el motivo</strong> que mejor describe tu situación.
-      </div>
-
-      <div class="motivo-grid mb-3">
-        {% for motivo_code, motivo_label in motivo_choices %}
-        <label class="motivo-item">
-          <input type="radio" name="motivo" value="{{ motivo_code }}" {% if request.session.dev_motivo == motivo_code %}checked{% endif %} required>
-          <div>
-            <div class="motivo-title">{{ motivo_label }}</div>
-          </div>
-        </label>
-        {% endfor %}
-      </div>
-
-      <label class="dev-form-label">Observaciones adicionales</label>
-      <textarea name="observaciones" class="textarea-dev" placeholder="Describe el problema con detalle…" rows="4">{{ observaciones }}</textarea>
-
-      <div class="flex-end gap-2">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Atrás
-        </button>
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- PASO 4: TIPO DE REEMBOLSO -->
-    {% if paso == 4 %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">4</span>
-        <span class="section-title">Elige cómo recibir tu reembolso</span>
-      </div>
-
-      <div class="alert alert-info-dev mb-3">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Selecciona una opción:</strong> Cambio, Nota Crédito o Reembolso.
-      </div>
-
-      <div class="reembolso-grid mb-4">
-        <label class="reembolso-card">
-          <input type="radio" name="tipo_reembolso" value="cambio" {% if request.session.dev_tipo_reembolso == 'cambio' %}checked{% endif %} required>
-          <i class="bi bi-arrow-repeat r-icon"></i>
-          <div class="r-title">Cambio de producto</div>
-          <div class="r-sub">Misma referencia u otra</div>
-        </label>
-
-        <label class="reembolso-card">
-          <input type="radio" name="tipo_reembolso" value="nota_credito" {% if request.session.dev_tipo_reembolso == 'nota_credito' %}checked{% endif %} required>
-          <i class="bi bi-file-earmark-text r-icon"></i>
-          <div class="r-title">Nota crédito</div>
-          <div class="r-sub">Abono a próxima factura</div>
-        </label>
-
-        <label class="reembolso-card">
-          <input type="radio" name="tipo_reembolso" value="reembolso" {% if request.session.dev_tipo_reembolso == 'reembolso' %}checked{% endif %} required>
-          <i class="bi bi-bank r-icon"></i>
-          <div class="r-title">Reembolso</div>
-          <div class="r-sub">Devolución al método de pago</div>
-        </label>
-      </div>
-
-      <div class="flex-end gap-2">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Atrás
-        </button>
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- PASO 5: DETALLES ESPECÍFICOS (CAMBIO O REEMBOLSO) -->
-    {% if paso == 5 %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">5</span>
-        <span class="section-title">Detalles del reembolso</span>
-      </div>
-
-      {% if tipo_reembolso_seleccionado == 'Cambio de producto' %}
-        <div class="detalles-reembolso mb-4">
-          <label class="dev-form-label">Producto a recibir</label>
-          <select name="producto_cambio" class="form-select input-dev-premium mb-3" required>
-            <option value="">-- Selecciona un producto --</option>
-            {% for prod in productos %}
-              <option value="{{ prod.pk }}" {% if request.session.dev_producto_cambio_id == prod.pk %}selected{% endif %}>{{ prod.nombre }} - ${{ prod.precio_unitario|floatformat:0 }}</option>
-            {% endfor %}
-          </select>
-          <small class="text-muted text-xs d-block">Elige el producto que prefieres recibir</small>
-        </div>
-
-        <div class="detalles-reembolso mb-4">
-          <label class="dev-form-label">Cantidad</label>
-          <input type="number" name="cantidad_cambio" min="1" value="{{ request.session.dev_cantidad_cambio|default:"1" }}" class="form-control input-dev-premium" required>
-          <small class="text-muted text-xs d-block">Cantidad a enviar</small>
-        </div>
-      {% elif tipo_reembolso_seleccionado == 'Reembolso' %}
-        <div class="detalles-reembolso mb-4">
-          <label class="dev-form-label">Método de reembolso</label>
-          <div class="metodo-pago-grid">
-            <label class="metodo-pago-option">
-              <input type="radio" name="metodo_pago_devolucion" value="efectivo" {% if request.session.dev_metodo_devolucion == 'efectivo' %}checked{% endif %} required>
-              <div class="p-15 border-radius-12 bg-orange-light text-center">
-                <i class="bi bi-cash-coin text-orange fw-bold"></i>
-                <div class="text-light fw-bold fs-small">Efectivo</div>
-              </div>
-            </label>
-
-            <label class="metodo-pago-option">
-              <input type="radio" name="metodo_pago_devolucion" value="tarjeta" {% if request.session.dev_metodo_devolucion == 'tarjeta' %}checked{% endif %} required>
-              <div class="p-15 border-radius-12 bg-orange-light text-center">
-                <i class="bi bi-credit-card text-orange fw-bold"></i>
-                <div class="text-light fw-bold fs-small">Tarjeta</div>
-              </div>
-            </label>
-
-            <label class="metodo-pago-option">
-              <input type="radio" name="metodo_pago_devolucion" value="transferencia" {% if request.session.dev_metodo_devolucion == 'transferencia' %}checked{% endif %} required>
-              <div class="p-15 border-radius-12 bg-orange-light text-center">
-                <i class="bi bi-bank2 text-orange fw-bold"></i>
-                <div class="text-light fw-bold fs-small">Transferencia</div>
-              </div>
-            </label>
-
-            <label class="metodo-pago-option">
-              <input type="radio" name="metodo_pago_devolucion" value="nequi" {% if request.session.dev_metodo_devolucion == 'nequi' %}checked{% endif %} required>
-              <div class="p-15 border-radius-12 bg-orange-light text-center">
-                <i class="bi bi-phone text-orange fw-bold"></i>
-                <div class="text-light fw-bold fs-small">Nequi</div>
-              </div>
-            </label>
-
-            <label class="metodo-pago-option">
-              <input type="radio" name="metodo_pago_devolucion" value="daviplata" {% if request.session.dev_metodo_devolucion == 'daviplata' %}checked{% endif %} required>
-              <div class="p-15 border-radius-12 bg-orange-light text-center">
-                <i class="bi bi-wallet2 text-orange fw-bold"></i>
-                <div class="text-light fw-bold fs-small">DaviPlata</div>
-              </div>
-            </label>
-          </div>
-        </div>
-      {% endif %}
-
-      <div class="flex-end gap-2">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Atrás
-        </button>
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- PASO 6: EVIDENCIA FOTOGRÁFICA -->
-    {% if paso == 6 %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">6</span>
-        <span class="section-title">Fotos o PDF de evidencia (opcional)</span>
-        <span class="section-title">Sube fotos del producto</span>
-      </div>
-
-      <div class="alert alert-warning-dev mb-4">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>Requisito importante:</strong> Las fotos son opcionales pero recomendadas para agilizar el proceso de soporte.
-      </div>
-
-      <div class="mb-4">
-        <label for="id_evidencia" class="dev-form-label">Sube fotos o documentos</label>
-        <input type="file" name="evidencia" id="id_evidencia" multiple accept="image/*,.pdf" class="form-control input-dev-premium">
-        <small class="text-cyan mt-2 d-block">Formatos admitidos: JPG, PNG, PDF (Máx. 10 MB por archivo)</small>
-        <strong>Requisito importante:</strong> Las fotos son opcionales pero altamente recomendadas para acelerar el proceso.
-      </div>
-
-      <div class="dropzone-area mb-3">
-        <i class="bi bi-cloud-arrow-up text-cyan fw-bold"></i>
-        <div class="text-light fw-bold">Arrastra fotos aquí</div>
-        <div class="text-muted fs-small mb-15">o haz clic para seleccionar archivos</div>
-        <input type="file" name="evidencia" multiple accept="image/*,.pdf" style="display:none;">
-        <small class="text-cyan">JPG, PNG o PDF — máx. 10 MB por archivo</small>
-      </div>
-
-      <div class="card-info-box">
-        <div class="flex-start gap-2">
-          <i class="bi bi-lightbulb text-cyan fw-bold flex-shrink-0"></i>
-          <div>
-            <div class="text-light fw-bold mb-2">Recomendaciones para fotos:</div>
-            <ul class="text-muted fs-small mb-0">
-              <li><i class="bi bi-box text-cyan me-2"></i>Foto del producto en su empaque original</li>
-              <li><i class="bi bi-calendar text-green me-2"></i>Foto clara del lote y fecha de vencimiento</li>
-              <li><i class="bi bi-lock text-warning me-2"></i>Foto del sello o cierre (si aplica)</li>
-              <li><i class="bi bi-tag text-info me-2"></i>Foto de la etiqueta/referencia del producto</li>
-              <li><i class="bi bi-exclamation-circle text-danger me-2"></i>Si hay daño, foto del defecto específico</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex-end gap-2 mt-4">
-        <button type="submit" name="action" value="atras" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Atrás
-        </button>
-        <button type="submit" class="btn btn-success">
-          <i class="bi bi-arrow-right me-1"></i>Continuar
-        </button>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- PASO 7: RESUMEN Y CONFIRMACIÓN -->
-    {% if paso == 7 %}
-    <div class="section-card">
-      <div class="section-head">
-        <span class="step-badge">7</span>
-        <span class="section-title">Revisa y confirma</span>
-      </div>
-
-      <div class="alert alert-success-dev mb-4">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Último paso:</strong> Verifica que toda la información esté correcta antes de enviar.
-      </div>
-
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="card-info-box h-100 mb-0">
-            <div class="prod-label uppercase mb-2 text-cyan">Datos de la Venta</div>
-            <div class="text-light small">
-              <p class="mb-2"><strong>Cliente:</strong> {{ venta.cliente.nombre }}</p>
-              <p class="mb-2"><strong>Venta:</strong> #{{ venta.pk }}</p>
-              <p class="mb-0"><strong>Fecha Venta:</strong> {{ venta.fecha|date:"d/m/Y H:i" }}</p>
             </div>
             <div class="dev-actions"><a href="{% url 'ventas:ventas_lista' %}" class="dev-btn dev-btn--ghost">Cancelar</a><button class="dev-btn dev-btn--primary" type="submit">Continuar <i class="bi bi-arrow-right"></i></button></div>
 

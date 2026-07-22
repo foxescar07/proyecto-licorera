@@ -243,6 +243,51 @@ main, .cys-main, main > * {
   border: 1px solid rgba(155, 93, 229, 0.3) !important;
 }
 
+/* BADGES DE ESTADO CON COLORES */
+.badge-estado-pendiente {
+  background: rgba(155, 93, 229, 0.2) !important;
+  color: #9b5de5 !important;
+  border: 1px solid rgba(155, 93, 229, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge-estado-confirmada {
+  background: rgba(77, 168, 218, 0.2) !important;
+  color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge-estado-recibida {
+  background: rgba(39, 174, 96, 0.2) !important;
+  color: #27ae60 !important;
+  border: 1px solid rgba(39, 174, 96, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge-estado-cancelada {
+  background: rgba(231, 76, 60, 0.2) !important;
+  color: #e74c3c !important;
+  border: 1px solid rgba(231, 76, 60, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
 /* MODALES PERSONALIZADOS */
 .modal-custom-header {
   background: transparent !important;
@@ -1319,6 +1364,7 @@ textarea:focus {
 .dropdown-item {
   color: var(--color-blanco) !important;
   background-color: transparent !important;
+  transition: all 0.2s ease !important;
 }
 
 .dropdown-item:hover {
@@ -1326,8 +1372,46 @@ textarea:focus {
   color: var(--color-blanco) !important;
 }
 
+.dropdown-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .dropdown-divider {
   border-top: 1px solid rgba(239, 248, 226, 0.12) !important;
+}
+
+/* Estilos para botones de acción en dropdown */
+.dropdown-item.text-danger {
+  color: #e74c3c !important;
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: rgba(231, 76, 60, 0.2) !important;
+}
+
+.dropdown-item.text-success {
+  color: #27ae60 !important;
+}
+
+.dropdown-item.text-success:hover {
+  background-color: rgba(39, 174, 96, 0.2) !important;
+}
+
+.dropdown-item.text-info {
+  color: #4DA8DA !important;
+}
+
+.dropdown-item.text-info:hover {
+  background-color: rgba(77, 168, 218, 0.2) !important;
+}
+
+.dropdown-item.text-warning {
+  color: #f39c12 !important;
+}
+
+.dropdown-item.text-warning:hover {
+  background-color: rgba(243, 156, 18, 0.2) !important;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
