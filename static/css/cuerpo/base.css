@@ -7,8 +7,8 @@
   --azul-oscuro:   #011936;
   --azul-medio:    #0A2A52;
   --azul-claro:    #4DA8DA;
-  --azul-borde:    rgba(77,168,218,.35);
-  --azul-glow:     rgba(77,168,218,.15);
+  --azul-borde:    #4da8da59;
+  --azul-glow:     #4da8da26;
   --rojo:          #C0392B;
   --rojo-hover:    #a01e1e;
   --rojo-glow:     rgba(192,57,43,.2);
