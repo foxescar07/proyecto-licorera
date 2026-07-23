@@ -316,11 +316,6 @@ main, .cys-main, main > * {
   color: #fff !important;
   font-weight: 700 !important;
 }
-  gap: 6px !important;
-  margin-top: 1rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s ease !important;
-}
 
 .card-header {
   background-color: var(--color-surface);
