@@ -33,14 +33,21 @@
 /* BASE CARD STYLING */
 .cys-card {
   background: var(--color-bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
+  border-left: 4px solid #CF9C48;
   border-radius: 8px;
   transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.cys-card__title {
+  background: transparent;
+  padding: 1rem 1.5rem;
 }
 
 .cys-card:hover {
-  border-color: rgba(77, 168, 218, 0.3);
-  box-shadow: 0 2px 8px rgba(77, 168, 218, 0.08);
+  border-color: #CF9C48;
+  box-shadow: 0 0 20px rgba(207, 156, 72, 0.4), 0 0 40px rgba(207, 156, 72, 0.15);
 }
 
 /* CARD COLOR VARIANTS */
@@ -66,7 +73,19 @@
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-md);
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  position: relative;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+.cys-card__title-icon {
+  color: #CF9C48;
+  font-weight: 700;
 }
 
 /* SNAP SECTION */
@@ -706,14 +725,6 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.cys-card__title {
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  color: var(--text-md);
-}
-
 /* BOTONES DE ACCIONES */
 .btn-outline-primary {
   color: var(--cyan);
@@ -946,8 +957,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .kpi-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(77, 168, 218, 0.4) !important;
-  box-shadow: 0 8px 16px rgba(77, 168, 218, 0.15) !important;
+  border-color: #CF9C48 !important;
+  box-shadow: 0 8px 16px rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-card-top {
