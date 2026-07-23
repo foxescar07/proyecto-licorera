@@ -996,9 +996,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-icon-box.pink {
-  background: rgba(224, 92, 122, 0.2) !important;
-  color: #E05C7A !important;
-  border: 1px solid rgba(224, 92, 122, 0.3) !important;
+  background: rgba(0, 206, 209, 0.2) !important;
+  color: #00CED1 !important;
+  border: 1px solid rgba(0, 206, 209, 0.3) !important;
 }
 
 .kpi-badge {
@@ -1041,9 +1041,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-badge.pink {
-  background: rgba(224, 92, 122, 0.15) !important;
-  color: #E05C7A !important;
-  border: 1px solid rgba(224, 92, 122, 0.3) !important;
+  background: rgba(0, 206, 209, 0.15) !important;
+  color: #00CED1 !important;
+  border: 1px solid rgba(0, 206, 209, 0.3) !important;
 }
 
 .kpi-value {
@@ -1074,7 +1074,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-value.pink {
-  color: #E05C7A !important;
+  color: #00CED1 !important;
 }
 
 .kpi-title {
@@ -1141,11 +1141,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-link.pink {
-  color: #E05C7A !important;
+  color: #00CED1 !important;
 }
 
 .kpi-link.pink:hover {
-  color: #e8869a !important;
+  color: #20B2AA !important;
 }
 
 /* ── CARD COLORS ── */
@@ -1170,7 +1170,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-card-pink {
-  border-left: 4px solid #E05C7A !important;
+  border-left: 4px solid #00CED1 !important;
 }
 
 /* ════════════════════════════════════════

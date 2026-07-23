@@ -282,12 +282,15 @@ def lista_compras(request):
         form = CompraForm()
 
     # Estadísticas
+    ahora = timezone.now()
+    # Calcular gasto de esta semana (últimos 7 días)
+    hace_7_dias = ahora - timedelta(days=7)
+    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
     total_gastado = sum(
-        (c.cantidad * c.precio_unitario) for c in Compra.objects.all()
+        (c.cantidad * c.precio_unitario) for c in compras_semana
         if c.precio_unitario
     ) or 0
 
-    ahora = timezone.now()
     inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     compras_mes = Compra.objects.filter(fecha_registro__gte=inicio_mes)
     count_mes = compras_mes.count()
@@ -483,9 +486,12 @@ def registrar_compra(request):
 
     # Obtener datos para estadísticas
     hoy = timezone.now()
+    # Calcular gasto de esta semana (últimos 7 días)
+    hace_7_dias = hoy - timedelta(days=7)
+    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
     total_gastado = sum(
         c.cantidad * c.precio_unitario
-        for c in Compra.objects.exclude(precio_unitario__isnull=True)
+        for c in compras_semana.exclude(precio_unitario__isnull=True)
     ) or 0
 
     compras_mes = Compra.objects.filter(
@@ -591,7 +597,7 @@ def registrar_compra(request):
         'subtotal_compras': subtotal,
 
         # --- ESTADÍSTICAS KPI ---
-        'total_gastado': total_gastado,              # Total gasto histórico
+        'total_gastado': total_gastado,              # Total gasto esta semana
         'count_mes': count_mes,                      # Cantidad de compras este mes
         'total_mes': total_mes,                      # Total gasto este mes
         'producto_top': producto_top,                # Producto más comprado
