@@ -24,7 +24,7 @@
 
 /* ── Colores de íconos ── */
 .gp-icon-purple {
-  color: rgb(131, 32, 188);
+  color: #CF9C48;
 }
 
 .gp-icon-blue {
@@ -60,11 +60,11 @@
 
 /* ── Texto morado (alertas "sin presentación") ── */
 .gp-text-purple {
-  color: rgb(131, 32, 188);
+  color: #CF9C48;
 }
 
 .gp-text-purple-bold {
-  color: rgb(131, 32, 188);
+  color: #CF9C48;
   font-weight: 900;
   font-size: 16px;
 }

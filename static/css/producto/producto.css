@@ -732,18 +732,18 @@ button#crear-categoria-btn {
 /* Tarjeta del donut "Por categoría" */
 .prod-card-donut {
   border-radius: 12px;
-  border-left: 3px solid #88eeb8 !important;
+  border-left: 3px solid #CF9C48 !important;
 }
 
 /* Íconos de color reutilizables */
 .prod-icon-blue {
-  color: #4DA8DA;
+  color: #CF9C48;
 }
 .prod-icon-green {
-  color: #27ae60;
+  color: #CF9C48;
 }
 .prod-icon-hand {
-  color: #4DA8DA;
+  color: #CF9C48;
   opacity: .4;
 }
 
@@ -788,7 +788,7 @@ button#crear-categoria-btn {
 /* Tarjeta "Últimos agregados" */
 .prod-card-ultimos {
   border-radius: 12px;
-  border-left: 3px solid #c62dd4 !important;
+  border-left: 3px solid #CF9C48 !important;
 }
 .prod-lista-ultimos {
   display: flex;
@@ -799,7 +799,7 @@ button#crear-categoria-btn {
 /* Tarjeta de Categorías */
 .prod-card-categorias {
   border-radius: 14px;
-  border-top: 3px solid #4DA8DA !important;
+  border-top: 3px solid #CF9C48 !important;
   min-height: 320px;
 }
 .prod-cat-subtitle {
@@ -820,14 +820,14 @@ button#crear-categoria-btn {
 }
 .prod-cat-badge {
   background: rgba(77,168,218,.2);
-  color: #4DA8DA;
+  color: #CF9C48;
   font-size: .75rem;
 }
 
 /* Tarjeta de la tabla de productos */
 .prod-card-tabla {
   border-radius: 14px;
-  border-top: 3px solid #27ae60 !important;
+  border-top: 3px solid #CF9C48 !important;
   min-height: 320px;
 }
 .prod-btn-gestion {
@@ -959,7 +959,7 @@ button#crear-categoria-btn {
 }
 /* Ícono de etiqueta junto al nombre de categoría */
 .cat-icon-tag {
-  color: var(--azul-claro);
+  color: #CF9C48;
 }
 
 /* Ícono azul suelto (ej. título del modal editar) */
@@ -1115,8 +1115,8 @@ button#crear-categoria-btn {
   font-size: .72rem;
   padding: 2px 8px;
   border-radius: 6px;
-  background: rgba(77, 168, 218, .12);
-  color: #4DA8DA;
+  background: rgba(207, 156, 72, .15);
+  color: #CF9C48;
   white-space: nowrap;
 }
 /* Toggle vacío / tabla de categoría */
@@ -1147,8 +1147,8 @@ button#crear-categoria-btn {
   background: var(--dot-color);
 }
 .donut-color-0 { --seg-color: #4DA8DA; }
-.donut-color-1 { --seg-color: #27ae60; }
-.donut-color-2 { --seg-color: #f39c12; }
+.donut-color-1 { --seg-color: #CF9C48; }
+.donut-color-2 { --seg-color: #f312bb; }
 .donut-color-3 { --seg-color: #9b59b6; }
 .donut-color-4 { --seg-color: #e74c3c; }
 .donut-color-5 { --seg-color: #1abc9c; }
@@ -1203,15 +1203,15 @@ button#crear-categoria-btn {
   padding: 0;
   font-size: .85rem;
   flex-shrink: 0;
-  background: rgb(0, 65, 100);
-  border: 1px solid rgba(77, 168, 218, 0.35);
-  color: #02a6ff;
+  background: rgba(207, 156, 72, 0.15);
+  border: 1px solid rgba(207, 156, 72, 0.35);
+  color: #CF9C48;
   transition: background .15s, border-color .15s;
 }
 .prod-cat-btn-add:hover {
-  background: rgba(14, 59, 114, 0.368);
-  border-color: rgba(77, 168, 218, 0.55);
-  color: #4DA8DA;
+  background: rgba(207, 156, 72, 0.25);
+  border-color: rgba(207, 156, 72, 0.55);
+  color: #CF9C48;
 }
 /* ── TOOLTIPS estilo CYS ── */
 .tooltip .tooltip-inner {

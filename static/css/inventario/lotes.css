@@ -87,12 +87,25 @@ button#presentacion-lote-btn {
   border-left: none !important;
 }
 
+button.lote-btn-crear,
 .lote-btn-crear {
-  background: #3b9ad6;
-  color: #0d1b2a;
-  border: none;
+  background-color: #3b9ad6 !important;
+  color: #0d1b2a !important;
+  border: none !important;
   font-size: .9rem;
   white-space: nowrap;
+  opacity: 1 !important;
+}
+button.lote-btn-crear:hover,
+.lote-btn-crear:hover,
+button.lote-btn-crear:focus,
+.lote-btn-crear:focus,
+button.lote-btn-crear:active,
+.lote-btn-crear:active {
+  background-color: #4fb3f0 !important;
+  color: #0d1b2a !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* Dropdown presentación lote — botón */
