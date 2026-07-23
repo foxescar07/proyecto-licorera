@@ -24,6 +24,11 @@
   box-shadow: 0 0 12px var(--azul-glow);
 }
 
+.cys-carousel-btn,
+.cys-carousel-btn * {
+  color: #fff;
+}
+
 .cys-stat-card {
   background: var(--fondo-card2);
   border: 1px solid var(--azul-borde);
@@ -58,9 +63,9 @@
   font-family: 'Rajdhani', sans-serif;
   font-size: 2rem;
   font-weight: 700;
-  color: var(--azul-claro);
+  color: #fff;
   line-height: 1;
-  text-shadow: 0 0 20px rgba(77,168,218,.4);
+  text-shadow: 0 0 20px rgba(255,255,255,.25);
 }
 
 .cys-seccion-titulo {
@@ -77,7 +82,7 @@
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #4DA8DA;
+  color: #fff;
   letter-spacing: .18em;
   text-transform: uppercase;
   transition: box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
@@ -105,11 +110,34 @@
 }
 
 .cys-seccion-titulo i {
+  color: #fff;
   transition: transform 0.4s ease, color 0.4s ease;
 }
 
 .cys-seccion-titulo:hover i {
   transform: rotate(-15deg);
-  color: #7dcfef;
+  color: #fff;
 }
 
+/* 1. Permitir desbordamiento en el carrusel para que el hover no se corte */
+#inventarioCarousel .carousel-inner {
+  overflow: visible !important;
+}
+
+/* 2. Dar espacio superior a las tarjetas dentro de las columnas */
+#inventarioCarousel .col-md-4 {
+  padding-top: 8px; /* Espacio extra para acomodar la elevación */
+}
+
+/* 3. Asegurar que la tarjeta activa se sobreponga correctamente */
+.cys-stat-card {
+  position: relative;
+  z-index: 1;
+}
+
+.cys-stat-card:hover {
+  z-index: 5; /* Eleva el nivel en capa al pasar el mouse */
+  transform: translateY(-3px);
+  border-color: rgba(192,57,43,.5);
+  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--rojo-glow);
+}
