@@ -4,6 +4,7 @@
 {% block page_title %}Compras{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
 <link rel="stylesheet" href="{% static 'css/proveedores/compras.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
@@ -42,9 +43,9 @@
         <div class="kpi-icon-box cyan"><i class="bi bi-receipt"></i></div>
         <span class="kpi-badge cyan">GASTO</span>
       </div>
-      <div class="kpi-value cyan">${{ total_gastado|default:0|floatformat:0 }}</div>
+      <div class="kpi-value cyan kpi-formatted" data-value="{{ total_gastado|default:0|floatformat:0 }}">$0</div>
       <p class="kpi-title">Gasto Total</p>
-      <p class="kpi-sub">Histórico acumulado</p>
+      <p class="kpi-sub">Esta semana</p>
     </div>
 
     <!-- Compras Mes -->
@@ -375,18 +376,6 @@
       </div>
     </div>
 
-    <div class="col-12">
-      <div class="card card-dev card-header-top">
-        <div class="card-header border-bottom gradient-header">
-          <h5 class="mb-0 fw-bold">
-            <i class="bi bi-pie-chart-fill me-2"></i>Gastos por Proveedor
-          </h5>
-        </div>
-        <div class="card-body p-3">
-          <canvas id="chartGastosProveedor" height="250"></canvas>
-        </div>
-      </div>
-    </div>
   </div>
   <!-- ====== FIN GRÁFICOS ====== -->
 

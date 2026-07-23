@@ -4,9 +4,20 @@
 {% block page_title %}Proveedores{% endblock %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/reportes/reportes.css' %}">
+<link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
 <link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
 <link rel="stylesheet" href="{% static 'css/datatables.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  // Variables globales para los gráficos (datos del servidor)
+  window.gastosLabels = {{ gastos_labels_json|safe }};
+  window.gastosData = {{ gastos_data_json|safe }};
+  window.gastosPorcentajes = {{ gastos_porcentajes_json|safe }};
+</script>
 {% endblock %}
 
 {% block content %}
@@ -78,25 +89,21 @@
     </div>
 
     <!-- Barra de filtros -->
-    <div class="cys-hv-filters">
+    <div class="cys-hv-filters d-flex align-items-center gap-3">
 
       <!-- Buscador -->
-      <div class="cys-hv-date-group">
-        <span class="cys-hv-date-label">&nbsp;</span>
+      <div class="flex-grow-1">
         <div class="cys-hv-search-wrap">
           <i class="bi bi-search cys-hv-search-icon"></i>
           <input type="text" id="buscar-proveedores" class="cys-hv-search-input"
-                 placeholder="Buscar proveedor...">
+                 placeholder="Buscar proveedor, NIT, contacto...">
         </div>
       </div>
 
       <!-- Nuevo proveedor -->
-      <div class="cys-hv-date-group ms-auto">
-        <span class="cys-hv-date-label">&nbsp;</span>
-        <button type="button" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor" class="btn-nuevo-prov">
-          <i class="bi bi-plus-circle"></i> Nuevo proveedor
-        </button>
-      </div>
+      <button type="button" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor" class="btn-nuevo-prov">
+        <i class="bi bi-plus-circle"></i> Nuevo proveedor
+      </button>
 
     </div><!-- /cys-hv-filters -->
 
@@ -106,6 +113,7 @@
           <tr>
             <th class="cys-col-num">#</th>
             <th>Empresa</th>
+            <th>NIT</th>
             <th>Contacto</th>
             <th>Tipo</th>
             <th>Estado</th>
@@ -121,6 +129,9 @@
             <td class="cys-td cys-td--bold" data-label="Empresa">
               {{ p.nombre_empresa }}<br>
               <span class="text-sm text-muted fw-400">{{ p.email }}</span>
+            </td>
+            <td class="cys-td" data-label="NIT">
+              <span class="fw-bold text-monospace">{{ p.nit }}</span>
             </td>
             <td class="cys-td" data-label="Contacto">
               {{ p.nombre_contacto }}<br>
@@ -187,18 +198,13 @@
                     </button>
                   </li>
                   {% endif %}
-                  <li>
-                    <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarProveedor{{ p.id }}">
-                      <i class="bi bi-trash me-2"></i>Eliminar
-                    </button>
-                  </li>
                 </ul>
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="8" class="cys-td--empty border-0">
+            <td colspan="9" class="cys-td--empty border-0">
               <div class="cys-empty-box">
                 <i class="bi bi-truck"></i>
                 No se encontraron proveedores.
@@ -216,48 +222,16 @@
       <div class="cys-hv-pagination-wrap" id="cys-dt-pagination-proveedores"></div>
     </div>
   </section>
-  </div>
 
-  <!-- TOP PROVEEDORES POR MONTO -->
-  <div class="top-proveedores-container mb-4">
-    <h3 class="mb-3 flex-start gap-05 text-light fw-bold letter-spacing uppercase fs-small">
-      <span>🏆</span>
-      Top Proveedores por Monto
-    </h3>
-
-    <div class="top-proveedores-list">
-      {% for p in proveedores|slice:":4" %}
-      <div class="top-item">
-        <div class="medal" data-position="{{ forloop.counter }}">
-          <div class="medal-content">
-            <div class="medal-number">{{ forloop.counter }}</div>
-            <div class="medal-label">total</div>
-          </div>
-        </div>
-
-        <div class="top-info">
-          <div class="top-nombre">{{ p.nombre_empresa }}</div>
-          <div class="top-email">{{ p.email }}</div>
-          <div class="flex-start gap-05 mt-05">
-            <span class="badge-inline badge-tipo">{{ p.get_tipo_proveedor_display }}</span>
-            <span class="badge-inline badge-estado" data-estado="{{ p.estado }}">{{ p.get_estado_display|upper }}</span>
-          </div>
-        </div>
-
-        <div class="top-bar">
-          <div class="bar-visual" data-position="{{ forloop.counter }}" data-width="{{ p.bar_width }}"></div>
-          <span class="bar-monto">${{ p.total_compras|floatformat:0 }}</span>
-        </div>
-
-        <div class="top-compras">
-          <div class="text-muted text-xs uppercase fw-600">Compras</div>
-          <div class="text-cyan fw-bold">
-            {{ p.total_ordenes }}
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+  <!-- GRÁFICA: GASTOS POR PROVEEDOR -->
+  <section class="cys-card mb-4 mt-4">
+    <div class="cys-card__title">
+      <i class="bi bi-pie-chart-fill cys-card__title-icon"></i>Gastos por Proveedor
     </div>
+    <div class="p-4">
+      <canvas id="chartGastosProveedor" height="250"></canvas>
+    </div>
+  </section>
   </div>
 
 {% for p in proveedores %}
@@ -476,13 +450,14 @@
 
 <!-- MODAL NUEVO PROVEEDOR -->
 <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" role="dialog" aria-labelledby="modalNuevoProveedorLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content modal-content-dark">
-      <div class="modal-header border-0">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header border-0">
         <div>
-          <h5 class="modal-title fw-bold" id="modalNuevoProveedorLabel">
-            <i class="bi bi-plus-circle me-2"></i>Nuevo Proveedor
-          </h5>
+          <h6 class="modal-title" id="modalNuevoProveedorLabel">
+            <i class="bi bi-plus-circle me-2 text-info"></i>Nuevo Proveedor
+          </h6>
+          <small class="text-muted">Completa los datos para registrar un nuevo proveedor</small>
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
@@ -491,17 +466,15 @@
         <form id="formNuevoProveedor" method="POST" action="{% url 'crear_proveedor' %}">
           {% csrf_token %}
           <div class="row g-3">
-            <div class="col-12">
-              <div class="d-flex align-items-center gap-2 mb-2" style="color: var(--prod-azul, #4DA8DA);">
-                <i class="bi bi-info-circle"></i>
-                <small class="fw-semibold">Completa los datos del proveedor para registrarlo correctamente.</small>
-              </div>
-            </div>
-
             <div class="col-12 col-md-6">
               <label for="id_nombre_empresa" class="form-label prod-label">Empresa <span class="text-danger">*</span></label>
               <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control prod-input" placeholder="Ej: ABC Distribuciones" required>
             </div>
+            <div class="col-12 col-md-6">
+              <label for="id_nit" class="form-label prod-label">NIT <span class="text-danger">*</span></label>
+              <input type="text" name="nit" id="id_nit" class="form-control prod-input" placeholder="Ej: 123456789-1" required>
+            </div>
+
             <div class="col-12 col-md-6">
               <label for="id_nombre_contacto" class="form-label prod-label">Responsable / Contacto</label>
               <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control prod-input" placeholder="Ej: Juan Pérez">
@@ -527,11 +500,11 @@
           </div>
         </form>
       </div>
-      <div class="modal-footer prod-modal-footer justify-content-between">
+      <div class="modal-footer prod-modal-footer">
         <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <button type="submit" form="formNuevoProveedor" class="btn btn-success btn-sm fw-bold">
+        <button type="submit" form="formNuevoProveedor" class="btn prod-btn-primary fw-bold">
           <i class="bi bi-check-circle me-1"></i>Guardar Proveedor
         </button>
       </div>

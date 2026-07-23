@@ -73,6 +73,26 @@ def lista_proveedores(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
+    # Calcular gastos por proveedor para la gráfica
+    gastos_proveedor_dict = {}
+    for c in Compra.objects.select_related('proveedor'):
+        total = (c.cantidad * c.precio_unitario) if c.precio_unitario else 0
+        nombre = c.proveedor.nombre_empresa
+        if nombre not in gastos_proveedor_dict:
+            gastos_proveedor_dict[nombre] = 0
+        gastos_proveedor_dict[nombre] += total
+
+    # Ordenar y tomar top 5
+    gastos_ordenados = sorted(gastos_proveedor_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+    gastos_labels = [item[0] for item in gastos_ordenados]
+    gastos_data = [int(item[1]) for item in gastos_ordenados]
+
+    # Calcular porcentajes para el gráfico de pastel
+    gastos_total = sum(gastos_data) if gastos_data else 0
+    if gastos_total == 0:
+        gastos_total = 1
+    gastos_porcentajes = [int((gasto / gastos_total * 100)) for gasto in gastos_data] if gastos_data else []
+
     context = {
         'proveedores': proveedores,
         'page_obj': page_obj,
@@ -83,6 +103,9 @@ def lista_proveedores(request):
         'proveedores_sancionados': proveedores_sancionados,
         'porcentaje_activos': porcentaje_activos,
         'max_compras': max_compras,
+        'gastos_labels_json': json.dumps(gastos_labels),
+        'gastos_data_json': json.dumps(gastos_data),
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
         'breadcrumb_items': [
             {'nombre': 'Proveedores', 'url': None},
         ],
@@ -259,12 +282,15 @@ def lista_compras(request):
         form = CompraForm()
 
     # Estadísticas
+    ahora = timezone.now()
+    # Calcular gasto de esta semana (últimos 7 días)
+    hace_7_dias = ahora - timedelta(days=7)
+    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
     total_gastado = sum(
-        (c.cantidad * c.precio_unitario) for c in Compra.objects.all()
+        (c.cantidad * c.precio_unitario) for c in compras_semana
         if c.precio_unitario
     ) or 0
 
-    ahora = timezone.now()
     inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     compras_mes = Compra.objects.filter(fecha_registro__gte=inicio_mes)
     count_mes = compras_mes.count()
@@ -460,9 +486,12 @@ def registrar_compra(request):
 
     # Obtener datos para estadísticas
     hoy = timezone.now()
+    # Calcular gasto de esta semana (últimos 7 días)
+    hace_7_dias = hoy - timedelta(days=7)
+    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
     total_gastado = sum(
         c.cantidad * c.precio_unitario
-        for c in Compra.objects.exclude(precio_unitario__isnull=True)
+        for c in compras_semana.exclude(precio_unitario__isnull=True)
     ) or 0
 
     compras_mes = Compra.objects.filter(
@@ -568,7 +597,7 @@ def registrar_compra(request):
         'subtotal_compras': subtotal,
 
         # --- ESTADÍSTICAS KPI ---
-        'total_gastado': total_gastado,              # Total gasto histórico
+        'total_gastado': total_gastado,              # Total gasto esta semana
         'count_mes': count_mes,                      # Cantidad de compras este mes
         'total_mes': total_mes,                      # Total gasto este mes
         'producto_top': producto_top,                # Producto más comprado

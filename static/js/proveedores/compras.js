@@ -1,8 +1,25 @@
 // ════════════════════════════════════════════════════════════════
+// FUNCIONES DE FORMATO
+// ════════════════════════════════════════════════════════════════
+
+function formatearNumero(numero) {
+  const num = parseInt(numero) || 0;
+  return '$' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// ════════════════════════════════════════════════════════════════
 // INICIALIZACIÓN GENERAL
 // ════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Formatear números KPI con separadores
+  const elementosFormato = document.querySelectorAll('.kpi-formatted');
+  elementosFormato.forEach(elemento => {
+    const valor = elemento.dataset.value;
+    if (valor) {
+      elemento.textContent = formatearNumero(valor);
+    }
+  });
   // Abrir modal de proveedores si está en parámetro GET
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('modal') === 'proveedores') {
