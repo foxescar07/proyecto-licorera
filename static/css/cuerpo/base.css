@@ -449,9 +449,9 @@ body.sidebar-open .cys-main {
   display: inline-block;
   width: 3px;
   height: 18px;
-  background: var(--azul-claro);
+  background: #CF9C48;
   border-radius: 2px;
-  box-shadow: 0 0 8px var(--azul-claro);
+  box-shadow: 0 0 8px #CF9C48;
 }
 
 .cys-card__title.mb-0 { margin-bottom: 0 !important; }
