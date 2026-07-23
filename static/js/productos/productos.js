@@ -279,7 +279,7 @@ function agregarPresentacionModal() {
 
 // Gráficos (donut + últimos)
 function inicializarGraficos() {
-  const COLS = ['#4DA8DA','#27ae60','#f39c12','#9b59b6','#e74c3c','#1abc9c','#e67e22'];
+  const COLS = ['#4DA8DA','#CF9C48','#f312bb','#9b59b6','#e74c3c','#1abc9c','#e67e22'];
 
   // Donut
   const cats = {};
