@@ -58,7 +58,7 @@ button#presentacion-lote-btn {
   border: 1px solid rgba(77, 168, 218, 0.35) !important;
 }
 .lote-icon-box i {
-  color: #4DA8DA;
+  color: #CF9C48;
   font-size: 2.1rem;
 }
 
@@ -132,9 +132,10 @@ button#presentacion-lote-btn {
 }
 .lote-stat-value-success {
   font-family: 'Rajdhani', sans-serif;
+  color: #ffffff;
 }
 .lote-stat-value-info {
-  color: #4DA8DA;
+  color: #ffffff;
   font-family: 'Rajdhani', sans-serif;
 }
 .lote-stat-mini--info {
@@ -152,11 +153,12 @@ button#presentacion-lote-btn {
 }
 /* ── Íconos con color/opacidad (antes inline) ── */
 .lote-icon-opacidad {
+  color:  #CF9C48;
   opacity: .7;
 }
 
 .lote-icon-info {
-  color: #4DA8DA;
+  color:  #CF9C48;
   opacity: .7;
 }
 
@@ -215,4 +217,21 @@ button#presentacion-lote-btn {
 }
 .lote-spin-down {
   border-radius: 0 0 8px 0;
+}
+/* Ocultar spinner nativo del campo Cantidad + usar spinners propios */
+.lote-cantidad-input::-webkit-outer-spin-button,
+.lote-cantidad-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.lote-cantidad-input[type="number"] {
+  appearance: textfield;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+}
+.lote-cantidad-wrap {
+  position: relative;
+}
+.lote-cantidad-wrap .lote-cantidad-input {
+  padding-right: 34px !important;
 }
