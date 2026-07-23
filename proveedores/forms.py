@@ -19,13 +19,19 @@ class ProveedorForm(forms.ModelForm):
 
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono', 'tipo_proveedor']
+        fields = ['nombre_empresa', 'nit', 'nombre_contacto', 'email', 'telefono', 'tipo_proveedor']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nombre de la empresa',
                 'required': True,
                 'maxlength': '200'
+            }),
+            'nit': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 123456789-1',
+                'required': True,
+                'maxlength': '50'
             }),
             'nombre_contacto': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -59,6 +65,19 @@ class ProveedorForm(forms.ModelForm):
             raise ValidationError('Este nombre de empresa ya está registrado')
 
         return nombre.strip()
+
+    def clean_nit(self):
+        """Validar que el NIT sea único y válido."""
+        nit = self.cleaned_data.get('nit')
+        if not nit or len(nit.strip()) == 0:
+            raise ValidationError('El NIT no puede estar vacío')
+
+        if Proveedor.objects.filter(nit=nit).exclude(
+            pk=self.instance.pk if self.instance else None
+        ).exists():
+            raise ValidationError('Este NIT ya está registrado en el sistema')
+
+        return nit.strip()
 
     def clean_email(self):
         """Validar que el email sea único y válido."""

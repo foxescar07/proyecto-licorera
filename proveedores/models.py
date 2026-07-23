@@ -24,6 +24,13 @@ class Proveedor(models.Model):
         unique=True,
         help_text="Nombre comercial único del proveedor"
     )
+    nit = models.CharField(
+        max_length=50,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Número de Identificación Tributaria"
+    )
     nombre_contacto = models.CharField(
         max_length=200,
         blank=True,

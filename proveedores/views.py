@@ -73,6 +73,26 @@ def lista_proveedores(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
+    # Calcular gastos por proveedor para la gráfica
+    gastos_proveedor_dict = {}
+    for c in Compra.objects.select_related('proveedor'):
+        total = (c.cantidad * c.precio_unitario) if c.precio_unitario else 0
+        nombre = c.proveedor.nombre_empresa
+        if nombre not in gastos_proveedor_dict:
+            gastos_proveedor_dict[nombre] = 0
+        gastos_proveedor_dict[nombre] += total
+
+    # Ordenar y tomar top 5
+    gastos_ordenados = sorted(gastos_proveedor_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+    gastos_labels = [item[0] for item in gastos_ordenados]
+    gastos_data = [int(item[1]) for item in gastos_ordenados]
+
+    # Calcular porcentajes para el gráfico de pastel
+    gastos_total = sum(gastos_data) if gastos_data else 0
+    if gastos_total == 0:
+        gastos_total = 1
+    gastos_porcentajes = [int((gasto / gastos_total * 100)) for gasto in gastos_data] if gastos_data else []
+
     context = {
         'proveedores': proveedores,
         'page_obj': page_obj,
@@ -83,6 +103,9 @@ def lista_proveedores(request):
         'proveedores_sancionados': proveedores_sancionados,
         'porcentaje_activos': porcentaje_activos,
         'max_compras': max_compras,
+        'gastos_labels_json': json.dumps(gastos_labels),
+        'gastos_data_json': json.dumps(gastos_data),
+        'gastos_porcentajes_json': json.dumps(gastos_porcentajes),
         'breadcrumb_items': [
             {'nombre': 'Proveedores', 'url': None},
         ],

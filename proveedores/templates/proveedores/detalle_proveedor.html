@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Detalle del Proveedor{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  <div class="cys-snap-section px-3 py-4">
+
+    <!-- ENCABEZADO -->
+    <div class="card card-dev cys-card editar-header p-4 mb-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <span class="badge badge-cyan small mb-2 d-inline-block">
+            <i class="bi bi-eye me-1"></i>DETALLE
+          </span>
+          <h1 class="editar-title mb-0">
+            <i class="bi bi-building"></i> {{ proveedor.nombre_empresa }}
+          </h1>
+        </div>
+        <a href="{% url 'lista_proveedores' %}" class="btn btn-sm btn-outline-secondary fw-bold">
+          <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+      </div>
+    </div>
+
+    <!-- INFORMACIÓN DE AUDITORÍA -->
+    <div class="row gx-2 gy-2 mb-4">
+      <div class="col-12 col-md-6">
+        <div class="cys-card cys-card--inv p-3">
+          <div class="cys-card__title small mb-2">Registrado Por</div>
+          <div class="fw-bold text-cyan">{{ proveedor.registrado_por.email|default:"Admin" }}</div>
+          <div class="text-sm text-muted">{{ proveedor.fecha_registro|date:"d/m/Y H:i" }}</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="cys-card cys-card--diario p-3">
+          <div class="cys-card__title small mb-2">Última Modificación</div>
+          <div class="fw-bold text-yellow">{{ proveedor.modificado_por.email|default:"Sin modificar" }}</div>
+          <div class="text-sm text-muted">{{ proveedor.ultima_modificacion|date:"d/m/Y H:i" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFORMACIÓN BÁSICA -->
+    <div class="card card-dev editar-form-card p-4 mb-4">
+      <h5><i class="bi bi-building me-2"></i>Información Básica</h5>
+      <div class="row g-3 mt-3">
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">Empresa</div>
+          <div class="fw-bold fs-5">{{ proveedor.nombre_empresa }}</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">NIT</div>
+          <div class="fw-bold fs-5 text-monospace">{{ proveedor.nit|default:"No especificado" }}</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">Responsable/Contacto</div>
+          <div class="fw-bold">{{ proveedor.nombre_contacto|default:"No especificado" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATOS DE CONTACTO -->
+    <div class="card card-dev editar-form-card p-4 mb-4">
+      <h5><i class="bi bi-telephone me-2"></i>Datos de Contacto</h5>
+      <div class="row g-3 mt-3">
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">Correo</div>
+          <div class="fw-bold">
+            <a href="mailto:{{ proveedor.email }}" class="text-decoration-none">{{ proveedor.email }}</a>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">Teléfono</div>
+          <div class="fw-bold">{{ proveedor.telefono|default:"No especificado" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASIFICACIÓN -->
+    <div class="card card-dev editar-form-card p-4 mb-4">
+      <h5><i class="bi bi-tag me-2"></i>Clasificación</h5>
+      <div class="row g-3 mt-3">
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">Tipo de Proveedor</div>
+          <div class="fw-bold">{{ proveedor.get_tipo_proveedor_display }}</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="prod-label text-uppercase mb-2">Estado</div>
+          <div class="fw-bold">
+            <span class="cys-badge
+              {% if proveedor.estado == 'activo' %}cys-badge--verde
+              {% elif proveedor.estado == 'inactivo' %}cys-badge--amarillo
+              {% else %}cys-badge--rojo{% endif %}">
+              {{ proveedor.get_estado_display|upper }}
+            </span>
+          </div>
+        </div>
+        {% if proveedor.estado == 'sancionado' %}
+        <div class="col-12">
+          <div class="prod-label text-uppercase mb-2">Motivo de Sanción</div>
+          <div class="alert alert-danger-dev" role="alert">
+            {{ proveedor.motivo_sancion|default:"No especificado" }}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="d-flex gap-2 mt-4">
+      <a href="{% url 'editar_proveedor' proveedor.id %}" class="btn btn-primary fw-bold">
+        <i class="bi bi-pencil-square me-1"></i>Editar
+      </a>
+      <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary fw-bold">
+        <i class="bi bi-x-circle me-1"></i>Cerrar
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
