@@ -28,7 +28,7 @@ function inicializarGraficoMotivos() {
       labels: ['Venta','Merma','Daño','Vencido'],
       datasets: [{
         data: chartData,
-        backgroundColor: ['#4DA8DA','#1c6ef3','#3ce7d0','#9b59b6'],
+        backgroundColor: ['#4DA8DA','#1c6ef3','#CF9C48','#9b59b6'],
         borderWidth: 0
       }]
     },

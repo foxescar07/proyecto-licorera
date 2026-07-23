@@ -115,7 +115,7 @@ button#motivo-btn {
    ══════════════════════════════════════════════════ */
 
 /* Cabecera de la card del formulario */
-.sal-icon-header { color: #4DA8DA; font-size: 2.0rem; }
+.sal-icon-header { color: #CF9C48; font-size: 2.0rem; }
 .sal-card-titulo {
   color: #dce8f2; letter-spacing: .08em;
   font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
@@ -157,8 +157,6 @@ button#motivo-btn {
   color: #c8d6e5 !important;
   font-size: .85rem;
 }
-
-
 /* Badge de stock disponible */
 .sal-stock-badge { background: rgba(77,168,218,.1); border: 1px solid rgba(77,168,218,.25); display: inline-flex!important; }
 .sal-ic-azul { color: #4DA8DA; }
@@ -188,8 +186,8 @@ button#motivo-btn {
 
 /* Mini stats panel derecho */
 .sal-stat-label { color: rgba(220,232,242,0.5); font-size: .75rem; letter-spacing: .05em; }
-.sal-stat-value-azul { color: #4DA8DA; font-family: 'Rajdhani', sans-serif; }
-.sal-stat-icon { color: #4DA8DA; opacity: .7; }
+.sal-stat-value-azul { color: #ffffff; font-family: 'Rajdhani', sans-serif; }
+.sal-stat-icon { color: #CF9C48; opacity: 1.0; }
 .sal-stat-mini-border { border-color: rgba(18, 153, 243, 0.22)!important; }
 .sal-stat-value-font { font-family: 'Rajdhani', sans-serif; }
 .sal-opacity-70 { opacity: .7; }
@@ -202,12 +200,12 @@ button#motivo-btn {
 .sal-dot { width: 8px; height: 8px; display: inline-block; }
 .sal-dot-venta { background: #4DA8DA; }
 .sal-dot-merma { background: #1c6ef3; }
-.sal-dot-dano { background: #3ce7d0; }
+.sal-dot-dano { background: #CF9C48; }
 .sal-dot-vencido { background: #9b59b6; }
 
 .sal-legend-dce8f2 { color: #dce8f2; }
 .sal-legend-1c6ef3 { color: #1c6ef3; }
-.sal-legend-3ce7d0 { color: #3ce7d0; }
+.sal-legend-3ce7d0 { color: #CF9C48; }
 /* ── Estado de error en el dropdown de presentación ── */
 .sal-campo-error {
   border-color: #3ce7a8 !important;

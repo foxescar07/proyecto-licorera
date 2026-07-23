@@ -597,32 +597,27 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }
-/* ============================================
-   inventario_home.css
-   Generado a partir de estilos inline de inventario_home.html
-   ============================================ */
-
 .qc-borde-teal {
-  border-left: 3px solid #2dd4bf;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-bg-teal {
-  background:rgba(77,168,218,.15);
+  background: rgba(207,156,72,.15);
 }
 
 .qc-icono-color-teal {
-  color:#2dd4bf;
+  color: #ffffff;
 }
 
 .qc-badge-teal {
-  background:rgba(77,168,218,.15);
-  color:#2dd4bf;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 
 .qc-valor-teal {
   font-size:1.5rem;
-  color:#2dd4bf;
+  color: #ffffff;
   line-height:1;
 }
 
@@ -640,30 +635,30 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .qc-footer-texto-teal {
   font-size:.7rem;
-  color:#2dd4bf;
+  color: #CF9C48;
 }
 
 .qc-borde-verde {
-  border-left: 3px solid #27ae60;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-bg-verde {
-  background:rgba(39,174,96,.15);
+  background: rgba(207,156,72,.15);
 }
 
 .qc-icono-color-verde {
-  color:#27ae60;
+  color: #ffffff;
 }
 
 .qc-badge-verde {
-  background:rgba(39,174,96,.15);
-  color:#27ae60;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 
 .qc-valor-verde {
   font-size:1.5rem;
-  color:#27ae60;
+  color: #ffffff;
   line-height:1;
 }
 
@@ -673,30 +668,30 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .qc-footer-texto-verde {
   font-size:.7rem;
-  color:#27ae60;
+  color: #CF9C48;
 }
 
 .qc-borde-purpura {
-  border-left: 3px solid #9b5de5;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-bg-purpura {
-  background:rgba(155,93,229,.15);
+  background: rgba(207,156,72,.15);
 }
 
 .qc-icono-color-purpura {
-  color:#9b5de5;
+  color: #ffffff;
 }
 
 .qc-badge-purpura {
-  background:rgba(155,93,229,.15);
-  color:#9b5de5;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 
 .qc-valor-purpura {
   font-size:1.5rem;
-  color:#9b5de5;
+  color: #ffffff;
   line-height:1;
 }
 
@@ -706,30 +701,30 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .qc-footer-texto-purpura {
   font-size:.7rem;
-  color:#9b5de5;
+  color: #CF9C48;
 }
 
 .qc-borde-azul {
-  border-left: 3px solid #4DA8DA;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-color-azul {
-  color:#4DA8DA;
+  color: #ffffff;
 }
 
 .qc-badge-azul {
-  background:rgba(77,168,218,.15);
-  color:#4DA8DA;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 .qc-valor-azul {
   font-size:1.5rem;
-  color:#4DA8DA;
+  color: #ffffff;
   line-height:1;
 }
 .qc-footer-texto-azul {
   font-size:.7rem;
-  color:#4DA8DA;
+  color: #CF9C48;
 }
 .agenda-tab-activo {
   background: var(--inv-azul-dim) !important;
