@@ -16,33 +16,33 @@
 /* KPI cards — variantes de borde por color */
 .kpi-card--stock {
   background: #0d2240;
-  border-left: 3px solid #00a0f6;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-card--lotes-activos {
   background: #0d2240;
-  border-left: 3px solid #54ebb8;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-card--por-vencer {
   background: #0d2240;
-  border-left: 3px solid #6090d7;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-card--vencidos {
   background: #0d2240;
-  border-left: 3px solid #6b5dff;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-value--claro { color: #e2e8f0; }
-.kpi-icon--productos    { color: rgb(41, 62, 222); }
-.kpi-icon--lotes-activos { color: rgb(0, 255, 106); }
-.kpi-icon--por-vencer    { color: rgb(12, 157, 180); }
-.kpi-icon--vencidos      { color: rgb(130, 79, 226); }
+.kpi-icon--productos    { color: #CF9C48; }
+.kpi-icon--lotes-activos { color: #CF9C48; }
+.kpi-icon--por-vencer    { color: #CF9C48; }
+.kpi-icon--vencidos      { color: #CF9C48; }
 
 /* Encabezado de sección */
 .lotes-seccion-icon { color: #4DA8DA; font-size: 1.5rem; }
@@ -132,9 +132,9 @@
 .lote-fecha-dias { font-size: .7rem; color: rgba(226,232,240,.4); }
 
 .lote-badge-estado--vencido {
-  background: rgba(120, 60, 231, 0.15);
-  color: #7f3aff;
-  border: 1px solid rgba(125, 53, 250, 0.3);
+  background: rgba(228, 231, 60, 0.15);
+  color: #CF9C48;
+  border: 1px solid rgba(250, 243, 53, 0.3);
 }
 .lote-badge-estado--por-vencer {
   background: rgba(18, 221, 243, 0.15);
