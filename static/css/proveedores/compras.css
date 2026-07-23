@@ -618,7 +618,7 @@ main, .cys-main, main > * {
 
 /* Número principal */
 .number-kpi {
-  font-family: 'Rajdhani', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 2rem !important;
   font-weight: 800 !important;
   line-height: 1.1 !important;
@@ -672,7 +672,7 @@ main, .cys-main, main > * {
 .card-kpi h3,
 .card-kpi h5,
 .card-kpi h6 {
-  font-family: 'Rajdhani', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 2.8rem !important;
   font-weight: 800 !important;
   line-height: 1 !important;
@@ -905,7 +905,7 @@ i, .bi, [class*="icon"] {
 .table thead th {
   background: rgba(255, 255, 255, 0.02);
   color: #4DA8DA;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
