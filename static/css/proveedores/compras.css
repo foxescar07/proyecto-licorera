@@ -2,10 +2,15 @@
    COMPRAS.CSS — CYS Ltda
    Bootstrap 5 compatible — Paleta: #011936 / #912F40 / #AF8D86 / #EFF8E2
    ══════════════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ────────────────────────────────────────────────────────────────────────────
    VARIABLES GLOBALES (IDÉNTICAS A reportes.css)
    ──────────────────────────────────────────────────────────────────────────── */
+
+* {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
 
 :root {
   /* Paleta principal */

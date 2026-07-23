@@ -1,4 +1,5 @@
 /* PROVEEDORES - CYS DESIGN SYSTEM */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* Colors */
@@ -1055,27 +1056,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-value.cyan {
-  color: #CF9C48 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.green {
-  color: #CF9C48 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.yellow {
-  color: #CF9C48 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.orange {
-  color: #CF9C48 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.purple {
-  color: #CF9C48 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.pink {
-  color: #CF9C48 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-title {
@@ -1265,6 +1266,19 @@ h1, h2, h3, h4, h5, h6 {
 #modalNuevoProveedor .prod-btn-outline:hover {
   background: rgba(77, 168, 218, 0.1) !important;
   color: var(--prod-azul) !important;
+}
+
+/* ÍCONO Y BOTÓN CLOSE DEL MODAL */
+#modalNuevoProveedor .prod-modal-header .modal-title i {
+  color: #CF9C48 !important;
+}
+
+#modalNuevoProveedor .btn-close-white {
+  filter: invert(1) brightness(1.2);
+}
+
+#modalNuevoProveedor .btn-close-white:focus {
+  box-shadow: 0 0 0 0.25rem rgba(207, 156, 72, 0.25) !important;
 }
 
 /* RESPONSIVE — TABLET (768px y menos) */
