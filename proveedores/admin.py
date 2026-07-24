@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Proveedor, Compra
+from .models import Proveedor, Compra, HistorialCompra
 
 
 @admin.register(Proveedor)
@@ -47,5 +47,21 @@ class CompraAdmin(admin.ModelAdmin):
         ('Total', {
             'fields': ('total',),
             'classes': ('wide',)
+        }),
+    )
+
+
+@admin.register(HistorialCompra)
+class HistorialCompraAdmin(admin.ModelAdmin):
+    list_display = ('compra', 'evento', 'usuario', 'fecha')
+    list_filter = ('evento', 'fecha')
+    search_fields = ('compra__id', 'descripcion')
+    readonly_fields = ('fecha', 'compra', 'evento', 'usuario')
+    fieldsets = (
+        ('Evento', {
+            'fields': ('compra', 'evento', 'usuario', 'fecha')
+        }),
+        ('Descripción', {
+            'fields': ('descripcion',)
         }),
     )

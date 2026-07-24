@@ -74,17 +74,8 @@ $(document).ready(function() {
     lengthChange: false,
     pageLength: 10,
     ordering: true,
-    responsive: true,
     columnDefs: [
-      { responsivePriority: 1, targets: 0 },  // #
-      { responsivePriority: 2, targets: 1 },  // Empresa
-      { responsivePriority: 3, targets: 2 },  // NIT
-      { responsivePriority: 4, targets: 8 },  // Acciones
-      { responsivePriority: 5, targets: 3 },  // Contacto
-      { responsivePriority: 6, targets: 4 },  // Tipo
-      { responsivePriority: 7, targets: 5 },  // Estado
-      { responsivePriority: 8, targets: 6 },  // Responsable
-      { responsivePriority: 9, targets: 7 }   // Fecha Registro
+      { orderable: false, targets: 8, searchable: false }
     ],
     language: {
       info: "Mostrando _START_ a _END_ de _TOTAL_ proveedores",
@@ -93,10 +84,7 @@ $(document).ready(function() {
       zeroRecords: "Sin resultados para tu búsqueda.",
       paginate: { first:'«', previous:'‹', next:'›', last:'»' }
     },
-    dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>',
-    drawCallback: function() {
-      // Callback para acciones después de dibujar la tabla
-    }
+    dom: 'rt<"d-flex justify-content-center align-items-center mt-3"ip>'
   });
 
   // Conectar input personalizado de búsqueda
@@ -110,23 +98,33 @@ $(document).ready(function() {
 
   // Filtro por estado (Activo, Inactivo, Sancionado)
   $.fn.dataTable.ext.search.push(
-    function(settings, data, dataIndex, rowData, counter) {
+    function(settings, data, dataIndex) {
       if (settings.sTableId !== 'tablaProveedores') return true;
       if (filtroEstadoActual === 'todos') return true;
-      var node = settings.aoData[dataIndex].nTr;
-      var estado = $(node).attr('data-estado');
-      return estado === filtroEstadoActual;
+      try {
+        var node = table.row(dataIndex).node();
+        if (node) {
+          var estado = $(node).attr('data-estado');
+          return estado === filtroEstadoActual;
+        }
+      } catch(e) {}
+      return true;
     }
   );
 
   // Filtro por tipo de proveedor (Distribuidor, Fabricante, Importador)
   $.fn.dataTable.ext.search.push(
-    function(settings, data, dataIndex, rowData, counter) {
+    function(settings, data, dataIndex) {
       if (settings.sTableId !== 'tablaProveedores') return true;
       if (filtroTipoActual === 'todos') return true;
-      var node = settings.aoData[dataIndex].nTr;
-      var tipo = $(node).attr('data-tipo');
-      return tipo === filtroTipoActual;
+      try {
+        var node = table.row(dataIndex).node();
+        if (node) {
+          var tipo = $(node).attr('data-tipo');
+          return tipo === filtroTipoActual;
+        }
+      } catch(e) {}
+      return true;
     }
   );
 

@@ -300,6 +300,53 @@ class HistorialOrden(models.Model):
         return f"{self.orden.id} - {self.get_evento_display()}"
 
 
+class HistorialCompra(models.Model):
+    """Registro de cambios en las compras legacy."""
+
+    EVENTO_CHOICES = [
+        ('creada', 'Compra Creada'),
+        ('recibida', 'Recibida'),
+        ('pagada', 'Pagada'),
+        ('cancelada', 'Cancelada'),
+        ('editada', 'Editada'),
+    ]
+
+    compra = models.ForeignKey(
+        'Compra',
+        on_delete=models.CASCADE,
+        related_name='historial',
+        help_text="Compra"
+    )
+    evento = models.CharField(
+        max_length=20,
+        choices=EVENTO_CHOICES,
+        help_text="Tipo de evento"
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Usuario que realizó la acción"
+    )
+    fecha = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha del evento"
+    )
+    descripcion = models.TextField(
+        blank=True,
+        help_text="Descripción adicional del evento"
+    )
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Historial de Compra'
+        verbose_name_plural = 'Historial de Compras'
+
+    def __str__(self):
+        return f"Compra {self.compra.id} - {self.get_evento_display()}"
+
+
 class Compra(models.Model):
     """Modelo para registrar compras a proveedores (heredado/legacy)."""
 
@@ -365,7 +412,7 @@ class Compra(models.Model):
         null=True,
         blank=True,
         validators=[MinValueValidator(Decimal('0.01'))],
-        help_text="Precio por unidad"
+        help_text="Precio por unidad en pesos colombianos (COP)"
     )
     total = models.DecimalField(
         max_digits=10,
