@@ -2701,3 +2701,169 @@ table.dataTable {
 .vr.cys-title-accent {
   background-color: #CF9C48 !important;
 }
+
+/* ============================================================
+   FIX RESPONSIVE — Reportes CYS Ltda
+   (bloque agregado — va al final para poder sobreescribir
+   las reglas anteriores en pantallas chicas)
+   ============================================================ */
+
+/* ── Tablet: hasta 992px ──────────────────────────────────── */
+@media (max-width: 992px) {
+  .cys-av-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Móvil: hasta 768px ───────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Tarjetas de reportes: ícono arriba, texto abajo, centrado */
+  .cys-report-card-layout {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .cys-report-card-icon--large {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 1.9rem !important;
+  }
+
+  .cys-report-card__stats-grid {
+    width: 100%;
+  }
+
+  /* Barra de filtros de Historial de Ventas: todo apilado */
+  .cys-hv-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .cys-hv-date-group,
+  .cys-hv-date-group.ms-auto {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .cys-hv-search-input,
+  .cys-hv-date-input,
+  .cys-hv-btn-exportar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  /* KPIs de modales: 2 columnas en vez de 3/4 */
+  .cys-modal__stats--4col,
+  .cys-modal__stats--3col {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .cys-av-kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cys-av-kpi-card {
+    padding: 14px;
+  }
+
+  /* Análisis de Ventas: el sidebar de tabs pasa a barra horizontal */
+  .cys-av-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cys-av-sidebar {
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(77, 168, 218, .1);
+    padding: 12px 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cys-av-nav-btn {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 8px 14px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .cys-av-nav-btn.active {
+    border-left-color: transparent;
+    border-bottom-color: #7F77DD;
+  }
+
+  .cys-av-content {
+    padding: 16px;
+  }
+
+  .cys-rd-sidebar {
+    padding: 16px;
+  }
+
+  /* Header de lista de proveedores: buscador debajo del título */
+  .cys-modal-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .cys-modal-list-header .cys-search-box,
+  .cys-search-box__input {
+    width: 100% !important;
+  }
+
+  .cys-av-table-card__header--search {
+    flex-wrap: wrap;
+  }
+
+  .cys-av-table-card__header .cys-av-table-card__search {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Tabla de Inventario del modal: anular anchos fijos para que
+     funcione el modo "tarjeta" que ya tienen para .cys-inv-table */
+  #tabla-modal-stock {
+    table-layout: auto !important;
+  }
+
+  #tabla-modal-stock th,
+  #tabla-modal-stock td {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .cys-modal__title {
+    font-size: .92rem;
+  }
+
+  .cys-modal__subtitle {
+    font-size: .7rem;
+  }
+}
+
+/* ── Móvil chico: hasta 480px ─────────────────────────────── */
+@media (max-width: 480px) {
+  .cys-modal__stats--4col,
+  .cys-modal__stats--3col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cys-modal-kpi-v2__val {
+    font-size: 1.5rem;
+  }
+
+  .cys-av-kpi-card__val {
+    font-size: 1.4rem;
+  }
+}
