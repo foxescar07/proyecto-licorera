@@ -351,8 +351,12 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   background: rgba(255, 255, 255, 0.02);
   color: #4DA8DA;
 
+  font-family: 'Rajdhani', sans-serif;
+
+
 
   font-family: 'Plus Jakarta Sans', sans-serif;
+
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -384,7 +388,10 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-inv-table .cys-qty {
+
+  font-family: 'Rajdhani', sans-serif;
   font-family: 'Plus Jakarta Sans', sans-serif;
+
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--azul-acento);
@@ -495,6 +502,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-modal-kpi-v2__val {
+
+  font-family: 'Rajdhani', sans-serif;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
@@ -928,9 +937,10 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-modal__kpi-single-val {
 
+  font-family: 'Rajdhani', sans-serif;
+
 
   font-family: 'Plus Jakarta Sans', sans-serif;
-
   font-size: 2.4rem;
   font-weight: 800;
   color: #5DCAA5;
@@ -1160,6 +1170,9 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-rd-stat-card__val {
 
+  font-family: 'Rajdhani', sans-serif;
+
+
 
   font-family: 'Plus Jakarta Sans', sans-serif;
 
@@ -1289,8 +1302,10 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-av-kpi-card__val {
 
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
 
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
 }
@@ -1817,6 +1832,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .cys-summary-card__val {
 
+  font-family: 'Rajdhani', sans-serif;
+
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.95rem;
   font-weight: 800;
@@ -1841,6 +1858,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 #tabla-modal-stock thead th {
   background: rgba(255, 255, 255, 0.02) !important;
   color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif !important;
 
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-weight: 700 !important;
@@ -1902,9 +1920,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #tabla-modal-stock .cys-qty {
+  font-family: 'Rajdhani', sans-serif !important;
+
 
   font-family: 'Plus Jakarta Sans', sans-serif !important;
-
   font-weight: 700 !important;
   font-size: 1.05rem !important;
   color: var(--azul-acento) !important;
@@ -2242,10 +2261,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 #reportes-table thead th {
   background: #0c2b54 !important;
   color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif;
 
 
   font-family: 'Plus Jakarta Sans', sans-serif;
-
   font-weight: 700;
   font-size: .92rem;
   text-transform: uppercase;
