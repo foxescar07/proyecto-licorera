@@ -3,9 +3,9 @@ function initializeCharts() {
   const colores = {
     principal: '#4DA8DA',
     secundario: '#00C9A7',
-    terciario: '#9B59B6',
-    cuartario: '#f0d080',
-    quinto: '#E05C7A'
+    terciario: '#CF9C48',
+    cuartario: '#9B59B6',
+    quinto: '#22D3EE'
   };
 
   const gastosLabels = window.gastosLabels || [];

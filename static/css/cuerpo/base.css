@@ -42,7 +42,7 @@ html, body {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--fondo);
   color: var(--texto);
   min-height: 100vh;
@@ -451,9 +451,9 @@ body.sidebar-open .cys-main {
   display: inline-block;
   width: 3px;
   height: 18px;
-  background: var(--azul-claro);
+  background: #CF9C48;
   border-radius: 2px;
-  box-shadow: 0 0 8px var(--azul-claro);
+  box-shadow: 0 0 8px #CF9C48;
 }
 
 .cys-card__title.mb-0 { margin-bottom: 0 !important; }
@@ -598,7 +598,7 @@ body.sidebar-open .cys-main {
   border: 1px solid var(--azul-borde) !important;
   color: var(--texto) !important;
   border-radius: var(--radius) !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: .85rem !important;
   padding-top: calc(.375rem * var(--density-scale, 1)) !important;
   padding-bottom: calc(.375rem * var(--density-scale, 1)) !important;
@@ -717,7 +717,7 @@ body.sidebar-open .cys-main {
   color: var(--texto) !important;
   border-radius: var(--radius) !important;
   font-size: .85rem !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   padding-top: calc(.375rem * var(--density-scale, 1)) !important;
   padding-bottom: calc(.375rem * var(--density-scale, 1)) !important;
   transition: padding .2s ease;

@@ -1,4 +1,5 @@
 /* PROVEEDORES - CYS DESIGN SYSTEM */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* Colors */
@@ -13,7 +14,8 @@
   --purple: #7C3AED;
   --purple-light: #7C3AED;
   --orange: #7FFFD4;
-  --yellow: #7FFFD4;
+  --yellow: #CF9C48;
+  --gold: #CF9C48;
 
   /* Text Colors */
   --text-hi: #E8EDF2;
@@ -25,20 +27,27 @@
 }
 
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* BASE CARD STYLING */
 .cys-card {
   background: var(--color-bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
+  border-left: 4px solid #CF9C48;
   border-radius: 8px;
   transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.cys-card__title {
+  background: transparent;
+  padding: 1rem 1.5rem;
 }
 
 .cys-card:hover {
-  border-color: rgba(77, 168, 218, 0.3);
-  box-shadow: 0 2px 8px rgba(77, 168, 218, 0.08);
+  border-color: #CF9C48;
+  box-shadow: 0 0 20px rgba(207, 156, 72, 0.4), 0 0 40px rgba(207, 156, 72, 0.15);
 }
 
 /* CARD COLOR VARIANTS */
@@ -64,7 +73,19 @@
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-md);
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  position: relative;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+.cys-card__title-icon {
+  color: #CF9C48;
+  font-weight: 700;
 }
 
 /* SNAP SECTION */
@@ -701,15 +722,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-hi);
   font-weight: 700;
   letter-spacing: -0.3px;
-  font-family: 'Inter', sans-serif;
-}
-
-.cys-card__title {
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  color: var(--text-md);
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* BOTONES DE ACCIONES */
@@ -944,8 +957,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .kpi-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(77, 168, 218, 0.4) !important;
-  box-shadow: 0 8px 16px rgba(77, 168, 218, 0.15) !important;
+  border-color: #CF9C48 !important;
+  box-shadow: 0 8px 16px rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-card-top {
@@ -966,39 +979,39 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-icon-box.cyan {
-  background: rgba(6, 182, 212, 0.2) !important;
-  color: #06B6D4 !important;
-  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-icon-box.green {
-  background: rgba(16, 185, 129, 0.2) !important;
-  color: #10B981 !important;
-  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-icon-box.yellow {
-  background: rgba(124, 58, 237, 0.2) !important;
-  color: #7C3AED !important;
-  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-icon-box.orange {
-  background: rgba(244, 114, 182, 0.2) !important;
-  color: #7FFFD4 !important;
-  border: 1px solid rgba(244, 114, 182, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-icon-box.purple {
-  background: rgba(127, 119, 221, 0.2) !important;
-  color: #7F77DD !important;
-  border: 1px solid rgba(127, 119, 221, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-icon-box.pink {
-  background: rgba(0, 206, 209, 0.2) !important;
-  color: #00CED1 !important;
-  border: 1px solid rgba(0, 206, 209, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-badge {
@@ -1011,39 +1024,39 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-badge.cyan {
-  background: rgba(6, 182, 212, 0.15) !important;
-  color: #06B6D4 !important;
-  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  background: rgba(207, 156, 72, 0.15) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-badge.green {
-  background: rgba(16, 185, 129, 0.15) !important;
-  color: #10B981 !important;
-  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  background: rgba(207, 156, 72, 0.15) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-badge.yellow {
-  background: rgba(124, 58, 237, 0.15) !important;
-  color: #7C3AED !important;
-  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  background: rgba(207, 156, 72, 0.15) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-badge.orange {
-  background: rgba(244, 114, 182, 0.15) !important;
-  color: #7FFFD4 !important;
-  border: 1px solid rgba(244, 114, 182, 0.3) !important;
+  background: rgba(207, 156, 72, 0.15) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-badge.purple {
-  background: rgba(127, 119, 221, 0.15) !important;
-  color: #7F77DD !important;
-  border: 1px solid rgba(127, 119, 221, 0.3) !important;
+  background: rgba(207, 156, 72, 0.15) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-badge.pink {
-  background: rgba(0, 206, 209, 0.15) !important;
-  color: #00CED1 !important;
-  border: 1px solid rgba(0, 206, 209, 0.3) !important;
+  background: rgba(207, 156, 72, 0.15) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
 }
 
 .kpi-value {
@@ -1054,27 +1067,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-value.cyan {
-  color: #06B6D4 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.green {
-  color: #10B981 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.yellow {
-  color: #7C3AED !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.orange {
-  color: #7FFFD4 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.purple {
-  color: #7F77DD !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-value.pink {
-  color: #00CED1 !important;
+  color: #FFFFFF !important;
 }
 
 .kpi-title {
@@ -1101,76 +1114,76 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-link.cyan {
-  color: #06B6D4 !important;
+  color: #CF9C48 !important;
 }
 
 .kpi-link.cyan:hover {
-  color: #22d3ee !important;
+  color: #e8b85a !important;
 }
 
 .kpi-link.green {
-  color: #10B981 !important;
+  color: #CF9C48 !important;
 }
 
 .kpi-link.green:hover {
-  color: #34d399 !important;
+  color: #e8b85a !important;
 }
 
 .kpi-link.yellow {
-  color: #7C3AED !important;
+  color: #CF9C48 !important;
 }
 
 .kpi-link.yellow:hover {
-  color: #a78bfa !important;
+  color: #e8b85a !important;
 }
 
 .kpi-link.orange {
-  color: #7FFFD4 !important;
+  color: #CF9C48 !important;
 }
 
 .kpi-link.orange:hover {
-  color: #f8a4c7 !important;
+  color: #e8b85a !important;
 }
 
 .kpi-link.purple {
-  color: #7F77DD !important;
+  color: #CF9C48 !important;
 }
 
 .kpi-link.purple:hover {
-  color: #9e95ec !important;
+  color: #e8b85a !important;
 }
 
 .kpi-link.pink {
-  color: #00CED1 !important;
+  color: #CF9C48 !important;
 }
 
 .kpi-link.pink:hover {
-  color: #20B2AA !important;
+  color: #e8b85a !important;
 }
 
 /* ── CARD COLORS ── */
 .kpi-card-cyan {
-  border-left: 4px solid #06B6D4 !important;
+  border-left: 4px solid #CF9C48 !important;
 }
 
 .kpi-card-green {
-  border-left: 4px solid #10B981 !important;
+  border-left: 4px solid #CF9C48 !important;
 }
 
 .kpi-card-yellow {
-  border-left: 4px solid #7C3AED !important;
+  border-left: 4px solid #CF9C48 !important;
 }
 
 .kpi-card-orange {
-  border-left: 4px solid #7FFFD4 !important;
+  border-left: 4px solid #CF9C48 !important;
 }
 
 .kpi-card-purple {
-  border-left: 4px solid #7F77DD !important;
+  border-left: 4px solid #CF9C48 !important;
 }
 
 .kpi-card-pink {
-  border-left: 4px solid #00CED1 !important;
+  border-left: 4px solid #CF9C48 !important;
 }
 
 /* ════════════════════════════════════════
@@ -1264,6 +1277,19 @@ h1, h2, h3, h4, h5, h6 {
 #modalNuevoProveedor .prod-btn-outline:hover {
   background: rgba(77, 168, 218, 0.1) !important;
   color: var(--prod-azul) !important;
+}
+
+/* ÍCONO Y BOTÓN CLOSE DEL MODAL */
+#modalNuevoProveedor .prod-modal-header .modal-title i {
+  color: #CF9C48 !important;
+}
+
+#modalNuevoProveedor .btn-close-white {
+  filter: invert(1) brightness(1.2);
+}
+
+#modalNuevoProveedor .btn-close-white:focus {
+  box-shadow: 0 0 0 0.25rem rgba(207, 156, 72, 0.25) !important;
 }
 
 /* RESPONSIVE — TABLET (768px y menos) */
