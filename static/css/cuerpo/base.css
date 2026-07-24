@@ -25,6 +25,8 @@
   --radius:        12px;
   --trans:         all .22s ease;
   --density-scale: 1;
+  --dorado:        #CF9C48;
+  --dorado-glow:   rgba(207,156,72,.4);
 }
 
 /* ============================================================
@@ -900,6 +902,10 @@ body.sidebar-open .cys-main {
    --azul-borde, --radius, --trans definidas arriba en :root,
    por eso cambia de color solo cuando cambias de tema con
    window.aplicarTemaCYS() (definida en base.js).
+
+   El botón flotante (.cys-a11y-toggle) usa el color dorado de
+   marca (--dorado) en vez de --azul-claro, para que se distinga
+   siempre igual sin importar el tema activo.
    ============================================================ */
 
 .cys-a11y-toggle {
@@ -909,13 +915,13 @@ body.sidebar-open .cys-main {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: var(--azul-claro);
+    background: var(--dorado);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 16px var(--azul-glow, rgba(77,168,218,.4));
+    box-shadow: 0 4px 16px var(--dorado-glow);
     z-index: 1050;
     transition: var(--trans);
     color: var(--azul-oscuro);
@@ -924,7 +930,7 @@ body.sidebar-open .cys-main {
 
 .cys-a11y-toggle:hover {
     transform: scale(1.06);
-    box-shadow: 0 6px 22px var(--azul-glow, rgba(77,168,218,.6));
+    box-shadow: 0 6px 22px var(--dorado-glow);
 }
 
 .cys-a11y-panel {

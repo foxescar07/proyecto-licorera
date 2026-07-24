@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
    que extienda base.html (por eso funciona igual en Reportes,
    Ventas, Inventario, etc. sin repetir nada).
 
-   El "Modo de color" (Predeterminado / Oscuro / Claro) reutiliza
+   El "Modo de color" (Predeterminado / Alto contraste / Claro) reutiliza
    window.aplicarTemaCYS() definida arriba en este mismo archivo,
    así nunca queda desincronizado con el sistema de temas.
    ============================================================ */
@@ -119,11 +119,18 @@ document.addEventListener('DOMContentLoaded', function () {
         a11yRoot.style.fontSize = cfg.fontSize + '%';
 
         // Modo de color -> delega en aplicarTemaCYS (definida arriba en este archivo)
-        if (typeof window.aplicarTemaCYS === 'function' && cfg.modo !== 'predeterminado') {
-            window.aplicarTemaCYS(cfg.modo === 'oscuro' ? 'oscuro' : 'claro');
-        } else if (typeof window.aplicarTemaCYS === 'function' && cfg.modo === 'predeterminado') {
-            window.aplicarTemaCYS('oscuro'); // tema base del proyecto
+        if (typeof window.aplicarTemaCYS === 'function') {
+            if (cfg.modo === 'predeterminado') {
+                window.aplicarTemaCYS('oscuro'); // tema base del proyecto
+            } else {
+                window.aplicarTemaCYS(cfg.modo); // 'alto-contraste', 'claro', etc.
+            }
         }
+
+        // Íconos de Reportes: azul medio CYS (#0A2A52) en modo "Claro",
+        // blancos en los demás modos (Predeterminado / Alto contraste).
+        // La clase se define y consume en reportes.css.
+        a11yRoot.classList.toggle('cys-a11y-modo-claro', cfg.modo === 'claro');
 
         // Alto contraste
         a11yRoot.classList.toggle('cys-a11y-contraste', cfg.contraste);
