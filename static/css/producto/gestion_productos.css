@@ -28,11 +28,11 @@
 }
 
 .gp-icon-blue {
-  color: #4DA8DA;
+  color: #CF9C48;
 }
 
 .gp-icon-cyan {
-  color: #0dcaf0;
+  color: #CF9C48;
 }
 
 /* ── Bloque de gráfico de categorías ── */
@@ -50,7 +50,7 @@
 }
 
 .gp-bar-purple {
-  background: rgb(131, 32, 188);
+  background: #4DA8DA;
 }
 
 /* ── Variante de stat-box con borde amarillo ── */
@@ -162,7 +162,7 @@
 }
 
 .gp-info-icon {
-  color: rgba(77, 168, 218, .5);
+  color: #CF9C48;
 }
 
 /* ── Cajas de presentaciones (modal Presentaciones) ── */
@@ -717,7 +717,7 @@
     letter-spacing: .06em;
   }
   .stat-value {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.4rem;
   font-weight: 700;
   color: #efefef;

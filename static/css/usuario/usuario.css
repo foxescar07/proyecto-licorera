@@ -92,7 +92,7 @@ body {
 }
 
 .cys-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1.3rem;
   letter-spacing: .15em;
@@ -176,7 +176,7 @@ body {
   border-radius: var(--radius);
   padding: .75rem;
   width: 100%;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .95rem;
   letter-spacing: .1em;
@@ -452,7 +452,7 @@ body {
 }
 
 .cys-access-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1.2rem;
   letter-spacing: .08em;
@@ -488,7 +488,7 @@ body {
   border: none;
   border-radius: 10px;
   padding: .6rem 1.4rem;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .82rem;
   letter-spacing: .08em;

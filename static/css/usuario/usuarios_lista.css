@@ -101,7 +101,7 @@
   color: #4DA8DA;
   font-size: .8rem;
   font-weight: 700;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   letter-spacing: .06em;
   text-transform: uppercase;
   text-decoration: none;
@@ -166,7 +166,7 @@
   border-radius: 12px;
   padding: .8rem 1.1rem;
   color: #4DA8DA;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .8rem;
   text-transform: uppercase;
@@ -529,7 +529,7 @@
 .ul-stat-dot--inactivo { background: rgba(232,237,242,.2); }
 .ul-stat-val {
   font-weight: 700;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .95rem;
   color: #E8EDF2;
 }
@@ -538,7 +538,7 @@
   padding: .5rem 0 .25rem;
 }
 .ul-big-stat__num {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 2.8rem;
   line-height: 1;
@@ -557,7 +557,7 @@
   text-transform: uppercase;
   letter-spacing: .1em;
   margin-top: .35rem;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
 }
 .ul-activity-item {
@@ -574,7 +574,7 @@
   background: rgba(77,168,218,.12);
   border: 1px solid rgba(77,168,218,.25);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .75rem;
   color: #4DA8DA;
@@ -770,7 +770,7 @@
 ══════════════════════════════════════════════ */
 .cu-section-label {
   display: flex; align-items: center; gap: .45rem;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
   font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
   color: #4DA8DA; margin-bottom: .75rem; padding-bottom: .4rem;
   border-bottom: 1px solid rgba(77,168,218,.12); opacity: .85;
@@ -901,7 +901,7 @@
 }
 .tc-item:last-child { border-bottom: none; }
 .tc-num {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1.5rem;
   color: rgba(77,168,218,.18);
@@ -913,7 +913,7 @@
 }
 .tc-content { flex: 1; }
 .tc-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .85rem;
   letter-spacing: .06em;
@@ -1116,7 +1116,7 @@
 }
 .tc-item:last-child { border-bottom: none; }
 .tc-num {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1.5rem;
   color: rgba(77,168,218,.18);
@@ -1128,7 +1128,7 @@
 }
 .tc-content { flex: 1; }
 .tc-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .85rem;
   letter-spacing: .07em;
