@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/ventas_pos.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/ventas_inline.css' %}">
@@ -333,9 +333,14 @@
               <input type="hidden" name="accion" value="confirmar_venta">
 
               <div class="mb-3">
-                <label class="cys-form-label">Cliente <span class="text-danger">*</span></label>
-                <input type="text" name="cliente_nombre" list="listaClientes"
-                       class="form-control cys-input-dark"
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="cys-form-label mb-0">Cliente <span class="text-danger">*</span></label>
+                  <button type="button" class="cys-btn-ignorar-cliente" id="btnClienteIgnorar">
+                    <i class="bi bi-person-x"></i> Consumidor final
+                  </button>
+                </div>
+                <input type="text" name="cliente_nombre" list="listaClientes" id="inputClienteNombre"
+                       class="form-control cys-input-dark" required
                        placeholder="Nombre del cliente (obligatorio)"
                        value="{{ cliente_sticky }}" autocomplete="off">
                 <datalist id="listaClientes">
@@ -387,44 +392,54 @@
                   </div>
                   <div class="col-6">
                     <div class="cys-pago-card">
-                      <div class="cys-pago-card-header cys-pago-card-header--acento">
-                        <i class="bi bi-credit-card-2-front"></i><span>Tarjeta</span>
+                      <div class="cys-pago-card-header cys-pago-card-header--azul">
+                        <i class="bi bi-bank2"></i><span>Transferencia</span>
                       </div>
                       <input type="text" inputmode="numeric" name="pago_tarjeta"
                              value="{{ pagos_sticky.pago_tarjeta|floatformat:0 }}"
                              class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
                     </div>
                   </div>
-                  <div class="col-4">
-                    <div class="cys-pago-card">
-                      <div class="cys-pago-card-header cys-pago-card-header--transferencia">
-                        <i class="bi bi-arrow-left-right"></i><span>Transfer.</span>
-                      </div>
-                      <input type="text" inputmode="numeric" name="pago_transferencia"
-                             value="{{ pagos_sticky.pago_transferencia|floatformat:0 }}"
-                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
-                    </div>
+                </div>
+
+                <!-- ── Otros métodos de pago: Nequi, Daviplata, Bre-B, etc. ── -->
+                <div class="cys-otro-metodo-wrap" id="otroMetodoWrap">
+
+                  <button type="button" class="cys-otro-metodo-btn" id="btnOtroMetodo">
+                    <span class="cys-otro-metodo-btn-icon"><i class="bi bi-three-dots"></i></span>
+                    <span>Otros métodos de pago</span>
+                    <i class="bi bi-chevron-down cys-otro-metodo-chevron"></i>
+                  </button>
+
+                  <div class="cys-otro-dropdown" id="otroDropdown">
+                    <button type="button" class="cys-otro-dropdown-item" data-metodo="Nequi">
+                      <i class="bi bi-phone"></i> Nequi
+                    </button>
+                    <button type="button" class="cys-otro-dropdown-item" data-metodo="Daviplata">
+                      <i class="bi bi-phone"></i> Daviplata
+                    </button>
+                    <button type="button" class="cys-otro-dropdown-item" data-metodo="Bancolombia a la Mano">
+                      <i class="bi bi-bank"></i> Bancolombia a la Mano
+                    </button>
+                    <button type="button" class="cys-otro-dropdown-item" data-metodo="Bre-B">
+                      <i class="bi bi-lightning-charge-fill"></i> Bre-B
+                    </button>
                   </div>
-                  <div class="col-4">
-                    <div class="cys-pago-card">
-                      <div class="cys-pago-card-header cys-pago-card-header--morado">
-                        <i class="bi bi-phone"></i><span>Nequi</span>
-                      </div>
-                      <input type="text" inputmode="numeric" name="pago_nequi"
-                             value="{{ pagos_sticky.pago_nequi|floatformat:0 }}"
-                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
+
+                  <div class="cys-pago-card cys-otro-seleccionado d-none" id="otroSeleccionado">
+                    <div class="cys-pago-card-header cys-pago-card-header--acento">
+                      <i class="bi bi-wallet2"></i><span id="otroMetodoNombre">Nequi</span>
+                      <button type="button" class="cys-otro-cambiar" id="btnOtroCambiar" title="Cambiar método">
+                        <i class="bi bi-pencil-fill"></i>
+                      </button>
                     </div>
+                    <input type="text" inputmode="numeric" name="pago_otro" id="inputPagoOtro"
+                           value="{{ pagos_sticky.pago_otro|default:'0'|floatformat:0 }}"
+                           class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
+                    <input type="hidden" name="metodo_otro" id="inputMetodoOtro"
+                           value="{{ pagos_sticky.metodo_otro|default:'' }}">
                   </div>
-                  <div class="col-4">
-                    <div class="cys-pago-card">
-                      <div class="cys-pago-card-header cys-pago-card-header--daviplata">
-                        <i class="bi bi-phone-fill"></i><span>Daviplata</span>
-                      </div>
-                      <input type="text" inputmode="numeric" name="pago_daviplata"
-                             value="{{ pagos_sticky.pago_daviplata|floatformat:0 }}"
-                             class="form-control cys-input-dark cys-pago-input cys-pago-input-money">
-                    </div>
-                  </div>
+
                 </div>
 
                 <div class="cys-pagos-resumen">
@@ -448,9 +463,19 @@
                 </div>
 
                 <div class="mb-0 mt-3">
-                  <label class="cys-modal-form-label mb-1">Comprobante de pago (si aplica)</label>
-                  <input type="file" name="comprobante_pago" accept="image/*,application/pdf"
-                         class="form-control cys-input-dark">
+                  <div class="cys-comprobante-titulo">
+                    <i class="bi bi-paperclip"></i> Comprobante de pago (si aplica)
+                  </div>
+                  <label class="cys-comprobante-input-wrap" id="labelComprobante">
+                    <span class="cys-comprobante-icono">
+                      <i class="bi bi-file-earmark-arrow-up"></i>
+                    </span>
+                    <input type="file" id="inputComprobantePago" name="comprobante_pago"
+                           accept="image/*,application/pdf">
+                  </label>
+                  <div class="cys-comprobante-nota" id="comprobanteNombreArchivo">
+                    Formatos permitidos: imagen o PDF
+                  </div>
                 </div>
               </div>
 
@@ -478,12 +503,10 @@
 
       <div class="cys-lotes-select-wrap">
         <select name="metodo" class="cys-lotes-select">
-          <option value="todos"         {% if metodo_historial == 'todos' %}selected{% endif %}>Todos</option>
-          <option value="efectivo"      {% if metodo_historial == 'efectivo' %}selected{% endif %}>Efectivo</option>
-          <option value="tarjeta"       {% if metodo_historial == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
-          <option value="transferencia" {% if metodo_historial == 'transferencia' %}selected{% endif %}>Transferencia</option>
-          <option value="nequi"         {% if metodo_historial == 'nequi' %}selected{% endif %}>Nequi</option>
-          <option value="daviplata"     {% if metodo_historial == 'daviplata' %}selected{% endif %}>Daviplata</option>
+          <option value="todos"    {% if metodo_historial == 'todos' %}selected{% endif %}>Todos</option>
+          <option value="efectivo" {% if metodo_historial == 'efectivo' %}selected{% endif %}>Efectivo</option>
+          <option value="tarjeta"  {% if metodo_historial == 'tarjeta' %}selected{% endif %}>Transferencia</option>
+          <option value="otro"     {% if metodo_historial == 'otro' %}selected{% endif %}>Otros métodos</option>
         </select>
       </div>
 
@@ -750,7 +773,7 @@
             <div class="col-6 col-md-3">
               <label class="cys-denom-label">${{ campo.valor|pesos }}</label>
               <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
-                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
                      class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura">
             </div>
             {% endfor %}
@@ -762,7 +785,7 @@
             <div class="col-6 col-md-3">
               <label class="cys-denom-label">${{ campo.valor }}</label>
               <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
-                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
                      class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura">
             </div>
             {% endfor %}
@@ -807,7 +830,7 @@
             <div class="col-6 col-md-3">
               <label class="cys-denom-label">${{ campo.valor|pesos }}</label>
               <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
-                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
                      class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre">
             </div>
             {% endfor %}
@@ -819,7 +842,7 @@
             <div class="col-6 col-md-3">
               <label class="cys-denom-label">${{ campo.valor }}</label>
               <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
-                     value="{{ campo.cantidad }}" data-denom="{{ campo.valor }}"
+                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
                      class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre">
             </div>
             {% endfor %}
@@ -983,6 +1006,97 @@
     });
 
     recalcular();
+  })();
+
+  // ═══════════════════════════════════════════════════════════
+  // OTROS MÉTODOS DE PAGO — Nequi, Daviplata, Bre-B, etc.
+  // ═══════════════════════════════════════════════════════════
+  (function () {
+    const wrap = document.getElementById('otroMetodoWrap');
+    if (!wrap) return;
+
+    const btn = document.getElementById('btnOtroMetodo');
+    const dropdown = document.getElementById('otroDropdown');
+    const seleccionado = document.getElementById('otroSeleccionado');
+    const nombreEl = document.getElementById('otroMetodoNombre');
+    const inputMetodo = document.getElementById('inputMetodoOtro');
+    const inputMonto = document.getElementById('inputPagoOtro');
+    const btnCambiar = document.getElementById('btnOtroCambiar');
+    const items = dropdown.querySelectorAll('.cys-otro-dropdown-item');
+
+    function abrirDropdown() { wrap.classList.add('cys-otro-abierto'); }
+    function cerrarDropdown() { wrap.classList.remove('cys-otro-abierto'); }
+
+    function mostrarSeleccion(metodo) {
+      nombreEl.textContent = metodo;
+      inputMetodo.value = metodo;
+      btn.classList.add('d-none');
+      seleccionado.classList.remove('d-none');
+      cerrarDropdown();
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (wrap.classList.contains('cys-otro-abierto')) {
+        cerrarDropdown();
+      } else {
+        abrirDropdown();
+      }
+    });
+
+    items.forEach(function (item) {
+      item.addEventListener('click', function () {
+        mostrarSeleccion(item.dataset.metodo);
+        inputMonto.focus();
+      });
+    });
+
+    btnCambiar.addEventListener('click', function (e) {
+      e.stopPropagation();
+      abrirDropdown();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) cerrarDropdown();
+    });
+
+    // Si el formulario vuelve a cargar con un método ya elegido
+    // (por ejemplo, tras un error de validación), restaurar la vista.
+    if (inputMetodo.value) {
+      mostrarSeleccion(inputMetodo.value);
+    }
+  })();
+
+  // ═══════════════════════════════════════════════════════════
+  // CLIENTE — botón "Consumidor final"
+  // ═══════════════════════════════════════════════════════════
+  (function () {
+    const btn = document.getElementById('btnClienteIgnorar');
+    const input = document.getElementById('inputClienteNombre');
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', function () {
+      input.value = 'Consumidor Final';
+      input.classList.remove('cys-input-error');
+      input.focus();
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════
+  // COMPROBANTE DE PAGO — mostrar nombre del archivo seleccionado
+  // ═══════════════════════════════════════════════════════════
+  (function () {
+    const input = document.getElementById('inputComprobantePago');
+    const nota = document.getElementById('comprobanteNombreArchivo');
+    if (!input || !nota) return;
+
+    input.addEventListener('change', function () {
+      if (input.files && input.files.length > 0) {
+        nota.textContent = input.files[0].name;
+      } else {
+        nota.textContent = 'Formatos permitidos: imagen o PDF';
+      }
+    });
   })();
 </script>
 

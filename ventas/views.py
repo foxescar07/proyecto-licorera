@@ -275,7 +275,7 @@ def _render_pos(request, sticky=None, error_apertura=None, error_cierre=None):
     total_pagado = sum(_to_decimal(v) for v in pagos_sticky.values())
     diferencia_pago = total_pagado - total_final
 
-    # ── Historial: búsqueda + filtro por método + orden por columna, todo vía GET, sin JS ──
+    # ── Historial: solo ventas del turno actual (desde apertura hasta ahora / cierre) ──
     ventas_qs = (
         Venta.objects
         .prefetch_related('detalles__producto', 'detalles__presentacion')
@@ -285,6 +285,14 @@ def _render_pos(request, sticky=None, error_apertura=None, error_cierre=None):
             precio_max=Max('detalles__precio_unitario'),
         )
     )
+
+    if caja_abierta:
+        ventas_qs = ventas_qs.filter(fecha__gte=caja_abierta.creado_en)
+        if ultimo_cierre:
+            ventas_qs = ventas_qs.filter(fecha__lte=ultimo_cierre.creado_en)
+    else:
+        # No hay turno abierto: no mostramos ventas de turnos pasados
+        ventas_qs = ventas_qs.none()
 
     q = request.GET.get('q', '').strip()
     if q:
