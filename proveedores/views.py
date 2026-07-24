@@ -23,13 +23,17 @@ def lista_proveedores(request):
 
     # Calcular total de compras manualmente para cada proveedor
     for proveedor in proveedores:
-        compras = Compra.objects.filter(proveedor=proveedor)
-        total = sum(
-            (c.cantidad * c.precio_unitario if c.precio_unitario else 0)
-            for c in compras
-        ) or 0
-        proveedor.total_compras = total
-        proveedor.total_ordenes = compras.count()
+        try:
+            compras = Compra.objects.filter(proveedor=proveedor)
+            total = sum(
+                (c.cantidad * c.precio_unitario if c.precio_unitario else 0)
+                for c in compras
+            ) or 0
+            proveedor.total_compras = total
+            proveedor.total_ordenes = compras.count()
+        except Exception:
+            proveedor.total_compras = 0
+            proveedor.total_ordenes = 0
 
     # Filtros
     q = request.GET.get('q', '')
@@ -73,14 +77,22 @@ def lista_proveedores(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
-    # Calcular gastos por proveedor para la gráfica
+    # Calcular gastos por proveedor para la gráfica - usar raw SQL para evitar Decimal
     gastos_proveedor_dict = {}
-    for c in Compra.objects.select_related('proveedor'):
-        total = (c.cantidad * c.precio_unitario) if c.precio_unitario else 0
-        nombre = c.proveedor.nombre_empresa
-        if nombre not in gastos_proveedor_dict:
-            gastos_proveedor_dict[nombre] = 0
-        gastos_proveedor_dict[nombre] += total
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT p.nombre_empresa, SUM(c.cantidad) as total
+                FROM proveedores_compra c
+                JOIN proveedores_proveedor p ON c.proveedor_id = p.id
+                GROUP BY p.id, p.nombre_empresa
+                ORDER BY total DESC
+            """)
+            for nombre, total in cursor.fetchall():
+                gastos_proveedor_dict[nombre] = total or 0
+    except Exception:
+        gastos_proveedor_dict = {}
 
     # Ordenar y tomar top 5
     gastos_ordenados = sorted(gastos_proveedor_dict.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -247,15 +259,71 @@ def lista_compras(request):
             request.session['proveedor_id'] = primer_proveedor.id
             proveedor = primer_proveedor
 
+    # Obtener compras de forma simple
     compras = []
-    if proveedor:
-        compras = Compra.objects.filter(proveedor=proveedor).order_by('-fecha_registro')
+    compras_count = 0
+    subtotal = 0
 
-    # Calcular subtotal
-    subtotal = sum(
-        (c.cantidad * c.precio_unitario) for c in compras
-        if c.precio_unitario
-    ) or 0
+    if proveedor:
+        compras = []
+        compras_count = 0
+        subtotal = 0
+
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                # Ver TODAS las compras (sin filtro) para diagnosticar
+                cursor.execute("""
+                    SELECT c.id, c.producto_id, c.cantidad, CAST(c.precio_unitario AS REAL),
+                           CAST(c.total AS REAL), c.fecha_registro, c.estado, c.estado_pago, c.recibida,
+                           p.nombre, c.proveedor_id
+                    FROM proveedores_compra c
+                    LEFT JOIN productos_producto p ON c.producto_id = p.id
+                    ORDER BY c.fecha_registro DESC
+                """)
+
+                rows = cursor.fetchall()
+                print(f"DEBUG: TOTAL Filas en BD: {len(rows)}")
+                print(f"DEBUG: Proveedor actual: {proveedor.id}")
+
+                for row in rows:
+                    prov_id_row = row[10]  # proveedor_id from query
+                    print(f"DEBUG: Compra ID:{row[0]}, Proveedor:{prov_id_row}, Producto:{row[9]}")
+
+                    # Filtrar solo compras del proveedor actual
+                    if prov_id_row == proveedor.id:
+                        class C:
+                            pass
+                        c = C()
+                        c.id = row[0]
+                        c.producto_id = row[1]
+                        c.cantidad = row[2]
+                        c.precio_unitario = float(row[3] or 0)
+                        c.total = float(row[4] or 0)
+                        c.fecha_registro = row[5]
+                        c.estado = row[6]
+                        c.estado_pago = row[7]
+                        c.recibida = row[8]
+
+                        class P:
+                            pass
+                        c.producto = P()
+                        c.producto.nombre = row[9] or f"Producto {row[1]}"
+
+                        compras.append(c)
+                        print(f"DEBUG: ✓ Compra AÑADIDA - ID: {c.id}")
+
+                compras_count = len(compras)
+                subtotal = sum(float(c.precio_unitario or 0) * c.cantidad for c in compras) or 0
+                print(f"DEBUG: TOTAL compras para este proveedor: {compras_count}, Subtotal: {subtotal}")
+
+        except Exception as e:
+            print(f"ERROR en lista_compras: {e}")
+            import traceback
+            traceback.print_exc()
+            compras = []
+            compras_count = 0
+            subtotal = 0
 
     # Registrar nueva compra
     if request.method == 'POST':
@@ -264,15 +332,93 @@ def lista_compras(request):
             return redirect('lista_compras')
 
         form = CompraForm(request.POST)
+        print(f"DEBUG: Form válido: {form.is_valid()}, Proveedor: {proveedor.id if proveedor else 'None'}")
+        if not form.is_valid():
+            print(f"DEBUG: Errores del formulario: {form.errors}")
 
         if form.is_valid():
             try:
+                from inventario.models import Inventario, Lote
+                from productos.models import PresentacionProducto
+
+                if not proveedor:
+                    print(f"DEBUG: ERROR - Proveedor es None!")
+                    messages.error(request, 'Error: Proveedor no válido.')
+                    return redirect('lista_compras')
+
                 compra = form.save(commit=False)
                 compra.proveedor = proveedor
+                print(f"DEBUG: Guardando compra - Proveedor: {proveedor.id} ({proveedor.nombre_empresa}), Producto: {compra.producto_id}, Cantidad: {compra.cantidad}")
                 compra.save()
-                messages.success(request, f'Compra registrada exitosamente.')
+                print(f"DEBUG: Compra guardada exitosamente - ID: {compra.id}, Proveedor guardado: {compra.proveedor_id}")
+
+                # Registrar en historial de compras
+                try:
+                    from .models import HistorialCompra
+                    producto_nombre = compra.producto.nombre if compra.producto else 'Producto desconocido'
+                    HistorialCompra.objects.create(
+                        compra=compra,
+                        evento='creada',
+                        usuario=request.user,
+                        descripcion=f'Compra registrada: {compra.cantidad} x {producto_nombre}'
+                    )
+                    print(f"DEBUG: Historial creado para compra {compra.id}")
+                except Exception as e:
+                    print(f"DEBUG: Error creando historial: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+                producto = compra.producto
+
+                # Crear lote automáticamente si no existe
+                if not compra.lote:
+                    presentacion = producto.presentaciones.first()
+
+                    # Si no hay presentación, crear una automáticamente
+                    if not presentacion:
+                        presentacion = PresentacionProducto.objects.create(
+                            producto=producto,
+                            nombre=f"{producto.nombre} - Presentación Estándar",
+                            cantidad=0,
+                            unidad_medida="unidades"
+                        )
+
+                    import uuid
+                    lote_numero = f"LOTE-{uuid.uuid4().hex[:8].upper()}"
+                    compra.lote = Lote.objects.create(
+                        numero_lote=lote_numero,
+                        presentacion=presentacion,
+                        stock_actual=compra.cantidad,
+                        costo_unitario=compra.precio_unitario or 0,
+                        registrado_por=request.user
+                    )
+                    compra.save()
+
+                # Actualizar cantidad disponible del producto
+                producto.cantidad_disponible += compra.cantidad
+                producto.save()
+
+                # Obtener la presentación del lote
+                presentacion = compra.lote.presentacion
+                presentacion.cantidad += compra.cantidad
+                presentacion.save()
+
+                # Crear movimiento de inventario (entrada)
+                Inventario.objects.create(
+                    presentacion=presentacion,
+                    lote=compra.lote,
+                    registrado_por=request.user,
+                    tipo='entrada',
+                    cantidad=compra.cantidad,
+                    motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
+                )
+
+                messages.success(request, f'✅ {compra.cantidad} unidades de "{producto.nombre}" ingresadas a inventario correctamente.')
                 return redirect('lista_compras')
             except Exception as e:
+                print(f"DEBUG: Error guardando compra: {e}")
+                import traceback
+                traceback.print_exc()
                 messages.error(request, f'Error al registrar la compra: {str(e)}')
         else:
             for field, errors in form.errors.items():
@@ -281,28 +427,55 @@ def lista_compras(request):
     else:
         form = CompraForm()
 
-    # Estadísticas
-    ahora = timezone.now()
-    # Calcular gasto de esta semana (últimos 7 días)
-    hace_7_dias = ahora - timedelta(days=7)
-    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
-    total_gastado = sum(
-        (c.cantidad * c.precio_unitario) for c in compras_semana
-        if c.precio_unitario
-    ) or 0
+    # Estadísticas - Calcular gasto de esta semana (últimos 7 días)
+    hoy = timezone.now()
+    hace_7_dias = hoy - timedelta(days=7)
 
-    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    compras_mes = Compra.objects.filter(fecha_registro__gte=inicio_mes)
-    count_mes = compras_mes.count()
-    total_mes = sum(
-        (c.cantidad * c.precio_unitario) for c in compras_mes
-        if c.precio_unitario
-    ) or 0
+    try:
+        # Usar exclude para evitar errores de Decimal NULL
+        compras_semana_qs = Compra.objects.filter(fecha_registro__gte=hace_7_dias).exclude(total__isnull=True)
+        total_gastado = float(sum(c.total for c in compras_semana_qs) or 0)
+    except Exception:
+        total_gastado = 0
 
-    # Producto top
-    producto_top = Compra.objects.values('producto__nombre').annotate(
-        total_und=Sum('cantidad')
-    ).order_by('-total_und').first()
+    # Compras este mes
+    count_mes = Compra.objects.filter(
+        fecha_registro__year=hoy.year,
+        fecha_registro__month=hoy.month,
+    ).count()
+
+    try:
+        compras_mes_qs = Compra.objects.filter(
+            fecha_registro__year=hoy.year,
+            fecha_registro__month=hoy.month,
+        ).exclude(total__isnull=True)
+        total_mes = float(sum(c.total for c in compras_mes_qs) or 0)
+    except Exception:
+        total_mes = 0
+
+    # Producto top - filtrado por proveedor seleccionado
+    try:
+        if proveedor:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT p.nombre, SUM(c.cantidad) as total
+                    FROM proveedores_compra c
+                    LEFT JOIN productos_producto p ON c.producto_id = p.id
+                    WHERE c.proveedor_id = %s
+                    GROUP BY COALESCE(p.id, -1), COALESCE(p.nombre, 'Sin producto')
+                    ORDER BY total DESC
+                    LIMIT 1
+                """, [proveedor.id])
+                row = cursor.fetchone()
+                if row:
+                    producto_top = {'producto__nombre': row[0], 'total_und': row[1]}
+                else:
+                    producto_top = None
+        else:
+            producto_top = None
+    except Exception:
+        producto_top = None
 
     # ====== DATOS PARA GRÁFICOS ======
     hoy = timezone.now()
@@ -349,14 +522,22 @@ def lista_compras(request):
     productos_labels = [p['producto__nombre'] for p in productos_top_list]
     productos_data = [p['cantidad'] for p in productos_top_list]
 
-    # Gastos por proveedor
+    # Gastos por proveedor - usar raw SQL para evitar Decimal
     gastos_proveedor_dict = {}
-    for c in Compra.objects.select_related('proveedor'):
-        total = (c.cantidad * c.precio_unitario) if c.precio_unitario else 0
-        nombre = c.proveedor.nombre_empresa
-        if nombre not in gastos_proveedor_dict:
-            gastos_proveedor_dict[nombre] = 0
-        gastos_proveedor_dict[nombre] += total
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT p.nombre_empresa, SUM(c.cantidad) as total
+                FROM proveedores_compra c
+                JOIN proveedores_proveedor p ON c.proveedor_id = p.id
+                GROUP BY p.id, p.nombre_empresa
+                ORDER BY total DESC
+            """)
+            for nombre, total in cursor.fetchall():
+                gastos_proveedor_dict[nombre] = total or 0
+    except Exception:
+        gastos_proveedor_dict = {}
 
     # Ordenar y tomar top 5
     gastos_ordenados = sorted(gastos_proveedor_dict.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -371,10 +552,11 @@ def lista_compras(request):
 
     context = {
         'compras': compras,
+        'compras_count': compras_count,
         'proveedor': proveedor,
         'todos_proveedores': todos_proveedores,
         'form': form,
-        'subtotal': subtotal,
+        'subtotal_compras': subtotal,
         'total_gastado': total_gastado,
         'count_mes': count_mes,
         'total_mes': total_mes,
@@ -421,14 +603,50 @@ def registrar_compra(request):
             proveedor = primer_proveedor
 
     compras = []
-    if proveedor:
-        compras = Compra.objects.filter(proveedor=proveedor).order_by('-fecha_registro')
+    subtotal = 0
 
-    # Calcular subtotal
-    subtotal = sum(
-        (c.cantidad * c.precio_unitario) for c in compras
-        if c.precio_unitario
-    ) or 0
+    if proveedor:
+        compras = []
+        subtotal = 0
+
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT c.id, c.producto_id, c.cantidad, c.precio_unitario, c.total,
+                           c.fecha_registro, c.estado, c.estado_pago, c.recibida, p.nombre
+                    FROM proveedores_compra c
+                    LEFT JOIN productos_producto p ON c.producto_id = p.id
+                    WHERE c.proveedor_id = ?
+                    ORDER BY c.fecha_registro DESC
+                """, [proveedor.id])
+
+                for row in cursor.fetchall():
+                    class C:
+                        pass
+                    c = C()
+                    c.id = row[0]
+                    c.producto_id = row[1]
+                    c.cantidad = row[2]
+                    c.precio_unitario = float(row[3] or 0)
+                    c.total = float(row[4] or 0)
+                    c.fecha_registro = row[5]
+                    c.estado = row[6]
+                    c.estado_pago = row[7]
+                    c.recibida = row[8]
+
+                    class P:
+                        pass
+                    c.producto = P()
+                    c.producto.nombre = row[9]
+
+                    compras.append(c)
+
+                subtotal = sum(float(c.precio_unitario or 0) * c.cantidad for c in compras) or 0
+        except Exception as e:
+            print(f"Error: {e}")
+            compras = []
+            subtotal = 0
 
     # Registrar nueva compra
     if request.method == 'POST':
@@ -439,43 +657,78 @@ def registrar_compra(request):
         form = CompraForm(request.POST)
 
         if form.is_valid():
+            from inventario.models import Inventario, Lote
+            from productos.models import PresentacionProducto
+
+            compra = form.save(commit=False)
+            compra.proveedor = proveedor
+            compra.save()
+
+            # Registrar en historial de compras
             try:
-                compra = form.save(commit=False)
-                compra.proveedor = proveedor
-                compra.save()
+                from .models import HistorialCompra
+                producto_nombre = compra.producto.nombre if compra.producto else 'Producto desconocido'
+                HistorialCompra.objects.create(
+                    compra=compra,
+                    evento='creada',
+                    usuario=request.user,
+                    descripcion=f'Compra registrada: {compra.cantidad} x {producto_nombre}'
+                )
+            except Exception as e:
+                print(f"Error creando historial: {e}")
+                import traceback
+                traceback.print_exc()
 
-                # Actualizar cantidad disponible del producto
-                producto = compra.producto
-                producto.cantidad_disponible += compra.cantidad
-                producto.save()
+            producto = compra.producto
 
-                # Crear registro en inventario solo si hay lote
-                if compra.lote:
-                    from inventario.models import Inventario
+            # Crear lote automáticamente si no existe
+            if not compra.lote:
+                presentacion = producto.presentaciones.first()
 
-                    # Obtener la presentación del lote
-                    presentacion = compra.lote.presentacion
-                    presentacion.cantidad += compra.cantidad
-                    presentacion.save()
-
-                    # Crear movimiento de inventario
-                    Inventario.objects.create(
-                        presentacion=presentacion,
-                        lote=compra.lote,
-                        registrado_por=request.user,
-                        tipo='entrada',
-                        cantidad=compra.cantidad,
-                        motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
+                # Si no hay presentación, crear una automáticamente
+                if not presentacion:
+                    presentacion = PresentacionProducto.objects.create(
+                        producto=producto,
+                        nombre=f"{producto.nombre} - Presentación Estándar",
+                        cantidad=0,
+                        unidad_medida="unidades"
                     )
 
-                messages.success(
-                    request,
-                    f'✅ {compra.cantidad} unidades de "{producto.nombre}" ingresadas correctamente.'
+                import uuid
+                lote_numero = f"LOTE-{uuid.uuid4().hex[:8].upper()}"
+                compra.lote = Lote.objects.create(
+                    numero_lote=lote_numero,
+                    presentacion=presentacion,
+                    stock_actual=compra.cantidad,
+                    costo_unitario=compra.precio_unitario or 0,
+                    registrado_por=request.user
                 )
-                return redirect('registrar_compra')
+                compra.save()
 
-            except Exception as e:
-                messages.error(request, f'Error al registrar la compra: {str(e)}')
+            # Actualizar cantidad disponible del producto
+            producto.cantidad_disponible += compra.cantidad
+            producto.save()
+
+            # Obtener la presentación del lote
+            presentacion = compra.lote.presentacion
+            presentacion.cantidad += compra.cantidad
+            presentacion.save()
+
+            # Crear movimiento de inventario (entrada)
+            Inventario.objects.create(
+                presentacion=presentacion,
+                lote=compra.lote,
+                registrado_por=request.user,
+                tipo='entrada',
+                cantidad=compra.cantidad,
+                motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
+            )
+
+            messages.success(
+                request,
+                f'✅ {compra.cantidad} unidades de "{producto.nombre}" ingresadas a inventario correctamente.'
+            )
+            return redirect('registrar_compra')
         else:
             # Mostrar errores del formulario
             for field, errors in form.errors.items():
@@ -1132,11 +1385,27 @@ def cambiar_estado_compra(request, compra_id):
         if nuevo_estado not in transiciones_validas.get(compra.estado, []):
             messages.error(request, f'No se puede cambiar de {compra.estado} a {nuevo_estado}.')
         else:
+            estado_anterior = compra.estado
             compra.estado = nuevo_estado
             if nuevo_estado == 'recibida':
                 compra.recibida = True
                 compra.fecha_recepcion = timezone.now()
             compra.save()
+
+            # Registrar en historial
+            from .models import HistorialCompra
+            evento_map = {
+                'recibida': 'recibida',
+                'pagada': 'pagada',
+                'cancelada': 'cancelada',
+                'confirmada': 'editada',
+            }
+            HistorialCompra.objects.create(
+                compra=compra,
+                evento=evento_map.get(nuevo_estado, 'editada'),
+                usuario=request.user,
+                descripcion=f'Estado cambió de {estado_anterior} a {nuevo_estado}'
+            )
             messages.success(request, f'✓ Estado actualizado a {nuevo_estado.capitalize()}')
     except Compra.DoesNotExist:
         messages.error(request, 'Compra no encontrada')

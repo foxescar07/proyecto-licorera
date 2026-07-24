@@ -65,9 +65,9 @@
         <div class="kpi-icon-box purple"><i class="bi bi-star"></i></div>
         <span class="kpi-badge purple">TOP</span>
       </div>
-      <div class="kpi-value purple">{% if producto_top %}{{ producto_top.total_und }}{% else %}0{% endif %}</div>
+      <div class="kpi-value purple">{% if producto_top %}{{ producto_top.total_und|floatformat:0 }}{% else %}0{% endif %}</div>
       <p class="kpi-title">Producto Top</p>
-      <p class="kpi-sub">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }}{% else %}Sin compras{% endif %}</p>
+      <p class="kpi-sub">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }} unid.{% else %}Sin compras{% endif %}</p>
     </div>
 
     <!-- Nueva Compra (Acción → abre modal) -->
@@ -132,14 +132,8 @@
         <p>Selecciona un proveedor para comenzar a registrar compras</p>
       </div>
       {% endif %}
-    </div>
-  </div>
 
-  <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
-  <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
-  <div class="row g-3 align-items-stretch">
-    <div class="col-12">
-      <div class="card card-dev card-header-top">
+      <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
 
         <!-- Header clicable para colapsar -->
         <div class="card-header border-bottom gradient-header">
@@ -164,7 +158,7 @@
                       title="Nueva compra">
                 <i class="bi bi-plus-circle me-2"></i>Nueva compra
               </button>
-              <span class="badge badge-cyan">{{ compras|length|default:0 }}</span>
+              <span class="badge badge-cyan">{{ compras_count|default:0 }}</span>
               <!-- Solo el chevron controla el collapse -->
               <i class="bi bi-chevron-down"
                 
@@ -202,9 +196,6 @@
                         <i class="bi bi-box icon-primary"></i>
                         <div>
                           <div class="fw-semibold small">{{ compra.producto.nombre }}</div>
-                          {% if compra.producto.categoria %}
-                            <small class="text-muted">{{ compra.producto.categoria.nombre }}</small>
-                          {% endif %}
                         </div>
                       </div>
                     </td>
@@ -333,7 +324,7 @@
                     <td colspan="5" class="text-end fw-bold text-uppercase small">
                       <i class="bi bi-calculator me-1"></i>Subtotal
                     </td>
-                    <td class="text-end fw-bold text-success">${{ subtotal_compras|default:0|floatformat:0 }}</td>
+                    <td class="text-end fw-bold text-success" style="white-space: nowrap;">$<span id="subtotal-formatted">{{ subtotal_compras|default:0|floatformat:0 }}</span></td>
                     <td colspan="3"></td>
                   </tr>
                 </tfoot>
@@ -343,10 +334,9 @@
         </div>
         <!-- fin collapse -->
 
-      </div>
+      <!-- ====== FIN HISTORIAL ====== -->
     </div>
   </div>
-  <!-- ====== FIN HISTORIAL ====== -->
 
   <!-- ====== GRÁFICOS ====== -->
   <div class="row g-3 mt-4">
@@ -405,11 +395,13 @@
           <div class="mb-4">
             <label class="dev-form-label">Proveedor Seleccionado</label>
             <select id="proveedorSeleccionado" name="proveedor_id" class="form-select form-select-lg" required>
-              <option value="">Selecciona proveedor</option>
+              {% if proveedor %}
+                <option value="{{ proveedor.id }}" selected>{{ proveedor.nombre_empresa }}</option>
+              {% endif %}
               {% for prov in todos_proveedores %}
-                <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
-                  {{ prov.nombre_empresa }}
-                </option>
+                {% if not proveedor or prov.id != proveedor.id %}
+                  <option value="{{ prov.id }}">{{ prov.nombre_empresa }}</option>
+                {% endif %}
               {% endfor %}
             </select>
           </div>
@@ -518,7 +510,7 @@
               <div class="detalle-card h-100">
                 <div class="detalle-icon"><i class="bi bi-tags"></i></div>
                 <p class="detalle-label">Lote</p>
-                <p class="detalle-value">{% if compra.lote %}{{ compra.lote.numero_lote }}{% else %}Sin lote{% endif %}</p>
+                <p class="detalle-value">{% if compra.numero_lote %}{{ compra.numero_lote }}{% else %}Sin lote{% endif %}</p>
               </div>
             </div>
 
@@ -762,7 +754,34 @@
     </div>
 </div>
 
+{% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Formatear SUBTOTAL
+  const subtotalEl = document.getElementById('subtotal-formatted');
+  if (subtotalEl) {
+    const num = parseInt(subtotalEl.textContent) || 0;
+    subtotalEl.textContent = num.toLocaleString('es-CO');
+  }
 
+  // Formatear KPI values
+  document.querySelectorAll('.kpi-formatted').forEach(el => {
+    const num = parseInt(el.getAttribute('data-value')) || 0;
+    el.textContent = '$' + num.toLocaleString('es-CO');
+  });
 
+  // Auto-reload después de registrar compra
+  const formNuevaCompra = document.getElementById('formNuevaCompra');
+  if (formNuevaCompra) {
+    formNuevaCompra.addEventListener('submit', function() {
+      // Esperar 1 segundo y luego refrescar
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    });
+  }
+});
+</script>
 {% endblock %}

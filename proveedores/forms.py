@@ -195,7 +195,7 @@ class DetalleCompraForm(forms.ModelForm):
 class LoteForm(forms.ModelForm):
     class Meta:
         model = Lote
-        fields = ['numero_lote', 'presentacion', 'stock_actual', 'costo_unitario', 'fecha_vencimiento', 'detalle_compra']
+        fields = ['numero_lote', 'presentacion', 'stock_actual', 'costo_unitario', 'fecha_vencimiento']
         widgets = {
             'numero_lote': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -247,15 +247,16 @@ class CompraForm(forms.ModelForm):
 
     precio_unitario = forms.DecimalField(
         required=False,
-        decimal_places=2,
+        decimal_places=0,
         max_digits=10,
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
-            'placeholder': '15000',
+            'placeholder': 'Ej: 15000',
             'id': 'inputPrecio',
-            'step': '1000'
+            'step': '1000',
+            'title': 'Precio en pesos colombianos (COP)'
         }),
-        label='Precio Unitario (Opcional)'
+        label='Precio Unitario en COP (Opcional)'
     )
 
     lote = forms.ModelChoiceField(
