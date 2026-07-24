@@ -1,28 +1,47 @@
 /* ════════════════════════════════════════════════════════════════
    VENTAS.CSS — Punto de Venta CYS Ltda
+   Paleta aplicada: FFFFFF · 0A2A52 · 011936 (base del módulo)
+   CF9C48 (dorado) queda reservado ÚNICAMENTE para lo que antes era
+   rojo/peligro (cancelar, eliminar, alertas, stock crítico, faltante).
+   Todo lo demás se mantiene entre azul oscuro (fondos) y blanco (texto/acentos).
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Estas variables ahora heredan del tema global (base.js).
-     El valor tras la coma es el fallback si la variable global
-     no existe todavía, para no romper nada si algo carga fuera de orden. */
-  --cys-bg-card:       var(--fondo-card, #11233f);
-  --cys-surface:       var(--fondo-card2, #0d1c33);
-  --cys-borde:         var(--azul-borde, rgba(77, 168, 218, 0.25));
-  --cys-borde-focus:   var(--azul-claro, #4da8da);
-  --cys-texto-muted:   var(--texto-muted, #6b8296);
-  --cys-acento:        var(--azul-claro, #4da8da);
-  --cys-verde:         var(--verde, #2ecc71);
-  --cys-rojo:          var(--rojo, #e74c3c);
-  --cys-cian-brillante:#00c2ff; /* color de acción fijo del módulo, no forma parte de los 5 temas */
+  /* Los valores quedan fijos directamente aquí (en vez de depender solo
+     del tema global en base.js) para garantizar que este módulo se vea
+     con la paleta nueva aunque el tema global todavía no se haya
+     actualizado. Si el tema global ya está al día, estos valores
+     coinciden con él de todas formas. */
+  --cys-bg-card:       #0A2A52;
+  --cys-surface:       #011936;
+  --cys-borde:         rgba(255, 255, 255, 0.15);
+  --cys-borde-focus:   #FFFFFF;
+  --cys-texto-muted:   rgba(255, 255, 255, 0.55); /* blanco con opacidad, sin tono azul/gris viejo */
+  --cys-acento:        #FFFFFF;
+  --cys-verde:         #2ecc71; /* ÚNICO uso: mensajes de éxito / dinero (total pagado, "Pagado", cambio) */
+  --cys-rojo:          #CF9C48; /* dorado: único uso para peligro/error/faltante */
+  --cys-cian-brillante:#FFFFFF;
 }
 
 /* ── CONTENEDOR GENERAL ── */
 .cys-page-wrapper {
-  background-color: var(--fondo, #0a1628);
+  background-color: #011936;
   min-height: 100vh;
-  font-family: sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
+
+/* ── Alertas de Bootstrap alineadas a la paleta CYS ── */
+.cys-page-wrapper .alert-danger {
+  background: rgba(207, 156, 72, 0.1) !important;
+  border: 1px solid rgba(207, 156, 72, 0.35) !important;
+  color: #CF9C48 !important;
+}
+.cys-page-wrapper .alert-info {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--cys-borde) !important;
+  color: var(--texto, #fff) !important;
+}
+.cys-page-wrapper .alert-info i { color: var(--cys-acento) !important; }
 
 /* ══════════════════════════════════════
    BARRA DE ESTADO DE CAJA
@@ -45,8 +64,8 @@
   flex-shrink: 0;
 }
 .cys-icon-circle--verde { background: rgba(46, 204, 113, 0.1); }
-.cys-icon-circle--rojo  { background: rgba(231, 76, 60, 0.1); }
-.cys-icon-circle--verde i { color: #2ed573; font-size: 0.6rem; }
+.cys-icon-circle--rojo  { background: rgba(207, 156, 72, 0.1); }
+.cys-icon-circle--verde i { color: var(--cys-verde); font-size: 0.6rem; }
 .cys-icon-circle--rojo  i { color: var(--cys-rojo); font-size: 1.1rem; }
 
 .cys-kpi-value-lg {
@@ -64,7 +83,7 @@
 .cys-btn-action-cian {
   background: var(--cys-cian-brillante);
   border: none;
-  color: #000; /* texto sobre botón cian fijo, no depende del tema */
+  color: #001f38; /* texto oscuro sobre botón claro */
   border-radius: 50px;
   padding: 8px 24px;
   font-size: 0.9rem;
@@ -77,8 +96,8 @@
   cursor: pointer;
 }
 .cys-btn-action-cian:hover {
-  background: #00a3d9;
-  color: #000;
+  background: rgba(255, 255, 255, 0.85);
+  color: #001f38;
   transform: translateY(-1px);
 }
 
@@ -108,9 +127,9 @@
 }
 
 .cys-btn-action-rojo {
-  background: rgba(231, 76, 60, 0.1);
-  border: 1px solid rgba(231, 76, 60, 0.3);
-  color: #e74c3c;
+  background: rgba(207, 156, 72, 0.1);
+  border: 1px solid rgba(207, 156, 72, 0.3);
+  color: #CF9C48;
   border-radius: 50px;
   padding: 8px 24px;
   font-size: 0.9rem;
@@ -122,8 +141,8 @@
   cursor: pointer;
 }
 .cys-btn-action-rojo:hover {
-  background: rgba(231, 76, 60, 0.2);
-  border-color: #e74c3c;
+  background: rgba(207, 156, 72, 0.2);
+  border-color: #CF9C48;
 }
 
 /* ══════════════════════════════════════
@@ -144,7 +163,7 @@
 .cys-panel-header {
   padding: 1.2rem 1.5rem;
   border-bottom: 1px solid var(--cys-borde);
-  background: rgba(77, 168, 218, 0.02);
+  background: rgba(255, 255, 255, 0.02);
 }
 .cys-panel-header-title {
   font-size: 0.95rem;
@@ -254,7 +273,7 @@
 /* ══════════════════════════════════════
    FIX 1 — ALERTA DE CLIENTE OBLIGATORIO
    Mismo estilo tipográfico que la página
-   (sans-serif, peso 600, rojo CYS)
+   (sans-serif, peso 600, dorado CYS para peligro/error)
 ══════════════════════════════════════ */
 .cys-campo-error {
   display: flex;
@@ -262,11 +281,11 @@
   gap: 6px;
   margin-top: 6px;
   padding: 6px 10px;
-  background: rgba(231, 76, 60, 0.08);
-  border: 1px solid rgba(231, 76, 60, 0.25);
+  background: rgba(207, 156, 72, 0.08);
+  border: 1px solid rgba(207, 156, 72, 0.25);
   border-radius: 6px;
   color: var(--cys-rojo);
-  font-family: sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.2px;
@@ -280,7 +299,7 @@
 /* Estado de error en el input */
 .cys-input-error {
   border-color: var(--cys-rojo) !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15) !important;
+  box-shadow: 0 0 0 2px rgba(207, 156, 72, 0.15) !important;
 }
 
 /* ══════════════════════════════════════
@@ -299,9 +318,9 @@
 }
 .cys-cat-card-premium:hover {
   border-color: var(--cys-acento);
-  background: rgba(77, 168, 218, 0.03);
+  background: rgba(255, 255, 255, 0.03);
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
 }
 
 /* Variante centrada (vista de categorías padre) */
@@ -329,7 +348,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(77, 168, 218, 0.12);
+  background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -351,7 +370,7 @@
 }
 
 .cys-cat-card-precio {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--cys-acento);
@@ -376,8 +395,8 @@
   flex-shrink: 0;
 }
 .cys-stock-badge--ok      { color: var(--cys-verde); background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.25); }
-.cys-stock-badge--bajo    { color: #f5a623; background: rgba(245, 166, 35, 0.1); border-color: rgba(245, 166, 35, 0.25); }
-.cys-stock-badge--critico { color: var(--cys-rojo); background: rgba(231, 76, 60, 0.1); border-color: rgba(231, 76, 60, 0.25); }
+.cys-stock-badge--bajo    { color: var(--cys-rojo); background: rgba(207, 156, 72, 0.06); border-color: rgba(207, 156, 72, 0.18); }
+.cys-stock-badge--critico { color: var(--cys-rojo); background: rgba(207, 156, 72, 0.18); border-color: rgba(207, 156, 72, 0.4); }
 
 /* ══════════════════════════════════════
    FORMULARIO DE VENTA / CARRITO
@@ -406,19 +425,19 @@
   font-size: 0.85rem;
 }
 .cys-sugerencias-item:hover {
-  background: rgba(77, 168, 218, 0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .cys-carrito-vacio {
   border: 1px dashed var(--cys-borde);
   border-radius: 8px;
-  background: rgba(77, 168, 218, 0.01);
+  background: rgba(255, 255, 255, 0.01);
 }
 .cys-carrito-vacio-icono-box {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(77, 168, 218, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -426,7 +445,7 @@
 }
 .cys-carrito-vacio-icono-box i {
   font-size: 1.6rem;
-  color: rgba(77, 168, 218, 0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 .cys-carrito-vacio-titulo {
   font-size: 0.9rem;
@@ -439,8 +458,31 @@
   color: var(--cys-texto-muted);
 }
 
+/* ── Botón "Consumidor final" (campo Cliente) ── */
+.cys-btn-ignorar-cliente {
+  background: transparent;
+  border: 1px dashed var(--cys-borde);
+  color: var(--cys-texto-muted);
+  border-radius: 50px;
+  padding: 3px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.cys-btn-ignorar-cliente:hover {
+  border-color: var(--cys-acento);
+  color: var(--texto, #fff);
+  background: rgba(255, 255, 255, 0.04);
+}
+.cys-btn-ignorar-cliente i { font-size: 0.75rem; }
+
 /* ══════════════════════════════════════
-   DESCUENTO — con Rajdhani
+   DESCUENTO — con Plus Jakarta Sans
 ══════════════════════════════════════ */
 .cys-descuento-box {
   background: var(--cys-surface);
@@ -461,7 +503,7 @@
 
 .cys-descuento-label {
   color: var(--cys-texto-muted);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -473,7 +515,7 @@
   background: var(--cys-bg-card) !important;
   border: 1px solid var(--cys-borde) !important;
   color: var(--cys-acento) !important;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
   font-size: 1.1rem;
   border-radius: 8px !important;
@@ -495,7 +537,7 @@
 }
 
 .cys-descuento-fila-label {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.4px;
@@ -503,14 +545,14 @@
 }
 
 .cys-descuento-fila-valor {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--texto, #fff);
 }
 
 .cys-descuento-fila-valor--rojo {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--cys-rojo);
@@ -518,7 +560,7 @@
 
 /* ── Total general ── */
 .cys-total-box {
-  background: rgba(77, 168, 218, 0.06);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--cys-borde);
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -530,14 +572,14 @@
   text-transform: uppercase;
 }
 .cys-total-monto {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
   color: var(--cys-acento);
 }
 
 /* ══════════════════════════════════════
-   FIX 2 — MÉTODOS DE PAGO
+   MÉTODOS DE PAGO
 ══════════════════════════════════════ */
 .cys-pagos-box {
   background: var(--cys-surface);
@@ -547,7 +589,7 @@
 }
 
 .cys-pagos-titulo {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--cys-texto-muted);
   font-size: 0.82rem;
   font-weight: 700;
@@ -557,7 +599,7 @@
 }
 
 .cys-pagos-input-label {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.75rem;
   color: var(--cys-texto-muted);
   font-weight: 700;
@@ -577,7 +619,7 @@
 }
 
 .cys-pagos-footer-label {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--cys-texto-muted);
   font-size: 0.82rem;
   font-weight: 700;
@@ -586,7 +628,7 @@
 }
 
 .cys-pagos-footer-valor {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--cys-acento);
@@ -603,7 +645,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -612,13 +654,11 @@
 }
 
 .cys-pago-card-header--verde        { color: var(--cys-verde); }
-.cys-pago-card-header--acento       { color: var(--cys-acento); }
-.cys-pago-card-header--transferencia { color: #60a5fa; }
-.cys-pago-card-header--morado       { color: #a78bfa; }
-.cys-pago-card-header--daviplata    { color: #818cf8; }
+.cys-pago-card-header--acento        { color: var(--cys-acento); }
+.cys-pago-card-header--azul          { color: #7eb8d4; } /* Transferencia: azul acero frío, combina con la paleta CYS */
 
 .cys-pago-input {
-  font-family: 'Rajdhani', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-weight: 700 !important;
   font-size: 1rem !important;
 }
@@ -637,7 +677,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 3px 0;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -648,9 +688,124 @@
 .cys-efectivo-fila--cambio { color: var(--cys-verde); }
 
 .cys-efectivo-monto {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 800;
+}
+
+/* ══════════════════════════════════════
+   MÉTODO DE PAGO — "OTROS" (Nequi, Daviplata, Bre-B, etc.)
+══════════════════════════════════════ */
+.cys-otro-metodo-wrap {
+  position: relative;
+  margin-top: 8px;
+}
+
+.cys-otro-metodo-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cys-bg-card);
+  border: 1px dashed var(--cys-borde);
+  color: var(--cys-texto-muted);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cys-otro-metodo-btn:hover {
+  border-color: var(--cys-acento);
+  color: var(--texto, #fff);
+}
+.cys-otro-metodo-btn-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--cys-acento);
+}
+.cys-otro-metodo-btn span:nth-child(2) { flex: 1; text-align: left; }
+.cys-otro-metodo-chevron {
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+.cys-otro-metodo-wrap.cys-otro-abierto .cys-otro-metodo-chevron {
+  transform: rotate(180deg);
+}
+
+.cys-otro-dropdown {
+  display: none;
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: var(--cys-surface);
+  border: 1px solid var(--cys-borde);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+.cys-otro-metodo-wrap.cys-otro-abierto .cys-otro-dropdown {
+  display: block;
+}
+
+.cys-otro-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--texto, #fff);
+  padding: 9px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cys-otro-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.cys-otro-dropdown-item i {
+  color: var(--cys-acento);
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.cys-otro-seleccionado .cys-pago-card-header {
+  justify-content: space-between;
+}
+.cys-otro-seleccionado .cys-pago-card-header span {
+  flex: 1;
+}
+.cys-otro-cambiar {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--cys-texto-muted);
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cys-otro-cambiar:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--texto, #fff);
 }
 
 /* ══════════════════════════════════════
@@ -658,7 +813,7 @@
 ══════════════════════════════════════ */
 .cys-btn-submit {
   background: var(--cys-cian-brillante) !important;
-  color: #000 !important;
+  color: #001f38 !important;
   font-weight: 700 !important;
   border: none !important;
   border-radius: 50px !important;
@@ -669,7 +824,7 @@
   align-items: center;
   gap: 6px;
 }
-.cys-btn-submit:hover { background: #00a3d9 !important; color: #000 !important; }
+.cys-btn-submit:hover { background: rgba(255, 255, 255, 0.85) !important; color: #001f38 !important; }
 .cys-btn-submit:disabled {
   background: var(--cys-bg-card) !important;
   color: var(--cys-texto-muted) !important;
@@ -685,14 +840,14 @@
 
 .cys-btn-cancel {
   background: transparent !important;
-  border: 1px solid rgba(231, 76, 60, 0.3) !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
   color: var(--cys-rojo) !important;
   border-radius: 8px !important;
   padding: 10px 14px;
   transition: all 0.2s;
 }
 .cys-btn-cancel:hover {
-  background: rgba(231, 76, 60, 0.1) !important;
+  background: rgba(207, 156, 72, 0.1) !important;
   border-color: var(--cys-rojo) !important;
 }
 .cys-btn-cancel.cys-btn-block-lg {
@@ -700,10 +855,22 @@
   border-radius: 8px !important;
 }
 
+/* Variante sólida para acciones de "peligro" importantes (ej. cerrar caja) */
+.cys-btn-cancel--peligro {
+  background: rgba(207, 156, 72, 0.9) !important;
+  border: 1px solid #CF9C48 !important;
+  color: #1a1200 !important;
+  font-weight: 700 !important;
+}
+.cys-btn-cancel--peligro:hover {
+  background: #CF9C48 !important;
+  border-color: #CF9C48 !important;
+}
+
 /* Botón eliminar fila (historial) */
 .cys-btn-eliminar-fila {
-  background: rgba(231, 76, 60, 0.08) !important;
-  border: 1px solid rgba(231, 76, 60, 0.2) !important;
+  background: rgba(207, 156, 72, 0.08) !important;
+  border: 1px solid rgba(207, 156, 72, 0.2) !important;
   color: var(--cys-rojo) !important;
   border-radius: 8px !important;
   padding: 5px 9px;
@@ -711,7 +878,7 @@
   transition: all 0.2s;
 }
 .cys-btn-eliminar-fila:hover {
-  background: rgba(231, 76, 60, 0.18) !important;
+  background: rgba(207, 156, 72, 0.18) !important;
   border-color: var(--cys-rojo) !important;
 }
 
@@ -731,7 +898,7 @@
   color: var(--cys-texto-muted);
   text-align: center;
 }
-.cys-empty-box i { color: rgba(77, 168, 218, 0.2); }
+.cys-empty-box i { color: rgba(255, 255, 255, 0.2); }
 
 /* ══════════════════════════════════════
    HISTORIAL — TOOLBAR (buscador + orden)
@@ -742,7 +909,7 @@
   align-items: center;
   gap: 12px;
   padding: 1rem 1.5rem;
-  background: rgba(77, 168, 218, 0.02);
+  background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--cys-borde);
 }
 
@@ -796,7 +963,7 @@
   cursor: pointer;
   outline: none;
   min-width: 170px;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234da8da' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 14px;
@@ -810,7 +977,7 @@
 .cys-hist-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--fondo, #050d1a);
+  background: var(--fondo, #011936);
 }
 
 .cys-hist-table thead tr {
@@ -829,18 +996,18 @@
 }
 
 .cys-hist-table tbody tr {
-  border-bottom: 1px solid rgba(77, 168, 218, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transition: background 0.15s;
 }
 .cys-hist-table tbody tr:hover {
-  background: rgba(77, 168, 218, 0.035);
+  background: rgba(255, 255, 255, 0.035);
 }
 .cys-hist-table tbody tr:last-child { border-bottom: none; }
 
 .cys-hist-table tbody td {
   padding: 13px 16px;
   font-size: 0.85rem;
-  color: var(--texto, #cfe3f5);
+  color: var(--texto, #ffffff);
   vertical-align: middle;
 }
 
@@ -857,13 +1024,13 @@
 .cys-hist-total {
   color: var(--cys-verde);
   font-weight: 700;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.95rem;
 }
 
 .cys-hist-fecha {
   display: block;
-  color: var(--texto, #e2e8f0);
+  color: var(--texto, #ffffff);
   font-weight: 600;
   font-size: 0.82rem;
 }
@@ -878,21 +1045,21 @@
   padding: 3rem 1rem;
   color: var(--cys-texto-muted);
 }
-.cys-hist-sin-resultados i { color: rgba(77, 168, 218, 0.2); }
+.cys-hist-sin-resultados i { color: rgba(255, 255, 255, 0.2); }
 
 /* ── Avatar + celda cliente ── */
 .cys-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(77, 168, 218, 0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: var(--cys-acento);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 0.75rem;
-  border: 1px solid rgba(77, 168, 218, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
 }
 .cys-cliente-cell {
@@ -978,7 +1145,7 @@
 }
 
 .cys-total-contado-box {
-  background: rgba(77, 168, 218, 0.06);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--cys-borde);
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -993,7 +1160,7 @@
   text-transform: uppercase;
 }
 .cys-total-contado-valor {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--cys-acento);
@@ -1015,7 +1182,7 @@
 }
 .cys-resumen-fila {
   font-size: 0.85rem;
-  border-bottom: 1px solid rgba(77, 168, 218, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 6px 0;
   display: flex;
   justify-content: space-between;
@@ -1034,7 +1201,7 @@
 }
 .cys-resumen-total-label { font-weight: 700; color: var(--texto, #fff); }
 .cys-resumen-total-valor {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--cys-verde);
@@ -1064,7 +1231,7 @@
   margin-top: 2px;
 }
 .cys-detalle-item-total {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
   font-size: 1.05rem;
   color: var(--cys-verde);
@@ -1073,7 +1240,7 @@
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
-  border-bottom: 1px solid rgba(77,168,218,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.85rem;
 }
 .cys-detalle-info-label { color: var(--cys-texto-muted); }
@@ -1089,7 +1256,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(231, 76, 60, 0.1);
+  background: rgba(207, 156, 72, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1112,7 +1279,7 @@
 
 /* ── COMPROBANTE DE PAGO ── */
 .cys-comprobante-box {
-  background: rgba(77, 168, 218, 0.04);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px dashed var(--cys-borde);
   border-radius: 12px;
   padding: 1rem;
@@ -1135,24 +1302,25 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(77, 168, 218, 0.06);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--cys-borde);
   border-radius: 10px;
   padding: .6rem .8rem;
+  cursor: pointer;
   transition: border-color .15s ease, background .15s ease;
 }
 
 .cys-comprobante-input-wrap:hover,
 .cys-comprobante-input-wrap:focus-within {
   border-color: var(--cys-acento);
-  background: rgba(77, 168, 218, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .cys-comprobante-icono {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(77, 168, 218, 0.12);
+  background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1200,37 +1368,49 @@
   border-radius: 12px;
   padding: 1.25rem;
 }
-.cys-caja-card--abierta  { border-left-color: #2ed573; }
+.cys-caja-card--abierta  { border-left-color: #CF9C48; }
 .cys-caja-card--cerrada  { border-left-color: var(--cys-rojo); }
-.cys-caja-card--base     { border-left-color: var(--cys-acento); }
-.cys-caja-card--ventas   { border-left-color: var(--cys-verde); }
+.cys-caja-card--base     { border-left-color: #CF9C48; }
+.cys-caja-card--ventas   { border-left-color: #CF9C48; }
 
 .cys-caja-card-icono-box {
   width: 38px; height: 38px;
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
 }
-.cys-caja-card-icono-box--verde  { background: rgba(46, 213, 115, 0.12); }
-.cys-caja-card-icono-box--rojo   { background: rgba(231, 76, 60, 0.12); }
-.cys-caja-card-icono-box--acento { background: rgba(77, 168, 218, 0.12); }
+.cys-caja-card-icono-box--verde  { background: rgba(46, 204, 113, 0.12); }
+.cys-caja-card-icono-box--rojo   { background: rgba(207, 156, 72, 0.12); }
+.cys-caja-card-icono-box--acento { background: rgba(255, 255, 255, 0.12); }
 
 .cys-caja-card-icono-box i { font-size: 1rem; }
-.cys-caja-card-icono-box--verde i  { color: #2ed573; }
+.cys-caja-card-icono-box--verde i  { color: var(--cys-verde); }
 .cys-caja-card-icono-box--rojo i   { color: var(--cys-rojo); }
 .cys-caja-card-icono-box--acento i { color: var(--cys-acento); }
 .cys-caja-card-icono-box--verde i.bi-circle-fill { font-size: 0.6rem; }
+
+/* Íconos en dorado para las cards Abierta / Base / Ventas (piden combinar con la paleta amarilla) */
+.cys-caja-card--abierta .cys-caja-card-icono-box,
+.cys-caja-card--base .cys-caja-card-icono-box,
+.cys-caja-card--ventas .cys-caja-card-icono-box {
+  background: rgba(207, 156, 72, 0.15);
+}
+.cys-caja-card--abierta .cys-caja-card-icono-box i,
+.cys-caja-card--base .cys-caja-card-icono-box i,
+.cys-caja-card--ventas .cys-caja-card-icono-box i {
+  color: #CF9C48;
+}
 
 .cys-caja-badge {
   font-size: .62rem; font-weight: 700;
   border-radius: 6px; padding: 3px 9px;
   text-transform: uppercase; letter-spacing: 0.4px;
 }
-.cys-caja-badge--verde  { color: #2ed573; background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.25); }
-.cys-caja-badge--rojo   { color: var(--cys-rojo); background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.25); }
-.cys-caja-badge--acento { color: var(--cys-acento); background: rgba(77, 168, 218, 0.1); border: 1px solid rgba(77, 168, 218, 0.25); }
+.cys-caja-badge--verde  { color: var(--cys-verde); background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.25); }
+.cys-caja-badge--rojo   { color: var(--cys-rojo); background: rgba(207, 156, 72, 0.1); border: 1px solid rgba(207, 156, 72, 0.25); }
+.cys-caja-badge--acento { color: var(--cys-acento); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25); }
 
 .cys-caja-titulo       { font-size: 1.35rem; font-weight: 800; line-height: 1.2; }
-.cys-caja-titulo--verde  { color: #2ed573; }
+.cys-caja-titulo--verde  { color: var(--cys-verde); }
 .cys-caja-titulo--rojo   { color: var(--cys-rojo); }
 .cys-caja-titulo--acento { color: var(--cys-acento); }
 .cys-caja-titulo--muted  { color: var(--cys-texto-muted); }
@@ -1245,21 +1425,21 @@
 .cys-pres-item {
   display: flex; justify-content: space-between; align-items: center;
   border-radius: .75rem; padding: 1rem;
-  background: rgba(77,168,218,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--cys-borde);
   cursor: pointer;
 }
 .cys-pres-item--sin-stock { cursor: not-allowed; opacity: .5; }
 .cys-pres-nombre { font-weight: 700; color: var(--texto, #fff); font-size: .9rem; }
 .cys-pres-meta   { font-size: .72rem; color: var(--cys-texto-muted); }
-.cys-pres-precio { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--cys-acento); }
+.cys-pres-precio { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--cys-acento); }
 .cys-pres-precio--sin-stock { color: var(--cys-rojo); }
 
 /* ── Fila del carrito (generada por JS) ── */
 .cys-carrito-row {
   display: flex; justify-content: space-between; align-items: center;
   border-radius: .75rem; padding: .5rem .75rem;
-  background: rgba(77,168,218,0.04);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--cys-borde);
 }
 .cys-carrito-nombre {
@@ -1269,30 +1449,30 @@
 .cys-carrito-meta { font-size: .7rem; color: var(--cys-texto-muted); }
 .cys-carrito-btn-cant {
   width: 24px; height: 24px; border-radius: 50%;
-  background: rgba(77,168,218,0.1); border: 1px solid var(--cys-borde);
+  background: rgba(255, 255, 255, 0.1); border: 1px solid var(--cys-borde);
   color: var(--texto, #fff); font-size: .8rem; line-height: 1; padding: 0;
 }
 .cys-carrito-cant { min-width: 20px; text-align: center; font-weight: 700; color: var(--texto, #fff); }
 .cys-carrito-subtotal {
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--cys-acento);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; color: var(--cys-acento);
   min-width: 70px; text-align: right; font-size: .9rem;
 }
 .cys-carrito-btn-quitar {
-  background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.2);
-  color: #e74c3c; border-radius: 6px; padding: 2px 7px; font-size: .8rem;
+  background: rgba(207, 156, 72, 0.1); border: 1px solid rgba(207, 156, 72, 0.2);
+  color: var(--cys-rojo); border-radius: 6px; padding: 2px 7px; font-size: .8rem;
 }
 /* ══════════════════════════════════════
    HISTORIAL — ESTILO "LOTES/INVENTARIO"
 ══════════════════════════════════════ */
 
-/* ── Toolbar: buscador con icono en caja cian + select "Todos" ── */
+/* ── Toolbar: buscador con icono en caja + select "Todos" ── */
 .cys-lotes-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   padding: 1rem 1.5rem;
-  background: rgba(77, 168, 218, 0.02);
+  background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--cys-borde);
 }
 
@@ -1344,7 +1524,7 @@
   cursor: pointer;
   outline: none;
   min-width: 150px;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234da8da' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 14px;
@@ -1370,7 +1550,7 @@
   font-size: 0.5rem;
 }
 .cys-th-carets i {
-  color: rgba(77, 168, 218, 0.25);
+  color: rgba(255, 255, 255, 0.25);
 }
 .cys-th-carets i.cys-caret-activa {
   color: var(--cys-acento);
@@ -1391,8 +1571,8 @@
 /* ── Píldora de cantidad ── */
 .cys-cantidad-pill {
   display: inline-block;
-  background: rgba(77, 168, 218, 0.1);
-  border: 1px solid rgba(77, 168, 218, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: var(--cys-acento);
   font-weight: 700;
   font-size: 0.78rem;

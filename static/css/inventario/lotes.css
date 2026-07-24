@@ -65,7 +65,7 @@ button#presentacion-lote-btn {
 .lote-titulo {
   color: #dce8f2;
   letter-spacing: .08em;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.1rem;
 }
 
@@ -144,12 +144,12 @@ button.lote-btn-crear:active,
   letter-spacing: .05em;
 }
 .lote-stat-value-success {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: #ffffff;
 }
 .lote-stat-value-info {
   color: #ffffff;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .lote-stat-mini--info {
   border-color: rgba(77, 168, 218, 0.22) !important;

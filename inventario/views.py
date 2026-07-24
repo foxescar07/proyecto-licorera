@@ -27,13 +27,14 @@ def inventario_home(request):
 
     hoy = timezone.now().date()
 
-    # Primero calculamos los días que SÍ tienen movimientos registrados...
-    dias_con_movimientos = Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30]
+    # Días que SÍ tienen movimientos registrados...
+    dias_con_movimientos = list(Inventario.objects.dates('fecha_actualizada', 'day', order='DESC')[:30])
 
-    # ...y usamos el más reciente como valor por defecto (en vez de "hoy" a ciegas,
-    # que puede no tener ningún movimiento todavía y dejar el selector vacío).
-    fecha_default = str(dias_con_movimientos[0]) if dias_con_movimientos else str(hoy)
-    fecha_filtro  = request.GET.get('fecha_mov', fecha_default)
+    # ...aseguramos que "hoy" siempre esté en la lista, aunque todavía no tenga movimientos.
+    if hoy not in dias_con_movimientos:
+        dias_con_movimientos.insert(0, hoy)
+
+    fecha_filtro = request.GET.get('fecha_mov', str(hoy))
 
     movimientos = Inventario.objects.select_related(
         'lote__presentacion__producto__categoria',

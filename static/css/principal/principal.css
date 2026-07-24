@@ -1,6 +1,27 @@
 /* ============================================================
    HOME.HTML — CARRUSEL CATEGORÍAS
    ============================================================ */
+
+/* Tipografía global de la página — Outfit */
+.cys-card,
+.cys-card__title,
+.cys-stat-card,
+.cys-stat-card__label,
+.cys-stat-card__val,
+.cys-seccion-titulo,
+.cys-carousel-btn,
+.cys-btn {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Dorado tomado de Inventario (.qc-badge-teal / .qc-footer-texto-teal, etc.) */
+:root {
+  --cys-dorado: #CF9C48;
+  --cys-dorado-dim: rgba(207,156,72,.15);
+  --cys-dorado-borde: rgba(207,156,72,.35);
+  --cys-dorado-glow: rgba(207,156,72,.35);
+}
+
 .cys-carousel-btn {
   width: 32px;
   height: 32px;
@@ -24,6 +45,11 @@
   box-shadow: 0 0 12px var(--azul-glow);
 }
 
+.cys-carousel-btn,
+.cys-carousel-btn * {
+  color: #fff;
+}
+
 .cys-stat-card {
   background: var(--fondo-card2);
   border: 1px solid var(--azul-borde);
@@ -37,12 +63,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .cys-stat-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(192,57,43,.5);
-  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--rojo-glow);
+  z-index: 2;
+  border-color: var(--cys-dorado-borde);
+  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--cys-dorado-glow);
 }
 
 .cys-stat-card__label {
@@ -55,12 +84,12 @@
 }
 
 .cys-stat-card__val {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 2rem;
+  font-family: 'Outfit', sans-serif;
   font-weight: 700;
-  color: var(--azul-claro);
+  font-size: 2rem;
+  color: #fff;
   line-height: 1;
-  text-shadow: 0 0 20px rgba(77,168,218,.4);
+  text-shadow: 0 0 20px rgba(255,255,255,.25);
 }
 
 .cys-seccion-titulo {
@@ -74,10 +103,10 @@
   background: rgba(77,168,218,0.04);
   padding: 14px 24px;
   margin-bottom: 1.5rem;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #4DA8DA;
+  color: #fff;
   letter-spacing: .18em;
   text-transform: uppercase;
   transition: box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
@@ -104,12 +133,44 @@
   background: rgba(77,168,218,0.35);
 }
 
+/* Ícono de barras — blanco */
 .cys-seccion-titulo i {
+  color: #fff;
   transition: transform 0.4s ease, color 0.4s ease;
 }
 
 .cys-seccion-titulo:hover i {
   transform: rotate(-15deg);
-  color: #7dcfef;
+  color: #fff;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.4));
 }
 
+.cys-carousel-pad {
+  padding: 8px 0 12px;
+}
+
+/* ============================================================
+   FIX: bordes rojos → dorado en las 3 secciones grandes
+   (Resumen inventario / Semana / Resumen del año)
+   El borde rojo viene del :hover genérico de .cys-card en el
+   CSS base — lo sobreescribimos aquí para esta página.
+   ============================================================ */
+.cys-card:hover {
+  border-color: var(--cys-dorado-borde) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--cys-dorado-glow) !important;
+}
+
+/* ============================================================
+   FIX: transición suave de altura al cambiar de slide
+   (carrusel de categorías). NO poner min-height fijo en
+   .carousel-item — el alto lo controla el JS dinámicamente.
+   ============================================================ */
+#inventarioCarousel .carousel-inner {
+  transition: height .35s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+#inventarioCarousel .carousel-item {
+  min-height: unset;
+}

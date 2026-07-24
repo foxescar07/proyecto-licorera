@@ -45,7 +45,7 @@
 .kpi-icon--vencidos      { color: #CF9C48; }
 
 /* Encabezado de sección */
-.lotes-seccion-icon { color: #4DA8DA; font-size: 1.5rem; }
+.lotes-seccion-icon { color: #CF9C48; font-size: 1.5rem; }
 .lotes-seccion-titulo { color: #e2e8f0; }
 
 /* Buscador de lotes */
@@ -198,7 +198,7 @@
 }
 /* Icono título modal editar lote */
 .lote-modal-icono-titulo {
-  color: #4DA8DA;
+  color: #CF9C48;
 }
 /* ── Panel expandible (Responsive) — tema oscuro CYS ── */
 #tablaLotes.dataTable > tbody > tr.child {

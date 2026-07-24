@@ -14,7 +14,7 @@
 }
 
 .cfg-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .7rem;
   font-weight: 700;
   color: var(--texto-muted);
@@ -54,7 +54,7 @@
   border-radius: 999px;
   cursor: pointer;
   transition: background .2s, border-color .2s, transform .15s;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   flex-shrink: 0;
 }
 .cfg-btn-mini i { font-size: .75rem; }
@@ -214,7 +214,7 @@
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--texto);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   line-height: 1;
 }
 .cfg-knob__unit {

@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/venta_dias.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/ventas_inline.css' %}">
@@ -77,7 +77,7 @@
 
   <div class="row g-3 mb-4">
 
-    <!-- ── PRODUCTOS MÁS VENDIDOS (barras, un color frío por producto) ── -->
+    <!-- ── PRODUCTOS MÁS VENDIDOS (barras, blanco en distintas opacidades) ── -->
     <div class="col-12 col-lg-6">
       <div class="cys-meta-card h-100">
         <div class="cys-meta-titulo mb-3"><i class="bi bi-trophy-fill"></i>Productos más vendidos</div>
@@ -86,10 +86,11 @@
           <div class="cys-rank-item">
             <div class="cys-rank-row">
               <span class="cys-rank-nombre">{{ p.nombre }}</span>
-              <span class="cys-rank-valor">{{ p.unidades }} u.</span>
+              <span class="cys-rank-valor">{{ p.unidades }} u. <span class="cys-rank-porcentaje">({{ p.porcentaje|floatformat:0 }}%)</span></span>
             </div>
             <div class="cys-rank-track">
-              <div class="cys-rank-fill {% cycle 'cys-rank-fill--c1' 'cys-rank-fill--c2' 'cys-rank-fill--c3' 'cys-rank-fill--c4' 'cys-rank-fill--c5' 'cys-rank-fill--c6' %} cys-rank-fill-dynamic" data-porcentaje="{{ p.porcentaje }}"></div>
+              <div class="cys-rank-fill {% cycle 'cys-rank-fill--c1' 'cys-rank-fill--c2' 'cys-rank-fill--c3' 'cys-rank-fill--c4' 'cys-rank-fill--c5' 'cys-rank-fill--c6' %}"
+                   style="width: {{ p.porcentaje|floatformat:0 }}%;" data-porcentaje="{{ p.porcentaje }}"></div>
             </div>
           </div>
           {% endfor %}
@@ -99,22 +100,22 @@
       </div>
     </div>
 
-    <!-- ── VENTAS TOPE DEL DÍA (circular) ── -->
+    <!-- ── VENTAS TOPE DEL DÍA (circular, blanco en dos intensidades) ── -->
     <div class="col-12 col-lg-6">
       <div class="cys-meta-card h-100">
         <div class="cys-meta-titulo mb-3"><i class="bi bi-cash-stack"></i>Ventas tope del día</div>
         {% if ventas_top %}
         <div class="cys-circular-wrap">
           <svg width="120" height="120" viewBox="0 0 120 120" class="cys-circular-svg">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12"></circle>
             {% for v in ventas_top %}
               {% if forloop.first %}
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#9334a0" stroke-width="12"
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#FFFFFF" stroke-width="12"
                       stroke-dasharray="314.159" stroke-dashoffset="{% widthratio v.porcentaje 100 -314.159 %}"
                       stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
               {% else %}
-              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
-              <circle cx="60" cy="60" r="34" fill="none" stroke="#2e4d8f" stroke-width="12"
+              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12"></circle>
+              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="12"
                       stroke-dasharray="213.628" stroke-dashoffset="{% widthratio v.porcentaje 100 -213.628 %}"
                       stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
               {% endif %}
@@ -167,7 +168,7 @@
     </div>
 
     {% if ventas %}
-    <div class="cys-tabla-scroll-wrap">
+    <div class="cys-tabla-scroll-wrap" data-hoy="{% now 'Y-m-d' %}">
       <table class="cys-hist-table">
         <thead id="theadHistorialDia">
           <tr>
@@ -235,4 +236,78 @@
   </section>
 
 </div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════
+  // HISTORIAL — por defecto solo ventas de HOY; al buscar, se busca
+  // en TODO el historial (todas las filas ya vienen en la tabla,
+  // solo se ocultan/muestran según el caso).
+  // ═══════════════════════════════════════════════════════════
+  (function () {
+    const wrap = document.querySelector('.cys-tabla-scroll-wrap');
+    const tbody = document.getElementById('tablaHistorialDiaBody');
+    if (!wrap || !tbody) return;
+
+    const hoy = wrap.dataset.hoy; // 'YYYY-MM-DD', calculado en el servidor
+    const inputBuscar = document.getElementById('buscadorHistorialDia');
+    const selectOrden = document.getElementById('ordenHistorialDia');
+    const sinResultados = document.getElementById('sinResultadosDia');
+    const filas = Array.from(tbody.querySelectorAll('tr[data-row]'));
+
+    function esDeHoy(fila) {
+      return (fila.dataset.fecha || '').slice(0, 10) === hoy;
+    }
+
+    function aplicarFiltros() {
+      const termino = (inputBuscar && inputBuscar.value ? inputBuscar.value : '').trim().toLowerCase();
+      const hayBusqueda = termino.length > 0;
+      let visibles = 0;
+
+      filas.forEach(function (fila) {
+        // Sin búsqueda: solo se muestran las ventas de hoy.
+        // Con búsqueda: se busca en TODO el historial, sin importar la fecha.
+        const coincideBusqueda = !hayBusqueda || (fila.dataset.buscar || '').indexOf(termino) !== -1;
+        const coincideDia = hayBusqueda || esDeHoy(fila);
+        const mostrar = coincideBusqueda && coincideDia;
+        fila.style.display = mostrar ? '' : 'none';
+        if (mostrar) visibles++;
+      });
+
+      if (sinResultados) {
+        sinResultados.style.display = visibles === 0 ? '' : 'none';
+      }
+    }
+
+    function ordenarFilas() {
+      const criterio = selectOrden ? selectOrden.value : 'reciente';
+      const ordenadas = filas.slice().sort(function (a, b) {
+        switch (criterio) {
+          case 'antiguo':
+            return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
+          case 'mayor_total':
+            return parseFloat(b.dataset.total) - parseFloat(a.dataset.total);
+          case 'menor_total':
+            return parseFloat(a.dataset.total) - parseFloat(b.dataset.total);
+          case 'reciente':
+          default:
+            return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
+        }
+      });
+      ordenadas.forEach(function (fila) { tbody.appendChild(fila); });
+    }
+
+    if (inputBuscar) {
+      inputBuscar.addEventListener('input', aplicarFiltros);
+    }
+    if (selectOrden) {
+      selectOrden.addEventListener('change', function () {
+        ordenarFilas();
+        aplicarFiltros();
+      });
+    }
+
+    ordenarFilas();
+    aplicarFiltros();
+  })();
+</script>
 {% endblock %}
