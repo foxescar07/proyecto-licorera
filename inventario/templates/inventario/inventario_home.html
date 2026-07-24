@@ -108,8 +108,7 @@
   <div class="card inv-card mb-4">
     <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
          data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
-      <span class="fw-semibold">
-        <i class="bi bi-calendar2-week me-2 text-info"></i>
+      <span class="fw-semibold"><i class="bi bi-calendar2-week me-2 inv-icon-dorado"></i>
         Inventarios Programados
         {% if agendas %}
           <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
@@ -205,7 +204,7 @@
     <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
          data-bs-toggle="collapse" data-bs-target="#movBody" role="button">
       <span class="fw-semibold">
-        <i class="bi bi-clock-history me-2 text-info"></i>
+        <i class="bi bi-clock-history me-2 inv-icon-dorado"></i>
         Movimientos de Inventario
         {% if fecha_filtro == hoy %}
           <span class="badge inv-badge-hoy ms-2">HOY</span>
@@ -318,14 +317,6 @@
                   </button>
                 </td>
               </tr>
-              {% empty %}
-              <tr>
-                <td colspan="9" class="text-center py-4 text-muted">
-                  <i class="bi bi-inbox d-block mb-1 fs-3"></i>
-                  No hay movimientos para
-                  {% if fecha_filtro == hoy %}hoy.{% else %}el {{ fecha_filtro|date:"d/m/Y" }}.{% endif %}
-                </td>
-              </tr>
               {% endfor %}
             </tbody>
           </table>
@@ -340,7 +331,7 @@
   <div class="card inv-card mb-4">
     <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
       <span class="fw-semibold">
-        <i class="bi bi-grid me-2 text-info"></i>Catálogo de Productos
+        <i class="bi bi-grid me-2 inv-icon-dorado"></i>Catálogo de Productos
       </span>
       <div class="d-flex gap-2 align-items-center flex-wrap">
         <input type="text" id="cat-buscar" class="form-control form-control-sm inv-input cat-buscar-input"
@@ -457,7 +448,7 @@
   <!-- ⑤ ANALÍTICA / ROTACIÓN — lectura profunda, al final -->
   <div class="card inv-card mb-4 analitica-oculto" id="seccion-analitica">
     <div class="card-header inv-card-header">
-      <i class="bi bi-bar-chart-line me-2 text-info"></i>
+      <i class="bi bi-bar-chart-line me-2 inv-icon-dorado"></i>
       <span class="fw-semibold">Rotación de Productos — Últimos 30 días</span>
     </div>
     <div class="card-body">
@@ -545,7 +536,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-calendar-plus me-2 text-info"></i>Agendar Inventario</h6>
+       <h6 class="modal-title"><i class="bi bi-calendar-plus me-2 inv-icon-dorado"></i>Agendar Inventario</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -584,7 +575,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-clipboard2-check me-2 text-info"></i>Conteo de Inventario</h6>
+      <h6 class="modal-title"><i class="bi bi-clipboard2-check me-2 inv-icon-dorado"></i>Conteo de Inventario</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -719,7 +710,7 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-arrow-left-right me-2 text-info"></i>Comparar Inventario</h6>
+        <h6 class="modal-title"><i class="bi bi-arrow-left-right me-2 inv-icon-dorado"></i>Comparar Inventario</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -830,7 +821,7 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
+        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 inv-icon-dorado"></i>Registrar Códigos de Barras</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
