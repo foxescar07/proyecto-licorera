@@ -86,10 +86,11 @@
           <div class="cys-rank-item">
             <div class="cys-rank-row">
               <span class="cys-rank-nombre">{{ p.nombre }}</span>
-              <span class="cys-rank-valor">{{ p.unidades }} u.</span>
+              <span class="cys-rank-valor">{{ p.unidades }} u. <span class="cys-rank-porcentaje">({{ p.porcentaje|floatformat:0 }}%)</span></span>
             </div>
             <div class="cys-rank-track">
-              <div class="cys-rank-fill {% cycle 'cys-rank-fill--c1' 'cys-rank-fill--c2' 'cys-rank-fill--c3' 'cys-rank-fill--c4' 'cys-rank-fill--c5' 'cys-rank-fill--c6' %} cys-rank-fill-dynamic" data-porcentaje="{{ p.porcentaje }}"></div>
+              <div class="cys-rank-fill {% cycle 'cys-rank-fill--c1' 'cys-rank-fill--c2' 'cys-rank-fill--c3' 'cys-rank-fill--c4' 'cys-rank-fill--c5' 'cys-rank-fill--c6' %}"
+                   style="width: {{ p.porcentaje|floatformat:0 }}%;" data-porcentaje="{{ p.porcentaje }}"></div>
             </div>
           </div>
           {% endfor %}

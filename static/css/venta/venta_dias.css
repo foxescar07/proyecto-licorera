@@ -98,10 +98,13 @@
     color: var(--cys-texto-muted);
 }
 
-/* ── Tarjeta de Meta del Día ── */
+/* ── Tarjeta de Meta del Día ──
+   Borde izquierdo dorado, para combinar con el resto de tarjetas
+   del módulo (estado de caja, etc.) */
 .cys-meta-card {
     background-color: var(--cys-bg-card) !important;
     border: 1px solid var(--cys-borde) !important;
+    border-left: 3px solid #CF9C48 !important;
     border-radius: 14px !important;
     padding: 1.25rem 1.5rem !important;
 }
@@ -184,6 +187,13 @@
     font-weight: 700;
 }
 
+/* Porcentaje que acompaña a las unidades vendidas en el ranking */
+.cys-rank-porcentaje {
+    color: var(--cys-texto-muted);
+    font-weight: 600;
+    margin-left: 4px;
+}
+
 .cys-rank-track {
     width: 100%;
     height: 6px;
@@ -195,6 +205,8 @@
 .cys-rank-fill {
     height: 100%;
     border-radius: 50px;
+    min-width: 4px; /* para que incluso porcentajes muy bajos se alcancen a ver */
+    transition: width 0.3s ease;
 }
 
 /* Rotación de opacidades de blanco para distinguir cada producto */

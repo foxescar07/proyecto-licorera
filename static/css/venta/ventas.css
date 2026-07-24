@@ -1368,10 +1368,10 @@
   border-radius: 12px;
   padding: 1.25rem;
 }
-.cys-caja-card--abierta  { border-left-color: var(--cys-verde); }
+.cys-caja-card--abierta  { border-left-color: #CF9C48; }
 .cys-caja-card--cerrada  { border-left-color: var(--cys-rojo); }
-.cys-caja-card--base     { border-left-color: var(--cys-acento); }
-.cys-caja-card--ventas   { border-left-color: var(--cys-verde); }
+.cys-caja-card--base     { border-left-color: #CF9C48; }
+.cys-caja-card--ventas   { border-left-color: #CF9C48; }
 
 .cys-caja-card-icono-box {
   width: 38px; height: 38px;
@@ -1387,6 +1387,18 @@
 .cys-caja-card-icono-box--rojo i   { color: var(--cys-rojo); }
 .cys-caja-card-icono-box--acento i { color: var(--cys-acento); }
 .cys-caja-card-icono-box--verde i.bi-circle-fill { font-size: 0.6rem; }
+
+/* Íconos en dorado para las cards Abierta / Base / Ventas (piden combinar con la paleta amarilla) */
+.cys-caja-card--abierta .cys-caja-card-icono-box,
+.cys-caja-card--base .cys-caja-card-icono-box,
+.cys-caja-card--ventas .cys-caja-card-icono-box {
+  background: rgba(207, 156, 72, 0.15);
+}
+.cys-caja-card--abierta .cys-caja-card-icono-box i,
+.cys-caja-card--base .cys-caja-card-icono-box i,
+.cys-caja-card--ventas .cys-caja-card-icono-box i {
+  color: #CF9C48;
+}
 
 .cys-caja-badge {
   font-size: .62rem; font-weight: 700;
