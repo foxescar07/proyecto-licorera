@@ -113,6 +113,10 @@
   border: 1px solid var(--inv-azul-borde);
   border-radius: 8px;
   padding: .9rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .inv-meta { background: var(--inv-card2); font-size: .78rem; }
 
