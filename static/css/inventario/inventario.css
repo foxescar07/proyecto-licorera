@@ -511,6 +511,22 @@ button#em-tipo-btn::after { color: #c8d6e5 !important; }
 }
 .kpi-value { font-family: 'Rajdhani', sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1; }
 .kpi-icon { font-size: 2.2rem; opacity: .55; }
+@media (max-width: 767px) {
+  .kpi-card {
+    padding: .9rem 1rem;
+    min-height: 90px;
+    gap: .5rem;
+  }
+  .kpi-label {
+    font-size: .62rem;
+  }
+  .kpi-value {
+    font-size: 1.7rem;
+  }
+  .kpi-icon {
+    font-size: 1.5rem;
+  }
+}
 
 /* ── ENLACE GESTIÓN (tarjetas de Home: Agendar, Conteo, Códigos, Comparar) ── */
 .inv-gestion-link {
@@ -606,7 +622,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .qc-icono-color-teal {
-  color: #ffffff;
+  color: #CF9C48;
 }
 
 .qc-badge-teal {
@@ -647,7 +663,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .qc-icono-color-verde {
-  color: #ffffff;
+  color: #CF9C48;
 }
 
 .qc-badge-verde {
@@ -680,7 +696,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .qc-icono-color-purpura {
-  color: #ffffff;
+  color: #CF9C48;
 }
 
 .qc-badge-purpura {
@@ -703,13 +719,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   font-size:.7rem;
   color: #CF9C48;
 }
-
 .qc-borde-azul {
   border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-color-azul {
-  color: #ffffff;
+  color: #CF9C48;
 }
 
 .qc-badge-azul {
@@ -833,9 +848,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .estrella-mes-badge {
-  background:rgba(77,168,218,.15);
-  color:#4DA8DA;
-  border:1px solid rgba(77,168,218,.3);
+  background: rgba(207, 156, 72, 0.15);
+  border: 1px solid rgba(207, 156, 72, 0.35);
+  color: #CF9C48; 
 }
 
 .chart-rotacion-wrap {
@@ -844,16 +859,28 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   min-height:300px;
 }
 
-.btn-outline-azul {
-  border:1px solid rgba(77,168,218,0.35);
-  color:#4DA8DA;
-  background:transparent;
+.btn-outline-azul,
+button.btn-outline-azul {
+  border: 1px solid rgba(77,168,218,0.35) !important;
+  color: #4DA8DA !important;
+  background: transparent !important;
+}
+.btn-outline-azul:hover,
+button.btn-outline-azul:hover {
+  background: rgba(77,168,218,0.1) !important;
+  color: #4DA8DA !important;
 }
 
-.btn-solido-azul {
-  background: #4DA8DA;
-  color: #0d1b2a;
-  border: none;
+.btn-solido-azul,
+button.btn-solido-azul {
+  background-color: #4DA8DA !important;
+  color: #0d1b2a !important;
+  border: none !important;
+}
+.btn-solido-azul:hover,
+button.btn-solido-azul:hover {
+  background-color: #3b9ad6 !important;
+  color: #0d1b2a !important;
 }
 
 .conteo-prod-btn {
@@ -1146,4 +1173,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 #tabla-codigos thead th.dt-head-center div.dt-column-header .dt-column-title {
   flex-grow: 0;
+}
+/* ── Íconos de encabezado de sección (dorado) ── */
+.inv-icon-dorado {
+  color: #CF9C48 !important;
 }

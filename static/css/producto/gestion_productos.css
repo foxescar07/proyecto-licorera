@@ -270,7 +270,6 @@
 .gp-prod-list-wrap {
   border: 1px solid rgba(77, 168, 218, 0.15);
   border-radius: 8px;
-  overflow: hidden;
 }
 
 .gp-prod-list-header {
@@ -1469,8 +1468,7 @@ button#crear-categoria-btn {
 .donut-color-1 { --seg-color: #27ae60; }
 .donut-color-2 { --seg-color: #f39c12; }
 .donut-color-3 { --seg-color: #9b59b6; }
-.donut-color-4 { --seg-color: #e74c3c; }
-.donut-color-5 { --seg-color: #1abc9c; }
+.donut-color-4 { --seg-color: #CF9C48; }
 .donut-color-6 { --seg-color: #e67e22; }
 
 .donut-segment {
@@ -1544,9 +1542,7 @@ button#crear-categoria-btn {
 .tooltip[data-popper-placement^="right"] .tooltip-arrow::before { border-right-color: #0d2240 !important; }
 
 /* ── Grid de la tabla de productos (con ícono de categoría) ── */
-.gp-prod-list-wrap {
-  overflow-x: auto;
-}
+
 
 .gp-row-grid {
   display: grid;
@@ -1588,9 +1584,9 @@ button#crear-categoria-btn {
 }
 
 .gp-cat-icon-box.gp-cat-cerveza {
-  background: rgba(18, 243, 221, 0.15);
-  border-color: rgba(18, 243, 194, 0.3);
-  color: #12f3d1;
+  background: rgba(207, 156, 72, 0.15);
+  border: 1px solid rgba(207, 156, 72, 0.35);
+  color: #CF9C48; 
 }
 .gp-cat-icon-box.gp-cat-gaseosa {
   background: rgba(155,93,229,.15);
@@ -1618,18 +1614,37 @@ button#crear-categoria-btn {
   display: inline-block;
 }
 
-/* ── Mobile: apilado en 2 columnas, ícono a la izquierda ── */
 @media (max-width: 767px) {
+  .gp-header-row {
+    flex-direction: column;
+  }
+  .gp-columna-izq {
+    width: 100%;
+  }
+
   .gp-row-grid {
-    grid-template-columns: 40px 1fr;
+    grid-template-columns: 56px 1fr;
     grid-template-areas:
       "icono nombre"
       "icono codigo"
       "icono pres"
       "icono acciones";
     row-gap: 6px;
+    padding: .85rem .75rem;
+    border-bottom: 1px solid rgba(77, 168, 218, 0.1);
+  }
+  .gp-row-grid .gp-col {
+    padding: .2rem 0;
+    border-right: none;
+  }
+  .gp-col-icono {
+    align-items: flex-start;
+    padding-top: .1rem !important;
   }
   .gp-col-acciones {
     justify-self: start;
+  }
+  .gp-prod-list-wrap {
+    overflow: hidden;
   }
 }
