@@ -3,6 +3,14 @@
    Bootstrap 5 compatible — Paleta: #011936 / #912F40 / #AF8D86 / #EFF8E2
    ============================================================ */
 
+/* ── Tipografía: Plus Jakarta Sans para todo el módulo de Reportes ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+.container-fluid,
+.container-fluid * {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
 /* ── Variables ── */
 :root {
   --color-bg: #011936;
@@ -246,6 +254,11 @@
   margin-bottom: .75rem;
 }
 
+/* Íconos blancos (#FDFFFC) por defecto — se usan así en modo
+   "Predeterminado" y "Alto contraste" del panel de accesibilidad.
+   Cuando el usuario activa el modo "Claro" (html.cys-a11y-modo-claro,
+   clase que agrega base.js), estos íconos cambian a azul medio de
+   la paleta CYS (#0A2A52) para que contrasten bien contra el fondo claro. */
 .cys-report-card-icon--inv {
   background: rgba(77, 168, 218, 0.12);
   color: #FDFFFC;
@@ -278,7 +291,18 @@
 
 .cys-report-card-icon--proxima {
   background: rgba(77, 168, 218, 0.1);
-  color: #4DA8DA;
+  color: #FDFFFC;
+}
+
+/* Modo de accesibilidad "Claro": íconos de reportes en azul medio CYS */
+html.cys-a11y-modo-claro .cys-report-card-icon--inv,
+html.cys-a11y-modo-claro .cys-report-card-icon--prov,
+html.cys-a11y-modo-claro .cys-report-card-icon--compras,
+html.cys-a11y-modo-claro .cys-report-card-icon--diario,
+html.cys-a11y-modo-claro .cys-report-card-icon--analisis,
+html.cys-a11y-modo-claro .cys-report-card-icon--devoluciones,
+html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
+  color: #0A2A52;
 }
 
 .cys-report-card__title {
@@ -293,6 +317,7 @@
   margin-bottom: .75rem;
 }
 
+/* Ver reporte → : ahora en el 2do color de la paleta (dorado #CF9C48) */
 .cys-report-card__link-text--inv,
 .cys-report-card__link-text--prov,
 .cys-report-card__link-text--compras,
@@ -300,7 +325,7 @@
 .cys-report-card__link-text--analisis,
 .cys-report-card__link-text--devoluciones,
 .cys-report-card__link-text--proxima {
-  color: #4DA8DA;
+  color: #CF9C48;
   font-size: .8rem;
   font-weight: 600;
 }
@@ -325,7 +350,13 @@
 .cys-inv-table thead th {
   background: rgba(255, 255, 255, 0.02);
   color: #4DA8DA;
+
+  font-family: 'Rajdhani', sans-serif;
+
+
+
   font-family: 'Plus Jakarta Sans', sans-serif;
+
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -357,7 +388,10 @@
 }
 
 .cys-inv-table .cys-qty {
+
+  font-family: 'Rajdhani', sans-serif;
   font-family: 'Plus Jakarta Sans', sans-serif;
+
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--azul-acento);
@@ -468,6 +502,8 @@
 }
 
 .cys-modal-kpi-v2__val {
+
+  font-family: 'Rajdhani', sans-serif;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
@@ -900,6 +936,10 @@
 }
 
 .cys-modal__kpi-single-val {
+
+  font-family: 'Rajdhani', sans-serif;
+
+
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
@@ -1129,7 +1169,13 @@
 }
 
 .cys-rd-stat-card__val {
+
+  font-family: 'Rajdhani', sans-serif;
+
+
+
   font-family: 'Plus Jakarta Sans', sans-serif;
+
   font-size: 1.55rem;
   font-weight: 800;
   line-height: 1.1;
@@ -1255,6 +1301,10 @@
 }
 
 .cys-av-kpi-card__val {
+
+  font-family: 'Rajdhani', sans-serif;
+
+
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
@@ -1512,10 +1562,19 @@
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-top-width 0.2s ease !important;
 }
 
+/* Se elimina el outline/contorno nativo del navegador (que en algunos
+   sistemas se dibuja en el color de acento del SO y puede verse rojo)
+   y se sustituye por un resplandor dorado consistente con la marca. */
+.cys-card--interactive:focus,
+.cys-card--interactive:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(207, 156, 72, 0.45) !important;
+}
+
 .cys-card--interactive:hover {
   transform: translateY(-5px);
   border-top-width: 4px !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(77, 168, 218, 0.1) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(207, 156, 72, 0.15) !important;
 }
 
 .cys-card--disabled {
@@ -1525,6 +1584,8 @@
   flex-direction: column !important;
 }
 
+/* Línea superior de las tarjetas de reporte: ahora en dorado (#CF9C48),
+   2do color de la paleta, en lugar del azul anterior. */
 .cys-card--inv,
 .cys-card--prov,
 .cys-card--compras,
@@ -1532,7 +1593,7 @@
 .cys-card--diario,
 .cys-card--analisis,
 .cys-card--devoluciones {
-  border-top: 2px solid #4DA8DA !important;
+  border-top: 2px solid #CF9C48 !important;
 }
 
 .cys-report-card__stats-grid {
@@ -1596,7 +1657,7 @@
 
 .cys-card--interactive:hover .cys-report-card-icon--large {
   transform: scale(1.08) rotate(3deg);
-  box-shadow: 0 10px 24px rgba(77, 168, 218, 0.25);
+  box-shadow: 0 10px 24px rgba(207, 156, 72, 0.25);
 }
 
 @media (max-width: 576px) {
@@ -1734,7 +1795,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .cys-summary-card:hover {
   transform: translateY(-3px);
-  border-color: var(--azul-claro) !important;
+  border-color: var(--azul-claro, #4DA8DA) !important;
   box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12) !important;
 }
 
@@ -1770,6 +1831,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-summary-card__val {
+
+  font-family: 'Rajdhani', sans-serif;
+
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.95rem;
   font-weight: 800;
@@ -1794,6 +1858,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 #tabla-modal-stock thead th {
   background: rgba(255, 255, 255, 0.02) !important;
   color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif !important;
+
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
@@ -1854,6 +1920,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #tabla-modal-stock .cys-qty {
+  font-family: 'Rajdhani', sans-serif !important;
+
+
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-weight: 700 !important;
   font-size: 1.05rem !important;
@@ -2026,8 +2095,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
    HISTORIAL DE VENTAS
 ──────────────────────────────────── */
 
+/* Icono junto al título "Historial de Ventas": 2do color de la paleta (dorado #CF9C48) */
 .cys-card__title-icon {
-  color: #4DA8DA;
+  color: #CF9C48;
   margin-right: .5rem;
 }
 
@@ -2040,6 +2110,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border: 1px solid rgba(77, 168, 218, .08);
   border-radius: 16px;
   overflow: hidden;
+}
+
+/* El texto del título "Historial de Ventas" debe permanecer siempre
+   blanco: el fondo de esta tarjeta está fijo en azul oscuro (#041d3d)
+   y no cambia con el modo de accesibilidad "Claro". Si el texto usara
+   var(--blanco) se volvería oscuro en modo claro y quedaría invisible
+   sobre este fondo (el mismo problema que tenían los íconos). */
+.cys-card:has(#reportes-table) .cys-card__title {
+  color: #FDFFFC;
 }
 
 .cys-hv-filters {
@@ -2117,7 +2196,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 0 !important;
   margin: 0 !important;
   border-radius: 10px !important;
-  font-family: inherit !important;
   font-size: .88rem !important;
   font-weight: 700 !important;
   line-height: 1 !important;
@@ -2183,6 +2261,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 #reportes-table thead th {
   background: #0c2b54 !important;
   color: #4DA8DA !important;
+  font-family: 'Rajdhani', sans-serif;
+
+
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .92rem;
@@ -2526,10 +2607,10 @@ table.dataTable {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background: rgba(255, 255, 255, 0.10) !important;
-    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    background: rgba(207, 156, 72, 0.12) !important;
+    border: 1px solid rgba(207, 156, 72, 0.35) !important;
     border-radius: 8px !important;
-    color: #FDFFFC !important;
+    color: #CF9C48 !important;
     font-size: 16px !important;
     cursor: pointer !important;
     z-index: 3 !important;
@@ -2565,16 +2646,16 @@ table.dataTable {
 }
 
 .cys-report-card__chart-toggle:hover {
-    background: rgba(255, 255, 255, 0.22) !important;
+    background: rgba(207, 156, 72, 0.22) !important;
     transform: translateY(-3px) scale(1.05) !important;
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 8px 20px rgba(207, 156, 72, 0.3) !important;
 }
 
 .cys-report-card__chart-toggle.is-active {
-    background: #FDFFFC !important;
+    background: #CF9C48 !important;
     color: #011936 !important;
     transform: translateY(0) scale(1.05) !important;
-    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(207, 156, 72, 0.35) !important;
 }
 
 .cys-report-card__chart-wrap {
@@ -2606,9 +2687,183 @@ table.dataTable {
 .cys-col-producto {
   text-align: left;
 }
- 
+
 /* Mensaje "sin datos" dentro de la mini-gráfica de las tarjetas */
 .cys-empty-box--mini {
   padding: 10px 0;
   font-size: .75rem;
+}
+
+/* Barra vertical de acento junto al icono del título "Historial de Ventas"
+   (2do color de la paleta — dorado #CF9C48) */
+.cys-card-title-bar,
+.cys-hv-title-bar,
+.vr.cys-title-accent {
+  background-color: #CF9C48 !important;
+}
+
+/* ============================================================
+   FIX RESPONSIVE — Reportes CYS Ltda
+   (bloque agregado — va al final para poder sobreescribir
+   las reglas anteriores en pantallas chicas)
+   ============================================================ */
+
+/* ── Tablet: hasta 992px ──────────────────────────────────── */
+@media (max-width: 992px) {
+  .cys-av-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Móvil: hasta 768px ───────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Tarjetas de reportes: ícono arriba, texto abajo, centrado */
+  .cys-report-card-layout {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .cys-report-card-icon--large {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 1.9rem !important;
+  }
+
+  .cys-report-card__stats-grid {
+    width: 100%;
+  }
+
+  /* Barra de filtros de Historial de Ventas: todo apilado */
+  .cys-hv-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .cys-hv-date-group,
+  .cys-hv-date-group.ms-auto {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .cys-hv-search-input,
+  .cys-hv-date-input,
+  .cys-hv-btn-exportar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  /* KPIs de modales: 2 columnas en vez de 3/4 */
+  .cys-modal__stats--4col,
+  .cys-modal__stats--3col {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .cys-av-kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cys-av-kpi-card {
+    padding: 14px;
+  }
+
+  /* Análisis de Ventas: el sidebar de tabs pasa a barra horizontal */
+  .cys-av-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cys-av-sidebar {
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(77, 168, 218, .1);
+    padding: 12px 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cys-av-nav-btn {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 8px 14px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .cys-av-nav-btn.active {
+    border-left-color: transparent;
+    border-bottom-color: #7F77DD;
+  }
+
+  .cys-av-content {
+    padding: 16px;
+  }
+
+  .cys-rd-sidebar {
+    padding: 16px;
+  }
+
+  /* Header de lista de proveedores: buscador debajo del título */
+  .cys-modal-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .cys-modal-list-header .cys-search-box,
+  .cys-search-box__input {
+    width: 100% !important;
+  }
+
+  .cys-av-table-card__header--search {
+    flex-wrap: wrap;
+  }
+
+  .cys-av-table-card__header .cys-av-table-card__search {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Tabla de Inventario del modal: anular anchos fijos para que
+     funcione el modo "tarjeta" que ya tienen para .cys-inv-table */
+  #tabla-modal-stock {
+    table-layout: auto !important;
+  }
+
+  #tabla-modal-stock th,
+  #tabla-modal-stock td {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .cys-modal__title {
+    font-size: .92rem;
+  }
+
+  .cys-modal__subtitle {
+    font-size: .7rem;
+  }
+}
+
+/* ── Móvil chico: hasta 480px ─────────────────────────────── */
+@media (max-width: 480px) {
+  .cys-modal__stats--4col,
+  .cys-modal__stats--3col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cys-modal-kpi-v2__val {
+    font-size: 1.5rem;
+  }
+
+  .cys-av-kpi-card__val {
+    font-size: 1.4rem;
+  }
 }
