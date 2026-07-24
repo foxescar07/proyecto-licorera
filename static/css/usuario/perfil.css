@@ -431,7 +431,7 @@
 }
 
 .cys-modal-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: .1em;
@@ -570,7 +570,7 @@
   color: #011936;
   border: none; border-radius: 10px;
   padding: .58rem 1.3rem;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700; font-size: .85rem;
   letter-spacing: .12em; text-transform: uppercase;
   cursor: pointer;

@@ -79,7 +79,7 @@ body::after {
 }
 
 .cys-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1.3rem;
   letter-spacing: .15em;
@@ -169,7 +169,7 @@ body::after {
   border-radius: var(--radius);
   padding: .75rem;
   width: 100%;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .95rem;
   letter-spacing: .1em;

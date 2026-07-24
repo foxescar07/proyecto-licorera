@@ -965,7 +965,7 @@ button#crear-categoria-btn {
 
 /* Ícono azul suelto (ej. título del modal editar) */
 .cat-icon-blue {
-  color: #4DA8DA;
+  color: #CF9C48;
 }
 
 /* Textos secundarios (contador de productos) */
@@ -1005,7 +1005,7 @@ button#crear-categoria-btn {
 
 /* Ícono de flecha "return-right" en subcategorías */
 .cat-icon-arrow {
-  color: rgba(226,232,240,0.3);
+  color: #CF9C48;
 }
 
 /* Botones editar/eliminar de subcategoría (circulares) */

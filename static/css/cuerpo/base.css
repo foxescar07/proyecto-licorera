@@ -134,7 +134,7 @@ body.offcanvas-open {
 }
 
 .cys-header__title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--blanco);
@@ -176,7 +176,7 @@ body.offcanvas-open {
 .cys-header__clock { text-align: right; }
 
 .cys-header__clock-time {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.2rem;
   font-weight: 700;
   color: var(--blanco);
@@ -216,7 +216,7 @@ body.offcanvas-open {
 }
 
 .cys-subnav__page {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .9rem;
   font-weight: 700;
   letter-spacing: .15em;
@@ -248,7 +248,7 @@ body.offcanvas-open {
   color: var(--azul-claro);
   font-size: .78rem;
   font-weight: 600;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   letter-spacing: .1em;
   text-transform: uppercase;
   cursor: pointer;
@@ -321,7 +321,7 @@ body.offcanvas-open {
 }
 
 .cys-sb-brand-name {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .95rem;
   color: var(--blanco);
@@ -434,7 +434,7 @@ body.sidebar-open .cys-main {
 }
 
 .cys-card__title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   color: var(--blanco);
@@ -471,7 +471,7 @@ body.sidebar-open .cys-main {
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   border: 1px solid transparent;
   cursor: pointer;
   transition: var(--trans);
@@ -683,7 +683,7 @@ body.sidebar-open .cys-main {
 }
 
 .cys-stat-card__val {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: var(--azul-claro);
@@ -967,7 +967,7 @@ body.sidebar-open .cys-main {
 }
 
 .cys-a11y-panel__title {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 1.05rem;
     color: var(--texto);
