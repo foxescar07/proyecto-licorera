@@ -41,11 +41,11 @@
     <div class="kpi-card kpi-card-cyan">
       <div class="kpi-card-top">
         <div class="kpi-icon-box cyan"><i class="bi bi-receipt"></i></div>
-        <span class="kpi-badge cyan">GASTO</span>
+        <span class="kpi-badge cyan">SUBTOTAL</span>
       </div>
-      <div class="kpi-value cyan kpi-formatted" data-value="{{ total_gastado|default:0|floatformat:0 }}">$0</div>
-      <p class="kpi-title">Gasto Total</p>
-      <p class="kpi-sub">Esta semana</p>
+      <div class="kpi-value cyan" id="subtotal-principal">$<span class="subtotal-kpi">{{ subtotal_compras|default:0|floatformat:0 }}</span></div>
+      <p class="kpi-title">Subtotal de Compras</p>
+      <p class="kpi-sub">Gasto: ${{ total_gastado|default:0|floatformat:0 }}</p>
     </div>
 
     <!-- Compras Mes -->
@@ -118,7 +118,7 @@
           </div>
         </div>
         <div class="proveedor-actions">
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedores">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedores" style="color: black;">
             <i class="bi bi-arrow-left me-2"></i>Cambiar
           </button>
         </div>
@@ -759,11 +759,18 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Formatear SUBTOTAL
+  // Formatear SUBTOTAL en tabla
   const subtotalEl = document.getElementById('subtotal-formatted');
   if (subtotalEl) {
     const num = parseInt(subtotalEl.textContent) || 0;
     subtotalEl.textContent = num.toLocaleString('es-CO');
+  }
+
+  // Formatear SUBTOTAL en tarjeta KPI
+  const subtotalKpi = document.querySelector('.subtotal-kpi');
+  if (subtotalKpi) {
+    const num = parseInt(subtotalKpi.textContent) || 0;
+    subtotalKpi.textContent = num.toLocaleString('es-CO');
   }
 
   // Formatear KPI values

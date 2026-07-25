@@ -238,19 +238,34 @@ main, .cys-main, main > * {
 
 /* BADGES PERSONALIZADOS */
 .badge-success-custom {
-  background: rgba(39, 174, 96, 0.2) !important;
-  color: #27ae60 !important;
-  border: 1px solid rgba(39, 174, 96, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
 }
 .badge-warning-custom {
-  background: rgba(243, 156, 18, 0.2) !important;
-  color: #f39c12 !important;
-  border: 1px solid rgba(243, 156, 18, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
 }
 .badge-pending-custom {
-  background: rgba(155, 93, 229, 0.2) !important;
-  color: #9b5de5 !important;
-  border: 1px solid rgba(155, 93, 229, 0.3) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.4) !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 20px;
+  font-weight: 600;
 }
 
 /* BADGES DE ESTADO CON COLORES */
@@ -1102,8 +1117,9 @@ textarea:focus {
   border-radius: 12px;
   font-size: 0.73rem;
   font-weight: 600;
-  background: rgba(77, 168, 218, 0.15) !important;
-  color: var(--azul-acento) !important;
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.4) !important;
 }
 
 .badge-verde {
@@ -1354,7 +1370,7 @@ textarea:focus {
 .btn-nueva-compra {
   background: #4DA8DA;
   border: none;
-  color: #fff;
+  color:#011936;
   padding: 0.6rem 1.5rem;
   border-radius: 50px;
   cursor: pointer;
@@ -1998,9 +2014,9 @@ textarea:focus {
 }
 
 .proveedor-actions .btn-outline-secondary {
-  background: linear-gradient(135deg, #4DA8DA 0%, #3a93c4 100%) !important;
+  background: linear-gradient(135deg, #4DA8DA) !important;
   border: none !important;
-  color: #fff !important;
+  color: #011936 !important;
   padding: 0.6rem 1.5rem !important;
   border-radius: 25px !important;
   font-weight: 600 !important;
