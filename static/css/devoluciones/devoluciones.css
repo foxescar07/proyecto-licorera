@@ -45,7 +45,8 @@
 .dev-eyebrow, .dev-section-label { color: #CF9C48 !important; }
 
 /* Bordes dorados permanentes para KPI */
-.dev-kpi { border-left-color: #CF9C48 !important; }
+.dev-kpi { border-left-color: #CF9C48 !important; transition: box-shadow 0.3s ease; }
+.dev-kpi:hover { box-shadow: 0 0 15px rgba(207, 156, 72, 0.4) !important; }
 
 /* Stepper en dorado */
 .dev-stepper .is-done span { background: #CF9C48 !important; color: #04213c !important; }
