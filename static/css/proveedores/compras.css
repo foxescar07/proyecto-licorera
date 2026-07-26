@@ -2211,6 +2211,120 @@ textarea:focus {
 .gap-15 { gap: 1.5rem; }
 
 /* ════════════════════════════════════════════════════════════════
+   ESTILOS DORADOS PARA DETALLES PEQUEÑOS
+   ════════════════════════════════════════════════════════════════ */
+
+.modal-header i,
+.modal-header .bi {
+  color: #CF9C48 !important;
+}
+
+.modal-header h5,
+.modal-header .modal-title {
+  color: #CF9C48 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.modal-custom-body i,
+.modal-custom-body .bi {
+  color: #CF9C48 !important;
+}
+
+.modal-custom-body label {
+  color: #8FA3B1 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.modal-custom-body input[type="text"],
+.modal-custom-body input[type="number"],
+.modal-custom-body input[type="datetime-local"],
+.modal-custom-body select {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  color: #FDFFFC !important;
+}
+
+.modal-custom-body small {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  color: #8FA3B1 !important;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MÉTODOS DE PAGO EXPANDIBLES
+   ════════════════════════════════════════════════════════════════ */
+
+.metodos-pago-container {
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.metodos-pago-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 16px !important;
+  background: rgba(77, 168, 218, 0.1) !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: all 0.2s ease !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.2) !important;
+}
+
+.metodos-pago-header:hover {
+  background: rgba(77, 168, 218, 0.15) !important;
+}
+
+.metodos-pago-header span {
+  color: #8FA3B1 !important;
+  font-size: 0.95rem !important;
+}
+
+.metodos-pago-header i {
+  color: #4DA8DA !important;
+}
+
+.metodos-pago-list {
+  padding: 12px 0 !important;
+}
+
+.metodo-pago-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 16px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-bottom: 1px solid rgba(77, 168, 218, 0.1) !important;
+  color: #FDFFFC !important;
+  user-select: none !important;
+  margin-bottom: 0 !important;
+}
+
+.metodo-pago-item:last-child {
+  border-bottom: none !important;
+}
+
+.metodo-pago-item:hover {
+  background: rgba(77, 168, 218, 0.1) !important;
+}
+
+.metodo-pago-item input[type="radio"] {
+  cursor: pointer !important;
+  accent-color: #4DA8DA !important;
+}
+
+.metodo-pago-item i {
+  color: #4DA8DA !important;
+  font-size: 1rem !important;
+  flex-shrink: 0;
+}
+
+.metodo-pago-item span {
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════════
    RESPONSIVE — DISEÑO ADAPTATIVO
    ════════════════════════════════════════════════════════════════ */
 

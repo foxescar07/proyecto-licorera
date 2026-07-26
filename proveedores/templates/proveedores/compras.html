@@ -264,9 +264,15 @@
                           </li>
                           <li><hr class="dropdown-divider"></li>
                           <li>
-                            <button type="button" class="dropdown-item btn-abrir-pago text-success" data-compra-id="{{ compra.id }}" data-bs-toggle="modal" data-bs-target="#modalPago">
-                              <i class="bi bi-credit-card me-2"></i>Pago
-                            </button>
+                            {% if compra.estado_pago == 'pagada' %}
+                              <button type="button" class="dropdown-item text-muted" disabled title="Esta compra ya fue pagada completamente">
+                                <i class="bi bi-check-circle-fill me-2"></i>Pagada
+                              </button>
+                            {% else %}
+                              <button type="button" class="dropdown-item btn-abrir-pago text-success" data-compra-id="{{ compra.id }}" data-compra-total="{{ compra.total }}" data-compra-pagado="{{ compra.monto_pagado }}" data-bs-toggle="modal" data-bs-target="#modalPago">
+                                <i class="bi bi-credit-card me-2"></i>Pago
+                              </button>
+                            {% endif %}
                           </li>
                           <li><hr class="dropdown-divider"></li>
                           {% if compra.estado == 'pendiente' %}
@@ -684,6 +690,17 @@
 
                 <div class="modal-body modal-custom-body">
 
+                    <!-- Alerta si está pagada -->
+                    <div id="alertaPagada" class="alert alert-success-dev d-none mb-4" role="alert" style="padding: 20px; border-left: 4px solid #27ae60; background-color: rgba(39, 174, 96, 0.15);">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: #27ae60;"></i>
+                            <div>
+                                <h5 style="margin: 0 0 5px 0; color: #27ae60; font-weight: 700;">✓ Compra Pagada</h5>
+                                <p style="margin: 0; color: #27ae60; font-size: 0.95rem;">Esta compra ya fue pagada completamente. No se puede agregar más pagos.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Número de Factura -->
                     <div class="mb-4">
                         <label class="form-label">
@@ -697,39 +714,96 @@
                     <div class="mb-4">
                         <label class="form-label">
                             <i class="bi bi-wallet2 me-2"></i>Método de Pago
+                            <span class="text-danger">*</span>
                         </label>
-                        <select name="metodo_pago" id="metodoPago" class="form-select form-select-lg" required>
-                            <option value="">Selecciona método</option>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
-                            <option value="transferencia">Transferencia</option>
-                            <option value="cheque">Cheque</option>
-                            <option value="credito">Crédito</option>
-                            <option value="otro">Otro</option>
-                        </select>
+                        <div class="metodos-pago-container">
+                            <div class="metodos-pago-header" data-bs-toggle="collapse" data-bs-target="#otrosMetodos" role="button">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-three-dots"></i>
+                                    <span>Selecciona método de pago</span>
+                                </div>
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
+                            <div class="collapse show" id="otrosMetodos">
+                                <div class="metodos-pago-list">
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="nequi" class="form-check-input">
+                                        <i class="bi bi-wallet2"></i>
+                                        <span>Nequi</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="daviplata" class="form-check-input">
+                                        <i class="bi bi-wallet2"></i>
+                                        <span>Daviplata</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="bancolombia" class="form-check-input">
+                                        <i class="bi bi-bank"></i>
+                                        <span>Bancolombia a la Mano</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="breb" class="form-check-input">
+                                        <i class="bi bi-lightning"></i>
+                                        <span>Bre-B</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="efectivo" class="form-check-input">
+                                        <i class="bi bi-cash-coin"></i>
+                                        <span>Efectivo</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Estado de Pago -->
+                    <!-- Monto Total de la Compra -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-receipt me-2"></i>Monto Total de la Compra
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="montoTotal" name="monto_total" class="form-control" readonly style="background-color: rgba(77, 168, 218, 0.1); cursor: not-allowed;">
+                        </div>
+                        <small class="text-muted">Este valor se calcula automáticamente</small>
+                    </div>
+
+                    <!-- Monto Pagado -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-cash me-2"></i>Monto Pagado
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="any" placeholder="Ingresa el monto que pagaste" required>
+                        </div>
+                        <small class="text-muted">Ingresa cuánto dinero enviaste al proveedor</small>
+                    </div>
+
+                    <!-- Saldo Pendiente (calculado automáticamente) -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-hourglass-split me-2"></i>Saldo Pendiente
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="saldoPendiente" name="saldo_pendiente" class="form-control" readonly style="background-color: rgba(231, 76, 60, 0.1); cursor: not-allowed; color: #e74c3c; font-weight: bold;">
+                        </div>
+                        <small class="text-muted">Se calcula automáticamente: Total - Pagado</small>
+                    </div>
+
+                    <!-- Estado de Pago (automático) -->
                     <div class="mb-4">
                         <label class="form-label">
                             <i class="bi bi-check-circle me-2"></i>Estado de Pago
                         </label>
-                        <select id="estadoPago" name="estado_pago" class="form-select form-select-lg" required>
+                        <select id="estadoPago" name="estado_pago" class="form-select form-select-lg" readonly style="background-color: rgba(77, 168, 218, 0.1); cursor: not-allowed;">
                             <option value="pendiente">Pendiente de Pago</option>
                             <option value="parcial">Pago Parcial</option>
                             <option value="pagada">Pagada</option>
                         </select>
-                    </div>
-
-                    <!-- Monto Pagado (si es parcial) -->
-                    <div class="mb-4" id="montoPagadoDiv" style="display: none;">
-                        <label class="form-label">
-                            <i class="bi bi-cash me-2"></i>Monto Pagado
-                        </label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text">$</span>
-                            <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01">
-                        </div>
+                        <small class="text-muted">Se actualiza automáticamente según el monto pagado</small>
                     </div>
 
                     <!-- Fecha de Pago -->
@@ -787,6 +861,164 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         location.reload();
       }, 1000);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // MODAL DE PAGO - CARGA DE DATOS Y CÁLCULOS AUTOMÁTICOS
+  // ═══════════════════════════════════════════════════════════════
+
+  const montoPagadoInput = document.getElementById('montoPagado');
+  const saldoPendienteInput = document.getElementById('saldoPendiente');
+  const estadoPagoSelect = document.getElementById('estadoPago');
+  const montoTotalInput = document.getElementById('montoTotal');
+  const modalPago = document.getElementById('modalPago');
+  const alertaPagada = document.getElementById('alertaPagada');
+  const btnAbrirPago = document.querySelectorAll('.btn-abrir-pago');
+
+  // Función para formatear números
+  function formatearNumero(num) {
+    return parseFloat(num).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  // Cuando se hace clic en "Pago", cargar los datos
+  btnAbrirPago.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const compraId = this.getAttribute('data-compra-id');
+      const totalCompra = parseFloat(this.getAttribute('data-compra-total')) || 0;
+      const montoPagadoAnterior = parseFloat(this.getAttribute('data-compra-pagado')) || 0;
+
+      document.getElementById('compraId').value = compraId;
+      montoTotalInput.value = totalCompra;
+      montoPagadoInput.value = '';
+
+      // Mostrar alerta si está pagada
+      if (montoPagadoAnterior >= totalCompra) {
+        alertaPagada.classList.remove('d-none');
+        document.getElementById('formPago').style.display = 'none';
+        // Deshabilitar botón de envío
+        document.querySelector('button[type="submit"]').disabled = true;
+      } else {
+        alertaPagada.classList.add('d-none');
+        document.getElementById('formPago').style.display = 'block';
+        // Habilitar botón de envío
+        document.querySelector('button[type="submit"]').disabled = false;
+      }
+
+      actualizarCalculos();
+    });
+  });
+
+  // También verificar cuando se abre el modal directamente
+  if (modalPago) {
+    modalPago.addEventListener('show.bs.modal', function() {
+      const compraId = document.getElementById('compraId').value;
+      if (compraId) {
+        const btn = document.querySelector(`[data-compra-id="${compraId}"]`);
+        if (btn) {
+          const totalCompra = parseFloat(btn.getAttribute('data-compra-total')) || 0;
+          const montoPagadoAnterior = parseFloat(btn.getAttribute('data-compra-pagado')) || 0;
+
+          if (montoPagadoAnterior >= totalCompra) {
+            alertaPagada.classList.remove('d-none');
+            document.getElementById('formPago').style.display = 'none';
+            document.querySelector('button[type="submit"]').disabled = true;
+          } else {
+            alertaPagada.classList.add('d-none');
+            document.getElementById('formPago').style.display = 'block';
+            document.querySelector('button[type="submit"]').disabled = false;
+          }
+        }
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CERRAR DROPDOWN AL HACER CLIC EN CUALQUIER ITEM
+  // ═══════════════════════════════════════════════════════════════
+
+  document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Cerrar el dropdown más cercano
+      const dropdown = this.closest('.dropdown');
+      if (dropdown) {
+        const toggleBtn = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+        if (toggleBtn) {
+          const dropdownInstance = bootstrap.Dropdown.getInstance(toggleBtn);
+          if (dropdownInstance) {
+            dropdownInstance.hide();
+          }
+        }
+      }
+    });
+  });
+
+  // Calcular saldo pendiente en tiempo real
+  function actualizarCalculos() {
+    const montoTotal = parseFloat(montoTotalInput.value) || 0;
+    const montoPagado = parseFloat(montoPagadoInput.value) || 0;
+    const saldoPendiente = montoTotal - montoPagado;
+
+    // Formatear números con separadores
+    saldoPendienteInput.value = saldoPendiente >= 0 ? formatearNumero(saldoPendiente) : 0;
+
+    // Actualizar estado automáticamente
+    if (montoPagado === 0) {
+      estadoPagoSelect.value = 'pendiente';
+    } else if (montoPagado >= montoTotal) {
+      estadoPagoSelect.value = 'pagada';
+    } else {
+      estadoPagoSelect.value = 'parcial';
+    }
+  }
+
+  // Formatear monto total al cargar
+  montoTotalInput.addEventListener('change', function() {
+    const valor = parseFloat(this.value) || 0;
+    this.value = formatearNumero(valor);
+  });
+
+  montoPagadoInput.addEventListener('input', actualizarCalculos);
+  montoPagadoInput.addEventListener('change', actualizarCalculos);
+
+  // ═══════════════════════════════════════════════════════════════
+  // DROPDOWN - CERRAR OTROS AL ABRIR UNO
+  // ═══════════════════════════════════════════════════════════════
+
+  document.addEventListener('show.bs.dropdown', function(e) {
+    // Cerrar TODOS los otros dropdowns
+    const allDropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    allDropdowns.forEach(btn => {
+      if (btn !== e.relatedTarget) {
+        const dropdown = bootstrap.Dropdown.getInstance(btn);
+        if (dropdown) {
+          dropdown.hide();
+        }
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // VALIDAR FORMULARIO DE PAGO
+  // ═══════════════════════════════════════════════════════════════
+
+  const formPago = document.getElementById('formPago');
+  if (formPago) {
+    formPago.addEventListener('submit', function(e) {
+      const metodoPago = document.querySelector('input[name="metodo_pago"]:checked');
+      const montoPagado = document.getElementById('montoPagado');
+
+      if (!metodoPago || !metodoPago.value) {
+        e.preventDefault();
+        alert('⚠️ Debe seleccionar un método de pago');
+        return false;
+      }
+
+      if (!montoPagado.value || parseFloat(montoPagado.value) <= 0) {
+        e.preventDefault();
+        alert('⚠️ Debe ingresar un monto válido');
+        return false;
+      }
     });
   }
 });
