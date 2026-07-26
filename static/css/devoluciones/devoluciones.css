@@ -55,8 +55,26 @@
 .dev-stepper .is-current span { background: #CF9C48 !important; color: #04213c !important; }
 
 /* Bordes dorados al pasar el cursor para otras tarjetas */
-.dev-card:hover { border-color: #CF9C48 !important; border-left-color: #CF9C48 !important; }
-.dev-table-wrap:hover { border-color: #CF9C48 !important; }
+.dev-card {
+  transition: box-shadow 0.3s ease;
+}
+.dev-card:hover {
+  box-shadow: 0 10px 28px rgba(0,0,0,.13), 0 0 15px rgba(207, 156, 72, 0.4) !important;
+}
+
+.dev-table-wrap {
+  transition: box-shadow 0.3s ease;
+}
+.dev-table-wrap:hover {
+  box-shadow: 0 0 15px rgba(207, 156, 72, 0.4) !important;
+}
+
+.dev-sale-option {
+  transition: box-shadow 0.3s ease;
+}
+.dev-sale-option:hover {
+  box-shadow: 0 0 12px rgba(207, 156, 72, 0.3) !important;
+}
 .dev-kpi>i { color: #CF9C48 !important; background: rgba(207, 156, 72, 0.12) !important; }
 .dev-form__intro>i { color: #CF9C48 !important; background: rgba(207, 156, 72, 0.12) !important; }
 .dev-choice span i { color: #CF9C48 !important; }
