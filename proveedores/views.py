@@ -1333,6 +1333,7 @@ def guardar_pago_compra(request, compra_id):
     """Guardar información de pago en una compra legacy."""
     from django.utils.dateparse import parse_datetime
     from django.contrib import messages
+    from decimal import Decimal
 
     if request.method != 'POST':
         return redirect('lista_compras')
@@ -1340,23 +1341,45 @@ def guardar_pago_compra(request, compra_id):
     try:
         compra = Compra.objects.get(id=compra_id)
 
+        # Verificar si ya está completamente pagada
+        if compra.esta_completamente_pagada:
+            messages.warning(request, '⚠ Esta compra ya fue pagada completamente. No se puede agregar más pagos.')
+            return redirect('lista_compras')
+
         compra.numero_factura = request.POST.get('numero_factura', '').strip()
         compra.metodo_pago = request.POST.get('metodo_pago')
-        compra.estado_pago = request.POST.get('estado_pago')
-        monto = request.POST.get('monto_pagado', '0')
-        if monto:
-            compra.monto_pagado = float(monto)
+
+        # Validar monto pagado
+        monto_str = request.POST.get('monto_pagado', '').strip()
+        if not monto_str:
+            messages.error(request, '⚠️ Debe ingresar un monto de pago')
+            return redirect('lista_compras')
+
+        try:
+            monto_nuevo = float(monto_str)
+            if monto_nuevo <= 0:
+                messages.error(request, '⚠️ El monto debe ser mayor a $0')
+                return redirect('lista_compras')
+
+            # Sumar al monto ya pagado
+            compra.monto_pagado += Decimal(str(monto_nuevo))
+        except ValueError:
+            messages.error(request, '⚠️ El monto ingresado no es válido')
+            return redirect('lista_compras')
 
         fecha_pago = request.POST.get('fecha_pago')
         if fecha_pago:
             compra.fecha_pago = parse_datetime(fecha_pago)
 
         compra.save()
-        messages.success(request, '✓ Pago registrado correctamente')
+
+        # Mensaje según el estado
+        if compra.esta_completamente_pagada:
+            messages.success(request, '✓ Pago registrado. ¡Compra pagada completamente!')
+        else:
+            messages.success(request, f'✓ Pago de ${monto_nuevo:,.0f} registrado. Saldo pendiente: ${compra.saldo_pendiente:,.0f}')
     except Compra.DoesNotExist:
         messages.error(request, 'Compra no encontrada')
-    except (ValueError, TypeError):
-        messages.error(request, 'Datos inválidos en el formulario')
     except Exception as e:
         messages.error(request, f'Error al guardar pago: {str(e)}')
 
