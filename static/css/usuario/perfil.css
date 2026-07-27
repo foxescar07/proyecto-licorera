@@ -663,3 +663,19 @@
   cursor: pointer;
   position: relative;
 }
+
+/* ══════════════════════════════════════════════
+   FIX — HOVER DE TARJETAS PRINCIPALES (Perfil)
+   .cys-card hereda un :hover rojo/viejo desde el
+   CSS global (base.css). Se sobreescribe aquí,
+   solo en esta página, para que sea dorado como
+   el resto de los elementos interactivos.
+══════════════════════════════════════════════ */
+.cys-perfil-hero,
+.col-lg-8 > .cys-card {
+  transition: border-color .25s ease;
+}
+.cys-perfil-hero:hover,
+.col-lg-8 > .cys-card:hover {
+  border-color: var(--cys-dorado-borde, rgba(207,156,72,.35)) !important;
+}
