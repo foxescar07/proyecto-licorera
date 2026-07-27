@@ -640,16 +640,13 @@
 </div>
               <div class="col-md-3">
                 <label class="form-label inv-label">Cantidad física</label>
-  <div class="d-flex inv-cantidad-wrap">
-    <input type="number" name="cantidad_contada" id="input-cantidad-contada"
-           class="form-control inv-input inv-cantidad-input"
-           min="0" placeholder="0" required>
-    <div class="inv-spin-wrap">
-      <button type="button" class="inv-spin-btn inv-spin-up" data-target="input-cantidad-contada">
-        <i class="bi bi-caret-up-fill"></i>
-      </button>
-      <button type="button" class="inv-spin-btn inv-spin-down" data-target="input-cantidad-contada">
-        <i class="bi bi-caret-down-fill"></i>
+                <input type="number" name="cantidad_contada" class="form-control inv-input" min="0" placeholder="0" required>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+  <button type="submit"
+          class="btn btn-outline-info rounded-circle p-2 d-inline-flex align-items-center justify-content-center conteo-guardar-btn"
+         >
+    <i class="bi bi-save"></i>
   </button>
 </div>
             </div>

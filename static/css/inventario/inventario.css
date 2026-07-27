@@ -1182,3 +1182,51 @@ button.btn-solido-azul:hover {
 .inv-icon-dorado {
   color: #CF9C48 !important;
 }
+/* ── SPINNER CUSTOM PARA INPUTS NUMÉRICOS (genérico, reutilizable) ── */
+.inv-cantidad-wrap {
+  position: relative;
+}
+
+.inv-cantidad-input {
+  padding-right: 2.25rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.inv-cantidad-input::-webkit-outer-spin-button,
+.inv-cantidad-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inv-spin-wrap {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 28px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.inv-spin-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #8fa3bf;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.inv-spin-btn:hover {
+  color: #fff;
+  background: rgba(77, 168, 218, 0.25);
+}
+.inv-spin-up   { border-top-right-radius: 6px; }
+.inv-spin-down {
+  border-bottom-right-radius: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

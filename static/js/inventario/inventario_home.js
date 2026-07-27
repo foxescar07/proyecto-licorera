@@ -454,3 +454,20 @@ window.addEventListener('load', function () {
     });
   });
 });
+// ── SPINNERS CUSTOM (+/-) PARA INPUTS NUMÉRICOS ──
+document.querySelectorAll('.inv-spin-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    const input = document.getElementById(this.dataset.target);
+    if (!input) return;
+
+    const step = parseInt(input.step, 10) || 1;
+    const min  = input.min !== '' ? parseInt(input.min, 10) : -Infinity;
+    let val = parseInt(input.value, 10) || 0;
+
+    val += this.classList.contains('inv-spin-up') ? step : -step;
+    if (val < min) val = min;
+
+    input.value = val;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+});

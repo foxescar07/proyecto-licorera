@@ -156,3 +156,22 @@ function inicializarValidacion() {
     }
   });
 }
+// Spinners custom (+/-) para inputs numéricos
+function inicializarSpinners() {
+  document.querySelectorAll('.sal-spin-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+
+      const step = parseInt(input.step, 10) || 1;
+      const min  = input.min !== '' ? parseInt(input.min, 10) : -Infinity;
+      let val = parseInt(input.value, 10) || 0;
+
+      val += btn.classList.contains('sal-spin-up') ? step : -step;
+      if (val < min) val = min;
+
+      input.value = val;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  });
+}

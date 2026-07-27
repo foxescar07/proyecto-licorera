@@ -162,10 +162,21 @@
       <!-- Cantidad + Motivo -->
 <div class="row g-3 mb-3">
   <div class="col-sm-5">
-    <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+  <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+  <div class="d-flex sal-cantidad-wrap">
     <input type="number" name="cantidad" id="input-cantidad"
-           class="form-control inv-input sal-campo" min="1" placeholder="0" required>
+           class="form-control inv-input sal-campo sal-cantidad-input"
+           min="1" placeholder="0" required>
+    <div class="sal-cantidad-spinners">
+      <button type="button" class="sal-spin-btn sal-spin-up" data-target="input-cantidad">
+        <i class="bi bi-caret-up-fill"></i>
+      </button>
+      <button type="button" class="sal-spin-btn sal-spin-down" data-target="input-cantidad">
+        <i class="bi bi-caret-down-fill"></i>
+      </button>
+    </div>
   </div>
+</div>
   <div class="col-sm-7">
     <label class="inv-label">Motivo <span class="text-danger">*</span></label>
 
