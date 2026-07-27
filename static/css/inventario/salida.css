@@ -210,3 +210,57 @@ button#motivo-btn {
 .sal-campo-error {
   border-color: #3ce7a8 !important;
 }
+/* Spinner custom para Cantidad */
+.sal-cantidad-wrap {
+  position: relative;
+}
+
+.sal-cantidad-input {
+  padding-right: 2.25rem;
+  /* oculta flechas nativas */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.sal-cantidad-input::-webkit-outer-spin-button,
+.sal-cantidad-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sal-cantidad-spinners {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 28px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sal-spin-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #2d5893;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.sal-spin-btn:hover {
+  color: #0f628c;
+  background: rgba(22, 71, 98, 0.25);
+}
+
+.sal-spin-up {
+  border-top-right-radius: 6px;
+}
+
+.sal-spin-down {
+  border-bottom-right-radius: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

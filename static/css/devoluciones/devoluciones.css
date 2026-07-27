@@ -38,3 +38,413 @@
 .dev-help { margin-top:1.35rem; max-width:none; }
 @media (max-width:900px) { .dev-kpis { grid-template-columns:repeat(2, 1fr); } }
 @media (max-width:700px) { .dev-kpis { grid-template-columns:1fr; }.dev-history-body { padding:.75rem; }.dev-history-table th:nth-child(3),.dev-history-table td:nth-child(3),.dev-history-table th:nth-child(4),.dev-history-table td:nth-child(4) { display:none; } }
+
+/* Estilos dorados para detalles pequeños - CF9C48 */
+* { font-family: 'Plus Jakarta Sans', sans-serif; }
+.dev-page i, .dev-page .bi { color: #CF9C48 !important; }
+.dev-eyebrow, .dev-section-label { color: #CF9C48 !important; }
+
+/* Bordes dorados permanentes para KPI */
+.dev-kpi { border-left-color: #CF9C48 !important; transition: box-shadow 0.3s ease; }
+.dev-kpi:hover { box-shadow: 0 0 15px rgba(207, 156, 72, 0.4) !important; }
+
+/* Stepper en dorado */
+.dev-stepper .is-done span { background: #CF9C48 !important; color: #04213c !important; }
+.dev-stepper .is-done:not(:last-child)::after { background: #CF9C48 !important; }
+.dev-stepper .is-current span { outline-color: rgba(207, 156, 72, 0.16) !important; }
+.dev-stepper .is-current span { background: #CF9C48 !important; color: #04213c !important; }
+
+/* Bordes dorados al pasar el cursor para otras tarjetas */
+.dev-card {
+  transition: box-shadow 0.3s ease;
+}
+.dev-card:hover {
+  box-shadow: 0 10px 28px rgba(0,0,0,.13), 0 0 15px rgba(207, 156, 72, 0.4) !important;
+}
+
+.dev-table-wrap {
+  transition: box-shadow 0.3s ease;
+}
+.dev-table-wrap:hover {
+  box-shadow: 0 0 15px rgba(207, 156, 72, 0.4) !important;
+}
+
+.dev-sale-option {
+  transition: box-shadow 0.3s ease;
+}
+.dev-sale-option:hover {
+  box-shadow: 0 0 12px rgba(207, 156, 72, 0.3) !important;
+}
+.dev-kpi>i { color: #CF9C48 !important; background: rgba(207, 156, 72, 0.12) !important; }
+.dev-form__intro>i { color: #CF9C48 !important; background: rgba(207, 156, 72, 0.12) !important; }
+.dev-choice span i { color: #CF9C48 !important; }
+.dev-refund-option i { color: #CF9C48 !important; }
+.dev-policy-link { color: #CF9C48 !important; }
+.dev-policy-link:hover { color: #e5b85a !important; }
+.dev-count { color: #CF9C48 !important; background: rgba(207, 156, 72, 0.12) !important; }
+.dev-history-icon { color: #CF9C48 !important; background: rgba(207, 156, 72, 0.1) !important; }
+.dev-sale-summary>i { color: #CF9C48 !important; }
+.dev-table-action { color: #CF9C48 !important; border-color: rgba(207, 156, 72, 0.35) !important; }
+.dev-table-action:hover { color: #fff !important; background: rgba(207, 156, 72, 0.16) !important; }
+
+/* Estilos para comprobante de devolución */
+.comprobante-container {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #0A2A52;
+  color: #e8f0f8;
+  border: 1px solid rgba(207, 156, 72, 0.3);
+  border-radius: 8px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.comprobante-header {
+  text-align: center;
+  border-bottom: 3px solid #CF9C48;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.comprobante-header h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+}
+
+.comprobante-header h1 i {
+  color: #CF9C48 !important;
+  margin-right: 0.5rem;
+}
+
+.comprobante-header p {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #a8c5d8;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.comprobante-numero {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #CF9C48;
+  margin-top: 0.8rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-block {
+  padding: 1rem;
+  background: rgba(207, 156, 72, 0.1);
+  border-left: 4px solid #CF9C48;
+  border-radius: 4px;
+}
+
+.info-block-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #CF9C48;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.info-block-title i {
+  color: #CF9C48 !important;
+  margin-right: 0.3rem;
+}
+
+.info-block-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.info-block-sub {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #8fa5b8;
+}
+
+.productos-section {
+  margin: 2rem 0;
+}
+
+.productos-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 1rem 0;
+  border-bottom: 2px solid #CF9C48;
+  padding-bottom: 0.8rem;
+}
+
+.productos-title i {
+  color: #CF9C48 !important;
+  margin-right: 0.5rem;
+}
+
+.productos-table {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.productos-table thead {
+  background: rgba(207, 156, 72, 0.15);
+}
+
+.productos-table th {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  padding: 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  color: #CF9C48;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #CF9C48;
+}
+
+.productos-table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid rgba(207, 156, 72, 0.2);
+  color: #e8f0f8;
+}
+
+.productos-table .precio-total {
+  font-weight: 600;
+  color: #CF9C48;
+}
+
+.cantidad-badge {
+  background: rgba(207, 156, 72, 0.12);
+  color: #CF9C48;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.observaciones-box {
+  background: rgba(207, 156, 72, 0.1);
+  border-left: 4px solid #CF9C48;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+}
+
+.observaciones-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #CF9C48;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.observaciones-title i {
+  color: #CF9C48 !important;
+  margin-right: 0.3rem;
+}
+
+.observaciones-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #c5d9e6;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.resumen-detalles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(207, 156, 72, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(207, 156, 72, 0.2);
+}
+
+.resumen-item {
+  text-align: center;
+}
+
+.resumen-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.8rem;
+  color: #8fa5b8;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.resumen-valor {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.resumen-valor.total {
+  color: #CF9C48;
+  font-size: 1.5rem;
+}
+
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(207, 156, 72, 0.12);
+  color: #CF9C48;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.estado-badge i {
+  color: #CF9C48 !important;
+}
+
+.comprobante-footer {
+  border-top: 1px solid rgba(207, 156, 72, 0.2);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+}
+
+.botones-accion {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-print, .btn-volver {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 0.2s ease;
+  text-decoration: none;
+  border: 1px solid #CF9C48;
+}
+
+.btn-print {
+  background: #CF9C48;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-print:hover {
+  background: #b88a3e;
+  border-color: #b88a3e;
+}
+
+.btn-volver {
+  background: transparent;
+  color: #CF9C48;
+}
+
+.btn-volver:hover {
+  background: rgba(207, 156, 72, 0.1);
+}
+
+.btn-print i, .btn-volver i {
+  color: currentColor !important;
+}
+
+@media print {
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #0A2A52 !important;
+  }
+
+  /* Ocultar elementos que no son el comprobante */
+  nav, header, footer, .sidebar, .navbar, .dev-sidebar, .offcanvas,
+  .modal-backdrop, [role="navigation"], .nav-link, .dropdown {
+    display: none !important;
+  }
+
+  /* Ocultar todo en dev-page excepto el comprobante */
+  .dev-page {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+  }
+
+  .dev-page > * {
+    display: none !important;
+  }
+
+  .dev-page .comprobante-container {
+    display: block !important;
+  }
+
+  .container-fluid {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .cys-snap-section {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .comprobante-container {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #0A2A52 !important;
+    color: #e8f0f8 !important;
+    padding: 20mm !important;
+    margin: 0 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .botones-accion {
+    display: none !important;
+  }
+
+  .comprobante-header {
+    border-bottom: 2px solid #333 !important;
+  }
+
+  .info-block {
+    background: #fafafa !important;
+  }
+
+  .productos-table th {
+    border-bottom: 2px solid #333 !important;
+  }
+
+  /* Asegurar que la tabla no se corte */
+  .productos-table {
+    page-break-inside: avoid !important;
+  }
+
+  .resumen-detalles {
+    page-break-inside: avoid !important;
+  }
+}

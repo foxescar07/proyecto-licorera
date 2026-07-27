@@ -484,7 +484,27 @@ class Compra(models.Model):
             self.total = self.cantidad * self.precio_unitario
         else:
             self.total = Decimal('0.00')
+
+        # Actualizar estado_pago automáticamente basado en monto_pagado
+        if self.monto_pagado >= self.total:
+            self.estado_pago = 'pagada'
+        elif self.monto_pagado > 0:
+            self.estado_pago = 'parcial'
+        else:
+            self.estado_pago = 'pendiente'
+
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.proveedor.nombre_empresa} → {self.producto.nombre} ({self.cantidad} uds)"
+
+    @property
+    def esta_completamente_pagada(self):
+        """Verifica si la compra está completamente pagada."""
+        return self.monto_pagado >= self.total and self.estado_pago == 'pagada'
+
+    @property
+    def saldo_pendiente(self):
+        """Calcula el saldo pendiente de pago."""
+        saldo = self.total - self.monto_pagado
+        return max(Decimal('0.00'), saldo)
