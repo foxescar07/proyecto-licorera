@@ -10,8 +10,8 @@ from datetime import timedelta
 from django.db import IntegrityError
 
 from .models import Producto, Categoria, PresentacionProducto
-from inventario.models import Inventario, AgendaInventario
-from .forms import ProductoForm, AgendaInventarioForm, PresentacionForm, ProductoRegistroForm
+from inventario.models import Inventario, MovimientoInventario
+from .forms import ProductoRegistroForm
 
 # ===============================
 # LISTA / VISTA PRINCIPAL
@@ -118,7 +118,9 @@ def crear_producto(request):
 @login_required
 def producto_detalle(request, pk):
     producto    = get_object_or_404(Producto, pk=pk)
-    movimientos = Inventario.objects.filter(presentacion__producto=producto).order_by('-fecha_actualizada')
+    movimientos = MovimientoInventario.objects.filter(
+    inventario__producto=producto
+).order_by('-fecha')
     context = {
         'producto': producto,
         'movimientos': movimientos,

@@ -1,15 +1,21 @@
 # inventario/tests.py
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import date, timedelta
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.test import TestCase
+from django.utils import timezone
+
 from productos.models import Categoria, Producto, PresentacionProducto
 from inventario.models import (
-    Lote, Inventario, SesionConteo,
-    ConteoProducto, ResultadoInventario, AgendaInventario
+    AgendaInventario,
+    Hallazgo,
+    Inventario,
+    Lote,
+    MovimientoInventario,
 )
 
 User = get_user_model()
@@ -49,6 +55,13 @@ class BaseTestCase(TestCase):
             costo_unitario=Decimal('1200.00'),
             registrado_por=self.usuario
         )
+        self.inventario = Inventario.objects.create(
+            producto=self.producto,
+            presentacion=self.presentacion,
+            stock_actual=100,
+            stock_min=20,
+            stock_max=200
+        )
 
 
 # ─────────────────────────────────────────────
@@ -63,7 +76,6 @@ class LoteModelTest(BaseTestCase):
 
     def test_numero_lote_es_unico(self):
         """No se pueden crear dos lotes con el mismo número."""
-        from django.db import IntegrityError
         with self.assertRaises(IntegrityError):
             Lote.objects.create(
                 numero_lote='LOTE-001',  # duplicado
@@ -113,7 +125,6 @@ class LoteModelTest(BaseTestCase):
 
     def test_stock_actual_no_puede_ser_negativo(self):
         """PositiveIntegerField rechaza valores negativos."""
-        from django.core.exceptions import ValidationError
         lote = Lote(
             numero_lote='LOTE-NEG',
             presentacion=self.presentacion,
@@ -138,13 +149,62 @@ class LoteModelTest(BaseTestCase):
 
 
 # ─────────────────────────────────────────────
-#  TESTS: Inventario (movimientos)
+#  TESTS: Inventario (stock)
 # ─────────────────────────────────────────────
 class InventarioModelTest(BaseTestCase):
 
+    def test_str_retorna_producto_presentacion_y_stock(self):
+        """__str__ debe mostrar producto, presentación y stock actual."""
+        self.assertIn(str(self.producto), str(self.inventario))
+        self.assertIn('100', str(self.inventario))
+
+    def test_necesita_reabastecimiento_true_si_stock_bajo(self):
+        """Debe ser True cuando el stock actual está en o bajo el mínimo."""
+        self.inventario.stock_actual = 20
+        self.inventario.save()
+        self.assertTrue(self.inventario.necesita_reabastecimiento)
+
+    def test_necesita_reabastecimiento_false_si_stock_suficiente(self):
+        """Debe ser False cuando el stock actual supera el mínimo."""
+        self.inventario.stock_actual = 50
+        self.inventario.save()
+        self.assertFalse(self.inventario.necesita_reabastecimiento)
+
+    def test_unique_together_producto_presentacion(self):
+        """No se puede tener dos registros de stock para el mismo producto+presentación."""
+        with self.assertRaises(IntegrityError):
+            Inventario.objects.create(
+                producto=self.producto,
+                presentacion=self.presentacion,
+                stock_actual=10,
+                stock_min=5,
+                stock_max=50
+            )
+
+    def test_stock_min_y_max_por_defecto_cero(self):
+        otra_presentacion = PresentacionProducto.objects.create(
+            producto=self.producto,
+            nombre='Caja x20',
+            unidades=20,
+            cantidad=0,
+            precio=Decimal('28000.00')
+        )
+        inv = Inventario.objects.create(
+            producto=self.producto,
+            presentacion=otra_presentacion
+        )
+        self.assertEqual(inv.stock_min, 0)
+        self.assertEqual(inv.stock_max, 0)
+
+
+# ─────────────────────────────────────────────
+#  TESTS: MovimientoInventario
+# ─────────────────────────────────────────────
+class MovimientoInventarioModelTest(BaseTestCase):
+
     def _crear_movimiento(self, tipo='entrada', cantidad=10):
-        return Inventario.objects.create(
-            presentacion=self.presentacion,
+        return MovimientoInventario.objects.create(
+            inventario=self.inventario,
             lote=self.lote,
             registrado_por=self.usuario,
             tipo=tipo,
@@ -152,32 +212,29 @@ class InventarioModelTest(BaseTestCase):
             motivo='Test'
         )
 
-    def test_str_retorna_tipo_presentacion_cantidad(self):
-        """__str__ debe mostrar tipo, presentación y cantidad."""
+    def test_str_retorna_tipo_inventario_cantidad(self):
+        """__str__ debe mostrar tipo, inventario y cantidad."""
         mov = self._crear_movimiento(tipo='entrada', cantidad=10)
         self.assertIn('entrada', str(mov))
         self.assertIn('10', str(mov))
 
     def test_crear_movimiento_entrada(self):
-        """Debe poder crear un movimiento de tipo entrada."""
         mov = self._crear_movimiento(tipo='entrada', cantidad=20)
         self.assertEqual(mov.tipo, 'entrada')
         self.assertEqual(mov.cantidad, 20)
 
     def test_crear_movimiento_salida(self):
-        """Debe poder crear un movimiento de tipo salida."""
         mov = self._crear_movimiento(tipo='salida', cantidad=5)
         self.assertEqual(mov.tipo, 'salida')
 
     def test_crear_movimiento_ajuste(self):
-        """Debe poder crear un movimiento de tipo ajuste."""
         mov = self._crear_movimiento(tipo='ajuste', cantidad=-3)
         self.assertEqual(mov.tipo, 'ajuste')
 
     def test_motivo_puede_estar_en_blanco(self):
         """El campo motivo es opcional."""
-        mov = Inventario.objects.create(
-            presentacion=self.presentacion,
+        mov = MovimientoInventario.objects.create(
+            inventario=self.inventario,
             lote=self.lote,
             registrado_por=self.usuario,
             tipo='entrada',
@@ -191,148 +248,17 @@ class InventarioModelTest(BaseTestCase):
         mov = self._crear_movimiento()
         self.assertIsNone(mov.stock_resultante)
 
+    def test_fecha_se_asigna_automaticamente(self):
+        """fecha debe llenarse sola (auto_now_add), no se pasa manualmente."""
+        mov = self._crear_movimiento()
+        self.assertIsNotNone(mov.fecha)
+
     def test_ordering_por_fecha_descendente(self):
         """El movimiento más reciente debe aparecer primero."""
         mov1 = self._crear_movimiento(cantidad=5)
         mov2 = self._crear_movimiento(cantidad=15)
-        primero = Inventario.objects.first()
+        primero = MovimientoInventario.objects.first()
         self.assertEqual(primero, mov2)
-
-
-# ─────────────────────────────────────────────
-#  TESTS: SesionConteo
-# ─────────────────────────────────────────────
-class SesionConteoModelTest(BaseTestCase):
-
-    def _crear_sesion(self, estado='activa'):
-        return SesionConteo.objects.create(
-            estado=estado,
-            responsable=self.usuario
-        )
-
-    def test_str_incluye_id_y_estado(self):
-        sesion = self._crear_sesion()
-        self.assertIn(str(sesion.id), str(sesion))
-        self.assertIn('activa', str(sesion))
-
-    def test_estado_por_defecto_es_activa(self):
-        sesion = self._crear_sesion()
-        self.assertEqual(sesion.estado, 'activa')
-
-    def test_estado_finalizada(self):
-        sesion = self._crear_sesion(estado='finalizada')
-        self.assertEqual(sesion.estado, 'finalizada')
-
-    def test_estado_cancelada(self):
-        sesion = self._crear_sesion(estado='cancelada')
-        self.assertEqual(sesion.estado, 'cancelada')
-
-    def test_fecha_fin_puede_ser_nula(self):
-        sesion = self._crear_sesion()
-        self.assertIsNone(sesion.fecha_fin)
-
-    def test_fecha_fin_se_puede_asignar(self):
-        sesion = self._crear_sesion()
-        sesion.fecha_fin = timezone.now()
-        sesion.save()
-        self.assertIsNotNone(sesion.fecha_fin)
-
-
-# ─────────────────────────────────────────────
-#  TESTS: ConteoProducto
-# ─────────────────────────────────────────────
-class ConteoProductoModelTest(BaseTestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.sesion = SesionConteo.objects.create(
-            responsable=self.usuario
-        )
-
-    def test_str_incluye_presentacion_y_cantidad(self):
-        conteo = ConteoProducto.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion,
-            cantidad_contada=25
-        )
-        self.assertIn('25', str(conteo))
-
-    def test_cantidad_contada_por_defecto_es_cero(self):
-        conteo = ConteoProducto.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion
-        )
-        self.assertEqual(conteo.cantidad_contada, 0)
-
-    def test_unique_together_sesion_presentacion(self):
-        """No se puede contar la misma presentación dos veces en la misma sesión."""
-        from django.db import IntegrityError
-        ConteoProducto.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion,
-            cantidad_contada=10
-        )
-        with self.assertRaises(IntegrityError):
-            ConteoProducto.objects.create(
-                sesion=self.sesion,
-                presentacion=self.presentacion,
-                cantidad_contada=20
-            )
-
-
-# ─────────────────────────────────────────────
-#  TESTS: ResultadoInventario
-# ─────────────────────────────────────────────
-class ResultadoInventarioModelTest(BaseTestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.sesion = SesionConteo.objects.create(
-            responsable=self.usuario
-        )
-
-    def test_str_incluye_presentacion_y_diferencia(self):
-        resultado = ResultadoInventario.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion,
-            cantidad_sistema=100,
-            cantidad_fisica=90,
-            diferencia=-10
-        )
-        self.assertIn('-10', str(resultado))
-
-    def test_diferencia_positiva(self):
-        """Si hay más físico que en sistema, diferencia es positiva."""
-        resultado = ResultadoInventario.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion,
-            cantidad_sistema=80,
-            cantidad_fisica=100,
-            diferencia=20
-        )
-        self.assertEqual(resultado.diferencia, 20)
-
-    def test_diferencia_negativa(self):
-        """Si hay menos físico que en sistema, diferencia es negativa."""
-        resultado = ResultadoInventario.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion,
-            cantidad_sistema=100,
-            cantidad_fisica=80,
-            diferencia=-20
-        )
-        self.assertEqual(resultado.diferencia, -20)
-
-    def test_diferencia_cero(self):
-        """Si coinciden, diferencia es cero."""
-        resultado = ResultadoInventario.objects.create(
-            sesion=self.sesion,
-            presentacion=self.presentacion,
-            cantidad_sistema=50,
-            cantidad_fisica=50,
-            diferencia=0
-        )
-        self.assertEqual(resultado.diferencia, 0)
 
 
 # ─────────────────────────────────────────────
@@ -343,9 +269,11 @@ class AgendaInventarioModelTest(BaseTestCase):
     def _crear_agenda(self, estado='pendiente'):
         return AgendaInventario.objects.create(
             titulo='Conteo mensual',
-            fecha_programada=timezone.now() + timedelta(days=7),
+            descripcion='Conteo físico del almacén principal',
+            fecha=timezone.now() + timedelta(days=7),
+            tipo='conteo',
             estado=estado,
-            creado_por=self.usuario,
+            documento_usuario=self.usuario,
             responsable=self.usuario
         )
 
@@ -366,22 +294,97 @@ class AgendaInventarioModelTest(BaseTestCase):
         self.assertEqual(agenda.estado, 'completada')
 
     def test_descripcion_puede_ser_nula(self):
-        agenda = self._crear_agenda()
+        agenda = AgendaInventario.objects.create(
+            titulo='Sin descripción',
+            fecha=timezone.now() + timedelta(days=7),
+            documento_usuario=self.usuario
+        )
         self.assertIsNone(agenda.descripcion)
 
-    def test_ordering_por_fecha_programada_ascendente(self):
+    def test_responsable_puede_ser_nulo(self):
+        """responsable es opcional; solo documento_usuario es obligatorio."""
+        agenda = AgendaInventario.objects.create(
+            titulo='Sin responsable asignado',
+            fecha=timezone.now() + timedelta(days=7),
+            documento_usuario=self.usuario
+        )
+        self.assertIsNone(agenda.responsable)
+
+    def test_ordering_por_fecha_ascendente(self):
         """La agenda más próxima debe aparecer primero."""
         agenda1 = AgendaInventario.objects.create(
             titulo='Segunda',
-            fecha_programada=timezone.now() + timedelta(days=14),
-            creado_por=self.usuario,
-            responsable=self.usuario
+            fecha=timezone.now() + timedelta(days=14),
+            documento_usuario=self.usuario
         )
         agenda2 = AgendaInventario.objects.create(
             titulo='Primera',
-            fecha_programada=timezone.now() + timedelta(days=3),
-            creado_por=self.usuario,
-            responsable=self.usuario
+            fecha=timezone.now() + timedelta(days=3),
+            documento_usuario=self.usuario
         )
         primera = AgendaInventario.objects.first()
         self.assertEqual(primera, agenda2)
+
+
+# ─────────────────────────────────────────────
+#  TESTS: Hallazgo
+# ─────────────────────────────────────────────
+class HallazgoModelTest(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.agenda = AgendaInventario.objects.create(
+            titulo='Conteo bodega',
+            fecha=timezone.now(),
+            documento_usuario=self.usuario
+        )
+
+    def _crear_hallazgo(self, cantidad_sistema, cantidad_fisica):
+        return Hallazgo.objects.create(
+            agenda=self.agenda,
+            producto=self.producto,
+            cantidad_sistema=cantidad_sistema,
+            cantidad_fisica=cantidad_fisica,
+            sesion_conteo='SESION-001'
+        )
+
+    def test_str_incluye_producto_y_diferencia(self):
+        hallazgo = self._crear_hallazgo(100, 90)
+        self.assertIn(str(hallazgo.diferencia), str(hallazgo))
+
+    def test_diferencia_se_calcula_automaticamente(self):
+        """diferencia = cantidad_fisica - cantidad_sistema, sin necesidad de pasarla."""
+        hallazgo = self._crear_hallazgo(80, 100)
+        self.assertEqual(hallazgo.diferencia, 20)
+
+    def test_tipo_hallazgo_sobrante_si_diferencia_positiva(self):
+        hallazgo = self._crear_hallazgo(80, 100)
+        self.assertEqual(hallazgo.tipo_hallazgo, 'sobrante')
+
+    def test_tipo_hallazgo_faltante_si_diferencia_negativa(self):
+        hallazgo = self._crear_hallazgo(100, 80)
+        self.assertEqual(hallazgo.tipo_hallazgo, 'faltante')
+
+    def test_tipo_hallazgo_exacto_si_diferencia_cero(self):
+        hallazgo = self._crear_hallazgo(50, 50)
+        self.assertEqual(hallazgo.tipo_hallazgo, 'exacto')
+
+    def test_tipo_hallazgo_se_recalcula_al_actualizar(self):
+        """Si se edita cantidad_fisica, diferencia y tipo_hallazgo deben recalcularse."""
+        hallazgo = self._crear_hallazgo(50, 50)
+        self.assertEqual(hallazgo.tipo_hallazgo, 'exacto')
+        hallazgo.cantidad_fisica = 30
+        hallazgo.save()
+        self.assertEqual(hallazgo.diferencia, -20)
+        self.assertEqual(hallazgo.tipo_hallazgo, 'faltante')
+
+    def test_observaciones_puede_estar_en_blanco(self):
+        hallazgo = self._crear_hallazgo(50, 50)
+        self.assertEqual(hallazgo.observaciones, '')
+
+    def test_ordering_por_fecha_hallazgo_descendente(self):
+        """El hallazgo más reciente debe aparecer primero."""
+        h1 = self._crear_hallazgo(50, 50)
+        h2 = self._crear_hallazgo(60, 55)
+        primero = Hallazgo.objects.first()
+        self.assertEqual(primero, h2)
