@@ -35,7 +35,7 @@ class ReporteInventario(models.Model):
     id = models.AutoField(primary_key=True)
     presentacion_id = models.ForeignKey('productos.PresentacionProducto', on_delete=models.CASCADE)
     lote_id = models.ForeignKey('inventario.Lote', on_delete=models.CASCADE)
-    sesion_conteo_id = models.ForeignKey('inventario.SesionConteo', on_delete=models.SET_NULL, null=True, blank=True)
+    sesion_conteo = models.CharField(max_length=50, null=True, blank=True)
     stock_sistema = models.IntegerField()
     stock_fisico = models.IntegerField()
     diferencia = models.IntegerField()

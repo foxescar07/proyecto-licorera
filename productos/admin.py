@@ -1,8 +1,5 @@
 from django.contrib import admin
 from .models import Categoria, Producto, PresentacionProducto
-from inventario.models import Inventario, AgendaInventario
-
-
 # ─────────────────────────────────────────────
 #  Inline: Presentaciones dentro de Producto
 # ─────────────────────────────────────────────
