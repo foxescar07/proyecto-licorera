@@ -275,11 +275,11 @@ def lista_compras(request):
                 # Ver TODAS las compras (sin filtro) para diagnosticar
                 cursor.execute("""
                     SELECT c.id, c.producto_id, c.cantidad, CAST(c.precio_unitario AS REAL),
-                           CAST(c.total AS REAL), c.fecha_registro, c.estado, c.estado_pago, c.recibida,
+                           CAST(c.total AS REAL), c.fecha, c.estado, c.estado_pago, c.recibida,
                            p.nombre, c.proveedor_id
                     FROM proveedores_compra c
                     LEFT JOIN productos_producto p ON c.producto_id = p.id
-                    ORDER BY c.fecha_registro DESC
+                    ORDER BY c.fecha DESC
                 """)
 
                 rows = cursor.fetchall()
@@ -300,7 +300,7 @@ def lista_compras(request):
                         c.cantidad = row[2]
                         c.precio_unitario = float(row[3] or 0)
                         c.total = float(row[4] or 0)
-                        c.fecha_registro = row[5]
+                        c.fecha = row[5]
                         c.estado = row[6]
                         c.estado_pago = row[7]
                         c.recibida = row[8]
@@ -433,23 +433,23 @@ def lista_compras(request):
 
     try:
         # Usar exclude para evitar errores de Decimal NULL
-        compras_semana_qs = Compra.objects.filter(fecha_registro__gte=hace_7_dias).exclude(total__isnull=True)
-        total_gastado = float(sum(c.total for c in compras_semana_qs) or 0)
+        compras_semana_qs = Compra.objects.filter(fecha__gte=hace_7_dias).exclude(valor__isnull=True)
+        total_gastado = float(sum(c.valor for c in compras_semana_qs) or 0)
     except Exception:
         total_gastado = 0
 
     # Compras este mes
     count_mes = Compra.objects.filter(
-        fecha_registro__year=hoy.year,
-        fecha_registro__month=hoy.month,
+        fecha__year=hoy.year,
+        fecha__month=hoy.month,
     ).count()
 
     try:
         compras_mes_qs = Compra.objects.filter(
-            fecha_registro__year=hoy.year,
-            fecha_registro__month=hoy.month,
-        ).exclude(total__isnull=True)
-        total_mes = float(sum(c.total for c in compras_mes_qs) or 0)
+            fecha__year=hoy.year,
+            fecha__month=hoy.month,
+        ).exclude(valor__isnull=True)
+        total_mes = float(sum(c.valor for c in compras_mes_qs) or 0)
     except Exception:
         total_mes = 0
 
@@ -484,8 +484,8 @@ def lista_compras(request):
     # Compras por mes (últimos 12 meses)
     compras_por_mes = (
         Compra.objects
-        .filter(fecha_registro__gte=desde)
-        .annotate(mes=TruncMonth('fecha_registro'))
+        .filter(fecha__gte=desde)
+        .annotate(mes=TruncMonth('fecha'))
         .values('mes')
         .annotate(total=Count('id'))
         .order_by('mes')
@@ -512,30 +512,19 @@ def lista_compras(request):
         meses_data.append(datos_por_mes.get(mes, 0))
 
     # Productos más comprados (top 5)
-    productos_top_list = (
-        Compra.objects
-        .values('producto__nombre')
-        .annotate(cantidad=Sum('cantidad'))
-        .order_by('-cantidad')[:5]
-    )
+    # TODO: Reescribir esta lógica para usar DetalleCompra en lugar de Compra
+    # ya que los productos ahora están en DetalleCompra, no en Compra
+    productos_labels = ['N/A']
+    productos_data = [0]
 
-    productos_labels = [p['producto__nombre'] for p in productos_top_list]
-    productos_data = [p['cantidad'] for p in productos_top_list]
-
-    # Gastos por proveedor - usar raw SQL para evitar Decimal
+    # Gastos por proveedor
+    # TODO: Reescribir para usar nuevo modelo - Compra ya no tiene cantidad directa
     gastos_proveedor_dict = {}
     try:
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT p.nombre_empresa, SUM(c.cantidad) as total
-                FROM proveedores_compra c
-                JOIN proveedores_proveedor p ON c.proveedor_id = p.id
-                GROUP BY p.id, p.nombre_empresa
-                ORDER BY total DESC
-            """)
-            for nombre, total in cursor.fetchall():
-                gastos_proveedor_dict[nombre] = total or 0
+        # Usar el modelo ORM en lugar de SQL raw
+        for compra in compras:
+            nombre = compra.proveedor.nombre_empresa
+            gastos_proveedor_dict[nombre] = gastos_proveedor_dict.get(nombre, 0) + float(compra.valor or 0)
     except Exception:
         gastos_proveedor_dict = {}
 
@@ -614,11 +603,11 @@ def registrar_compra(request):
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT c.id, c.producto_id, c.cantidad, c.precio_unitario, c.total,
-                           c.fecha_registro, c.estado, c.estado_pago, c.recibida, p.nombre
+                           c.fecha, c.estado, c.estado_pago, c.recibida, p.nombre
                     FROM proveedores_compra c
                     LEFT JOIN productos_producto p ON c.producto_id = p.id
                     WHERE c.proveedor_id = ?
-                    ORDER BY c.fecha_registro DESC
+                    ORDER BY c.fecha DESC
                 """, [proveedor.id])
 
                 for row in cursor.fetchall():
@@ -630,7 +619,7 @@ def registrar_compra(request):
                     c.cantidad = row[2]
                     c.precio_unitario = float(row[3] or 0)
                     c.total = float(row[4] or 0)
-                    c.fecha_registro = row[5]
+                    c.fecha = row[5]
                     c.estado = row[6]
                     c.estado_pago = row[7]
                     c.recibida = row[8]
@@ -741,15 +730,15 @@ def registrar_compra(request):
     hoy = timezone.now()
     # Calcular gasto de esta semana (últimos 7 días)
     hace_7_dias = hoy - timedelta(days=7)
-    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
+    compras_semana = Compra.objects.filter(fecha__gte=hace_7_dias)
     total_gastado = sum(
         c.cantidad * c.precio_unitario
         for c in compras_semana.exclude(precio_unitario__isnull=True)
     ) or 0
 
     compras_mes = Compra.objects.filter(
-        fecha_registro__year=hoy.year,
-        fecha_registro__month=hoy.month,
+        fecha__year=hoy.year,
+        fecha__month=hoy.month,
     )
     count_mes = compras_mes.count()
     total_mes = sum(
@@ -772,8 +761,8 @@ def registrar_compra(request):
     desde = hoy - timedelta(days=365)
     compras_por_mes = (
         Compra.objects
-        .filter(fecha_registro__gte=desde)
-        .annotate(mes=TruncMonth('fecha_registro'))
+        .filter(fecha__gte=desde)
+        .annotate(mes=TruncMonth('fecha'))
         .values('mes')
         .annotate(total=Count('id'))
         .order_by('mes')
