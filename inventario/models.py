@@ -1,12 +1,20 @@
-from django.conf import settings # type: ignore
+from django.conf import settings  # type: ignore
 from django.db import models
 from django.utils import timezone
 
-from productos.models import PresentacionProducto
+from productos.models import Producto, PresentacionProducto
 
 
 class Lote(models.Model):
+    """MER: lote (#codigo, stock_actual, costo_unitario, fecha_vencimiento,
+    fecha_registro, documento_usuario(fk), codigo_producto(fk), codigo_presentacion(fk))"""
+
     numero_lote       = models.CharField(max_length=100, unique=True)
+    producto          = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT,
+        related_name='lotes'
+    )
     presentacion      = models.ForeignKey(
         PresentacionProducto,
         on_delete=models.PROTECT,
@@ -48,147 +56,124 @@ class Lote(models.Model):
 
 
 class Inventario(models.Model):
-    TIPO_CHOICES = [
-        ('entrada', 'Entrada'),
-        ('salida',  'Salida'),
-        ('ajuste',  'Ajuste'),
-    ]
+    """MER: inventario (#codigo_inventario, codigo_producto(fk),
+    codigo_presentacion(fk), stock_actual, stock_min, stock_max)
 
-    presentacion   = models.ForeignKey(
+    Ya NO es un log de movimientos: es el registro de stock vigente y sus
+    umbrales por presentación. El histórico de entradas/salidas ahora vive
+    en compra/venta; los ajustes por conteo físico viven en Hallazgo.
+    """
+
+    producto      = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT,
+        related_name='inventarios'
+    )
+    presentacion  = models.OneToOneField(
         PresentacionProducto,
         on_delete=models.PROTECT,
-        related_name='movimientos'
+        related_name='inventario'
     )
-    lote           = models.ForeignKey(
-        Lote,
-        on_delete=models.PROTECT,
-        related_name='movimientos'
-    )
-    registrado_por = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='movimientos_inventario'
-    )
-    tipo              = models.CharField(max_length=20, choices=TIPO_CHOICES)
-    cantidad          = models.IntegerField()
-    motivo            = models.CharField(max_length=255, blank=True)
-    stock_resultante  = models.PositiveIntegerField(null=True, blank=True)
-    fecha_actualizada = models.DateTimeField(auto_now_add=True)
+    stock_actual  = models.PositiveIntegerField(default=0)
+    stock_min     = models.PositiveIntegerField(default=0)
+    stock_max     = models.PositiveIntegerField(default=0)
 
     class Meta:
-        verbose_name        = 'Movimiento de Inventario'
-        verbose_name_plural = 'Movimientos de Inventario'
-        ordering            = ['-fecha_actualizada']
+        verbose_name        = 'Inventario'
+        verbose_name_plural = 'Inventarios'
 
     def __str__(self):
-        return f"{self.tipo} - {self.presentacion} ({self.cantidad})"
+        return f"Inventario {self.presentacion} - stock: {self.stock_actual}"
 
-
-class SesionConteo(models.Model):
-    ESTADO_CHOICES = [
-        ('activa',      'Activa'),
-        ('finalizada',  'Finalizada'),
-        ('cancelada',   'Cancelada'),
-    ]
-
-    fecha_inicio = models.DateTimeField(auto_now_add=True)
-    estado       = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='activa')
-    fecha_fin    = models.DateTimeField(null=True, blank=True)
-    responsable  = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='sesiones_conteo'
-    )
-
-    class Meta:
-        verbose_name        = 'Sesión de Conteo'
-        verbose_name_plural = 'Sesiones de Conteo'
-        ordering            = ['-fecha_inicio']
-
-    def __str__(self):
-        return f"Conteo {self.id} - {self.estado}"
-
-
-class ConteoProducto(models.Model):
-    sesion           = models.ForeignKey(
-        SesionConteo,
-        on_delete=models.CASCADE,
-        related_name='conteos'
-    )
-    presentacion     = models.ForeignKey(
-        PresentacionProducto,
-        on_delete=models.PROTECT,
-        related_name='conteos'
-    )
-    cantidad_contada = models.PositiveIntegerField(default=0)
-    actualizado_en   = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name        = 'Conteo de Producto'
-        verbose_name_plural = 'Conteos de Producto'
-        unique_together     = ('sesion', 'presentacion')
-
-    def __str__(self):
-        return f"{self.presentacion} - Contado: {self.cantidad_contada}"
-
-
-class ResultadoInventario(models.Model):
-    sesion       = models.ForeignKey(
-        SesionConteo,
-        on_delete=models.CASCADE,
-        related_name='resultados'
-    )
-    presentacion = models.ForeignKey(
-        PresentacionProducto,
-        on_delete=models.PROTECT,
-        related_name='resultados_inventario'
-    )
-    cantidad_sistema = models.IntegerField()
-    cantidad_fisica  = models.IntegerField()
-    diferencia       = models.IntegerField()
-
-    class Meta:
-        verbose_name        = 'Resultado de Inventario'
-        verbose_name_plural = 'Resultados de Inventario'
-
-    def __str__(self):
-        return f"Resultado {self.presentacion} - Diferencia: {self.diferencia}"
+    @property
+    def estado_stock(self):
+        if self.stock_actual <= 0:
+            return 'rojo'
+        if self.stock_actual <= self.stock_min:
+            return 'amarillo'
+        return 'verde'
 
 
 class AgendaInventario(models.Model):
+    """MER: agenda_inventario (#codigo, fecha, tipo, estado, documento_usuario(fk))"""
+
+    TIPO_CHOICES = [
+        ('conteo_fisico', 'Conteo físico'),
+        ('revision',      'Revisión'),
+        ('auditoria',     'Auditoría'),
+    ]
     ESTADO_CHOICES = [
-        ('pendiente',   'Pendiente'),
-        ('en_proceso',  'En proceso'),
-        ('completada',  'Completada'),
-        ('cancelada',   'Cancelada'),
+        ('pendiente',  'Pendiente'),
+        ('en_proceso', 'En proceso'),
+        ('completada', 'Completada'),
+        ('cancelada',  'Cancelada'),
     ]
 
-    titulo           = models.CharField(max_length=200)
-    descripcion      = models.TextField(blank=True, null=True)
-    fecha_programada = models.DateTimeField()
-    estado           = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
-    creado_por       = models.ForeignKey(
+    fecha           = models.DateTimeField()
+    tipo            = models.CharField(max_length=30, choices=TIPO_CHOICES, default='conteo_fisico')
+    estado          = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    documento_usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
-        related_name='agendas_creadas'
-    )
-    responsable      = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='agendas_asignadas'
-    )
-    completado_por   = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='agendas_completadas',
-        null=True,
-        blank=True,
+        related_name='agendas_inventario'
     )
 
     class Meta:
         verbose_name        = 'Agenda de Inventario'
         verbose_name_plural = 'Agendas de Inventario'
-        ordering            = ['fecha_programada']
+        ordering            = ['fecha']
 
     def __str__(self):
-        return f"{self.titulo} - {self.fecha_programada.date()}"
+        return f"Agenda {self.pk} - {self.get_tipo_display()} ({self.fecha.date()})"
+
+
+class Hallazgo(models.Model):
+    """MER: hallazgo (#codigo, codigo_agenda(fk), codigo_producto(fk),
+    cantidad_sistema, cantidad_fisica, diferencia, sesion_conteo,
+    tipo_hallazgo, resultado_inventario, observaciones, fecha_hallazgo)
+
+    Reemplaza a SesionConteo + ConteoProducto + ResultadoInventario.
+    """
+
+    TIPO_HALLAZGO_CHOICES = [
+        ('sobrante', 'Sobrante'),
+        ('faltante', 'Faltante'),
+        ('ok',       'Sin diferencia'),
+    ]
+
+    agenda              = models.ForeignKey(
+        AgendaInventario,
+        on_delete=models.CASCADE,
+        related_name='hallazgos'
+    )
+    producto            = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT,
+        related_name='hallazgos'
+    )
+    cantidad_sistema     = models.IntegerField()
+    cantidad_fisica       = models.IntegerField()
+    diferencia            = models.IntegerField()
+    sesion_conteo         = models.PositiveIntegerField(help_text='Número de sesión de conteo en la que se registró')
+    tipo_hallazgo         = models.CharField(max_length=20, choices=TIPO_HALLAZGO_CHOICES)
+    resultado_inventario  = models.CharField(max_length=100, blank=True)
+    observaciones         = models.TextField(blank=True, null=True)
+    fecha_hallazgo         = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name        = 'Hallazgo'
+        verbose_name_plural = 'Hallazgos'
+        ordering            = ['-fecha_hallazgo']
+
+    def __str__(self):
+        return f"Hallazgo {self.pk} - {self.producto} ({self.diferencia})"
+
+    def save(self, *args, **kwargs):
+        self.diferencia = self.cantidad_fisica - self.cantidad_sistema
+        if self.diferencia == 0:
+            self.tipo_hallazgo = 'ok'
+        elif self.diferencia > 0:
+            self.tipo_hallazgo = 'sobrante'
+        else:
+            self.tipo_hallazgo = 'faltante'
+        super().save(*args, **kwargs)

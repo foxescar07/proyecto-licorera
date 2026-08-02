@@ -6,6 +6,7 @@ from ventas.models import Venta, DetalleVenta
 from productos.models import Producto
 from inventario.models import Inventario
 from .forms import FiltroReporteForm
+from .models import Reporte
 import json
 import zoneinfo
 from django.core.serializers.json import DjangoJSONEncoder
@@ -21,9 +22,9 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT  # type: ignore
 from io import BytesIO
 
 # openpyxl (Excel)
-from openpyxl import Workbook # type: ignore # type: ignore
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side # type: ignore
-from openpyxl.utils import get_column_letter # type: ignore
+from openpyxl import Workbook  # type: ignore
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side  # type: ignore
+from openpyxl.utils import get_column_letter  # type: ignore
 
 ZONA_COLOMBIA = zoneinfo.ZoneInfo('America/Bogota')
 
@@ -53,6 +54,37 @@ XLS_VERDE_OK      = '2E8B57'   # valores positivos (entradas/ingresos)
 XLS_ROJO_OUT      = 'C0392B'   # valores negativos (salidas)
 
 XLS_FONT = 'Calibri'
+
+# Tipos de reporte válidos (deben coincidir con Reporte.TIPO_REPORTE_CHOICES)
+TIPOS_VALIDOS = {'ventas', 'inventario', 'proveedores', 'resumen_diario', 'analisis'}
+
+
+# ─────────────────────────────────────────────
+#  HELPER: registrar la trazabilidad del reporte (tabla 'reportes' - MER)
+# ─────────────────────────────────────────────
+def _registrar_reporte(request, tipo_reporte, formato, observacion=''):
+    """
+    Crea el registro en la tabla Reporte cada vez que un usuario genera
+    (exporta) un reporte en PDF o Excel, según el MER del módulo.
+
+    Campos del modelo Reporte (MER):
+        codigo (PK, auto)
+        documento_usuario (FK -> usuario)
+        tipo_reporte
+        fecha (auto_now_add)
+        formato
+        observaciones
+    """
+    usuario = getattr(request, 'user', None)
+    if usuario is None or not getattr(usuario, 'is_authenticated', False):
+        return None
+
+    return Reporte.objects.create(
+        documento_usuario=usuario,
+        tipo_reporte=tipo_reporte,
+        formato=formato,
+        observaciones=observacion,
+    )
 
 
 # ─────────────────────────────────────────────
@@ -125,7 +157,6 @@ def _kpi_table(items):
     items = [('Label', 'Valor', color_hex_str), ...]
     Devuelve una tabla de KPIs horizontal.
     """
-    styles = getSampleStyleSheet()
     filas_label = []
     filas_val   = []
     for label, valor, color_hex in items:
@@ -156,7 +187,6 @@ def _kpi_table(items):
 # ═══════════════════════════════════════════════════════
 
 def _pdf_ventas(ventas_qs, fecha_inicio, fecha_fin):
-    styles = getSampleStyleSheet()
     elementos = []
 
     # KPIs
@@ -203,7 +233,6 @@ def _pdf_ventas(ventas_qs, fecha_inicio, fecha_fin):
 
 def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     elementos = []
-    styles = getSampleStyleSheet()
 
     total_reg   = productos_qs.count()
     en_stock    = sum(1 for p in productos_qs if p.stock_total > 10)
@@ -321,7 +350,6 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
                         ingresos_hoy, total_entradas_hoy, total_salidas_hoy,
                         top_productos_hoy):
     elementos = []
-    styles = getSampleStyleSheet()
 
     elementos.append(_kpi_table([
         ('Ingresos hoy',  f'${ingresos_hoy:,.0f}',    '#2ecc71'),
@@ -400,7 +428,6 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
 
 def _pdf_analisis_ventas(ventas_qs, total_ventas, total_productos, total_clientes, top_productos_hoy):
     elementos = []
-    styles = getSampleStyleSheet()
 
     elementos.append(_kpi_table([
         ('Ventas Totales', f'${total_ventas:,.0f}', '#2ecc71'),
@@ -854,6 +881,11 @@ def index_reportes(request):
     if export_format in ('excel', 'pdf'):
         tipo = request.GET.get('tipo', 'ventas')
 
+        if tipo not in TIPOS_VALIDOS:
+            return HttpResponse(
+                f"Tipo de reporte {export_format} no reconocido.", status=400
+            )
+
         # ── EXCEL (.xlsx real, con estilos) ───────────────
         if export_format == 'excel':
             productos_qs = Producto.objects.all().order_by('nombre')
@@ -918,12 +950,13 @@ def index_reportes(request):
                 _xlsx_analisis_ventas(wb, ventas_qs, total_v, total_u, total_c, top_h)
                 nombre = f"analisis_ventas_{timezone.now().strftime('%Y%m%d')}.xlsx"
 
-            else:
-                return HttpResponse("Tipo de reporte Excel no reconocido.", status=400)
-
             buffer = BytesIO()
             wb.save(buffer)
             buffer.seek(0)
+
+            # Registro de trazabilidad (tabla 'reportes' según el MER)
+            _registrar_reporte(request, tipo, 'excel')
+
             response = HttpResponse(
                 buffer,
                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -993,8 +1026,8 @@ def index_reportes(request):
                 buffer = _pdf_analisis_ventas(ventas_qs, total_v, total_u, total_c, top_h)
                 nombre = f"analisis_ventas_{timezone.now().strftime('%Y%m%d')}.pdf"
 
-            else:
-                return HttpResponse("Tipo de reporte PDF no reconocido.", status=400)
+            # Registro de trazabilidad (tabla 'reportes' según el MER)
+            _registrar_reporte(request, tipo, 'pdf')
 
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = f'inline; filename="{nombre}"'
@@ -1075,6 +1108,11 @@ def index_reportes(request):
         .replace('<!--',      r'<\!--')
     )
 
+    # Historial de reportes generados (tabla 'reportes' del MER)
+    # NOTA: el nombre de esta variable debe coincidir con lo que usa
+    # el template reportes.html -> {% for r in ultimos_reportes %}
+    ultimos_reportes = Reporte.objects.select_related('documento_usuario').all()[:50]
+
     context = {
         'ventas':             ventas_todas,
         'page_obj':           page_obj,
@@ -1102,6 +1140,7 @@ def index_reportes(request):
         'total_salidas_hoy':  total_salidas_hoy,
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
+        'ultimos_reportes':   ultimos_reportes,
         'breadcrumb_items': [
             {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
             {'nombre': 'Reportes', 'url': None},

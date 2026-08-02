@@ -387,7 +387,132 @@
       </div>
 
     </section>
+
+    <!-- ══════════════════════════════════════
+         HISTORIAL DE REPORTES GENERADOS
+         (Bitácora — entidad 'reportes' del MER)
+    ══════════════════════════════════════ -->
+    <section class="cys-card mb-4">
+      <div class="cys-card__title d-flex align-items-center justify-content-between">
+        <span>
+          <i class="bi bi-clock-history cys-card__title-icon"></i>Historial de Reportes Generados
+        </span>
+        <button type="button" class="cys-hv-btn-exportar" data-bs-toggle="modal" data-bs-target="#modalHistorialReportes">
+          <i class="bi bi-arrows-fullscreen"></i>Ver todo
+        </button>
+      </div>
+
+      <div class="table-responsive mt-3">
+        <table class="cys-inv-table table w-100" id="tabla-historial-reportes">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tipo de Reporte</th>
+              <th>Formato</th>
+              <th>Generado por</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in ultimos_reportes %}
+            <tr class="cys-tr">
+              <td class="cys-td cys-td--muted" data-label="#">{{ r.codigo }}</td>
+              <td class="cys-td cys-td--bold" data-label="Tipo">{{ r.get_tipo_reporte_display }}</td>
+              <td data-label="Formato">
+                {% if r.formato == "excel" %}
+                  <span class="cys-badge cys-badge--verde"><i class="bi bi-file-earmark-excel me-1"></i>Excel</span>
+                {% else %}
+                  <span class="cys-badge cys-badge--rojo"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</span>
+                {% endif %}
+              </td>
+              <td class="cys-td" data-label="Usuario">{{ r.documento_usuario|default:"Anónimo" }}</td>
+              <td class="cys-td" data-label="Fecha">{{ r.fecha|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="cys-td--empty border-0">
+                <div class="cys-empty-box">
+                  <i class="bi bi-clock-history"></i>
+                  Aún no se ha generado ningún reporte.
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL — HISTORIAL DE REPORTES (vista ampliada)
+═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalHistorialReportes" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content cys-modal">
+
+      <div class="modal-header cys-modal__header">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon cys-modal__icon--inv">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Historial de Reportes Generados</div>
+            <div class="cys-modal__subtitle">CYS Ltda · Bitácora de reportes exportados</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <div class="modal-body p-0 cys-modal__body">
+        <div class="table-responsive cys-modal-table-wrap--padded">
+          <table class="cys-inv-table" id="tabla-modal-historial-reportes">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Tipo de Reporte</th>
+                <th>Formato</th>
+                <th>Generado por</th>
+                <th>Fecha</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in ultimos_reportes %}
+              <tr class="cys-tr">
+                <td class="cys-td cys-td--muted" data-label="#">{{ r.codigo }}</td>
+                <td class="cys-td cys-td--bold" data-label="Tipo">{{ r.get_tipo_reporte_display }}</td>
+                <td data-label="Formato">
+                  {% if r.formato == "excel" %}
+                    <span class="cys-badge cys-badge--verde">Excel</span>
+                  {% else %}
+                    <span class="cys-badge cys-badge--rojo">PDF</span>
+                  {% endif %}
+                </td>
+                <td class="cys-td" data-label="Usuario">{{ r.documento_usuario|default:"Anónimo" }}</td>
+                <td class="cys-td" data-label="Fecha">{{ r.fecha|date:"d/m/Y H:i" }}</td>
+                <td class="cys-td cys-td--muted" data-label="Observaciones">{{ r.observaciones|default:"—" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="cys-td--empty">
+                  <div class="cys-empty-box"><i class="bi bi-clock-history"></i>Aún no se ha generado ningún reporte.</div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal__footer">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 
 <!-- ═══════════════════════════════════════════
@@ -1455,4 +1580,4 @@
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="{% static 'js/reportes/reportes.js' %}"></script>
-{% endblock %} 
+{% endblock %}
