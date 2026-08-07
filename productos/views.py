@@ -344,8 +344,26 @@ def producto_registro(request):
 
 # ===============================
 # STOCK STATUS (Widget con URLs unificado)
-# ===============================
 
+# ===============================
+@login_required
+def stock_status(request):
+    criticos = []
+    bajos = []
+
+    for producto in Producto.objects.filter(activo=True):
+        if producto.stock_critico:
+            criticos.append({'nombre': producto.nombre, 'total_stock': producto.stock_total})
+
+    for item in Inventario.objects.select_related('producto'):
+        if item.necesita_reabastecimiento and not item.producto.stock_critico:
+            bajos.append({'nombre': item.producto.nombre, 'total_stock': item.stock_actual})
+
+    return JsonResponse({
+        'criticos': criticos,
+        'bajos': bajos,
+        'total_alertas': len(criticos) + len(bajos),
+    })
 # ===============================
 # SALIDA DE PRODUCTO
 # ===============================
