@@ -1,4 +1,4 @@
-# proveedores/views.py
+﻿# proveedores/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
@@ -8,8 +8,8 @@ from django.db import models
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from .models import Proveedor, Compra, OrdenCompra, DetalleCompra, HistorialOrden
-from .forms import ProveedorForm, CompraForm, OrdenCompraForm, DetalleCompraForm
+from .models import Proveedor, Compra, DetalleCompra, HistorialCompra
+from .forms import ProveedorForm, CompraForm, DetalleCompraForm
 from productos.models import Producto
 from inventario.models import Lote, Inventario
 import json
@@ -275,11 +275,11 @@ def lista_compras(request):
                 # Ver TODAS las compras (sin filtro) para diagnosticar
                 cursor.execute("""
                     SELECT c.id, c.producto_id, c.cantidad, CAST(c.precio_unitario AS REAL),
-                           CAST(c.total AS REAL), c.fecha_registro, c.estado, c.estado_pago, c.recibida,
+                           CAST(c.total AS REAL), c.fecha, c.estado, c.estado_pago, c.recibida,
                            p.nombre, c.proveedor_id
                     FROM proveedores_compra c
                     LEFT JOIN productos_producto p ON c.producto_id = p.id
-                    ORDER BY c.fecha_registro DESC
+                    ORDER BY c.fecha DESC
                 """)
 
                 rows = cursor.fetchall()
@@ -300,7 +300,7 @@ def lista_compras(request):
                         c.cantidad = row[2]
                         c.precio_unitario = float(row[3] or 0)
                         c.total = float(row[4] or 0)
-                        c.fecha_registro = row[5]
+                        c.fecha = row[5]
                         c.estado = row[6]
                         c.estado_pago = row[7]
                         c.recibida = row[8]
@@ -433,23 +433,23 @@ def lista_compras(request):
 
     try:
         # Usar exclude para evitar errores de Decimal NULL
-        compras_semana_qs = Compra.objects.filter(fecha_registro__gte=hace_7_dias).exclude(total__isnull=True)
-        total_gastado = float(sum(c.total for c in compras_semana_qs) or 0)
+        compras_semana_qs = Compra.objects.filter(fecha__gte=hace_7_dias).exclude(valor__isnull=True)
+        total_gastado = float(sum(c.valor for c in compras_semana_qs) or 0)
     except Exception:
         total_gastado = 0
 
     # Compras este mes
     count_mes = Compra.objects.filter(
-        fecha_registro__year=hoy.year,
-        fecha_registro__month=hoy.month,
+        fecha__year=hoy.year,
+        fecha__month=hoy.month,
     ).count()
 
     try:
         compras_mes_qs = Compra.objects.filter(
-            fecha_registro__year=hoy.year,
-            fecha_registro__month=hoy.month,
-        ).exclude(total__isnull=True)
-        total_mes = float(sum(c.total for c in compras_mes_qs) or 0)
+            fecha__year=hoy.year,
+            fecha__month=hoy.month,
+        ).exclude(valor__isnull=True)
+        total_mes = float(sum(c.valor for c in compras_mes_qs) or 0)
     except Exception:
         total_mes = 0
 
@@ -484,8 +484,8 @@ def lista_compras(request):
     # Compras por mes (últimos 12 meses)
     compras_por_mes = (
         Compra.objects
-        .filter(fecha_registro__gte=desde)
-        .annotate(mes=TruncMonth('fecha_registro'))
+        .filter(fecha__gte=desde)
+        .annotate(mes=TruncMonth('fecha'))
         .values('mes')
         .annotate(total=Count('id'))
         .order_by('mes')
@@ -512,30 +512,19 @@ def lista_compras(request):
         meses_data.append(datos_por_mes.get(mes, 0))
 
     # Productos más comprados (top 5)
-    productos_top_list = (
-        Compra.objects
-        .values('producto__nombre')
-        .annotate(cantidad=Sum('cantidad'))
-        .order_by('-cantidad')[:5]
-    )
+    # TODO: Reescribir esta lógica para usar DetalleCompra en lugar de Compra
+    # ya que los productos ahora están en DetalleCompra, no en Compra
+    productos_labels = ['N/A']
+    productos_data = [0]
 
-    productos_labels = [p['producto__nombre'] for p in productos_top_list]
-    productos_data = [p['cantidad'] for p in productos_top_list]
-
-    # Gastos por proveedor - usar raw SQL para evitar Decimal
+    # Gastos por proveedor
+    # TODO: Reescribir para usar nuevo modelo - Compra ya no tiene cantidad directa
     gastos_proveedor_dict = {}
     try:
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT p.nombre_empresa, SUM(c.cantidad) as total
-                FROM proveedores_compra c
-                JOIN proveedores_proveedor p ON c.proveedor_id = p.id
-                GROUP BY p.id, p.nombre_empresa
-                ORDER BY total DESC
-            """)
-            for nombre, total in cursor.fetchall():
-                gastos_proveedor_dict[nombre] = total or 0
+        # Usar el modelo ORM en lugar de SQL raw
+        for compra in compras:
+            nombre = compra.proveedor.nombre_empresa
+            gastos_proveedor_dict[nombre] = gastos_proveedor_dict.get(nombre, 0) + float(compra.valor or 0)
     except Exception:
         gastos_proveedor_dict = {}
 
@@ -614,11 +603,11 @@ def registrar_compra(request):
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT c.id, c.producto_id, c.cantidad, c.precio_unitario, c.total,
-                           c.fecha_registro, c.estado, c.estado_pago, c.recibida, p.nombre
+                           c.fecha, c.estado, c.estado_pago, c.recibida, p.nombre
                     FROM proveedores_compra c
                     LEFT JOIN productos_producto p ON c.producto_id = p.id
                     WHERE c.proveedor_id = ?
-                    ORDER BY c.fecha_registro DESC
+                    ORDER BY c.fecha DESC
                 """, [proveedor.id])
 
                 for row in cursor.fetchall():
@@ -630,7 +619,7 @@ def registrar_compra(request):
                     c.cantidad = row[2]
                     c.precio_unitario = float(row[3] or 0)
                     c.total = float(row[4] or 0)
-                    c.fecha_registro = row[5]
+                    c.fecha = row[5]
                     c.estado = row[6]
                     c.estado_pago = row[7]
                     c.recibida = row[8]
@@ -741,15 +730,15 @@ def registrar_compra(request):
     hoy = timezone.now()
     # Calcular gasto de esta semana (últimos 7 días)
     hace_7_dias = hoy - timedelta(days=7)
-    compras_semana = Compra.objects.filter(fecha_registro__gte=hace_7_dias)
+    compras_semana = Compra.objects.filter(fecha__gte=hace_7_dias)
     total_gastado = sum(
         c.cantidad * c.precio_unitario
         for c in compras_semana.exclude(precio_unitario__isnull=True)
     ) or 0
 
     compras_mes = Compra.objects.filter(
-        fecha_registro__year=hoy.year,
-        fecha_registro__month=hoy.month,
+        fecha__year=hoy.year,
+        fecha__month=hoy.month,
     )
     count_mes = compras_mes.count()
     total_mes = sum(
@@ -772,8 +761,8 @@ def registrar_compra(request):
     desde = hoy - timedelta(days=365)
     compras_por_mes = (
         Compra.objects
-        .filter(fecha_registro__gte=desde)
-        .annotate(mes=TruncMonth('fecha_registro'))
+        .filter(fecha__gte=desde)
+        .annotate(mes=TruncMonth('fecha'))
         .values('mes')
         .annotate(total=Count('id'))
         .order_by('mes')
@@ -870,569 +859,3 @@ def registrar_compra(request):
     }
 
     return render(request, 'proveedores/compras.html', context)
-
-
-# ════════════════════════════════════════════════════════════════════════════
-# VISTAS PARA ÓRDENES DE COMPRA (US-010, US-011, US-012)
-# ════════════════════════════════════════════════════════════════════════════
-
-@login_required
-def listar_ordenes(request):
-    """US-010: Listar órdenes de compra con filtros."""
-    from django.db.models import Prefetch
-
-    ordenes = OrdenCompra.objects.all().select_related('proveedor', 'registrado_por').prefetch_related('detalles__presentacion__producto')
-
-    # Filtros
-    q = request.GET.get('q', '')
-    estado = request.GET.get('estado', '')
-    fecha_inicio = request.GET.get('fecha_inicio', '')
-    fecha_fin = request.GET.get('fecha_fin', '')
-
-    if q:
-        ordenes = ordenes.filter(
-            proveedor__nombre_empresa__icontains=q
-        ) | ordenes.filter(id__icontains=q)
-
-    if estado:
-        ordenes = ordenes.filter(estado=estado)
-
-    if fecha_inicio:
-        ordenes = ordenes.filter(fecha__date__gte=fecha_inicio)
-    if fecha_fin:
-        ordenes = ordenes.filter(fecha__date__lte=fecha_fin)
-
-    # Ordenar por fecha descendente
-    ordenes = ordenes.order_by('-fecha')
-
-    # Estadísticas generales
-    total_ordenes = OrdenCompra.objects.count()
-    ordenes_pendientes = OrdenCompra.objects.filter(estado='pendiente').count()
-    ordenes_confirmadas = OrdenCompra.objects.filter(estado='confirmada').count()
-    ordenes_recibidas = OrdenCompra.objects.filter(estado='recibida').count()
-
-    # Formulario para el modal
-    form = OrdenCompraForm()
-    form_detalle = DetalleCompraForm()
-
-    # Verificar si hay que mostrar detalle de una orden
-    mostrar_orden_id = request.GET.get('mostrar_orden')
-    orden_detalle = None
-    if mostrar_orden_id:
-        try:
-            orden_detalle = OrdenCompra.objects.select_related('proveedor', 'registrado_por').prefetch_related('detalles__presentacion__producto').get(id=mostrar_orden_id)
-        except OrdenCompra.DoesNotExist:
-            orden_detalle = None
-
-    context = {
-        'ordenes': ordenes,
-        'ordenes_count': ordenes.count(),
-        'total_ordenes': total_ordenes,
-        'ordenes_pendientes': ordenes_pendientes,
-        'ordenes_confirmadas': ordenes_confirmadas,
-        'ordenes_recibidas': ordenes_recibidas,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin,
-        'form': form,
-        'form_detalle': form_detalle,
-        'orden_detalle': orden_detalle,
-        'breadcrumb_items': [
-            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
-            {'nombre': 'Órdenes de Compra', 'url': None},
-        ],
-    }
-
-    return render(request, 'proveedores/orden_compra.html', context)
-
-
-@login_required
-def crear_orden(request):
-    """US-010: Crear nueva orden de compra con opción de agregar primer producto."""
-    if request.method == 'POST':
-        form = OrdenCompraForm(request.POST)
-
-        if form.is_valid():
-            orden = form.save(commit=False)
-            orden.registrado_por = request.user
-            orden.save()
-
-            # Intentar agregar primer detalle si se proporciona
-            presentacion_id = request.POST.get('presentacion')
-            cantidad = request.POST.get('cantidad')
-            precio = request.POST.get('precio_unitario')
-
-            if presentacion_id and cantidad and precio:
-                try:
-                    from productos.models import PresentacionProducto
-                    presentacion = PresentacionProducto.objects.get(id=presentacion_id)
-
-                    DetalleCompra.objects.create(
-                        orden_compra=orden,
-                        presentacion=presentacion,
-                        cantidad=int(cantidad),
-                        precio_unitario=float(precio)
-                    )
-
-                    # Recalcular total
-                    orden.calcular_total()
-
-                    messages.success(
-                        request,
-                        f'Orden #{orden.id} creada con 1 producto agregado'
-                    )
-                except Exception as e:
-                    messages.warning(
-                        request,
-                        f'Orden #{orden.id} creada, pero hubo error al agregar el producto: {str(e)}'
-                    )
-            else:
-                messages.success(
-                    request,
-                    f'Orden #{orden.id} creada exitosamente para {orden.proveedor.nombre_empresa}'
-                )
-
-            return redirect('detalle_orden', pk=orden.id)
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-            return redirect('listar_ordenes')
-
-    else:
-        form = OrdenCompraForm()
-
-    from productos.models import PresentacionProducto
-    form_detalle = DetalleCompraForm()
-
-    context = {
-        'form': form,
-        'form_detalle': form_detalle,   
-        'breadcrumb_items': [
-            {'nombre': 'Proveedores', 'url': reverse('lista_proveedores')},
-            {'nombre': 'Órdenes de Compra', 'url': reverse('listar_ordenes')},
-            {'nombre': 'Nueva Orden', 'url': None},
-        ],
-    }
-    return render(request, 'proveedores/orden_compra.html', context)
-
-
-@login_required
-def detalle_orden(request, pk):
-    """Redirigir al listado de órdenes con el modal abierto."""
-    # Verificar que la orden existe
-    get_object_or_404(OrdenCompra, pk=pk)
-    # Redirigir al listado con parámetro para abrir el modal
-    return redirect(f'{reverse("listar_ordenes")}?mostrar_orden={pk}')
-
-
-@login_required
-def agregar_detalle_orden(request, pk):
-    """Agregar un detalle (línea) a una orden existente."""
-    orden = get_object_or_404(OrdenCompra, pk=pk)
-
-    # No permitir agregar detalles si la orden ya fue recibida
-    if orden.estado == 'recibida':
-        messages.error(request, 'No se pueden agregar detalles a una orden recibida.')
-        return redirect('detalle_orden', pk=pk)
-
-    if request.method == 'POST':
-        form = DetalleCompraForm(request.POST)
-        if form.is_valid():
-            detalle = form.save(commit=False)
-            detalle.orden_compra = orden
-            detalle.save()
-
-            # Recalcular total
-            orden.calcular_total()
-
-            messages.success(request, 'Detalle agregado exitosamente.')
-            return redirect('listar_ordenes')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-            return redirect('listar_ordenes')
-
-    return redirect('listar_ordenes')
-
-
-@login_required
-def cambiar_estado_orden(request, pk):
-    """US-011: Cambiar estado de una orden (pendiente → confirmada → recibida)."""
-    orden = get_object_or_404(OrdenCompra, pk=pk)
-
-    if request.method == 'POST':
-        nuevo_estado = request.POST.get('nuevo_estado')
-
-        # Validar transición de estados
-        transiciones_validas = {
-            'pendiente': ['confirmada', 'cancelada'],
-            'confirmada': ['recibida', 'cancelada'],
-            'recibida': [],
-            'cancelada': [],
-        }
-
-        if nuevo_estado not in transiciones_validas.get(orden.estado, []):
-            messages.error(request, f'No se puede cambiar de {orden.estado} a {nuevo_estado}.')
-            return redirect('listar_ordenes')
-
-        orden_anterior = orden.estado
-        orden.estado = nuevo_estado
-        orden.save()
-
-        messages.success(
-            request,
-            f'Estado de orden #{orden.id} cambió de {orden_anterior} a {nuevo_estado}'
-        )
-
-        return redirect('listar_ordenes')
-
-    return redirect('listar_ordenes')
-
-
-@login_required
-def recibir_compra(request, pk):
-    """US-012: Recibir una orden y crear automáticamente los lotes."""
-    from django.db import transaction
-    from inventario.models import Lote
-
-    orden = get_object_or_404(OrdenCompra, pk=pk)
-
-    # Validar que la orden esté en estado confirmada
-    if orden.estado != 'confirmada':
-        messages.error(request, 'Solo se pueden recibir órdenes en estado "confirmada".')
-        return redirect('listar_ordenes')
-
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                # Cambiar estado a recibida
-                orden.estado = 'recibida'
-                orden.save()
-
-                # Crear lotes automáticamente para cada detalle
-                lotes_creados = 0
-                for detalle in orden.detalles.all():
-                    numero_lote = f"LOT-{orden.id}-{detalle.id}-{timezone.now().strftime('%Y%m%d')}"
-
-                    lote = Lote.objects.create(
-                        numero_lote=numero_lote,
-                        presentacion=detalle.presentacion,
-                        stock_actual=detalle.cantidad,
-                        costo_unitario=detalle.precio_unitario,
-                        fecha_vencimiento=None,
-                        registrado_por=request.user,
-                        detalle_compra=detalle,
-                    )
-
-                    lotes_creados += 1
-
-                messages.success(
-                    request,
-                    f'Orden #{orden.id} recibida correctamente. {lotes_creados} lote(s) creado(s).'
-                )
-
-        except Exception as e:
-            messages.error(request, f'Error al recibir la orden: {str(e)}')
-
-        return redirect('listar_ordenes')
-
-    return redirect('listar_ordenes')
-
-
-@login_required
-def cambiar_estado_orden_rapido(request, pk):
-    """Cambiar estado de orden desde la tabla (sin página separada)."""
-    orden = get_object_or_404(OrdenCompra, pk=pk)
-
-    if request.method == 'POST':
-        nuevo_estado = request.POST.get('estado')
-
-        # Validar transición de estados
-        transiciones_validas = {
-            'pendiente': ['confirmada', 'cancelada'],
-            'confirmada': ['recibida', 'cancelada'],
-            'recibida': [],
-            'cancelada': [],
-        }
-
-        if nuevo_estado in transiciones_validas.get(orden.estado, []):
-            orden_anterior = orden.estado
-            orden.estado = nuevo_estado
-            orden.save()
-
-            messages.success(
-                request,
-                f'Estado de orden #{orden.id} cambió de {orden_anterior} a {nuevo_estado}'
-            )
-        else:
-            messages.error(request, f'No se puede cambiar de {orden.estado} a {nuevo_estado}.')
-
-    # Redirige a la lista de órdenes (o a la página anterior)
-    return redirect('listar_ordenes')
-
-
-@login_required
-def api_orden_detalles(request, orden_id):
-    """API: Retorna los detalles de una orden en JSON."""
-    from django.http import JsonResponse
-
-    try:
-        orden = OrdenCompra.objects.select_related(
-            'proveedor'
-        ).prefetch_related(
-            'detalles__presentacion__producto'
-        ).get(id=orden_id)
-
-        detalles_data = []
-
-        for detalle in orden.detalles.all():
-            detalles_data.append({
-                'id': detalle.id,
-                'producto': detalle.presentacion.producto.nombre,
-                'presentacion': detalle.presentacion.nombre,
-                'cantidad': detalle.cantidad,
-                'precio_unitario': f"{detalle.precio_unitario:.2f}",
-                'subtotal': f"{detalle.subtotal:.2f}"
-            })
-
-        return JsonResponse({
-            'id': orden.id,
-            'proveedor': orden.proveedor.nombre_empresa,
-            'estado': orden.get_estado_display(),
-            'total': f"{orden.total:.2f}",
-            'detalles': detalles_data
-        })
-    except OrdenCompra.DoesNotExist:
-        return JsonResponse({'error': 'Orden no encontrada'}, status=404)
-
-
-# ════════════════════════════════════════════════════════════════════════════
-# VISTAS PARA MODALES: NOTAS, EDITAR, HISTORIAL
-# ════════════════════════════════════════════════════════════════════════════
-
-@login_required
-def guardar_nota_orden(request, pk):
-    """Guardar notas internas en una orden."""
-    if request.method == 'POST':
-        try:
-            orden = OrdenCompra.objects.get(id=pk)
-            nota = request.POST.get('notas', '').strip()
-
-            orden.notas = nota
-            orden.save()
-
-            # Registrar en historial
-            HistorialOrden.objects.create(
-                orden=orden,
-                evento='nota_agregada',
-                usuario=request.user,
-                descripcion=f"Nota actualizada: {nota[:50]}{'...' if len(nota) > 50 else ''}"
-            )
-
-            messages.success(request, '✅ Nota guardada correctamente')
-        except OrdenCompra.DoesNotExist:
-            messages.error(request, '❌ Orden no encontrada')
-        except Exception as e:
-            messages.error(request, f'❌ Error: {str(e)}')
-
-    return redirect(f'{reverse("listar_ordenes")}?mostrar_orden={pk}')
-
-
-@login_required
-def obtener_historial_orden(request, pk):
-    """Obtener historial de cambios de una orden."""
-    from django.http import JsonResponse
-
-    try:
-        orden = OrdenCompra.objects.get(id=pk)
-        historial = orden.historial.all()
-
-        eventos = []
-
-        # Evento: Creación (siempre incluir)
-        eventos.append({
-            'evento': 'Orden Creada',
-            'usuario': orden.registrado_por.get_full_name() if orden.registrado_por else 'Sistema',
-            'fecha': orden.fecha.strftime('%d/%m/%Y %H:%M'),
-            'descripcion': 'Orden creada en el sistema',
-            'color': '#9b5de5'
-        })
-
-        # Eventos adicionales del historial
-        for h in historial:
-            eventos.append({
-                'evento': h.get_evento_display(),
-                'usuario': h.usuario.get_full_name() if h.usuario else 'Sistema',
-                'fecha': h.fecha.strftime('%d/%m/%Y %H:%M'),
-                'descripcion': h.descripcion,
-                'color': {
-                    'creada': '#9b5de5',
-                    'confirmada': '#4DA8DA',
-                    'recibida': '#27ae60',
-                    'cancelada': '#e74c3c',
-                    'nota_agregada': '#f39c12',
-                    'editada': '#4DA8DA',
-                }.get(h.evento, '#8FA3B1')
-            })
-
-        return JsonResponse({'status': 'ok', 'historial': eventos})
-    except OrdenCompra.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Orden no encontrada'}, status=404)
-
-
-@login_required
-def editar_detalle_orden(request, detalle_id):
-    """Editar cantidad y precio de un detalle de orden."""
-    from django.http import JsonResponse
-
-    if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
-
-    try:
-        detalle = DetalleCompra.objects.get(id=detalle_id)
-
-        # Solo si la orden está en pendiente
-        if detalle.orden_compra.estado != 'pendiente':
-            return JsonResponse({
-                'status': 'error',
-                'message': 'No se puede editar orden que no está pendiente'
-            }, status=400)
-
-        # Actualizar detalle
-        detalle.cantidad = int(request.POST.get('cantidad'))
-        detalle.precio_unitario = float(request.POST.get('precio_unitario'))
-        detalle.save()
-
-        # Recalcular total de la orden
-        detalle.orden_compra.calcular_total()
-
-        # Registrar en historial
-        HistorialOrden.objects.create(
-            orden=detalle.orden_compra,
-            evento='editada',
-            usuario=request.user,
-            descripcion=f"Editada línea: {detalle.presentacion.nombre}"
-        )
-
-        return JsonResponse({
-            'status': 'ok',
-            'subtotal': f"{detalle.subtotal:.2f}",
-            'total_orden': f"{detalle.orden_compra.total:.2f}"
-        })
-    except DetalleCompra.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Detalle no encontrado'}, status=404)
-    except ValueError:
-        return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-
-@login_required
-def guardar_pago_compra(request, compra_id):
-    """Guardar información de pago en una compra legacy."""
-    from django.utils.dateparse import parse_datetime
-    from django.contrib import messages
-    from decimal import Decimal
-
-    if request.method != 'POST':
-        return redirect('lista_compras')
-
-    try:
-        compra = Compra.objects.get(id=compra_id)
-
-        # Verificar si ya está completamente pagada
-        if compra.esta_completamente_pagada:
-            messages.warning(request, '⚠ Esta compra ya fue pagada completamente. No se puede agregar más pagos.')
-            return redirect('lista_compras')
-
-        compra.numero_factura = request.POST.get('numero_factura', '').strip()
-        compra.metodo_pago = request.POST.get('metodo_pago')
-
-        # Validar monto pagado
-        monto_str = request.POST.get('monto_pagado', '').strip()
-        if not monto_str:
-            messages.error(request, '⚠️ Debe ingresar un monto de pago')
-            return redirect('lista_compras')
-
-        try:
-            monto_nuevo = float(monto_str)
-            if monto_nuevo <= 0:
-                messages.error(request, '⚠️ El monto debe ser mayor a $0')
-                return redirect('lista_compras')
-
-            # Sumar al monto ya pagado
-            compra.monto_pagado += Decimal(str(monto_nuevo))
-        except ValueError:
-            messages.error(request, '⚠️ El monto ingresado no es válido')
-            return redirect('lista_compras')
-
-        fecha_pago = request.POST.get('fecha_pago')
-        if fecha_pago:
-            compra.fecha_pago = parse_datetime(fecha_pago)
-
-        compra.save()
-
-        # Mensaje según el estado
-        if compra.esta_completamente_pagada:
-            messages.success(request, '✓ Pago registrado. ¡Compra pagada completamente!')
-        else:
-            messages.success(request, f'✓ Pago de ${monto_nuevo:,.0f} registrado. Saldo pendiente: ${compra.saldo_pendiente:,.0f}')
-    except Compra.DoesNotExist:
-        messages.error(request, 'Compra no encontrada')
-    except Exception as e:
-        messages.error(request, f'Error al guardar pago: {str(e)}')
-
-    return redirect('lista_compras')
-
-
-@login_required
-def cambiar_estado_compra(request, compra_id):
-    """Actualizar el estado de una compra legacy."""
-    from django.contrib import messages
-
-    if request.method != 'POST':
-        return redirect('lista_compras')
-
-    try:
-        compra = Compra.objects.get(id=compra_id)
-        nuevo_estado = request.POST.get('estado')
-
-        transiciones_validas = {
-            'pendiente': ['confirmada', 'cancelada'],
-            'confirmada': ['recibida', 'cancelada'],
-            'recibida': [],
-            'cancelada': [],
-        }
-
-        if nuevo_estado not in transiciones_validas.get(compra.estado, []):
-            messages.error(request, f'No se puede cambiar de {compra.estado} a {nuevo_estado}.')
-        else:
-            estado_anterior = compra.estado
-            compra.estado = nuevo_estado
-            if nuevo_estado == 'recibida':
-                compra.recibida = True
-                compra.fecha_recepcion = timezone.now()
-            compra.save()
-
-            # Registrar en historial
-            from .models import HistorialCompra
-            evento_map = {
-                'recibida': 'recibida',
-                'pagada': 'pagada',
-                'cancelada': 'cancelada',
-                'confirmada': 'editada',
-            }
-            HistorialCompra.objects.create(
-                compra=compra,
-                evento=evento_map.get(nuevo_estado, 'editada'),
-                usuario=request.user,
-                descripcion=f'Estado cambió de {estado_anterior} a {nuevo_estado}'
-            )
-            messages.success(request, f'✓ Estado actualizado a {nuevo_estado.capitalize()}')
-    except Compra.DoesNotExist:
-        messages.error(request, 'Compra no encontrada')
-    except Exception as e:
-        messages.error(request, f'Error al actualizar estado: {str(e)}')
-
-    return redirect('lista_compras')

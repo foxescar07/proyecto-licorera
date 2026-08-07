@@ -37,7 +37,7 @@ def _datos_semana(offset=0):
     for i in range(7):
         dia = lunes + timedelta(days=i)
         ventas_dia = Venta.objects.filter(fecha__date=dia)
-        total = ventas_dia.aggregate(t=Sum('total_con_descuento'))['t'] or 0
+        total = ventas_dia.aggregate(t=Sum('total_venta'))['t'] or 0
         labels.append(DIAS_SEMANA[i])
         data.append(float(total))
         data_count.append(ventas_dia.count())
@@ -45,7 +45,7 @@ def _datos_semana(offset=0):
     es_actual = (offset == 0)
 
     ventas_hoy     = Venta.objects.filter(fecha__date=hoy)
-    total_hoy      = float(ventas_hoy.aggregate(t=Sum('total_con_descuento'))['t'] or 0)
+    total_hoy      = float(ventas_hoy.aggregate(t=Sum('total_venta'))['t'] or 0)
     ventas_hoy_num = ventas_hoy.count()
 
     dias_con_datos = sum(1 for d in data if d > 0)
@@ -86,7 +86,7 @@ def _datos_mensuales():
 
     for mes in range(1, 13):
         ventas_mes = Venta.objects.filter(fecha__year=anio, fecha__month=mes)
-        total = ventas_mes.aggregate(t=Sum('total_con_descuento'))['t'] or 0
+        total = ventas_mes.aggregate(t=Sum('total_venta'))['t'] or 0
         labels.append(MESES[mes - 1])
         data.append(float(total))
         data_count.append(ventas_mes.count())

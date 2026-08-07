@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import re
-from .models import Proveedor, ProveedorCategoria, Compra, OrdenCompra, DetalleCompra
+from .models import Proveedor, ProveedorCategoria, Compra, DetalleCompra
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Lote
 
@@ -19,7 +19,7 @@ class ProveedorForm(forms.ModelForm):
 
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'nit', 'nombre_contacto', 'email', 'telefono', 'tipo_proveedor']
+        fields = ['nombre_empresa', 'nit', 'email', 'telefono', 'tipo_proveedor']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -32,11 +32,6 @@ class ProveedorForm(forms.ModelForm):
                 'placeholder': 'Ej: 123456789-1',
                 'required': True,
                 'maxlength': '50'
-            }),
-            'nombre_contacto': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: Juan Pérez',
-                'maxlength': '200'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
@@ -103,10 +98,11 @@ class ProveedorForm(forms.ModelForm):
         """Validación a nivel de formulario."""
         cleaned_data = super().clean()
         estado = cleaned_data.get('estado')
-        motivo_sancion = cleaned_data.get('motivo_sancion')
 
-        if estado == 'sancionado' and not motivo_sancion:
-            raise ValidationError('Debe indicar el motivo si marca como sancionado')
+        if estado == 'sancionado':
+            observacion = cleaned_data.get('observacion')
+            if not observacion:
+                raise ValidationError('Debe indicar observaciones si marca como sancionado')
 
         return cleaned_data
 
@@ -118,28 +114,6 @@ class ProveedorForm(forms.ModelForm):
             ProveedorCategoria.objects.filter(proveedor=proveedor).delete()
             for categoria in categorias:
                 ProveedorCategoria.objects.create(proveedor=proveedor, categoria=categoria)
-        return proveedor
-
-class OrdenCompraForm(forms.ModelForm):
-    """Formulario para crear órdenes de compra."""
-
-    class Meta:
-        model = OrdenCompra
-        fields = ['proveedor']
-        widgets = {
-            'proveedor': forms.Select(attrs={
-                'class': 'form-select',
-                'required': True
-            }),
-        }
-
-    def clean_proveedor(self):
-        """Validar que el proveedor exista y esté activo."""
-        proveedor = self.cleaned_data.get('proveedor')
-        if not proveedor:
-            raise ValidationError('Debe seleccionar un proveedor')
-        if proveedor.estado == 'sancionado':
-            raise ValidationError(f'No puedes comprar a {proveedor.nombre_empresa} (está sancionado)')
         return proveedor
 
 
@@ -223,52 +197,35 @@ class LoteForm(forms.ModelForm):
 
 
 class CompraForm(forms.ModelForm):
-    """Formulario para registrar compras a proveedores (heredado)"""
-    producto = forms.ModelChoiceField(
-        queryset=Producto.objects.all(),
-        required=True,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-            'id': 'selectProducto'
-        }),
-        label='Selecciona Producto'
-    )
-
-    cantidad = forms.IntegerField(
-        required=True,
-        min_value=1,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ej: 10',
-            'id': 'inputCantidad'
-        }),
-        label='Cantidad'
-    )
-
-    precio_unitario = forms.DecimalField(
-        required=False,
-        decimal_places=0,
-        max_digits=10,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ej: 15000',
-            'id': 'inputPrecio',
-            'step': '1000',
-            'title': 'Precio en pesos colombianos (COP)'
-        }),
-        label='Precio Unitario en COP (Opcional)'
-    )
-
-    lote = forms.ModelChoiceField(
-        queryset=Lote.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-            'id': 'selectLote'
-        }),
-        label='Lote (Opcional)'
-    )
+    """Formulario para registrar compras a proveedores."""
 
     class Meta:
         model = Compra
-        fields = ['producto', 'cantidad', 'precio_unitario', 'lote']
+        fields = ['proveedor', 'valor', 'saldo', 'motivo_pago', 'observacion']
+        widgets = {
+            'proveedor': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'valor': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': 'Valor total'
+            }),
+            'saldo': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': 'Saldo pendiente'
+            }),
+            'motivo_pago': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Motivo o nota del pago'
+            }),
+            'observacion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Observaciones adicionales'
+            }),
+        }
