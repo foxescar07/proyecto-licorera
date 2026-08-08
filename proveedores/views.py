@@ -9,7 +9,7 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from .models import Proveedor, Compra, DetalleCompra, HistorialCompra
-from .forms import ProveedorForm, CompraForm, DetalleCompraForm
+from .forms import ProveedorForm, CompraForm, DetalleCompraForm, NuevaCompraForm
 from productos.models import Producto
 from inventario.models import Lote, Inventario
 import json
@@ -331,7 +331,7 @@ def lista_compras(request):
             messages.error(request, 'Por favor selecciona un proveedor.')
             return redirect('lista_compras')
 
-        form = CompraForm(request.POST)
+        form = NuevaCompraForm(request.POST)
         print(f"DEBUG: Form válido: {form.is_valid()}, Proveedor: {proveedor.id if proveedor else 'None'}")
         if not form.is_valid():
             print(f"DEBUG: Errores del formulario: {form.errors}")
@@ -346,21 +346,31 @@ def lista_compras(request):
                     messages.error(request, 'Error: Proveedor no válido.')
                     return redirect('lista_compras')
 
-                compra = form.save(commit=False)
-                compra.proveedor = proveedor
-                print(f"DEBUG: Guardando compra - Proveedor: {proveedor.id} ({proveedor.nombre_empresa}), Producto: {compra.producto_id}, Cantidad: {compra.cantidad}")
-                compra.save()
-                print(f"DEBUG: Compra guardada exitosamente - ID: {compra.id}, Proveedor guardado: {compra.proveedor_id}")
+                # Extraer datos del formulario
+                producto = form.cleaned_data['producto']
+                cantidad = form.cleaned_data['cantidad']
+                precio_unitario = form.cleaned_data['precio_unitario']
+                lote_obj = form.cleaned_data.get('lote')
+
+                total_compra = cantidad * precio_unitario
+
+                # Crear la compra
+                compra = Compra.objects.create(
+                    proveedor=proveedor,
+                    valor=total_compra,
+                    saldo=total_compra,
+                    documento_usuario=request.user
+                )
+                print(f"DEBUG: Compra guardada exitosamente - ID: {compra.id}, Proveedor: {proveedor.nombre_empresa}")
 
                 # Registrar en historial de compras
                 try:
                     from .models import HistorialCompra
-                    producto_nombre = compra.producto.nombre if compra.producto else 'Producto desconocido'
                     HistorialCompra.objects.create(
                         compra=compra,
                         evento='creada',
                         usuario=request.user,
-                        descripcion=f'Compra registrada: {compra.cantidad} x {producto_nombre}'
+                        descripcion=f'Compra registrada: {cantidad} x {producto.nombre}'
                     )
                     print(f"DEBUG: Historial creado para compra {compra.id}")
                 except Exception as e:
@@ -368,10 +378,8 @@ def lista_compras(request):
                     import traceback
                     traceback.print_exc()
 
-                producto = compra.producto
-
-                # Crear lote automáticamente si no existe
-                if not compra.lote:
+                # Usar lote existente o crear uno nuevo
+                if not lote_obj:
                     presentacion = producto.presentaciones.first()
 
                     # Si no hay presentación, crear una automáticamente
@@ -385,35 +393,47 @@ def lista_compras(request):
 
                     import uuid
                     lote_numero = f"LOTE-{uuid.uuid4().hex[:8].upper()}"
-                    compra.lote = Lote.objects.create(
+                    lote_obj = Lote.objects.create(
                         numero_lote=lote_numero,
                         presentacion=presentacion,
-                        stock_actual=compra.cantidad,
-                        costo_unitario=compra.precio_unitario or 0,
+                        stock_actual=cantidad,
+                        costo_unitario=precio_unitario,
                         registrado_por=request.user
                     )
-                    compra.save()
+                else:
+                    # Actualizar lote existente
+                    lote_obj.stock_actual += cantidad
+                    lote_obj.save()
+
+                # Crear el detalle de compra
+                DetalleCompra.objects.create(
+                    compra=compra,
+                    producto=producto,
+                    presentacion=lote_obj.presentacion,
+                    cantidad=cantidad,
+                    precio_unitario=precio_unitario
+                )
 
                 # Actualizar cantidad disponible del producto
-                producto.cantidad_disponible += compra.cantidad
+                producto.cantidad_disponible += cantidad
                 producto.save()
 
                 # Obtener la presentación del lote
-                presentacion = compra.lote.presentacion
-                presentacion.cantidad += compra.cantidad
+                presentacion = lote_obj.presentacion
+                presentacion.cantidad += cantidad
                 presentacion.save()
 
                 # Crear movimiento de inventario (entrada)
                 Inventario.objects.create(
                     presentacion=presentacion,
-                    lote=compra.lote,
+                    lote=lote_obj,
                     registrado_por=request.user,
                     tipo='entrada',
-                    cantidad=compra.cantidad,
+                    cantidad=cantidad,
                     motivo=f'Compra a proveedor: {proveedor.nombre_empresa}',
                 )
 
-                messages.success(request, f'✅ {compra.cantidad} unidades de "{producto.nombre}" ingresadas a inventario correctamente.')
+                messages.success(request, f'✅ {cantidad} unidades de "{producto.nombre}" ingresadas a inventario correctamente.')
                 return redirect('lista_compras')
             except Exception as e:
                 print(f"DEBUG: Error guardando compra: {e}")
@@ -425,7 +445,7 @@ def lista_compras(request):
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
     else:
-        form = CompraForm()
+        form = NuevaCompraForm()
 
     # Estadísticas - Calcular gasto de esta semana (últimos 7 días)
     hoy = timezone.now()
@@ -724,7 +744,7 @@ def registrar_compra(request):
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
     else:
-        form = CompraForm()
+        form = NuevaCompraForm()
 
     # Obtener datos para estadísticas
     hoy = timezone.now()

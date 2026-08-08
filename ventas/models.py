@@ -194,7 +194,7 @@ class DetalleVenta(models.Model):
     )
     # FK → Reporte (opcional, para trazabilidad)
     codigo_reporte = models.ForeignKey(
-        'reportes.ReporteVenta',
+        'reportes.Reporte',
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name='detalles_venta',
@@ -557,7 +557,6 @@ class DetalleDevolucion(models.Model):
         PresentacionProducto,
         on_delete=models.CASCADE,
         related_name='detalles_devolucion',
-        default=1,
         verbose_name='Presentación',
         help_text='Presentación del producto devuelto',
     )

@@ -32,16 +32,20 @@
     <div class="row gx-2 gy-2 mb-4">
       <div class="col-12 col-md-6">
         <div class="cys-card cys-card--inv p-3">
-          <div class="cys-card__title small mb-2">Registrado Por</div>
-          <div class="fw-bold text-cyan">{{ proveedor.registrado_por.email|default:"Admin" }}</div>
-          <div class="text-sm text-muted">{{ proveedor.fecha_registro|date:"d/m/Y H:i" }}</div>
+          <div class="cys-card__title small mb-2">Estado</div>
+          <span class="cys-badge
+            {% if proveedor.estado == 'activo' %}cys-badge--verde
+            {% elif proveedor.estado == 'inactivo' %}cys-badge--amarillo
+            {% else %}cys-badge--rojo{% endif %}">
+            {{ proveedor.get_estado_display|upper }}
+          </span>
         </div>
       </div>
       <div class="col-12 col-md-6">
         <div class="cys-card cys-card--diario p-3">
-          <div class="cys-card__title small mb-2">Última Modificación</div>
-          <div class="fw-bold text-yellow">{{ proveedor.modificado_por.email|default:"Sin modificar" }}</div>
-          <div class="text-sm text-muted">{{ proveedor.ultima_modificacion|date:"d/m/Y H:i" }}</div>
+          <div class="cys-card__title small mb-2">Registrado</div>
+          <div class="fw-bold text-yellow">{{ proveedor.registrado_por.email|default:"Admin" }}</div>
+          <div class="text-sm text-muted">{{ proveedor.fecha_registro|date:"d/m/Y H:i" }}</div>
         </div>
       </div>
     </div>
@@ -59,8 +63,8 @@
           <div class="fw-bold fs-5 text-monospace">{{ proveedor.nit|default:"No especificado" }}</div>
         </div>
         <div class="col-12 col-md-6">
-          <div class="prod-label text-uppercase mb-2">Responsable/Contacto</div>
-          <div class="fw-bold">{{ proveedor.nombre_contacto|default:"No especificado" }}</div>
+          <div class="prod-label text-uppercase mb-2">Tipo de Proveedor</div>
+          <div class="fw-bold">{{ proveedor.get_tipo_proveedor_display }}</div>
         </div>
       </div>
     </div>
@@ -82,35 +86,17 @@
       </div>
     </div>
 
-    <!-- CLASIFICACIÓN -->
+    <!-- OBSERVACIONES -->
+    {% if proveedor.observacion %}
     <div class="card card-dev editar-form-card p-4 mb-4">
-      <h5><i class="bi bi-tag me-2"></i>Clasificación</h5>
-      <div class="row g-3 mt-3">
-        <div class="col-12 col-md-6">
-          <div class="prod-label text-uppercase mb-2">Tipo de Proveedor</div>
-          <div class="fw-bold">{{ proveedor.get_tipo_proveedor_display }}</div>
+      <h5><i class="bi bi-chat-dots me-2"></i>Observaciones</h5>
+      <div class="mt-3">
+        <div class="alert alert-info-dev" role="alert">
+          {{ proveedor.observacion }}
         </div>
-        <div class="col-12 col-md-6">
-          <div class="prod-label text-uppercase mb-2">Estado</div>
-          <div class="fw-bold">
-            <span class="cys-badge
-              {% if proveedor.estado == 'activo' %}cys-badge--verde
-              {% elif proveedor.estado == 'inactivo' %}cys-badge--amarillo
-              {% else %}cys-badge--rojo{% endif %}">
-              {{ proveedor.get_estado_display|upper }}
-            </span>
-          </div>
-        </div>
-        {% if proveedor.estado == 'sancionado' %}
-        <div class="col-12">
-          <div class="prod-label text-uppercase mb-2">Motivo de Sanción</div>
-          <div class="alert alert-danger-dev" role="alert">
-            {{ proveedor.motivo_sancion|default:"No especificado" }}
-          </div>
-        </div>
-        {% endif %}
       </div>
     </div>
+    {% endif %}
 
     <!-- BOTONES -->
     <div class="d-flex gap-2 mt-4">

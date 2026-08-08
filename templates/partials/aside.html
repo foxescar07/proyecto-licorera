@@ -118,7 +118,7 @@
 
         <!-- INVENTARIO -->
         <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
-          <a href="{% url 'inventario_home' %}"
+          <a href="{% url 'inventario:inventario_home' %}"
              class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-clipboard-data-fill"></i>
             <span class="flex-grow-1">Inventario</span>
@@ -129,13 +129,13 @@
           </button>
         </div>
         <div class="cys-sb-submenu" id="submenuInventario">
-          <a href="{% url 'registrar_salida_view' %}" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
+          <a href="{% url 'inventario:movimiento_create' %}" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
             <i class="bi bi-box-arrow-up"></i> Registrar Salida
           </a>
-          <a href="{% url 'gestion_lotes_view' %}" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
+          <a href="{% url 'inventario:lote_list' %}" class="cys-sb-sublink {% block nav_lotes %}{% endblock %}">
             <i class="bi bi-tag-fill"></i> Gestión de Lotes
           </a>
-          <a href="{% url 'gestion_stock' %}" class="cys-sb-sublink {% block nav_stock %}{% endblock %}">
+          <a href="{% url 'inventario:inventario_list' %}" class="cys-sb-sublink {% block nav_stock %}{% endblock %}">
             <i class="bi bi-layers"></i> Stock & Productos
           </a>
         </div>

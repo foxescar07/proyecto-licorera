@@ -124,18 +124,18 @@
         </thead>
         <tbody id="cuerpoTabla">
           {% for p in proveedores %}
-          <tr class="cys-tr fila-proveedor" data-empresa="{{ p.nombre_empresa|lower }}" data-contacto="{{ p.nombre_contacto|lower }}" data-estado="{{ p.estado }}" data-tipo="{{ p.tipo_proveedor }}">
+          <tr class="cys-tr fila-proveedor" data-empresa="{{ p.nombre_empresa|lower }}" data-estado="{{ p.estado }}" data-tipo="{{ p.tipo_proveedor }}">
             <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
             <td class="cys-td cys-td--bold" data-label="Empresa">
               {{ p.nombre_empresa }}<br>
               <span class="text-sm text-muted fw-400">{{ p.email }}</span>
             </td>
             <td class="cys-td" data-label="NIT">
-              <span class="fw-bold text-monospace">{{ p.nit }}</span>
+              <span class="fw-bold text-monospace">{{ p.nit|default:"—" }}</span>
             </td>
-            <td class="cys-td" data-label="Contacto">
-              {{ p.nombre_contacto }}<br>
-              <span class="text-sm text-muted">{{ p.telefono }}</span>
+            <td class="cys-td" data-label="Teléfono">
+              {{ p.telefono|default:"—" }}<br>
+              <span class="text-sm text-muted">{{ p.get_tipo_proveedor_display }}</span>
             </td>
             <td class="cys-td" data-label="Tipo">
               <span class="cys-tag cys-tag--prov">
@@ -234,219 +234,6 @@
   </section>
   </div>
 
-{% for p in proveedores %}
-<!-- MODAL ELIMINAR PROVEEDOR -->
-<div class="modal fade" id="modalEliminarProveedor{{ p.id }}" tabindex="-1" aria-labelledby="modalEliminarProveedorLabel{{ p.id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header border-0">
-        <div>
-          <span class="badge badge-status-sancionado mb-2">
-            <i class="bi bi-exclamation-triangle me-1"></i>ELIMINAR
-          </span>
-          <h6 class="modal-title" id="modalEliminarProveedorLabel{{ p.id }}">
-            <i class="bi bi-trash me-2 text-danger"></i>Eliminar proveedor
-          </h6>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="alert alert-danger-dev mb-3" role="alert">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          Esta acción no se puede deshacer.
-        </div>
-        <p class="mb-3">¿Estás seguro de que deseas eliminar este proveedor?</p>
-        <div>
-          <div class="mb-2">
-            <div class="prod-label">Empresa</div>
-            <div class="fw-bold">{{ p.nombre_empresa }}</div>
-          </div>
-          <div class="mb-2">
-            <div class="prod-label">Contacto</div>
-            <div class="fw-bold">{{ p.nombre_contacto }}</div>
-          </div>
-          <div>
-            <div class="prod-label">Email</div>
-            <div class="fw-bold">{{ p.email }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer prod-modal-footer border-0 justify-content-between">
-        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="POST" action="{% url 'eliminar_proveedor' p.id %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger fw-bold">
-            <i class="bi bi-trash me-1"></i>Eliminar proveedor
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL DESACTIVAR PROVEEDOR -->
-<div class="modal fade" id="modalDesactivar{{ p.id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header border-0">
-        <div>
-          <span class="badge badge-status-inactivo mb-2">
-            <i class="bi bi-pause-circle me-1"></i>DESACTIVAR
-          </span>
-          <h6 class="modal-title">
-            <i class="bi bi-pause-circle me-2 text-warning"></i>Desactivar proveedor
-          </h6>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <p class="mb-3">¿Deseas desactivar a <strong>{{ p.nombre_empresa }}</strong>?</p>
-        <div>
-          <div class="fw-bold">{{ p.nombre_empresa }}</div>
-          <div class="prod-label mt-1">{{ p.nombre_contacto }}</div>
-        </div>
-      </div>
-      <div class="modal-footer prod-modal-footer border-0 justify-content-between">
-        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="POST" action="{% url 'desactivar_proveedor' p.id %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-warning fw-bold">
-            <i class="bi bi-pause-circle me-1"></i>Desactivar
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL ACTIVAR PROVEEDOR -->
-<div class="modal fade" id="modalActivar{{ p.id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header border-0">
-        <div>
-          <span class="badge badge-status-activo mb-2">
-            <i class="bi bi-play-circle me-1"></i>ACTIVAR
-          </span>
-          <h6 class="modal-title">
-            <i class="bi bi-play-circle me-2 text-success"></i>Activar proveedor
-          </h6>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <p class="mb-3">¿Deseas activar a <strong>{{ p.nombre_empresa }}</strong>?</p>
-        <div>
-          <div class="fw-bold">{{ p.nombre_empresa }}</div>
-          <div class="prod-label mt-1">{{ p.nombre_contacto }}</div>
-        </div>
-      </div>
-      <div class="modal-footer prod-modal-footer border-0 justify-content-between">
-        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="POST" action="{% url 'activar_proveedor' p.id %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-success fw-bold">
-            <i class="bi bi-play-circle me-1"></i>Activar
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL SANCIONAR PROVEEDOR -->
-<div class="modal fade" id="modalSancionar{{ p.id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header border-0">
-        <div>
-          <span class="badge badge-status-sancionado mb-2">
-            <i class="bi bi-exclamation-triangle me-1"></i>SANCIONAR
-          </span>
-          <h6 class="modal-title">
-            <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Sancionar proveedor
-          </h6>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <p class="mb-3">Registra la causa por la cual sancionas a <strong>{{ p.nombre_empresa }}</strong>:</p>
-        <form id="formSancionar{{ p.id }}" method="POST" action="{% url 'sancionar_proveedor' p.id %}">
-          {% csrf_token %}
-          <div class="mb-3">
-            <div class="fw-bold">{{ p.nombre_empresa }}</div>
-            <div class="prod-label mt-1">{{ p.nombre_contacto }}</div>
-          </div>
-          <div class="mb-3">
-            <label for="causaSancion{{ p.id }}" class="form-label prod-label">Causa de sanción <span class="text-danger">*</span></label>
-            <textarea
-              id="causaSancion{{ p.id }}"
-              name="motivo_sancion"
-              class="form-control prod-input"
-              rows="4"
-              placeholder="Describe el motivo de la sanción..."
-              required></textarea>
-            <div class="prod-label mt-2">Sé específico sobre el motivo de la sanción</div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer prod-modal-footer border-0 justify-content-between">
-        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <button type="submit" form="formSancionar{{ p.id }}" class="btn btn-danger fw-bold">
-          <i class="bi bi-exclamation-triangle me-1"></i>Sancionar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL VER CAUSA DE SANCIÓN -->
-<div class="modal fade" id="modalVerSancion{{ p.id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content prod-modal">
-      <div class="modal-header prod-modal-header border-0">
-        <div>
-          <span class="badge badge-status-sancionado mb-2">
-            <i class="bi bi-info-circle me-1"></i>INFORMACIÓN
-          </span>
-          <h6 class="modal-title">
-            <i class="bi bi-info-circle me-2 text-info"></i>Causa de sanción
-          </h6>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="mb-3">
-          <div class="fw-bold text-info">{{ p.nombre_empresa }}</div>
-          <div class="prod-label mt-1">{{ p.nombre_contacto }}</div>
-        </div>
-        <div class="mb-3">
-          <div class="prod-label text-uppercase mb-1">Motivo de sanción</div>
-          <p class="mt-2 mb-0">{{ p.motivo_sancion|default:"No especificado" }}</p>
-        </div>
-        <hr style="border-color: rgba(77,168,218,0.15);">
-        <div class="prod-label">
-          <i class="bi bi-calendar me-1"></i>Registrado: {{ p.fecha_registro|date:"d/m/Y H:i" }}<br>
-          <i class="bi bi-pencil me-1"></i>Última modificación: {{ p.ultima_modificacion|date:"d/m/Y H:i" }}
-        </div>
-      </div>
-      <div class="modal-footer prod-modal-footer border-0">
-        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endfor %}
 
 <!-- MODAL NUEVO PROVEEDOR -->
 <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" role="dialog" aria-labelledby="modalNuevoProveedorLabel" aria-hidden="true">
@@ -471,13 +258,8 @@
               <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control prod-input" placeholder="Ej: ABC Distribuciones" required>
             </div>
             <div class="col-12 col-md-6">
-              <label for="id_nit" class="form-label prod-label">NIT <span class="text-danger">*</span></label>
-              <input type="text" name="nit" id="id_nit" class="form-control prod-input" placeholder="Ej: 123456789-1" required>
-            </div>
-
-            <div class="col-12 col-md-6">
-              <label for="id_nombre_contacto" class="form-label prod-label">Responsable / Contacto</label>
-              <input type="text" name="nombre_contacto" id="id_nombre_contacto" class="form-control prod-input" placeholder="Ej: Juan Pérez">
+              <label for="id_nit" class="form-label prod-label">NIT</label>
+              <input type="text" name="nit" id="id_nit" class="form-control prod-input" placeholder="Ej: 123456789-1">
             </div>
 
             <div class="col-12 col-md-6">
@@ -486,16 +268,7 @@
             </div>
             <div class="col-12 col-md-6">
               <label for="id_telefono" class="form-label prod-label">Teléfono</label>
-              <input type="text" name="telefono" id="id_telefono" class="form-control prod-input" placeholder="+56 9 1234 5678">
-            </div>
-
-            <div class="col-12 col-md-6">
-              <label for="id_tipo_proveedor" class="form-label prod-label">Tipo de proveedor</label>
-              <select name="tipo_proveedor" id="id_tipo_proveedor" class="form-select prod-input">
-                <option value="distribuidor">Distribuidor</option>
-                <option value="fabricante">Fabricante</option>
-                <option value="importador">Importador</option>
-              </select>
+              <input type="text" name="telefono" id="id_telefono" class="form-control prod-input" placeholder="Ej: 3001234567" pattern="\d{7,15}">
             </div>
           </div>
         </form>
@@ -535,7 +308,7 @@
         </div>
         <div>
           <div class="fw-bold" id="proveedorDesactivarNombre">Nombre del proveedor</div>
-          <div class="prod-label mt-1" id="proveedorDesactivarContacto">Contacto</div>
+          <div class="prod-label mt-1" id="proveedorDesactivarEmail">Email</div>
         </div>
       </div>
       <div class="modal-footer prod-modal-footer border-0 justify-content-between">
@@ -576,8 +349,8 @@
         </div>
         <div>
           <div class="fw-bold" id="proveedorEliminarNombre">Nombre del proveedor</div>
-          <div class="prod-label mt-1" id="proveedorEliminarContacto">Contacto</div>
-          <div class="mt-2 prod-label" id="proveedorEliminarEmail">Email</div>
+          <div class="prod-label mt-1" id="proveedorEliminarEmail">Email</div>
+          <div class="mt-2 prod-label" id="proveedorEliminarTelefono">Teléfono</div>
         </div>
       </div>
       <div class="modal-footer prod-modal-footer border-0 justify-content-between">
@@ -613,15 +386,15 @@
       <div class="modal-body p-4">
         <div class="mb-3">
           <div class="fw-bold" id="proveedorSancionarNombre">Nombre del proveedor</div>
-          <div class="prod-label mt-1" id="proveedorSancionarContacto">Contacto</div>
+          <div class="prod-label mt-1" id="proveedorSancionarEmail">Email</div>
         </div>
         <form id="formSancionarProveedor" method="POST">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="causaSancion" class="form-label prod-label">Causa de sanción <span class="text-danger">*</span></label>
+            <label for="causaSancion" class="form-label prod-label">Observaciones <span class="text-danger">*</span></label>
             <textarea
               id="causaSancion"
-              name="motivo_sancion"
+              name="observacion"
               class="form-control prod-input"
               rows="4"
               placeholder="Describe el motivo de la sanción..."
@@ -660,16 +433,16 @@
       <div class="modal-body p-4">
         <div class="mb-3">
           <div class="fw-bold text-info" id="proveedorVerSancionNombre">Nombre del proveedor</div>
-          <div class="prod-label mt-1" id="proveedorVerSancionContacto">Contacto</div>
+          <div class="prod-label mt-1" id="proveedorVerSancionEmail">Email</div>
         </div>
         <div class="mb-3">
-          <div class="prod-label text-uppercase mb-1">Motivo de sanción</div>
-          <p class="mt-2 mb-0" id="proveedorVerSancionMotivo">No especificado</p>
+          <div class="prod-label text-uppercase mb-1">Observaciones</div>
+          <p class="mt-2 mb-0" id="proveedorVerSancionMotivo">Sin observaciones</p>
         </div>
         <hr style="border-color: rgba(77,168,218,0.15);">
         <div class="prod-label">
           <i class="bi bi-calendar me-1"></i>Registrado: <span id="proveedorVerSancionFecha">--</span><br>
-          <i class="bi bi-pencil me-1"></i>Última modificación: <span id="proveedorVerSancionModif">--</span>
+          <i class="bi bi-building me-1"></i>Tipo: <span id="proveedorVerSancionTipo">--</span>
         </div>
       </div>
       <div class="modal-footer prod-modal-footer border-0">
