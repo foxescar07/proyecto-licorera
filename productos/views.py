@@ -10,8 +10,8 @@ from datetime import timedelta
 from django.db import IntegrityError
 
 from .models import Producto, Categoria, PresentacionProducto
-from inventario.models import Inventario, AgendaInventario
-from .forms import ProductoForm, AgendaInventarioForm, PresentacionForm, ProductoRegistroForm
+from inventario.models import Inventario, MovimientoInventario
+from .forms import ProductoRegistroForm
 
 # ===============================
 # LISTA / VISTA PRINCIPAL
@@ -118,7 +118,9 @@ def crear_producto(request):
 @login_required
 def producto_detalle(request, pk):
     producto    = get_object_or_404(Producto, pk=pk)
-    movimientos = Inventario.objects.filter(presentacion__producto=producto).order_by('-fecha_actualizada')
+    movimientos = MovimientoInventario.objects.filter(
+    inventario__producto=producto
+).order_by('-fecha')
     context = {
         'producto': producto,
         'movimientos': movimientos,
@@ -342,8 +344,26 @@ def producto_registro(request):
 
 # ===============================
 # STOCK STATUS (Widget con URLs unificado)
-# ===============================
 
+# ===============================
+@login_required
+def stock_status(request):
+    criticos = []
+    bajos = []
+
+    for producto in Producto.objects.filter(activo=True):
+        if producto.stock_critico:
+            criticos.append({'nombre': producto.nombre, 'total_stock': producto.stock_total})
+
+    for item in Inventario.objects.select_related('producto'):
+        if item.necesita_reabastecimiento and not item.producto.stock_critico:
+            bajos.append({'nombre': item.producto.nombre, 'total_stock': item.stock_actual})
+
+    return JsonResponse({
+        'criticos': criticos,
+        'bajos': bajos,
+        'total_alertas': len(criticos) + len(bajos),
+    })
 # ===============================
 # SALIDA DE PRODUCTO
 # ===============================
@@ -490,7 +510,6 @@ def categoria_editar(request, pk):
 
     return redirect('categorias_lista')
 
-
 @login_required
 def categoria_eliminar(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
@@ -503,12 +522,9 @@ def categoria_eliminar(request, pk):
             messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
     return redirect('categorias_lista')
 
-
 # ===============================
 # AGENDA INVENTARIO
 # ===============================
-
-
 
 
 # ===============================
@@ -528,7 +544,8 @@ def gestion_productos(request):
         'lotes':          [],
         'total_criticos': total_criticos,
         'breadcrumb_items': [
-            {'nombre': 'Gestión de Productos', 'url': None},
+    {'nombre': 'Productos', 'url': reverse('lista_productos')},
+    {'nombre': 'Gestión de Productos', 'url': None},
         ],
     }
     return render(request, 'productos/gestion_productos.html', context)

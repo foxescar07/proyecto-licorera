@@ -6,24 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CYS — Crear Usuario</title>
 
-  <style>
-    html, body {
-      background-color: #060c16 !important;
-      color: #E8EDF2;
-    }
-    /* Evita el parpadeo/salto de tamaño durante carga */
-    .cys-card {
-      width: 100% !important;
-      max-width: 580px !important;
-    }
-  </style>
-
-  <!-- SIN Turbo: elimina demora y conflictos de transición -->
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/logo.20.png' %}">
 
   {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/usuario/crear_usuario.css' %}">
@@ -35,7 +21,7 @@
 
       <div class="cys-card-header">
         <div class="cys-logo-ring">
-          <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+          <img src="{% static 'img/logo.20.png' %}" class="cys-logo" alt="Logo CYS">
         </div>
         <div class="cys-header-text">
           <div class="cys-brand">CYS</div>
@@ -46,17 +32,62 @@
       <div class="cys-card-divider"></div>
 
       {% if usuario_creado %}
-      <div class="text-center py-2">
-        <div class="cys-success-icon"><i class="bi bi-check-lg"></i></div>
-        <div class="cys-success-title">¡Usuario Creado!</div>
+      <!-- ═══════════════════ PANTALLA DE ÉXITO REDISEÑADA ═══════════════════ -->
+      <div class="cys-success-wrap">
+
+        <div class="cys-success-icon">
+          <div class="cys-success-ring"></div>
+          <i class="bi bi-check-lg"></i>
+        </div>
+
+        <div class="cys-success-title">¡Cuenta Creada!</div>
         <p class="cys-success-sub">
-          El usuario <strong style="color:var(--azul-claro);">{{ nuevo_usuario }}</strong>
-          fue registrado correctamente.
+          El usuario <strong class="usuario-creado-highlight">{{ nuevo_usuario }}</strong>
+          fue registrado correctamente en el sistema.
         </p>
+
+        <div class="cys-credential-box">
+          <div class="cys-credential-header">
+            <i class="bi bi-key-fill"></i>
+            <span>Datos para tu primer ingreso</span>
+          </div>
+
+          <div class="cys-credential-row">
+            <div class="cys-credential-label">
+              <i class="bi bi-person-vcard"></i> Usuario (N.º de documento)
+            </div>
+            <div class="cys-credential-value-wrap">
+              <span class="cys-credential-value" id="valorUsuario">{{ nuevo_usuario }}</span>
+              <button type="button" class="cys-copy-btn" id="btnCopiarUsuario" title="Copiar usuario">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="cys-credential-row">
+            <div class="cys-credential-label">
+              <i class="bi bi-shield-lock"></i> Contraseña
+            </div>
+            <div class="cys-credential-value-wrap">
+              <span class="cys-credential-value cys-credential-muted">La que acabas de crear</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cys-alert-info">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <span>
+            <strong>Importante:</strong> para ingresar por primera vez usa tu
+            <strong>número de documento</strong> como usuario. Podrás cambiarlo
+            después desde <strong>Mi Perfil</strong>.
+          </span>
+        </div>
+
         <a href="{% url 'login' %}" class="cys-btn-primary d-block text-decoration-none text-center">
           <i class="bi bi-box-arrow-in-right me-1"></i> Ir al Inicio de Sesión
         </a>
       </div>
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
 
       {% else %}
       {% if messages %}
@@ -194,7 +225,7 @@
               <i class="bi bi-eye"></i>
             </button>
           </div>
-          <div class="cys-form-error" id="err-conf-clave" style="display:none;">
+          <div class="cys-form-error cys-error-hidden" id="err-conf-clave">
             <i class="bi bi-x-circle me-1"></i><span id="err-conf-texto"></span>
           </div>
         </div>
@@ -301,181 +332,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // DOMContentLoaded: inmediato, sin overhead de Turbo
-    document.addEventListener('DOMContentLoaded', () => {
-
-      // Aplica clases e placeholders a los campos del formulario Django
-      document.querySelectorAll('#formNuevoUsuario input, #formNuevoUsuario select, #formNuevoUsuario textarea').forEach(el => {
-        el.classList.add('cys-input');
-        const n = el.name;
-        const placeholders = {
-          email:          'usuario@correo.com',
-          telefono:       '300 000 0000',
-          nombre:         'Nombres completos',
-          apellidos:      'Apellidos completos',
-          identificacion: 'Número de documento'
-        };
-        if (placeholders[n]) el.setAttribute('placeholder', placeholders[n]);
-        if (el.id === 'id_clave') el.setAttribute('placeholder', '••••••••');
-      });
-
-      // ── Modales ──
-      const modalConfClaveEl = document.getElementById('modalConfClave');
-      const modalTCEl        = document.getElementById('modalTC');
-      if (!modalConfClaveEl || !modalTCEl) return;
-
-      const modalConfClave = new bootstrap.Modal(modalConfClaveEl);
-      const modalTC        = new bootstrap.Modal(modalTCEl);
-
-      // Limpia el modal de confirmación al cerrarse
-      modalConfClaveEl.addEventListener('hidden.bs.modal', () => {
-        const inputConf = document.getElementById('confirmar_clave');
-        if (inputConf) {
-          inputConf.value = '';
-          inputConf.classList.remove('cys-input-invalid');
-        }
-        const errDiv = document.getElementById('err-conf-clave');
-        if (errDiv) errDiv.style.display = 'none';
-      });
-
-      // ── Botón Continuar: valida campos y abre modal ──
-      document.getElementById('btnContinuar')?.addEventListener('click', () => {
-        const campos = ['tipo_id','identificacion','nombre','apellidos','email','telefono','clave'];
-        let valido = true;
-
-        campos.forEach(nombre => {
-          const el = document.querySelector(`[name="${nombre}"]`) || document.getElementById(`id_${nombre}`);
-          if (el) {
-            el.classList.remove('cys-input-invalid');
-            const v = el.value?.trim() || '';
-            
-            if (!v) {
-              // Permitir vacío temporalmente si es email o telefono y no son requeridos,
-              // pero en tu formulario original todos parecen obligatorios visualmente,
-              // excepto email y telefono que en Django dicen required=False, 
-              // pero mantendremos la validación estricta general.
-              if (nombre !== 'email' && nombre !== 'telefono') {
-                el.classList.add('cys-input-invalid');
-                valido = false;
-              }
-            } else if (nombre === 'email') {
-              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-              if (!emailRegex.test(v)) {
-                el.classList.add('cys-input-invalid');
-                valido = false;
-              }
-            } else if (nombre === 'nombre' || nombre === 'apellidos') {
-              if (/\d/.test(v)) { // No puede contener números
-                el.classList.add('cys-input-invalid');
-                valido = false;
-              }
-            } else if (nombre === 'telefono') {
-              if (!/^\d+$/.test(v)) { // Solo números
-                el.classList.add('cys-input-invalid');
-                valido = false;
-              }
-            } else if (nombre === 'clave') {
-              const numCount = (v.match(/\d/g) || []).length;
-              if (v.length < 6 || numCount < 2 || !/[A-Z]/.test(v)) {
-                el.classList.add('cys-input-invalid');
-                valido = false;
-              }
-            }
-          }
-        });
-
-        if (valido) {
-          modalConfClave.show();
-        } else {
-          const card = document.querySelector('.cys-card');
-          card?.classList.add('cys-shake');
-          setTimeout(() => card?.classList.remove('cys-shake'), 500);
-        }
-      });
-
-      // ── Botón Confirmar Clave ──
-      document.getElementById('btnConfirmarClave')?.addEventListener('click', () => {
-        const claveOriginal     = document.getElementById('id_clave')?.value;
-        const claveConfirmacion = document.getElementById('confirmar_clave')?.value;
-        const errorDiv          = document.getElementById('err-conf-clave');
-        const errorTexto        = document.getElementById('err-conf-texto');
-        const inputConf         = document.getElementById('confirmar_clave');
-
-        if (claveOriginal !== claveConfirmacion) {
-          inputConf?.classList.add('cys-input-invalid');
-          if (errorTexto) errorTexto.innerText = 'Las contraseñas no coinciden.';
-          if (errorDiv)   errorDiv.style.display = 'flex';
-        } else {
-          modalConfClave.hide();
-          // Pequeño delay para que Bootstrap termine la animación de cierre
-          modalConfClaveEl.addEventListener('hidden.bs.modal', () => modalTC.show(), { once: true });
-        }
-      });
-
-      // ── Checkbox T&C habilita botón ──
-      const checkTC     = document.getElementById('checkTC');
-      const btnAceptarTC = document.getElementById('btnAceptarTC');
-      checkTC?.addEventListener('change', function () {
-        btnAceptarTC.disabled = !this.checked;
-      });
-
-      // ── Volver al paso 1 desde T&C ──
-      document.getElementById('btnVolverConf')?.addEventListener('click', () => {
-        modalTC.hide();
-        modalTCEl.addEventListener('hidden.bs.modal', () => modalConfClave.show(), { once: true });
-      });
-
-      // ── Crear Cuenta ──
-      btnAceptarTC?.addEventListener('click', () => {
-        document.getElementById('formNuevoUsuario')?.submit();
-      });
-
-      // ── Toggle visibilidad contraseñas ──
-      const handlerToggle = (inputId, btn) => {
-        const field = document.getElementById(inputId);
-        const icon  = btn.querySelector('i');
-        if (!field || !icon) return;
-        const isPassword = field.type === 'password';
-        field.type = isPassword ? 'text' : 'password';
-        icon.classList.toggle('bi-eye',       !isPassword);
-        icon.classList.toggle('bi-eye-slash',  isPassword);
-      };
-
-      document.getElementById('btnToggleClave')?.addEventListener('click', function () { handlerToggle('id_clave',       this); });
-      document.getElementById('btnToggleConf')?.addEventListener('click',  function () { handlerToggle('confirmar_clave', this); });
-
-      // ── Validación de contraseña en tiempo real ──
-      const claveInput = document.getElementById('id_clave');
-      if (claveInput) {
-        claveInput.addEventListener('input', function() {
-          const val = this.value;
-          
-          const ruleLength = document.getElementById('rule-length');
-          if (val.length >= 6) {
-            ruleLength.classList.add('valid'); ruleLength.querySelector('i').className = 'bi bi-check-circle-fill';
-          } else {
-            ruleLength.classList.remove('valid'); ruleLength.querySelector('i').className = 'bi bi-x-circle-fill';
-          }
-          
-          const ruleNumbers = document.getElementById('rule-numbers');
-          const numCount = (val.match(/\d/g) || []).length;
-          if (numCount >= 2) {
-            ruleNumbers.classList.add('valid'); ruleNumbers.querySelector('i').className = 'bi bi-check-circle-fill';
-          } else {
-            ruleNumbers.classList.remove('valid'); ruleNumbers.querySelector('i').className = 'bi bi-x-circle-fill';
-          }
-          
-          const ruleUppercase = document.getElementById('rule-uppercase');
-          if (/[A-Z]/.test(val)) {
-            ruleUppercase.classList.add('valid'); ruleUppercase.querySelector('i').className = 'bi bi-check-circle-fill';
-          } else {
-            ruleUppercase.classList.remove('valid'); ruleUppercase.querySelector('i').className = 'bi bi-x-circle-fill';
-          }
-        });
-      }
-    });
-  </script>
+  <script src="{% static 'js/usuario/crear_usuario.js' %}"></script>
 </body>
 </html>

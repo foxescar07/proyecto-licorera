@@ -9,7 +9,16 @@
 
 {% block content %}
     
-    <div class="container-fluid pt-0 pb-4">
+  <div class="container-fluid pt-0 pb-4">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show mb-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
 
       <!-- Encabezado -->
 
@@ -20,8 +29,8 @@
       <div class="card cat-card border-0 rounded-4 shadow-sm position-sticky cat-card-sticky">
         <div class="card-body p-4">
           <h5 class="card-title fw-bold mb-4">
-            <i class="bi bi-plus-circle me-2"></i> Nueva Categoría
-          </h5>
+  <i class="bi bi-plus-circle me-2 cat-icon-tag"></i> Nueva Categoría
+</h5>
           <form method="POST" action="{% url 'categoria_crear' %}">
             {% csrf_token %}
             <div class="mb-3">
@@ -83,8 +92,8 @@
       <div class="card cat-card border-0 rounded-4 shadow-sm">
         <div class="card-body p-4">
           <h5 class="card-title fw-bold mb-4">
-            <i class="bi bi-diagram-3 me-2"></i> Árbol de Categorías
-          </h5>
+  <i class="bi bi-diagram-3 me-2 cat-icon-tag"></i> Árbol de Categorías
+</h5>
 
           <ul class="list-group list-group-flush">
             {% for cat in categorias %}
@@ -106,11 +115,11 @@
   title="Editar categoría">
   <i class="bi bi-pencil"></i>
 </button>
-<form method="POST" action="{% url 'categoria_eliminar' cat.pk %}" class="d-inline"
-  onsubmit="return confirm('¿Eliminar definitivamente «{{ cat.nombre }}»?');">
+                  <form method="POST" action="{% url 'categoria_eliminar' cat.pk %}" class="d-inline cat-form-eliminar"
+      data-nombre="{{ cat.nombre|escapejs }}">
   {% csrf_token %}
-  <button type="submit" class="btn btn-sm rounded-pill px-3 cat-btn-eliminar"
-    title="Eliminar categoría">
+  <button type="button" class="btn btn-sm rounded-pill px-3 cat-btn-eliminar cat-btn-confirmar-borrado"
+          title="Eliminar categoría">
     <i class="bi bi-trash"></i>
   </button>
 </form>
@@ -133,14 +142,14 @@
   title="Editar subcategoría">
   <i class="bi bi-pencil cat-icon-sm"></i>
 </button>
-<form method="POST" action="{% url 'categoria_eliminar' sub.pk %}" class="d-inline"
-  onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?');">
+                  <form method="POST" action="{% url 'categoria_eliminar' sub.pk %}" class="d-inline cat-form-eliminar"
+      data-nombre="{{ sub.nombre|escapejs }}">
   {% csrf_token %}
-  <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-eliminar-sub"
-    title="Eliminar subcategoría">
+  <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-eliminar-sub cat-btn-confirmar-borrado"
+          title="Eliminar subcategoría">
     <i class="bi bi-trash cat-icon-sm"></i>
-              </button>
-              </form>
+  </button>
+</form>
                   </div>
                 </li>
                 {% endfor %}
@@ -161,7 +170,7 @@
   </div>
 </div>
 
-<!-- Modales Editar -->
+    <!-- Modales Editar -->
 {% for cat in todas_cats %}
 <div class="modal fade" id="modalEditarCat{{ cat.pk }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -231,37 +240,29 @@
   </div>
 </div>
 {% endfor %}
+
+<!-- Modal de confirmación (reemplaza confirm() nativo) -->
+<div class="modal fade" id="modalConfirmarAccion" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow prod-modal">
+      <div class="modal-header cat-modal-header-border">
+        <h5 class="modal-title fw-bold" id="confirmar-titulo">
+          <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Eliminar categoría
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="mb-0" id="confirmar-mensaje">¿Estás seguro?</p>
+      </div>
+      <div class="modal-footer cat-modal-footer-border">
+        <button type="button" class="btn rounded-pill px-4 cat-btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn rounded-pill fw-bold px-4 btn-danger" id="confirmar-btn-aceptar">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 {% block extra_js %}
-<script>
-// ── DROPDOWN CREAR CATEGORÍA ──
-document.querySelectorAll('.cat-padre-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('crear-padre-label').textContent = this.textContent.trim();
-    document.getElementById('crear-padre-hidden').value = this.dataset.value;
-  });
-});
-
-// ── DROPDOWN EDITAR CATEGORÍA ──
-document.querySelectorAll('.edit-padre-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    const target = this.dataset.target;
-    document.getElementById('edit-padre-label-' + target).textContent = this.textContent.trim();
-    document.getElementById('edit-padre-hidden-' + target).value = this.dataset.value;
-  });
-});
-
-// ── TOOLTIPS en botones Editar/Eliminar (categorías y subcategorías) ──
-window.addEventListener('load', function () {
-  const tooltipTriggerList = document.querySelectorAll('.cat-card [title]');
-  tooltipTriggerList.forEach(function (el) {
-    new bootstrap.Tooltip(el, {
-      placement: 'top',
-      trigger: 'hover'
-    });
-  });
-});
-</script>
+<script src="{% static 'js/productos/categorias.js' %}"></script>
 {% endblock %}

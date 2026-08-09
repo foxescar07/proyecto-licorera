@@ -115,10 +115,10 @@ button#motivo-btn {
    ══════════════════════════════════════════════════ */
 
 /* Cabecera de la card del formulario */
-.sal-icon-header { color: #4DA8DA; font-size: 2.0rem; }
+.sal-icon-header { color: #CF9C48; font-size: 2.0rem; }
 .sal-card-titulo {
   color: #dce8f2; letter-spacing: .08em;
-  font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem;
 }
 .sal-card-subtitulo { color: rgba(220,232,242,0.45); font-size: .7rem; }
 
@@ -137,11 +137,26 @@ button#motivo-btn {
   background: #0d1b2a; border: 1px solid rgba(0, 54, 83, 0.46);
   max-height: 320px; overflow-y: auto;
 }
-.sal-dropdown-header { color: #4DA8DA; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
-.sal-dropdown-item { color: #c8d6e5; font-size: .85rem; }
-.sal-dropdown-item-indent { color: #c8d6e5; font-size: .85rem; padding-left: 1.5rem; }
-.sal-lote-item-vacio { background: #0a1e38; font-size: .85rem; }
-
+.sal-dropdown-header {
+  color: #4DA8DA !important;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.sal-dropdown-item {
+  color: #c8d6e5 !important;
+  font-size: .85rem;
+}
+.sal-dropdown-item-indent {
+  color: #c8d6e5 !important;
+  font-size: .85rem;
+  padding-left: 1.5rem;
+}
+.sal-lote-item-vacio {
+  background: #0a1e38;
+  color: #c8d6e5 !important;
+  font-size: .85rem;
+}
 /* Badge de stock disponible */
 .sal-stock-badge { background: rgba(77,168,218,.1); border: 1px solid rgba(77,168,218,.25); display: inline-flex!important; }
 .sal-ic-azul { color: #4DA8DA; }
@@ -155,14 +170,26 @@ button#motivo-btn {
 .sal-alerta-exceso { background: rgba(243,156,18,.1); border: 1px solid rgba(243,156,18,.28); color: #f39c12; font-size: .82rem; }
 
 /* Botón submit */
-.sal-btn-submit { background: #3b9ad6; color: #0d1b2a; border: none; font-size: 0.9rem; white-space: nowrap; }
+.sal-btn-submit {
+  background: #3b9ad6;
+  color: #0d1b2a;
+  border: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.sal-btn-submit:hover {
+  background: #3b9ad6;
+  opacity: 0.88;
+  color: #0d1b2a;
+}
 
 /* Mini stats panel derecho */
-.sal-stat-label { color: rgba(220,232,242,0.5); font-size: .68rem; letter-spacing: .05em; }
-.sal-stat-value-azul { color: #4DA8DA; font-family: 'Rajdhani', sans-serif; }
-.sal-stat-icon { color: #4DA8DA; opacity: .7; }
+.sal-stat-label { color: rgba(220,232,242,0.5); font-size: .75rem; letter-spacing: .05em; }
+.sal-stat-value-azul { color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; }
+.sal-stat-icon { color: #CF9C48; opacity: 1.0; }
 .sal-stat-mini-border { border-color: rgba(18, 153, 243, 0.22)!important; }
-.sal-stat-value-font { font-family: 'Rajdhani', sans-serif; }
+.sal-stat-value-font { font-family: 'Plus Jakarta Sans', sans-serif; }
 .sal-opacity-70 { opacity: .7; }
 
 /* Gráfico de motivos */
@@ -173,9 +200,67 @@ button#motivo-btn {
 .sal-dot { width: 8px; height: 8px; display: inline-block; }
 .sal-dot-venta { background: #4DA8DA; }
 .sal-dot-merma { background: #1c6ef3; }
-.sal-dot-dano { background: #3ce7d0; }
+.sal-dot-dano { background: #CF9C48; }
 .sal-dot-vencido { background: #9b59b6; }
 
 .sal-legend-dce8f2 { color: #dce8f2; }
 .sal-legend-1c6ef3 { color: #1c6ef3; }
-.sal-legend-3ce7d0 { color: #3ce7d0; }
+.sal-legend-3ce7d0 { color: #CF9C48; }
+/* ── Estado de error en el dropdown de presentación ── */
+.sal-campo-error {
+  border-color: #3ce7a8 !important;
+}
+/* Spinner custom para Cantidad */
+.sal-cantidad-wrap {
+  position: relative;
+}
+
+.sal-cantidad-input {
+  padding-right: 2.25rem;
+  /* oculta flechas nativas */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.sal-cantidad-input::-webkit-outer-spin-button,
+.sal-cantidad-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sal-cantidad-spinners {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 28px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sal-spin-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #2d5893;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.sal-spin-btn:hover {
+  color: #0f628c;
+  background: rgba(22, 71, 98, 0.25);
+}
+
+.sal-spin-up {
+  border-top-right-radius: 6px;
+}
+
+.sal-spin-down {
+  border-bottom-right-radius: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

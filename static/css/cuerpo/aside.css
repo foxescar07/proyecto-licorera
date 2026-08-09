@@ -193,7 +193,7 @@
   cursor: pointer;
   transition: background .2s, color .2s, border-color .2s, padding .25s ease;
   text-align: left;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .cys-sb-link i {
@@ -359,7 +359,7 @@
 .cys-sb-stat__val {
   font-size: 1.7rem;
   font-weight: 700;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--texto);
   line-height: 1.05;
 }

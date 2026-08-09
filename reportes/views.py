@@ -6,6 +6,7 @@ from ventas.models import Venta, DetalleVenta
 from productos.models import Producto
 from inventario.models import Inventario
 from .forms import FiltroReporteForm
+from .models import Reporte
 import json
 import zoneinfo
 from django.core.serializers.json import DjangoJSONEncoder
@@ -21,9 +22,9 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT  # type: ignore
 from io import BytesIO
 
 # openpyxl (Excel)
-from openpyxl import Workbook # type: ignore # type: ignore
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side # type: ignore
-from openpyxl.utils import get_column_letter # type: ignore
+from openpyxl import Workbook  # type: ignore
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side  # type: ignore
+from openpyxl.utils import get_column_letter  # type: ignore
 
 ZONA_COLOMBIA = zoneinfo.ZoneInfo('America/Bogota')
 
@@ -53,6 +54,37 @@ XLS_VERDE_OK      = '2E8B57'   # valores positivos (entradas/ingresos)
 XLS_ROJO_OUT      = 'C0392B'   # valores negativos (salidas)
 
 XLS_FONT = 'Calibri'
+
+# Tipos de reporte válidos (deben coincidir con Reporte.TIPO_REPORTE_CHOICES)
+TIPOS_VALIDOS = {'ventas', 'inventario', 'proveedores', 'resumen_diario', 'analisis'}
+
+
+# ─────────────────────────────────────────────
+#  HELPER: registrar la trazabilidad del reporte (tabla 'reportes' - MER)
+# ─────────────────────────────────────────────
+def _registrar_reporte(request, tipo_reporte, formato, observacion=''):
+    """
+    Crea el registro en la tabla Reporte cada vez que un usuario genera
+    (exporta) un reporte en PDF o Excel, según el MER del módulo.
+
+    Campos del modelo Reporte (MER):
+        codigo (PK, auto)
+        documento_usuario (FK -> usuario)
+        tipo_reporte
+        fecha (auto_now_add)
+        formato
+        observaciones
+    """
+    usuario = getattr(request, 'user', None)
+    if usuario is None or not getattr(usuario, 'is_authenticated', False):
+        return None
+
+    return Reporte.objects.create(
+        documento_usuario=usuario,
+        tipo_reporte=tipo_reporte,
+        formato=formato,
+        observaciones=observacion,
+    )
 
 
 # ─────────────────────────────────────────────
@@ -125,7 +157,6 @@ def _kpi_table(items):
     items = [('Label', 'Valor', color_hex_str), ...]
     Devuelve una tabla de KPIs horizontal.
     """
-    styles = getSampleStyleSheet()
     filas_label = []
     filas_val   = []
     for label, valor, color_hex in items:
@@ -156,13 +187,12 @@ def _kpi_table(items):
 # ═══════════════════════════════════════════════════════
 
 def _pdf_ventas(ventas_qs, fecha_inicio, fecha_fin):
-    styles = getSampleStyleSheet()
     elementos = []
 
     # KPIs
     total_v = sum(v.total_venta for v in ventas_qs)
     total_u = sum(det.cantidad for v in ventas_qs for det in v.detalles.all())
-    total_c = ventas_qs.values('cliente').distinct().count()
+    total_c = ventas_qs.values('codigo_cliente').distinct().count()
     elementos.append(_kpi_table([
         ('Total Ventas',    f'${total_v:,.0f}', '#2ecc71'),
         ('Unidades',        str(total_u),        '#4DA8DA'),
@@ -179,11 +209,11 @@ def _pdf_ventas(ventas_qs, fecha_inicio, fecha_fin):
             filas.append([
                 str(contador),
                 v.fecha.astimezone(ZONA_COLOMBIA).strftime("%Y-%m-%d"),
-                str(v.cliente),
-                det.producto.nombre,
+                str(v.codigo_cliente),
+                det.codigo_producto.nombre,
                 str(det.cantidad),
                 f'${float(det.precio_unitario):,.0f}',
-                f'${float(det.subtotal()):,.0f}',
+                f'${float(det.subtotal):,.0f}',
             ])
             contador += 1
 
@@ -203,7 +233,6 @@ def _pdf_ventas(ventas_qs, fecha_inicio, fecha_fin):
 
 def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     elementos = []
-    styles = getSampleStyleSheet()
 
     total_reg   = productos_qs.count()
     en_stock    = sum(1 for p in productos_qs if p.stock_total > 10)
@@ -321,7 +350,6 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
                         ingresos_hoy, total_entradas_hoy, total_salidas_hoy,
                         top_productos_hoy):
     elementos = []
-    styles = getSampleStyleSheet()
 
     elementos.append(_kpi_table([
         ('Ingresos hoy',  f'${ingresos_hoy:,.0f}',    '#2ecc71'),
@@ -342,8 +370,8 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     for v in ventas_hoy:
         for det in v.detalles.all():
             filas_v.append([
-                str(cont), str(v.cliente), det.producto.nombre,
-                str(det.cantidad), f'${float(det.subtotal()):,.0f}',
+                str(cont), str(v.codigo_cliente), det.codigo_producto.nombre,
+                str(det.cantidad), f'${float(det.subtotal):,.0f}',
                 v.fecha.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
             ])
             cont += 1
@@ -400,7 +428,6 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
 
 def _pdf_analisis_ventas(ventas_qs, total_ventas, total_productos, total_clientes, top_productos_hoy):
     elementos = []
-    styles = getSampleStyleSheet()
 
     elementos.append(_kpi_table([
         ('Ventas Totales', f'${total_ventas:,.0f}', '#2ecc71'),
@@ -418,10 +445,10 @@ def _pdf_analisis_ventas(ventas_qs, total_ventas, total_productos, total_cliente
         for det in v.detalles.all():
             filas.append([
                 v.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y"),
-                str(v.cliente),
-                det.producto.nombre,
+                str(v.codigo_cliente),
+                det.codigo_producto.nombre,
                 str(det.cantidad),
-                f'${float(det.subtotal()):,.0f}',
+                f'${float(det.subtotal):,.0f}',
             ])
     if len(filas) == 1:
         filas.append(['Sin ventas registradas', '', '', '', ''])
@@ -611,7 +638,7 @@ def _xlsx_ventas(wb, ventas_qs, fecha_inicio, fecha_fin):
 
     total_v = sum(v.total_venta for v in ventas_qs)
     total_u = sum(det.cantidad for v in ventas_qs for det in v.detalles.all())
-    total_c = ventas_qs.values('cliente').distinct().count()
+    total_c = ventas_qs.values('codigo_cliente').distinct().count()
 
     subtitulo = f"Período: {fecha_inicio or 'Todo'} → {fecha_fin or 'Todo'}"
     meta = [('Generado:', timezone.now().astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M'))]
@@ -630,11 +657,11 @@ def _xlsx_ventas(wb, ventas_qs, fecha_inicio, fecha_fin):
             filas.append([
                 contador,
                 v.fecha.astimezone(ZONA_COLOMBIA).strftime("%Y-%m-%d"),
-                str(v.cliente),
-                det.producto.nombre,
+                str(v.codigo_cliente),
+                det.codigo_producto.nombre,
                 det.cantidad,
                 float(det.precio_unitario),
-                float(det.subtotal()),
+                float(det.subtotal),
             ])
             contador += 1
 
@@ -741,8 +768,8 @@ def _xlsx_resumen_diario(wb, hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     for v in ventas_hoy:
         for det in v.detalles.all():
             filas_v.append([
-                cont, str(v.cliente), det.producto.nombre, det.cantidad,
-                float(det.subtotal()), v.fecha.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
+                cont, str(v.codigo_cliente), det.codigo_producto.nombre, det.cantidad,
+                float(det.subtotal), v.fecha.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
             ])
             cont += 1
     fila = _xls_tabla(ws, fila, headers_v, filas_v,
@@ -796,7 +823,7 @@ def _xlsx_analisis_ventas(wb, ventas_qs, total_ventas, total_productos, total_cl
         for det in v.detalles.all():
             filas.append([
                 v.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y"),
-                str(v.cliente), det.producto.nombre, det.cantidad, float(det.subtotal()),
+                str(v.codigo_cliente), det.codigo_producto.nombre, det.cantidad, float(det.subtotal),
             ])
     fila = _xls_tabla(ws, fila, headers, filas,
                        col_widths=[14, 22, 32, 12, 15], currency_cols={4}, right_cols={3})
@@ -825,8 +852,8 @@ def index_reportes(request):
         per_page = 10
 
     ventas_qs = Venta.objects.prefetch_related(
-        'detalles__producto',
-        'detalles__presentacion'
+        'detalles__codigo_producto',
+        'detalles__codigo_presentacion',
     ).all().order_by('-fecha')
 
     if fecha_inicio:
@@ -854,6 +881,11 @@ def index_reportes(request):
     if export_format in ('excel', 'pdf'):
         tipo = request.GET.get('tipo', 'ventas')
 
+        if tipo not in TIPOS_VALIDOS:
+            return HttpResponse(
+                f"Tipo de reporte {export_format} no reconocido.", status=400
+            )
+
         # ── EXCEL (.xlsx real, con estilos) ───────────────
         if export_format == 'excel':
             productos_qs = Producto.objects.all().order_by('nombre')
@@ -876,7 +908,7 @@ def index_reportes(request):
                 nombre = f"reporte_proveedores_{timezone.now().strftime('%Y%m%d')}.xlsx"
 
             elif tipo == 'resumen_diario':
-                ventas_hoy_xls   = Venta.objects.prefetch_related('detalles__producto', 'detalles__presentacion').filter(fecha__date=hoy_xls).order_by('-fecha')
+                ventas_hoy_xls   = Venta.objects.prefetch_related('detalles__codigo_producto', 'detalles__codigo_presentacion').filter(fecha__date=hoy_xls).order_by('-fecha')
                 ingresos_hoy_xls = sum(v.total_venta for v in ventas_hoy_xls)
                 mov_hoy          = Inventario.objects.filter(fecha_actualizada__date=hoy_xls).select_related('presentacion__producto')
                 entradas_hoy_xls = mov_hoy.filter(tipo='entrada')
@@ -884,14 +916,14 @@ def index_reportes(request):
                 total_ent_xls    = sum(e.cantidad for e in entradas_hoy_xls)
                 total_sal_xls    = sum(s.cantidad for s in salidas_hoy_xls)
 
-                det_hoy = DetalleVenta.objects.filter(venta__fecha__date=hoy_xls).select_related('producto')
+                det_hoy = DetalleVenta.objects.filter(codigo_venta__fecha__date=hoy_xls).select_related('codigo_producto')
                 top_h = {}
                 for det in det_hoy:
-                    n = det.producto.nombre
+                    n = det.codigo_producto.nombre
                     if n not in top_h:
                         top_h[n] = {'cantidad': 0, 'subtotal': 0}
                     top_h[n]['cantidad'] += det.cantidad
-                    top_h[n]['subtotal'] += float(det.subtotal())
+                    top_h[n]['subtotal'] += float(det.subtotal)
                 top_h = sorted(top_h.items(), key=lambda x: x[1]['subtotal'], reverse=True)[:5]
 
                 _xlsx_resumen_diario(
@@ -903,27 +935,28 @@ def index_reportes(request):
             elif tipo == 'analisis':
                 total_v = sum(v.total_venta for v in ventas_qs)
                 total_u = sum(det.cantidad for v in ventas_qs for det in v.detalles.all())
-                total_c = ventas_qs.values('cliente').distinct().count()
+                total_c = ventas_qs.values('codigo_cliente').distinct().count()
 
-                det_qs = DetalleVenta.objects.filter(venta__fecha__date=hoy_xls).select_related('producto')
+                det_qs = DetalleVenta.objects.filter(codigo_venta__fecha__date=hoy_xls).select_related('codigo_producto')
                 top_h = {}
                 for det in det_qs:
-                    n = det.producto.nombre
+                    n = det.codigo_producto.nombre
                     if n not in top_h:
                         top_h[n] = {'cantidad': 0, 'subtotal': 0}
                     top_h[n]['cantidad'] += det.cantidad
-                    top_h[n]['subtotal'] += float(det.subtotal())
+                    top_h[n]['subtotal'] += float(det.subtotal)
                 top_h = sorted(top_h.items(), key=lambda x: x[1]['subtotal'], reverse=True)[:5]
 
                 _xlsx_analisis_ventas(wb, ventas_qs, total_v, total_u, total_c, top_h)
                 nombre = f"analisis_ventas_{timezone.now().strftime('%Y%m%d')}.xlsx"
 
-            else:
-                return HttpResponse("Tipo de reporte Excel no reconocido.", status=400)
-
             buffer = BytesIO()
             wb.save(buffer)
             buffer.seek(0)
+
+            # Registro de trazabilidad (tabla 'reportes' según el MER)
+            _registrar_reporte(request, tipo, 'excel')
+
             response = HttpResponse(
                 buffer,
                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -951,7 +984,7 @@ def index_reportes(request):
                 nombre = f"reporte_proveedores_{timezone.now().strftime('%Y%m%d')}.pdf"
 
             elif tipo == 'resumen_diario':
-                ventas_hoy_pdf    = Venta.objects.prefetch_related('detalles__producto', 'detalles__presentacion').filter(fecha__date=hoy_pdf).order_by('-fecha')
+                ventas_hoy_pdf    = Venta.objects.prefetch_related('detalles__codigo_producto', 'detalles__codigo_presentacion').filter(fecha__date=hoy_pdf).order_by('-fecha')
                 ingresos_hoy_pdf  = sum(v.total_venta for v in ventas_hoy_pdf)
                 mov_hoy           = Inventario.objects.filter(fecha_actualizada__date=hoy_pdf).select_related('presentacion__producto')
                 entradas_hoy_pdf  = mov_hoy.filter(tipo='entrada')
@@ -959,14 +992,14 @@ def index_reportes(request):
                 total_ent_pdf     = sum(e.cantidad for e in entradas_hoy_pdf)
                 total_sal_pdf     = sum(s.cantidad for s in salidas_hoy_pdf)
 
-                det_hoy = DetalleVenta.objects.filter(venta__fecha__date=hoy_pdf).select_related('producto')
+                det_hoy = DetalleVenta.objects.filter(codigo_venta__fecha__date=hoy_pdf).select_related('codigo_producto')
                 top_h   = {}
                 for det in det_hoy:
-                    n = det.producto.nombre
+                    n = det.codigo_producto.nombre
                     if n not in top_h:
                         top_h[n] = {'cantidad': 0, 'subtotal': 0}
                     top_h[n]['cantidad'] += det.cantidad
-                    top_h[n]['subtotal'] += float(det.subtotal())
+                    top_h[n]['subtotal'] += float(det.subtotal)
                 top_h = sorted(top_h.items(), key=lambda x: x[1]['subtotal'], reverse=True)[:5]
 
                 buffer = _pdf_resumen_diario(
@@ -978,23 +1011,23 @@ def index_reportes(request):
             elif tipo == 'analisis':
                 total_v = sum(v.total_venta for v in ventas_qs)
                 total_u = sum(det.cantidad for v in ventas_qs for det in v.detalles.all())
-                total_c = ventas_qs.values('cliente').distinct().count()
+                total_c = ventas_qs.values('codigo_cliente').distinct().count()
 
-                det_qs = DetalleVenta.objects.filter(venta__fecha__date=hoy_pdf).select_related('producto')
+                det_qs = DetalleVenta.objects.filter(codigo_venta__fecha__date=hoy_pdf).select_related('codigo_producto')
                 top_h  = {}
                 for det in det_qs:
-                    n = det.producto.nombre
+                    n = det.codigo_producto.nombre
                     if n not in top_h:
                         top_h[n] = {'cantidad': 0, 'subtotal': 0}
                     top_h[n]['cantidad'] += det.cantidad
-                    top_h[n]['subtotal'] += float(det.subtotal())
+                    top_h[n]['subtotal'] += float(det.subtotal)
                 top_h = sorted(top_h.items(), key=lambda x: x[1]['subtotal'], reverse=True)[:5]
 
                 buffer = _pdf_analisis_ventas(ventas_qs, total_v, total_u, total_c, top_h)
                 nombre = f"analisis_ventas_{timezone.now().strftime('%Y%m%d')}.pdf"
 
-            else:
-                return HttpResponse("Tipo de reporte PDF no reconocido.", status=400)
+            # Registro de trazabilidad (tabla 'reportes' según el MER)
+            _registrar_reporte(request, tipo, 'pdf')
 
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = f'inline; filename="{nombre}"'
@@ -1010,7 +1043,7 @@ def index_reportes(request):
 
     total_ventas    = sum(v.total_venta for v in ventas_todas)
     total_productos = sum(det.cantidad for v in ventas_todas for det in v.detalles.all())
-    total_clientes  = ventas_todas.values('cliente').distinct().count()
+    total_clientes  = ventas_todas.values('codigo_cliente').distinct().count()
 
     total_registrados = productos.count()
     total_en_stock    = sum(1 for p in productos if p.stock_total > 10)
@@ -1023,7 +1056,7 @@ def index_reportes(request):
     hoy = timezone.now().astimezone(ZONA_COLOMBIA).date()
 
     ventas_hoy = Venta.objects.prefetch_related(
-        'detalles__producto', 'detalles__presentacion'
+        'detalles__codigo_producto', 'detalles__codigo_presentacion',
     ).filter(fecha__date=hoy).order_by('-fecha')
 
     ingresos_hoy = sum(v.total_venta for v in ventas_hoy)
@@ -1036,17 +1069,17 @@ def index_reportes(request):
 
     productos_vendidos_hoy = (
         DetalleVenta.objects
-        .filter(venta__fecha__date=hoy)
-        .select_related('producto', 'presentacion', 'venta')
-        .order_by('producto__nombre')
+        .filter(codigo_venta__fecha__date=hoy)
+        .select_related('codigo_producto', 'codigo_presentacion', 'codigo_venta')
+        .order_by('codigo_producto__nombre')
     )
     top_productos_hoy = {}
     for det in productos_vendidos_hoy:
-        nombre = det.producto.nombre
+        nombre = det.codigo_producto.nombre
         if nombre not in top_productos_hoy:
             top_productos_hoy[nombre] = {'cantidad': 0, 'subtotal': 0}
         top_productos_hoy[nombre]['cantidad'] += det.cantidad
-        top_productos_hoy[nombre]['subtotal'] += float(det.subtotal())
+        top_productos_hoy[nombre]['subtotal'] += float(det.subtotal)
     top_productos_hoy = sorted(
         top_productos_hoy.items(),
         key=lambda x: x[1]['subtotal'],
@@ -1059,12 +1092,12 @@ def index_reportes(request):
             ventas_data.append({
                 "fecha":           v.fecha.astimezone(ZONA_COLOMBIA).strftime("%Y-%m-%d"),
                 "hora":            v.fecha.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
-                "cliente":         str(v.cliente),
-                "producto":        det.producto.nombre,
-                "presentacion":    det.presentacion.nombre if det.presentacion else "Unidad",
+                "cliente":         str(v.codigo_cliente),
+                "producto":        det.codigo_producto.nombre,
+                "presentacion":    det.codigo_presentacion.nombre if det.codigo_presentacion else "Unidad",
                 "cantidad":        det.cantidad,
                 "precio_unitario": float(det.precio_unitario),
-                "subtotal":        float(det.subtotal()),
+                "subtotal":        float(det.subtotal),
                 "descuento":       float(v.descuento_porcentaje),
                 "total_venta":     float(v.total_venta),
             })
@@ -1074,6 +1107,11 @@ def index_reportes(request):
         .replace('</script>', r'<\/script>')
         .replace('<!--',      r'<\!--')
     )
+
+    # Historial de reportes generados (tabla 'reportes' del MER)
+    # NOTA: el nombre de esta variable debe coincidir con lo que usa
+    # el template reportes.html -> {% for r in ultimos_reportes %}
+    ultimos_reportes = Reporte.objects.select_related('documento_usuario').all()[:50]
 
     context = {
         'ventas':             ventas_todas,
@@ -1102,7 +1140,9 @@ def index_reportes(request):
         'total_salidas_hoy':  total_salidas_hoy,
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
+        'ultimos_reportes':   ultimos_reportes,
         'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
             {'nombre': 'Reportes', 'url': None},
         ],
     }

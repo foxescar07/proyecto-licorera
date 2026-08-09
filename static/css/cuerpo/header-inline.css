@@ -1,0 +1,98 @@
+/* ============================================================
+   HEADER — ESTILOS EN LÍNEA EXTRAÍDOS
+   ============================================================ */
+
+/* Separador vertical */
+.header-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(226, 232, 240, 0.15);
+}
+
+/* Botón notificaciones */
+.notif-bell-btn {
+  background: transparent !important;
+  border: none !important;
+  color: rgba(226, 232, 240, 0.85) !important;
+  line-height: 1;
+  padding: 0 !important;
+}
+
+/* Icono campana */
+.notif-bell-icon {
+  font-size: 1.6rem;
+}
+
+/* Badge de notificaciones */
+.notif-badge {
+  background: #4DA8DA !important;
+  font-size: 10px !important;
+  min-width: 18px !important;
+  padding: 3px 6px !important;
+  border: 2px solid var(--azul-oscuro) !important;
+}
+
+/* ============================================================
+   DROPDOWN DE NOTIFICACIONES
+   ============================================================ */
+.notif-dropdown-menu {
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  width: 290px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: #142b49 !important;
+  color: #e2e8f0 !important;
+}
+
+.notif-dropdown-menu .notif-item:hover,
+.notif-dropdown-menu .notif-item:focus,
+.notif-dropdown-menu .dropdown-item:hover,
+.notif-dropdown-menu .dropdown-item:focus {
+  background: rgba(77, 168, 218, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+
+.notif-dropdown-menu .notif-footer:hover,
+.notif-dropdown-menu .notif-footer:focus {
+  background: rgba(77, 168, 218, 0.12) !important;
+  color: #4DA8DA !important;
+}
+
+/* Divisor de tabs */
+.notif-tabs-divider {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Botón tab activo */
+.notif-tab-btn {
+  font-size: 11px !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.notif-tab-btn.active {
+  color: #4DA8DA !important;
+  border-bottom-color: #4DA8DA !important;
+}
+
+.notif-tab-btn:not(.active) {
+  color: rgba(226, 232, 240, 0.4) !important;
+}
+
+/* Paneles de notificaciones */
+.notif-panel {
+  max-height: 320px !important;
+  overflow-y: auto !important;
+}
+
+/* Texto en paneles vacíos */
+.notif-empty-text {
+  font-size: 12px !important;
+  color: rgba(226, 232, 240, 0.4) !important;
+}
+
+/* Footer de notificaciones */
+.notif-footer-link {
+  font-size: 12px !important;
+  color: #4DA8DA !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+}

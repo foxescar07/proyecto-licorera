@@ -7,8 +7,8 @@
   --azul-oscuro:   #011936;
   --azul-medio:    #0A2A52;
   --azul-claro:    #4DA8DA;
-  --azul-borde:    rgba(77,168,218,.35);
-  --azul-glow:     rgba(77,168,218,.15);
+  --azul-borde:    #4da8da59;
+  --azul-glow:     #4da8da26;
   --rojo:          #C0392B;
   --rojo-hover:    #a01e1e;
   --rojo-glow:     rgba(192,57,43,.2);
@@ -25,6 +25,8 @@
   --radius:        12px;
   --trans:         all .22s ease;
   --density-scale: 1;
+  --dorado:        #CF9C48;
+  --dorado-glow:   rgba(207,156,72,.4);
 }
 
 /* ============================================================
@@ -40,7 +42,7 @@ html, body {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--fondo);
   color: var(--texto);
   min-height: 100vh;
@@ -132,7 +134,7 @@ body.offcanvas-open {
 }
 
 .cys-header__title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--blanco);
@@ -174,7 +176,7 @@ body.offcanvas-open {
 .cys-header__clock { text-align: right; }
 
 .cys-header__clock-time {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.2rem;
   font-weight: 700;
   color: var(--blanco);
@@ -214,7 +216,7 @@ body.offcanvas-open {
 }
 
 .cys-subnav__page {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .9rem;
   font-weight: 700;
   letter-spacing: .15em;
@@ -246,7 +248,7 @@ body.offcanvas-open {
   color: var(--azul-claro);
   font-size: .78rem;
   font-weight: 600;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   letter-spacing: .1em;
   text-transform: uppercase;
   cursor: pointer;
@@ -319,7 +321,7 @@ body.offcanvas-open {
 }
 
 .cys-sb-brand-name {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .95rem;
   color: var(--blanco);
@@ -432,7 +434,7 @@ body.sidebar-open .cys-main {
 }
 
 .cys-card__title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   color: var(--blanco);
@@ -449,9 +451,9 @@ body.sidebar-open .cys-main {
   display: inline-block;
   width: 3px;
   height: 18px;
-  background: var(--azul-claro);
+  background: #CF9C48;
   border-radius: 2px;
-  box-shadow: 0 0 8px var(--azul-claro);
+  box-shadow: 0 0 8px #CF9C48;
 }
 
 .cys-card__title.mb-0 { margin-bottom: 0 !important; }
@@ -469,7 +471,7 @@ body.sidebar-open .cys-main {
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   border: 1px solid transparent;
   cursor: pointer;
   transition: var(--trans);
@@ -596,7 +598,7 @@ body.sidebar-open .cys-main {
   border: 1px solid var(--azul-borde) !important;
   color: var(--texto) !important;
   border-radius: var(--radius) !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: .85rem !important;
   padding-top: calc(.375rem * var(--density-scale, 1)) !important;
   padding-bottom: calc(.375rem * var(--density-scale, 1)) !important;
@@ -681,7 +683,7 @@ body.sidebar-open .cys-main {
 }
 
 .cys-stat-card__val {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: var(--azul-claro);
@@ -715,7 +717,7 @@ body.sidebar-open .cys-main {
   color: var(--texto) !important;
   border-radius: var(--radius) !important;
   font-size: .85rem !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   padding-top: calc(.375rem * var(--density-scale, 1)) !important;
   padding-bottom: calc(.375rem * var(--density-scale, 1)) !important;
   transition: padding .2s ease;
@@ -877,20 +879,300 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   DROPDOWN DE NOTIFICACIONES
+   TOOLTIPS — estilo CYS global (aplica en todo el sitio)
    ============================================================ */
-#notif-dropdown-menu {
-  background: #0d1b2a !important;
-}
-#notif-dropdown-menu .notif-item:hover,
-#notif-dropdown-menu .notif-item:focus,
-#notif-dropdown-menu .dropdown-item:hover,
-#notif-dropdown-menu .dropdown-item:focus {
-  background: rgba(77, 168, 218, 0.08) !important;
-  color: #e2e8f0 !important;
-}
-#notif-dropdown-menu .notif-footer:hover,
-#notif-dropdown-menu .notif-footer:focus {
-  background: rgba(77, 168, 218, 0.12) !important;
+.tooltip .tooltip-inner {
+  background-color: #0d2240 !important;
   color: #4DA8DA !important;
+  border: 1px solid rgba(77, 168, 218, 0.45) !important;
+  font-size: .78rem !important;
+  font-weight: 600 !important;
+  padding: .45rem .8rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .4) !important;
+}
+.tooltip[data-popper-placement^="top"] .tooltip-arrow::before { border-top-color: #0d2240 !important; }
+.tooltip[data-popper-placement^="bottom"] .tooltip-arrow::before { border-bottom-color: #0d2240 !important; }
+.tooltip[data-popper-placement^="left"] .tooltip-arrow::before { border-left-color: #0d2240 !important; }
+.tooltip[data-popper-placement^="right"] .tooltip-arrow::before { border-right-color: #0d2240 !important; }
+
+/* ============================================================
+   WIDGET DE ACCESIBILIDAD — agregado al final de base.css
+   Usa las mismas variables --azul-claro, --fondo-card, --texto,
+   --azul-borde, --radius, --trans definidas arriba en :root,
+   por eso cambia de color solo cuando cambias de tema con
+   window.aplicarTemaCYS() (definida en base.js).
+
+   El botón flotante (.cys-a11y-toggle) usa el color dorado de
+   marca (--dorado) en vez de --azul-claro, para que se distinga
+   siempre igual sin importar el tema activo.
+   ============================================================ */
+
+.cys-a11y-toggle {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--dorado);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px var(--dorado-glow);
+    z-index: 1050;
+    transition: var(--trans);
+    color: var(--azul-oscuro);
+    font-size: 1.4rem;
+}
+
+.cys-a11y-toggle:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 22px var(--dorado-glow);
+}
+
+.cys-a11y-panel {
+    position: fixed;
+    bottom: 88px;
+    left: 24px;
+    width: 300px;
+    max-width: calc(100vw - 48px);
+    max-height: 70vh;
+    overflow-y: auto;
+    background: var(--fondo-card);
+    border: 1px solid var(--azul-borde);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5);
+    z-index: 1051;
+    opacity: 0;
+    transform: translateY(12px) scale(.97);
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+.cys-a11y-panel--open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.cys-a11y-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid var(--azul-borde);
+}
+
+.cys-a11y-panel__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--texto);
+    letter-spacing: .04em;
+}
+
+.cys-a11y-panel__close {
+    background: transparent;
+    border: none;
+    color: var(--texto-muted);
+    font-size: .95rem;
+    cursor: pointer;
+    padding: .3rem;
+    border-radius: 6px;
+    transition: var(--trans);
+}
+.cys-a11y-panel__close:hover {
+    color: var(--rojo);
+    background: rgba(192,57,43,.12);
+}
+
+.cys-a11y-panel__body {
+    padding: 1rem 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.cys-a11y-block__label {
+    display: block;
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--texto-muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+}
+
+.cys-a11y-fontsize {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: var(--radius);
+    padding: .4rem .6rem;
+}
+.cys-a11y-fontsize__btn {
+    background: transparent;
+    border: none;
+    color: var(--azul-claro);
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+    padding: .25rem .6rem;
+    border-radius: 6px;
+    transition: var(--trans);
+}
+.cys-a11y-fontsize__btn:hover {
+    background: var(--azul-claro);
+    color: var(--azul-oscuro);
+}
+.cys-a11y-fontsize__val {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--texto);
+    min-width: 42px;
+    text-align: center;
+}
+
+.cys-a11y-colormode {
+    display: flex;
+    gap: .4rem;
+}
+.cys-a11y-colormode__btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: var(--radius);
+    padding: .55rem .3rem;
+    cursor: pointer;
+    color: var(--texto-muted);
+    font-size: .62rem;
+    font-weight: 600;
+    transition: var(--trans);
+}
+.cys-a11y-colormode__btn i { font-size: 1rem; }
+.cys-a11y-colormode__btn:hover {
+    border-color: var(--azul-claro);
+    color: var(--texto);
+}
+.cys-a11y-colormode__btn--active {
+    background: var(--azul-claro);
+    border-color: var(--azul-claro);
+    color: var(--azul-oscuro);
+}
+
+.cys-a11y-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .5rem 0;
+    font-size: .82rem;
+    color: var(--texto);
+    border-bottom: 1px solid rgba(77,168,218,.08);
+}
+.cys-a11y-switch-row:last-child { border-bottom: none; }
+
+.cys-a11y-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+}
+.cys-a11y-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.cys-a11y-switch__track {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 22px;
+    transition: var(--trans);
+}
+.cys-a11y-switch__track::before {
+    content: '';
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    top: 2px;
+    background: var(--texto-muted);
+    border-radius: 50%;
+    transition: var(--trans);
+}
+.cys-a11y-switch input:checked + .cys-a11y-switch__track {
+    background: var(--azul-claro);
+    border-color: var(--azul-claro);
+}
+.cys-a11y-switch input:checked + .cys-a11y-switch__track::before {
+    transform: translateX(18px);
+    background: var(--azul-oscuro);
+}
+
+.cys-a11y-reset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    background: transparent;
+    border: 1px solid var(--azul-borde);
+    color: var(--azul-claro);
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .55rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--trans);
+}
+.cys-a11y-reset:hover {
+    background: var(--azul-glow, rgba(77,168,218,.1));
+}
+
+html.cys-a11y-contraste {
+    filter: contrast(1.25) saturate(1.1);
+}
+html.cys-a11y-contraste body {
+    background: #000 !important;
+}
+
+html.cys-a11y-espaciado body {
+    letter-spacing: .03em !important;
+    word-spacing: .12em !important;
+    line-height: 1.7 !important;
+}
+
+html.cys-a11y-enlaces a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 3px !important;
+    color: var(--azul-claro) !important;
+}
+
+html.cys-a11y-fuente body,
+html.cys-a11y-fuente * {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+@media (max-width: 480px) {
+    .cys-a11y-panel {
+        left: 12px;
+        bottom: 84px;
+        width: calc(100vw - 24px);
+    }
+    .cys-a11y-toggle {
+        left: 16px;
+        bottom: 16px;
+    }
 }

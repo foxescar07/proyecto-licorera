@@ -1,36 +1,39 @@
 from django.contrib import admin
-from .models import SesionConteo, ConteoProducto, ResultadoInventario, Lote, Inventario, AgendaInventario
-
-
-@admin.register(SesionConteo)
-class SesionConteoAdmin(admin.ModelAdmin):
-    list_display = ['fecha_inicio', 'estado']
-
-
-@admin.register(ConteoProducto)
-class ConteoProductoAdmin(admin.ModelAdmin):
-    list_display  = ['sesion', 'presentacion', 'cantidad_contada']
-    search_fields = ['presentacion__producto__nombre']
-
-
-@admin.register(ResultadoInventario)
-class ResultadoInventarioAdmin(admin.ModelAdmin):
-    list_display = ['sesion', 'presentacion', 'cantidad_sistema', 'cantidad_fisica', 'diferencia']
+from .models import (
+    AgendaInventario,
+    Hallazgo,
+    Inventario,
+    Lote,
+    MovimientoInventario,
+)
 
 
 @admin.register(Lote)
 class LoteAdmin(admin.ModelAdmin):
-    list_display  = ['numero_lote', 'presentacion', 'fecha_vencimiento']
+    list_display  = ['numero_lote', 'presentacion', 'stock_actual', 'fecha_vencimiento']
     search_fields = ['numero_lote', 'presentacion__producto__nombre']
+    list_filter   = ['fecha_vencimiento']
 
 
 @admin.register(Inventario)
 class InventarioAdmin(admin.ModelAdmin):
-    list_display = ['tipo', 'presentacion', 'cantidad', 'fecha_actualizada']
+    list_display  = ['producto', 'presentacion', 'stock_actual', 'stock_min', 'stock_max']
+    search_fields = ['producto__nombre']
+
+
+@admin.register(MovimientoInventario)
+class MovimientoInventarioAdmin(admin.ModelAdmin):
+    list_display = ['tipo', 'inventario', 'lote', 'cantidad', 'fecha']
     list_filter  = ['tipo']
 
 
 @admin.register(AgendaInventario)
 class AgendaInventarioAdmin(admin.ModelAdmin):
-    list_display = ['titulo', 'fecha_programada', 'estado']
+    list_display = ['titulo', 'fecha', 'estado', 'responsable']
     list_filter  = ['estado']
+
+
+@admin.register(Hallazgo)
+class HallazgoAdmin(admin.ModelAdmin):
+    list_display = ['agenda', 'producto', 'cantidad_sistema', 'cantidad_fisica', 'diferencia', 'tipo_hallazgo']
+    list_filter  = ['tipo_hallazgo']

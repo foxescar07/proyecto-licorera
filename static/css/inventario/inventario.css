@@ -14,7 +14,7 @@
   --inv-fondo:      #0a1628;
   --inv-texto:      #dce8f2;
   --inv-muted:      rgba(220,232,242,0.55);
-  --inv-rojo:       #e74c3c;
+  --inv-rojo:       #CF9C48;
   --inv-verde:      #27ae60;
   --inv-amarillo:   #f39c12;
   --inv-radius:     14px;
@@ -113,6 +113,10 @@
   border: 1px solid var(--inv-azul-borde);
   border-radius: 8px;
   padding: .9rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .inv-meta { background: var(--inv-card2); font-size: .78rem; }
 
@@ -509,8 +513,24 @@ button#em-tipo-btn::after { color: #c8d6e5 !important; }
   color: rgba(226,232,240,.45);
   margin-bottom: .35rem;
 }
-.kpi-value { font-family: 'Rajdhani', sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1; }
+.kpi-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.4rem; font-weight: 700; line-height: 1; }
 .kpi-icon { font-size: 2.2rem; opacity: .55; }
+@media (max-width: 767px) {
+  .kpi-card {
+    padding: .9rem 1rem;
+    min-height: 90px;
+    gap: .5rem;
+  }
+  .kpi-label {
+    font-size: .62rem;
+  }
+  .kpi-value {
+    font-size: 1.7rem;
+  }
+  .kpi-icon {
+    font-size: 1.5rem;
+  }
+}
 
 /* ── ENLACE GESTIÓN (tarjetas de Home: Agendar, Conteo, Códigos, Comparar) ── */
 .inv-gestion-link {
@@ -597,32 +617,27 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }
-/* ============================================
-   inventario_home.css
-   Generado a partir de estilos inline de inventario_home.html
-   ============================================ */
-
 .qc-borde-teal {
-  border-left: 3px solid #2dd4bf;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-bg-teal {
-  background:rgba(77,168,218,.15);
+  background: rgba(207,156,72,.15);
 }
 
 .qc-icono-color-teal {
-  color:#2dd4bf;
+  color: #CF9C48;
 }
 
 .qc-badge-teal {
-  background:rgba(77,168,218,.15);
-  color:#2dd4bf;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 
 .qc-valor-teal {
   font-size:1.5rem;
-  color:#2dd4bf;
+  color: #ffffff;
   line-height:1;
 }
 
@@ -640,30 +655,30 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .qc-footer-texto-teal {
   font-size:.7rem;
-  color:#2dd4bf;
+  color: #CF9C48;
 }
 
 .qc-borde-verde {
-  border-left: 3px solid #27ae60;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-bg-verde {
-  background:rgba(39,174,96,.15);
+  background: rgba(207,156,72,.15);
 }
 
 .qc-icono-color-verde {
-  color:#27ae60;
+  color: #CF9C48;
 }
 
 .qc-badge-verde {
-  background:rgba(39,174,96,.15);
-  color:#27ae60;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 
 .qc-valor-verde {
   font-size:1.5rem;
-  color:#27ae60;
+  color: #ffffff;
   line-height:1;
 }
 
@@ -673,30 +688,30 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .qc-footer-texto-verde {
   font-size:.7rem;
-  color:#27ae60;
+  color: #CF9C48;
 }
 
 .qc-borde-purpura {
-  border-left: 3px solid #9b5de5;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-bg-purpura {
-  background:rgba(155,93,229,.15);
+  background: rgba(207,156,72,.15);
 }
 
 .qc-icono-color-purpura {
-  color:#9b5de5;
+  color: #CF9C48;
 }
 
 .qc-badge-purpura {
-  background:rgba(155,93,229,.15);
-  color:#9b5de5;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
 
 .qc-valor-purpura {
   font-size:1.5rem;
-  color:#9b5de5;
+  color: #ffffff;
   line-height:1;
 }
 
@@ -706,47 +721,44 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .qc-footer-texto-purpura {
   font-size:.7rem;
-  color:#9b5de5;
+  color: #CF9C48;
 }
-
 .qc-borde-azul {
-  border-left: 3px solid #4DA8DA;
+  border-left: 3px solid #CF9C48;
 }
 
 .qc-icono-color-azul {
-  color:#4DA8DA;
+  color: #CF9C48;
 }
 
 .qc-badge-azul {
-  background:rgba(77,168,218,.15);
-  color:#4DA8DA;
+  background: rgba(207,156,72,.15);
+  color: #CF9C48;
   font-size:.65rem;
 }
-
 .qc-valor-azul {
   font-size:1.5rem;
-  color:#4DA8DA;
+  color: #ffffff;
   line-height:1;
 }
-
 .qc-footer-texto-azul {
   font-size:.7rem;
-  color:#4DA8DA;
+  color: #CF9C48;
 }
-
 .agenda-tab-activo {
-  background: var(--inv-azul-dim);
-  color: var(--inv-azul);
-  border: 1px solid var(--inv-azul-borde);
+  background: var(--inv-azul-dim) !important;
+  color: var(--inv-azul) !important;
+  border: 1px solid var(--inv-azul-borde) !important;
   font-size:.78rem;
+  opacity: 1 !important;
 }
 
 .agenda-tab-inactivo {
-  background: transparent;
-  color: var(--inv-texto);
-  border: 1px solid var(--inv-azul-borde);
+  background: transparent !important;
+  color: var(--inv-texto) !important;
+  border: 1px solid var(--inv-azul-borde) !important;
   font-size:.78rem;
-  opacity:.6;
+  opacity:.6 !important;
 }
 
 .agenda-titulo-texto {
@@ -840,9 +852,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .estrella-mes-badge {
-  background:rgba(77,168,218,.15);
-  color:#4DA8DA;
-  border:1px solid rgba(77,168,218,.3);
+  background: rgba(207, 156, 72, 0.15);
+  border: 1px solid rgba(207, 156, 72, 0.35);
+  color: #CF9C48; 
 }
 
 .chart-rotacion-wrap {
@@ -851,16 +863,28 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   min-height:300px;
 }
 
-.btn-outline-azul {
-  border:1px solid rgba(77,168,218,0.35);
-  color:#4DA8DA;
-  background:transparent;
+.btn-outline-azul,
+button.btn-outline-azul {
+  border: 1px solid rgba(77,168,218,0.35) !important;
+  color: #4DA8DA !important;
+  background: transparent !important;
+}
+.btn-outline-azul:hover,
+button.btn-outline-azul:hover {
+  background: rgba(77,168,218,0.1) !important;
+  color: #4DA8DA !important;
 }
 
-.btn-solido-azul {
-  background: #4DA8DA;
-  color: #0d1b2a;
-  border: none;
+.btn-solido-azul,
+button.btn-solido-azul {
+  background-color: #4DA8DA !important;
+  color: #0d1b2a !important;
+  border: none !important;
+}
+.btn-solido-azul:hover,
+button.btn-solido-azul:hover {
+  background-color: #3b9ad6 !important;
+  color: #0d1b2a !important;
 }
 
 .conteo-prod-btn {
@@ -1004,4 +1028,205 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .scan-codigo-texto {
   font-family:monospace;
   font-size:.82rem;
+}
+/* ── Agenda: tarjeta y estado inicial oculto ── */
+.agenda-item-card {
+  background: var(--inv-card2);
+  border: 1px solid var(--inv-azul-borde);
+}
+.agenda-oculto-inicial {
+  display: none;
+}
+
+/* ── Dropdown de fecha (movimientos) ── */
+.mov-fecha-item-link {
+  color: #c8d6e5;
+  font-size: .82rem;
+}
+.mov-fecha-item-activo {
+  font-weight: 600;
+}
+
+/* ── Stock en tarjeta de catálogo ── */
+.cat-card-stock {
+  font-size: 2rem;
+  line-height: 1;
+}
+.cat-stock-cero {
+  color: var(--inv-rojo);
+}
+.cat-stock-critico {
+  color: var(--inv-amarillo);
+}
+.cat-stock-ok {
+  color: var(--inv-verde);
+}
+/* ── Tipografía Rajdhani para el número de stock (mismo estilo que TABLERO DE CONTROL) ── */
+.cat-card-stock {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+.cat-card-stock-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  font-size: .75rem;
+  color: rgba(226, 232, 240, 0.45);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-left: 3px;
+}
+/* ── Tipografía Rajdhani para los números de Acceso Rápido ── */
+.qc-valor-teal,
+.qc-valor-verde,
+.qc-valor-purpura,
+.qc-valor-azul {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: .02em;
+  font-size: 1.5rem; 
+}
+
+/* ── Tarjeta de ítem (conteo y comparar) con borde de estado ── */
+.conteo-item-card {
+  background: var(--inv-card2);
+  border: 1px solid var(--inv-azul-borde);
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+.borde-ok {
+  border-left-color: var(--inv-verde);
+}
+.borde-sobrante {
+  border-left-color: #9b5de5;
+}
+.borde-faltante {
+  border-left-color: var(--inv-rojo);
+}
+
+/* ── Texto/ícono color púrpura "sobrante" ── */
+.texto-sobrante-purpura {
+  color: #9b5de5;
+}
+
+/* ── Badges de comparativa (conteo y comparar) ── */
+.badge-comparativa {
+  font-size: .65rem;
+}
+.badge-sobrante-purpura {
+  background: rgba(155, 93, 229, .15);
+  color: #9b5de5;
+  border: 1px solid rgba(155, 93, 229, .3);
+}
+.badge-estado-ok {
+  font-size: .6rem;
+  background: rgba(39, 174, 96, .15);
+  color: var(--inv-verde);
+  border: 1px solid rgba(39, 174, 96, .3);
+}
+.badge-estado-sobrante {
+  font-size: .6rem;
+  background: rgba(155, 93, 229, .15);
+  color: #9b5de5;
+  border: 1px solid rgba(155, 93, 229, .3);
+}
+.badge-estado-faltante {
+  font-size: .6rem;
+  background: rgba(231, 76, 60, .15);
+  color: var(--inv-rojo);
+  border: 1px solid rgba(231, 76, 60, .3);
+}
+
+/* ── Valor de diferencia (comparar) ── */
+.comparar-diferencia-valor {
+  font-size: 1.15rem;
+}
+.texto-ok {
+  color: var(--inv-verde);
+}
+.texto-sobrante {
+  color: #9b5de5;
+}
+.texto-faltante {
+  color: var(--inv-rojo);
+}
+.agenda-responsable-texto {
+  color: var(--inv-texto);
+}
+/* ── Números "Producto Estrella del Mes" — igual al catálogo pero más grueso ── */
+.estrella-valor {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: .02em;
+}
+.estrella-valor-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  font-size: .75rem;
+  color: rgba(226, 232, 240, 0.45);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-left: 3px;
+}
+/* Centra título + flecha de orden como bloque, no cada uno por separado */
+#tabla-codigos thead th.dt-head-center div.dt-column-header {
+  justify-content: center;
+}
+#tabla-codigos thead th.dt-head-center div.dt-column-header .dt-column-title {
+  flex-grow: 0;
+}
+/* ── Íconos de encabezado de sección (dorado) ── */
+.inv-icon-dorado {
+  color: #CF9C48 !important;
+}
+/* ── SPINNER CUSTOM PARA INPUTS NUMÉRICOS (genérico, reutilizable) ── */
+.inv-cantidad-wrap {
+  position: relative;
+}
+
+.inv-cantidad-input {
+  padding-right: 2.25rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.inv-cantidad-input::-webkit-outer-spin-button,
+.inv-cantidad-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inv-spin-wrap {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 28px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.inv-spin-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #8fa3bf;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.inv-spin-btn:hover {
+  color: #fff;
+  background: rgba(77, 168, 218, 0.25);
+}
+.inv-spin-up   { border-top-right-radius: 6px; }
+.inv-spin-down {
+  border-bottom-right-radius: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

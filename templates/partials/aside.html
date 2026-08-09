@@ -1,6 +1,7 @@
 {% load static %}
 
 <link rel="stylesheet" href="{% static 'css/cuerpo/aside.css' %}">
+<link rel="stylesheet" href="{% static 'css/cuerpo/aside-inline.css' %}">
 
 <div class="offcanvas offcanvas-end"
      id="sidebarRight"
@@ -10,7 +11,7 @@
        <!-- HEADER-->
   <div class="cys-sb-header">
     <div class="cys-sb-brand">
-      <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo">
+      <img src="{% static 'img/logo.20.png' %}" class="cys-sb-logo" alt="Logo" loading="lazy">
       <div>
         <div class="cys-sb-brand-name">CYS Ltda</div>
         <div class="cys-sb-brand-sub">Distribución</div>
@@ -32,7 +33,7 @@
             {% if request.user.foto %}
               <img src="{{ request.user.foto.url }}"
                    alt="Foto"
-                   loading="eager"
+                   loading="lazy"
                    onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'bi bi-person-fill cys-sb-avatar__icon\'></i>';">
             {% else %}
               <i class="bi bi-person-fill cys-sb-avatar__icon"></i>
@@ -73,16 +74,15 @@
         </a>
 
         <!-- VENTAS -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'ventas:ventas_lista' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-receipt"></i>
             <span class="flex-grow-1">Ventas</span>
           </a>
           <button id="btnVentas"
                   onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuVentas')"
-                  style="background:none; border:none; color:inherit; padding:10px 14px; cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
@@ -96,15 +96,14 @@
         </div>
 
         <!-- PRODUCTOS -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'lista_productos' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-box-seam-fill"></i>
             <span class="flex-grow-1">Productos</span>
           </a>
           <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuProductos')"
-                  style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
@@ -118,15 +117,14 @@
         </div>
 
         <!-- INVENTARIO -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'inventario_home' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-clipboard-data-fill"></i>
             <span class="flex-grow-1">Inventario</span>
           </a>
           <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuInventario')"
-                  style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
@@ -143,24 +141,20 @@
         </div>
 
         <!-- PROVEEDORES -->
-        <div class="cys-sb-link cys-sb-link--parent" style="display:flex; align-items:center; padding:0;">
+        <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'lista_proveedores' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none"
-             style="color:inherit; padding:10px 14px;">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
             <i class="bi bi-box-seam-fill"></i>
             <span class="flex-grow-1">Proveedores</span>
           </a>
           <button onclick="toggleSubmenu(event, this.closest('.cys-sb-link--parent'), 'submenuProveedores')"
-                  style="background:none;border:none;color:inherit;padding:10px 14px;cursor:pointer;">
+                  class="sb-submenu-toggle">
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
         <div class="cys-sb-submenu" id="submenuProveedores">
-          <a href="{% url 'listar_ordenes' %}" class="cys-sb-sublink">
-            <i class="bi bi-list-check"></i> Órdenes de Compra
-          </a>
           <a href="{% url 'lista_compras' %}" class="cys-sb-sublink">
-            <i class="bi bi-cart-check-fill"></i> Compras Registradas
+            <i class="bi bi-cart-check-fill"></i> Compras
           </a>
         </div>
 
@@ -208,6 +202,11 @@
     </div>
 
     <hr class="cys-sb-divider">
+    
+      <a href="{% url 'ayuda:index' %}" class="cys-sb-link cys-sb-link--config">
+  <i class="bi bi-question-circle-fill"></i>
+  <span>Ayuda</span>
+</a>
 
     <a href="{% url 'configuracion:index' %}" class="cys-sb-link cys-sb-link--config">
       <i class="bi bi-sliders"></i>
@@ -224,91 +223,4 @@
   </div>
 </div>
 
-<script>
-(function () {
-
-  // ══════════════════════════════════════════
-  // PREFERENCIAS DE BARRA LATERAL (definidas en Configuración)
-  // Lee el mismo localStorage.cys_config que usa configuracion.html
-  // ══════════════════════════════════════════
-  let cysSidebarCfg = {};
-  try { cysSidebarCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
-
-  // 1) Mostrar/ocultar sección Resumen (con transición suave, sin recargar)
-  const resumenWrap = document.getElementById('cys-sb-resumen-wrap');
-  function actualizarResumenWrap(visible) {
-    if (!resumenWrap) return;
-    resumenWrap.classList.toggle('cys-sb-resumen-oculto', visible === false);
-  }
-  actualizarResumenWrap(cysSidebarCfg.resumenSidebar);
-
-  // Escucha el cambio en vivo desde la página de Configuración (misma pestaña)
-  window.addEventListener('cys-config-changed', function (e) {
-    actualizarResumenWrap(e.detail && e.detail.resumenSidebar);
-  });
-
-
-  window.toggleSubmenu = function (e, btn, id) {
-    e.stopPropagation();
-    const sub = document.getElementById(id);
-    sub.classList.toggle('abierto');
-    btn.classList.toggle('abierto');
-  };
-
-  const normalizePath = p => p.replace(/\/+$/, '') || '/';
-  const currentPath = normalizePath(window.location.pathname);
-  const links = document.querySelectorAll('.cys-sb-link, .cys-sb-sublink, .cys-sb-user-drop-link');
-
-  let bestMatch = null, maxLength = -1;
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href && href !== '#') {
-      const normalizedHref = normalizePath(href);
-      const isExact  = currentPath === normalizedHref;
-      const isPrefix = currentPath.startsWith(normalizedHref + '/') ||
-                       (currentPath.startsWith(normalizedHref) && normalizedHref !== '/');
-      if ((isExact || isPrefix) && normalizedHref.length > maxLength) {
-        maxLength = normalizedHref.length; bestMatch = link;
-      }
-    }
-  });
-
-  if (bestMatch) {
-    bestMatch.classList.add('active');
-    if (bestMatch.classList.contains('cys-sb-sublink')) {
-      const parentSubmenu = bestMatch.closest('.cys-sb-submenu');
-      if (parentSubmenu) {
-        parentSubmenu.classList.add('abierto');
-        const parentBtn = parentSubmenu.previousElementSibling;
-        if (parentBtn?.classList.contains('cys-sb-link--parent')) {
-          parentBtn.classList.add('abierto', 'active');
-        }
-      }
-    }
-  }
-
-  if (currentPath.startsWith('/ventas')) {
-    document.getElementById('submenuVentas')?.classList.add('abierto');
-  }
-  if (currentPath.startsWith('/proveedores') || currentPath.startsWith('/compra')) {
-    document.getElementById('submenuProveedores')?.classList.add('abierto');
-
-    // Auto-expandir submenu de Compras si estamos en órdenes
-    if (currentPath.includes('/ordenes')) {
-      const submenuCompras = document.getElementById('submenuCompras');
-      if (submenuCompras) {
-        submenuCompras.style.display = 'block';
-        const chevron = submenuCompras.previousElementSibling.querySelector('.bi-chevron-right');
-        if (chevron) chevron.style.transform = 'rotate(90deg)';
-      }
-    }
-  }
-
-  const sidebar = document.getElementById('sidebarRight');
-  if (!sidebar) return;
-  sidebar.addEventListener('show.bs.offcanvas', () => document.body.classList.add('sidebar-open'));
-  sidebar.addEventListener('hide.bs.offcanvas', () => document.body.classList.remove('sidebar-open'));
-  if (sidebar.classList.contains('show')) document.body.classList.add('sidebar-open');
-
-})();
-</script>
+<script src="{% static 'js/cuerpo/aside.js' %}" defer></script>

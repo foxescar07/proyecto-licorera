@@ -7,222 +7,16 @@
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/venta_dias.css' %}">
-<style>
-  body, html, main, .content-wrapper, .main-content {
-    background-color: #001f38!important;
-    background: #001f38 !important;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/venta/ventas_inline.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/ventas/ventas_dia.js' %}"></script>
 {% endblock %}
 {% block content %}
-<style>
-  .cys-page-wrapper {
-    background-color: #001f38 !important;
-    min-height: 100vh;
-    font-family: sans-serif;
-    color: #fff !important;
-  }
-  .cys-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .cys-topbar-title { font-size: 1.4rem; font-weight: 700; color: #fff; }
-  .cys-topbar-sub { font-size: 0.88rem; color: #7a96b0; }
-
-  /* ── KPI con rayita de color a la izquierda (igual a cards de Caja) ── */
-  .cys-kpi {
-    background: #11233f !important;
-    border: 1px solid rgba(77, 168, 218, 0.18) !important;
-    border-left: 4px solid #4da8da !important;
-    border-radius: 14px;
-    padding: 1.25rem;
-    height: 100%;
-    position: relative;
-  }
-  .cys-kpi--success { border-left-color: #2ecc71 !important; }
-  .cys-kpi--info    { border-left-color: #4da8da !important; }
-  .cys-kpi--warning { border-left-color: #ad3af0 !important; }
-
-  .cys-kpi-value { font-size: 1.8rem; font-weight: 800; color: #fff !important; }
-  .cys-kpi-label { font-size: 0.85rem; font-weight: 600; color: #fff; }
-  .cys-kpi-sub { font-size: 0.75rem; color: #7a96b0; }
-
-  /* ── Card Producto Más Vendido ── */
-  .cys-kpi-value-sm {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #fff !important;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* ── Tarjeta de Meta del Día (solo texto, sin barra) ── */
-  .cys-meta-card {
-    background: #11233f !important;
-    border: 1px solid rgba(77, 168, 218, 0.18) !important;
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-  }
-  .cys-meta-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .cys-meta-titulo {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
-  .cys-meta-titulo i { color: #4da8da; margin-right: 6px; }
-  .cys-meta-cifras {
-    font-size: 0.85rem;
-    color: #7a96b0;
-  }
-  .cys-meta-cifras strong { color: #fff; }
-  .cys-meta-porcentaje {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #4da8da;
-    display: block;
-  }
-  .cys-meta-porcentaje--completa { color: #2ecc71; }
-
-  /* ── Ranking de productos (barras) ── */
-  .cys-rank-item { margin-bottom: 14px; }
-  .cys-rank-item:last-child { margin-bottom: 0; }
-  .cys-rank-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-  .cys-rank-nombre { font-size: 0.85rem; color: #c8dae8; }
-  .cys-rank-valor { font-size: 0.85rem; color: #fff; font-weight: 700; }
-  .cys-rank-track { width: 100%; height: 6px; border-radius: 50px; background: rgba(77, 168, 218, 0.1); overflow: hidden; }
-  .cys-rank-fill { height: 100%; border-radius: 50px; }
-
-  /* Paleta fría para cada barra de producto (se asigna por rotación) */
-  .cys-rank-fill--c1 { background: #4da8da; } /* azul cielo */
-  .cys-rank-fill--c2 { background: #7a5cf0; } /* morado */
-  .cys-rank-fill--c3 { background: #1f8080; } /* teal / cian */
-  .cys-rank-fill--c4 { background: #9a44ac; } /* azul índigo */
-  .cys-rank-fill--c5 { background: #00a56b; } /* verde azulado (teal-green) */
-  .cys-rank-fill--c6 { background: #38bdf8; } /* celeste claro */
-
-  /* ── Ventas tope (circular) ── */
-  .cys-circular-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-  .cys-circular-svg { flex-shrink: 0; }
-  .cys-circular-legend { display: flex; flex-direction: column; gap: 12px; }
-  .cys-circular-item { display: flex; align-items: center; gap: 10px; }
-  .cys-circular-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .cys-circular-dot--a { background: #9334a0; }
-  .cys-circular-dot--b { background: #3262ca; }
-  .cys-circular-label { font-size: 0.75rem; color: #7a96b0; margin: 0; }
-  .cys-circular-value { font-size: 0.9rem; color: #fff; font-weight: 700; margin: 0; }
-
-  .cys-panel {
-    background: #11233f !important;
-    border: 1px solid rgba(77, 168, 218, 0.18) !important;
-    border-radius: 14px;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-  .cys-panel-header { padding: 1.2rem 1.5rem; background: rgba(77, 168, 218, 0.02); border-bottom: 1px solid rgba(77, 168, 218, 0.18); }
-  .cys-panel-title { color: #4da8da; font-weight: 700; text-transform: uppercase; }
-  .cys-table { width: 100% !important; border-collapse: collapse !important; margin: 0 !important; background: transparent !important; }
-  .cys-table th { padding: 14px 16px !important; color: #4da8da !important; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; border-bottom: 2px solid rgba(77, 168, 218, 0.28) !important; }
-  .cys-table td { padding: 16px 16px !important; color: #c8dae8 !important; border-bottom: 1px solid rgba(77, 168, 218, 0.08) !important; }
-  .cys-td-num { color: #7a96b0 !important; font-weight: bold; }
-  .cys-td-cantidad { color: #fff !important; font-weight: 700; }
-  .cys-td-total { color: #2ecc71 !important; font-weight: 700; }
-  .cys-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(77, 168, 218, 0.15); color: #4da8da; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; border: 1px solid rgba(77, 168, 218, 0.2); }
-  .cys-cliente-cell { display: flex; align-items: center; gap: 12px; }
-  .cys-producto-badge { background: rgba(46, 204, 113, 0.06); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.18); border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; }
-  .cys-estado-pagado { display: inline-flex; align-items: center; gap: 6px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.25); border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; }
-  .cys-panel-footer { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; background: rgba(77, 168, 218, 0.02); border-top: 1px solid rgba(77, 168, 218, 0.18); }
-
-  /* ── Toolbar de búsqueda + orden (Historial de Ventas) ── */
-  .cys-hist-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    padding: 1rem 1.5rem;
-    background: #0a1628;
-    border-bottom: 1px solid rgba(77, 168, 218, 0.18);
-  }
-  .cys-hist-search-wrap {
-    position: relative;
-    flex: 1 1 280px;
-    min-width: 220px;
-  }
-  .cys-hist-search-wrap i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #4da8da;
-    font-size: 0.9rem;
-    pointer-events: none;
-  }
-  .cys-hist-search-input {
-    width: 100%;
-    background: #0d1c33;
-    border: 1px solid rgba(77, 168, 218, 0.28);
-    color: #fff;
-    border-radius: 50px;
-    padding: 9px 16px 9px 38px;
-    font-size: 0.88rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .cys-hist-search-input:focus { border-color: #4da8da; }
-  .cys-hist-search-input::placeholder { color: #7a96b0; }
-
-  .cys-hist-sort-wrap { position: relative; flex: 0 0 auto; }
-  .cys-hist-sort-wrap i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #4da8da;
-    font-size: 0.85rem;
-    pointer-events: none;
-  }
-  .cys-hist-sort-select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: #0d1c33;
-    border: 1px solid rgba(77, 168, 218, 0.28);
-    color: #fff;
-    border-radius: 50px;
-    padding: 9px 34px 9px 38px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    outline: none;
-    min-width: 170px;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234da8da' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 14px;
-  }
-  .cys-hist-sort-select:focus { border-color: #4da8da; }
-  .cys-hist-sort-select option { background: #0d1c33; color: #fff; }
-
-  .cys-hist-sin-resultados {
-    text-align: center;
-    padding: 2.5rem 1rem;
-    color: #7a96b0;
-  }
-</style>
 
 <div class="container-fluid cys-page-wrapper p-4">
 
@@ -244,10 +38,10 @@
   <div class="row g-3 mb-3 justify-content-center">
 
     <div class="col-12 col-sm-6 col-xl-4">
-      <div class="cys-kpi cys-kpi--info">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-info fs-4"><i class="bi bi-receipt"></i></div>
-          <span class="badge bg-dark text-info border border-info">Hoy</span>
+      <div class="cys-kpi-card cys-kpi-card--info">
+        <div class="cys-kpi-card-top mb-2">
+          <div class="cys-kpi-icon cys-kpi-icon--info"><i class="bi bi-receipt"></i></div>
+          <span class="cys-kpi-badge cys-kpi-badge--info">Hoy</span>
         </div>
         <div class="cys-kpi-value">{{ ventas.count }}</div>
         <div class="cys-kpi-label">Transacciones</div>
@@ -256,10 +50,10 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4">
-      <div class="cys-kpi cys-kpi--success">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-success fs-4"><i class="bi bi-cash-stack"></i></div>
-          <span class="badge bg-dark text-success border border-success">Ingresos</span>
+      <div class="cys-kpi-card cys-kpi-card--success">
+        <div class="cys-kpi-card-top mb-2">
+          <div class="cys-kpi-icon cys-kpi-icon--success"><i class="bi bi-cash-stack"></i></div>
+          <span class="cys-kpi-badge cys-kpi-badge--success">Ingresos</span>
         </div>
         <div class="cys-kpi-value text-success">${{ total_dia|pesos }}</div>
         <div class="cys-kpi-label">Total acumulado</div>
@@ -268,10 +62,10 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-4">
-      <div class="cys-kpi cys-kpi--info">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div class="text-info fs-4"><i class="bi bi-box-seam"></i></div>
-          <span class="badge bg-dark text-info border border-info">Unidades</span>
+      <div class="cys-kpi-card cys-kpi-card--info">
+        <div class="cys-kpi-card-top mb-2">
+          <div class="cys-kpi-icon cys-kpi-icon--info"><i class="bi bi-box-seam"></i></div>
+          <span class="cys-kpi-badge cys-kpi-badge--info">Unidades</span>
         </div>
         <div class="cys-kpi-value">{{ total_productos }}</div>
         <div class="cys-kpi-label">Productos vendidos</div>
@@ -283,7 +77,7 @@
 
   <div class="row g-3 mb-4">
 
-    <!-- ── PRODUCTOS MÁS VENDIDOS (barras, un color frío por producto) ── -->
+    <!-- ── PRODUCTOS MÁS VENDIDOS (barras, blanco en distintas opacidades) ── -->
     <div class="col-12 col-lg-6">
       <div class="cys-meta-card h-100">
         <div class="cys-meta-titulo mb-3"><i class="bi bi-trophy-fill"></i>Productos más vendidos</div>
@@ -292,35 +86,36 @@
           <div class="cys-rank-item">
             <div class="cys-rank-row">
               <span class="cys-rank-nombre">{{ p.nombre }}</span>
-              <span class="cys-rank-valor">{{ p.unidades }} u.</span>
+              <span class="cys-rank-valor">{{ p.unidades }} u. <span class="cys-rank-porcentaje">({{ p.porcentaje|floatformat:0 }}%)</span></span>
             </div>
             <div class="cys-rank-track">
-              <div class="cys-rank-fill {% cycle 'cys-rank-fill--c1' 'cys-rank-fill--c2' 'cys-rank-fill--c3' 'cys-rank-fill--c4' 'cys-rank-fill--c5' 'cys-rank-fill--c6' %}" style="width: {{ p.porcentaje }}%;"></div>
+              <div class="cys-rank-fill {% cycle 'cys-rank-fill--c1' 'cys-rank-fill--c2' 'cys-rank-fill--c3' 'cys-rank-fill--c4' 'cys-rank-fill--c5' 'cys-rank-fill--c6' %}"
+                   style="width: {{ p.porcentaje|floatformat:0 }}%;" data-porcentaje="{{ p.porcentaje }}"></div>
             </div>
           </div>
           {% endfor %}
         {% else %}
-          <p style="color:#7a96b0; font-size:0.85rem; margin:0;">Sin ventas registradas hoy.</p>
+          <p class="cys-meta-vacio">Sin ventas registradas hoy.</p>
         {% endif %}
       </div>
     </div>
 
-    <!-- ── VENTAS TOPE DEL DÍA (circular) ── -->
+    <!-- ── VENTAS TOPE DEL DÍA (circular, blanco en dos intensidades) ── -->
     <div class="col-12 col-lg-6">
       <div class="cys-meta-card h-100">
         <div class="cys-meta-titulo mb-3"><i class="bi bi-cash-stack"></i>Ventas tope del día</div>
         {% if ventas_top %}
         <div class="cys-circular-wrap">
           <svg width="120" height="120" viewBox="0 0 120 120" class="cys-circular-svg">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12"></circle>
             {% for v in ventas_top %}
               {% if forloop.first %}
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#9334a0" stroke-width="12"
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#FFFFFF" stroke-width="12"
                       stroke-dasharray="314.159" stroke-dashoffset="{% widthratio v.porcentaje 100 -314.159 %}"
                       stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
               {% else %}
-              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(77,168,218,0.1)" stroke-width="12"></circle>
-              <circle cx="60" cy="60" r="34" fill="none" stroke="#2e4d8f" stroke-width="12"
+              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12"></circle>
+              <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="12"
                       stroke-dasharray="213.628" stroke-dashoffset="{% widthratio v.porcentaje 100 -213.628 %}"
                       stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
               {% endif %}
@@ -338,9 +133,9 @@
             {% endfor %}
           </div>
         </div>
-        <p style="color:#7a96b0; font-size:0.75rem; margin:12px 0 0;">Peso de cada venta sobre el total del día (${{ total_dia|pesos }})</p>
+        <p class="cys-circular-nota">Peso de cada venta sobre el total del día (${{ total_dia|pesos }})</p>
         {% else %}
-          <p style="color:#7a96b0; font-size:0.85rem; margin:0;">Sin ventas registradas hoy.</p>
+          <p class="cys-meta-vacio">Sin ventas registradas hoy.</p>
         {% endif %}
       </div>
     </div>
@@ -373,18 +168,18 @@
     </div>
 
     {% if ventas %}
-    <div style="overflow-x: auto;">
+    <div class="cys-tabla-scroll-wrap" data-hoy="{% now 'Y-m-d' %}">
       <table class="cys-hist-table">
         <thead id="theadHistorialDia">
           <tr>
-            <th style="width: 60px; text-align: center;">#</th>
+            <th class="cys-th-centro">#</th>
             <th>Cliente</th>
             <th>Producto</th>
-            <th style="text-align: center; width: 80px;">Cant.</th>
-            <th style="text-align: right; width: 130px;">Precio Uni.</th>
-            <th style="text-align: right; width: 130px;">Total</th>
-            <th style="padding-left: 25px; width: 160px;">Fecha</th>
-            <th style="text-align: center; width: 120px;">Estado</th>
+            <th class="cys-th-cant">Cant.</th>
+            <th class="cys-th-precio">Precio Uni.</th>
+            <th class="cys-th-total">Total</th>
+            <th class="cys-th-fecha">Fecha</th>
+            <th class="cys-th-estado">Estado</th>
           </tr>
         </thead>
         <tbody id="tablaHistorialDiaBody">
@@ -398,13 +193,13 @@
                 data-total="{{ det.subtotal }}"
                 data-fecha="{{ venta.fecha|date:'c' }}"
                 data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
-              <td class="cys-td-num" style="text-align: center;">{{ forloop.parentloop.counter }}</td>
+              <td class="cys-td-num cys-td-centro">{{ forloop.parentloop.counter }}</td>
               <td>
                 <div class="cys-cliente-cell">
                   <div class="cys-avatar">{{ venta.cliente.nombre|slice:":2"|upper }}</div>
                   <div>
                     <div class="fw-bold text-white">{{ venta.cliente.nombre }}</div>
-                    <div style="font-size: 0.7rem; color: #7a96b0;">Cliente</div>
+                    <div class="cys-cliente-rol">Cliente</div>
                   </div>
                 </div>
               </td>
@@ -414,14 +209,14 @@
                   {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
                 </span>
               </td>
-              <td class="cys-td-cantidad" style="text-align: center;">{{ det.cantidad }}</td>
-              <td style="text-align: right; color: #7a96b0;">${{ det.precio_unitario|pesos }}</td>
-              <td class="cys-td-total" style="text-align: right;">${{ det.subtotal|pesos }}</td>
-              <td style="padding-left: 25px; white-space: nowrap;">
-                <span style="color: #fff; display: block; font-weight: 500;">{{ venta.fecha|date:"d/m/Y" }}</span>
-                <span style="color: #7a96b0; display: block; font-size: 0.75rem;">{{ venta.fecha|date:"H:i" }}</span>
+              <td class="cys-td-cantidad cys-td-centro">{{ det.cantidad }}</td>
+              <td class="cys-td-precio-muted">${{ det.precio_unitario|pesos }}</td>
+              <td class="cys-td-total cys-td-total-alineado">${{ det.subtotal|pesos }}</td>
+              <td class="cys-td-fecha">
+                <span class="cys-fecha-dia">{{ venta.fecha|date:"d/m/Y" }}</span>
+                <span class="cys-fecha-hora">{{ venta.fecha|date:"H:i" }}</span>
               </td>
-              <td style="text-align: center;">
+              <td class="cys-td-estado">
                 <span class="cys-estado-pagado">
                   <i class="bi bi-check-circle-fill"></i> Pagado
                 </span>
@@ -431,7 +226,7 @@
           {% endfor %}
         </tbody>
       </table>
-      <div id="sinResultadosDia" style="display:none;" class="cys-hist-sin-resultados">
+      <div id="sinResultadosDia" class="cys-hist-sin-resultados">
         <i class="bi bi-bar-chart d-block fs-2 mb-2"></i>
         Sin resultados para esa búsqueda.
       </div>
@@ -443,57 +238,76 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const buscador = document.getElementById('buscadorHistorialDia');
-  const orden = document.getElementById('ordenHistorialDia');
-  const tbody = document.getElementById('tablaHistorialDiaBody');
-  const sinResultados = document.getElementById('sinResultadosDia');
+  // ═══════════════════════════════════════════════════════════
+  // HISTORIAL — por defecto solo ventas de HOY; al buscar, se busca
+  // en TODO el historial (todas las filas ya vienen en la tabla,
+  // solo se ocultan/muestran según el caso).
+  // ═══════════════════════════════════════════════════════════
+  (function () {
+    const wrap = document.querySelector('.cys-tabla-scroll-wrap');
+    const tbody = document.getElementById('tablaHistorialDiaBody');
+    if (!wrap || !tbody) return;
 
-  if (!tbody) return;
+    const hoy = wrap.dataset.hoy; // 'YYYY-MM-DD', calculado en el servidor
+    const inputBuscar = document.getElementById('buscadorHistorialDia');
+    const selectOrden = document.getElementById('ordenHistorialDia');
+    const sinResultados = document.getElementById('sinResultadosDia');
+    const filas = Array.from(tbody.querySelectorAll('tr[data-row]'));
 
-  function filasActuales() {
-    return Array.from(tbody.querySelectorAll('tr[data-row]'));
-  }
-
-  function filtrar() {
-    const texto = (buscador.value || '').toLowerCase().trim();
-    let visibles = 0;
-    filasActuales().forEach(function (fila) {
-      const coincide = fila.dataset.buscar.indexOf(texto) !== -1;
-      fila.style.display = coincide ? '' : 'none';
-      if (coincide) visibles++;
-    });
-    if (sinResultados) {
-      sinResultados.style.display = visibles === 0 ? 'block' : 'none';
+    function esDeHoy(fila) {
+      return (fila.dataset.fecha || '').slice(0, 10) === hoy;
     }
-  }
 
-  function ordenar() {
-    const criterio = orden.value;
-    const filas = filasActuales();
+    function aplicarFiltros() {
+      const termino = (inputBuscar && inputBuscar.value ? inputBuscar.value : '').trim().toLowerCase();
+      const hayBusqueda = termino.length > 0;
+      let visibles = 0;
 
-    filas.sort(function (a, b) {
-      switch (criterio) {
-        case 'reciente':
-          return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
-        case 'antiguo':
-          return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
-        case 'mayor_total':
-          return parseFloat(b.dataset.total) - parseFloat(a.dataset.total);
-        case 'menor_total':
-          return parseFloat(a.dataset.total) - parseFloat(b.dataset.total);
-        default:
-          return 0;
+      filas.forEach(function (fila) {
+        // Sin búsqueda: solo se muestran las ventas de hoy.
+        // Con búsqueda: se busca en TODO el historial, sin importar la fecha.
+        const coincideBusqueda = !hayBusqueda || (fila.dataset.buscar || '').indexOf(termino) !== -1;
+        const coincideDia = hayBusqueda || esDeHoy(fila);
+        const mostrar = coincideBusqueda && coincideDia;
+        fila.style.display = mostrar ? '' : 'none';
+        if (mostrar) visibles++;
+      });
+
+      if (sinResultados) {
+        sinResultados.style.display = visibles === 0 ? '' : 'none';
       }
-    });
+    }
 
-    filas.forEach(function (fila) {
-      tbody.appendChild(fila);
-    });
-  }
+    function ordenarFilas() {
+      const criterio = selectOrden ? selectOrden.value : 'reciente';
+      const ordenadas = filas.slice().sort(function (a, b) {
+        switch (criterio) {
+          case 'antiguo':
+            return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
+          case 'mayor_total':
+            return parseFloat(b.dataset.total) - parseFloat(a.dataset.total);
+          case 'menor_total':
+            return parseFloat(a.dataset.total) - parseFloat(b.dataset.total);
+          case 'reciente':
+          default:
+            return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
+        }
+      });
+      ordenadas.forEach(function (fila) { tbody.appendChild(fila); });
+    }
 
-  if (buscador) buscador.addEventListener('input', filtrar);
-  if (orden) orden.addEventListener('change', ordenar);
-});
+    if (inputBuscar) {
+      inputBuscar.addEventListener('input', aplicarFiltros);
+    }
+    if (selectOrden) {
+      selectOrden.addEventListener('change', function () {
+        ordenarFilas();
+        aplicarFiltros();
+      });
+    }
+
+    ordenarFilas();
+    aplicarFiltros();
+  })();
 </script>
 {% endblock %}

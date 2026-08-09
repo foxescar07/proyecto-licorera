@@ -1,6 +1,5 @@
 from django import forms
 from .models import Producto, Categoria, PresentacionProducto
-from inventario.models import AgendaInventario
 
 
 class ProductoRegistroForm(forms.ModelForm):
@@ -64,15 +63,4 @@ class PresentacionForm(forms.ModelForm):
             'unidades': forms.NumberInput(attrs={'class': 'gp-input', 'min': '1'}),
             'cantidad': forms.NumberInput(attrs={'class': 'gp-input', 'min': '0'}),
             'precio':   forms.NumberInput(attrs={'class': 'gp-input', 'min': '0', 'step': '0.01'}),
-        }
-
-
-class AgendaInventarioForm(forms.ModelForm):
-    class Meta:
-        model  = AgendaInventario
-        fields = ['titulo', 'descripcion', 'fecha_programada',]
-        widgets = {
-            'titulo':           forms.TextInput(attrs={'class': 'gp-input'}),
-            'descripcion':      forms.Textarea(attrs={'class': 'gp-input', 'rows': 2}),
-            'fecha_programada': forms.DateTimeInput(attrs={'class': 'gp-input', 'type': 'datetime-local'}),
         }

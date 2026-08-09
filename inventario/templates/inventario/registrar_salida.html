@@ -162,10 +162,21 @@
       <!-- Cantidad + Motivo -->
 <div class="row g-3 mb-3">
   <div class="col-sm-5">
-    <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+  <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+  <div class="d-flex sal-cantidad-wrap">
     <input type="number" name="cantidad" id="input-cantidad"
-           class="form-control inv-input sal-campo" min="1" placeholder="0" required>
+           class="form-control inv-input sal-campo sal-cantidad-input"
+           min="1" placeholder="0" required>
+    <div class="sal-cantidad-spinners">
+      <button type="button" class="sal-spin-btn sal-spin-up" data-target="input-cantidad">
+        <i class="bi bi-caret-up-fill"></i>
+      </button>
+      <button type="button" class="sal-spin-btn sal-spin-down" data-target="input-cantidad">
+        <i class="bi bi-caret-down-fill"></i>
+      </button>
+    </div>
   </div>
+</div>
   <div class="col-sm-7">
     <label class="inv-label">Motivo <span class="text-danger">*</span></label>
 
@@ -240,7 +251,7 @@
             </small>
             <h4 class="mb-0 fw-bold mt-1 text-blue sal-stat-value-font">0</h4>
           </div>
-          <i class="bi bi-exclamation-circle fs-3 text-info sal-opacity-70"></i>
+          <i class="bi bi-exclamation-circle fs-3 sal-stat-icon sal-opacity-70"></i>
         </div>
       </div>
     </div>
@@ -253,24 +264,23 @@
           Motivos de Salida
         </h6>
       </div>
-      <div class="mx-auto position-relative sal-chart-wrap">
-        <canvas id="chartMotivos"></canvas>
-      </div>
-      <div class="d-flex flex-wrap justify-content-center gap-3 mt-3 pt-2 sal-legend-wrap">
-        <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
-          <span class="rounded-circle sal-dot sal-dot-venta"></span>Venta
-        </span>
-        <span class="d-flex align-items-center gap-1 sal-legend-1c6ef3">
-          <span class="rounded-circle sal-dot sal-dot-merma"></span>Merma
-        </span>
-        <span class="d-flex align-items-center gap-1 sal-legend-3ce7d0">
-          <span class="rounded-circle sal-dot sal-dot-dano"></span>Daño
-        </span>
-        <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
-          <span class="rounded-circle sal-dot sal-dot-vencido"></span>Vencido
-        </span>
-      </div>
-    </div>
+     <div class="mx-auto position-relative sal-chart-wrap">
+  <canvas id="chartMotivos"></canvas>
+</div>
+<div class="d-flex flex-nowrap justify-content-center gap-2 mt-3 pt-2 sal-legend-wrap">
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-venta"></span>Venta
+  </span>
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-merma"></span>Merma
+  </span>
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-dano"></span>Daño
+  </span>
+  <span class="d-flex align-items-center gap-1 sal-legend-dce8f2">
+    <span class="rounded-circle sal-dot sal-dot-vencido"></span>Vencido
+  </span>
+</div>
 
   </div>
 </div>
@@ -278,99 +288,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<div id="salida-config"
+     data-chart-motivos="{{ chart_motivos_data|safe }}"
+     data-lotes='{{ lotes_json|safe }}'
+     class="d-none"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-new Chart(document.getElementById('chartMotivos').getContext('2d'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Venta','Merma','Daño','Vencido'],
-    datasets: [{
-      data: {{ chart_motivos_data|safe }},
-      backgroundColor: ['#4DA8DA','#1c6ef3','#3ce7d0','#9b59b6'],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    cutout: '74%'
-  }
-});
-
-const lotesData = {
-  {% for p in productos %}{% for pr in p.presentaciones.all %}
-  "{{ pr.pk }}": {
-    nombre: "{{ p.nombre }} — {{ pr.nombre }}",
-    stock: {{ pr.cantidad }},
-    lotes: [{% for lote in pr.lotes.all %}{
-      numero: "{{ lote.numero_lote }}",
-      cantidad: {{ lote.stock_actual|default:0 }},
-      vence: "{% if lote.fecha_vencimiento %}{{ lote.fecha_vencimiento|date:'d/m/Y' }}{% else %}—{% endif %}"
-    },{% endfor %}]
-  },
-  {% endfor %}{% endfor %}
-};
-
-const sel             = document.getElementById('select-presentacion');
-const selectLoteForm  = document.getElementById('select-lote-form');
-const selectMotivo    = document.getElementById('select-motivo');
-const badgeWrap       = document.getElementById('stock-badge-wrap');
-const badgeVal        = document.getElementById('stock-badge-val');
-const inputQty        = document.getElementById('input-cantidad');
-const alertaExceso    = document.getElementById('alerta-exceso');
-
-// Dropdown Presentación: sincroniza texto del botón + select oculto + stock
-document.querySelectorAll('.presentacion-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    sel.value = item.dataset.value;
-    document.getElementById('presentacion-label').textContent = item.textContent.trim();
-    sel.dispatchEvent(new Event('change'));
-  });
-});
-
-// Dropdown Lote: sincroniza texto del botón + select oculto
-document.querySelectorAll('.lote-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    selectLoteForm.value = item.dataset.value;
-    document.getElementById('lote-label').textContent = item.textContent.trim();
-  });
-});
-
-// Dropdown Motivo: sincroniza texto del botón + select oculto
-document.querySelectorAll('.motivo-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    selectMotivo.value = item.dataset.value;
-    document.getElementById('motivo-label').textContent = item.textContent.trim();
-  });
-});
-
-// Al cambiar la presentación: muestra stock y filtra lotes del select oculto
-sel.addEventListener('change', function () {
-  const d = lotesData[this.value];
-  Array.from(selectLoteForm.options).forEach(opt => {
-    if (!opt.value) { opt.selected = true; return; }
-    opt.style.display = opt.dataset.presentacion === this.value ? '' : 'none';
-  });
-  if (!d) { badgeWrap.classList.add('d-none'); return; }
-  badgeVal.textContent = d.stock;
-  badgeWrap.classList.remove('d-none');
-});
-
-inputQty.addEventListener('input', function () {
-  const d = lotesData[sel.value];
-  alertaExceso.classList.toggle('d-none', !(d && +this.value > d.stock));
-});
-
-// Validación manual: como el select real ya no tiene "required" visible, revisamos antes de enviar
-document.getElementById('form-salida').addEventListener('submit', function (e) {
-  if (!sel.value) {
-    e.preventDefault();
-    document.getElementById('presentacion-btn').style.borderColor = '#3ce7a8';
-    document.getElementById('presentacion-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-});
-</script>
+<script src="{% static 'js/inventario/registrar_salida.js' %}"></script>
 {% endblock %}

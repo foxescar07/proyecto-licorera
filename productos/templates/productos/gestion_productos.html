@@ -37,11 +37,11 @@
       <div class="stat-box">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <span class="stat-label"><i class="bi bi-layers-half me-1 gp-icon-cyan"></i>Presentaciones</span>
-          <span id="txt-prom-pres" class="fw-bold gp-icon-cyan" style="font-size:18px;">0</span>
+          <span id="txt-prom-pres" class="fw-bold gp-icon-cyan">0</span>
         </div>
         <div class="stat-sub mt-2">Promedio por producto</div>
         <div class="bar-track my-2">
-          <div id="bar-prom-pres" class="bar-fill gp-bar-cyan" style="width:0%;"></div>
+          <div id="bar-prom-pres" class="bar-fill gp-bar-cyan"></div>
         </div>
         <div class="d-flex justify-content-between stat-sub mt-1">
           <span>Min: <strong id="stat-pres-min" class="gp-icon-cyan">0</strong></span>
@@ -59,140 +59,115 @@
           <span class="gp-text-purple-bold"><span id="stat-sin-pres">—</span> pds</span>
         </div>
         <div class="bar-track">
-          <div id="bar-sin-pres" class="bar-fill gp-bar-purple" style="width:0%;"></div>
+          <div id="bar-sin-pres" class="bar-fill gp-bar-purple"></div>
         </div>
       </div>
 
     </div>
 
-    <!-- ══ COLUMNA DERECHA: BUSCADOR + TABLA ══ -->
+   <!-- ══ COLUMNA DERECHA: BUSCADOR + LISTA ══ -->
     <div class="gp-columna-der">
 
       <div class="search-box">
         <label class="stat-label mb-2 d-block"><i class="bi bi-filter-left me-1"></i>Filtrar inventario</label>
         <div class="d-flex">
-          <span class="search-prefix"><i class="bi bi-search" style="font-size:14px;"></i></span>
+          <span class="search-prefix"><i class="bi bi-search"></i></span>
           <input type="text" id="buscadorProductos" placeholder="Buscar por nombre o código..." oninput="filtrarProductos(this.value)">
         </div>
       </div>
 
-      <div id="accordion-categorias">
-        {% for cat in categorias %}
-        {% if cat %}
-        <div class="acc-item categoria-item" data-cat="{{ cat.nombre }}">
-          <button class="acc-hdr" aria-expanded="false" aria-controls="acc-body-{{ cat.pk }}"
-                  onclick="toggleAcc(this, 'acc-body-{{ cat.pk }}')">
-            <i class="bi bi-tag-fill gp-icon-blue"></i>
-            {{ cat.nombre }}
-            <span class="tag-info ms-1">{{ cat.productos.all|length }} productos</span>
-            <i class="bi bi-chevron-down chevron"></i>
-          </button>
-          <div id="acc-body-{{ cat.pk }}" class="acc-body gp-acc-body-init">
-            <div class="tbl-wrap">
-              <table class="prod-table">
-                <thead>
-                  <tr>
-                    <th class="gp-th-nombre">Nombre</th>
-                    <th>Código</th>
-                    <th>Presentaciones</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
+      <div class="gp-prod-list-wrap">
 
-                  {% for p in cat.productos.all %}
-                  <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                    <td>
-                      <div class="fw-semibold">{{ p.nombre }}</div>
-                      {% if p.stock_critico %}
-                      <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-                      {% endif %}
-                    </td>
-                    <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
-                    <td>
-                      <div class="d-flex flex-wrap gap-1">
-                        {% for pr in p.presentaciones.all %}
-                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — <span class="precio-fmt">${{ pr.precio|floatformat:0 }}</span></span>
-                        {% empty %}
-                        <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td class="text-end">
-                      <div class="dropdown">
-                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown"
-                                title="Acciones">
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                          <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                      {% if p.activo %}
-                          <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-info"></i>Desactivar</a></li>
-                      {% else %}
-                          <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
-                      {% endif %}
-                          </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  {% endfor %}
+        <div class="gp-prod-list-header d-none d-md-grid gp-row-grid">
+  <div class="gp-col gp-col-icono"></div>
+  <div class="gp-col gp-col-nombre">Producto</div>
+  <div class="gp-col gp-col-codigo">Código</div>
+  <div class="gp-col gp-col-pres">Presentaciones</div>
+  <div class="gp-col gp-col-acciones"></div>
+</div>
 
-                  {% for sub in cat.subcategorias.all %}
-                  {% for p in sub.productos.all %}
-                  <tr class="producto-row" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                    <td>
-                      <div class="fw-semibold">{{ p.nombre }}</div>
-                      <small style="color:rgba(77,168,218,0.6);"><i class="bi bi-arrow-return-right me-1"></i>{{ sub.nombre }}</small>
-                      {% if p.stock_critico %}
-                      <br><span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
-                      {% endif %}
-                    </td>
-                    <td><span class="tag-info font-monospace">{{ p.codigo }}</span></td>
-                    <td>
-                      <div class="d-flex flex-wrap gap-1">
-                        {% for pr in p.presentaciones.all %}
-                        <span class="tag-info">{{ pr.nombre }} (x{{ pr.unidades }}) — ${{ pr.precio|floatformat:0 }}</span>
-                        {% empty %}
-                        <span class="tag-warn"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td class="text-end">
-                      <div class="dropdown">
-                        <button class="btn btn-sm prod-btn-outline dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown"
-                            title="Acciones">
-                            <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2"></i>Ver detalle</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
-                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2"></i>Presentaciones</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar('{% url 'gestion_producto_eliminar' p.pk %}', '{{ p.nombre|escapejs }}')"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                  {% endfor %}
+        <div class="list-group list-group-flush gp-prod-list" id="listaProductos">
+          {% for p in productos %}
+          <div class="list-group-item producto-row gp-row-grid{% if forloop.counter > 5 %} gp-row-extra gp-row-oculta{% endif %}"
+     data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}"
+     data-categoria="{{ p.categoria.nombre|default:''|lower }}">
 
-                </tbody>
-              </table>
+  <div class="gp-col gp-col-icono">
+    <div class="gp-cat-icon-box" data-cat-icon></div>
+  </div>
+
+  <div class="gp-col gp-col-nombre">
+    <div class="fw-semibold text-truncate">{{ p.nombre }}</div>
+    {% if p.categoria %}
+    <small class="gp-subcategory-label">
+      {% if p.categoria.padre %}<i class="bi bi-arrow-return-right me-1"></i>{{ p.categoria.padre.nombre }} / {{ p.categoria.nombre }}
+      {% else %}{{ p.categoria.nombre }}{% endif %}
+    </small>
+    {% endif %}
+    {% if p.stock_critico %}
+    <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+    {% endif %}
+  </div>
+
+  <div class="gp-col gp-col-codigo">
+    <span class="badge rounded-pill text-bg-secondary font-monospace">{{ p.codigo }}</span>
+  </div>
+
+            <div class="gp-col gp-col-pres">
+              {% for pr in p.presentaciones.all %}
+              <span class="badge rounded-pill gp-badge-pres">{{ pr.nombre }} (x{{ pr.unidades }}) — <span class="precio-fmt">${{ pr.precio|floatformat:0 }}</span></span>
+              {% empty %}
+              <span class="badge rounded-pill text-bg-warning"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
+              {% endfor %}
             </div>
+
+            <div class="gp-col gp-col-acciones">
+              <div class="dropdown">
+                <button class="gp-dots-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-strategy="fixed">
+  <i class="bi bi-three-dots"></i>
+</button>
+                <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if p.activo %}
+                  <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-info"></i>Desactivar</a></li>
+                  {% else %}
+                  <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+
           </div>
+          {% empty %}
+          <div class="text-center p-5 rounded-4 gp-empty-state">
+            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+            No hay productos registrados aún.
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if productos|length > 5 %}
+        <div class="gp-ver-mas-wrap">
+          <button type="button" class="gp-ver-mas-btn" id="gpVerMasBtn" data-expandido="false"
+                  onclick="
+                    var btn = this;
+                    var expandido = btn.getAttribute('data-expandido') === 'true';
+                    document.querySelectorAll('.gp-row-extra').forEach(function(row){
+                      row.classList.toggle('gp-row-oculta', expandido);
+                    });
+                    btn.setAttribute('data-expandido', (!expandido).toString());
+                    btn.querySelector('.gp-ver-mas-text').textContent = expandido ? 'Ver {{ productos|length|add:'-5' }} más' : 'Ver menos';
+                    btn.querySelector('.gp-ver-mas-icon').classList.toggle('gp-toggle-icon-rotado', !expandido);
+                  ">
+            <span class="gp-ver-mas-text">Ver {{ productos|length|add:"-5" }} más</span>
+            <i class="bi bi-chevron-down gp-ver-mas-icon"></i>
+          </button>
         </div>
         {% endif %}
-        {% empty %}
-        <div class="text-center p-5 rounded-4 gp-empty-state">
-          <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
-          No hay productos registrados aún.
-        </div>
-        {% endfor %}
+
       </div>
 
       <div id="noResultados" class="text-center p-5 d-none rounded-4 gp-empty-state">
@@ -442,179 +417,33 @@
   </div>
 </div>
 
+<!-- DESPUÉS (con el modal nuevo agregado) -->
 {% endfor %}
 
-<form id="form-eliminar" method="POST" style="display:none;">
+<!-- Modal de confirmación (reemplaza confirm() nativo) -->
+<div class="modal fade" id="modalConfirmarAccion" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title" id="confirmar-titulo">
+          <i class="bi bi-question-circle me-2 text-info"></i>Confirmar acción
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="mb-0" id="confirmar-mensaje">¿Estás seguro?</p>
+      </div>
+      <div class="modal-footer prod-modal-footer">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn prod-btn-primary" id="confirmar-btn-aceptar">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="form-eliminar" method="POST" class="d-none">
   {% csrf_token %}
 </form>
 
-<script>
-  function formatMiles(n) {
-  var num = parseInt(String(n).replace(/\D/g, ''), 10);
-  if (isNaN(num)) return n;
-  return num.toLocaleString('es-CO');
-}
-document.addEventListener('DOMContentLoaded', function () {
-  const rows  = document.querySelectorAll('.producto-row');
-  const total = rows.length;
-  let sinPres = 0;
-  let totalPres = 0;
-  let maxPres = 0;
-  let minPres = total > 0 ? Infinity : 0;
-  const conteoCats = {};
-
-  rows.forEach(row => {
-    const cantPres = row.querySelectorAll('td:nth-child(3) .tag-info').length;
-    if (cantPres === 0) {
-      sinPres++;
-    } else {
-      totalPres += cantPres;
-      if (cantPres > maxPres) maxPres = cantPres;
-      if (cantPres < minPres) minPres = cantPres;
-    }
-  });
-  if (minPres === Infinity) minPres = 0;
-
-  document.querySelectorAll('.categoria-item').forEach(item => {
-    const nombre = item.querySelector('.acc-hdr').textContent.split('productos')[0].trim();
-    const cant   = item.querySelectorAll('.producto-row').length;
-    if (cant > 0) conteoCats[nombre] = cant;
-  });
-
-  const catWrap = document.getElementById('grafico-categorias');
-  Object.entries(conteoCats).forEach(([cat, n]) => {
-    const pct = total > 0 ? Math.round((n / total) * 100) : 0;
-    catWrap.innerHTML += `
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;
-                    color:rgba(226,232,240,0.5);margin-bottom:2px;">
-          <span style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cat}</span>
-          <span>${n} (${pct}%)</span>
-        </div>
-        <div class="bar-track" style="height:4px;">
-          <div class="bar-fill" style="width:${pct}%;background:#4DA8DA;"></div>
-        </div>
-      </div>`;
-  });
-
-  // Promedio de presentaciones por producto (solo productos con al menos 1 presentación)
-  const conPres = total - sinPres;
-  const promedio = conPres > 0 ? (totalPres / conPres) : 0;
-  document.getElementById('txt-prom-pres').textContent = promedio.toFixed(1);
-  document.getElementById('stat-pres-min').textContent = minPres;
-  document.getElementById('stat-pres-max').textContent = maxPres;
-  const pctBarra = maxPres > 0 ? Math.round((promedio / maxPres) * 100) : 0;
-  document.getElementById('bar-prom-pres').style.width = pctBarra + '%';
-
-  document.getElementById('stat-sin-pres').textContent = sinPres;
-  if (total > 0)
-    document.getElementById('bar-sin-pres').style.width = Math.round((sinPres / total) * 100) + '%';
-    // Formato de precios con puntos de miles (es-CO)
-  document.querySelectorAll('.precio-fmt').forEach(function (el) {
-    var texto = el.textContent.trim();
-    var num = texto.replace('$', '').replace(/\./g, '').trim();
-    if (num && !isNaN(num) && parseInt(num) > 0) {
-      el.textContent = '$' + formatMiles(num);
-    }
-  });
-});
-
-function toggleAcc(btn, bodyId) {
-  const body   = document.getElementById(bodyId);
-  const isOpen = btn.getAttribute('aria-expanded') === 'true';
-  btn.setAttribute('aria-expanded', String(!isOpen));
-  body.style.display = isOpen ? 'none' : 'block';
-}
-
-function filtrarProductos(q) {
-  const term = q.toLowerCase().trim();
-  let alguno = false;
-  document.querySelectorAll('.categoria-item').forEach(item => {
-    let visibles = 0;
-    item.querySelectorAll('.producto-row').forEach(row => {
-      const match = !term || row.dataset.nombre.includes(term) || row.dataset.codigo.includes(term);
-      row.style.display = match ? '' : 'none';
-      if (match) visibles++;
-    });
-    item.style.display = visibles ? '' : 'none';
-    if (term && visibles) {
-      const btn    = item.querySelector('.acc-hdr');
-      const bodyId = btn.getAttribute('aria-controls');
-      btn.setAttribute('aria-expanded', 'true');
-      document.getElementById(bodyId).style.display = 'block';
-    }
-    if (visibles) alguno = true;
-  });
-  document.getElementById('noResultados').classList.toggle('d-none', alguno || !term);
-}
-
-function confirmarToggle(url, nombre, accion) {
-  if (confirm('¿Deseas ' + accion + ' "' + nombre + '"?')) {
-    const form = document.getElementById('form-eliminar');
-    form.action = url;
-    form.submit();
-  }
-}
-// ── DROPDOWN CATEGORÍA — Modal Editar Producto ──
-document.querySelectorAll('.edit-prod-cat-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    const target = this.dataset.target;
-
-    // Actualiza el texto visible del botón
-    document.getElementById('editProd-cat-label-' + target).textContent = this.textContent.trim();
-
-    // Actualiza el valor real que se envía al formulario
-    document.getElementById('editProd-cat-hidden-' + target).value = this.dataset.value;
-
-    // Marca visualmente cuál quedó seleccionado
-    this.closest('ul').querySelectorAll('.edit-prod-cat-item').forEach(el => el.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
-// Tooltips de Bootstrap 5 en los botones de acciones
-window.addEventListener('load', function () {
-  const tooltipTriggerList = document.querySelectorAll('.prod-table [title]');
-  tooltipTriggerList.forEach(function (el) {
-    new bootstrap.Tooltip(el, {
-      placement: 'top',
-      trigger: 'hover'
-    });
-  });
-});
-
-// ══════════════════════════════════════════════════════════
-// FIX: el dropdown de acciones (⋮) no se cerraba al elegir
-// una opción ni al hacer clic fuera de él.
-// Forzamos el cierre manual usando la API de Bootstrap.
-// ══════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', function () {
-  // 1) Cierra el dropdown ANTES de que se ejecute cualquier acción
-  //    (abrir modal, click en Desactivar/Activar, etc.)
-  document.querySelectorAll('.prod-dropdown-menu .dropdown-item').forEach(function (item) {
-    item.addEventListener('click', function () {
-      const menu = item.closest('.dropdown-menu');
-      const toggleBtn = menu ? menu.previousElementSibling : null;
-      if (toggleBtn) {
-        const dd = bootstrap.Dropdown.getOrCreateInstance(toggleBtn);
-        dd.hide();
-      }
-    });
-  });
-
-  // 2) Cierra cualquier dropdown abierto si se hace clic en
-  //    cualquier otra parte de la página
-  document.addEventListener('click', function (e) {
-    document.querySelectorAll('.dropdown-menu.show').forEach(function (menu) {
-      const dropdownWrap = menu.closest('.dropdown');
-      if (dropdownWrap && !dropdownWrap.contains(e.target)) {
-        const toggleBtn = menu.previousElementSibling;
-        if (toggleBtn) {
-          bootstrap.Dropdown.getOrCreateInstance(toggleBtn).hide();
-        }
-      }
-    });
-  }, true);
-});
-</script>
+<script src="{% static 'js/productos/gestion_productos.js' %}"></script>
 {% endblock %}

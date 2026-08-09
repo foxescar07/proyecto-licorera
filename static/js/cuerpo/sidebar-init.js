@@ -9,9 +9,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const menuBtn = document.getElementById('menuBtn');
 
         // Abrir automáticamente según preferencia de Configuración (cys_config.sidebarAuto)
+        // Solo en pantallas de escritorio — en móvil el menú siempre inicia cerrado
         let cysCfg = {};
         try { cysCfg = JSON.parse(localStorage.getItem('cys_config') || '{}'); } catch (e) {}
-        if (cysCfg.sidebarAuto === true) {
+        const esEscritorio = window.innerWidth > 768;
+        if (cysCfg.sidebarAuto === true && esEscritorio) {
             sidebarEl.classList.add('show');
             document.body.classList.add('sidebar-open');
             sidebarEl.style.visibility = 'visible';
@@ -49,13 +51,3 @@ document.addEventListener('DOMContentLoaded', function () {
     if (path.startsWith('/productos/')) abrir('submenuProductos', 'btnProductos');
     if (path.startsWith('/inventario/')) abrir('submenuInventario', 'btnInventario');
 });
-
-// ── SUBMENÚS (se queda global porque se llama con onclick="" desde el HTML) ──
-function toggleSubmenu(e, btn, submenuId) {
-    e.preventDefault();
-    const s = document.getElementById(submenuId);
-    if (!s) return;
-    s.classList.toggle('abierto');
-    btn.classList.toggle('abierto');
-    btn.querySelector('.cys-chevron')?.classList.toggle('abierto');
-}

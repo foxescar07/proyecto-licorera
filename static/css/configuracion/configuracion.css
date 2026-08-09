@@ -14,7 +14,7 @@
 }
 
 .cfg-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .7rem;
   font-weight: 700;
   color: var(--texto-muted);
@@ -54,7 +54,7 @@
   border-radius: 999px;
   cursor: pointer;
   transition: background .2s, border-color .2s, transform .15s;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   flex-shrink: 0;
 }
 .cfg-btn-mini i { font-size: .75rem; }
@@ -214,7 +214,7 @@
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--texto);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   line-height: 1;
 }
 .cfg-knob__unit {
@@ -414,3 +414,178 @@ input:checked + .slider-sw::before { transform: translateX(18px); }
 }
 .cfg-backup-item__nombre { color: var(--texto); font-weight: 600; }
 .cfg-backup-item__meta   { color: var(--texto-muted); font-size: .7rem; margin-top: .15rem; }
+/* Previsualizaciones de degradados de los temas */
+.cfg-preview-oscuro { background: linear-gradient(135deg, #011936, #0a2240); }
+.cfg-preview-claro { background: linear-gradient(135deg, #f0f4f8, #dde8f0); }
+.cfg-preview-contraste { background: #000; border: 2px solid #fff; }
+.cfg-preview-basecys { background: #D9A441; }
+.cfg-preview-sepia { background: linear-gradient(135deg, #1a0f05, #3d2b14); }
+
+/* Ajustes globales de iconos inline */
+.cfg-icon-inline {
+    font-size: 1.2rem;
+    margin-bottom: .3rem;
+}
+
+/* Colores específicos de iconos */
+.cfg-icon-blue { color: var(--azul-claro); }
+.cfg-icon-blue-lg { color: var(--azul-claro); font-size: 1.3rem; }
+.cfg-icon-red { color: #e87070; }
+.cfg-icon-muted { color: var(--texto-muted); }
+
+/* Tipografía y márgenes reubicados */
+.cfg-text-muted-sm {
+    font-size: .68rem;
+    color: var(--texto-muted);
+    margin-top: .25rem;
+}
+.cfg-text-muted-xs {
+    font-size: .68rem;
+    color: var(--texto-muted);
+    margin-top: .3rem;
+}
+.cfg-hint-text {
+    font-size: .8rem;
+    color: var(--texto-muted);
+    margin-bottom: 1rem;
+}
+.cfg-title--nomargin {
+    margin-bottom: 0 !important;
+}
+.cfg-backups-list {
+    margin-top: 1.25rem;
+}
+
+/* ============================================================
+   ESTILOS EN LÍNEA EXTRAÍDOS
+   ============================================================ */
+
+/* Contenedor datos oculto */
+#cfg-data {
+  display: none;
+}
+
+/* Preview de tema gradiente oscuro */
+.tema-preview-oscuro {
+  background: linear-gradient(135deg, #011936, #0a2240);
+}
+
+/* Preview de tema gradiente claro */
+.tema-preview-claro {
+  background: linear-gradient(135deg, #f0f4f8, #dde8f0);
+}
+
+/* Preview de tema alto contraste */
+.tema-preview-alto-contraste {
+  background: #000;
+  border: 2px solid #fff;
+}
+
+/* Preview de tema base CyS */
+.tema-preview-base-cys {
+  background: #D9A441;
+}
+
+/* Preview de tema sepia */
+.tema-preview-sepia {
+  background: linear-gradient(135deg, #1a0f05, #3d2b14);
+}
+
+/* Iconos de tema */
+.tema-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Alerta de acceso denegado */
+.alert-acceso-denegado {
+  background: rgba(192, 57, 43, 0.12) !important;
+  border: 1px solid rgba(192, 57, 43, 0.35) !important;
+  color: #e87070 !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+}
+
+/* Categorías sin registrar */
+.sin-categorias-text {
+  color: var(--texto-muted);
+}
+
+/* Subtítulo en tarjeta */
+.stat-card-subtitle {
+  font-size: 0.65rem;
+  color: var(--texto-muted);
+}
+
+/* ════════════════════════════════════════════════════
+   ESTILOS INLINE ADICIONALES - CONFIGURACION.HTML
+   ════════════════════════════════════════════════════ */
+
+/* Icono grande con margen */
+.cfg-opt-icon-lg {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Texto descriptor pequeño */
+.cfg-opt-desc {
+  font-size: 0.68rem;
+  color: var(--texto-muted);
+  margin-top: 0.25rem;
+}
+
+/* Icono azul */
+.icon-azul {
+  color: var(--azul-claro);
+}
+
+/* Hint text */
+.cfg-hint {
+  font-size: 0.8rem;
+  color: var(--texto-muted);
+  margin-bottom: 1rem;
+}
+
+/* Hint pequeño */
+.cfg-hint-sm {
+  font-size: 0.68rem;
+  color: var(--texto-muted);
+  margin-top: 0.3rem;
+}
+
+/* Input file oculto */
+.input-file-hidden {
+  display: none;
+}
+
+/* Título sin margen */
+.cfg-title-no-margin {
+  margin-bottom: 0;
+}
+
+/* Icono rojo alerta */
+.icon-rojo-alert {
+  color: #e87070;
+}
+
+/* Margen top */
+.mt-backups {
+  margin-top: 1.25rem;
+}
+
+/* Db stat icons */
+.db-stat-icon {
+  color: var(--azul-claro);
+  font-size: 1.3rem;
+}
+
+/* Backup empty text */
+.backup-empty-text {
+  font-size: 0.8rem;
+  color: var(--texto-muted);
+}
+
+/* Icono muted */
+.icon-muted {
+  color: var(--texto-muted);
+}

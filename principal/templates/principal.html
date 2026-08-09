@@ -6,15 +6,10 @@
 {% block nav_tablero %}active{% endblock %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/principal/principal.css' %}">
-<style>
-  #btn-resumen-meses .bi-chevron-down {
-    transition: transform .25s ease;
-  }
-  #btn-resumen-meses[aria-expanded="true"] .bi-chevron-down {
-    transform: rotate(180deg);
-  }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -66,16 +61,18 @@
       <div class="carousel-inner">
         {% for grupo in grupos_categorias %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
-          <div class="row gx-3 gy-3">
-            {% for cat in grupo %}
-            <div class="col-md-4">
-              <div class="cys-stat-card text-center">
-                <div class="cys-stat-card__label">{{ cat.nombre }}</div>
-                <div class="cys-stat-card__val">{{ cat.total }}</div>
-                <div style="font-size:.65rem; color:var(--texto-muted);">tipos de producto</div>
+          <div class="cys-carousel-pad">
+            <div class="row gx-3 gy-3">
+              {% for cat in grupo %}
+              <div class="col-md-4">
+                <div class="cys-stat-card text-center">
+                  <div class="cys-stat-card__label">{{ cat.nombre }}</div>
+                  <div class="cys-stat-card__val">{{ cat.total }}</div>
+                  <div style="font-size:.65rem; color:var(--texto-muted);">tipos de producto</div>
+                </div>
               </div>
+              {% endfor %}
             </div>
-            {% endfor %}
           </div>
         </div>
         {% empty %}
@@ -110,9 +107,9 @@
                     background:rgba(77,168,218,0.10); border:1px solid rgba(77,168,218,0.25);
                     border-radius:8px; padding:5px 12px; cursor:pointer; position:relative;"
              onclick="document.getElementById('semana-picker').showPicker()">
-          <i class="bi bi-calendar3" style="color:#4DA8DA; font-size:.85rem;"></i>
+          <i class="bi bi-calendar3" style="color:#fff; font-size:.85rem;"></i>
           <span id="semana-label"
-                style="font-size:.82rem; font-weight:500; color:#4DA8DA; white-space:nowrap;">
+                style="font-size:.82rem; font-weight:500; color:#fff; white-space:nowrap;">
             {{ semana_label }}
           </span>
           <input type="date" id="semana-picker"
@@ -311,6 +308,57 @@ const fmtPesoFull = v => '$' + Math.round(v).toLocaleString('es-CO');
 const tooltipLabel = ctx => ctx.datasetIndex === 0
   ? ' Total: '         + fmtPesoFull(ctx.raw)
   : ' Transacciones: ' + Math.round(ctx.raw);
+
+
+/* ══════════════════════════════════════════════
+   ALTURA DINÁMICA DEL CARRUSEL DE CATEGORÍAS
+   Mide con un clon invisible para evitar el bug de
+   Bootstrap (el slide destino aún tiene display:none
+   cuando se dispara 'slide.bs.carousel').
+══════════════════════════════════════════════ */
+(function () {
+  const carousel = document.getElementById('inventarioCarousel');
+  if (!carousel) return;
+
+  const inner = carousel.querySelector('.carousel-inner');
+
+  function medirAltura(item) {
+    if (!item) return 0;
+    const clone = item.cloneNode(true);
+    clone.style.position      = 'absolute';
+    clone.style.visibility    = 'hidden';
+    clone.style.pointerEvents = 'none';
+    clone.style.display       = 'block';
+    clone.style.width         = inner.clientWidth + 'px';
+    clone.classList.add('active');
+    inner.appendChild(clone);
+    const alto = clone.getBoundingClientRect().height;
+    inner.removeChild(clone);
+    return alto;
+  }
+
+  function ajustarAltura(item) {
+    const alto = medirAltura(item);
+    if (alto > 0) inner.style.height = alto + 'px';
+  }
+
+  function alturaActiva() {
+    ajustarAltura(carousel.querySelector('.carousel-item.active'));
+  }
+
+  // Altura inicial (recalculada varias veces por si fuentes/iconos tardan)
+  alturaActiva();
+  requestAnimationFrame(alturaActiva);
+  window.addEventListener('load', alturaActiva);
+
+  // Antes de CADA transición (ida o vuelta) medimos el slide destino
+  carousel.addEventListener('slide.bs.carousel', (e) => {
+    ajustarAltura(e.relatedTarget);
+  });
+
+  // Por si cambia el tamaño de ventana
+  window.addEventListener('resize', alturaActiva);
+})();
 
 
 /* ══════════════════════════════════════════════

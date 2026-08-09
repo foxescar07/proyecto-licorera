@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path  # type: ignore
 from . import views
 
 urlpatterns = [
@@ -10,6 +10,7 @@ urlpatterns = [
     path('registro/',                               views.producto_registro,      name='producto_registro'),
     path('categorias/',                             views.categorias_lista,       name='categorias_lista'),
     path('gestion/',                                views.gestion_productos,      name='gestion_productos'),
+    path('stock-status/',                           views.stock_status,           name='stock_status'),
     
     # Rutas movidas desde inventario para gestión centralizada de productos
     path('gestion/producto/desactivar/<int:pk>/',   views.gestion_producto_desactivar,    name='gestion_producto_desactivar'),

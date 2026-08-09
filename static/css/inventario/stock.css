@@ -10,63 +10,69 @@
   border-color: rgba(77, 168, 218, 0.35) !important;
   color: #c8d6e5 !important;
 }
-#buscarLote-grupo .input-group-text {
-  border-radius: 8px 0 0 8px !important;
-  color: var(--inv-azul) !important;
-}
 #buscarLote { border-radius: 0 8px 8px 0 !important; }
 #buscarLote::placeholder { color: rgba(226, 232, 240, .45); }
 #filtroEstado-btn { border-radius: 8px !important; display: flex; align-items: center; justify-content: space-between; }
 /* KPI cards — variantes de borde por color */
 .kpi-card--stock {
   background: #0d2240;
-  border-left: 3px solid #00a0f6;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-card--lotes-activos {
   background: #0d2240;
-  border-left: 3px solid #54ebb8;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-card--por-vencer {
   background: #0d2240;
-  border-left: 3px solid #6090d7;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-card--vencidos {
   background: #0d2240;
-  border-left: 3px solid #6b5dff;
+  border-left: 3px solid #CF9C48;
   border-top: none; border-right: none; border-bottom: none;
   border-radius: 8px;
 }
 .kpi-value--claro { color: #e2e8f0; }
-.kpi-icon--productos    { color: rgb(41, 62, 222); }
-.kpi-icon--lotes-activos { color: rgb(0, 255, 106); }
-.kpi-icon--por-vencer    { color: rgb(12, 157, 180); }
-.kpi-icon--vencidos      { color: rgb(130, 79, 226); }
+.kpi-icon--productos    { color: #CF9C48; }
+.kpi-icon--lotes-activos { color: #CF9C48; }
+.kpi-icon--por-vencer    { color: #CF9C48; }
+.kpi-icon--vencidos      { color: #CF9C48; }
 
 /* Encabezado de sección */
-.lotes-seccion-icon { color: #4DA8DA; font-size: 1.5rem; }
+.lotes-seccion-icon { color: #CF9C48; font-size: 1.5rem; }
 .lotes-seccion-titulo { color: #e2e8f0; }
 
 /* Buscador de lotes */
 .lotes-search-prefix {
-  background: rgba(77,168,218,.08);
-  border-color: rgba(77,168,218,.25);
-  color: #4DA8DA;
+  background: #4DA8DA;
+  border: none;
+  border-radius: 10px 0 0 10px;
+  color: #0d2240;
+  width: 42px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
 }
 .lotes-search-input {
-  background: rgba(13,26,64,.6);
-  border-color: rgba(77,168,218,.25);
+  background: rgba(10,26,64,.6);
+  border: 1px solid rgba(77,168,218,.2);
+  border-left: none;
+  border-radius: 0 10px 10px 0 !important;
   color: #e2e8f0;
 }
 
 /* Dropdown filtro estado */
 .lotes-filtro-btn {
-  background: #0d1b2a;
+  background: #1969be;
   border: 1px solid rgba(77,168,218,0.35);
   color: #9fc9ec;
   font-size: .82rem;
@@ -76,7 +82,7 @@
   text-align: left;
 }
 .lotes-filtro-menu {
-  background: #0d1b2a;
+  background:  rgb(11, 46, 78);
   border: 1px solid rgba(77,168,218,0.35);
   min-width: 170px;
 }
@@ -90,13 +96,13 @@
   border: 1px solid rgba(77,168,218,.18);
 }
 #tablaLotes {
-  --bs-table-bg: rgba(10,26,64,.55);
-  --bs-table-hover-bg: rgba(77,168,218,.07);
+  --bs-table-bg: rgba(18, 46, 88, 0.827);
+  --bs-table-hover-bg: rgba(57, 80, 92, 0.07);
   --bs-table-color: #e2e8f0;
   --bs-table-border-color: rgba(77,168,218,.12);
 }
 #tablaLotes thead {
-  background: rgba(10,26,64,.9);
+  background: rgba(16, 38, 91, 0.9);
 }
 #tablaLotes thead tr {
   font-size: .72rem;
@@ -119,25 +125,25 @@
 .lote-stock-valor { color: #e2e8f0; }
 .lote-stock-unidad { color: rgba(226,232,240,.4); }
 
-.lote-fecha--vencido { color: #e74c3c; }
-.lote-fecha--por-vencer { color: #f39c12; }
+.lote-fecha--vencido { color: #fbfafd; }
+.lote-fecha--por-vencer { color: #f8f6f4; }
 .lote-fecha--ok { color: rgba(226,232,240,.6); }
 .lote-fecha--vacio { color: rgba(226,232,240,.35); }
 .lote-fecha-dias { font-size: .7rem; color: rgba(226,232,240,.4); }
 
 .lote-badge-estado--vencido {
-  background: rgba(231,76,60,.15);
-  color: #e74c3c;
-  border: 1px solid rgba(231,76,60,.3);
+  background: rgba(228, 231, 60, 0.15);
+  color: #CF9C48;
+  border: 1px solid rgba(250, 243, 53, 0.3);
 }
 .lote-badge-estado--por-vencer {
-  background: rgba(243,156,18,.15);
-  color: #f39c12;
-  border: 1px solid rgba(243,156,18,.3);
+  background: rgba(18, 221, 243, 0.15);
+  color: #00bec5;
+  border: 1px solid rgba(18, 224, 243, 0.3);
 }
 .lote-badge-estado--ok {
   background: rgba(39,174,96,.12);
-  color: #27ae60;
+  color: #1cd368;
   border: 1px solid rgba(39,174,96,.25);
 }
 
@@ -192,5 +198,36 @@
 }
 /* Icono título modal editar lote */
 .lote-modal-icono-titulo {
-  color: #4DA8DA;
+  color: #CF9C48;
+}
+/* ── Panel expandible (Responsive) — tema oscuro CYS ── */
+#tablaLotes.dataTable > tbody > tr.child {
+  background: rgba(13, 76, 224, 0.85) !important;
+  padding: .75rem 1rem !important;
+}
+#tablaLotes.dataTable > tbody > tr.child:hover {
+  background: rgba(10,26,64,.85) !important;
+}
+#tablaLotes.dataTable > tbody > tr.child ul.dtr-details > li {
+  border-bottom: 1px solid rgba(77,168,218,.12) !important;
+  padding: .6rem 0 !important;
+}
+#tablaLotes.dataTable > tbody > tr.child span.dtr-title {
+  color: #4DA8DA !important;
+  font-weight: 700 !important;
+  font-size: .78rem !important;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  min-width: 100px;
+}
+#tablaLotes.dataTable > tbody > tr.child span.dtr-data {
+  color: #e2e8f0 !important;
+}
+
+/* Flecha ▶/▼ de control (columna izquierda) */
+#tablaLotes.dataTable > tbody > tr > td.dtr-control:before {
+  border-left-color: rgba(77,168,218,.6) !important;
+}
+#tablaLotes.dataTable > tbody > tr.dtr-expanded > td.dtr-control:before {
+  border-top-color: rgba(77,168,218,.6) !important;
 }

@@ -92,7 +92,7 @@ body {
 }
 
 .cys-title {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 1.3rem;
   letter-spacing: .15em;
@@ -176,7 +176,7 @@ body {
   border-radius: var(--radius);
   padding: .75rem;
   width: 100%;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .95rem;
   letter-spacing: .1em;
@@ -220,7 +220,8 @@ body {
   color: var(--azul-claro);
 }
 
-/* ── Mensajes de alerta ── */
+/* ── Mensajes de alerta (legacy, ya no se usan para login pero se
+     mantienen por si otras vistas los reutilizan) ── */
 .cys-msg {
   border-radius: 8px;
   padding: .65rem .9rem;
@@ -323,4 +324,180 @@ body {
   color: #5edb97;
   background: rgba(94,219,151,.08);
   border-color: rgba(94,219,151,.22);
+}
+
+/* ════════════════════════════════════════════════
+   ESTILOS EN LÍNEA EXTRAÍDOS
+   ════════════════════════════════════════════════ */
+
+.hidden-display {
+  display: none;
+}
+
+.msg-display-block {
+  display: block;
+}
+
+.icon-small {
+  font-size: 0.75rem;
+}
+
+.cys-desc {
+  font-size: 0.78rem;
+  color: var(--texto-muted);
+  line-height: 1.6;
+}
+
+.btn-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-subtitle {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.input-email-left-padding {
+  padding-left: 2.6rem !important;
+}
+
+.otp-input-custom {
+  letter-spacing: 0.5rem;
+  font-size: 1.4rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.timer-span {
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+/* ══════════════════════════════════════════════
+   OVERLAY ACCESO CONCEDIDO / DENEGADO
+══════════════════════════════════════════════ */
+.cys-access-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 8, 20, .82);
+  backdrop-filter: blur(6px);
+  animation: accessOverlayIn .25s ease both;
+  transition: opacity .2s ease;
+}
+
+@keyframes accessOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cys-access-box {
+  background: var(--fondo-card);
+  border-radius: 20px;
+  padding: 2.5rem 2.75rem;
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  animation: accessBoxIn .35s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes accessBoxIn {
+  from { opacity: 0; transform: translateY(16px) scale(.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cys-access-box--ok {
+  border: 1px solid rgba(46,204,113,.35);
+  box-shadow: 0 0 50px rgba(46,204,113,.15), 0 20px 60px rgba(0,0,0,.6);
+}
+
+.cys-access-box--err {
+  border: 1px solid rgba(192,57,43,.4);
+  box-shadow: 0 0 50px rgba(192,57,43,.15), 0 20px 60px rgba(0,0,0,.6);
+}
+
+.cys-access-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 2rem;
+}
+
+.cys-access-icon--ok {
+  background: rgba(46,204,113,.12);
+  border: 1px solid rgba(46,204,113,.35);
+  color: #5edb97;
+  box-shadow: 0 0 30px rgba(46,204,113,.2);
+  animation: accessPulseOk 1s ease infinite;
+}
+
+.cys-access-icon--err {
+  background: rgba(192,57,43,.12);
+  border: 1px solid rgba(192,57,43,.4);
+  color: #e87070;
+  box-shadow: 0 0 30px rgba(192,57,43,.2);
+}
+
+@keyframes accessPulseOk {
+  0%,100% { box-shadow: 0 0 20px rgba(46,204,113,.2); }
+  50%     { box-shadow: 0 0 38px rgba(46,204,113,.4); }
+}
+
+.cys-access-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: .5rem;
+}
+
+.cys-access-title--ok  { color: #5edb97; }
+.cys-access-title--err { color: #e87070; }
+
+.cys-access-sub {
+  font-size: .8rem;
+  color: var(--texto-muted);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+.cys-access-spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid rgba(94,219,151,.2);
+  border-top-color: #5edb97;
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: accessSpin .7s linear infinite;
+}
+
+@keyframes accessSpin { to { transform: rotate(360deg); } }
+
+.cys-access-btn {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border: none;
+  border-radius: 10px;
+  padding: .6rem 1.4rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.cys-access-btn:hover {
+  background: #6dc0e8;
+  transform: translateY(-1px);
 }

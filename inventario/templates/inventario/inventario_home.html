@@ -103,24 +103,24 @@
     </div>
 
   </div>
-  
+
+  <div id="accordionInventario">
+
        <!-- ③ INVENTARIOS PROGRAMADOS — flujo secuencial: el usuario lo necesita después de ver movimientos -->
   <div class="card inv-card mb-4">
     <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
          data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
-      <span class="fw-semibold">
-        <i class="bi bi-calendar2-week me-2 text-info"></i>
+      <span class="fw-semibold"><i class="bi bi-calendar2-week me-2 inv-icon-dorado"></i>
         Inventarios Programados
         {% if agendas %}
           <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
         {% endif %}
       </span>
     </div>
-    <div class="collapse" id="agendaBody">
+    <div class="collapse" id="agendaBody" data-bs-parent="#accordionInventario">
       <div class="card-body">
         <div class="d-flex gap-2 mb-3">
-          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn active agenda-tab-activo" data-tab="activos"
-                 >
+          <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-activo" data-tab="activos">
             <i class="bi bi-clock me-1"></i>Activos
           </button>
           <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-inactivo" data-tab="historial"
@@ -132,10 +132,8 @@
         <div class="d-flex flex-column gap-3" id="lista-agendas">
           {% for agenda in agendas %}
             {% with estado=agenda.estado %}
-            <div class="agenda-item p-3 rounded-3
-                        {% if estado == 'completada' or estado == 'cancelada' %}agenda-historial{% else %}agenda-activo{% endif %}"
-                 style="background: var(--inv-card2); border: 1px solid var(--inv-azul-borde);
-                        {% if estado == 'completada' or estado == 'cancelada' %}display:none;{% endif %}">
+            <div class="agenda-item p-3 rounded-3 agenda-item-card"
+              data-categoria="{% if estado == 'completada' or estado == 'cancelada' %}historial{% else %}activos{% endif %}">
               <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
                 <div>
                   <div class="fw-semibold agenda-titulo-texto">{{ agenda.titulo }}</div>
@@ -175,14 +173,21 @@
                 {% endfor %}
               </div>
               <div class="pt-2 border-top agenda-footer-borde">
-                {% if estado == 'completada' %}
-                  <small class="text-muted">Inventario finalizado · sin acciones disponibles</small>
-                {% elif estado == 'cancelada' %}
-                  <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
-                {% else %}
-                  <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
-                {% endif %}
-              </div>
+  {% if estado == 'completada' %}
+    <small class="text-muted">
+      {% if agenda.completado_por %}
+        <i class="bi bi-person-fill me-1 text-info"></i>
+        Finalizado por <strong class="agenda-responsable-texto">{{ agenda.completado_por.get_full_name|default:agenda.completado_por.username }}</strong>
+      {% else %}
+        Inventario finalizado · sin acciones disponibles
+      {% endif %}
+    </small>
+  {% elif estado == 'cancelada' %}
+    <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
+  {% else %}
+    <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
+  {% endif %}
+</div>
             </div>
             {% endwith %}
           {% empty %}
@@ -201,7 +206,7 @@
     <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
          data-bs-toggle="collapse" data-bs-target="#movBody" role="button">
       <span class="fw-semibold">
-        <i class="bi bi-clock-history me-2 text-info"></i>
+        <i class="bi bi-clock-history me-2 inv-icon-dorado"></i>
         Movimientos de Inventario
         {% if fecha_filtro == hoy %}
           <span class="badge inv-badge-hoy ms-2">HOY</span>
@@ -224,9 +229,9 @@
 <ul class="dropdown-menu mov-fecha-menu">
   {% for dia in dias_con_movimientos %}
     <li>
-      <a class="dropdown-item" href="?fecha_mov={{ dia|date:'Y-m-d' }}"
-         style="color:#c8d6e5; font-size:.82rem;
-                {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}font-weight:600;{% endif %}">
+      <a class="dropdown-item mov-fecha-item-link
+          {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}mov-fecha-item-activo{% endif %}"
+            href="?fecha_mov={{ dia|date:'Y-m-d' }}">
         {% if dia|date:'Y-m-d' == fecha_efectiva|stringformat:'s' %}<i class="bi bi-check2 me-1"></i>{% endif %}
         {% if dia|date:'Y-m-d' == hoy|date:'Y-m-d' %}Hoy — {{ dia|date:"d/m/Y" }}{% else %}{{ dia|date:"l d/m/Y" }}{% endif %}
       </a>
@@ -238,7 +243,7 @@
 </div>
       </div>
     </div>
-    <div class="collapse" id="movBody">
+    <div class="collapse" id="movBody" data-bs-parent="#accordionInventario">
       <div class="card-body p-0">
         <div class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom inv-meta">
           <span class="small text-muted">
@@ -314,14 +319,6 @@
                   </button>
                 </td>
               </tr>
-              {% empty %}
-              <tr>
-                <td colspan="9" class="text-center py-4 text-muted">
-                  <i class="bi bi-inbox d-block mb-1 fs-3"></i>
-                  No hay movimientos para
-                  {% if fecha_filtro == hoy %}hoy.{% else %}el {{ fecha_filtro|date:"d/m/Y" }}.{% endif %}
-                </td>
-              </tr>
               {% endfor %}
             </tbody>
           </table>
@@ -334,11 +331,12 @@
 
   <!-- ④ CATÁLOGO — consulta frecuente, antes de analítica -->
   <div class="card inv-card mb-4">
-    <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
+         data-bs-toggle="collapse" data-bs-target="#catalogoBody" role="button">
       <span class="fw-semibold">
-        <i class="bi bi-grid me-2 text-info"></i>Catálogo de Productos
+        <i class="bi bi-grid me-2 inv-icon-dorado"></i>Catálogo de Productos
       </span>
-      <div class="d-flex gap-2 align-items-center flex-wrap">
+      <div class="d-flex gap-2 align-items-center flex-wrap" onclick="event.stopPropagation()">
         <input type="text" id="cat-buscar" class="form-control form-control-sm inv-input cat-buscar-input"
                placeholder="Buscar producto...">
         <div class="dropdown">
@@ -370,6 +368,7 @@
         </div>
       </div>
     </div>
+    <div class="collapse" id="catalogoBody" data-bs-parent="#accordionInventario">
     <div class="card-body p-3">
       <!-- GRID -->
       <div id="cat-grid" class="row g-3">
@@ -389,10 +388,10 @@
                 {% endif %}
               </div>
               <div class="fw-bold small mb-2 cat-card-nombre">{{ p.nombre }}</div>
-              <div class="fw-bold" style="font-size:2rem;line-height:1;
-                color:{% if p.stock_sum|default:0 == 0 %}var(--inv-rojo){% elif p.stock_sum|default:0 <= 5 %}var(--inv-amarillo){% else %}var(--inv-verde){% endif %};">
-                {{ p.stock_sum|default:0 }}
-              </div>
+                  <div class="fw-bold cat-card-stock
+                {% if p.stock_sum|default:0 == 0 %}cat-stock-cero{% elif p.stock_sum|default:0 <= 5 %}cat-stock-critico{% else %}cat-stock-ok{% endif %}">
+             {{ p.stock_sum|default:0 }} <span class="cat-card-stock-label">uds</span>
+             </div>
               <div class="text-muted mt-1 texto-mini">
               {{ unidad }}{% if precio %} · <span class="precio-fmt">${{ precio|floatformat:"0" }}</span>{% endif %}
               </div>
@@ -448,12 +447,15 @@
         <i class="bi bi-search d-block mb-1 fs-3"></i>Sin resultados.
       </div>
     </div>
+    </div>{# ← cierre collapse catalogoBody #}
   </div>
 
-  <!-- ⑤ ANALÍTICA / ROTACIÓN — lectura profunda, al final -->
+  </div>{# ← cierre accordionInventario #}
+
+  <!-- ⑤ ANALÍTICA / ROTACIÓN — lectura profunda, al final (sin cambios, no forma parte del acordeón) -->
   <div class="card inv-card mb-4 analitica-oculto" id="seccion-analitica">
     <div class="card-header inv-card-header">
-      <i class="bi bi-bar-chart-line me-2 text-info"></i>
+      <i class="bi bi-bar-chart-line me-2 inv-icon-dorado"></i>
       <span class="fw-semibold">Rotación de Productos — Últimos 30 días</span>
     </div>
     <div class="card-body">
@@ -472,16 +474,16 @@
             </div>
           </div>
           <div class="col-md-4">
-            <div class="inv-stat-card text-center">
-              <div class="text-muted small mb-1">Unidades vendidas</div>
-              <div class="fw-bold fs-3 text-info" id="estrella-vendido"></div>
-            </div>
+              <div class="inv-stat-card text-center">
+  <div class="text-muted small mb-1">Unidades vendidas</div>
+  <div class="estrella-valor text-info" id="estrella-vendido"></div>
+</div>
           </div>
           <div class="col-md-4">
             <div class="inv-stat-card text-center">
-              <div class="text-muted small mb-1">Ingresos generados</div>
-              <div class="fw-bold fs-3 text-success" id="estrella-ingresos"></div>
-            </div>
+  <div class="text-muted small mb-1">Ingresos generados</div>
+  <div class="estrella-valor text-success" id="estrella-ingresos"></div>
+</div>
           </div>
           <div class="col-md-4">
             <div class="inv-stat-card">
@@ -497,9 +499,9 @@
           </div>
           <div class="col-md-4">
             <div class="inv-stat-card">
-              <div class="text-muted small mb-1">Stock actual</div>
-              <div class="fw-semibold small" id="estrella-stock"></div>
-            </div>
+  <div class="text-muted small mb-1">Stock actual</div>
+  <div class="estrella-valor" id="estrella-stock"></div>
+</div>
           </div>
         </div>
       </div>
@@ -541,7 +543,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-calendar-plus me-2 text-info"></i>Agendar Inventario</h6>
+       <h6 class="modal-title"><i class="bi bi-calendar-plus me-2 inv-icon-dorado"></i>Agendar Inventario</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -580,7 +582,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-clipboard2-check me-2 text-info"></i>Conteo de Inventario</h6>
+      <h6 class="modal-title"><i class="bi bi-clipboard2-check me-2 inv-icon-dorado"></i>Conteo de Inventario</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -651,12 +653,10 @@
           </form>
           <div class="d-flex flex-column gap-2 conteo-lista-wrap">
             {% for c in conteos %}
-            <div class="p-3 rounded-3 d-flex align-items-center gap-3"
-                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
-                        border-left:4px solid
-                        {% if c.cantidad_contada == c.presentacion.cantidad %}var(--inv-verde)
-                        {% elif c.cantidad_contada > c.presentacion.cantidad %}#9b5de5
-                        {% else %}var(--inv-rojo){% endif %};">
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 conteo-item-card
+  {% if c.cantidad_contada == c.presentacion.cantidad %}borde-ok
+  {% elif c.cantidad_contada > c.presentacion.cantidad %}borde-sobrante
+  {% else %}borde-faltante{% endif %}">
 
               <div class="conteo-item-nombre-col">
                 <div class="fw-semibold small text-truncate texto-principal">{{ c.presentacion.producto.nombre }}</div>
@@ -669,10 +669,9 @@
                   <div class="fw-bold comparativa-valor-sistema">{{ c.presentacion.cantidad }}</div>
                 </div>
                 <i class="bi
-                  {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success
-                  {% elif c.cantidad_contada > c.presentacion.cantidad %}bi-arrow-up
-                  {% else %}bi-arrow-down text-danger{% endif %}"
-                  {% if c.cantidad_contada > c.presentacion.cantidad %}style="color:#9b5de5;"{% endif %}></i>
+  {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success
+  {% elif c.cantidad_contada > c.presentacion.cantidad %}bi-arrow-up texto-sobrante-purpura
+  {% else %}bi-arrow-down text-danger{% endif %}"></i>
                 <div class="text-center flex-fill">
                   <div class="text-muted comparativa-label">FÍSICO</div>
                   <div class="fw-bold texto-principal">{{ c.cantidad_contada }}</div>
@@ -680,12 +679,11 @@
               </div>
 
               <div class="comparativa-badge-col">
-                <span class="badge
-                  {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok
-                  {% else %}inv-estado-faltante{% endif %}"
-                  style="font-size:.65rem;
-                  {% if c.cantidad_contada > c.presentacion.cantidad %}background:rgba(155,93,229,.15);color:#9b5de5;border:1px solid rgba(155,93,229,.3);{% endif %}">
-                  {% if c.cantidad_contada == c.presentacion.cantidad %}Cuadra
+              <span class="badge badge-comparativa
+  {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok
+  {% elif c.cantidad_contada > c.presentacion.cantidad %}badge-sobrante-purpura
+  {% else %}inv-estado-faltante{% endif %}">
+                  {% if c.cantidad_contada == c.presentacion.cantidad %}OK
                   {% elif c.cantidad_contada > c.presentacion.cantidad %}Sobrante
                   {% else %}Faltante{% endif %}
                 </span>
@@ -719,7 +717,7 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-arrow-left-right me-2 text-info"></i>Comparar Inventario</h6>
+        <h6 class="modal-title"><i class="bi bi-arrow-left-right me-2 inv-icon-dorado"></i>Comparar Inventario</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -759,12 +757,10 @@
           </div>
           <div class="d-flex flex-column gap-2 comparar-lista-wrap">
             {% for d in discrepancias %}
-            <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap"
-                 style="background:var(--inv-card2); border:1px solid var(--inv-azul-borde);
-                        border-left:4px solid
-                        {% if d.estado == 'ok' %}var(--inv-verde)
-                        {% elif d.estado == 'sobrante' %}#9b5de5
-                        {% else %}var(--inv-rojo){% endif %};">
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap conteo-item-card
+  {% if d.estado == 'ok' %}borde-ok
+  {% elif d.estado == 'sobrante' %}borde-sobrante
+  {% else %}borde-faltante{% endif %}">
 
               <div class="comparar-item-nombre-col">
                 <div class="fw-semibold small text-truncate texto-principal">{{ d.presentacion.producto.nombre }}</div>
@@ -785,14 +781,14 @@
               </div>
 
               <div class="text-center comparar-diferencia-col">
-                <div class="fw-bold" style="font-size:1.15rem;
-                  color:{% if d.diferencia == 0 %}var(--inv-verde){% elif d.diferencia > 0 %}#9b5de5{% else %}var(--inv-rojo){% endif %};">
+                <div class="fw-bold comparar-diferencia-valor
+  {% if d.diferencia == 0 %}texto-ok{% elif d.diferencia > 0 %}texto-sobrante{% else %}texto-faltante{% endif %}">
                   {% if d.diferencia > 0 %}+{% endif %}{{ d.diferencia }}
                 </div>
-                <span class="badge" style="font-size:.6rem;
-                  {% if d.estado == 'ok' %}background:rgba(39,174,96,.15);color:var(--inv-verde);border:1px solid rgba(39,174,96,.3);
-                  {% elif d.estado == 'sobrante' %}background:rgba(155,93,229,.15);color:#9b5de5;border:1px solid rgba(155,93,229,.3);
-                  {% else %}background:rgba(231,76,60,.15);color:var(--inv-rojo);border:1px solid rgba(231,76,60,.3);{% endif %}">
+                <span class="badge badge-comparativa
+  {% if d.estado == 'ok' %}badge-estado-ok
+  {% elif d.estado == 'sobrante' %}badge-estado-sobrante
+  {% else %}badge-estado-faltante{% endif %}">
                   {% if d.estado == 'ok' %}OK{% elif d.estado == 'sobrante' %}Sobrante{% else %}Faltante{% endif %}
                 </span>
               </div>
@@ -832,7 +828,7 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content inv-modal">
       <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 text-info"></i>Registrar Códigos de Barras</h6>
+        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 inv-icon-dorado"></i>Registrar Códigos de Barras</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -895,7 +891,7 @@
                 <th>Producto</th>
                 <th>Categoría</th>
                 <th class="text-center">Estado</th>
-                <th>Código registrado</th>
+                <th class="text-center">Código registrado</th>
               </tr>
             </thead>
             <tbody>
@@ -916,9 +912,8 @@
                     <span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>
                   {% endif %}
                 </td>
-                <td>
-                  <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %} scan-codigo-texto"
-                   >
+                <td class="text-center">
+                  <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %} scan-codigo-texto">
                     {{ p.codigo|default:"—" }}
                   </span>
                 </td>
@@ -996,400 +991,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<div id="rotacion-config" data-url="{% url 'rotacion_json' %}" class="d-none"></div>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // ── DATATABLE MOVIMIENTOS ──
-$(document).ready(function () {
-
-  // Tabla movimientos
-  if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
-    $('#tablaMovimientos').DataTable().destroy();
-  }
-  $('#tablaMovimientos').DataTable({
-    paging: false,
-    searching: false,
-    info: false,
-    ordering: true,
-    responsive: true,
-    columnDefs: [
-      { orderable: false, targets: [8] }  // Acciones no ordenable
-    ],
-    language: {
-      emptyTable: "No hay movimientos para este día."
-    },
-    dom: 'rt'
-  });
-
-  // Tabla catálogo lista
-  if ($.fn.DataTable.isDataTable('#cat-list table')) {
-    $('#cat-list table').DataTable().destroy();
-  }
-  var tablaCatalogo = $('#cat-list table').DataTable({
-    paging: false,
-    searching: false,
-    info: false,
-    ordering: true,
-    responsive: true,
-    columnDefs: [
-      { orderable: false, targets: [0] }  // # no ordenable
-    ],
-    dom: 'rt'
-  });
-
-});
-// Limpiar backdrop huérfano SOLO si no hay modal abriendo
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    if (!document.querySelector('.modal.show')) {
-      document.querySelectorAll('.modal-backdrop').forEach(function(b) { b.remove(); });
-      document.body.classList.remove('modal-open');
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-    }
-  }, 300);
-});
-// ── FORMATO DE PRECIOS (puntos de miles, es-CO) ──
-function formatMiles(n) {
-  var num = parseInt(String(n).replace(/\D/g, ''), 10);
-  if (isNaN(num)) return n;
-  return num.toLocaleString('es-CO');
-}
-document.querySelectorAll('.precio-fmt').forEach(function (el) {
-  var texto = el.textContent.trim();
-  var num = texto.replace('$', '').replace(/\./g, '').trim();
-  if (num && !isNaN(num) && parseInt(num) > 0) {
-    el.textContent = '$' + formatMiles(num);
-  }
-});
-// ── EDITAR MOVIMIENTO ──
-document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
-  const btn = e.relatedTarget;
-  if (!btn) return;
-  document.getElementById('em-producto-nombre').textContent = btn.dataset.nombre;
-
-  const tipoVal = btn.dataset.tipo;
-  document.getElementById('em-tipo').value = tipoVal;
-  document.getElementById('em-tipo-label').textContent =
-    tipoVal === 'salida' ? 'Salida' : 'Entrada';
-
-  document.getElementById('em-cantidad').value = btn.dataset.cantidad;
-  document.getElementById('em-motivo').value   = btn.dataset.motivo;
-  document.getElementById('form-editar-movimiento').action =
-    '/inventario/movimiento/' + btn.dataset.pk + '/editar/';
-});
-
-// ── DROPDOWN TIPO (editar movimiento) ──
-document.querySelectorAll('.em-tipo-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('em-tipo-label').textContent = this.textContent.trim();
-    document.getElementById('em-tipo').value = this.dataset.value;
-  });
-});
-// ── REGISTRAR CÓDIGOS ──
-(function () {
-  let filaActiva   = null;
-  let zxingReader  = null;
-  const modal      = document.getElementById('modalRegistrarCodigos');
-  const scanInput  = document.getElementById('scan-input');
-  const scanBtn    = document.getElementById('scan-guardar');
-  const scanNombre = document.getElementById('scan-producto-nombre');
-  const camBtn     = document.getElementById('scan-camara-btn');
-  const camPanel   = document.getElementById('scan-camara-panel');
-  const camVideo   = document.getElementById('scan-video');
-  const camEstado  = document.getElementById('scan-camara-estado');
-
-  function resetUI() {
-    filaActiva = null;
-    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
-    scanNombre.textContent = '— Haz clic en una fila para seleccionar —';
-    scanInput.value        = '';
-    scanInput.disabled     = true;
-    scanBtn.disabled       = true;
-    scanBtn.style.opacity  = '0.45';
-    camBtn.disabled        = true;
-    detenerCamara();
-  }
-
- let html5Scanner = null;
-
-async function iniciarCamara() {
-  camPanel.classList.remove('d-none');
-  camEstado.textContent = 'Iniciando cámara…';
-
-  if (typeof Html5Qrcode === 'undefined') {
-    camEstado.textContent = 'Error: la librería no cargó. Revisa tu conexión.';
-    return;
-  }
-
- camVideo.style.display = 'none';
-let contenedor = document.getElementById('scan-video-html5');
-if (!contenedor) {
-  contenedor = document.createElement('div');
-  contenedor.id = 'scan-video-html5';
-  camVideo.parentNode.insertBefore(contenedor, camVideo);
-}
-contenedor.style.width      = '340px';
-contenedor.style.maxWidth   = '100%';
-contenedor.style.height     = '220px';
-contenedor.style.margin     = '0 auto';
-contenedor.style.overflow   = 'hidden';
-contenedor.style.borderRadius = '12px';
-
-  html5Scanner = new Html5Qrcode('scan-video-html5');
-
-  try {
-    await html5Scanner.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 250, height: 150 } },
-      (codigoDetectado) => {
-        scanInput.value = codigoDetectado;
-        camEstado.textContent = 'Código detectado: ' + codigoDetectado;
-        detenerCamara();
-      },
-      () => {} // errores de frame sin detección, se ignoran
-    );
-    camEstado.textContent = 'Apunta la cámara al código de barras…';
-  } catch (err) {
-    console.error('Error al iniciar cámara:', err);
-    camEstado.textContent = 'No se pudo acceder a la cámara: ' + (err.message || err);
-  }
-}
-
-function detenerCamara() {
-  if (html5Scanner) {
-    html5Scanner.stop().then(() => html5Scanner.clear()).catch(() => {});
-    html5Scanner = null;
-  }
-  camPanel.classList.add('d-none');
-}
-
-  function guardarCodigo(fila, codigo) {
-    const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const fd   = new FormData();
-    fd.append('codigo', codigo);
-    fd.append('csrfmiddlewaretoken', csrf);
-    fetch(fila.dataset.url, { method: 'POST', body: fd })
-      .then(r => {
-        if (r.ok || r.redirected) {
-          fila.dataset.codigo = codigo;
-          fila.querySelector('.codigo-display').textContent = codigo || '—';
-          fila.querySelector('td:nth-child(4)').innerHTML = codigo
-            ? '<span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>'
-            : '<span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>';
-          fila.classList.add('scan-row--saved');
-          setTimeout(() => { fila.classList.remove('scan-row--saved'); resetUI(); }, 1200);
-        }
-      })
-      .catch(() => alert('Error al guardar. Intenta de nuevo.'));
-  }
-
-  document.getElementById('tabla-codigos').addEventListener('click', function (e) {
-    const fila = e.target.closest('.scan-row');
-    if (!fila) return;
-    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
-    filaActiva = fila;
-    fila.classList.add('scan-row--active');
-    scanNombre.textContent = fila.dataset.nombre;
-    scanInput.value        = fila.dataset.codigo;
-    scanInput.disabled     = false;
-    scanBtn.disabled       = false;
-    scanBtn.style.opacity  = '1';
-    camBtn.disabled        = false;
-    scanInput.focus();
-  });
-
-  camBtn.addEventListener('click', () => {
-  html5Scanner ? detenerCamara() : iniciarCamara();
-});
-  scanBtn.addEventListener('click', () => {
-    if (filaActiva) guardarCodigo(filaActiva, scanInput.value.trim());
-  });
-
-  scanInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && filaActiva) {
-      e.preventDefault();
-      guardarCodigo(filaActiva, scanInput.value.trim());
-    }
-  });
-
-  modal.addEventListener('hidden.bs.modal', resetUI);
-})();
-// ── TABS AGENDAS ──
-document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.agenda-tab-btn').forEach(b => {
-      b.style.background = 'transparent';
-      b.style.opacity    = '0.6';
-    });
-    this.style.background = 'var(--inv-azul-dim)';
-    this.style.opacity    = '1';
-    const tab = this.dataset.tab;
-    document.querySelectorAll('.agenda-item').forEach(item => {
-      if (tab === 'activos') {
-        item.style.display = item.classList.contains('agenda-activo') ? '' : 'none';
-      } else {
-        item.style.display = item.classList.contains('agenda-historial') ? '' : 'none';
-      }
-    });
-  });
-});
-
-// ── CATÁLOGO ──
-(function () {
-  const buscar  = document.getElementById('cat-buscar');
-  let catFiltro = '';
-  const grid    = document.getElementById('cat-grid');
-  const list    = document.getElementById('cat-list');
-  const empty   = document.getElementById('cat-empty');
-  const btnGrid = document.getElementById('cat-btn-grid');
-  const btnList = document.getElementById('cat-btn-list');
-
-  function filtrar() {
-    const q   = buscar.value.toLowerCase().trim();
-    const cat = catFiltro;
-    let vis   = 0;
-    document.querySelectorAll('.cat-item').forEach(el => {
-      const ok = (!q || el.dataset.nombre.includes(q))
-              && (!cat || el.dataset.cat === cat);
-      el.style.display = ok ? '' : 'none';
-      if (ok) vis++;
-    });
-    empty.classList.toggle('d-none', vis > 0);
-  }
-
-  buscar.addEventListener('input', filtrar);
-
-// Dropdown categorías
-document.querySelectorAll('[data-cat]').forEach(function(a) {
-  a.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('cat-cat-label').textContent = this.textContent.trim();
-    catFiltro = this.dataset.cat;
-    filtrar();
-  });
-});
-
-  btnGrid.addEventListener('click', () => {
-    grid.classList.remove('d-none');
-    list.classList.add('d-none');
-    btnGrid.classList.replace('inv-btn-outline', 'inv-btn-primary');
-    btnList.classList.replace('inv-btn-primary', 'inv-btn-outline');
-  });
-
-  btnList.addEventListener('click', () => {
-    list.classList.remove('d-none');
-    grid.classList.add('d-none');
-    btnList.classList.replace('inv-btn-outline', 'inv-btn-primary');
-    btnGrid.classList.replace('inv-btn-primary', 'inv-btn-outline');
-  });
-})();
-
-// ── ANALÍTICA / ROTACIÓN ──
-const ROTACION_URL = "{% url 'rotacion_json' %}";
-(function () {
-  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-  function fmtCOP(v) {
-    if (v >= 1000000) return '$' + (v/1000000).toFixed(1).replace('.0','') + 'M';
-    if (v >= 1000)    return '$' + Math.round(v/1000) + 'k';
-    return '$' + v.toLocaleString('es-CO');
-  }
-
-  function calcRotacion(uds) {
-    if (uds >= 100) return '<span class="text-success fw-bold">Alta</span> — reposición cada 3 días';
-    if (uds >= 30)  return '<span class="text-warning fw-bold">Media</span> — reposición cada semana';
-    if (uds > 0)    return '<span class="text-danger fw-bold">Baja</span> — poca salida';
-    return '<span class="text-danger fw-bold">Sin movimiento</span>';
-  }
-
-  function itemFila(nombre, cantidad, sinMov) {
-    const color = sinMov ? '#e74c3c' : (cantidad >= 50 ? '#27ae60' : '#f39c12');
-    return `<div class="d-flex justify-content-between py-1 border-bottom border-secondary small">
-      <span>${nombre}</span>
-      <span class="fw-bold" style="color:${color};">${cantidad} uds</span>
-    </div>`;
-  }
-
-  fetch(ROTACION_URL)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('seccion-analitica').style.display = 'block';
-      if (data.estrella_nombre) {
-        const ahora = new Date();
-        document.getElementById('estrella-mes-label').textContent = MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
-        document.getElementById('estrella-nombre').textContent       = data.estrella_nombre;
-        document.getElementById('estrella-categoria').textContent    = 'Categoría: ' + (data.estrella_categoria || '—');
-        document.getElementById('estrella-vendido').textContent      = data.estrella_vendido;
-        document.getElementById('estrella-ingresos').textContent     = data.estrella_ingresos > 0 ? fmtCOP(data.estrella_ingresos) : '—';
-        document.getElementById('estrella-presentacion').textContent = data.estrella_presentacion || '—';
-        document.getElementById('estrella-rotacion').innerHTML       = calcRotacion(data.estrella_vendido || 0);
-        const critico = data.estrella_stock_critico;
-        document.getElementById('estrella-stock').innerHTML = `<span class="${critico ? 'text-danger' : 'text-success'}">${data.estrella_stock} uds${critico ? ' ⚠' : ''}</span>`;
-        document.getElementById('bloque-estrella').style.display = 'block';
-      }
-      const rotacion      = data.rotacion || [];
-      const sinMovimiento = data.sin_movimiento || [];
-      const todos         = [...rotacion, ...sinMovimiento];
-      if (todos.length) {
-        document.getElementById('rotacion-loading').style.display = 'none';
-        const canvas = document.getElementById('chartRotacion');
-        canvas.style.display = 'block';
-        canvas.parentElement.style.height = Math.max(300, todos.length * 40) + 'px';
-        new Chart(canvas, {
-          type: 'bar',
-          data: {
-            labels: todos.map(p => p.nombre),
-            datasets: [{ label: 'Unidades vendidas', data: todos.map(p => p.cantidad),
-              backgroundColor: todos.map((_, i) => i < rotacion.length ? '#4DA8DA' : '#e74c3c'),
-              borderRadius: 5, borderSkipped: false }]
-          },
-          options: {
-            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#8899aa' } },
-              y: { grid: { display: false }, ticks: { color: '#c8d6e5', autoSkip: false } }
-            }
-          }
-        });
-        const alta = rotacion.filter(p => p.cantidad >= 50);
-        const baja = rotacion.filter(p => p.cantidad > 0 && p.cantidad < 50);
-        document.getElementById('lista-alta-rotacion').innerHTML = alta.length
-          ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
-          : '<p class="text-muted small text-center py-2">Sin productos de alta rotación.</p>';
-        document.getElementById('lista-baja-rotacion').innerHTML = [...baja, ...sinMovimiento].length
-          ? [...baja.map(p => itemFila(p.nombre, p.cantidad, false)), ...sinMovimiento.map(p => itemFila(p.nombre, 0, true))].join('')
-          : '<p class="text-muted small text-center py-2">Todos tienen movimiento.</p>';
-        document.getElementById('tablas-rotacion').style.display = 'flex';
-      } else {
-        document.getElementById('rotacion-loading').innerHTML = '<p class="text-muted small text-center py-3">No hay datos de ventas en los últimos 30 días.</p>';
-      }
-    })
-    .catch(() => {
-      document.getElementById('seccion-analitica').style.display = 'block';
-      document.getElementById('rotacion-loading').innerHTML = '<p class="text-muted small">Error al cargar datos.</p>';
-    });
-})();
-// ── DROPDOWN CONTEO PRODUCTO ──
-document.querySelectorAll('.conteo-prod-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('conteo-prod-label').textContent = this.textContent.trim();
-    document.getElementById('conteo-prod-hidden').value = this.dataset.value;
-  });
-});
-window.addEventListener('load', function () {
-  document.querySelectorAll('.container-fluid [title]').forEach(function (el) {
-    new bootstrap.Tooltip(el, {
-      placement: 'top',
-      trigger: 'hover'
-    });
-  });
-});
-</script>
+<script src="{% static 'js/inventario/inventario_home.js' %}"></script>
 {% endblock %}

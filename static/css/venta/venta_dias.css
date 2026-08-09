@@ -1,12 +1,26 @@
 /* ==========================================================================
-   VENTAS_DIA.CSS - CYS LTDA (Diseño Oscuro Premium)
+   VENTA_DIAS.CSS - CYS LTDA
+   Paleta: FFFFFF · 0A2A52 · 011936 · CF9C48 (dorado, solo peligro/faltante)
+   El verde (#2ecc71) se reserva EXCLUSIVAMENTE para mensajes de dinero/éxito
+   (ingresos, "Pagado", cifras positivas). Todo lo demás (gráficos, barras,
+   iconos, textos) usa blanco en distintas opacidades sobre los fondos azules.
    ========================================================================== */
+
+:root {
+  --cys-bg-card:      #0A2A52;
+  --cys-surface:       #011936;
+  --cys-borde:         rgba(255, 255, 255, 0.15);
+  --cys-texto-muted:   rgba(255, 255, 255, 0.55);
+  --cys-acento:        #FFFFFF;
+  --cys-verde:         #2ecc71; /* único uso: mensajes de dinero / éxito */
+  --cys-rojo:          #CF9C48; /* único uso: peligro / faltante */
+}
 
 /* Contenedor Principal */
 .cys-page-wrapper {
-    background-color: #040a0f !important;
+    background-color: #011936 !important;
     min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: #ffffff;
 }
 
@@ -29,19 +43,20 @@
 
 .cys-topbar-sub {
     font-size: 0.9rem;
-    color: #7a96b0;
+    color: var(--cys-texto-muted);
     margin-top: 4px;
 }
 
-/* BOTONES OVALADOS (Estilo "Productos" solicitado) */
+/* BOTONES OVALADOS — acción normal del módulo (blanco, no dorado:
+   el dorado queda reservado para peligro/faltante) */
 .cys-btn-oval-cyan {
-    background-color: #00c3ff !important; /* Celeste brillante */
-    color: #000000 !important;            /* Texto oscuro */
+    background-color: #FFFFFF !important;
+    color: #001f38 !important;
     border: none !important;
-    border-radius: 50px !important;       /* Forma ovalada */
-    padding: 8px 24px !important;         /* Proporción estilizada */
+    border-radius: 50px !important;
+    padding: 8px 24px !important;
     font-size: 0.95rem !important;
-    font-weight: 700 !important;          /* Texto resaltado */
+    font-weight: 700 !important;
     text-decoration: none !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -51,15 +66,15 @@
 }
 
 .cys-btn-oval-cyan:hover {
-    background-color: #00a2d4 !important; /* Variante un poco más oscura en hover */
-    color: #000000 !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    color: #001f38 !important;
     transform: scale(1.02);
 }
 
 /* Tarjetas de Indicadores (KPIs) */
 .cys-kpi-card {
-    background-color: #11233f !important;
-    border: 1px solid rgba(77, 168, 218, 0.15) !important;
+    background-color: var(--cys-bg-card) !important;
+    border: 1px solid var(--cys-borde) !important;
     border-radius: 12px !important;
     padding: 20px !important;
     height: 100%;
@@ -80,13 +95,16 @@
 
 .cys-kpi-sub {
     font-size: 0.78rem;
-    color: #7a96b0;
+    color: var(--cys-texto-muted);
 }
 
-/* ── Tarjeta de Meta del Día (solo texto, sin barra de progreso) ── */
+/* ── Tarjeta de Meta del Día ──
+   Borde izquierdo dorado, para combinar con el resto de tarjetas
+   del módulo (estado de caja, etc.) */
 .cys-meta-card {
-    background-color: #11233f !important;
-    border: 1px solid rgba(77, 168, 218, 0.18) !important;
+    background-color: var(--cys-bg-card) !important;
+    border: 1px solid var(--cys-borde) !important;
+    border-left: 3px solid #CF9C48 !important;
     border-radius: 14px !important;
     padding: 1.25rem 1.5rem !important;
 }
@@ -109,13 +127,13 @@
 }
 
 .cys-meta-titulo i {
-    color: #4da8da;
+    color: var(--cys-acento);
     margin-right: 6px;
 }
 
 .cys-meta-cifras {
     font-size: 0.85rem;
-    color: #7a96b0;
+    color: var(--cys-texto-muted);
 }
 
 .cys-meta-cifras strong {
@@ -125,15 +143,25 @@
 .cys-meta-porcentaje {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #4da8da;
+    color: #ffffff;
     display: block;
 }
 
+/* Mensaje de meta cumplida: único caso decorativo con verde permitido
+   además de las cifras de dinero, porque es un mensaje de éxito */
 .cys-meta-porcentaje--completa {
-    color: #2ecc71;
+    color: var(--cys-verde);
 }
 
-/* ── Ranking de productos más vendidos (barras) ── */
+.cys-meta-vacio {
+    color: var(--cys-texto-muted);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* ── Ranking de productos más vendidos (barras) ──
+   Solo blanco en distintas opacidades: no son mensajes de éxito,
+   son datos, así que no llevan verde ni otros tonos. */
 .cys-rank-item {
     margin-bottom: 14px;
 }
@@ -150,7 +178,7 @@
 
 .cys-rank-nombre {
     font-size: 0.85rem;
-    color: #c8dae8;
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .cys-rank-valor {
@@ -159,28 +187,37 @@
     font-weight: 700;
 }
 
+/* Porcentaje que acompaña a las unidades vendidas en el ranking */
+.cys-rank-porcentaje {
+    color: var(--cys-texto-muted);
+    font-weight: 600;
+    margin-left: 4px;
+}
+
 .cys-rank-track {
     width: 100%;
     height: 6px;
     border-radius: 50px;
-    background: rgba(77, 168, 218, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     overflow: hidden;
 }
 
 .cys-rank-fill {
     height: 100%;
     border-radius: 50px;
+    min-width: 4px; /* para que incluso porcentajes muy bajos se alcancen a ver */
+    transition: width 0.3s ease;
 }
 
-/* Paleta fría para cada barra de producto (asignada por rotación en el template) */
-.cys-rank-fill--c1 { background: #4da8da; } /* azul cielo */
-.cys-rank-fill--c2 { background: #7a5cf0; } /* morado */
-.cys-rank-fill--c3 { background: #2ec4c4; } /* teal / cian */
-.cys-rank-fill--c4 { background: #6a7ac0; } /* azul índigo */
-.cys-rank-fill--c5 { background: #3ad6a0; } /* verde azulado */
-.cys-rank-fill--c6 { background: #38bdf8; } /* celeste claro */
+/* Rotación de opacidades de blanco para distinguir cada producto */
+.cys-rank-fill--c1 { background: rgba(255, 255, 255, 1);    }
+.cys-rank-fill--c2 { background: rgba(255, 255, 255, 0.8);  }
+.cys-rank-fill--c3 { background: rgba(255, 255, 255, 0.62); }
+.cys-rank-fill--c4 { background: rgba(255, 255, 255, 0.46); }
+.cys-rank-fill--c5 { background: rgba(255, 255, 255, 0.32); }
+.cys-rank-fill--c6 { background: rgba(255, 255, 255, 0.2);  }
 
-/* ── Ventas tope del día (diseño circular) ── */
+/* ── Ventas tope del día (diseño circular) — blanco en dos intensidades ── */
 .cys-circular-wrap {
     display: flex;
     align-items: center;
@@ -212,16 +249,16 @@
 }
 
 .cys-circular-dot--a {
-    background: #2ecc71;
+    background: #FFFFFF;
 }
 
 .cys-circular-dot--b {
-    background: #4da8da;
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .cys-circular-label {
     font-size: 0.75rem;
-    color: #7a96b0;
+    color: var(--cys-texto-muted);
     margin: 0;
 }
 
@@ -232,10 +269,16 @@
     margin: 0;
 }
 
+.cys-circular-nota {
+    font-size: 0.75rem;
+    color: var(--cys-texto-muted);
+    margin: 10px 0 0;
+}
+
 /* Contenedor del Historial (Panel de Tabla) */
 .cys-panel-container {
-    background-color: #0a1628 !important;
-    border: 1px solid rgba(77, 168, 218, 0.12) !important;
+    background-color: var(--cys-surface) !important;
+    border: 1px solid var(--cys-borde) !important;
     border-radius: 12px !important;
     margin-top: 24px;
     overflow: hidden;
@@ -243,12 +286,14 @@
 
 .cys-panel-header {
     padding: 16px 24px;
-    border-bottom: 1px solid rgba(77, 168, 218, 0.12);
-    color: #4da8da;
+    border-bottom: 1px solid var(--cys-borde);
+    color: #ffffff;
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.95rem;
 }
+
+.cys-panel-title { color: #ffffff; }
 
 /* Barra de Filtros */
 .cys-filter-bar {
@@ -257,13 +302,13 @@
     align-items: center;
     gap: 12px;
     padding: 16px 24px;
-    background-color: #07101e;
-    border-bottom: 1px solid rgba(77, 168, 218, 0.12);
+    background-color: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--cys-borde);
 }
 
 .cys-input-date {
-    background-color: #0d1c33;
-    border: 1px solid rgba(77, 168, 218, 0.25);
+    background-color: var(--cys-surface);
+    border: 1px solid var(--cys-borde);
     color: #ffffff;
     border-radius: 6px;
     padding: 6px 12px;
@@ -278,34 +323,36 @@
 }
 
 .cys-main-table th {
-    background-color: rgba(77, 168, 218, 0.03) !important;
-    color: #4da8da !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: #ffffff !important;
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.8rem;
     padding: 14px 20px !important;
-    border-bottom: 2px solid rgba(77, 168, 218, 0.2) !important;
+    border-bottom: 2px solid var(--cys-borde) !important;
 }
 
 .cys-main-table td {
     padding: 14px 20px !important;
-    color: #c8dae8 !important;
-    border-bottom: 1px solid rgba(77, 168, 218, 0.08) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Estilos de Celdas Dinámicas */
+/* Estilos de Celdas Dinámicas — el badge de producto es informativo, no
+   un mensaje de éxito, así que pasa a blanco */
 .cys-badge-product {
-    background-color: rgba(46, 204, 113, 0.05);
-    color: #2ecc71;
-    border: 1px solid rgba(46, 204, 113, 0.15);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 6px;
     padding: 4px 10px;
     font-size: 0.85rem;
 }
 
+/* El badge de estado "Pagado" SÍ es un mensaje de éxito: mantiene el verde */
 .cys-badge-status {
     background-color: rgba(46, 204, 113, 0.1);
-    color: #2ecc71;
+    color: var(--cys-verde);
     border: 1px solid rgba(46, 204, 113, 0.2);
     border-radius: 20px;
     padding: 4px 12px;
@@ -319,9 +366,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
-    background-color: rgba(77, 168, 218, 0.02);
-    border-top: 1px solid rgba(77, 168, 218, 0.12);
+    background-color: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--cys-borde);
 }
+
 /* ══ TABLA HISTORIAL ESTILO INVENTARIO ══ */
 .cys-hist-search-bar {
   display: flex;
@@ -329,7 +377,7 @@
   align-items: center;
   flex-wrap: wrap;
   padding: 1rem 1.5rem;
-  background: rgba(77, 168, 218, 0.02);
+  background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--cys-borde);
 }
 .cys-hist-search-wrap { position: relative; flex: 1 1 280px; min-width: 220px; }
@@ -351,7 +399,7 @@
 
 .cys-hist-table { width: 100%; border-collapse: collapse; }
 .cys-hist-table thead th {
-  background: rgba(77, 168, 218, 0.04);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--cys-acento);
   font-size: .72rem;
   font-weight: 700;
@@ -370,87 +418,169 @@
 .cys-hist-table th.sortable.activo .bi { opacity: 1; color: var(--cys-acento); }
 .cys-hist-table th.sortable.desc .bi { transform: rotate(180deg); }
 
-.cys-hist-table tbody tr { border-bottom: 1px solid rgba(77, 168, 218, 0.08); transition: background .15s; }
-.cys-hist-table tbody tr:hover { background: rgba(77, 168, 218, 0.04); }
-.cys-hist-table td { padding: 14px 16px; color: #c8dae8; font-size: .85rem; vertical-align: middle; }
+.cys-hist-table tbody tr { border-bottom: 1px solid rgba(255, 255, 255, 0.08); transition: background .15s; }
+.cys-hist-table tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
+.cys-hist-table td { padding: 14px 16px; color: rgba(255, 255, 255, 0.85); font-size: .85rem; vertical-align: middle; }
 
 .cys-hist-id { color: var(--cys-texto-muted); font-weight: 700; }
 .cys-hist-cliente { color: #fff; font-weight: 700; }
-.cys-hist-total { color: var(--cys-verde); font-weight: 700; text-align: right; }
+.cys-hist-total { color: var(--cys-verde); font-weight: 700; text-align: right; } /* cifra de dinero: verde permitido */
 .cys-hist-fecha { color: #fff; font-weight: 500; display: block; }
 .cys-hist-hora { color: var(--cys-texto-muted); font-size: .72rem; display: block; }
 
 .cys-hist-sin-resultados { text-align: center; padding: 3rem 1rem; color: var(--cys-texto-muted); }
+
 /* ── Toolbar de búsqueda + orden (Historial de Ventas) ── */
-  .cys-hist-toolbar {
+.cys-hist-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem 1.5rem;
+  background: var(--cys-surface);
+  border-bottom: 1px solid var(--cys-borde);
+}
+.cys-hist-search-wrap {
+  position: relative;
+  flex: 1 1 280px;
+  min-width: 220px;
+}
+.cys-hist-search-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cys-acento);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+.cys-hist-search-input {
+  width: 100%;
+  background: var(--cys-bg-card);
+  border: 1px solid var(--cys-borde);
+  color: #fff;
+  border-radius: 50px;
+  padding: 9px 16px 9px 38px;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.cys-hist-search-input:focus { border-color: var(--cys-acento); }
+.cys-hist-search-input::placeholder { color: var(--cys-texto-muted); }
+
+.cys-hist-sort-wrap { position: relative; flex: 0 0 auto; }
+.cys-hist-sort-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cys-acento);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.cys-hist-sort-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--cys-bg-card);
+  border: 1px solid var(--cys-borde);
+  color: #fff;
+  border-radius: 50px;
+  padding: 9px 34px 9px 38px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 170px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+}
+.cys-hist-sort-select:focus { border-color: var(--cys-acento); }
+.cys-hist-sort-select option { background: var(--cys-bg-card); color: #fff; }
+
+/* ══════════════════════════════════════
+   Variantes de color para tarjetas KPI
+══════════════════════════════════════ */
+.cys-kpi-card--info    { border-left: 3px solid var(--cys-acento); }
+.cys-kpi-card--success { border-left: 3px solid var(--cys-verde); }
+
+.cys-kpi-card-top {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    padding: 1rem 1.5rem;
-    background: #0a1628;
-    border-bottom: 1px solid rgba(77, 168, 218, 0.18);
-  }
-  .cys-hist-search-wrap {
-    position: relative;
-    flex: 1 1 280px;
-    min-width: 220px;
-  }
-  .cys-hist-search-wrap i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #4da8da;
-    font-size: 0.9rem;
-    pointer-events: none;
-  }
-  .cys-hist-search-input {
-    width: 100%;
-    background: #0d1c33;
-    border: 1px solid rgba(77, 168, 218, 0.28);
-    color: #fff;
-    border-radius: 50px;
-    padding: 9px 16px 9px 38px;
-    font-size: 0.88rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .cys-hist-search-input:focus { border-color: #4da8da; }
-  .cys-hist-search-input::placeholder { color: #7a96b0; }
+}
 
-  .cys-hist-sort-wrap { position: relative; flex: 0 0 auto; }
-  .cys-hist-sort-wrap i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #4da8da;
-    font-size: 0.85rem;
-    pointer-events: none;
-  }
-  .cys-hist-sort-select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: #0d1c33;
-    border: 1px solid rgba(77, 168, 218, 0.28);
-    color: #fff;
-    border-radius: 50px;
-    padding: 9px 34px 9px 38px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    outline: none;
-    min-width: 170px;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234da8da' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 14px;
-  }
-  .cys-hist-sort-select:focus { border-color: #4da8da; }
-  .cys-hist-sort-select option { background: #0d1c33; color: #fff; }
+.cys-kpi-icon--info    { background: rgba(255, 255, 255, 0.12); color: var(--cys-acento); }
+.cys-kpi-icon--success { background: rgba(46, 204, 113, 0.12); color: var(--cys-verde); }
+.cys-kpi-icon--info i, .cys-kpi-icon--success i { font-size: 1.1rem; }
 
-  .cys-hist-sin-resultados {
-    text-align: center;
-    padding: 2.5rem 1rem;
-    color: #7a96b0;
-  }
+.cys-kpi-badge--info {
+    color: var(--cys-acento);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+.cys-kpi-badge--success {
+    color: var(--cys-verde);
+    background: rgba(46, 204, 113, 0.1);
+    border-color: rgba(46, 204, 113, 0.3);
+}
+
+/* KPI de ingresos: cifra de dinero, verde permitido */
+.cys-kpi-card--success .cys-kpi-value.text-success { color: var(--cys-verde) !important; }
+
+/* ── Celda cliente (avatar + nombre), toolbar de historial del día ── */
+.cys-cliente-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cys-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--cys-acento);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+.cys-cliente-rol {
+  font-size: 0.72rem;
+  color: var(--cys-texto-muted);
+}
+.cys-producto-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+.cys-estado-pagado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(46, 204, 113, 0.1);
+  color: var(--cys-verde);
+  border: 1px solid rgba(46, 204, 113, 0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.cys-td-total-alineado,
+.cys-hist-total-alineado { text-align: right; }
+.cys-td-total { color: var(--cys-verde); font-weight: 700; }
+.cys-td-precio-muted,
+.cys-hist-precio-muted { color: var(--cys-texto-muted); }
+.cys-td-centro,
+.cys-th-centro { text-align: center; }
+.cys-fecha-dia { display: block; color: #fff; font-weight: 600; font-size: 0.82rem; }
+.cys-fecha-hora { display: block; color: var(--cys-texto-muted); font-size: 0.72rem; }
+.cys-tabla-scroll-wrap { overflow-x: auto; }

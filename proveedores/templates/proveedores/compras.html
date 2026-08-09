@@ -4,8 +4,19 @@
 {% block page_title %}Compras{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/proveedores/proveedores.css' %}">
 <link rel="stylesheet" href="{% static 'css/proveedores/compras.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  // Variables globales para los gráficos (datos del servidor)
+  window.meseslabels = {{ meses_labels_json|safe }};
+  window.mesesa = {{ meses_data_json|safe }};
+  window.productosLabels = {{ productos_labels_json|safe }};
+  window.productosData = {{ productos_data_json|safe }};
+  window.gastosLabels = {{ gastos_labels_json|safe }};
+  window.gastosData = {{ gastos_data_json|safe }};
+  window.gastosPorcentajes = {{ gastos_porcentajes_json|safe }};
+</script>
 {% endblock %}
 
 {% block content %}
@@ -30,11 +41,11 @@
     <div class="kpi-card kpi-card-cyan">
       <div class="kpi-card-top">
         <div class="kpi-icon-box cyan"><i class="bi bi-receipt"></i></div>
-        <span class="kpi-badge cyan">GASTO</span>
+        <span class="kpi-badge cyan">SUBTOTAL</span>
       </div>
-      <div class="kpi-value cyan">${{ total_gastado|default:0|floatformat:0 }}</div>
-      <p class="kpi-title">Gasto Total</p>
-      <p class="kpi-sub">Histórico acumulado</p>
+      <div class="kpi-value cyan" id="subtotal-principal">$<span class="subtotal-kpi">{{ subtotal_compras|default:0|floatformat:0 }}</span></div>
+      <p class="kpi-title">Subtotal de Compras</p>
+      <p class="kpi-sub">Gasto: ${{ total_gastado|default:0|floatformat:0 }}</p>
     </div>
 
     <!-- Compras Mes -->
@@ -54,9 +65,9 @@
         <div class="kpi-icon-box purple"><i class="bi bi-star"></i></div>
         <span class="kpi-badge purple">TOP</span>
       </div>
-      <div class="kpi-value purple">{% if producto_top %}{{ producto_top.total_und }}{% else %}0{% endif %}</div>
+      <div class="kpi-value purple">{% if producto_top %}{{ producto_top.total_und|floatformat:0 }}{% else %}0{% endif %}</div>
       <p class="kpi-title">Producto Top</p>
-      <p class="kpi-sub">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }}{% else %}Sin compras{% endif %}</p>
+      <p class="kpi-sub">{% if producto_top %}{{ producto_top.producto__nombre|truncatewords:3 }} unid.{% else %}Sin compras{% endif %}</p>
     </div>
 
     <!-- Nueva Compra (Acción → abre modal) -->
@@ -107,7 +118,7 @@
           </div>
         </div>
         <div class="proveedor-actions">
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedores">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedores" style="color: black;">
             <i class="bi bi-arrow-left me-2"></i>Cambiar
           </button>
         </div>
@@ -121,14 +132,8 @@
         <p>Selecciona un proveedor para comenzar a registrar compras</p>
       </div>
       {% endif %}
-    </div>
-  </div>
 
-  <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
-  <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
-  <div class="row g-3 align-items-stretch">
-    <div class="col-12">
-      <div class="card card-dev card-header-top">
+      <!-- ====== HISTORIAL DE COMPRAS (DESPLEGABLE) ====== -->
 
         <!-- Header clicable para colapsar -->
         <div class="card-header border-bottom gradient-header">
@@ -153,7 +158,7 @@
                       title="Nueva compra">
                 <i class="bi bi-plus-circle me-2"></i>Nueva compra
               </button>
-              <span class="badge badge-cyan">{{ compras|length|default:0 }}</span>
+              <span class="badge badge-cyan">{{ compras_count|default:0 }}</span>
               <!-- Solo el chevron controla el collapse -->
               <i class="bi bi-chevron-down"
                 
@@ -191,9 +196,6 @@
                         <i class="bi bi-box icon-primary"></i>
                         <div>
                           <div class="fw-semibold small">{{ compra.producto.nombre }}</div>
-                          {% if compra.producto.categoria %}
-                            <small class="text-muted">{{ compra.producto.categoria.nombre }}</small>
-                          {% endif %}
                         </div>
                       </div>
                     </td>
@@ -231,13 +233,21 @@
                     </td>
                     <td class="text-center small">
                       {% if compra.estado == 'confirmada' %}
-                        <span class="badge bg-primary text-white">Confirmada</span>
+                        <span class="badge badge-estado-confirmada">
+                          <i class="bi bi-check-circle me-1"></i>Confirmada
+                        </span>
                       {% elif compra.estado == 'recibida' %}
-                        <span class="badge bg-success text-white">Recibida</span>
+                        <span class="badge badge-estado-recibida">
+                          <i class="bi bi-box-seam me-1"></i>Recibida
+                        </span>
                       {% elif compra.estado == 'cancelada' %}
-                        <span class="badge bg-danger text-white">Cancelada</span>
+                        <span class="badge badge-estado-cancelada">
+                          <i class="bi bi-x-circle me-1"></i>Cancelada
+                        </span>
                       {% else %}
-                        <span class="badge bg-warning text-dark">Pendiente</span>
+                        <span class="badge badge-estado-pendiente">
+                          <i class="bi bi-clock-history me-1"></i>Pendiente
+                        </span>
                       {% endif %}
                     </td>
                     <td class="text-center small text-muted">{{ compra.fecha_registro|date:"d/m H:i" }}</td>
@@ -254,31 +264,50 @@
                           </li>
                           <li><hr class="dropdown-divider"></li>
                           <li>
-                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPago" onclick="abrirModalPago({{ compra.id }})">
-                              <i class="bi bi-credit-card me-2 text-success"></i>Pago
-                            </button>
+                            {% if compra.estado_pago == 'pagada' %}
+                              <button type="button" class="dropdown-item text-muted" disabled title="Esta compra ya fue pagada completamente">
+                                <i class="bi bi-check-circle-fill me-2"></i>Pagada
+                              </button>
+                            {% else %}
+                              <button type="button" class="dropdown-item btn-abrir-pago text-success" data-compra-id="{{ compra.id }}" data-compra-total="{{ compra.total }}" data-compra-pagado="{{ compra.monto_pagado }}" data-bs-toggle="modal" data-bs-target="#modalPago">
+                                <i class="bi bi-credit-card me-2"></i>Pago
+                              </button>
+                            {% endif %}
                           </li>
                           <li><hr class="dropdown-divider"></li>
-                          <li>
-                            <button type="button" class="dropdown-item" {% if compra.estado != 'pendiente' %}disabled{% endif %} onclick="abrirModalEstado({{ compra.id }}, '{{ compra.estado }}')">
-                              <i class="bi bi-clock-history me-2 text-warning"></i>Pendiente
-                            </button>
-                          </li>
-                          <li>
-                            <button type="button" class="dropdown-item" {% if compra.estado != 'confirmada' %}disabled{% endif %} onclick="cambiarEstado({{ compra.id }}, 'confirmada')">
-                              <i class="bi bi-check2-circle me-2 text-info"></i>Confirmada
-                            </button>
-                          </li>
-                          <li>
-                            <button type="button" class="dropdown-item" {% if compra.estado != 'recibida' %}disabled{% endif %} onclick="cambiarEstado({{ compra.id }}, 'recibida')">
-                              <i class="bi bi-box-seam me-2 text-success"></i>Recibida
-                            </button>
-                          </li>
-                          <li>
-                            <button type="button" class="dropdown-item text-danger" {% if compra.estado != 'cancelada' %}disabled{% endif %} onclick="cambiarEstado({{ compra.id }}, 'cancelada')">
-                              <i class="bi bi-x-circle me-2"></i>Cancelada
-                            </button>
-                          </li>
+                          {% if compra.estado == 'pendiente' %}
+                            <li>
+                              <form method="POST" action="{% url 'cambiar_estado_compra' compra.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado" value="confirmada">
+                                <button type="submit" class="dropdown-item text-info" title="Cambiar a Confirmada">
+                                  <i class="bi bi-check2-circle me-2"></i>Confirmar
+                                </button>
+                              </form>
+                            </li>
+                          {% elif compra.estado == 'confirmada' %}
+                            <li>
+                              <form method="POST" action="{% url 'cambiar_estado_compra' compra.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado" value="recibida">
+                                <button type="submit" class="dropdown-item text-success" title="Cambiar a Recibida">
+                                  <i class="bi bi-box-seam me-2"></i>Marcar como Recibida
+                                </button>
+                              </form>
+                            </li>
+                          {% endif %}
+
+                          {% if compra.estado != 'recibida' and compra.estado != 'cancelada' %}
+                            <li>
+                              <form method="POST" action="{% url 'cambiar_estado_compra' compra.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado" value="cancelada">
+                                <button type="submit" class="dropdown-item text-danger" title="Cancelar compra">
+                                  <i class="bi bi-x-circle me-2"></i>Cancelar
+                                </button>
+                              </form>
+                            </li>
+                          {% endif %}
                         </ul>
                       </div>
                     </td>
@@ -301,7 +330,7 @@
                     <td colspan="5" class="text-end fw-bold text-uppercase small">
                       <i class="bi bi-calculator me-1"></i>Subtotal
                     </td>
-                    <td class="text-end fw-bold text-success">${{ subtotal_compras|default:0|floatformat:0 }}</td>
+                    <td class="text-end fw-bold text-success" style="white-space: nowrap;">$<span id="subtotal-formatted">{{ subtotal_compras|default:0|floatformat:0 }}</span></td>
                     <td colspan="3"></td>
                   </tr>
                 </tfoot>
@@ -311,14 +340,13 @@
         </div>
         <!-- fin collapse -->
 
-      </div>
+      <!-- ====== FIN HISTORIAL ====== -->
     </div>
   </div>
-  <!-- ====== FIN HISTORIAL ====== -->
 
   <!-- ====== GRÁFICOS ====== -->
-  <div class="row g-3 align-items-stretch mt-4">
-    <div class="col-12 col-lg-4">
+  <div class="row g-3 mt-4">
+    <div class="col-12">
       <div class="card card-dev card-header-top">
         <div class="card-header border-bottom gradient-header">
           <h5 class="mb-0 fw-bold">
@@ -326,12 +354,12 @@
           </h5>
         </div>
         <div class="card-body p-3">
-          <canvas id="chartComprasMes" height="200"></canvas>
+          <canvas id="chartComprasMes" height="250"></canvas>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-lg-4">
+    <div class="col-12">
       <div class="card card-dev card-header-top">
         <div class="card-header border-bottom gradient-header">
           <h5 class="mb-0 fw-bold">
@@ -339,23 +367,11 @@
           </h5>
         </div>
         <div class="card-body p-3">
-          <canvas id="chartProductosTop" height="200"></canvas>
+          <canvas id="chartProductosTop" height="300"></canvas>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-lg-4">
-      <div class="card card-dev card-header-top">
-        <div class="card-header border-bottom gradient-header">
-          <h5 class="mb-0 fw-bold">
-            <i class="bi bi-pie-chart-fill me-2"></i>Gastos por Proveedor
-          </h5>
-        </div>
-        <div class="card-body p-3">
-          <canvas id="chartGastosProveedor" height="200"></canvas>
-        </div>
-      </div>
-    </div>
   </div>
   <!-- ====== FIN GRÁFICOS ====== -->
 
@@ -385,11 +401,13 @@
           <div class="mb-4">
             <label class="dev-form-label">Proveedor Seleccionado</label>
             <select id="proveedorSeleccionado" name="proveedor_id" class="form-select form-select-lg" required>
-              <option value="">Selecciona proveedor</option>
+              {% if proveedor %}
+                <option value="{{ proveedor.id }}" selected>{{ proveedor.nombre_empresa }}</option>
+              {% endif %}
               {% for prov in todos_proveedores %}
-                <option value="{{ prov.id }}" {% if proveedor and prov.id == proveedor.id %}selected{% endif %}>
-                  {{ prov.nombre_empresa }}
-                </option>
+                {% if not proveedor or prov.id != proveedor.id %}
+                  <option value="{{ prov.id }}">{{ prov.nombre_empresa }}</option>
+                {% endif %}
               {% endfor %}
             </select>
           </div>
@@ -498,7 +516,7 @@
               <div class="detalle-card h-100">
                 <div class="detalle-icon"><i class="bi bi-tags"></i></div>
                 <p class="detalle-label">Lote</p>
-                <p class="detalle-value">{% if compra.lote %}{{ compra.lote.numero_lote }}{% else %}Sin lote{% endif %}</p>
+                <p class="detalle-value">{% if compra.numero_lote %}{{ compra.numero_lote }}{% else %}Sin lote{% endif %}</p>
               </div>
             </div>
 
@@ -650,273 +668,9 @@
 </div>
 
 <!-- ====== SCRIPTS ====== -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Abrir modal de proveedores si está en parámetro GET
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('modal') === 'proveedores') {
-      const modalProveedores = new bootstrap.Modal(document.getElementById('modalProveedores'));
-      modalProveedores.show();
-    }
+<script src="{% static 'js/proveedores/compras.js' %}"></script>
 
-    // Búsqueda de productos
-    const buscarProducto = document.getElementById('buscarProducto');
-    if (buscarProducto) {
-      buscarProducto.addEventListener('input', function(e) {
-        const busqueda = e.target.value.toLowerCase();
-        document.querySelectorAll('#gridProductos > div').forEach(item => {
-          const nombre = item.dataset.nombre;
-          const categoria = item.dataset.categoria;
-          const coincide = nombre.includes(busqueda) || categoria.includes(busqueda);
-          item.style.display = coincide ? '' : 'none';
-        });
-      });
-    }
-
-    // Selección de producto
-    document.querySelectorAll('.producto-radio').forEach(radio => {
-      radio.addEventListener('change', function() {
-        document.getElementById('productoSeleccionado').value = this.value;
-      });
-    });
-
-    // Búsqueda y selección de proveedores
-    const buscarProveedor = document.getElementById('buscarProveedor');
-    const tablaProveedores = document.getElementById('tablaProveedores');
-    const sinResultados = document.getElementById('sinResultados');
-
-    if (buscarProveedor) {
-      buscarProveedor.addEventListener('input', function() {
-        const termino = this.value.toLowerCase();
-        let visible = 0;
-        const filas = document.querySelectorAll('.fila-proveedor');
-        filas.forEach(fila => {
-          const coincide = fila.dataset.nombre.includes(termino) ||
-                          fila.dataset.contacto.includes(termino) ||
-                          fila.dataset.telefono.includes(termino);
-          fila.style.display = coincide ? '' : 'none';
-          if (coincide) visible++;
-        });
-        sinResultados.style.display = visible === 0 && termino !== '' ? 'block' : 'none';
-      });
-    }
-
-    // Función para seleccionar proveedor sin cerrar el modal
-    window.seleccionarProveedor = function(proveedorId, proveedorNombre) {
-      // Actualizar input hidden
-      const inputProveedor = document.getElementById('proveedorSeleccionado');
-      if (inputProveedor) {
-        inputProveedor.value = proveedorId;
-      }
-
-      // Actualizar botón selector
-      const btnSelector = document.querySelector('.btn-selector');
-      if (btnSelector) {
-        btnSelector.innerHTML = `
-          <span class="d-flex align-items-center gap-2">
-            <i class="bi bi-truck"></i>
-            ${proveedorNombre}
-          </span>
-          <i class="bi bi-chevron-down"></i>
-        `;
-      }
-    };
-
-    // ====== GRÁFICOS CON CHART.JS ======
-
-    // Colores para los gráficos
-    const colores = {
-      principal: '#4DA8DA',
-      secundario: '#00C9A7',
-      terciario: '#9B59B6',
-      cuartario: '#f0d080',
-      quinto: '#E05C7A'
-    };
-
-    // Datos dinámicos del servidor
-    const meseslabels = {{ meses_labels_json|safe }};
-    const mesesa = {{ meses_data_json|safe }};
-    const productosLabels = {{ productos_labels_json|safe }};
-    const productosData = {{ productos_data_json|safe }};
-    const gastosLabels = {{ gastos_labels_json|safe }};
-    const gastosData = {{ gastos_data_json|safe }};
-    const gastosPorcentajes = {{ gastos_porcentajes_json|safe }};
-
-    // Generar colores dinámicos para los gráficos
-    const coloresGraficos = [
-      colores.principal,
-      colores.secundario,
-      colores.terciario,
-      colores.cuartario,
-      colores.quinto
-    ];
-
-    // 1. Gráfico de línea: Compras por mes
-    const ctxComprasMes = document.getElementById('chartComprasMes');
-    if (ctxComprasMes && meseslabels.length > 0) {
-      new Chart(ctxComprasMes, {
-        type: 'line',
-        data: {
-          labels: meseslabels,
-          datasets: [{
-            label: 'Compras',
-            data: mesesa,
-            borderColor: colores.principal,
-            backgroundColor: 'rgba(77, 168, 218, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: colores.principal,
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: 'rgba(77, 168, 218, 0.1)',
-                drawBorder: false
-              },
-              ticks: {
-                color: '#FFFFFF',
-                font: {
-                  size: 12,
-                  weight: 'bold'
-                }
-              }
-            },
-            x: {
-              grid: {
-                display: false,
-                drawBorder: false
-              },
-              ticks: {
-                color: '#FFFFFF',
-                font: {
-                  size: 12,
-                  weight: 'bold'
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // 2. Gráfico de barras: Productos más comprados
-    const ctxProductosTop = document.getElementById('chartProductosTop');
-    if (ctxProductosTop && productosLabels.length > 0) {
-      new Chart(ctxProductosTop, {
-        type: 'bar',
-        data: {
-          labels: productosLabels,
-          datasets: [{
-            label: 'Cantidad',
-            data: productosData,
-            backgroundColor: coloresGraficos.slice(0, productosLabels.length),
-            borderRadius: 6,
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: 'y',
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              grid: {
-                color: 'rgba(77, 168, 218, 0.1)',
-                drawBorder: false
-              },
-              ticks: {
-                color: '#FFFFFF',
-                font: {
-                  size: 12,
-                  weight: 'bold'
-                }
-              }
-            },
-            y: {
-              grid: {
-                display: false,
-                drawBorder: false
-              },
-              ticks: {
-                color: '#FFFFFF',
-                font: {
-                  size: 13,
-                  weight: 'bold'
-                },
-                padding: 10
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // 3. Gráfico de pastel: Gastos por proveedor
-    const ctxGastosProveedor = document.getElementById('chartGastosProveedor');
-    if (ctxGastosProveedor && gastosLabels.length > 0) {
-      // Crear labels con porcentajes
-      const gastosLabelsConPorcentaje = gastosLabels.map((label, idx) =>
-        `${label} - ${gastosPorcentajes[idx]}%`
-      );
-
-      new Chart(ctxGastosProveedor, {
-        type: 'doughnut',
-        data: {
-          labels: gastosLabelsConPorcentaje,
-          datasets: [{
-            data: gastosData,
-            backgroundColor: coloresGraficos.slice(0, gastosLabels.length),
-            borderColor: '#011936',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                color: '#FFFFFF',
-                padding: 15,
-                font: {
-                  size: 12,
-                  weight: 'bold'
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-  });
-</script>
-
-<!-- ════════════════════════════════════════════════════════════════ -->
-<!-- MODAL: INFORMACIÓN DE PAGO (COMPRA) - GRANDE CON TARJETAS -->
-<!-- ════════════════════════════════════════════════════════════════ -->
-
+<!-- MODAL: INFORMACIÓN DE PAGO (COMPRA) -->
 <div class="modal fade" id="modalPago" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -930,11 +684,22 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
-            <form id="formPago" method="POST" action="">
+            <form id="formPago" method="POST">
                 {% csrf_token %}
                 <input type="hidden" id="compraId" name="compra_id">
 
                 <div class="modal-body modal-custom-body">
+
+                    <!-- Alerta si está pagada -->
+                    <div id="alertaPagada" class="alert alert-success-dev d-none mb-4" role="alert" style="padding: 20px; border-left: 4px solid #27ae60; background-color: rgba(39, 174, 96, 0.15);">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: #27ae60;"></i>
+                            <div>
+                                <h5 style="margin: 0 0 5px 0; color: #27ae60; font-weight: 700;">✓ Compra Pagada</h5>
+                                <p style="margin: 0; color: #27ae60; font-size: 0.95rem;">Esta compra ya fue pagada completamente. No se puede agregar más pagos.</p>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Número de Factura -->
                     <div class="mb-4">
@@ -942,80 +707,103 @@
                             <i class="bi bi-file-earmark me-2"></i>Número de Factura
                         </label>
                         <input type="text" id="numeroFactura" name="numero_factura" class="form-control form-control-lg"
-                              
                                placeholder="Ej: FAC-2026-001">
                     </div>
 
-                    <!-- Método de Pago - TARJETAS COMPACTAS -->
+                    <!-- Método de Pago -->
                     <div class="mb-4">
-                        <label>
-                            <i class="bi bi-wallet2 me-2"></i>Elige Método de Pago
+                        <label class="form-label">
+                            <i class="bi bi-wallet2 me-2"></i>Método de Pago
+                            <span class="text-danger">*</span>
                         </label>
-
-                        <div>
-                            <!-- Efectivo -->
-                            <div class="metodo-pago-card-compact" data-value="efectivo">
-                                <i class="bi bi-cash-coin"></i>
-                                <span>Efectivo</span>
+                        <div class="metodos-pago-container">
+                            <div class="metodos-pago-header" data-bs-toggle="collapse" data-bs-target="#otrosMetodos" role="button">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-three-dots"></i>
+                                    <span>Selecciona método de pago</span>
+                                </div>
+                                <i class="bi bi-chevron-down"></i>
                             </div>
-
-                            <!-- Tarjeta -->
-                            <div class="metodo-pago-card-compact" data-value="tarjeta">
-                                <i class="bi bi-credit-card-2-front"></i>
-                                <span>Tarjeta</span>
-                            </div>
-
-                            <!-- Transferencia -->
-                            <div class="metodo-pago-card-compact" data-value="transferencia">
-                                <i class="bi bi-bank"></i>
-                                <span>Transferencia</span>
-                            </div>
-
-                            <!-- Cheque -->
-                            <div class="metodo-pago-card-compact" data-value="cheque">
-                                <i class="bi bi-receipt"></i>
-                                <span>Cheque</span>
-                            </div>
-
-                            <!-- Crédito -->
-                            <div class="metodo-pago-card-compact" data-value="credito">
-                                <i class="bi bi-hourglass-split"></i>
-                                <span>Crédito</span>
-                            </div>
-
-                            <!-- Otro -->
-                            <div class="metodo-pago-card-compact" data-value="otro">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Otro</span>
+                            <div class="collapse show" id="otrosMetodos">
+                                <div class="metodos-pago-list">
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="nequi" class="form-check-input">
+                                        <i class="bi bi-wallet2"></i>
+                                        <span>Nequi</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="daviplata" class="form-check-input">
+                                        <i class="bi bi-wallet2"></i>
+                                        <span>Daviplata</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="bancolombia" class="form-check-input">
+                                        <i class="bi bi-bank"></i>
+                                        <span>Bancolombia a la Mano</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="breb" class="form-check-input">
+                                        <i class="bi bi-lightning"></i>
+                                        <span>Bre-B</span>
+                                    </label>
+                                    <label class="metodo-pago-item">
+                                        <input type="radio" name="metodo_pago" value="efectivo" class="form-check-input">
+                                        <i class="bi bi-cash-coin"></i>
+                                        <span>Efectivo</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-
-                        <input type="hidden" id="metodoPago" name="metodo_pago" required>
                     </div>
 
-                    <!-- Estado de Pago -->
+                    <!-- Monto Total de la Compra -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-receipt me-2"></i>Monto Total de la Compra
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="montoTotal" name="monto_total" class="form-control" readonly style="background-color: rgba(77, 168, 218, 0.1); cursor: not-allowed;">
+                        </div>
+                        <small class="text-muted">Este valor se calcula automáticamente</small>
+                    </div>
+
+                    <!-- Monto Pagado -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-cash me-2"></i>Monto Pagado
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="any" placeholder="Ingresa el monto que pagaste" required>
+                        </div>
+                        <small class="text-muted">Ingresa cuánto dinero enviaste al proveedor</small>
+                    </div>
+
+                    <!-- Saldo Pendiente (calculado automáticamente) -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-hourglass-split me-2"></i>Saldo Pendiente
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="saldoPendiente" name="saldo_pendiente" class="form-control" readonly style="background-color: rgba(231, 76, 60, 0.1); cursor: not-allowed; color: #e74c3c; font-weight: bold;">
+                        </div>
+                        <small class="text-muted">Se calcula automáticamente: Total - Pagado</small>
+                    </div>
+
+                    <!-- Estado de Pago (automático) -->
                     <div class="mb-4">
                         <label class="form-label">
                             <i class="bi bi-check-circle me-2"></i>Estado de Pago
                         </label>
-                        <select id="estadoPago" name="estado_pago" class="form-select form-select-lg"
-                               >
+                        <select id="estadoPago" name="estado_pago" class="form-select form-select-lg" readonly style="background-color: rgba(77, 168, 218, 0.1); cursor: not-allowed;">
                             <option value="pendiente">Pendiente de Pago</option>
                             <option value="parcial">Pago Parcial</option>
                             <option value="pagada">Pagada</option>
                         </select>
-                    </div>
-
-                    <!-- Monto Pagado (si es parcial) -->
-                    <div class="mb-4" id="montoPagadoDiv">
-                        <label class="form-label">
-                            <i class="bi bi-cash me-2"></i>Monto Pagado
-                        </label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text">$</span>
-                            <input type="number" id="montoPagado" name="monto_pagado" class="form-control" min="0.01" step="0.01"
-                                  >
-                        </div>
+                        <small class="text-muted">Se actualiza automáticamente según el monto pagado</small>
                     </div>
 
                     <!-- Fecha de Pago -->
@@ -1023,13 +811,12 @@
                         <label class="form-label">
                             <i class="bi bi-calendar me-2"></i>Fecha de Pago
                         </label>
-                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control form-control-lg"
-                              >
+                        <input type="datetime-local" id="fechaPago" name="fecha_pago" class="form-control form-control-lg">
                     </div>
                 </div>
 
                 <div class="modal-footer modal-custom-footer">
-                    <button type="button" class="btn btn-lg btn-modal-secondary">
+                    <button type="button" class="btn btn-lg btn-modal-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle me-2"></i>Cancelar
                     </button>
                     <button type="submit" class="btn btn-lg btn-modal-primary">
@@ -1041,120 +828,199 @@
     </div>
 </div>
 
+{% endblock %}
 
-
+{% block extra_js %}
 <script>
-// ════════════════════════════════════════════════════════════════
-// SELECCIÓN DE MÉTODO DE PAGO (TARJETAS COMPACTAS)
-// ════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  // Formatear SUBTOTAL en tabla
+  const subtotalEl = document.getElementById('subtotal-formatted');
+  if (subtotalEl) {
+    const num = parseInt(subtotalEl.textContent) || 0;
+    subtotalEl.textContent = num.toLocaleString('es-CO');
+  }
 
-document.querySelectorAll('.metodo-pago-card-compact').forEach(card => {
-    card.addEventListener('click', function() {
-        // Quitar selección anterior
-        document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
+  // Formatear SUBTOTAL en tarjeta KPI
+  const subtotalKpi = document.querySelector('.subtotal-kpi');
+  if (subtotalKpi) {
+    const num = parseInt(subtotalKpi.textContent) || 0;
+    subtotalKpi.textContent = num.toLocaleString('es-CO');
+  }
 
-        // Activar tarjeta seleccionada
-        this.classList.add('active');
+  // Formatear KPI values
+  document.querySelectorAll('.kpi-formatted').forEach(el => {
+    const num = parseInt(el.getAttribute('data-value')) || 0;
+    el.textContent = '$' + num.toLocaleString('es-CO');
+  });
 
-        // Guardar valor en input oculto
-        document.getElementById('metodoPago').value = this.dataset.value;
+  // Auto-reload después de registrar compra
+  const formNuevaCompra = document.getElementById('formNuevaCompra');
+  if (formNuevaCompra) {
+    formNuevaCompra.addEventListener('submit', function() {
+      // Esperar 1 segundo y luego refrescar
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
     });
-});
+  }
 
-// Mostrar/ocultar monto pagado según estado
-document.getElementById('estadoPago')?.addEventListener('change', function() {
-    const montoPagadoDiv = document.getElementById('montoPagadoDiv');
-    if (this.value === 'parcial') {
-        montoPagadoDiv.style.display = 'block';
-    } else {
-        montoPagadoDiv.style.display = 'none';
-    }
-});
+  // ═══════════════════════════════════════════════════════════════
+  // MODAL DE PAGO - CARGA DE DATOS Y CÁLCULOS AUTOMÁTICOS
+  // ═══════════════════════════════════════════════════════════════
 
-// Abrir modal de pago con ID de compra
-function abrirModalPago(compraId) {
-    // Limpiar formulario
-    document.getElementById('formPago').reset();
-    document.querySelectorAll('.metodo-pago-card-compact').forEach(c => c.classList.remove('active'));
-    document.getElementById('montoPagadoDiv').style.display = 'none';
+  const montoPagadoInput = document.getElementById('montoPagado');
+  const saldoPendienteInput = document.getElementById('saldoPendiente');
+  const estadoPagoSelect = document.getElementById('estadoPago');
+  const montoTotalInput = document.getElementById('montoTotal');
+  const modalPago = document.getElementById('modalPago');
+  const alertaPagada = document.getElementById('alertaPagada');
+  const btnAbrirPago = document.querySelectorAll('.btn-abrir-pago');
 
-    // Establecer ID de compra
-    document.getElementById('compraId').value = compraId;
-}
+  // Función para formatear números
+  function formatearNumero(num) {
+    return parseFloat(num).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
 
-function abrirModalEstado(compraId, estadoActual) {
-    const modal = new bootstrap.Modal(document.getElementById('modalEstadoCompra'));
-    document.getElementById('compraEstadoId').value = compraId;
-    const selectEstado = document.getElementById('nuevoEstado');
-    if (selectEstado) {
-        selectEstado.value = estadoActual || 'pendiente';
-    }
-    modal.show();
-}
+  // Cuando se hace clic en "Pago", cargar los datos
+  btnAbrirPago.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const compraId = this.getAttribute('data-compra-id');
+      const totalCompra = parseFloat(this.getAttribute('data-compra-total')) || 0;
+      const montoPagadoAnterior = parseFloat(this.getAttribute('data-compra-pagado')) || 0;
 
-const formEstadoCompra = document.getElementById('formEstadoCompra');
-if (formEstadoCompra) {
-    formEstadoCompra.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const compraId = document.getElementById('compraEstadoId').value;
-        const inicio = new FormData(this);
-        fetch(`/proveedores/compras/${compraId}/cambiar-estado/`, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-            body: inicio
-        })
-        .then(r => r.json())
-        .then(d => {
-            if (d.status === 'ok') {
-                alert('✓ Estado actualizado correctamente');
-                bootstrap.Modal.getInstance(document.getElementById('modalEstadoCompra')).hide();
-                location.reload();
-            } else {
-                alert('Error: ' + d.message);
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Error al actualizar el estado');
-        });
+      document.getElementById('compraId').value = compraId;
+      montoTotalInput.value = totalCompra;
+      montoPagadoInput.value = '';
+
+      // Mostrar alerta si está pagada
+      if (montoPagadoAnterior >= totalCompra) {
+        alertaPagada.classList.remove('d-none');
+        document.getElementById('formPago').style.display = 'none';
+        // Deshabilitar botón de envío
+        document.querySelector('button[type="submit"]').disabled = true;
+      } else {
+        alertaPagada.classList.add('d-none');
+        document.getElementById('formPago').style.display = 'block';
+        // Habilitar botón de envío
+        document.querySelector('button[type="submit"]').disabled = false;
+      }
+
+      actualizarCalculos();
     });
-}
+  });
 
-// Enviar formulario de pago
-document.getElementById('formPago')?.addEventListener('submit', function(e) {
-    e.preventDefault();
+  // También verificar cuando se abre el modal directamente
+  if (modalPago) {
+    modalPago.addEventListener('show.bs.modal', function() {
+      const compraId = document.getElementById('compraId').value;
+      if (compraId) {
+        const btn = document.querySelector(`[data-compra-id="${compraId}"]`);
+        if (btn) {
+          const totalCompra = parseFloat(btn.getAttribute('data-compra-total')) || 0;
+          const montoPagadoAnterior = parseFloat(btn.getAttribute('data-compra-pagado')) || 0;
 
-    // Validar que se seleccionó método de pago
-    if (!document.getElementById('metodoPago').value) {
-        alert('Por favor selecciona un método de pago');
-        return;
-    }
-
-    const compraId = document.getElementById('compraId').value;
-    const formData = new FormData(this);
-
-    fetch(`/proveedores/compras/${compraId}/pago/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-        body: formData
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.status === 'ok') {
-            alert('✓ Pago registrado correctamente');
-            bootstrap.Modal.getInstance(document.getElementById('modalPago')).hide();
-            location.reload();
-        } else {
-            alert('Error: ' + d.message);
+          if (montoPagadoAnterior >= totalCompra) {
+            alertaPagada.classList.remove('d-none');
+            document.getElementById('formPago').style.display = 'none';
+            document.querySelector('button[type="submit"]').disabled = true;
+          } else {
+            alertaPagada.classList.add('d-none');
+            document.getElementById('formPago').style.display = 'block';
+            document.querySelector('button[type="submit"]').disabled = false;
+          }
         }
-    })
-    .catch(err => {
-        console.error('Error:', err);
-        alert('Error al guardar el pago');
+      }
     });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CERRAR DROPDOWN AL HACER CLIC EN CUALQUIER ITEM
+  // ═══════════════════════════════════════════════════════════════
+
+  document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Cerrar el dropdown más cercano
+      const dropdown = this.closest('.dropdown');
+      if (dropdown) {
+        const toggleBtn = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+        if (toggleBtn) {
+          const dropdownInstance = bootstrap.Dropdown.getInstance(toggleBtn);
+          if (dropdownInstance) {
+            dropdownInstance.hide();
+          }
+        }
+      }
+    });
+  });
+
+  // Calcular saldo pendiente en tiempo real
+  function actualizarCalculos() {
+    const montoTotal = parseFloat(montoTotalInput.value) || 0;
+    const montoPagado = parseFloat(montoPagadoInput.value) || 0;
+    const saldoPendiente = montoTotal - montoPagado;
+
+    // Formatear números con separadores
+    saldoPendienteInput.value = saldoPendiente >= 0 ? formatearNumero(saldoPendiente) : 0;
+
+    // Actualizar estado automáticamente
+    if (montoPagado === 0) {
+      estadoPagoSelect.value = 'pendiente';
+    } else if (montoPagado >= montoTotal) {
+      estadoPagoSelect.value = 'pagada';
+    } else {
+      estadoPagoSelect.value = 'parcial';
+    }
+  }
+
+  // Formatear monto total al cargar
+  montoTotalInput.addEventListener('change', function() {
+    const valor = parseFloat(this.value) || 0;
+    this.value = formatearNumero(valor);
+  });
+
+  montoPagadoInput.addEventListener('input', actualizarCalculos);
+  montoPagadoInput.addEventListener('change', actualizarCalculos);
+
+  // ═══════════════════════════════════════════════════════════════
+  // DROPDOWN - CERRAR OTROS AL ABRIR UNO
+  // ═══════════════════════════════════════════════════════════════
+
+  document.addEventListener('show.bs.dropdown', function(e) {
+    // Cerrar TODOS los otros dropdowns
+    const allDropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    allDropdowns.forEach(btn => {
+      if (btn !== e.relatedTarget) {
+        const dropdown = bootstrap.Dropdown.getInstance(btn);
+        if (dropdown) {
+          dropdown.hide();
+        }
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // VALIDAR FORMULARIO DE PAGO
+  // ═══════════════════════════════════════════════════════════════
+
+  const formPago = document.getElementById('formPago');
+  if (formPago) {
+    formPago.addEventListener('submit', function(e) {
+      const metodoPago = document.querySelector('input[name="metodo_pago"]:checked');
+      const montoPagado = document.getElementById('montoPagado');
+
+      if (!metodoPago || !metodoPago.value) {
+        e.preventDefault();
+        alert('⚠️ Debe seleccionar un método de pago');
+        return false;
+      }
+
+      if (!montoPagado.value || parseFloat(montoPagado.value) <= 0) {
+        e.preventDefault();
+        alert('⚠️ Debe ingresar un monto válido');
+        return false;
+      }
+    });
+  }
 });
 </script>
-
-<!-- ════════════════════════════════════════════════════════════════ -->
-
 {% endblock %}

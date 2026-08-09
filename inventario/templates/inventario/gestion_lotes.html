@@ -55,7 +55,7 @@
           <label class="inv-label">Presentación <span class="text-danger">*</span></label>
 
           <!-- Select real: oculto, sigue siendo el que se envía con el formulario -->
-          <select name="presentacion_lote" id="select-presentacion-lote" class="d-none" required>
+          <select name="presentacion_lote" id="select-presentacion-lote" class="d-none">
             <option value="">— Selecciona presentación —</option>
             {% for p in productos %}
               {% if p.presentaciones.all %}
@@ -95,53 +95,70 @@
           </div>
         </div>
 
-        <!-- Nº Lote + Cantidad -->
-        <div class="row g-3 mb-3">
-          <div class="col-6">
-            <label class="inv-label">Nº de Lote <span class="text-danger">*</span></label>
-            <input type="text" name="numero_lote" class="form-control inv-input"
-                   placeholder="Ej: LOT-2024-01" required>
-          </div>
-          <div class="col-6">
-            <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
-            <input type="number" name="cantidad_lote" class="form-control inv-input"
-                   min="1" placeholder="0" required>
-          </div>
-        </div>
+       <!-- Nº Lote + Cantidad -->
+<div class="row g-3 mb-3">
+  <div class="col-6">
+    <label class="inv-label">Nº de Lote <span class="text-danger">*</span></label>
+    <input type="text" name="numero_lote" class="form-control inv-input"
+           placeholder="Ej: LOT-2024-01" required>
+  </div>
+  <div class="col-6">
+    <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
+    <div class="d-flex lote-cantidad-wrap">
+      <input type="number" name="cantidad_lote" id="input-cantidad-lote"
+             class="form-control inv-input lote-cantidad-input"
+             min="1" placeholder="0" required>
+      <div class="lote-precio-spinners">
+        <button type="button" class="lote-spin-btn lote-spin-up" data-target="input-cantidad-lote">
+          <i class="bi bi-caret-up-fill"></i>
+        </button>
+        <button type="button" class="lote-spin-btn lote-spin-down" data-target="input-cantidad-lote">
+          <i class="bi bi-caret-down-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
         <hr class="section-divider">
 
-        <!-- Precio de costo -->
         <div class="mb-3">
-          <label class="inv-label">
-            Precio de Costo
-            <span class="lote-label-hint">(por unidad)</span>
-          </label>
-          <div class="d-flex">
-            <span class="precio-prefix">$</span>
-            <input type="number" name="costo_unitario"
-                   class="form-control inv-input inv-input-precio lote-precio-input"
-                   min="0" step="1" placeholder="0">
-          </div>
-          <p class="precio-hint">
-            <i class="bi bi-info-circle me-1"></i>
-            Este valor se actualizará en la presentación y será visible en Stock y Gestión de Productos.
-          </p>
-        </div>
+  <label class="inv-label">
+    Precio de Costo
+    <span class="lote-label-hint">(por unidad)</span>
+  </label>
+  <div class="d-flex lote-precio-wrap">
+    <span class="precio-prefix">$</span>
+    <input type="number" name="costo_unitario" id="input-costo-unitario"
+       class="form-control inv-input inv-input-precio lote-precio-input"
+       min="0" step="1000" placeholder="0">
+    <div class="lote-precio-spinners">
+      <button type="button" class="lote-spin-btn lote-spin-up" data-target="input-costo-unitario">
+        <i class="bi bi-caret-up-fill"></i>
+      </button>
+      <button type="button" class="lote-spin-btn lote-spin-down" data-target="input-costo-unitario">
+        <i class="bi bi-caret-down-fill"></i>
+      </button>
+    </div>
+  </div>
+  <p class="precio-hint">
+    <i class="bi bi-info-circle me-1"></i>
+    Este valor se actualizará en la presentación y será visible en Stock y Gestión de Productos.
+  </p>
+</div>
 
         <hr class="section-divider">
-
-        <!-- Fechas -->
-        <div class="row g-3 mb-4">
-          <div class="col-6">
-            <label class="inv-label">Fecha fabricación</label>
-            <input type="date" name="fecha_fabricacion" class="form-control inv-input">
-          </div>
-          <div class="col-6">
-            <label class="inv-label">Fecha vencimiento</label>
-            <input type="date" name="fecha_vencimiento" class="form-control inv-input">
-          </div>
-        </div>
+      <!-- Fechas -->
+<div class="row g-3 mb-4">
+  <div class="col-6">
+    <label class="inv-label">Fecha fabricación</label>
+    <input type="date" name="fecha_fabricacion" class="form-control inv-input">
+  </div>
+  <div class="col-6">
+    <label class="inv-label">Fecha vencimiento</label>
+    <input type="date" name="fecha_vencimiento" class="form-control inv-input">
+  </div>
+</div>
 
         <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100 lote-btn-crear">
           <i class="bi bi-plus-circle me-2"></i>Crear Lote
@@ -162,11 +179,11 @@
             <small class="d-block text-uppercase lote-stat-label">
               Ingresos Hoy
             </small>
-            <h4 class="mb-0 fw-bold mt-1 text-success lote-stat-value-success">
-              +{{ ingresos_hoy }} uds
-            </h4>
-          </div>
-          <i class="bi bi-box-arrow-in-down fs-3 text-success" style="opacity:.7;"></i>
+            <h4 class="mb-0 fw-bold mt-1 lote-stat-value-success">
+  +{{ ingresos_hoy }} uds
+</h4>
+</div>
+<i class="bi bi-box-arrow-in-down fs-3 lote-icon-opacidad"></i>
         </div>
       </div>
       <div class="col-6">
@@ -179,7 +196,7 @@
               {{ ordenes_mes }}
             </h4>
           </div>
-          <i class="bi bi-cart-check fs-3" style="color:#4DA8DA;opacity:.7;"></i>
+          <i class="bi bi-cart-check fs-3 lote-icon-info"></i>
         </div>
       </div>
     </div>
@@ -187,7 +204,7 @@
     <!-- Gráfico proveedores -->
     <div class="inv-card p-4 flex-grow-1 d-flex flex-column">
       <div class="d-flex align-items-center gap-2 mb-3">
-        <i class="bi bi-shop" style="color:#4DA8DA;"></i>
+        <i class="bi bi-shop lote-icon-azul"></i>
         <h6 class="mb-0 fw-bold text-uppercase lote-panel-titulo">
           Top 5 Productos en Stock
         </h6>
@@ -203,63 +220,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<div id="lotes-config"
+     data-labels="{{ proveedores_labels|safe }}"
+     data-data="{{ proveedores_data|safe }}"
+     class="d-none"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-new Chart(document.getElementById('chartProveedores').getContext('2d'), {
-  type: 'bar',
-  data: {
-    labels: {{ proveedores_labels|safe }},
-    datasets: [{
-      label: 'Unidades en stock',
-      data: {{ proveedores_data|safe }},
-      backgroundColor: [
-        'rgba(62, 181, 229, 0.85)',
-        'rgb(190, 87, 231)',
-        'rgb(10, 74, 169)',
-        'rgba(108, 92, 231, 0.85)',
-        'rgba(155, 254, 218, 0.85)'
-      ],
-      borderColor: ['#4195c9', '#d059ff', '#014ab0', '#6c5ce7', '#9bfebc'],
-      borderWidth: 1,
-      borderRadius: 5
-    }]
-  },
-  options: {
-    indexAxis: 'y',
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: {
-        grid: { color: 'rgba(255,255,255,0.06)' },
-        ticks: { color: '#dce8f2', font: { size: 10 } }
-      },
-      y: {
-        grid: { display: false },
-        ticks: { color: '#dce8f2', font: { size: 11, weight: '600' } }
-      }
-    }
-  }
-});
-
-// Dropdown de presentación: sincroniza el texto del botón y el <select> oculto
-const selLote = document.getElementById('select-presentacion-lote');
-document.querySelectorAll('.presentacion-lote-item').forEach(item => {
-  item.addEventListener('click', e => {
-    e.preventDefault();
-    selLote.value = item.dataset.value;
-    document.getElementById('presentacion-lote-label').textContent = item.textContent.trim();
-  });
-});
-
-// Validación manual: el select real está oculto, así que "required" no se muestra visualmente
-document.getElementById('form-lote').addEventListener('submit', e => {
-  if (!selLote.value) {
-    e.preventDefault();
-    const btn = document.getElementById('presentacion-lote-btn');
-    btn.style.borderColor = '#e74c3c';
-    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-});
-</script>
+<script src="{% static 'js/inventario/gestion_lotes.js' %}"></script>
 {% endblock %}
