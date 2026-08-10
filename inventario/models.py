@@ -6,7 +6,6 @@ from productos.models import Producto, PresentacionProducto
 
 
 class Lote(models.Model):
-    codigo            = models.AutoField(primary_key=True)
     numero_lote       = models.CharField(max_length=100, unique=True)
     presentacion      = models.ForeignKey(
         PresentacionProducto,
@@ -49,7 +48,6 @@ class Lote(models.Model):
 
 
 class Inventario(models.Model):
-    codigo_inventario = models.AutoField(primary_key=True)
     producto          = models.ForeignKey(
         Producto,
         on_delete=models.PROTECT,
@@ -83,8 +81,6 @@ class MovimientoInventario(models.Model):
         ('salida',  'Salida'),
         ('ajuste',  'Ajuste'),
     ]
-
-    codigo            = models.AutoField(primary_key=True)
     inventario        = models.ForeignKey(
         Inventario,
         on_delete=models.PROTECT,
@@ -122,8 +118,6 @@ class AgendaInventario(models.Model):
         ('completada', 'Completada'),
         ('cancelada',  'Cancelada'),
     ]
-
-    codigo            = models.AutoField(primary_key=True)
     titulo            = models.CharField(max_length=200)
     descripcion       = models.TextField(blank=True, null=True)
     fecha             = models.DateTimeField()
@@ -157,8 +151,6 @@ class Hallazgo(models.Model):
         ('sobrante', 'Sobrante'),
         ('exacto',   'Exacto'),
     ]
-
-    codigo               = models.AutoField(primary_key=True)
     agenda               = models.ForeignKey(
         AgendaInventario,
         on_delete=models.CASCADE,

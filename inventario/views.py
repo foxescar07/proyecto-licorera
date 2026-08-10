@@ -18,6 +18,7 @@ from .models import (
     Lote,
     MovimientoInventario,
 )
+from productos.models import Producto
 
 
 # ---------------------------------------------------------------------------
@@ -31,13 +32,42 @@ def inventario_home(request):
     bajo_stock        = Inventario.objects.filter(stock_actual__lte=F('stock_min'))
     agendas_pendientes = AgendaInventario.objects.filter(estado='pendiente')
 
+    movimientos = MovimientoInventario.objects.values_list('fecha', flat=True).distinct().order_by('-fecha')
+    dias_con_movimientos = [m.date() for m in movimientos]
+    hoy = timezone.now().date()
+
     context = {
         'lotes_por_vencer': lotes_por_vencer,
         'lotes_vencidos': lotes_vencidos,
         'bajo_stock': bajo_stock,
         'agendas_pendientes': agendas_pendientes,
+        'dias_con_movimientos': dias_con_movimientos,
+        'hoy': hoy,
+        'fecha_filtro': hoy,
     }
     return render(request, 'inventario/inventario_home.html', context)
+
+
+@login_required
+def gestion_stock(request):
+    """Vista de stock completa para la página legacy "Stock & Productos"."""
+    productos = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').all()
+    lotes = Lote.objects.select_related('presentacion__producto', 'registrado_por').all()
+
+    lotes_activos = list(lotes)
+    lotes_por_vencer = [l for l in lotes_activos if getattr(l, 'proximo_a_vencer', False)]
+    lotes_vencidos = [l for l in lotes_activos if getattr(l, 'esta_vencido', False)]
+
+    context = {
+        'productos': productos,
+        'lotes_activos': lotes_activos,
+        'lotes_por_vencer': lotes_por_vencer,
+        'lotes_vencidos': lotes_vencidos,
+        'breadcrumb_items': [
+            {'nombre': 'Inventario', 'url': None},
+        ],
+    }
+    return render(request, 'inventario/gestion_stock.html', context)
 
 
 # ---------------------------------------------------------------------------
