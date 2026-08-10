@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <form method="POST" action="{% url 'registrar_lote' %}" id="form-lote">
+      <form method="POST" action="{% url 'inventario:lote_create' %}" id="form-lote">
         {% csrf_token %}
 
         <!-- Presentación -->

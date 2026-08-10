@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from ventas.models import Venta, DetalleVenta
 from productos.models import Producto
-from inventario.models import Inventario
+from inventario.models import Inventario, MovimientoInventario
 from .forms import FiltroReporteForm
 from .models import Reporte
 import json
@@ -277,9 +277,9 @@ def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     filas_e = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, e in enumerate(entradas_qs, 1):
         filas_e.append([
-            str(i), e.presentacion.producto.nombre, f'+{e.cantidad}',
+            str(i), e.inventario.presentacion.producto.nombre, f'+{e.cantidad}',
             e.motivo or '—',
-            e.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
+            e.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
         ])
     if len(filas_e) == 1:
         filas_e.append(['', 'Sin entradas registradas', '', '', ''])
@@ -299,9 +299,9 @@ def _pdf_inventario(productos_qs, entradas_qs, salidas_qs):
     filas_s = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, s in enumerate(salidas_qs, 1):
         filas_s.append([
-            str(i), s.presentacion.producto.nombre, f'-{s.cantidad}',
+            str(i), s.inventario.presentacion.producto.nombre, f'-{s.cantidad}',
             s.motivo or '—',
-            s.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
+            s.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
         ])
     if len(filas_s) == 1:
         filas_s.append(['', 'Sin salidas registradas', '', '', ''])
@@ -388,9 +388,9 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     seccion("Entradas del día", '#2ecc71')
     filas_e = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, e in enumerate(entradas_hoy, 1):
-        filas_e.append([str(i), e.presentacion.producto.nombre, f'+{e.cantidad}',
+        filas_e.append([str(i), e.inventario.presentacion.producto.nombre, f'+{e.cantidad}',
                          e.motivo or '—',
-                         e.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
+                         e.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
     if len(filas_e) == 1:
         filas_e.append(['', 'Sin entradas hoy', '', '', ''])
     col_e = [1*cm, 6*cm, 2.5*cm, 4*cm, 3.5*cm]
@@ -401,9 +401,9 @@ def _pdf_resumen_diario(hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     seccion("Salidas del día", '#e74c3c')
     filas_s = [['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']]
     for i, s in enumerate(salidas_hoy, 1):
-        filas_s.append([str(i), s.presentacion.producto.nombre, f'-{s.cantidad}',
+        filas_s.append([str(i), s.inventario.presentacion.producto.nombre, f'-{s.cantidad}',
                          s.motivo or '—',
-                         s.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
+                         s.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
     if len(filas_s) == 1:
         filas_s.append(['', 'Sin salidas hoy', '', '', ''])
     col_s = [1*cm, 6*cm, 2.5*cm, 4*cm, 3.5*cm]
@@ -707,9 +707,9 @@ def _xlsx_inventario(wb, productos_qs, entradas_qs, salidas_qs):
     filas_e = []
     for i, e in enumerate(entradas_qs, 1):
         filas_e.append([
-            i, e.presentacion.producto.nombre, f'+{e.cantidad}',
+            i, e.inventario.presentacion.producto.nombre, f'+{e.cantidad}',
             e.motivo or '—',
-            e.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
+            e.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
         ])
     fila = _xls_tabla(ws, fila, headers_e, filas_e, col_widths=[6, 34, 12, 22, 18], right_cols={2})
 
@@ -718,9 +718,9 @@ def _xlsx_inventario(wb, productos_qs, entradas_qs, salidas_qs):
     filas_s = []
     for i, s in enumerate(salidas_qs, 1):
         filas_s.append([
-            i, s.presentacion.producto.nombre, f'-{s.cantidad}',
+            i, s.inventario.presentacion.producto.nombre, f'-{s.cantidad}',
             s.motivo or '—',
-            s.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
+            s.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
         ])
     _xls_tabla(ws, fila, headers_s, filas_s, col_widths=[6, 34, 12, 22, 18], right_cols={2})
 
@@ -779,18 +779,18 @@ def _xlsx_resumen_diario(wb, hoy, ventas_hoy, entradas_hoy, salidas_hoy,
     headers_e = ['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']
     filas_e = []
     for i, e in enumerate(entradas_hoy, 1):
-        filas_e.append([i, e.presentacion.producto.nombre, f'+{e.cantidad}',
+        filas_e.append([i, e.inventario.presentacion.producto.nombre, f'+{e.cantidad}',
                          e.motivo or '—',
-                         e.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
+                         e.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
     fila = _xls_tabla(ws, fila, headers_e, filas_e, col_widths=[6, 30, 12, 22, 18], right_cols={2})
 
     fila = _xls_seccion(ws, fila, 'Salidas del día', 6)
     headers_s = ['#', 'Producto', 'Cantidad', 'Motivo', 'Fecha']
     filas_s = []
     for i, s in enumerate(salidas_hoy, 1):
-        filas_s.append([i, s.presentacion.producto.nombre, f'-{s.cantidad}',
+        filas_s.append([i, s.inventario.presentacion.producto.nombre, f'-{s.cantidad}',
                          s.motivo or '—',
-                         s.fecha_actualizada.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
+                         s.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M")])
     fila = _xls_tabla(ws, fila, headers_s, filas_s, col_widths=[6, 30, 12, 22, 18], right_cols={2})
 
     if top_productos_hoy:
@@ -1050,8 +1050,8 @@ def index_reportes(request):
     total_stock_bajo  = sum(1 for p in productos if 0 < p.stock_total <= 10)
     total_agotados    = sum(1 for p in productos if p.stock_total == 0)
 
-    entradas = Inventario.objects.filter(tipo='entrada').select_related('presentacion__producto').order_by('-fecha_actualizada')
-    salidas  = Inventario.objects.filter(tipo='salida').select_related('presentacion__producto').order_by('-fecha_actualizada')
+    entradas = MovimientoInventario.objects.filter(tipo='entrada').select_related('inventario__presentacion__producto').order_by('-fecha')
+    salidas  = MovimientoInventario.objects.filter(tipo='salida').select_related('inventario__presentacion__producto').order_by('-fecha')
 
     hoy = timezone.now().astimezone(ZONA_COLOMBIA).date()
 
@@ -1061,7 +1061,7 @@ def index_reportes(request):
 
     ingresos_hoy = sum(v.total_venta for v in ventas_hoy)
 
-    movimientos_hoy    = Inventario.objects.filter(fecha_actualizada__date=hoy).select_related('presentacion__producto')
+    movimientos_hoy    = MovimientoInventario.objects.filter(fecha__date=hoy).select_related('inventario__presentacion__producto')
     entradas_hoy       = movimientos_hoy.filter(tipo='entrada')
     salidas_hoy        = movimientos_hoy.filter(tipo='salida')
     total_entradas_hoy = sum(e.cantidad for e in entradas_hoy)
