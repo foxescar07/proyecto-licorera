@@ -7,6 +7,7 @@ app_name = 'inventario'
 urlpatterns = [
     # Dashboard
     path('', views.inventario_home, name='inventario_home'),
+    path('gestion-stock/', views.gestion_stock, name='gestion_stock'),
 
     # Lote
     path('lotes/', views.lote_list, name='lote_list'),
