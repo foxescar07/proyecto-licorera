@@ -19,7 +19,7 @@ class ProveedorForm(forms.ModelForm):
 
     class Meta:
         model = Proveedor
-        fields = ['nombre_empresa', 'nit', 'email', 'telefono', 'tipo_proveedor']
+        fields = ['nombre_empresa', 'nit', 'email', 'telefono']
         widgets = {
             'nombre_empresa': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -30,7 +30,6 @@ class ProveedorForm(forms.ModelForm):
             'nit': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ej: 123456789-1',
-                'required': True,
                 'maxlength': '50'
             }),
             'email': forms.EmailInput(attrs={
@@ -40,11 +39,8 @@ class ProveedorForm(forms.ModelForm):
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '+56 9 1234 5678',
+                'placeholder': 'Ej: 3001234567',
                 'pattern': r'^\d{7,15}$'
-            }),
-            'tipo_proveedor': forms.Select(attrs={
-                'class': 'form-select'
             }),
         }
 
@@ -97,13 +93,6 @@ class ProveedorForm(forms.ModelForm):
     def clean(self):
         """Validación a nivel de formulario."""
         cleaned_data = super().clean()
-        estado = cleaned_data.get('estado')
-
-        if estado == 'sancionado':
-            observacion = cleaned_data.get('observacion')
-            if not observacion:
-                raise ValidationError('Debe indicar observaciones si marca como sancionado')
-
         return cleaned_data
 
     def save(self, commit=True):
@@ -194,6 +183,53 @@ class LoteForm(forms.ModelForm):
                 'class': 'form-select'
             }),
         }
+
+
+class NuevaCompraForm(forms.Form):
+    """Formulario para registrar una nueva compra rápida."""
+
+    producto = forms.ModelChoiceField(
+        queryset=Producto.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': True
+        }),
+        label='Producto'
+    )
+
+    lote = forms.ModelChoiceField(
+        queryset=Lote.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': True
+        }),
+        label='Lote',
+        required=False
+    )
+
+    cantidad = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'required': True,
+            'type': 'number'
+        }),
+        label='Cantidad',
+        min_value=1
+    )
+
+    precio_unitario = forms.DecimalField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'min': '0.01',
+            'required': True,
+            'type': 'number'
+        }),
+        label='Precio Unitario',
+        decimal_places=2,
+        min_value=0.01
+    )
 
 
 class CompraForm(forms.ModelForm):
