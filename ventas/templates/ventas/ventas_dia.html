@@ -187,18 +187,18 @@
             {% for det in venta.detalles.all %}
             <tr data-row
                 data-id="{{ venta.pk }}"
-                data-cliente="{{ venta.cliente.nombre|lower }}"
+                data-cliente="{{ venta.codigo_cliente.nombre|lower }}"
                 data-cantidad="{{ det.cantidad }}"
                 data-precio="{{ det.precio_unitario }}"
                 data-total="{{ det.subtotal }}"
                 data-fecha="{{ venta.fecha|date:'c' }}"
-                data-buscar="{{ venta.cliente.nombre|lower }} {{ det.producto.nombre|lower }}{% if det.presentacion %} {{ det.presentacion.nombre|lower }}{% endif %}">
+                data-buscar="{{ venta.codigo_cliente.nombre|lower }} {{ det.codigo_producto.nombre|lower }}{% if det.codigo_presentacion %} {{ det.codigo_presentacion.nombre|lower }}{% endif %}">
               <td class="cys-td-num cys-td-centro">{{ forloop.parentloop.counter }}</td>
               <td>
                 <div class="cys-cliente-cell">
-                  <div class="cys-avatar">{{ venta.cliente.nombre|slice:":2"|upper }}</div>
+                  <div class="cys-avatar">{{ venta.codigo_cliente.nombre|slice:":2"|upper }}</div>
                   <div>
-                    <div class="fw-bold text-white">{{ venta.cliente.nombre }}</div>
+                    <div class="fw-bold text-white">{{ venta.codigo_cliente.nombre }}</div>
                     <div class="cys-cliente-rol">Cliente</div>
                   </div>
                 </div>
@@ -206,7 +206,7 @@
               <td>
                 <span class="cys-producto-badge">
                   <i class="bi bi-box me-1"></i>
-                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+                  {{ det.codigo_producto.nombre }}{% if det.codigo_presentacion %} ({{ det.codigo_presentacion.nombre }}){% endif %}
                 </span>
               </td>
               <td class="cys-td-cantidad cys-td-centro">{{ det.cantidad }}</td>
