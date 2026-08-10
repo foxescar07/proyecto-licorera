@@ -580,15 +580,15 @@
             {% for det in venta.detalles.all %}
             <tr class="fila-venta" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ venta.pk }}">
               <td>
-                <div class="cys-prodpres-nombre">{{ det.producto.nombre }}</div>
-                {% if det.presentacion %}
-                <div class="cys-prodpres-sub">{{ det.presentacion.nombre }}</div>
+                <div class="cys-prodpres-nombre">{{ det.codigo_producto.nombre }}</div>
+                {% if det.codigo_presentacion %}
+                <div class="cys-prodpres-sub">{{ det.codigo_presentacion.nombre }}</div>
                 {% endif %}
               </td>
               <td>
                 <div class="cys-cliente-cell">
-                  <div class="cys-avatar">{{ venta.cliente.nombre|slice:":2"|upper }}</div>
-                  <div class="cys-hist-cliente">{{ venta.cliente.nombre }}</div>
+                  <div class="cys-avatar">{{ venta.codigo_cliente.nombre|slice:":2"|upper }}</div>
+                  <div class="cys-hist-cliente">{{ venta.codigo_cliente.nombre }}</div>
                 </div>
               </td>
               <td class="cys-hist-cantidad">
@@ -643,7 +643,7 @@
       <div class="modal-body">
         <div class="cys-detalle-info-fila">
           <span class="cys-detalle-info-label">Cliente</span>
-          <span class="cys-detalle-info-valor">{{ venta.cliente.nombre }}</span>
+          <span class="cys-detalle-info-valor">{{ venta.codigo_cliente.nombre }}</span>
         </div>
         <div class="cys-detalle-info-fila">
           <span class="cys-detalle-info-label">Fecha</span>
@@ -659,7 +659,7 @@
         <div class="cys-detalle-item">
           <div>
             <div class="cys-detalle-item-nombre">
-              {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+              {{ det.codigo_producto.nombre }}{% if det.codigo_presentacion %} ({{ det.codigo_presentacion.nombre }}){% endif %}
             </div>
             <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|pesos }}</div>
           </div>
@@ -712,7 +712,7 @@
         <div class="cys-detalle-item">
           <div>
             <div class="cys-detalle-item-nombre">
-              {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %}
+              {{ det.codigo_producto.nombre }}{% if det.codigo_presentacion %} ({{ det.codigo_presentacion.nombre }}){% endif %}
             </div>
             <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|pesos }}</div>
           </div>
