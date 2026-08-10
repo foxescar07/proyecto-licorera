@@ -557,7 +557,6 @@ class DetalleDevolucion(models.Model):
         PresentacionProducto,
         on_delete=models.CASCADE,
         related_name='detalles_devolucion',
-        default=1,
         verbose_name='Presentación',
         help_text='Presentación del producto devuelto',
     )
