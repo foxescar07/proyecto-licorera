@@ -155,7 +155,7 @@
                       {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %} agenda-stepper-badge"
                      >{{ label }}</span>
                   {% else %}
-                    <form class="agenda-form-inline" method="POST" action="{% url 'agenda_estado' agenda.pk %}">
+                    <form class="agenda-form-inline" method="POST" action="{% url 'inventario:agenda_update' agenda.pk %}">
                       {% csrf_token %}
                       <input type="hidden" name="estado" value="{{ val }}">
                       <button type="submit"
@@ -547,7 +547,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="{% url 'inventario_home' %}">
+        <form method="POST" action="{% url 'inventario:inventario_home' %}">
           {% csrf_token %}
           <div class="mb-3">
             <label class="form-label inv-label">Título</label>
@@ -601,7 +601,7 @@
               <div class="text-muted small">No hay sesión activa</div>
             {% endif %}
           </div>
-          <form method="POST" action="{% url 'conteo_inventario' %}">
+          <form method="POST" action="#">
             {% csrf_token %}
             <button type="submit" name="iniciar_sesion" class="btn rounded-pill fw-bold px-4 btn-solido-azul"
              >
@@ -611,7 +611,7 @@
           </form>
         </div>
         {% if sesion %}
-          <form method="POST" action="{% url 'guardar_conteo' %}">
+          <form method="POST" action="#">
             {% csrf_token %}
             <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
             <div class="row g-3 align-items-end mb-3">
@@ -795,7 +795,7 @@
 
               <div class="comparativa-badge-col">
                 {% if d.estado != 'ok' %}
-                  <form method="POST" action="{% url 'ajustar_stock_presentacion' d.presentacion.pk %}">
+                  <form method="POST" action="{% url 'inventario:inventario_detail' d.presentacion.pk %}">
                     {% csrf_token %}
                     <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
                     <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center comparar-ajustar-btn"
@@ -900,7 +900,7 @@
                   data-pk="{{ p.pk }}"
                   data-nombre="{{ p.nombre }}"
                   data-codigo="{{ p.codigo|default:'' }}"
-                  data-url="{% url 'guardar_codigo' p.pk %}"
+                  data-url="{% url 'inventario:inventario_detail' p.pk %}"
                  >
                 <td class="text-muted small">{{ forloop.counter }}</td>
                 <td class="fw-semibold small">{{ p.nombre }}</td>
@@ -991,7 +991,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<div id="rotacion-config" data-url="{% url 'rotacion_json' %}" class="d-none"></div>
+<div id="rotacion-config" data-url="#" class="d-none"></div>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>

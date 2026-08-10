@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar Movimiento — CYS Ltda{% endblock %}
+{% block page_title %}Registrar Movimiento de Inventario{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/inventario/salida.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mb-3">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="inv-card p-4 h-100">
+
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center gap-2">
+          <div class="icon-box">
+            <i class="bi bi-arrow-left-right sal-icon-header"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 fw-bold text-uppercase sal-card-titulo">
+              Registrar Movimiento
+            </h6>
+            <small class="sal-card-subtitulo">
+              Completa todos los campos requeridos
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <form method="POST" id="movimiento-form">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          {{ form.as_p }}
+        </div>
+
+        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100 sal-btn-submit">
+          <i class="bi bi-check-circle me-2"></i>Registrar Movimiento
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="inv-card p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-info-circle sal-ic-azul"></i>
+        <h6 class="mb-0 fw-bold text-uppercase">Información</h6>
+      </div>
+      <p class="text-muted mb-2">
+        <strong>Tipos de movimiento:</strong>
+      </p>
+      <ul class="text-muted small">
+        <li><strong>Entrada:</strong> Aumenta el stock del inventario</li>
+        <li><strong>Salida:</strong> Disminuye el stock del inventario</li>
+        <li><strong>Ajuste:</strong> Establece el stock a un valor específico</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
