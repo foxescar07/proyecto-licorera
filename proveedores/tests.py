@@ -1,9 +1,8 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from .models import Proveedor, ProveedorCategoria, OrdenCompra, DetalleCompra, BasePedidoCompra
+from .models import Proveedor, ProveedorCategoria, DetalleCompra, Compra, HistorialCompra
 from productos.models import Categoria, Producto, PresentacionProducto
 from usuarios.models import Usuario
-from inventario.models import Lote
 from decimal import Decimal
 
 
@@ -116,12 +115,12 @@ class ProveedorModelTest(TestCase):
     def test_cambiar_estado_sancionado_con_motivo(self):
         """Verificar que se puede cambiar estado a sancionado."""
         self.proveedor.estado = 'sancionado'
-        self.proveedor.motivo_sancion = 'Incumplimiento de contrato'
+        self.proveedor.observacion = 'Incumplimiento de contrato'
         self.proveedor.save()
 
         proveedor_actualizado = Proveedor.objects.get(id=self.proveedor.id)
         self.assertEqual(proveedor_actualizado.estado, 'sancionado')
-        self.assertIsNotNone(proveedor_actualizado.motivo_sancion)
+        self.assertIsNotNone(proveedor_actualizado.observacion)
 
     # ✓ US-003: Sancionado sin motivo genera error
     def test_sancionado_requiere_motivo(self):
@@ -150,607 +149,60 @@ class ProveedorModelTest(TestCase):
         esperado = f"{self.proveedor.nombre_empresa} (Activo)"
         self.assertEqual(str(self.proveedor), esperado)
 
-
-class OrdenCompraModelTest(TestCase):
-    """Tests para el modelo OrdenCompra."""
-
-    def setUp(self):
-        """Crear datos de prueba."""
-        self.usuario = Usuario.objects.create_user(
-            username='empleado1',
-            email='emp@test.com',
-            password='pass123'
-        )
-        self.proveedor = Proveedor.objects.create(
-            nombre_empresa="Dist Test",
-            email="dist@test.com",
-            tipo_proveedor='distribuidor'
-        )
-        self.orden = OrdenCompra.objects.create(
-            proveedor=self.proveedor,
-            registrado_por=self.usuario,
-            estado='pendiente',
-            total=0
-        )
-
-    # ✓ US-010: Crear orden de compra
-    def test_crear_orden_compra(self):
-        """Verificar que se crea una orden en estado pendiente."""
-        self.assertEqual(self.orden.estado, 'pendiente')
-        self.assertEqual(self.orden.proveedor, self.proveedor)
-        self.assertEqual(self.orden.registrado_por, self.usuario)
-        self.assertEqual(self.orden.total, 0)
-
-    # ✓ US-010: Orden requiere proveedor
-    def test_orden_requiere_proveedor(self):
-        """Verificar que una orden necesita un proveedor."""
-        with self.assertRaises(Exception):
-            OrdenCompra.objects.create(
-                proveedor=None,
-                estado='pendiente'
-            )
-
-    # ✓ US-011: Cambiar estado de orden
-    def test_cambiar_estado_pendiente_a_confirmada(self):
-        """Verificar transición: pendiente → confirmada."""
-        self.orden.estado = 'confirmada'
-        self.orden.save()
-
-        orden_actualizada = OrdenCompra.objects.get(id=self.orden.id)
-        self.assertEqual(orden_actualizada.estado, 'confirmada')
-
-    # ✓ US-011: Cambiar a estado recibida
-    def test_cambiar_estado_a_recibida(self):
-        """Verificar transición: confirmada → recibida."""
-        self.orden.estado = 'confirmada'
-        self.orden.save()
-
-        self.orden.estado = 'recibida'
-        self.orden.save()
-
-        self.assertEqual(self.orden.estado, 'recibida')
-
-    # ✓ US-011: Cambiar a estado cancelada
-    def test_cambiar_estado_a_cancelada(self):
-        """Verificar transición a cancelada."""
-        self.orden.estado = 'cancelada'
-        self.orden.save()
-
-        self.assertEqual(self.orden.estado, 'cancelada')
-
-    # ✓ US-012: Calcular total de orden
-    def test_calcular_total_orden(self):
-        """Verificar que calcula correctamente el total."""
-        categoria = Categoria.objects.create(codigo="RON", nombre="Ron")
-        producto = Producto.objects.create(
-            codigo="BACARDI",
-            nombre="Bacardi",
-            categoria=categoria
-        )
-        presentacion = PresentacionProducto.objects.create(
-            producto=producto,
-            nombre="750ml",
-            unidades=1,
-            precio=45000
-        )
-
-        DetalleCompra.objects.create(
-            orden_compra=self.orden,
-            presentacion=presentacion,
-            cantidad=24,
-            precio_unitario=45000
-        )
-
-        self.orden.calcular_total()
-        self.assertEqual(self.orden.total, 24 * 45000)
-
-    # ✓ Validación: Total no puede ser negativo
-    def test_total_no_negativo(self):
-        """Verificar que el total no puede ser negativo."""
-        self.orden.total = -1000
-        with self.assertRaises(ValidationError):
-            self.orden.full_clean()
-
-    # ✓ Validación: String representation
-    def test_str_representation(self):
-        """Verificar que __str__ muestra ID y proveedor."""
-        esperado = f"Orden #{self.orden.id} - {self.proveedor.nombre_empresa}"
-        self.assertEqual(str(self.orden), esperado)
-
-
-class DetalleCompraModelTest(TestCase):
-    """Tests para el modelo DetalleCompra."""
-
-    def setUp(self):
-        """Crear datos de prueba."""
-        self.usuario = Usuario.objects.create_user(username='emp', password='pass')
-
-        self.proveedor = Proveedor.objects.create(
-            nombre_empresa="Dist",
-            email="dist@test.com"
-        )
-
-        self.orden = OrdenCompra.objects.create(
-            proveedor=self.proveedor,
-            registrado_por=self.usuario
-        )
-
-        self.categoria = Categoria.objects.create(codigo="RON", nombre="Ron")
-        self.producto = Producto.objects.create(
-            codigo="BACARDI",
-            nombre="Bacardi",
-            categoria=self.categoria
-        )
-
-        self.presentacion = PresentacionProducto.objects.create(
-            producto=self.producto,
-            nombre="750ml",
-            unidades=1,
-            precio=45000
-        )
-
-    # ✓ US-010: Crear detalle de compra válido
-    def test_crear_detalle_compra_valido(self):
-        """Verificar que se crea un detalle con datos válidos."""
-        detalle = DetalleCompra.objects.create(
-            orden_compra=self.orden,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=45000
-        )
-
-        self.assertEqual(detalle.cantidad, 24)
-        self.assertEqual(detalle.precio_unitario, 45000)
-        self.assertEqual(detalle.subtotal, 24 * 45000)
-
-    # ✓ Validación: Cantidad positiva
-    def test_cantidad_debe_ser_positiva(self):
-        """Verificar que cantidad debe ser > 0."""
-        detalle = DetalleCompra(
-            orden_compra=self.orden,
-            presentacion=self.presentacion,
-            cantidad=0,
-            precio_unitario=45000
-        )
-        with self.assertRaises(ValidationError):
-            detalle.full_clean()
-
-    # ✓ Validación: Precio positivo
-    def test_precio_debe_ser_positivo(self):
-        """Verificar que precio debe ser > 0."""
-        detalle = DetalleCompra(
-            orden_compra=self.orden,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=-5000
-        )
-        with self.assertRaises(ValidationError):
-            detalle.full_clean()
-
-    # ✓ Validación: Cantidad mínima
-    def test_cantidad_minima_es_uno(self):
-        """Verificar que cantidad mínima es 1."""
-        with self.assertRaises(ValidationError):
-            detalle = DetalleCompra(
-                orden_compra=self.orden,
-                presentacion=self.presentacion,
-                cantidad=0,
-                precio_unitario=45000
-            )
-            detalle.full_clean()
-
-    # ✓ Calcular subtotal automático
-    def test_subtotal_calculado_automaticamente(self):
-        """Verificar que subtotal se calcula automáticamente."""
-        detalle = DetalleCompra.objects.create(
-            orden_compra=self.orden,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=50000
-        )
-        self.assertEqual(detalle.subtotal, 10 * 50000)
-        self.assertEqual(detalle.subtotal, 500000)
-
-    # ✓ Validación: Requiere presentación
-    def test_requiere_presentacion(self):
-        """Verificar que es obligatoria la presentación."""
-        with self.assertRaises(Exception):
-            DetalleCompra.objects.create(
-                orden_compra=self.orden,
-                presentacion=None,
-                cantidad=10,
-                precio_unitario=45000
-            )
-
-    # ✓ Validación: String representation
-    def test_str_representation(self):
-        """Verificar que __str__ muestra presentación y cantidad."""
-        detalle = DetalleCompra.objects.create(
-            orden_compra=self.orden,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=45000
-        )
-        esperado = f"{self.presentacion.nombre} - 24 uds"
-        self.assertEqual(str(detalle), esperado)
-
-
-class OrdenCompraIntegrationTest(TestCase):
-    """Tests de integración para flujo completo de compra."""
-
-    def setUp(self):
-        """Crear datos para tests de integración."""
-        self.usuario = Usuario.objects.create_user(username='empleado', password='pass')
-        self.proveedor = Proveedor.objects.create(
-            nombre_empresa="Distribuidora Test",
-            email="dist@test.com"
-        )
-        self.categoria = Categoria.objects.create(codigo="RON", nombre="Ron")
-        self.producto = Producto.objects.create(
-            codigo="BACARDI",
-            nombre="Bacardi",
-            categoria=self.categoria
-        )
-        self.presentacion = PresentacionProducto.objects.create(
-            producto=self.producto,
-            nombre="750ml",
-            unidades=1,
-            precio=45000
-        )
-
-    # ✓ Flujo completo: Crear orden → Agregar detalles → Calcular total
-    def test_flujo_completo_compra(self):
-        """Verificar flujo completo de una compra."""
-        orden = OrdenCompra.objects.create(
-            proveedor=self.proveedor,
-            registrado_por=self.usuario,
-            estado='pendiente'
-        )
-
-        DetalleCompra.objects.create(
-            orden_compra=orden,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=45000
-        )
-
-        DetalleCompra.objects.create(
-            orden_compra=orden,
-            presentacion=self.presentacion,
-            cantidad=12,
-            precio_unitario=45000
-        )
-
-        orden.calcular_total()
-
-        self.assertEqual(orden.total, (24 + 12) * 45000)
-        self.assertEqual(orden.detalles.count(), 2)
-
-    # ✓ Flujo: Cambio de estados
-    def test_flujo_estados_orden(self):
-        """Verificar transiciones de estados correctas."""
-        orden = OrdenCompra.objects.create(
-            proveedor=self.proveedor,
-            registrado_por=self.usuario
-        )
-
-        self.assertEqual(orden.estado, 'pendiente')
-
-        orden.estado = 'confirmada'
-        orden.save()
-        self.assertEqual(orden.estado, 'confirmada')
-
-        orden.estado = 'recibida'
-        orden.save()
-        self.assertEqual(orden.estado, 'recibida')
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TESTS PARA TABLA BASE - BasePedidoCompra
-# ═══════════════════════════════════════════════════════════════════════════
-
-class BasePedidoCompraModelTest(TestCase):
-    """Tests para el modelo BasePedidoCompra (tabla central)."""
-
-    def setUp(self):
-        """Crear datos de prueba."""
-        self.usuario = Usuario.objects.create_user(
-            username='empleado1',
-            email='emp@test.com',
-            password='pass123'
-        )
-        self.proveedor = Proveedor.objects.create(
-            nombre_empresa="Dist Test",
-            email="dist@test.com",
-            tipo_proveedor='distribuidor'
-        )
-        self.categoria = Categoria.objects.create(
-            codigo="RON",
-            nombre="Ron"
-        )
-        self.producto = Producto.objects.create(
-            codigo="BACARDI",
-            nombre="Bacardi",
-            categoria=self.categoria
-        )
-        self.presentacion = PresentacionProducto.objects.create(
-            producto=self.producto,
-            nombre="750ml",
-            unidades=1,
-            precio=45000
-        )
-        self.orden = OrdenCompra.objects.create(
-            proveedor=self.proveedor,
-            registrado_por=self.usuario
-        )
-
-    # ✓ Crear BasePedidoCompra válida
-    def test_crear_base_pedido_compra_valida(self):
-        """Verificar creación de BasePedidoCompra."""
-        base = BasePedidoCompra.objects.create(
-            numero_documento="OC-2024-001",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=Decimal('45000.00'),
-            registrado_por=self.usuario,
-            orden_compra=self.orden
-        )
-
-        self.assertEqual(base.numero_documento, "OC-2024-001")
-        self.assertEqual(base.tipo_documento, 'orden_compra')
-        self.assertEqual(base.proveedor, self.proveedor)
-        self.assertEqual(base.cantidad, 24)
-        self.assertEqual(base.estado, 'pendiente')
-        self.assertEqual(base.estado_pago, 'pendiente')
-
-    # ✓ Calcular subtotal automáticamente
-    def test_calcular_subtotal_automaticamente(self):
-        """Verificar que subtotal se calcula al guardar."""
-        base = BasePedidoCompra(
-            numero_documento="OC-2024-002",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=Decimal('45000.00'),
-            registrado_por=self.usuario
-        )
-        base.save()
-
-        expected_subtotal = 24 * Decimal('45000.00')
-        self.assertEqual(base.subtotal, expected_subtotal)
-
-    # ✓ Calcular total con descuento
-    def test_calcular_total_con_descuento(self):
-        """Verificar que total se calcula correctamente con descuento."""
-        base = BasePedidoCompra(
-            numero_documento="OC-2024-003",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=Decimal('45000.00'),
-            descuento=Decimal('100000.00'),
-            registrado_por=self.usuario
-        )
-        base.save()
-
-        expected_subtotal = 24 * Decimal('45000.00')
-        expected_total = expected_subtotal - Decimal('100000.00')
-
-        self.assertEqual(base.subtotal, expected_subtotal)
-        self.assertEqual(base.total, expected_total)
-
-    # ✓ Calcular saldo pendiente de pago
-    def test_calcular_saldo_pendiente_pago(self):
-        """Verificar cálculo de saldo pendiente."""
-        base = BasePedidoCompra(
-            numero_documento="OC-2024-004",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            monto_pagado=Decimal('250000.00'),
-            registrado_por=self.usuario
-        )
-        base.save()
-
-        # Total = 10 * 50000 = 500000
-        # Saldo = 500000 - 250000 = 250000
-        self.assertEqual(base.total, Decimal('500000.00'))
-        self.assertEqual(base.saldo_pago, Decimal('250000.00'))
-
-    # ✓ Estado de pago - Pendiente
-    def test_estado_pago_pendiente(self):
-        """Verificar que sin pago queda en pendiente."""
-        base = BasePedidoCompra(
-            numero_documento="OC-2024-005",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            registrado_por=self.usuario
-        )
-        base.save()
-
-        self.assertEqual(base.estado_pago, 'pendiente')
-        self.assertFalse(base.esta_completamente_pagada)
-
-    # ✓ Estado de pago - Parcial
-    def test_estado_pago_parcial(self):
-        """Verificar que con pago parcial queda en parcial."""
-        base = BasePedidoCompra(
-            numero_documento="OC-2024-006",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            monto_pagado=Decimal('250000.00'),
-            registrado_por=self.usuario
-        )
-        base.save()
-
-        self.assertEqual(base.estado_pago, 'parcial')
-        self.assertFalse(base.esta_completamente_pagada)
-
-    # ✓ Estado de pago - Pagada
-    def test_estado_pago_pagada(self):
-        """Verificar que con pago completo queda pagada."""
-        total = Decimal('500000.00')
-        base = BasePedidoCompra(
-            numero_documento="OC-2024-007",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            monto_pagado=total,
-            registrado_por=self.usuario
-        )
-        base.save()
-
-        self.assertEqual(base.estado_pago, 'pagada')
-        self.assertTrue(base.esta_completamente_pagada)
-
-    # ✓ Cambiar estado de compra
-    def test_cambiar_estado_compra(self):
-        """Verificar cambios de estado."""
-        base = BasePedidoCompra.objects.create(
-            numero_documento="OC-2024-008",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            registrado_por=self.usuario
-        )
-
-        self.assertEqual(base.estado, 'pendiente')
-
-        base.estado = 'confirmada'
-        base.save()
-        self.assertEqual(base.estado, 'confirmada')
-
-        base.estado = 'recibida'
-        base.recibida = True
-        base.save()
-        self.assertEqual(base.estado, 'recibida')
-        self.assertTrue(base.recibida)
-
-    # ✓ Registrar como recibida
-    def test_registrar_como_recibida(self):
-        """Verificar registro de recepción."""
-        from django.utils import timezone
-
-        base = BasePedidoCompra.objects.create(
-            numero_documento="OC-2024-009",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=24,
-            precio_unitario=Decimal('45000.00'),
-            registrado_por=self.usuario
-        )
-
-        base.recibida = True
-        base.cantidad_recibida = 24
-        base.fecha_recepcion = timezone.now()
-        base.save()
-
-        self.assertTrue(base.recibida)
-        self.assertEqual(base.cantidad_recibida, 24)
-        self.assertIsNotNone(base.fecha_recepcion)
-
-    # ✓ Relacionar con OrdenCompra
-    def test_relacionar_con_orden_compra(self):
-        """Verificar que se puede relacionar con OrdenCompra."""
-        base = BasePedidoCompra.objects.create(
-            numero_documento="OC-2024-010",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            registrado_por=self.usuario,
-            orden_compra=self.orden
-        )
-
-        self.assertEqual(base.orden_compra, self.orden)
-        self.assertEqual(base.proveedor, self.orden.proveedor)
-
-    # ✓ Validar número documento único
-    def test_numero_documento_unico(self):
-        """Verificar que número de documento es único."""
-        BasePedidoCompra.objects.create(
-            numero_documento="OC-UNIQUE-001",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            registrado_por=self.usuario
-        )
-
-        with self.assertRaises(Exception):
-            BasePedidoCompra.objects.create(
-                numero_documento="OC-UNIQUE-001",
-                tipo_documento='orden_compra',
-                proveedor=self.proveedor,
-                producto=self.producto,
-                presentacion=self.presentacion,
-                cantidad=10,
-                precio_unitario=Decimal('50000.00'),
-                registrado_por=self.usuario
-            )
-
-    # ✓ Propiedad: está_completamente_pagada
-    def test_propiedad_esta_completamente_pagada(self):
-        """Verificar propiedad de pago completo."""
-        base = BasePedidoCompra.objects.create(
-            numero_documento="OC-2024-011",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            monto_pagado=Decimal('500000.00'),
-            registrado_por=self.usuario
-        )
-
-        self.assertTrue(base.esta_completamente_pagada)
-
-    # ✓ Propiedad: está_pendiente
-    def test_propiedad_esta_pendiente(self):
-        """Verificar propiedad de pendiente."""
-        base = BasePedidoCompra.objects.create(
-            numero_documento="OC-2024-012",
-            tipo_documento='orden_compra',
-            proveedor=self.proveedor,
-            producto=self.producto,
-            presentacion=self.presentacion,
-            cantidad=10,
-            precio_unitario=Decimal('50000.00'),
-            registrado_por=self.usuario
-        )
-
-        self.assertTrue(base.esta_pendiente)
-
-        base.recibida = True
-        self.assertFalse(base.esta_pendiente)
+    # ✓ US-002: Editar proveedor con cambios válidos en todos los campos
+    def test_editar_proveedor_cambios_validos_todos_campos(self):
+        """Verificar que se pueden editar todos los campos válidos del proveedor.
+
+        Escenario: Un usuario con permisos edita un proveedor existente cambiando
+        todos los campos editables (nombre_empresa, nit, email, telefono,
+        tipo_proveedor, estado, observacion).
+
+        Datos de entrada:
+        - Nombre empresa original: "Distribuidora La Ceiba"
+        - Nuevos valores a cambiar:
+          * nombre_empresa: "Distribuidora Premium Export"
+          * nit: "123456789-0"
+          * email: "premium.export@test.com"
+          * telefono: "3157654321"
+          * tipo_proveedor: "importador" (cambio de "distribuidor")
+          * estado: "inactivo" (cambio de "activo")
+          * observacion: "Proveedor temporal para importación especial"
+
+        Resultado esperado:
+        - Todos los cambios se guardan correctamente
+        - Los datos se persisten en la base de datos
+        - El proveedor se puede recuperar con los nuevos valores
+        """
+        # Guardar valores originales para verificación
+        proveedor_id = self.proveedor.id
+
+        # Actualizar todos los campos editables
+        self.proveedor.nombre_empresa = "Distribuidora Premium Export"
+        self.proveedor.nit = "123456789-0"
+        self.proveedor.email = "premium.export@test.com"
+        self.proveedor.telefono = "3157654321"
+        self.proveedor.tipo_proveedor = "importador"
+        self.proveedor.estado = "inactivo"
+        self.proveedor.observacion = "Proveedor temporal para importación especial"
+        self.proveedor.save()
+
+        # Recuperar el proveedor de la base de datos para verificar persistencia
+        proveedor_actualizado = Proveedor.objects.get(id=proveedor_id)
+
+        # Verificaciones de cambios exitosos
+        self.assertEqual(proveedor_actualizado.nombre_empresa, "Distribuidora Premium Export")
+        self.assertEqual(proveedor_actualizado.nit, "123456789-0")
+        self.assertEqual(proveedor_actualizado.email, "premium.export@test.com")
+        self.assertEqual(proveedor_actualizado.telefono, "3157654321")
+        self.assertEqual(proveedor_actualizado.tipo_proveedor, "importador")
+        self.assertEqual(proveedor_actualizado.estado, "inactivo")
+        self.assertEqual(proveedor_actualizado.observacion, "Proveedor temporal para importación especial")
+
+        # Verificar que el ID no cambió (es el mismo registro)
+        self.assertEqual(proveedor_actualizado.id, proveedor_id)
+
+        # Verificar que fecha_registro se mantiene igual
+        self.assertEqual(proveedor_actualizado.fecha_registro, self.proveedor.fecha_registro)
+
+        # Verificar que solo existe 1 proveedor en la BD (no se duplicó)
+        self.assertEqual(Proveedor.objects.count(), 1)

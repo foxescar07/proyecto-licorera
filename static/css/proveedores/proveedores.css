@@ -1253,30 +1253,31 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #modalNuevoProveedor .prod-btn-primary {
-  background: var(--prod-azul) !important;
-  color: var(--prod-fondo) !important;
+  background: #CF9C48 !important;
+  color: #fff !important;
   border: none !important;
   font-weight: 700 !important;
   border-radius: 20px !important;
 }
 
 #modalNuevoProveedor .prod-btn-primary:hover {
-  background: var(--prod-azul) !important;
+  background: #CF9C48 !important;
   opacity: 0.88 !important;
-  color: var(--prod-fondo) !important;
+  color: #fff !important;
 }
 
 #modalNuevoProveedor .prod-btn-outline {
   background: transparent !important;
-  border: 1px solid rgba(77, 168, 218, 0.35) !important;
-  color: var(--prod-azul) !important;
+  border: 2px solid #7C3AED !important;
+  color: #7C3AED !important;
   border-radius: 20px !important;
   font-weight: 600 !important;
 }
 
 #modalNuevoProveedor .prod-btn-outline:hover {
-  background: rgba(77, 168, 218, 0.1) !important;
-  color: var(--prod-azul) !important;
+  background: rgba(124, 58, 237, 0.1) !important;
+  color: #7C3AED !important;
+  border-color: #7C3AED !important;
 }
 
 /* ÍCONO Y BOTÓN CLOSE DEL MODAL */
@@ -1728,4 +1729,84 @@ h1, h2, h3, h4, h5, h6 {
 .prod-btn-outline:hover {
   background: rgba(77, 168, 218, 0.1);
   color: var(--prov-azul);
+}
+
+/* ============================================ */
+/* VALIDACIÓN DE FORMULARIO - ERRORES */
+/* ============================================ */
+
+.prod-input.is-invalid {
+  border-color: #dc3545 !important;
+  background-color: rgba(220, 53, 69, 0.05);
+}
+
+.prod-input.is-invalid:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+  display: none;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.invalid-feedback.d-block {
+  display: block !important;
+  animation: slideDown 0.2s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================ */
+/* NOTIFICACIONES - TOAST */
+/* ============================================ */
+
+.toast {
+  background-color: #111f33 !important;
+  border: 1px solid rgba(207, 156, 72, 0.3) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  animation: toastSlideIn 0.3s ease-in-out;
+}
+
+.toast-header.bg-success {
+  background: linear-gradient(135deg, #10B981 0%, #06B6D4 100%) !important;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.toast-header.bg-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+  border-bottom: 1px solid rgba(220, 53, 69, 0.2) !important;
+}
+
+.toast-body {
+  color: #E8EDF2 !important;
+  font-size: 0.95rem !important;
+  padding: 1rem !important;
+}
+
+.toast .btn-close-white {
+  filter: brightness(1.2) !important;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

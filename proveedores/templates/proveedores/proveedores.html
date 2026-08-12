@@ -21,6 +21,9 @@
 {% endblock %}
 
 {% block content %}
+<!-- Contenedor para notificaciones Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index: 9999;"></div>
+
 <div class="container-fluid p-0">
   <div class="cys-snap-section px-3 py-4">
 
@@ -174,27 +177,27 @@
                   <li><hr class="dropdown-divider"></li>
                   {% if p.estado == 'activo' %}
                   <li>
-                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalDesactivar{{ p.id }}">
+                    <button type="button" class="dropdown-item btn-desactivar" data-provider-id="{{ p.id }}" data-provider-name="{{ p.nombre_empresa }}">
                       <i class="bi bi-pause-circle me-2 text-warning"></i>Desactivar
                     </button>
                   </li>
                   {% elif p.estado == 'inactivo' %}
                   <li>
-                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalActivar{{ p.id }}">
+                    <button type="button" class="dropdown-item btn-reactivar" data-provider-id="{{ p.id }}" data-provider-name="{{ p.nombre_empresa }}">
                       <i class="bi bi-play-circle me-2 text-success"></i>Activar
                     </button>
                   </li>
                   {% endif %}
                   {% if p.estado != 'sancionado' %}
                   <li>
-                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalSancionar{{ p.id }}">
+                    <button type="button" class="dropdown-item btn-sancionar" data-provider-id="{{ p.id }}" data-provider-name="{{ p.nombre_empresa }}">
                       <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Sancionar
                     </button>
                   </li>
                   {% else %}
                   <li>
-                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalVerSancion{{ p.id }}">
-                      <i class="bi bi-info-circle me-2 text-info"></i>Ver causa
+                    <button type="button" class="dropdown-item btn-levantar-sancion" data-provider-id="{{ p.id }}" data-provider-name="{{ p.nombre_empresa }}">
+                      <i class="bi bi-info-circle me-2 text-info"></i>Levantar sanción
                     </button>
                   </li>
                   {% endif %}
@@ -249,26 +252,35 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body p-4">
-        <div id="nuevo-prov-feedback" class="mb-3 d-none"></div>
         <form id="formNuevoProveedor" method="POST" action="{% url 'crear_proveedor' %}">
           {% csrf_token %}
           <div class="row g-3">
+            <!-- Empresa -->
             <div class="col-12 col-md-6">
               <label for="id_nombre_empresa" class="form-label prod-label">Empresa <span class="text-danger">*</span></label>
               <input type="text" name="nombre_empresa" id="id_nombre_empresa" class="form-control prod-input" placeholder="Ej: ABC Distribuciones" required>
-            </div>
-            <div class="col-12 col-md-6">
-              <label for="id_nit" class="form-label prod-label">NIT</label>
-              <input type="text" name="nit" id="id_nit" class="form-control prod-input" placeholder="Ej: 123456789-1">
+              <div class="invalid-feedback" id="error-nombre_empresa"></div>
             </div>
 
+            <!-- NIT -->
+            <div class="col-12 col-md-6">
+              <label for="id_nit" class="form-label prod-label">NIT <span class="text-danger">*</span></label>
+              <input type="text" name="nit" id="id_nit" class="form-control prod-input" placeholder="Ej: 123456789-1" required>
+              <div class="invalid-feedback" id="error-nit"></div>
+            </div>
+
+            <!-- Correo -->
             <div class="col-12 col-md-6">
               <label for="id_email" class="form-label prod-label">Correo <span class="text-danger">*</span></label>
               <input type="email" name="email" id="id_email" class="form-control prod-input" placeholder="contacto@empresa.com" required>
+              <div class="invalid-feedback" id="error-email"></div>
             </div>
+
+            <!-- Teléfono -->
             <div class="col-12 col-md-6">
-              <label for="id_telefono" class="form-label prod-label">Teléfono</label>
-              <input type="text" name="telefono" id="id_telefono" class="form-control prod-input" placeholder="Ej: 3001234567" pattern="\d{7,15}">
+              <label for="id_telefono" class="form-label prod-label">Teléfono <span class="text-danger">*</span></label>
+              <input type="text" name="telefono" id="id_telefono" class="form-control prod-input" placeholder="Ej: 3001234567" pattern="\d{7,15}" required>
+              <div class="invalid-feedback" id="error-telefono"></div>
             </div>
           </div>
         </form>
@@ -388,12 +400,12 @@
           <div class="fw-bold" id="proveedorSancionarNombre">Nombre del proveedor</div>
           <div class="prod-label mt-1" id="proveedorSancionarEmail">Email</div>
         </div>
-        <form id="formSancionarProveedor" method="POST">
+        <form id="formSancionar" method="POST">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="causaSancion" class="form-label prod-label">Observaciones <span class="text-danger">*</span></label>
+            <label for="motivoSancion" class="form-label prod-label">Observaciones <span class="text-danger">*</span></label>
             <textarea
-              id="causaSancion"
+              id="motivoSancion"
               name="observacion"
               class="form-control prod-input"
               rows="4"
@@ -407,7 +419,7 @@
         <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <button type="submit" form="formSancionarProveedor" class="btn btn-danger fw-bold">
+        <button type="submit" form="formSancionar" class="btn btn-danger fw-bold">
           <i class="bi bi-exclamation-triangle me-1"></i>Sancionar
         </button>
       </div>

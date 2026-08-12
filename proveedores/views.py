@@ -3,10 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Sum, Count
 from django.utils import timezone
+from django.http import JsonResponse
 from datetime import timedelta
 from .models import Proveedor, Compra, DetalleCompra, HistorialCompra
 from .forms import ProveedorForm, CompraForm, DetalleCompraForm, NuevaCompraForm
@@ -129,18 +131,35 @@ def lista_proveedores(request):
 def crear_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
+
+        # Verificar si es AJAX
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
         if form.is_valid():
             proveedor = form.save(commit=False)
             proveedor.registrado_por = request.user
             proveedor.save()
-            messages.success(request, f'Proveedor {proveedor.nombre_empresa} creado exitosamente.')
-            return redirect('lista_proveedores')
+
+            if is_ajax:
+                # Retornar JSON para AJAX
+                return JsonResponse({'success': True, 'message': f'Proveedor {proveedor.nombre_empresa} creado exitosamente.'})
+            else:
+                # Retornar redirección para formulario tradicional
+                messages.success(request, f'Proveedor {proveedor.nombre_empresa} creado exitosamente.')
+                return redirect('lista_proveedores')
         else:
-            # Si hay errores, mostrarlos
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-            return redirect('lista_proveedores')
+            if is_ajax:
+                # Retornar errores en JSON para AJAX
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = field_errors[0] if field_errors else 'Error desconocido'
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
+            else:
+                # Mostrar errores para formulario tradicional
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+                return redirect('lista_proveedores')
 
     return redirect('lista_proveedores')
 
@@ -152,9 +171,8 @@ def editar_proveedor(request, id):
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
             proveedor_guardado = form.save(commit=False)
-            proveedor_guardado.modificado_por = request.user
             proveedor_guardado.save()
-            messages.success(request, f'Proveedor {proveedor.nombre_empresa} actualizado exitosamente.')
+            messages.success(request, f'Proveedor {proveedor_guardado.nombre_empresa} actualizado exitosamente.')
             return redirect('lista_proveedores')
     else:
         form = ProveedorForm(instance=proveedor)
@@ -879,3 +897,155 @@ def registrar_compra(request):
     }
 
     return render(request, 'proveedores/compras.html', context)
+
+
+# ============================================
+# VISTAS PARA MANEJO DE MODALES (AJAX)
+# ============================================
+
+@login_required
+def detalle_proveedor_modal(request, id):
+    """Obtener detalles del proveedor para mostrar en modal"""
+    try:
+        proveedor = get_object_or_404(Proveedor, id=id)
+
+        # Calcular estadísticas
+        compras = Compra.objects.filter(proveedor=proveedor)
+        total_compras = compras.count()
+        total_gastado = sum(c.valor for c in compras) if compras else 0
+
+        data = {
+            'success': True,
+            'proveedor': {
+                'id': proveedor.id,
+                'nombre_empresa': proveedor.nombre_empresa,
+                'nit': proveedor.nit or '—',
+                'email': proveedor.email,
+                'telefono': proveedor.telefono or '—',
+                'tipo_proveedor': proveedor.get_tipo_proveedor_display(),
+                'estado': proveedor.get_estado_display(),
+                'estado_value': proveedor.estado,
+                'observacion': proveedor.observacion or 'Sin observaciones',
+                'fecha_registro': proveedor.fecha_registro.strftime('%d/%m/%Y'),
+                'total_compras': total_compras,
+                'total_gastado': f'${total_gastado:,.2f}',
+            }
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@csrf_exempt
+def desactivar_proveedor(request, id):
+    """Desactivar un proveedor"""
+    if request.method == 'POST':
+        try:
+            proveedor = get_object_or_404(Proveedor, id=id)
+
+            if proveedor.estado == 'activo':
+                proveedor.estado = 'inactivo'
+                proveedor.save()
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Proveedor {proveedor.nombre_empresa} desactivado exitosamente',
+                    'nuevo_estado': 'inactivo'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'El proveedor no está activo'
+                }, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+@csrf_exempt
+def reactivar_proveedor(request, id):
+    """Reactivar un proveedor"""
+    if request.method == 'POST':
+        try:
+            proveedor = get_object_or_404(Proveedor, id=id)
+
+            if proveedor.estado in ['inactivo', 'sancionado']:
+                proveedor.estado = 'activo'
+                proveedor.save()
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Proveedor {proveedor.nombre_empresa} reactivado exitosamente',
+                    'nuevo_estado': 'activo'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'El proveedor ya está activo'
+                }, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+@csrf_exempt
+def sancionar_proveedor(request, id):
+    """Sancionar un proveedor"""
+    if request.method == 'POST':
+        try:
+            proveedor = get_object_or_404(Proveedor, id=id)
+            observacion = request.POST.get('observacion', '')
+
+            if not observacion or len(observacion.strip()) == 0:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Debe indicar el motivo de la sanción'
+                }, status=400)
+
+            proveedor.estado = 'sancionado'
+            proveedor.observacion = observacion
+            proveedor.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': f'Proveedor {proveedor.nombre_empresa} sancionado exitosamente',
+                'nuevo_estado': 'sancionado'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+@csrf_exempt
+def levantar_sancion_proveedor(request, id):
+    """Levantar sanción de un proveedor"""
+    if request.method == 'POST':
+        try:
+            proveedor = get_object_or_404(Proveedor, id=id)
+
+            if proveedor.estado == 'sancionado':
+                proveedor.estado = 'activo'
+                proveedor.observacion = ''
+                proveedor.save()
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Sanción levantada para {proveedor.nombre_empresa}',
+                    'nuevo_estado': 'activo'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'El proveedor no está sancionado'
+                }, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
