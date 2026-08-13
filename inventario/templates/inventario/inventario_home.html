@@ -63,6 +63,24 @@
         </div>
       </div>
     </div>
+     
+    <div class="col-md-3">
+  <div class="inv-quick-card qc-borde-dorado" data-bs-toggle="modal" data-bs-target="#modalRegistrarMovimiento" role="button">
+    <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+      <div class="rounded-3 p-2 qc-icono-bg-dorado">
+        <i class="bi bi-arrow-down-up fs-4 qc-icono-color-dorado"></i>
+      </div>
+      <span class="badge rounded-pill qc-badge-dorado">MOVIMIENTO</span>
+    </div>
+    <div class="fw-bold mt-1 qc-valor-dorado">{{ movimientos|length|default:"0" }}</div>
+    <div class="fw-semibold mt-1 qc-titulo">Registrar Movimiento</div>
+    <div class="text-muted small mt-1 qc-desc">Entrada o salida manual de stock</div>
+    <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-dorado">
+      <span class="qc-footer-texto-dorado">Abrir módulo</span>
+      <i class="bi bi-arrow-right qc-footer-texto-dorado"></i>
+    </div>
+  </div>
+</div>
 
     <div class="col-md-3">
       <div class="inv-quick-card qc-borde-purpura" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
@@ -822,7 +840,74 @@
     </div>
   </div>
 </div>
+    <!-- MODAL REGISTRAR MOVIMIENTO -->
+<div class="modal fade" id="modalRegistrarMovimiento" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content inv-modal">
+      <div class="modal-header inv-modal-header">
+        <h6 class="modal-title"><i class="bi bi-arrow-down-up me-2 inv-icon-dorado"></i>Registrar Movimiento</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'inventario:movimiento_create' %}">
+          {% csrf_token %}
 
+          <div class="mb-3">
+            <label class="form-label inv-label">Lote</label>
+            <div class="dropdown w-100">
+              <button class="btn dropdown-toggle w-100 text-start" type="button"
+                      id="rm-lote-btn" data-bs-toggle="dropdown">
+                <span id="rm-lote-label">— Seleccionar lote —</span>
+              </button>
+              <ul class="dropdown-menu w-100 rm-lote-menu">
+                {% for lote in lotes %}
+                <li>
+                  <a class="dropdown-item rm-lote-item" href="#" data-value="{{ lote.pk }}">
+                    {{ lote.presentacion.producto.nombre }} — {{ lote.numero_lote }} (Stock: {{ lote.stock_actual }})
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            <input type="hidden" name="lote_id" id="rm-lote-hidden" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label inv-label">Tipo de movimiento</label>
+            <div class="dropdown w-100">
+              <button class="btn dropdown-toggle w-100 text-start" type="button"
+                      id="rm-tipo-btn" data-bs-toggle="dropdown">
+                <span id="rm-tipo-label">Entrada</span>
+              </button>
+              <ul class="dropdown-menu w-100">
+                <li><a class="dropdown-item rm-tipo-item" href="#" data-value="entrada">Entrada</a></li>
+                <li><a class="dropdown-item rm-tipo-item" href="#" data-value="salida">Salida</a></li>
+              </ul>
+            </div>
+            <input type="hidden" name="tipo" id="rm-tipo-hidden" value="entrada">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label inv-label">Cantidad</label>
+            <input type="number" name="cantidad" class="form-control inv-input" min="1" placeholder="0" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label inv-label">Motivo (opcional)</label>
+            <input type="text" name="motivo" class="form-control inv-input" placeholder="Ej: Compra, Venta, Merma…">
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn rounded-pill px-4 btn-outline-azul" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn rounded-pill fw-bold px-4 btn-solido-azul">
+              <i class="bi bi-save me-2"></i>Registrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- MODAL REGISTRAR CÓDIGOS -->
 <div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">

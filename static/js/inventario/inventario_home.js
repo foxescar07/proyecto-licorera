@@ -471,3 +471,20 @@ document.querySelectorAll('.inv-spin-btn').forEach(function (btn) {
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 });
+// Dropdown de Lote (modal Registrar Movimiento)
+document.querySelectorAll('.rm-lote-item').forEach(function (item) {
+  item.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('rm-lote-label').textContent = item.textContent.trim();
+    document.getElementById('rm-lote-hidden').value = item.dataset.value;
+  });
+});
+
+// Dropdown de Tipo (modal Registrar Movimiento)
+document.querySelectorAll('.rm-tipo-item').forEach(function (item) {
+  item.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('rm-tipo-label').textContent = item.textContent.trim();
+    document.getElementById('rm-tipo-hidden').value = item.dataset.value;
+  });
+});
