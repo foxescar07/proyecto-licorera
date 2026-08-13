@@ -48,41 +48,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  document.querySelectorAll('[role="button"][data-bs-toggle="modal"], [role="button"][data-bs-toggle="collapse"]').forEach(elemento => {
+    elemento.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        elemento.click();
+      }
+    });
+  });
+
   // Mostrar/ocultar monto pagado según estado
-  const estadoPago = document.getElementById('estadoPago');
-  if (estadoPago) {
-    estadoPago.addEventListener('change', function() {
-      const montoPagadoDiv = document.getElementById('montoPagadoDiv');
-      if (this.value === 'parcial') {
-        montoPagadoDiv.style.display = 'block';
-      } else {
-        montoPagadoDiv.style.display = 'none';
-      }
-    });
-  }
-
   // Preparar modal de pago
-  const modalPago = document.getElementById('modalPago');
-  if (modalPago) {
-    modalPago.addEventListener('show.bs.modal', function(event) {
-      const button = event.relatedTarget;
-      if (button && button.dataset.compraId) {
-        document.getElementById('compraId').value = button.dataset.compraId;
-        // Actualizar action del formulario con el ID de compra
-        const formPago = document.getElementById('formPago');
-        if (formPago) {
-          formPago.action = `/proveedores/compras/${button.dataset.compraId}/pago/`;
-        }
-      }
-      // Limpiar y ocultar campos
-      const formPago = document.getElementById('formPago');
-      if (formPago) {
-        formPago.reset();
-      }
-      document.getElementById('montoPagadoDiv').style.display = 'none';
-    });
-  }
-
   // Inicializar gráficas
   initializeCharts();
 });

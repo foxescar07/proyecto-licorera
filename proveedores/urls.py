@@ -12,6 +12,8 @@ urlpatterns = [
     path('eliminar/<int:id>/', views.eliminar_proveedor, name='eliminar_proveedor'),
     path('compras/', views.lista_compras, name='lista_compras'),
     path('registrar-compra/', views.registrar_compra, name='registrar_compra'),
+    path('compras/<int:id>/estado/', views.cambiar_estado_compra, name='cambiar_estado_compra'),
+    path('compras/<int:id>/pago/', views.registrar_pago_compra, name='registrar_pago_compra'),
 
     # Rutas para AJAX/Modales
     path('modal/detalle/<int:id>/', views.detalle_proveedor_modal, name='detalle_proveedor_modal'),
