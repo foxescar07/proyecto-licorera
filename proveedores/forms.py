@@ -58,17 +58,20 @@ class ProveedorForm(forms.ModelForm):
         return nombre.strip()
 
     def clean_nit(self):
-        """Validar que el NIT sea único y válido."""
+        """Validar que el NIT sea obligatorio y único."""
         nit = self.cleaned_data.get('nit')
-        if not nit or len(nit.strip()) == 0:
-            raise ValidationError('El NIT no puede estar vacío')
 
+        # Validar que no esté vacío
+        if not nit or len(str(nit).strip()) == 0:
+            raise ValidationError('El NIT es obligatorio')
+
+        # Verificar que sea único
         if Proveedor.objects.filter(nit=nit).exclude(
             pk=self.instance.pk if self.instance else None
         ).exists():
-            raise ValidationError('Este NIT ya está registrado en el sistema')
+            raise ValidationError('Este NIT ya está registrado')
 
-        return nit.strip()
+        return nit.strip() if isinstance(nit, str) else nit
 
     def clean_email(self):
         """Validar que el email sea único y válido."""
@@ -84,10 +87,23 @@ class ProveedorForm(forms.ModelForm):
         return email.lower()
 
     def clean_telefono(self):
-        """Validar formato de teléfono."""
+        """Validar que el teléfono sea obligatorio, con formato correcto y único."""
         telefono = self.cleaned_data.get('telefono')
-        if telefono and not re.match(r'^\d{7,15}$', telefono):
+
+        # Validar que no esté vacío
+        if not telefono or len(str(telefono).strip()) == 0:
+            raise ValidationError('El teléfono es obligatorio')
+
+        # Validar formato
+        if not re.match(r'^\d{7,15}$', str(telefono)):
             raise ValidationError('Teléfono debe contener 7-15 dígitos')
+
+        # Validar unicidad
+        if Proveedor.objects.filter(telefono=telefono).exclude(
+            pk=self.instance.pk if self.instance else None
+        ).exists():
+            raise ValidationError('Este teléfono ya está registrado')
+
         return telefono
 
     def clean(self):
