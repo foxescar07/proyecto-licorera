@@ -44,6 +44,8 @@ def inventario_home(request):
         'dias_con_movimientos': dias_con_movimientos,
         'hoy': hoy,
         'fecha_filtro': hoy,
+        'lotes': Lote.objects.select_related('presentacion__producto').all(),
+
     }
     return render(request, 'inventario/inventario_home.html', context)
 
@@ -156,7 +158,55 @@ def movimiento_list(request):
         movimientos = movimientos.filter(tipo=tipo)
     return render(request, 'inventario/movimiento_list.html', {'movimientos': movimientos, 'tipo': tipo})
 
+@login_required
+@transaction.atomic
+def movimiento_create(request):
+    if request.method == 'POST':
+        lote_id = request.POST.get('lote_id')
+        tipo = request.POST.get('tipo')
+        cantidad_raw = request.POST.get('cantidad')
+        motivo = request.POST.get('motivo', '').strip()
 
+        lote = get_object_or_404(Lote, pk=lote_id)
+
+        try:
+            cantidad = int(cantidad_raw)
+        except (TypeError, ValueError):
+            messages.error(request, 'La cantidad ingresada no es válida.')
+            return redirect('inventario:inventario_home')
+
+        if cantidad <= 0:
+            messages.error(request, 'La cantidad debe ser mayor a cero.')
+            return redirect('inventario:inventario_home')
+
+        if tipo == 'entrada':
+            lote.stock_actual += cantidad
+        elif tipo == 'salida':
+            if cantidad > lote.stock_actual:
+                messages.error(request, f'No hay suficiente stock en el lote {lote.numero_lote}.')
+                return redirect('inventario:inventario_home')
+            lote.stock_actual -= cantidad
+        else:
+            messages.error(request, 'Tipo de movimiento no válido.')
+            return redirect('inventario:inventario_home')
+
+        lote.save()
+
+        inventario = Inventario.objects.filter(presentacion=lote.presentacion).first()
+
+        MovimientoInventario.objects.create(
+            inventario=inventario,
+            lote=lote,
+            registrado_por=request.user,
+            tipo=tipo,
+            cantidad=cantidad,
+            motivo=motivo or None,
+            stock_resultante=lote.stock_actual,
+        )
+
+        messages.success(request, 'Movimiento registrado correctamente.')
+
+    return redirect('inventario:inventario_home')
 
 @login_required
 @transaction.atomic
