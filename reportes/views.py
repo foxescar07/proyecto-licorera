@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from ventas.models import Venta, DetalleVenta
 from productos.models import Producto
 from inventario.models import Inventario, MovimientoInventario
@@ -1147,6 +1147,101 @@ def index_reportes(request):
         ],
     }
     return render(request, 'reportes/reportes.html', context)
+
+
+# ═══════════════════════════════════════════════════════
+#  VISTA AJAX — RESUMEN DIARIO
+# ═══════════════════════════════════════════════════════
+
+def resumen_diario_ajax(request):
+    """
+    Vista AJAX usada por el modal "Resumen Diario" para consultar,
+    sin recargar la página, los datos de un día distinto al actual.
+
+    Espera un parámetro GET 'fecha' en formato YYYY-MM-DD.
+    Si no se envía, usa el día de hoy (zona horaria Colombia).
+    """
+    fecha_param = request.GET.get('fecha')
+
+    if fecha_param:
+        try:
+            fecha_dt = timezone.datetime.strptime(fecha_param, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'error': 'Formato de fecha inválido. Use YYYY-MM-DD.'}, status=400)
+    else:
+        fecha_dt = timezone.now().astimezone(ZONA_COLOMBIA).date()
+
+    ventas_dia = Venta.objects.prefetch_related(
+        'detalles__codigo_producto', 'detalles__codigo_presentacion',
+    ).filter(fecha__date=fecha_dt).order_by('-fecha')
+
+    ingresos_dia = sum(v.total_venta for v in ventas_dia)
+
+    movimientos_dia = MovimientoInventario.objects.filter(
+        fecha__date=fecha_dt
+    ).select_related('inventario__presentacion__producto')
+    entradas_dia = movimientos_dia.filter(tipo='entrada')
+    salidas_dia  = movimientos_dia.filter(tipo='salida')
+    total_entradas_dia = sum(e.cantidad for e in entradas_dia)
+    total_salidas_dia  = sum(s.cantidad for s in salidas_dia)
+
+    productos_vendidos_dia = (
+        DetalleVenta.objects
+        .filter(codigo_venta__fecha__date=fecha_dt)
+        .select_related('codigo_producto', 'codigo_presentacion', 'codigo_venta')
+        .order_by('codigo_producto__nombre')
+    )
+    top_productos = {}
+    for det in productos_vendidos_dia:
+        nombre = det.codigo_producto.nombre
+        if nombre not in top_productos:
+            top_productos[nombre] = {'cantidad': 0, 'subtotal': 0}
+        top_productos[nombre]['cantidad'] += det.cantidad
+        top_productos[nombre]['subtotal'] += float(det.subtotal)
+    top_productos = sorted(
+        top_productos.items(), key=lambda x: x[1]['subtotal'], reverse=True
+    )[:5]
+
+    ventas_data = []
+    for v in ventas_dia:
+        for det in v.detalles.all():
+            ventas_data.append({
+                'hora':     v.fecha.astimezone(ZONA_COLOMBIA).strftime('%H:%M'),
+                'cliente':  str(v.codigo_cliente),
+                'producto': det.codigo_producto.nombre,
+                'cantidad': det.cantidad,
+                'subtotal': float(det.subtotal),
+            })
+
+    entradas_data = [{
+        'producto': e.inventario.presentacion.producto.nombre,
+        'cantidad': e.cantidad,
+        'motivo':   e.motivo or '—',
+        'fecha':    e.fecha.astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M'),
+    } for e in entradas_dia]
+
+    salidas_data = [{
+        'producto': s.inventario.presentacion.producto.nombre,
+        'cantidad': s.cantidad,
+        'motivo':   s.motivo or '—',
+        'fecha':    s.fecha.astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M'),
+    } for s in salidas_dia]
+
+    data = {
+        'fecha':              fecha_dt.strftime('%Y-%m-%d'),
+        'ingresos_dia':       float(ingresos_dia),
+        'total_ventas':       len(ventas_data),
+        'total_entradas_dia': total_entradas_dia,
+        'total_salidas_dia':  total_salidas_dia,
+        'ventas':             ventas_data,
+        'entradas':           entradas_data,
+        'salidas':            salidas_data,
+        'top_productos': [
+            {'nombre': nombre, 'cantidad': datos['cantidad'], 'subtotal': datos['subtotal']}
+            for nombre, datos in top_productos
+        ],
+    }
+    return JsonResponse(data, encoder=DjangoJSONEncoder)
 
 
 # ═══════════════════════════════════════════════════════

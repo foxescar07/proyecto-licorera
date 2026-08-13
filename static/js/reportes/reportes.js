@@ -2,6 +2,7 @@
  * REPORTES.JS — Reportes y Análisis
  * DataTable, filtrado, paginación, gráficas en tarjetas
  */
+console.log('[reportes.js] archivo cargado y ejecutándose');
 
 /* ── DataTable Historial de Ventas ── */
 $(document).ready(function() {
@@ -83,7 +84,6 @@ function pagProv(dir) {
     });
     document.getElementById('prov-pag-indicator').textContent = provPagActual;
 }
-document.addEventListener('DOMContentLoaded', function() { pagProv(0); });
 
 /* ── Análisis de ventas — sidebar nav ── */
 function avSetTab(tab) {
@@ -146,33 +146,57 @@ function filtrarTablaDevoluciones(q) {
     });
 }
 
-/* ════════════════════════════════════════════════════════════
-   TARJETAS DE REPORTE: abrir modal SOLO si no se tocó el botón
-   de gráfica ni el área de la gráfica.
-   ════════════════════════════════════════════════════════════ */
-document.querySelectorAll('.cys-card--interactive[data-modal-target]').forEach(function (card) {
-    card.addEventListener('click', function (e) {
-        if (e.target.closest('.cys-report-card__chart-toggle') ||
-            e.target.closest('.cys-report-card__chart-wrap')) {
-            return;
-        }
-        const sel = card.getAttribute('data-modal-target');
-        const modalEl = document.querySelector(sel);
-        if (modalEl && window.bootstrap) {
-            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modal.show();
-        }
+/* ── Búsqueda: Resumen Diario → tab "Entradas" ── */
+function filtrarTablaRDEntradas(q) {
+    q = q.toLowerCase().trim();
+    const filas = document.querySelectorAll('#tabla-modal-rd-entradas .rd-entrada-row');
+    let visibles = 0;
+    filas.forEach(function(row) {
+        const producto = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const coincide = producto.includes(q);
+        row.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
     });
-});
+    const noResults = document.getElementById('rd-entradas-no-results');
+    if (noResults) {
+        noResults.classList.toggle('d-none', !(filas.length > 0 && visibles === 0));
+    }
+}
 
-/* Botón de gráfica: maneja su propio clic/touch */
-document.querySelectorAll('.cys-report-card__chart-toggle').forEach(function (btn) {
-    btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        e.preventDefault();
-        toggleCardChart(this);
+/* ── Búsqueda: Resumen Diario → tab "Salidas" ── */
+function filtrarTablaRDSalidas(q) {
+    q = q.toLowerCase().trim();
+    const filas = document.querySelectorAll('#tabla-modal-rd-salidas .rd-salida-row');
+    let visibles = 0;
+    filas.forEach(function(row) {
+        const producto = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const coincide = producto.includes(q);
+        row.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
     });
-});
+    const noResults = document.getElementById('rd-salidas-no-results');
+    if (noResults) {
+        noResults.classList.toggle('d-none', !(filas.length > 0 && visibles === 0));
+    }
+}
+
+/* ── Búsqueda: Resumen Diario → tab "Ventas" ── */
+function filtrarTablaRDVentas(q) {
+    q = q.toLowerCase().trim();
+    const filas = document.querySelectorAll('#tabla-modal-rd-ventas .rd-venta-row');
+    let visibles = 0;
+    filas.forEach(function(row) {
+        const cliente  = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const producto = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const coincide = cliente.includes(q) || producto.includes(q);
+        row.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
+    });
+    const noResults = document.getElementById('rd-ventas-no-results');
+    if (noResults) {
+        noResults.classList.toggle('d-none', !(filas.length > 0 && visibles === 0));
+    }
+}
 
 /* ════════════════════════════════════════════════════════════
    MINI GRÁFICAS EN LAS TARJETAS DE REPORTE
@@ -274,4 +298,37 @@ function renderReportCardChart(wrap, card) {
             }
         }
     });
+}
+
+/* ════════════════════════════════════════════════════════════
+   INICIALIZACIÓN
+   La apertura de los modales de las tarjetas YA NO se maneja
+   aquí: cada tarjeta tiene data-bs-toggle="modal" y
+   data-bs-target="#modalX" en el HTML, así que Bootstrap las
+   abre directamente (delegado sobre document, no depende de
+   cuándo cargue este script).
+   Aquí solo queda: la paginación inicial de proveedores y el
+   botón de gráfica de cada tarjeta (que debe frenar la
+   propagación del clic para no abrir el modal al mismo tiempo).
+   ════════════════════════════════════════════════════════════ */
+function initReportesUI() {
+    pagProv(0);
+
+    const botonesGrafica = document.querySelectorAll('.cys-report-card__chart-toggle');
+    console.log('[reportes.js] botones de gráfica encontrados:', botonesGrafica.length);
+
+    botonesGrafica.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            console.log('[reportes.js] clic en botón de gráfica detectado');
+            e.preventDefault();
+            e.stopPropagation();
+            toggleCardChart(this);
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReportesUI);
+} else {
+    initReportesUI();
 }
