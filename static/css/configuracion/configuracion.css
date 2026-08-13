@@ -589,3 +589,156 @@ input:checked + .slider-sw::before { transform: translateX(18px); }
 .icon-muted {
   color: var(--texto-muted);
 }
+
+/* ════════════════════════════════════════════════════
+   BLOQUEO DE EMPRESA — estilo "desbloquear celular"
+   ════════════════════════════════════════════════════ */
+
+.cfg-title-row__acciones {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.cfg-lockscreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem 1rem 2rem;
+  min-height: 300px;
+  width: 100%;
+}
+
+.cfg-lockscreen__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(77,168,218,.1);
+  border: 1.5px solid rgba(77,168,218,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.1rem;
+  transition: transform .25s, background .25s, border-color .25s;
+  flex-shrink: 0;
+}
+.cfg-lockscreen__icon i {
+  font-size: 1.6rem;
+  color: var(--azul-claro);
+  transition: transform .25s;
+}
+.cfg-lockscreen__icon--open {
+  background: rgba(39,174,96,.12);
+  border-color: rgba(39,174,96,.5);
+  transform: scale(1.08);
+}
+.cfg-lockscreen__icon--open i { color: #2ecc71; }
+.cfg-lockscreen__icon--shake { animation: cfgShake .4s; }
+
+.cfg-lockscreen__titulo {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--texto);
+  margin-bottom: .3rem;
+  width: 100%;
+}
+.cfg-lockscreen__sub {
+  font-size: .78rem;
+  color: var(--texto-muted);
+  margin-bottom: 1.25rem;
+  max-width: 280px;
+  width: 100%;
+}
+
+.cfg-lockscreen__form {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  max-width: 260px;
+}
+.cfg-lockscreen__input {
+  flex: 1;
+  min-width: 0;
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
+  border-radius: 999px;
+  padding: .6rem 1.1rem;
+  font-size: .9rem;
+  outline: none;
+  text-align: center;
+  letter-spacing: .2em;
+  transition: border-color .2s;
+  box-shadow: none;
+}
+.cfg-lockscreen__input::placeholder { color: var(--texto-muted); letter-spacing: normal; }
+.cfg-lockscreen__input:focus { border-color: var(--azul-claro) !important; }
+.cfg-lockscreen__input--shake {
+  animation: cfgShake .4s;
+  border-color: #e87070 !important;
+}
+
+.cfg-lockscreen__btn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--azul-claro);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+  padding: 0;
+}
+.cfg-lockscreen__btn:hover { background: #3a94c9; }
+.cfg-lockscreen__btn:active { transform: scale(.94); }
+.cfg-lockscreen__btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.cfg-lockscreen__error {
+  margin-top: .75rem;
+  font-size: .75rem;
+  color: #e87070;
+  width: 100%;
+}
+
+@keyframes cfgShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.cfg-locked-content { animation: cfgFadeIn .35s ease; }
+@keyframes cfgFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cfg-btn-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .95rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--texto-muted) !important;
+  background: transparent !important;
+  border: 1px solid var(--azul-borde) !important;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  box-shadow: none;
+}
+.cfg-btn-lock:hover { color: var(--azul-claro) !important; border-color: var(--azul-claro) !important; }
+.cfg-btn-lock:active { transform: scale(.97); }

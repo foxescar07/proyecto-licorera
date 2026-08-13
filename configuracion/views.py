@@ -43,16 +43,26 @@ def _db_stats():
     return stats
 
 
+def _es_admin(request):
+    return request.user.is_authenticated and request.user.rol == 'admin'
+
+
 # ── Vistas ─────────────────────────────────────────────────
 
 @login_required
 def index(request):
     config  = ConfiguracionEmpresa.get_config()
     backups = BackupRegistro.objects.all()[:10]
+
+    # La sección de "info de empresa" siempre arranca bloqueada en cada
+    # carga de página, sin importar si ya se desbloqueó antes en la sesión.
+    request.session.pop('empresa_desbloqueada', None)
+
     context = {
         'config':   config,
         'db_stats': _db_stats(),
         'backups':  backups,
+        'es_admin_empresa': _es_admin(request),
         'breadcrumb_items': [
             {'nombre': 'Configuración', 'url': None},
         ],
@@ -62,7 +72,52 @@ def index(request):
 
 @login_required
 @require_POST
+def verificar_clave_empresa(request):
+    """Valida la contraseña del admin y, si es correcta, entrega los
+    datos reales de la empresa junto con el permiso de sesión para
+    poder guardarlos después."""
+    if not _es_admin(request):
+        return JsonResponse({'ok': False, 'error': 'Solo el administrador puede ver esta información.'}, status=403)
+
+    clave = request.POST.get('clave', '')
+    if not clave:
+        return JsonResponse({'ok': False, 'error': 'Ingresa tu contraseña.'})
+
+    if not request.user.check_password(clave):
+        return JsonResponse({'ok': False, 'error': 'Contraseña incorrecta.'})
+
+    request.session['empresa_desbloqueada'] = True
+
+    config = ConfiguracionEmpresa.get_config()
+    return JsonResponse({
+        'ok': True,
+        'empresa': {
+            'nombre_empresa': config.nombre_empresa,
+            'nit':            config.nit,
+            'direccion':      config.direccion,
+            'telefono':       config.telefono,
+            'email':          config.email,
+        }
+    })
+
+
+@login_required
+@require_POST
+def bloquear_empresa(request):
+    """Vuelve a bloquear la sección sin necesidad de recargar la página."""
+    request.session.pop('empresa_desbloqueada', None)
+    return JsonResponse({'ok': True})
+
+
+@login_required
+@require_POST
 def guardar_empresa(request):
+    if not _es_admin(request):
+        return JsonResponse({'ok': False, 'error': 'Solo el administrador puede editar esta información.'}, status=403)
+
+    if not request.session.get('empresa_desbloqueada'):
+        return JsonResponse({'ok': False, 'error': 'Debes verificar tu contraseña antes de guardar.'}, status=403)
+
     config = ConfiguracionEmpresa.get_config()
     config.nombre_empresa = request.POST.get('nombre_empresa', config.nombre_empresa).strip()
     config.nit            = request.POST.get('nit',       config.nit).strip()
