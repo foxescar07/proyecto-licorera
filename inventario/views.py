@@ -87,8 +87,8 @@ def lote_list(request):
 
 
 @login_required
-def lote_detail(request, codigo):
-    lote = get_object_or_404(Lote, codigo=codigo)
+def lote_detail(request, numero_lote):
+    lote = get_object_or_404(Lote, numero_lote=numero_lote)
     movimientos = lote.movimientos.all()
     return render(request, 'inventario/lote_detail.html', {'lote': lote, 'movimientos': movimientos})
 
@@ -109,8 +109,8 @@ def lote_create(request):
 
 
 @login_required
-def lote_update(request, codigo):
-    lote = get_object_or_404(Lote, codigo=codigo)
+def lote_update(request, numero_lote):
+    lote = get_object_or_404(Lote, numero_lote=numero_lote)
     if request.method == 'POST':
         form = LoteForm(request.POST, instance=lote)
         if form.is_valid():
@@ -157,35 +157,52 @@ def movimiento_list(request):
     return render(request, 'inventario/movimiento_list.html', {'movimientos': movimientos, 'tipo': tipo})
 
 
+
 @login_required
 @transaction.atomic
-def movimiento_create(request):
+def lote_ajustar_stock(request, numero_lote):
+    lote = get_object_or_404(Lote, numero_lote=numero_lote)
+
     if request.method == 'POST':
-        form = MovimientoInventarioForm(request.POST)
-        if form.is_valid():
-            movimiento = form.save(commit=False)
-            movimiento.registrado_por = request.user
+        nuevo_stock_raw = request.POST.get('nuevo_stock')
+        costo_unitario = request.POST.get('costo_unitario')
+        motivo = request.POST.get('motivo', '').strip()
 
-            inventario = movimiento.inventario
-            if movimiento.tipo == 'entrada':
-                inventario.stock_actual += movimiento.cantidad
-            elif movimiento.tipo == 'salida':
-                if movimiento.cantidad > inventario.stock_actual:
-                    messages.error(request, 'La salida supera el stock disponible.')
-                    return render(request, 'inventario/movimiento_form.html', {'form': form})
-                inventario.stock_actual -= movimiento.cantidad
-            else:  # ajuste
-                inventario.stock_actual = movimiento.cantidad
+        try:
+            nuevo_stock = int(nuevo_stock_raw)
+        except (TypeError, ValueError):
+            messages.error(request, 'El stock ingresado no es válido.')
+            return redirect('inventario:gestion_stock')
 
-            inventario.save()
-            movimiento.stock_resultante = inventario.stock_actual
-            movimiento.save()
+        if nuevo_stock < 0:
+            messages.error(request, 'El stock no puede ser negativo.')
+            return redirect('inventario:gestion_stock')
 
-            messages.success(request, 'Movimiento registrado correctamente.')
-            return redirect('inventario:movimiento_list')
-    else:
-        form = MovimientoInventarioForm()
-    return render(request, 'inventario/movimiento_form.html', {'form': form})
+        diferencia = nuevo_stock - lote.stock_actual
+
+        lote.stock_actual = nuevo_stock
+        if costo_unitario:
+            lote.costo_unitario = costo_unitario
+        lote.save()
+
+        inventario = Inventario.objects.filter(presentacion=lote.presentacion).first()
+
+        if inventario:
+            MovimientoInventario.objects.create(
+                inventario=inventario,
+                lote=lote,
+                registrado_por=request.user,
+                tipo='ajuste',
+                cantidad=diferencia,
+                motivo=motivo or f'Ajuste manual de stock del lote {lote.numero_lote}',
+                stock_resultante=nuevo_stock,
+            )
+        else:
+            messages.warning(request, 'Stock del lote actualizado, pero no se encontró un registro de Inventario asociado para dejar el historial del movimiento.')
+
+        messages.success(request, f'Stock del lote {lote.numero_lote} actualizado a {nuevo_stock} unidades.')
+
+    return redirect('inventario:gestion_stock')
 
 
 # ---------------------------------------------------------------------------
