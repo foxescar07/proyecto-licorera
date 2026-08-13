@@ -260,6 +260,29 @@ class Compra(models.Model):
     def __str__(self):
         return f"Compra #{self.id} - {self.proveedor.nombre_empresa}"
 
+    @property
+    def monto_pagado(self):
+        """Monto abonado, derivado del valor y el saldo persistidos."""
+        return max(Decimal('0.00'), self.valor - self.saldo)
+
+    @property
+    def estado_pago(self):
+        if self.saldo <= 0:
+            return 'pagada'
+        if self.monto_pagado > 0:
+            return 'parcial'
+        return 'pendiente'
+
+    @property
+    def total(self):
+        """Alias de compatibilidad para las vistas que muestran el total."""
+        return self.valor
+
+    @property
+    def fecha_registro(self):
+        """Alias de compatibilidad para el nombre histórico del campo fecha."""
+        return self.fecha
+
 
 class HistorialCompra(models.Model):
     """Registro de cambios en las compras."""

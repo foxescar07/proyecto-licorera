@@ -1,4 +1,6 @@
 from django.test import TestCase
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 from django.core.exceptions import ValidationError
 from .models import Proveedor, ProveedorCategoria, DetalleCompra, Compra, HistorialCompra
 from productos.models import Categoria, Producto, PresentacionProducto
@@ -206,3 +208,116 @@ class ProveedorModelTest(TestCase):
 
         # Verificar que solo existe 1 proveedor en la BD (no se duplicó)
         self.assertEqual(Proveedor.objects.count(), 1)
+
+
+class ComprasCrudTest(TestCase):
+    """Casos de regresión para la HU-002: compras con detalle de producto."""
+
+    def setUp(self):
+        self.usuario = get_user_model().objects.create_user(
+            username='tester_compras',
+            password='clave-segura-123',
+            identificacion='100000001',
+            email='tester.compras@example.com',
+        )
+        self.proveedor = Proveedor.objects.create(
+            nombre_empresa='Proveedor de pruebas',
+            nit='900100200-1',
+            email='proveedor.compras@example.com',
+            telefono='3001234567',
+        )
+        categoria = Categoria.objects.create(codigo='CPR', nombre='Compras')
+        self.producto = Producto.objects.create(
+            codigo='PRD-COMPRA-001',
+            nombre='Producto de prueba',
+            categoria=categoria,
+            cantidad_disponible=0,
+            precio_unitario=Decimal('0.00'),
+        )
+        self.presentacion = PresentacionProducto.objects.create(
+            producto=self.producto,
+            nombre='Botella 750 ml',
+            unidades=1,
+            cantidad=0,
+            precio=Decimal('0.00'),
+        )
+
+    def test_registrar_compra_crea_detalle_y_actualiza_costos_cantidades(self):
+        """Registrar desde la pantalla de compras conserva producto, cantidad y costo."""
+        self.client.force_login(self.usuario)
+
+        response = self.client.post(reverse('lista_compras'), {
+            'proveedor_id': self.proveedor.id,
+            'producto': self.producto.id,
+            'cantidad': 6,
+            'precio_unitario': '12500.50',
+        })
+
+        self.assertRedirects(response, reverse('lista_compras'))
+        compra = Compra.objects.get(proveedor=self.proveedor)
+        detalle = compra.detalles.get()
+        self.assertEqual(compra.valor, Decimal('75003.00'))
+        self.assertEqual(compra.saldo, Decimal('75003.00'))
+        self.assertEqual(detalle.producto, self.producto)
+        self.assertEqual(detalle.presentacion, self.presentacion)
+        self.assertEqual(detalle.cantidad, 6)
+        self.assertEqual(detalle.precio_unitario, Decimal('12500.50'))
+        self.assertEqual(detalle.subtotal, Decimal('75003.00'))
+
+        self.producto.refresh_from_db()
+        self.presentacion.refresh_from_db()
+        self.assertEqual(self.producto.cantidad_disponible, 6)
+        self.assertEqual(self.presentacion.cantidad, 6)
+        self.assertTrue(HistorialCompra.objects.filter(compra=compra, evento='creada').exists())
+
+    def test_editar_compra_y_detalle_recalcula_los_valores_persistidos(self):
+        """Una edición de cantidades y costos mantiene el detalle y total correctos."""
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            valor=Decimal('20000.00'),
+            saldo=Decimal('20000.00'),
+        )
+        detalle = DetalleCompra.objects.create(
+            compra=compra,
+            producto=self.producto,
+            presentacion=self.presentacion,
+            cantidad=2,
+            precio_unitario=Decimal('10000.00'),
+        )
+
+        detalle.cantidad = 4
+        detalle.precio_unitario = Decimal('13500.25')
+        detalle.full_clean()
+        detalle.save()
+        compra.valor = detalle.subtotal
+        compra.saldo = detalle.subtotal
+        compra.save()
+
+        compra.refresh_from_db()
+        detalle.refresh_from_db()
+        self.assertEqual(detalle.cantidad, 4)
+        self.assertEqual(detalle.precio_unitario, Decimal('13500.25'))
+        self.assertEqual(compra.valor, Decimal('54001.00'))
+        self.assertEqual(compra.saldo, Decimal('54001.00'))
+
+    def test_eliminar_compra_elimina_sus_detalles_asociados(self):
+        """Eliminar una compra no deja detalles de compra huérfanos."""
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            valor=Decimal('5000.00'),
+            saldo=Decimal('5000.00'),
+        )
+        detalle = DetalleCompra.objects.create(
+            compra=compra,
+            producto=self.producto,
+            presentacion=self.presentacion,
+            cantidad=1,
+            precio_unitario=Decimal('5000.00'),
+        )
+
+        compra.delete()
+
+        self.assertFalse(Compra.objects.filter(pk=compra.pk).exists())
+        self.assertFalse(DetalleCompra.objects.filter(pk=detalle.pk).exists())
