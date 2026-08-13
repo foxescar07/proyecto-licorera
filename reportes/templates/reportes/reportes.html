@@ -653,7 +653,15 @@
         <div class="table-responsive cys-modal-table-wrap--noTop">
           <table class="cys-inv-table" id="tabla-modal-entradas">
             <thead>
-              <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+              <tr>
+                <th>#</th>
+                <th>PRODUCTO</th>
+                <th>CANTIDAD</th>
+                <th>N° ORDEN/FACTURA</th>
+                <th>MOTIVO</th>
+                <th>FECHA VENC.</th>
+                <th>FECHA</th>
+              </tr>
             </thead>
             <tbody>
               {% for e in entradas %}
@@ -661,12 +669,14 @@
                 <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                 <td data-label="Producto" class="cys-td cys-td--bold">{{ e.producto.nombre }}</td>
                 <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
+                <td class="cys-td cys-td--muted" data-label="N° Orden/Factura">{{ e.numero_orden|default:"—" }}</td>
                 <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
+                <td class="cys-td" data-label="Fecha Venc.">{{ e.fecha_vencimiento|date:"d/m/Y"|default:"—" }}</td>
                 <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y H:i" }}</td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="5" class="cys-td--empty">
+                <td colspan="7" class="cys-td--empty">
                   <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay entradas registradas.</div>
                 </td>
               </tr>
@@ -685,7 +695,14 @@
         <div class="table-responsive cys-modal-table-wrap--bottom">
           <table class="cys-inv-table" id="tabla-modal-salidas">
             <thead>
-              <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+              <tr>
+                <th>#</th>
+                <th>PRODUCTO</th>
+                <th>CANTIDAD</th>
+                <th>MOTIVO</th>
+                <th>RESPONSABLE</th>
+                <th>FECHA</th>
+              </tr>
             </thead>
             <tbody>
               {% for s in salidas %}
@@ -694,11 +711,12 @@
                 <td data-label="Producto" class="cys-td cys-td--bold">{{ s.producto.nombre }}</td>
                 <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
                 <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
+                <td class="cys-td" data-label="Responsable">{{ s.responsable|default:"—" }}</td>
                 <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y H:i" }}</td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="5" class="cys-td--empty">
+                <td colspan="6" class="cys-td--empty">
                   <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay salidas registradas.</div>
                 </td>
               </tr>
@@ -1041,7 +1059,15 @@
                 <div class="table-responsive cys-rd-table-wrap">
                   <table class="cys-inv-table" id="tabla-modal-rd-entradas">
                     <thead>
-                      <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+                      <tr>
+                        <th>#</th>
+                        <th>PRODUCTO</th>
+                        <th>CANTIDAD</th>
+                        <th>N° ORDEN/FACTURA</th>
+                        <th>MOTIVO</th>
+                        <th>FECHA VENC.</th>
+                        <th>FECHA</th>
+                      </tr>
                     </thead>
                     <tbody>
                       {% for e in entradas_hoy %}
@@ -1049,12 +1075,14 @@
                         <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                         <td data-label="Producto" class="cys-td cys-td--bold">{{ e.producto.nombre }}</td>
                         <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
+                        <td class="cys-td cys-td--muted" data-label="N° Orden/Factura">{{ e.numero_orden|default:"—" }}</td>
                         <td class="cys-td cys-td--muted" data-label="Motivo">{{ e.motivo|default:"—" }}</td>
+                        <td class="cys-td" data-label="Fecha Venc.">{{ e.fecha_vencimiento|date:"d/m/Y"|default:"—" }}</td>
                         <td class="cys-td" data-label="Fecha">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
                       </tr>
                       {% empty %}
                       <tr>
-                        <td colspan="5" class="cys-td--empty">
+                        <td colspan="7" class="cys-td--empty">
                           <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay entradas hoy.</div>
                         </td>
                       </tr>
@@ -1069,7 +1097,14 @@
                 <div class="table-responsive cys-rd-table-wrap">
                   <table class="cys-inv-table" id="tabla-modal-rd-salidas">
                     <thead>
-                      <tr><th>#</th><th>PRODUCTO</th><th>CANTIDAD</th><th>MOTIVO</th><th>FECHA</th></tr>
+                      <tr>
+                        <th>#</th>
+                        <th>PRODUCTO</th>
+                        <th>CANTIDAD</th>
+                        <th>MOTIVO</th>
+                        <th>RESPONSABLE</th>
+                        <th>FECHA</th>
+                      </tr>
                     </thead>
                     <tbody>
                       {% for s in salidas_hoy %}
@@ -1078,11 +1113,12 @@
                         <td data-label="Producto" class="cys-td cys-td--bold">{{ s.producto.nombre }}</td>
                         <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
                         <td class="cys-td cys-td--muted" data-label="Motivo">{{ s.motivo|default:"—" }}</td>
+                        <td class="cys-td" data-label="Responsable">{{ s.responsable|default:"—" }}</td>
                         <td class="cys-td" data-label="Fecha">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
                       </tr>
                       {% empty %}
                       <tr>
-                        <td colspan="5" class="cys-td--empty">
+                        <td colspan="6" class="cys-td--empty">
                           <div class="cys-empty-box"><i class="bi bi-inbox"></i>No hay salidas hoy.</div>
                         </td>
                       </tr>

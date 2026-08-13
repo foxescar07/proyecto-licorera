@@ -27,7 +27,7 @@
   <!-- ACCIONES RÁPIDAS -->
 <div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
   {% if request.session.usuario_rol == 'admin' %}
-  <a href="{% url 'listar_ordenes' %}" class="cys-btn cys-btn--primary">
+  <a href="{% url 'registrar_compra' %}" class="cys-btn cys-btn--primary">
     <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
   </a>
   {% endif %}
