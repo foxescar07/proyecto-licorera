@@ -12,4 +12,11 @@ urlpatterns = [
     path('eliminar/<int:id>/', views.eliminar_proveedor, name='eliminar_proveedor'),
     path('compras/', views.lista_compras, name='lista_compras'),
     path('registrar-compra/', views.registrar_compra, name='registrar_compra'),
+
+    # Rutas para AJAX/Modales
+    path('modal/detalle/<int:id>/', views.detalle_proveedor_modal, name='detalle_proveedor_modal'),
+    path('modal/desactivar/<int:id>/', views.desactivar_proveedor, name='desactivar_proveedor_modal'),
+    path('modal/reactivar/<int:id>/', views.reactivar_proveedor, name='reactivar_proveedor_modal'),
+    path('modal/sancionar/<int:id>/', views.sancionar_proveedor, name='sancionar_proveedor_modal'),
+    path('modal/levantar-sancion/<int:id>/', views.levantar_sancion_proveedor, name='levantar_sancion_proveedor'),
 ]

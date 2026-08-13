@@ -17,8 +17,11 @@
        class="cfg-data"
        data-url-actividad="{% url 'actividad_usuarios' %}"
        data-url-guardar-empresa="{% url 'configuracion:guardar_empresa' %}"
+       data-url-verificar-empresa="{% url 'configuracion:verificar_clave_empresa' %}"
+       data-url-bloquear-empresa="{% url 'configuracion:bloquear_empresa' %}"
        data-url-guardar-impuestos="{% url 'configuracion:guardar_impuestos' %}"
-       data-url-crear-backup="{% url 'configuracion:crear_backup' %}"></div>
+       data-url-crear-backup="{% url 'configuracion:crear_backup' %}"
+       data-es-admin="{{ es_admin_empresa|yesno:'true,false' }}"></div>
 
   <!-- ① VISUALIZACIÓN: BRILLO / FUENTE / AUMENTO (3 TARJETAS CON PERILLA) -->
   <div class="cfg-section">
@@ -226,52 +229,91 @@
     </div>
   </div>
 
-  <!-- ⑦ INFORMACIÓN DE LA EMPRESA (LOGO + DATOS, CONECTADO A guardar_empresa) -->
+  <!-- ⑦ INFORMACIÓN DE LA EMPRESA — BLOQUEADA CON CONTRASEÑA DE ADMIN -->
   <div class="cfg-section cfg-row">
     <div class="cfg-title-row">
       <div class="cfg-title cfg-title-no-margin"><i class="bi bi-building"></i> Información de la empresa</div>
-      <button onclick="guardarInfoEmpresa()" class="cfg-btn-mini" id="btnGuardarEmpresa">
-        <i class="bi bi-check-lg"></i> Guardar
-      </button>
+      <div class="cfg-title-row__acciones">
+        {% if es_admin_empresa %}
+        <button type="button" onclick="bloquearEmpresa()" class="cfg-btn-lock" id="btnBloquearEmpresa" style="display:none;">
+          <i class="bi bi-lock-fill"></i> Bloquear
+        </button>
+        {% endif %}
+        <button type="button" onclick="guardarInfoEmpresa()" class="cfg-btn-mini" id="btnGuardarEmpresa" style="display:none;">
+          <i class="bi bi-check-lg"></i> Guardar
+        </button>
+      </div>
     </div>
 
-    <div class="cfg-empresa-header">
-      <div class="cfg-logo-preview" id="logoEmpresaPreview"
-           onclick="document.getElementById('inputLogoEmpresa').click()">
-        {% if config.logo %}
-          <img src="{{ config.logo.url }}" alt="Logo empresa">
+    <div id="empresaBody">
+
+      <!-- Pantalla de bloqueo, estilo "desbloquear celular" -->
+      <div id="empresaLockScreen" class="cfg-lockscreen">
+        <div class="cfg-lockscreen__icon" id="empresaLockIcon">
+          <i class="bi bi-lock-fill" id="empresaLockIconGlyph"></i>
+        </div>
+        <div class="cfg-lockscreen__titulo">Información protegida</div>
+
+        {% if es_admin_empresa %}
+          <div class="cfg-lockscreen__sub">Ingresa tu contraseña de administrador para desbloquear</div>
+          <div class="cfg-lockscreen__form">
+            <input type="password"
+                   id="claveEmpresaInput"
+                   class="cfg-lockscreen__input"
+                   placeholder="••••••••"
+                   autocomplete="current-password">
+            <button type="button" class="cfg-lockscreen__btn" id="btnVerificarClaveEmpresa" onclick="verificarClaveEmpresa()">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+          <div id="claveEmpresaError" class="cfg-lockscreen__error" style="display:none;"></div>
         {% else %}
-          <i class="bi bi-image"></i>
+          <div class="cfg-lockscreen__sub">Solo un administrador puede ver y editar esta información.</div>
         {% endif %}
       </div>
-      <input type="file" id="inputLogoEmpresa" accept="image/*" class="input-file-hidden"
-             onchange="previewLogoEmpresa(this)">
 
-      <div class="cfg-empresa-header__campos">
-        <div>
-          <label class="cfg-label">Nombre de la empresa</label>
-          <input type="text" class="cfg-input" id="empresaNombre" value="{{ config.nombre_empresa }}" placeholder="Licorera CYS Ltda">
-        </div>
-        <div>
-          <label class="cfg-label">NIT</label>
-          <input type="text" class="cfg-input" id="empresaNit" value="{{ config.nit }}" placeholder="900.123.456-7">
-        </div>
-        <div>
-          <label class="cfg-label">Teléfono</label>
-          <input type="text" class="cfg-input" id="empresaTelefono" value="{{ config.telefono }}" placeholder="+57 300 000 0000">
-        </div>
-      </div>
-    </div>
+      <!-- Contenido real, oculto hasta desbloquear -->
+      <div id="empresaCampos" class="cfg-locked-content" style="display:none;">
+        <div class="cfg-empresa-header">
+          <div class="cfg-logo-preview" id="logoEmpresaPreview"
+               onclick="document.getElementById('inputLogoEmpresa').click()">
+            {% if config.logo %}
+              <img src="{{ config.logo.url }}" alt="Logo empresa">
+            {% else %}
+              <i class="bi bi-image"></i>
+            {% endif %}
+          </div>
+          <input type="file" id="inputLogoEmpresa" accept="image/*" class="input-file-hidden"
+                 onchange="previewLogoEmpresa(this)">
 
-    <div class="row g-3">
-      <div class="col-sm-6">
-        <label class="cfg-label">Correo de contacto</label>
-        <input type="email" class="cfg-input" id="empresaEmail" value="{{ config.email }}" placeholder="contacto@cysltda.com">
+          <div class="cfg-empresa-header__campos">
+            <div>
+              <label class="cfg-label">Nombre de la empresa</label>
+              <input type="text" class="cfg-input" id="empresaNombre" placeholder="Licorera CYS Ltda">
+            </div>
+            <div>
+              <label class="cfg-label">NIT</label>
+              <input type="text" class="cfg-input" id="empresaNit" placeholder="900.123.456-7">
+            </div>
+            <div>
+              <label class="cfg-label">Teléfono</label>
+              <input type="text" class="cfg-input" id="empresaTelefono" placeholder="+57 300 000 0000">
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="cfg-label">Correo de contacto</label>
+            <input type="email" class="cfg-input" id="empresaEmail" placeholder="contacto@cysltda.com">
+          </div>
+          <div class="col-sm-6">
+            <label class="cfg-label">Dirección</label>
+            <input type="text" class="cfg-input" id="empresaDireccion" placeholder="Calle 00 # 00-00, local 00">
+          </div>
+        </div>
       </div>
-      <div class="col-sm-6">
-        <label class="cfg-label">Dirección</label>
-        <input type="text" class="cfg-input" id="empresaDireccion" value="{{ config.direccion }}" placeholder="Calle 00 # 00-00, local 00">
-      </div>
+
     </div>
   </div>
 

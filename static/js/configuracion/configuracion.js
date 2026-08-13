@@ -4,8 +4,11 @@
 const cfgData = document.getElementById('cfg-data');
 const URL_ACTIVIDAD          = cfgData.dataset.urlActividad;
 const URL_GUARDAR_EMPRESA    = cfgData.dataset.urlGuardarEmpresa;
+const URL_VERIFICAR_EMPRESA  = cfgData.dataset.urlVerificarEmpresa;
+const URL_BLOQUEAR_EMPRESA   = cfgData.dataset.urlBloquearEmpresa;
 const URL_GUARDAR_IMPUESTOS  = cfgData.dataset.urlGuardarImpuestos;
 const URL_CREAR_BACKUP       = cfgData.dataset.urlCrearBackup;
+const ES_ADMIN_EMPRESA       = cfgData.dataset.esAdmin === 'true';
 
 // ══════════════════════════════════════════
 // CSRF helper
@@ -236,6 +239,17 @@ document.addEventListener('DOMContentLoaded', function () {
         tbody.innerHTML = '<tr><td colspan="3" class="text-center">Error al cargar la actividad</td></tr>';
       });
   });
+
+  // ── Enter en el input de clave del bloqueo de empresa ──
+  const claveInput = document.getElementById('claveEmpresaInput');
+  if (claveInput) {
+    claveInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        verificarClaveEmpresa();
+      }
+    });
+  }
 });
 
 // ══════════════════════════════════════════
@@ -270,6 +284,121 @@ function previewLogoEmpresa(input) {
       `<img src="${e.target.result}" alt="Logo empresa">`;
   };
   reader.readAsDataURL(logoEmpresaFile);
+}
+
+// ══════════════════════════════════════════
+// BLOQUEO — Información de la Empresa (estilo "desbloquear celular")
+// ══════════════════════════════════════════
+function sacudirElemento(el) {
+  const clase = el.id === 'claveEmpresaInput'
+    ? 'cfg-lockscreen__input--shake'
+    : 'cfg-lockscreen__icon--shake';
+  el.classList.remove(clase);
+  // Forzar reflow para poder repetir la animación seguidas veces
+  void el.offsetWidth;
+  el.classList.add(clase);
+  setTimeout(() => el.classList.remove(clase), 400);
+}
+
+async function verificarClaveEmpresa() {
+  if (!ES_ADMIN_EMPRESA) return;
+
+  const input   = document.getElementById('claveEmpresaInput');
+  const clave   = input.value;
+  const errorEl = document.getElementById('claveEmpresaError');
+  const btn     = document.getElementById('btnVerificarClaveEmpresa');
+  const icono   = document.getElementById('empresaLockIcon');
+
+  errorEl.style.display = 'none';
+
+  if (!clave) {
+    errorEl.textContent = 'Ingresa tu contraseña.';
+    errorEl.style.display = 'block';
+    sacudirElemento(input);
+    return;
+  }
+
+  btn.disabled = true;
+  const fd = new FormData();
+  fd.append('clave', clave);
+
+  try {
+    const resp = await fetch(URL_VERIFICAR_EMPRESA, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      body: fd,
+    });
+    const data = await resp.json();
+
+    if (data.ok) {
+      // Animación de candado abriéndose
+      document.getElementById('empresaLockIconGlyph').className = 'bi bi-unlock-fill';
+      icono.classList.add('cfg-lockscreen__icon--open');
+
+      // Rellenar campos con los datos reales
+      document.getElementById('empresaNombre').value    = data.empresa.nombre_empresa;
+      document.getElementById('empresaNit').value       = data.empresa.nit;
+      document.getElementById('empresaDireccion').value = data.empresa.direccion;
+      document.getElementById('empresaTelefono').value  = data.empresa.telefono;
+      document.getElementById('empresaEmail').value      = data.empresa.email;
+
+      setTimeout(() => {
+        document.getElementById('empresaLockScreen').style.display = 'none';
+        document.getElementById('empresaCampos').style.display = 'block';
+        document.getElementById('btnGuardarEmpresa').style.display = 'inline-flex';
+        const btnBloquear = document.getElementById('btnBloquearEmpresa');
+        if (btnBloquear) btnBloquear.style.display = 'inline-flex';
+      }, 300);
+
+      mostrarToast('Acceso concedido');
+    } else {
+      errorEl.textContent = data.error || 'No se pudo verificar.';
+      errorEl.style.display = 'block';
+      sacudirElemento(input);
+      input.value = '';
+      input.focus();
+    }
+  } catch (e) {
+    errorEl.textContent = 'Error de conexión con el servidor.';
+    errorEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function bloquearEmpresa() {
+  try {
+    await fetch(URL_BLOQUEAR_EMPRESA, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+    });
+  } catch (e) {
+    // aunque falle la llamada, igual bloqueamos visualmente
+  }
+
+  // Limpiar del DOM los datos sensibles
+  document.getElementById('empresaNombre').value    = '';
+  document.getElementById('empresaNit').value       = '';
+  document.getElementById('empresaDireccion').value = '';
+  document.getElementById('empresaTelefono').value  = '';
+  document.getElementById('empresaEmail').value     = '';
+
+  document.getElementById('empresaCampos').style.display = 'none';
+  document.getElementById('btnGuardarEmpresa').style.display = 'none';
+  const btnBloquear = document.getElementById('btnBloquearEmpresa');
+  if (btnBloquear) btnBloquear.style.display = 'none';
+
+  const icono = document.getElementById('empresaLockIcon');
+  icono.classList.remove('cfg-lockscreen__icon--open');
+  document.getElementById('empresaLockIconGlyph').className = 'bi bi-lock-fill';
+
+  const input = document.getElementById('claveEmpresaInput');
+  if (input) input.value = '';
+  document.getElementById('claveEmpresaError').style.display = 'none';
+
+  document.getElementById('empresaLockScreen').style.display = 'flex';
+
+  mostrarToast('Sección bloqueada', 'info');
 }
 
 // ══════════════════════════════════════════
