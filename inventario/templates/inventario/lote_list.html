@@ -224,6 +224,6 @@
      data-labels="{{ proveedores_labels|safe }}"
      data-data="{{ proveedores_data|safe }}"
      class="d-none"></div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <script src="{% static 'js/inventario/gestion_lotes.js' %}"></script>
 {% endblock %}
