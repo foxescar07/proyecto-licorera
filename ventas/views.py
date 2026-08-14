@@ -19,8 +19,8 @@ from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Inventario, Lote
 from usuarios.models import Usuario
 
-BILLETES_DENOM = [100000, 50000, 20000, 10000, 5000, 2000, 1000]
-MONEDAS_DENOM  = [500, 200, 100, 50]
+BILLETES_DENOM = [100000, 50000, 20000, 10000, 5000, 2000]
+MONEDAS_DENOM  = [1000, 500, 200, 100, 50]
 TODAS_DENOM    = BILLETES_DENOM + MONEDAS_DENOM
 
 META_VENTA_DIARIA = 500000
