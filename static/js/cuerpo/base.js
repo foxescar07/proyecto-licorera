@@ -64,6 +64,11 @@
     window.CYS_DENSIDADES = densidades;
     window.aplicarTemaCYS = aplicarTema;
     window.aplicarDensidadCYS = aplicarDensidad;
+
+    // Tema real elegido por el usuario en Configuración (fuente de verdad),
+    // para que el widget de accesibilidad pueda restaurarlo en vez de
+    // forzar 'oscuro' cuando su modo está en "predeterminado".
+    window.CYS_TEMA_SITIO = cfg.tema || 'oscuro';
 })();
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[title]').forEach(function (el) {
@@ -118,10 +123,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Tamaño de texto
         a11yRoot.style.fontSize = cfg.fontSize + '%';
 
-        // Modo de color -> delega en aplicarTemaCYS (definida arriba en este archivo)
+        // Modo de color -> delega en aplicarTemaCYS (definida arriba en este archivo).
+        // "predeterminado" significa "usar el tema real elegido en Configuración",
+        // NO forzar 'oscuro' — antes eso pisaba basecys/sepia/claro en cada página.
         if (typeof window.aplicarTemaCYS === 'function') {
             if (cfg.modo === 'predeterminado') {
-                window.aplicarTemaCYS('oscuro'); // tema base del proyecto
+                window.aplicarTemaCYS(window.CYS_TEMA_SITIO || 'oscuro');
             } else {
                 window.aplicarTemaCYS(cfg.modo); // 'alto-contraste', 'claro', etc.
             }
