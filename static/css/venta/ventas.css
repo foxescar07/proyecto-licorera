@@ -19,8 +19,13 @@
 }
 
 /* ── CONTENEDOR GENERAL ── */
+html,
+body,
+#cys-layout,
+.cys-main,
 .cys-page-wrapper {
-  background-color: #011936;
+  background-color: #011936 !important;
+  background: #011936 !important;
   min-height: 100vh;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
@@ -301,9 +306,9 @@
    TARJETAS DE CATEGORÍAS / PRODUCTOS
 ══════════════════════════════════════ */
 .cys-cat-card-premium {
-  background: var(--cys-surface);
+  background: var(--cys-bg-card, #0A2A52);
   border: 1px solid var(--cys-borde);
-  border-left: 3px solid var(--cys-acento);
+  border-left: 3px solid #CF9C48;
   border-radius: 12px;
   padding: 1.1rem 1rem;
   text-align: left;
@@ -312,10 +317,10 @@
   transition: all 0.2s ease-in-out;
 }
 .cys-cat-card-premium:hover {
-  border-color: var(--cys-acento);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: #CF9C48 !important;
+  background: var(--cys-surface, #011936) !important;
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 16px rgba(207, 156, 72, 0.4), inset 0 0 8px rgba(207, 156, 72, 0.05) !important;
 }
 
 /* Variante centrada (vista de categorías padre) */
@@ -343,13 +348,14 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--cys-surface, #011936) !important;
+  border: 1px solid rgba(207, 156, 72, 0.35) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.cys-cat-card-icon i { color: var(--cys-acento); font-size: 0.9rem; }
+.cys-cat-card-icon i { color: #ffffff !important; font-size: 0.9rem; }
 
 .cys-cat-card-icon--lg {
   width: 44px;
@@ -1423,9 +1429,15 @@
 .cys-pres-item {
   display: flex; justify-content: space-between; align-items: center;
   border-radius: .75rem; padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--cys-bg-card, #0A2A52);
   border: 1px solid var(--cys-borde);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+.cys-pres-item:hover {
+  background: var(--cys-surface, #011936) !important;
+  border-color: #CF9C48 !important;
+  box-shadow: 0 0 16px rgba(207, 156, 72, 0.4), inset 0 0 8px rgba(207, 156, 72, 0.05) !important;
 }
 .cys-pres-item--sin-stock { cursor: not-allowed; opacity: .5; }
 .cys-pres-nombre { font-weight: 700; color: var(--texto, #fff); font-size: .9rem; }
@@ -1582,8 +1594,8 @@
    TARJETAS INTERACTIVAS DE DENOMINACIÓN (CONTEO DE CAJA)
 ══════════════════════════════════════ */
 .cys-denom-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--cys-surface, #011936);
+  border: 1px solid var(--cys-borde, rgba(255, 255, 255, 0.15));
   border-radius: 12px;
   padding: 0.85rem;
   transition: all 0.25s ease;
@@ -1592,24 +1604,36 @@
 }
 
 .cys-denom-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--cys-bg-card, #0A2A52) !important;
+  border-color: #CF9C48 !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 16px rgba(207, 156, 72, 0.4), inset 0 0 8px rgba(207, 156, 72, 0.05) !important;
 }
 
 .cys-denom-card--active {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--cys-acento, #00d2d3) !important;
-  box-shadow: 0 0 15px rgba(0, 210, 211, 0.15) !important;
+  background: var(--cys-bg-card, #0A2A52) !important;
+  border-color: #CF9C48 !important;
+  box-shadow: 0 0 18px rgba(207, 156, 72, 0.35) !important;
 }
 
 .cys-denom-card-header {
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
   padding-bottom: 0.5rem;
 }
 
-/* Iconos y badges por denominación */
-.cys-denom-icon-wrapper {
+/* Iconos y badges por denominación — Fondo azul marino CYS (#0A2A52) con borde dorado */
+.cys-denom-icon-wrapper,
+.cys-denom-icon--billete-100000,
+.cys-denom-icon--billete-50000,
+.cys-denom-icon--billete-20000,
+.cys-denom-icon--billete-10000,
+.cys-denom-icon--billete-5000,
+.cys-denom-icon--billete-2000,
+.cys-denom-icon--moneda-1000,
+.cys-denom-icon--moneda-500,
+.cys-denom-icon--moneda-200,
+.cys-denom-icon--moneda-100,
+.cys-denom-icon--moneda-50 {
   width: 36px;
   height: 36px;
   border-radius: 10px;
@@ -1619,27 +1643,13 @@
   font-size: 1.1rem;
   font-weight: bold;
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--cys-bg-card, #0A2A52) !important;
+  border: 1px solid rgba(207, 156, 72, 0.4) !important;
 }
 
 .cys-denom-icon-wrapper i {
   color: #ffffff !important;
 }
-
-/* Fondos sutiles por denominación con iconos en blanco */
-.cys-denom-icon--billete-100000 { background: rgba(0, 184, 148, 0.25); border: 1px solid rgba(0, 184, 148, 0.4); }
-.cys-denom-icon--billete-50000  { background: rgba(162, 155, 254, 0.25); border: 1px solid rgba(162, 155, 254, 0.4); }
-.cys-denom-icon--billete-20000  { background: rgba(253, 150, 68, 0.25); border: 1px solid rgba(253, 150, 68, 0.4); }
-.cys-denom-icon--billete-10000  { background: rgba(232, 67, 147, 0.25); border: 1px solid rgba(232, 67, 147, 0.4); }
-.cys-denom-icon--billete-5000   { background: rgba(108, 92, 231, 0.25); border: 1px solid rgba(108, 92, 231, 0.4); }
-.cys-denom-icon--billete-2000   { background: rgba(0, 206, 201, 0.25); border: 1px solid rgba(0, 206, 201, 0.4); }
-
-.cys-denom-icon--moneda-1000 { background: rgba(241, 196, 15, 0.25); border: 1px solid rgba(241, 196, 15, 0.5); }
-.cys-denom-icon--moneda-500  { background: rgba(243, 156, 18, 0.25); border: 1px solid rgba(243, 156, 18, 0.5); }
-.cys-denom-icon--moneda-200  { background: rgba(189, 195, 199, 0.25); border: 1px solid rgba(189, 195, 199, 0.5); }
-.cys-denom-icon--moneda-100  { background: rgba(149, 165, 166, 0.25); border: 1px solid rgba(149, 165, 166, 0.5); }
-.cys-denom-icon--moneda-50   { background: rgba(211, 84, 0, 0.25); border: 1px solid rgba(211, 84, 0, 0.5); }
 
 .cys-denom-title {
   font-size: 0.95rem;
@@ -1665,8 +1675,9 @@
 }
 
 .cys-denom-card--active .cys-denom-subtotal-badge {
-  background: rgba(0, 210, 211, 0.15);
-  color: var(--cys-acento, #00d2d3);
+  background: rgba(207, 156, 72, 0.2) !important;
+  color: #CF9C48 !important;
+  border: 1px solid rgba(207, 156, 72, 0.35) !important;
 }
 
 /* Stepper y botones */
