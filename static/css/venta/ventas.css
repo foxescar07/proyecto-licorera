@@ -7,20 +7,15 @@
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Los valores quedan fijos directamente aquí (en vez de depender solo
-     del tema global en base.js) para garantizar que este módulo se vea
-     con la paleta nueva aunque el tema global todavía no se haya
-     actualizado. Si el tema global ya está al día, estos valores
-     coinciden con él de todas formas. */
-  --cys-bg-card:       #0A2A52;
-  --cys-surface:       #011936;
-  --cys-borde:         rgba(255, 255, 255, 0.15);
-  --cys-borde-focus:   #FFFFFF;
-  --cys-texto-muted:   rgba(255, 255, 255, 0.55); /* blanco con opacidad, sin tono azul/gris viejo */
-  --cys-acento:        #FFFFFF;
-  --cys-verde:         #2ecc71; /* ÚNICO uso: mensajes de éxito / dinero (total pagado, "Pagado", cambio) */
-  --cys-rojo:          #CF9C48; /* dorado: único uso para peligro/error/faltante */
-  --cys-cian-brillante:#FFFFFF;
+  --cys-bg-card:        var(--fondo-card);
+  --cys-surface:        var(--fondo);
+  --cys-borde:          var(--azul-borde);
+  --cys-borde-focus:    var(--azul-claro);
+  --cys-texto-muted:    var(--texto-muted);
+  --cys-acento:         var(--azul-claro);
+  --cys-verde:          var(--verde);
+  --cys-rojo:           var(--rojo);
+  --cys-cian-brillante: var(--azul-claro);
 }
 
 /* ── CONTENEDOR GENERAL ── */

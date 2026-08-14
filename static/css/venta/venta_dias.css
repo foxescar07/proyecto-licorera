@@ -3,25 +3,26 @@
    Paleta: FFFFFF · 0A2A52 · 011936 · CF9C48 (dorado, solo peligro/faltante)
    El verde (#2ecc71) se reserva EXCLUSIVAMENTE para mensajes de dinero/éxito
    (ingresos, "Pagado", cifras positivas). Todo lo demás (gráficos, barras,
-   iconos, textos) usa blanco en distintas opacidades sobre los fondos azules.
+   iconos, textos) usa el color de texto del tema en distintas opacidades.
    ========================================================================== */
 
 :root {
-  --cys-bg-card:      #0A2A52;
-  --cys-surface:       #011936;
-  --cys-borde:         rgba(255, 255, 255, 0.15);
-  --cys-texto-muted:   rgba(255, 255, 255, 0.55);
-  --cys-acento:        #FFFFFF;
-  --cys-verde:         #2ecc71; /* único uso: mensajes de dinero / éxito */
-  --cys-rojo:          #CF9C48; /* único uso: peligro / faltante */
+  --cys-bg-card:      var(--fondo-card);
+  --cys-surface:      var(--fondo);
+  --cys-borde:        var(--azul-borde);
+  --cys-texto-muted:  var(--texto-muted);
+  --cys-acento:       var(--azul-claro);
+  --cys-verde:        var(--verde);
+  --cys-rojo:         var(--rojo);
 }
+
 
 /* Contenedor Principal */
 .cys-page-wrapper {
-    background-color: #011936 !important;
+    background-color: var(--cys-surface) !important;
     min-height: 100vh;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    color: #ffffff;
+    color: var(--texto);
 }
 
 /* Barra Superior (Topbar) */
@@ -37,7 +38,7 @@
 .cys-topbar-title {
     font-size: 1.6rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--texto);
     margin: 0;
 }
 
@@ -83,14 +84,14 @@
 .cys-kpi-value {
     font-size: 2rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--texto);
     margin-bottom: 6px;
 }
 
 .cys-kpi-label {
     font-size: 0.88rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--texto);
 }
 
 .cys-kpi-sub {
@@ -121,7 +122,7 @@
 .cys-meta-titulo {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--texto);
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
@@ -137,13 +138,13 @@
 }
 
 .cys-meta-cifras strong {
-    color: #ffffff;
+    color: var(--texto);
 }
 
 .cys-meta-porcentaje {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--texto);
     display: block;
 }
 
@@ -160,8 +161,8 @@
 }
 
 /* ── Ranking de productos más vendidos (barras) ──
-   Solo blanco en distintas opacidades: no son mensajes de éxito,
-   son datos, así que no llevan verde ni otros tonos. */
+   Siguen el color de texto del tema en distintas opacidades: no son
+   mensajes de éxito, son datos, así que no llevan verde ni otros tonos. */
 .cys-rank-item {
     margin-bottom: 14px;
 }
@@ -183,7 +184,7 @@
 
 .cys-rank-valor {
     font-size: 0.85rem;
-    color: #ffffff;
+    color: var(--texto);
     font-weight: 700;
 }
 
@@ -209,15 +210,16 @@
     transition: width 0.3s ease;
 }
 
-/* Rotación de opacidades de blanco para distinguir cada producto */
-.cys-rank-fill--c1 { background: rgba(255, 255, 255, 1);    }
-.cys-rank-fill--c2 { background: rgba(255, 255, 255, 0.8);  }
-.cys-rank-fill--c3 { background: rgba(255, 255, 255, 0.62); }
-.cys-rank-fill--c4 { background: rgba(255, 255, 255, 0.46); }
-.cys-rank-fill--c5 { background: rgba(255, 255, 255, 0.32); }
-.cys-rank-fill--c6 { background: rgba(255, 255, 255, 0.2);  }
+/* Rotación de opacidades siguiendo el color de texto del tema, para
+   que las barras no desaparezcan en el tema claro sobre fondo blanco */
+.cys-rank-fill--c1 { background: var(--texto); }
+.cys-rank-fill--c2 { background: color-mix(in srgb, var(--texto) 80%, transparent); }
+.cys-rank-fill--c3 { background: color-mix(in srgb, var(--texto) 62%, transparent); }
+.cys-rank-fill--c4 { background: color-mix(in srgb, var(--texto) 46%, transparent); }
+.cys-rank-fill--c5 { background: color-mix(in srgb, var(--texto) 32%, transparent); }
+.cys-rank-fill--c6 { background: color-mix(in srgb, var(--texto) 20%, transparent); }
 
-/* ── Ventas tope del día (diseño circular) — blanco en dos intensidades ── */
+/* ── Ventas tope del día (diseño circular) ── */
 .cys-circular-wrap {
     display: flex;
     align-items: center;
@@ -249,11 +251,11 @@
 }
 
 .cys-circular-dot--a {
-    background: #FFFFFF;
+    background: var(--texto);
 }
 
 .cys-circular-dot--b {
-    background: rgba(255, 255, 255, 0.5);
+    background: color-mix(in srgb, var(--texto) 50%, transparent);
 }
 
 .cys-circular-label {
@@ -264,7 +266,7 @@
 
 .cys-circular-value {
     font-size: 0.9rem;
-    color: #ffffff;
+    color: var(--texto);
     font-weight: 700;
     margin: 0;
 }
@@ -287,13 +289,13 @@
 .cys-panel-header {
     padding: 16px 24px;
     border-bottom: 1px solid var(--cys-borde);
-    color: #ffffff;
+    color: var(--texto);
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.95rem;
 }
 
-.cys-panel-title { color: #ffffff; }
+.cys-panel-title { color: var(--texto); }
 
 /* Barra de Filtros */
 .cys-filter-bar {
@@ -309,7 +311,7 @@
 .cys-input-date {
     background-color: var(--cys-surface);
     border: 1px solid var(--cys-borde);
-    color: #ffffff;
+    color: var(--texto);
     border-radius: 6px;
     padding: 6px 12px;
     font-size: 0.88rem;
@@ -323,8 +325,8 @@
 }
 
 .cys-main-table th {
-    background-color: rgba(255, 255, 255, 0.03) !important;
-    color: #ffffff !important;
+    background-color: var(--fondo-card2) !important;
+    color: var(--texto) !important;
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.8rem;
@@ -334,16 +336,16 @@
 
 .cys-main-table td {
     padding: 14px 20px !important;
-    color: rgba(255, 255, 255, 0.85) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: var(--texto-muted) !important;
+    border-bottom: 1px solid var(--azul-borde) !important;
 }
 
 /* Estilos de Celdas Dinámicas — el badge de producto es informativo, no
-   un mensaje de éxito, así que pasa a blanco */
+   un mensaje de éxito, así que usa las variables de tema */
 .cys-badge-product {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: var(--azul-borde);
+    color: var(--texto);
+    border: 1px solid var(--azul-borde);
     border-radius: 6px;
     padding: 4px 10px;
     font-size: 0.85rem;
@@ -423,9 +425,9 @@
 .cys-hist-table td { padding: 14px 16px; color: rgba(255, 255, 255, 0.85); font-size: .85rem; vertical-align: middle; }
 
 .cys-hist-id { color: var(--cys-texto-muted); font-weight: 700; }
-.cys-hist-cliente { color: #fff; font-weight: 700; }
+.cys-hist-cliente { color: var(--texto); font-weight: 700; }
 .cys-hist-total { color: var(--cys-verde); font-weight: 700; text-align: right; } /* cifra de dinero: verde permitido */
-.cys-hist-fecha { color: #fff; font-weight: 500; display: block; }
+.cys-hist-fecha { color: var(--texto); font-weight: 500; display: block; }
 .cys-hist-hora { color: var(--cys-texto-muted); font-size: .72rem; display: block; }
 
 .cys-hist-sin-resultados { text-align: center; padding: 3rem 1rem; color: var(--cys-texto-muted); }
@@ -581,6 +583,6 @@
 .cys-hist-precio-muted { color: var(--cys-texto-muted); }
 .cys-td-centro,
 .cys-th-centro { text-align: center; }
-.cys-fecha-dia { display: block; color: #fff; font-weight: 600; font-size: 0.82rem; }
+.cys-fecha-dia { display: block; color: var(--texto); font-weight: 600; font-size: 0.82rem; }
 .cys-fecha-hora { display: block; color: var(--cys-texto-muted); font-size: 0.72rem; }
 .cys-tabla-scroll-wrap { overflow-x: auto; }
