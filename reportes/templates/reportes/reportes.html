@@ -23,7 +23,7 @@
     <!-- Tarjeta Inventario -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--inv h-100"
-           data-modal-target="#modalInventario">
+           data-bs-toggle="modal" data-bs-target="#modalInventario">
         <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
           <i class="bi bi-bar-chart-line"></i>
         </button>
@@ -60,7 +60,7 @@
     <!-- Tarjeta Proveedores -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--prov h-100"
-           data-modal-target="#modalProveedores">
+           data-bs-toggle="modal" data-bs-target="#modalProveedores">
         <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
           <i class="bi bi-bar-chart-line"></i>
         </button>
@@ -93,7 +93,7 @@
     <!-- Tarjeta Compras -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--compras h-100"
-           data-modal-target="#modalCompras">
+           data-bs-toggle="modal" data-bs-target="#modalCompras">
         <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
           <i class="bi bi-bar-chart-line"></i>
         </button>
@@ -130,7 +130,7 @@
     <!-- Tarjeta Resumen Diario -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--diario h-100"
-           data-modal-target="#modalResumenDiario">
+           data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
         <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
           <i class="bi bi-bar-chart-line"></i>
         </button>
@@ -167,7 +167,7 @@
     <!-- Tarjeta Análisis de Ventas -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--analisis h-100"
-           data-modal-target="#modalAnalisisVentas">
+           data-bs-toggle="modal" data-bs-target="#modalAnalisisVentas">
         <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
           <i class="bi bi-bar-chart-line"></i>
         </button>
@@ -204,7 +204,7 @@
     <!-- Tarjeta Devoluciones -->
     <div class="col-12 col-md-6 col-xl-4">
       <div class="cys-card cys-card--interactive cys-card--devoluciones h-100"
-           data-modal-target="#modalDevoluciones">
+           data-bs-toggle="modal" data-bs-target="#modalDevoluciones">
         <button type="button" class="cys-report-card__chart-toggle" title="Ver gráfica">
           <i class="bi bi-bar-chart-line"></i>
         </button>
@@ -988,25 +988,25 @@
               Resumen del día
             </div>
 
-            <!-- Ingresos hoy -->
+            <!-- Ingresos -->
             <div class="cys-rd-stat-card cys-rd-stat-card--verde">
               <div class="cys-rd-stat-card__icon cys-rd-stat-card__icon--verde">
                 <i class="bi bi-cash-stack"></i>
               </div>
               <div>
-                <div class="cys-rd-stat-card__label">Ingresos hoy</div>
-                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--verde">${{ ingresos_hoy|floatformat:0 }}</div>
+                <div class="cys-rd-stat-card__label">Ingresos</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--verde" id="rd-stat-ingresos">${{ ingresos_hoy|floatformat:0 }}</div>
               </div>
             </div>
 
-            <!-- Ventas hoy -->
+            <!-- Ventas -->
             <div class="cys-rd-stat-card cys-rd-stat-card--azul">
               <div class="cys-rd-stat-card__icon cys-rd-stat-card__icon--azul">
                 <i class="bi bi-cart-check"></i>
               </div>
               <div>
-                <div class="cys-rd-stat-card__label">Ventas hoy</div>
-                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--azul">{{ ventas_hoy|length }}</div>
+                <div class="cys-rd-stat-card__label">Ventas</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--azul" id="rd-stat-ventas">{{ ventas_hoy|length }}</div>
               </div>
             </div>
 
@@ -1017,7 +1017,7 @@
               </div>
               <div>
                 <div class="cys-rd-stat-card__label">Und. entrada</div>
-                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--amarillo">{{ total_entradas_hoy }}</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--amarillo" id="rd-stat-entradas">+{{ total_entradas_hoy }}</div>
               </div>
             </div>
 
@@ -1028,7 +1028,7 @@
               </div>
               <div>
                 <div class="cys-rd-stat-card__label">Und. salida</div>
-                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--rojo">{{ total_salidas_hoy }}</div>
+                <div class="cys-rd-stat-card__val cys-rd-stat-card__val--rojo" id="rd-stat-salidas">-{{ total_salidas_hoy }}</div>
               </div>
             </div>
           </div>
@@ -1056,6 +1056,16 @@
 
               <!-- Tab Entradas -->
               <div class="tab-pane fade show active" id="rdPanelEntradas" role="tabpanel">
+                <div class="cys-av-table-card__header cys-av-table-card__header--search">
+                  <span class="cys-av-table-card__dot cys-av-table-card__dot--amarillo"></span>
+                  <span class="cys-av-table-card__title">ENTRADAS DE HOY</span>
+                  <div class="cys-search-box cys-av-table-card__search">
+                    <input type="text" id="buscar-rd-entradas" placeholder="Buscar producto..."
+                      class="cys-search-box__input cys-search-box__input--dark"
+                      oninput="filtrarTablaRDEntradas(this.value)">
+                    <i class="bi bi-search cys-search-box__icon"></i>
+                  </div>
+                </div>
                 <div class="table-responsive cys-rd-table-wrap">
                   <table class="cys-inv-table" id="tabla-modal-rd-entradas">
                     <thead>
@@ -1071,7 +1081,7 @@
                     </thead>
                     <tbody>
                       {% for e in entradas_hoy %}
-                      <tr class="cys-tr">
+                      <tr class="cys-tr rd-entrada-row">
                         <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                         <td data-label="Producto" class="cys-td cys-td--bold">{{ e.producto.nombre }}</td>
                         <td class="cys-qty cys-qty--ok" data-label="Cantidad">+{{ e.cantidad }}</td>
@@ -1090,10 +1100,23 @@
                     </tbody>
                   </table>
                 </div>
+                <div class="cys-empty-box cys-av-no-results d-none" id="rd-entradas-no-results">
+                  <i class="bi bi-search"></i>No se encontraron resultados.
+                </div>
               </div>
 
               <!-- Tab Salidas -->
               <div class="tab-pane fade" id="rdPanelSalidas" role="tabpanel">
+                <div class="cys-av-table-card__header cys-av-table-card__header--search">
+                  <span class="cys-av-table-card__dot cys-av-table-card__dot--rojo"></span>
+                  <span class="cys-av-table-card__title">SALIDAS DE HOY</span>
+                  <div class="cys-search-box cys-av-table-card__search">
+                    <input type="text" id="buscar-rd-salidas" placeholder="Buscar producto..."
+                      class="cys-search-box__input cys-search-box__input--dark"
+                      oninput="filtrarTablaRDSalidas(this.value)">
+                    <i class="bi bi-search cys-search-box__icon"></i>
+                  </div>
+                </div>
                 <div class="table-responsive cys-rd-table-wrap">
                   <table class="cys-inv-table" id="tabla-modal-rd-salidas">
                     <thead>
@@ -1108,7 +1131,7 @@
                     </thead>
                     <tbody>
                       {% for s in salidas_hoy %}
-                      <tr class="cys-tr">
+                      <tr class="cys-tr rd-salida-row">
                         <td class="cys-td cys-td--muted" data-label="#">{{ forloop.counter }}</td>
                         <td data-label="Producto" class="cys-td cys-td--bold">{{ s.producto.nombre }}</td>
                         <td class="cys-qty cys-qty--out" data-label="Cantidad">-{{ s.cantidad }}</td>
@@ -1126,10 +1149,23 @@
                     </tbody>
                   </table>
                 </div>
+                <div class="cys-empty-box cys-av-no-results d-none" id="rd-salidas-no-results">
+                  <i class="bi bi-search"></i>No se encontraron resultados.
+                </div>
               </div>
 
               <!-- Tab Ventas -->
               <div class="tab-pane fade" id="rdPanelVentas" role="tabpanel">
+                <div class="cys-av-table-card__header cys-av-table-card__header--search">
+                  <span class="cys-av-table-card__dot cys-av-table-card__dot--azul"></span>
+                  <span class="cys-av-table-card__title">VENTAS DE HOY</span>
+                  <div class="cys-search-box cys-av-table-card__search">
+                    <input type="text" id="buscar-rd-ventas" placeholder="Buscar producto, cliente..."
+                      class="cys-search-box__input cys-search-box__input--dark"
+                      oninput="filtrarTablaRDVentas(this.value)">
+                    <i class="bi bi-search cys-search-box__icon"></i>
+                  </div>
+                </div>
                 <div class="table-responsive cys-rd-table-wrap">
                   <table class="cys-inv-table" id="tabla-modal-rd-ventas">
                     <thead>
@@ -1141,7 +1177,7 @@
                     <tbody>
                       {% for v in ventas_hoy %}
                         {% for det in v.detalles.all %}
-                        <tr class="cys-tr">
+                        <tr class="cys-tr rd-venta-row">
                           <td class="cys-td cys-td--muted" data-label="#">{{ forloop.parentloop.counter }}</td>
                           <td data-label="Cliente"><strong>{{ v.cliente }}</strong></td>
                           <td class="cys-td" data-label="Producto">{{ det.producto.nombre }}</td>
@@ -1161,13 +1197,15 @@
                     </tbody>
                   </table>
                 </div>
+                <div class="cys-empty-box cys-av-no-results d-none" id="rd-ventas-no-results">
+                  <i class="bi bi-search"></i>No se encontraron resultados.
+                </div>
               </div>
 
             </div><!-- /tab-content -->
 
             <!-- Top productos del día -->
-            {% if top_productos_hoy %}
-            <div class="cys-rd-top-wrap">
+            <div class="cys-rd-top-wrap {% if not top_productos_hoy %}d-none{% endif %}" id="rd-top-wrap">
               <div class="cys-rd-top-header">
                 <span class="cys-rd-top-header__dot"></span>
                 <span class="cys-rd-top-header__label">Top productos del día</span>
@@ -1188,7 +1226,6 @@
                 </tbody>
               </table>
             </div>
-            {% endif %}
 
           </div><!-- /col derecha -->
         </div><!-- /grid -->
@@ -1196,11 +1233,11 @@
 
       <div class="modal-footer cys-modal__footer">
         <div class="me-auto cys-modal__footer-actions">
-          <a href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}"
+          <a id="rd-export-excel" href="?export=excel&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}"
              class="cys-btn-export cys-btn-export--excel" download="resumen_diario.xlsx" target="_blank" title="Exportar Excel">
             <i class="bi bi-file-earmark-excel"></i>
           </a>
-          <a href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}"
+          <a id="rd-export-pdf" href="?export=pdf&tipo=ventas&fecha_inicio={{ hoy|date:'Y-m-d' }}&fecha_fin={{ hoy|date:'Y-m-d' }}"
              class="cys-btn-export cys-btn-export--pdf" download="resumen_diario.pdf" target="_blank" title="Exportar PDF">
             <i class="bi bi-file-earmark-pdf"></i>
           </a>
