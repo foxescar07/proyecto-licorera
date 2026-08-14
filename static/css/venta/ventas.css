@@ -430,8 +430,11 @@
 
 .cys-carrito-vacio {
   border: 1px dashed var(--cys-borde);
-  border-radius: 8px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.01);
+  width: 100%;
+  min-height: 250px;
+  transition: all 0.3s ease;
 }
 .cys-carrito-vacio-icono-box {
   width: 56px;

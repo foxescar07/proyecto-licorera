@@ -117,11 +117,11 @@
       </button>
     </div>
   {% else %}
-  <div class="row g-4">
+  <div class="row g-4 align-items-stretch">
 
     <!-- COLUMNA IZQUIERDA: SELECCIÓN DE PRODUCTOS -->
-    <div class="col-12 col-lg-7">
-      <div class="cys-panel cys-panel-tall">
+    <div class="col-12 col-lg-7 d-flex flex-column">
+      <div class="cys-panel cys-panel-tall h-100 flex-grow-1 d-flex flex-column">
 
         <div class="cys-panel-header">
           <div class="cys-panel-header-title">
@@ -129,7 +129,7 @@
           </div>
         </div>
 
-        <div class="p-4 flex-grow-1">
+        <div class="p-4 flex-grow-1 d-flex flex-column">
 
           {% if vista == 'categorias' %}
             <div class="row g-3">
@@ -273,8 +273,8 @@
     </div>
 
     <!-- COLUMNA DERECHA: CARRITO -->
-    <div class="col-12 col-lg-5">
-      <div class="cys-panel">
+    <div class="col-12 col-lg-5 d-flex flex-column">
+      <div class="cys-panel cys-panel-tall h-100 flex-grow-1 d-flex flex-column">
 
         <div class="cys-panel-header d-flex justify-content-between align-items-center">
           <div class="cys-panel-header-title">
@@ -291,11 +291,11 @@
           {% endif %}
         </div>
 
-        <div class="p-4">
+        <div class="p-4 flex-grow-1 d-flex flex-column">
 
           <!-- ── ITEMS DEL CARRITO ── -->
           {% if not carrito_items %}
-            <div class="text-center py-5 mb-3 rounded-3 cys-carrito-vacio">
+            <div class="text-center p-5 rounded-3 cys-carrito-vacio flex-grow-1 d-flex flex-column align-items-center justify-content-center">
               <div class="cys-carrito-vacio-icono-box">
                 <i class="bi bi-cart3"></i>
               </div>
