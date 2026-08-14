@@ -766,33 +766,106 @@
           {% csrf_token %}
           <input type="hidden" name="accion" value="confirmar_apertura">
 
-          <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
+          <!-- ── SECCIÓN BILLETES ── -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="cys-modal-seccion-titulo"><i class="bi bi-bank2 me-1"></i> Billetes</div>
+            <button type="button" class="btn cys-btn-reset-conteo" onclick="reiniciarSeccionConteo('apertura', 'billete')">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar billetes
+            </button>
+          </div>
           <div class="row g-2 mb-3">
             {% for campo in apertura_billetes %}
-            <div class="col-6 col-md-3">
-              <label class="cys-denom-label">${{ campo.valor|pesos }}</label>
-              <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
-                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
-                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura">
+            <div class="col-12 col-sm-6 col-md-4">
+              <div class="cys-denom-card {% if campo.cantidad %}cys-denom-card--active{% endif %}" data-denom="{{ campo.valor }}">
+                <div class="cys-denom-card-header d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="cys-denom-icon-wrapper cys-denom-icon--billete-{{ campo.valor }}">
+                      <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                      <span class="cys-denom-title">${{ campo.valor|pesos }}</span>
+                      <span class="cys-denom-tag text-muted d-block">Billete</span>
+                    </div>
+                  </div>
+                  <div class="cys-denom-subtotal-badge" id="subtotal_apertura_{{ campo.valor }}">$0</div>
+                </div>
+                <div class="cys-denom-card-body">
+                  <div class="input-group input-group-sm mb-2 cys-denom-stepper">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, -1)">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
+                           value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
+                           class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura" data-grupo="billete">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, 1)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex justify-content-center gap-1 cys-quick-add-chips">
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 1)">+1</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 5)">+5</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 10)">+10</button>
+                  </div>
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>
 
-          <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
+          <!-- ── SECCIÓN MONEDAS ── -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="cys-modal-seccion-titulo"><i class="bi bi-coin me-1"></i> Monedas</div>
+            <button type="button" class="btn cys-btn-reset-conteo" onclick="reiniciarSeccionConteo('apertura', 'moneda')">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar monedas
+            </button>
+          </div>
           <div class="row g-2 mb-3">
             {% for campo in apertura_monedas %}
-            <div class="col-6 col-md-3">
-              <label class="cys-denom-label">${{ campo.valor }}</label>
-              <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
-                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
-                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura">
+            <div class="col-12 col-sm-6 col-md-4">
+              <div class="cys-denom-card {% if campo.cantidad %}cys-denom-card--active{% endif %}" data-denom="{{ campo.valor }}">
+                <div class="cys-denom-card-header d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="cys-denom-icon-wrapper cys-denom-icon--moneda-{{ campo.valor }}">
+                      <i class="bi bi-coin"></i>
+                    </div>
+                    <div>
+                      <span class="cys-denom-title">${{ campo.valor|pesos }}</span>
+                      <span class="cys-denom-tag text-muted d-block">Moneda</span>
+                    </div>
+                  </div>
+                  <div class="cys-denom-subtotal-badge" id="subtotal_apertura_{{ campo.valor }}">$0</div>
+                </div>
+                <div class="cys-denom-card-body">
+                  <div class="input-group input-group-sm mb-2 cys-denom-stepper">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, -1)">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="apertura_{{ campo.valor }}"
+                           value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
+                           class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="apertura" data-grupo="moneda">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, 1)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex justify-content-center gap-1 cys-quick-add-chips">
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 1)">+1</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 5)">+5</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 10)">+10</button>
+                  </div>
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>
 
           <!-- ── TOTAL CONTADO — ubicado antes de Observación ── -->
           <div class="cys-total-contado-box mb-4">
-            <span class="cys-total-contado-label">Total contado</span>
+            <div>
+              <span class="cys-total-contado-label d-block">Total contado</span>
+              {% if base_esperada is not None %}
+              <span id="badgeDiferenciaApertura" class="badge mt-1" data-base="{{ base_esperada }}"></span>
+              {% endif %}
+            </div>
             <span class="cys-total-contado-valor" id="totalConteoApertura">$0</span>
           </div>
 
@@ -819,30 +892,104 @@
       <div class="modal-body">
         <p class="cys-modal-subtexto mb-3">Cuenta todo el dinero físico en caja.</p>
 
+        {% if error_cierre %}
+        <div class="alert alert-danger mb-3">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error_cierre.texto }}
+        </div>
+        {% endif %}
+
         <form method="POST">
           {% csrf_token %}
           <input type="hidden" name="accion" value="confirmar_cierre">
 
-          <div class="cys-modal-seccion-titulo mb-2">Billetes</div>
+          <!-- ── SECCIÓN BILLETES ── -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="cys-modal-seccion-titulo"><i class="bi bi-bank2 me-1"></i> Billetes</div>
+            <button type="button" class="btn cys-btn-reset-conteo" onclick="reiniciarSeccionConteo('cierre', 'billete')">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar billetes
+            </button>
+          </div>
           <div class="row g-2 mb-3">
             {% for campo in cierre_billetes %}
-            <div class="col-6 col-md-3">
-              <label class="cys-denom-label">${{ campo.valor|pesos }}</label>
-              <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
-                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
-                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre">
+            <div class="col-12 col-sm-6 col-md-4">
+              <div class="cys-denom-card {% if campo.cantidad %}cys-denom-card--active{% endif %}" data-denom="{{ campo.valor }}">
+                <div class="cys-denom-card-header d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="cys-denom-icon-wrapper cys-denom-icon--billete-{{ campo.valor }}">
+                      <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                      <span class="cys-denom-title">${{ campo.valor|pesos }}</span>
+                      <span class="cys-denom-tag text-muted d-block">Billete</span>
+                    </div>
+                  </div>
+                  <div class="cys-denom-subtotal-badge" id="subtotal_cierre_{{ campo.valor }}">$0</div>
+                </div>
+                <div class="cys-denom-card-body">
+                  <div class="input-group input-group-sm mb-2 cys-denom-stepper">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, -1)">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
+                           value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
+                           class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre" data-grupo="billete">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, 1)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex justify-content-center gap-1 cys-quick-add-chips">
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 1)">+1</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 5)">+5</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 10)">+10</button>
+                  </div>
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>
 
-          <div class="cys-modal-seccion-titulo mb-2">Monedas</div>
+          <!-- ── SECCIÓN MONEDAS ── -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="cys-modal-seccion-titulo"><i class="bi bi-coin me-1"></i> Monedas</div>
+            <button type="button" class="btn cys-btn-reset-conteo" onclick="reiniciarSeccionConteo('cierre', 'moneda')">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar monedas
+            </button>
+          </div>
           <div class="row g-2 mb-3">
             {% for campo in cierre_monedas %}
-            <div class="col-6 col-md-3">
-              <label class="cys-denom-label">${{ campo.valor }}</label>
-              <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
-                     value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
-                     class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre">
+            <div class="col-12 col-sm-6 col-md-4">
+              <div class="cys-denom-card {% if campo.cantidad %}cys-denom-card--active{% endif %}" data-denom="{{ campo.valor }}">
+                <div class="cys-denom-card-header d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="cys-denom-icon-wrapper cys-denom-icon--moneda-{{ campo.valor }}">
+                      <i class="bi bi-coin"></i>
+                    </div>
+                    <div>
+                      <span class="cys-denom-title">${{ campo.valor|pesos }}</span>
+                      <span class="cys-denom-tag text-muted d-block">Moneda</span>
+                    </div>
+                  </div>
+                  <div class="cys-denom-subtotal-badge" id="subtotal_cierre_{{ campo.valor }}">$0</div>
+                </div>
+                <div class="cys-denom-card-body">
+                  <div class="input-group input-group-sm mb-2 cys-denom-stepper">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, -1)">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="cierre_{{ campo.valor }}"
+                           value="{% if campo.cantidad %}{{ campo.cantidad }}{% endif %}" placeholder="0" data-denom="{{ campo.valor }}"
+                           class="form-control text-center cys-input-dark cys-denom-input-conteo" data-conteo="cierre" data-grupo="moneda">
+                    <button type="button" class="btn btn-outline-secondary cys-btn-step" onclick="modificarCantidadConteo(this, 1)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex justify-content-center gap-1 cys-quick-add-chips">
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 1)">+1</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 5)">+5</button>
+                    <button type="button" class="btn btn-xs cys-chip-btn" onclick="modificarCantidadConteo(this, 10)">+10</button>
+                  </div>
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>
@@ -885,6 +1032,29 @@
     return '$' + Math.round(numero).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
+  function modificarCantidadConteo(element, delta) {
+    const card = element.closest('.cys-denom-card');
+    if (!card) return;
+    const input = card.querySelector('.cys-denom-input-conteo');
+    if (!input) return;
+
+    let actual = parseInt(input.value, 10) || 0;
+    actual = Math.max(0, actual + delta);
+    input.value = actual === 0 ? '' : actual;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function reiniciarSeccionConteo(tipo, grupo) {
+    const selector = grupo
+      ? `.cys-denom-input-conteo[data-conteo="${tipo}"][data-grupo="${grupo}"]`
+      : `.cys-denom-input-conteo[data-conteo="${tipo}"]`;
+    const inputs = document.querySelectorAll(selector);
+    inputs.forEach(input => {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
+
   function actualizarTotalConteo(tipo) {
     const inputs = document.querySelectorAll(
       '.cys-denom-input-conteo[data-conteo="' + tipo + '"]'
@@ -893,13 +1063,46 @@
     inputs.forEach(function (input) {
       const denom = parseInt(input.dataset.denom, 10) || 0;
       const cantidad = parseInt(input.value, 10) || 0;
-      total += denom * cantidad;
+      const subtotal = denom * cantidad;
+      total += subtotal;
+
+      const card = input.closest('.cys-denom-card');
+      const badge = document.getElementById('subtotal_' + tipo + '_' + denom);
+      
+      if (badge) {
+        badge.textContent = subtotal > 0 ? formatearMoneda(subtotal) : '$0';
+      }
+
+      if (card) {
+        if (cantidad > 0) {
+          card.classList.add('cys-denom-card--active');
+        } else {
+          card.classList.remove('cys-denom-card--active');
+        }
+      }
     });
+
     const destino = document.getElementById(
       tipo === 'apertura' ? 'totalConteoApertura' : 'totalConteoCierre'
     );
     if (destino) {
       destino.textContent = formatearMoneda(total);
+    }
+
+    if (tipo === 'apertura') {
+      const badgeBase = document.getElementById('badgeDiferenciaApertura');
+      if (badgeBase && badgeBase.dataset.base) {
+        const baseEsperada = parseFloat(badgeBase.dataset.base) || 0;
+        const diff = total - baseEsperada;
+        if (diff === 0) {
+          badgeBase.className = 'badge bg-success-subtle text-success border border-success mt-1';
+          badgeBase.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Coincide con la base (' + formatearMoneda(baseEsperada) + ')';
+        } else {
+          badgeBase.className = 'badge bg-warning-subtle text-warning border border-warning mt-1';
+          const signo = diff > 0 ? '+' : '';
+          badgeBase.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> Base esperada: ' + formatearMoneda(baseEsperada) + ' (Diferencia: ' + signo + formatearMoneda(diff) + ')';
+        }
+      }
     }
   }
 

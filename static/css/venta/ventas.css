@@ -1579,3 +1579,158 @@
   border-radius: 50px;
   padding: 3px 12px;
 }
+
+/* ══════════════════════════════════════
+   TARJETAS INTERACTIVAS DE DENOMINACIÓN (CONTEO DE CAJA)
+══════════════════════════════════════ */
+.cys-denom-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.85rem;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cys-denom-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.cys-denom-card--active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--cys-acento, #00d2d3) !important;
+  box-shadow: 0 0 15px rgba(0, 210, 211, 0.15) !important;
+}
+
+.cys-denom-card-header {
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.5rem;
+}
+
+/* Iconos y badges por denominación */
+.cys-denom-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cys-denom-icon-wrapper i {
+  color: #ffffff !important;
+}
+
+/* Fondos sutiles por denominación con iconos en blanco */
+.cys-denom-icon--billete-100000 { background: rgba(0, 184, 148, 0.25); border: 1px solid rgba(0, 184, 148, 0.4); }
+.cys-denom-icon--billete-50000  { background: rgba(162, 155, 254, 0.25); border: 1px solid rgba(162, 155, 254, 0.4); }
+.cys-denom-icon--billete-20000  { background: rgba(253, 150, 68, 0.25); border: 1px solid rgba(253, 150, 68, 0.4); }
+.cys-denom-icon--billete-10000  { background: rgba(232, 67, 147, 0.25); border: 1px solid rgba(232, 67, 147, 0.4); }
+.cys-denom-icon--billete-5000   { background: rgba(108, 92, 231, 0.25); border: 1px solid rgba(108, 92, 231, 0.4); }
+.cys-denom-icon--billete-2000   { background: rgba(0, 206, 201, 0.25); border: 1px solid rgba(0, 206, 201, 0.4); }
+
+.cys-denom-icon--moneda-1000 { background: rgba(241, 196, 15, 0.25); border: 1px solid rgba(241, 196, 15, 0.5); }
+.cys-denom-icon--moneda-500  { background: rgba(243, 156, 18, 0.25); border: 1px solid rgba(243, 156, 18, 0.5); }
+.cys-denom-icon--moneda-200  { background: rgba(189, 195, 199, 0.25); border: 1px solid rgba(189, 195, 199, 0.5); }
+.cys-denom-icon--moneda-100  { background: rgba(149, 165, 166, 0.25); border: 1px solid rgba(149, 165, 166, 0.5); }
+.cys-denom-icon--moneda-50   { background: rgba(211, 84, 0, 0.25); border: 1px solid rgba(211, 84, 0, 0.5); }
+
+.cys-denom-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.cys-denom-tag {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cys-denom-subtotal-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cys-texto-muted, #8e9aaf);
+  transition: all 0.2s ease;
+}
+
+.cys-denom-card--active .cys-denom-subtotal-badge {
+  background: rgba(0, 210, 211, 0.15);
+  color: var(--cys-acento, #00d2d3);
+}
+
+/* Stepper y botones */
+.cys-denom-stepper {
+  box-shadow: none;
+}
+
+.cys-btn-step {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.cys-btn-step:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.cys-btn-step:active {
+  transform: scale(0.92);
+}
+
+.cys-chip-btn {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.15s ease;
+}
+
+.cys-chip-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.cys-chip-btn:active {
+  transform: scale(0.95);
+}
+
+.cys-btn-reset-conteo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(235, 77, 75, 0.1);
+  color: #ff7675;
+  border: 1px solid rgba(235, 77, 75, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cys-btn-reset-conteo:hover {
+  background: rgba(235, 77, 75, 0.25);
+  color: #fff;
+}
