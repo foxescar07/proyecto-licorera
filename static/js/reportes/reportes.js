@@ -2,7 +2,6 @@
  * REPORTES.JS — Reportes y Análisis
  * DataTable, filtrado, paginación, gráficas en tarjetas
  */
-console.log('[reportes.js] archivo cargado y ejecutándose');
 
 /* ── DataTable Historial de Ventas ── */
 $(document).ready(function() {
@@ -163,7 +162,6 @@ function filtrarTablaRDEntradas(q) {
     }
 }
 
-/* ── Búsqueda: Resumen Diario → tab "Salidas" ── */
 function filtrarTablaRDSalidas(q) {
     q = q.toLowerCase().trim();
     const filas = document.querySelectorAll('#tabla-modal-rd-salidas .rd-salida-row');
@@ -180,7 +178,6 @@ function filtrarTablaRDSalidas(q) {
     }
 }
 
-/* ── Búsqueda: Resumen Diario → tab "Ventas" ── */
 function filtrarTablaRDVentas(q) {
     q = q.toLowerCase().trim();
     const filas = document.querySelectorAll('#tabla-modal-rd-ventas .rd-venta-row');
@@ -198,10 +195,6 @@ function filtrarTablaRDVentas(q) {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
-   MINI GRÁFICAS EN LAS TARJETAS DE REPORTE
-   ════════════════════════════════════════════════════════════ */
-
 const CYS_CHART_PALETTE = ['#A78BFA', '#3ECF8E'];
 
 function toggleCardChart(btn) {
@@ -212,6 +205,8 @@ function toggleCardChart(btn) {
 
     const mostrandoGrafica = card.classList.toggle('cys-card--chart-mode');
     btn.classList.toggle('is-active');
+
+    swapChartToggleIcon(btn, card, mostrandoGrafica);
 
     if (mostrandoGrafica) {
         layout.classList.add('d-none');
@@ -224,6 +219,24 @@ function toggleCardChart(btn) {
     } else {
         layout.classList.remove('d-none');
         wrap.classList.add('d-none');
+    }
+}
+
+function swapChartToggleIcon(btn, card, mostrandoGrafica) {
+    const icon = btn.querySelector('i');
+    if (!icon) return;
+
+    if (mostrandoGrafica) {
+
+        if (!icon.dataset.originalClass) {
+            icon.dataset.originalClass = icon.className;
+        }
+        const cardIcon = card.querySelector('.cys-report-card-icon--large i');
+        if (cardIcon) {
+            icon.className = cardIcon.className;
+        }
+    } else if (icon.dataset.originalClass) {
+        icon.className = icon.dataset.originalClass;
     }
 }
 
@@ -300,29 +313,43 @@ function renderReportCardChart(wrap, card) {
     });
 }
 
-/* ════════════════════════════════════════════════════════════
-   INICIALIZACIÓN
-   La apertura de los modales de las tarjetas YA NO se maneja
-   aquí: cada tarjeta tiene data-bs-toggle="modal" y
-   data-bs-target="#modalX" en el HTML, así que Bootstrap las
-   abre directamente (delegado sobre document, no depende de
-   cuándo cargue este script).
-   Aquí solo queda: la paginación inicial de proveedores y el
-   botón de gráfica de cada tarjeta (que debe frenar la
-   propagación del clic para no abrir el modal al mismo tiempo).
-   ════════════════════════════════════════════════════════════ */
+
 function initReportesUI() {
     pagProv(0);
 
     const botonesGrafica = document.querySelectorAll('.cys-report-card__chart-toggle');
-    console.log('[reportes.js] botones de gráfica encontrados:', botonesGrafica.length);
-
     botonesGrafica.forEach(function (btn) {
         btn.addEventListener('click', function (e) {
-            console.log('[reportes.js] clic en botón de gráfica detectado');
             e.preventDefault();
             e.stopPropagation();
             toggleCardChart(this);
+        });
+    });
+
+
+    const tarjetas = document.querySelectorAll('.cys-card--interactive[data-cys-modal-target]');
+    tarjetas.forEach(function (card) {
+        function intentarAbrirModal(e) {
+    
+            if (e.target.closest('.cys-report-card__chart-toggle')) return;
+         
+            if (card.classList.contains('cys-card--chart-mode')) return;
+
+            const targetSel = card.getAttribute('data-cys-modal-target');
+            const modalEl = targetSel ? document.querySelector(targetSel) : null;
+            if (modalEl && window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        }
+
+        card.addEventListener('click', intentarAbrirModal);
+
+        card.setAttribute('tabindex', card.getAttribute('tabindex') || '0');
+        card.setAttribute('role', card.getAttribute('role') || 'button');
+        card.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            intentarAbrirModal(e);
         });
     });
 }
