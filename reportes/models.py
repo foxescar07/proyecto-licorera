@@ -22,6 +22,7 @@ class Reporte(models.Model):
         ('resumen_diario', 'Resumen Diario'),
         ('analisis', 'Análisis de Ventas'),
         ('movimientos', 'Movimientos de Inventario'),
+        ('devoluciones', 'Reporte de Devoluciones'),
     ]
 
     FORMATO_CHOICES = [
