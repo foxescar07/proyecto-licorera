@@ -11,6 +11,11 @@
   padding: clamp(1rem, 2vw, 1.5rem);
   margin-bottom: 1.25rem;
   height: 100%;
+  transition: border-color .25s, box-shadow .25s;
+}
+.cfg-section:hover {
+  border-color: rgba(77,168,218,.3);
+  box-shadow: 0 4px 18px rgba(0,0,0,.15);
 }
 
 .cfg-title {
@@ -84,7 +89,12 @@
   font-weight: 500;
   user-select: none;
 }
-.cfg-opt:hover { border-color: var(--azul-claro); color: var(--texto); }
+.cfg-opt:hover {
+  border-color: var(--azul-claro);
+  color: var(--texto);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
 .cfg-opt.activo {
   border-color: var(--azul-claro);
   background: rgba(77,168,218,.12);
@@ -103,7 +113,9 @@
   height: 48px;
   border-radius: 8px;
   margin-bottom: .5rem;
+  transition: transform .2s;
 }
+.cfg-opt:hover .tema-preview { transform: scale(1.03); }
 
 .tema-preview--basecys {
   background: #D9A441;
@@ -112,17 +124,26 @@
 /* ── TARJETAS DE PERILLA (BRILLO / FUENTE / AUMENTO) ── */
 .cfg-knob-card {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: .5rem;
   background: var(--fondo-card2);
   border: 1px solid var(--azul-borde);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   height: 100%;
-  transition: border-color .2s;
+  transition: border-color .2s, box-shadow .2s;
 }
-.cfg-knob-card:hover { border-color: rgba(77,168,218,.4); }
+.cfg-knob-card:hover {
+  border-color: rgba(77,168,218,.4);
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+
+.cfg-knob-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
 .cfg-knob-card__info { min-width: 0; }
 .cfg-knob-card__label {
@@ -231,8 +252,47 @@
   color: var(--texto-muted);
 }
 
+/* ── BOTÓN RESTABLECER (debajo de cada perilla) ── */
+.cfg-knob-card__reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  align-self: center;
+  margin-top: .35rem;
+  padding: .35rem .85rem;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--texto-muted);
+  background: transparent;
+  border: 1px dashed var(--azul-borde);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .2s, border-color .2s, background .2s, transform .15s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.cfg-knob-card__reset i {
+  font-size: .78rem;
+  transition: transform .3s;
+}
+.cfg-knob-card__reset:hover {
+  color: var(--azul-claro);
+  border-color: var(--azul-claro);
+  border-style: solid;
+  background: rgba(77,168,218,.08);
+}
+.cfg-knob-card__reset:hover i { transform: rotate(-90deg); }
+.cfg-knob-card__reset:active { transform: scale(.96); }
+.cfg-knob-card__reset:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.cfg-knob-card__reset:disabled:hover i { transform: none; }
+
 @media (max-width: 576px) {
-  .cfg-knob-card { flex-direction: column; text-align: center; }
+  .cfg-knob-card { text-align: center; }
+  .cfg-knob-card__top { flex-direction: column; }
   .cfg-knob-card__hint { max-width: none; }
 }
 
@@ -242,9 +302,12 @@
   align-items: center;
   justify-content: space-between;
   gap: .75rem;
-  padding: .65rem 0;
+  padding: .65rem .25rem;
   border-bottom: 1px solid rgba(77,168,218,.08);
+  border-radius: 8px;
+  transition: background .2s;
 }
+.cfg-toggle-row:hover { background: rgba(77,168,218,.05); }
 .cfg-toggle-row:last-child { border-bottom: none; }
 .cfg-toggle-label {
   font-size: .85rem;
@@ -334,9 +397,9 @@ input:checked + .slider-sw::before { transform: translateX(18px); }
   color: var(--texto-muted);
   font-size: 1.6rem;
   cursor: pointer;
-  transition: border-color .2s;
+  transition: border-color .2s, transform .2s;
 }
-.cfg-logo-preview:hover { border-color: var(--azul-claro); }
+.cfg-logo-preview:hover { border-color: var(--azul-claro); transform: scale(1.03); }
 .cfg-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ── CABECERA DE EMPRESA: logo + campos principales alineados ── */
@@ -373,7 +436,9 @@ input:checked + .slider-sw::before { transform: translateX(18px); }
   align-items: center;
   justify-content: space-between;
   gap: .5rem;
+  transition: border-color .2s, transform .2s;
 }
+.cfg-db-stat:hover { border-color: rgba(77,168,218,.4); transform: translateY(-1px); }
 .cfg-db-stat .lbl { font-size: .72rem; color: var(--texto-muted); text-transform: uppercase; letter-spacing: .06em; }
 .cfg-db-stat .val { font-size: .95rem; font-weight: 600; color: var(--texto); }
 .cfg-db-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
@@ -411,7 +476,9 @@ input:checked + .slider-sw::before { transform: translateX(18px); }
   padding: .6rem .9rem;
   margin-bottom: .5rem;
   font-size: .8rem;
+  transition: border-color .2s, transform .15s;
 }
+.cfg-backup-item:hover { border-color: rgba(77,168,218,.35); transform: translateX(2px); }
 .cfg-backup-item__nombre { color: var(--texto); font-weight: 600; }
 .cfg-backup-item__meta   { color: var(--texto-muted); font-size: .7rem; margin-top: .15rem; }
 /* Previsualizaciones de degradados de los temas */
