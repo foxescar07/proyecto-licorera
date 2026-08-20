@@ -44,16 +44,35 @@
       </div>
 
       <form method="POST" id="movimiento-form">
-        {% csrf_token %}
+  {% csrf_token %}
+  <input type="hidden" name="tipo" value="salida">
 
-        <div class="mb-3">
-          {{ form.as_p }}
-        </div>
+  <div class="mb-3">
+    <label for="lote_id" class="form-label">Lote</label>
+    <select name="lote_id" id="lote_id" class="form-select" required>
+      <option value="" selected disabled>Seleccione un lote</option>
+      {% for lote in lotes %}
+        <option value="{{ lote.pk }}">
+          {{ lote.numero_lote }} — {{ lote.presentacion.producto.nombre }} (stock: {{ lote.stock_actual }})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
 
-        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100 sal-btn-submit">
-          <i class="bi bi-check-circle me-2"></i>Registrar Movimiento
-        </button>
-      </form>
+  <div class="mb-3">
+    <label for="cantidad" class="form-label">Cantidad</label>
+    <input type="number" name="cantidad" id="cantidad" class="form-control" min="1" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="motivo" class="form-label">Motivo</label>
+    <input type="text" name="motivo" id="motivo" class="form-control" placeholder="Ej. Venta">
+  </div>
+
+  <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 mt-2 w-100 sal-btn-submit">
+    <i class="bi bi-check-circle me-2"></i>Registrar Movimiento
+  </button>
+</form>
 
     </div>
   </div>
