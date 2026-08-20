@@ -1,0 +1,157 @@
+{% load pesos %}
+<div class="modal fade" id="modalDetalle{{ venta.pk }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content cys-modal-content">
+      
+      <!-- Encabezado del Modal -->
+      <div class="modal-header cys-modal-header border-bottom border-secondary border-opacity-25 pb-3">
+        <div>
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="modal-title fw-bold text-white mb-0">
+              <i class="bi bi-receipt me-2 text-warning"></i>Transacción #{{ venta.pk }}
+            </h5>
+            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-2 py-1">
+              <i class="bi bi-check-circle-fill me-1"></i>Completada
+            </span>
+          </div>
+          <small class="text-white-50">Registrada el {{ venta.fecha|date:"d/m/Y \a \l\a\s H:i:s" }}</small>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <!-- Cuerpo del Modal con Información Completa -->
+      <div class="modal-body p-4">
+        
+        <!-- Tarjeta Resumen: Cliente, Vendedor y Método de Pago -->
+        <div class="row g-3 mb-4">
+          
+          <div class="col-12 col-md-4">
+            <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="text-white-50 small text-uppercase fw-bold mb-1">
+                <i class="bi bi-person me-1"></i>Cliente
+              </div>
+              <div class="fw-bold text-white fs-6">{{ venta.codigo_cliente.nombre }} {{ venta.codigo_cliente.apellido }}</div>
+              {% if venta.codigo_cliente.identificacion %}
+                <div class="small text-white-50">{{ venta.codigo_cliente.tipo_id }}: {{ venta.codigo_cliente.identificacion }}</div>
+              {% endif %}
+              {% if venta.codigo_cliente.telefono %}
+                <div class="small text-white-50"><i class="bi bi-telephone me-1"></i>{{ venta.codigo_cliente.telefono }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="text-white-50 small text-uppercase fw-bold mb-1">
+                <i class="bi bi-person-badge me-1"></i>Atendido Por
+              </div>
+              <div class="fw-bold text-white fs-6">
+                {% if venta.documento_usuario %}
+                  {{ venta.documento_usuario.get_full_name|default:venta.documento_usuario.username }}
+                {% else %}
+                  Sistema POS
+                {% endif %}
+              </div>
+              <div class="small text-white-50">Vendedor registrado</div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="text-white-50 small text-uppercase fw-bold mb-1">
+                <i class="bi bi-credit-card me-1"></i>Método de Pago
+              </div>
+              <div class="fw-bold text-white fs-6 text-capitalize">
+                {{ venta.get_metodo_pago_display }}
+              </div>
+              <div class="small text-white-50">Pago recibido</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tabla Detallada de Productos Vendidos -->
+        <div class="mb-4">
+          <div class="text-white-50 small text-uppercase fw-bold mb-2">
+            <i class="bi bi-box-seam me-1"></i>Detalle de Productos ({{ venta.detalles.count }})
+          </div>
+          <div class="table-responsive rounded-3" style="border: 1px solid rgba(255, 255, 255, 0.1);">
+            <table class="table table-dark table-hover mb-0 align-middle">
+              <thead>
+                <tr style="background: rgba(255, 255, 255, 0.05); font-size: 0.8rem; text-transform: uppercase;">
+                  <th class="py-2 ps-3">Producto / Presentación</th>
+                  <th class="py-2 text-center">Cant.</th>
+                  <th class="py-2 text-end">Precio Uni.</th>
+                  <th class="py-2 text-end pe-3">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for det in venta.detalles.all %}
+                <tr>
+                  <td class="ps-3">
+                    <div class="fw-bold text-white">{{ det.codigo_producto.nombre }}</div>
+                    {% if det.codigo_presentacion %}
+                      <small class="text-white-50">{{ det.codigo_presentacion.nombre }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-secondary bg-opacity-50 text-white px-2">{{ det.cantidad }}</span>
+                  </td>
+                  <td class="text-end text-white-50">${{ det.precio_unitario|pesos }}</td>
+                  <td class="text-end fw-bold text-white pe-3">${{ det.subtotal|pesos }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Comprobante Adjunto si existe -->
+        {% if venta.comprobante_pago %}
+        <div class="mb-4">
+          <div class="text-white-50 small text-uppercase fw-bold mb-2">
+            <i class="bi bi-paperclip me-1"></i>Soporte de Pago
+          </div>
+          <a href="{{ venta.comprobante_pago.url }}" target="_blank" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none text-white" style="background: rgba(207, 156, 72, 0.1); border: 1px solid rgba(207, 156, 72, 0.3);">
+            <i class="bi bi-file-earmark-check-fill fs-3 text-warning"></i>
+            <div class="flex-grow-1">
+              <div class="fw-bold">Ver Comprobante de Pago</div>
+              <small class="text-white-50">Haz clic para previsualizar o descargar el archivo adjunto</small>
+            </div>
+            <i class="bi bi-box-arrow-up-right text-warning"></i>
+          </a>
+        </div>
+        {% endif %}
+
+        <!-- Desglose de Totales -->
+        <div class="p-3 rounded-3" style="background: rgba(10, 42, 82, 0.8); border: 1px solid rgba(207, 156, 72, 0.4);">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-white-50">Subtotal</span>
+            <span class="text-white">${{ venta.subtotal|pesos }}</span>
+          </div>
+          {% if venta.descuento_porcentaje > 0 %}
+          <div class="d-flex justify-content-between align-items-center mb-1 text-warning">
+            <span>Descuento ({{ venta.descuento_porcentaje }}%)</span>
+            <span>- ${{ venta.subtotal|pesos }}</span>
+          </div>
+          {% endif %}
+          <hr class="my-2 border-secondary opacity-25">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fs-5 fw-bold text-white">TOTAL TRANSACCIÓN</span>
+            <span class="fs-4 fw-bold text-warning">${{ venta.total_venta|pesos }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="modal-footer border-top border-secondary border-opacity-25 pt-3">
+        <button type="button" onclick="window.print()" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-printer me-1"></i> Imprimir Recibo
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
