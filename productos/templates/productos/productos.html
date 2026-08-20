@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Productos{% endblock %}
+{% block title %}Productos — CYS Ltda{% endblock %}
+{% block nav_productos %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
+<link rel="stylesheet" href="{% static 'css/datatables.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+<!-- ═══════ HEADER: TITULO + NUEVO PRODUCTO ═══════ -->
+<div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
+
+  <button type="button" class="btn prod-btn-primary prod-btn-nuevo px-4 py-2 d-flex align-items-center gap-2"
+          data-bs-toggle="modal" data-bs-target="#modalCrearProducto">
+    <i class="bi bi-plus-lg"></i> Nuevo Producto
+  </button>
+</div>
+
+<!-- ═══════ ESTADÍSTICAS COMPACTAS — VAN PRIMERO ═══════ -->
+<div class="row g-3 mb-4">
+
+  <!-- Donut + últimos en una fila -->
+  <div class="col-md-5">
+    <div class="prod-card prod-card-donut p-3 h-100">
+      <div class="prod-label mb-3"><i class="bi bi-pie-chart-fill me-1 prod-icon-blue"></i>Por categoría</div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="prod-donut-wrap">
+          <svg id="donut-svg" width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="53" fill="none" stroke="rgba(77,168,218,.08)" stroke-width="20"/>
+          </svg>
+          <div class="prod-donut-center">
+            <span class="prod-donut-total">{{ productos|length }}</span>
+            <span class="prod-donut-total-label">total</span>
+          </div>
+        </div>
+        <div id="donut-leyenda" class="prod-donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimos productos -->
+  <div class="col-md-7">
+    <div class="prod-card prod-card-ultimos p-3 h-100">
+      <div class="prod-label mb-2"><i class="bi bi-clock-history me-1 prod-icon-green"></i>Últimos agregados</div>
+      <ul class="list-unstyled mb-0 prod-lista-ultimos" id="lista-ultimos2"></ul>
+    </div>
+  </div>
+
+</div>
+
+{% include 'productos/busqueda_producto.html' %}
+
+<div class="row g-3">
+
+  <!-- CUADRO CATEGORÍAS -->
+  <div class="col-md-3">
+    <div class="card h-100 prod-card prod-card-categorias shadow-sm">
+            <div class="card-header prod-card-header px-4 py-3 d-flex justify-content-between align-items-center">
+  <span class="fw-semibold fs-6">
+    <i class="bi bi-tags-fill me-2 prod-icon-blue"></i>Categorías
+  </span>
+  <a href="{% url 'categorias_lista' %}" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center prod-cat-btn-add"
+     title="Ir a gestión de categorías">
+    <i class="bi bi-plus-lg"></i>
+  </a>
+</div>
+      <div class="card-body px-4 pt-0 pb-4">
+        <p class="text-uppercase prod-label mb-3 prod-cat-subtitle">Selecciona una categoria</p>
+
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip prod-cat-chip-style"
+                data-cat-pk="todos"
+                data-cat-nombre="Todos los productos"
+                onclick="filtrarCategoria(this)">
+          <span class="text-truncate me-2 prod-cat-truncate-bold">Todos</span>
+          <span class="badge rounded-pill flex-shrink-0 prod-cat-badge">{{ productos|length }}</span>
+        </button>
+
+        {% for cat in resumen_categorias %}
+        <button class="btn w-100 text-start d-flex justify-content-between align-items-center px-3 py-2 mb-2 prod-cat-chip prod-cat-chip-style"
+                data-cat-pk="{{ cat.pk }}"
+                data-cat-nombre="{{ cat.nombre }}"
+                onclick="filtrarCategoria(this)">
+          <span class="text-truncate me-2 prod-cat-truncate">{{ cat.nombre }}</span>
+          <span class="badge rounded-pill flex-shrink-0 prod-cat-badge">{{ cat.total }}</span>
+        </button>
+        {% empty %}
+        <p class="prod-label small px-1 mb-0">Sin categorías registradas.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- CUADRO TABLA -->
+  <div class="col-md-9">
+    <div class="card h-100 prod-card prod-card-tabla shadow-sm">
+      <div class="card-header prod-card-header d-flex justify-content-between align-items-center px-4 py-3">
+        <span class="fw-semibold fs-6">
+          <i class="bi bi-box-seam me-2 prod-icon-green"></i>
+          <span id="cat-titulo">Productos por categoría</span>
+        </span>
+        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline prod-btn-gestion px-3"
+          title="Ir a gestión de productos">
+          <i class="bi bi-arrow-right-circle me-1"></i> Gestión de productos
+        </a>
+      </div>
+      <div class="card-body p-0 prod-card-body-rel">
+
+        <!-- Estado vacío -->
+       <div id="cat-empty-state"
+     class="d-flex flex-column align-items-center justify-content-center py-5 prod-empty-state cat-panel cat-panel-visible">
+          <i class="bi bi-hand-index-thumb fs-1 mb-3 prod-icon-hand"></i>
+          <span class="small prod-label">Selecciona una categoría para ver sus productos</span>
+        </div>
+
+        <!-- Tabla -->
+        <div id="cat-tabla-wrap" class="prod-tabla-wrap cat-panel cat-panel-oculto">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0" id="tablaProductosCat">
+  <thead>
+    <tr class="prod-thead-row">
+      <th class="px-4 py-3 fw-normal prod-label text-center">#</th>
+      <th class="py-3 fw-normal prod-label text-center">Nombre</th>
+      <th class="py-3 fw-normal prod-label text-center">Código</th>
+      <th class="py-3 fw-normal prod-label text-center">Presentaciones</th>
+    </tr>
+  </thead>
+  <tbody id="cat-tbody" class="prod-tbody-font"></tbody>
+</table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+<!-- ═══════ MODAL: CREAR PRODUCTO ═══════ -->
+<div class="modal fade" id="modalCrearProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title"><i class="bi bi-plus-circle me-2 prod-icon-blue"></i>Nuevo Producto</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div id="crear-feedback" class="mb-3 d-none"></div>
+        <form id="form-nuevo-producto-modal">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label prod-label">Nombre <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" id="crear-nombre" class="form-control prod-input"
+                     placeholder="Ej: Cerveza Club Colombia">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label prod-label">Código</label>
+              <input type="text" name="codigo" id="crear-codigo" class="form-control prod-input"
+                     placeholder="Ej: CRV-001" maxlength="50">
+            </div>
+              <div class="col-md-12">
+              <label class="form-label prod-label">Categoría <span class="text-danger">*</span></label>
+              <div class="dropdown w-100">
+                <button class="btn dropdown-toggle w-100 text-start prod-input prod-categoria-select-btn" type="button"
+                    id="crear-categoria-btn" data-bs-toggle="dropdown">
+                  <span id="crear-categoria-label">— Seleccionar —</span>
+                </button>
+                <ul class="dropdown-menu prod-dropdown-menu prod-dropdown-menu-scroll w-100">
+                  {% for main_cat in categorias %}
+                    <li><h6 class="dropdown-header">{{ main_cat.nombre }}</h6></li>
+                    <li>
+                      <a class="dropdown-item crear-cat-item prod-dropdown-item-color" href="#" data-value="{{ main_cat.pk }}">
+                        {{ main_cat.nombre }} (Principal)
+                      </a>
+                    </li>
+                    {% for sub_cat in main_cat.subcategorias.all %}
+                    <li>
+                      <a class="dropdown-item crear-cat-item prod-dropdown-subitem-color" href="#" data-value="{{ sub_cat.pk }}">
+                        └ {{ sub_cat.nombre }}
+                      </a>
+                    </li>
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              </div>
+              <input type="hidden" name="categoria" id="crear-categoria" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label prod-label">Descripción (opcional)</label>
+              <textarea name="descripcion" id="crear-descripcion" class="form-control prod-input"
+                        rows="2" placeholder="Descripción breve…"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer prod-modal-footer justify-content-between">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn prod-btn-primary" id="btn-crear-solo"
+                onclick="enviarCrearProducto()">
+          <i class="bi bi-check-lg me-1"></i> Guardar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: PRESENTACIONES ═══════ -->
+<div class="modal fade" id="modalPresentacionesProducto" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content prod-modal prod-modal-scroll">
+      <div class="modal-header prod-modal-header sticky-top">
+        <h6 class="modal-title">
+          <i class="bi bi-layers me-2 text-info"></i>
+          Presentaciones — <span id="pres-nombre-producto"></span>
+        </h6>
+        <button type="button" class="btn-close btn-close-white"
+                onclick="cerrarModalPresentaciones()"></button>
+      </div>
+      <form id="form-presentaciones-modal" method="POST" action="">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <p class="text-muted small mb-3">
+            La primera fila es la <strong class="text-info">presentación base</strong>.
+            Al guardar podrás agregar stock desde <strong>Compras</strong>.
+          </p>
+          <!-- Fila base -->
+          <div class="row g-2 align-items-end mb-3 p-2 rounded prod-pres-base">
+            <div class="col-md-3">
+              <label class="form-label prod-label">Presentación</label>
+              <input type="text" name="nombre[]" id="pres-nombre-unidad" value="Unidad"
+                     class="form-control prod-input" placeholder="Ej: Lata, Botella…">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label prod-label">Unidades</label>
+              <input type="number" name="unidades_base[]" id="pres-unidades-unidad" value="1"
+                     class="form-control prod-input" min="1">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label prod-label">Precio (COP)</label>
+              <input type="number" name="precio[]" id="pres-precio-unidad"
+                     class="form-control prod-input" placeholder="Ej: 2500" min="0" required>
+            </div>
+            <div class="col-md-1 text-center">
+              <span class="text-info small">Base</span>
+            </div>
+          </div>
+          <div id="contenedor-presentaciones-modal"></div>
+          <button type="button" class="btn prod-btn-outline w-100 mt-2"
+                  onclick="agregarPresentacionModal()">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
+          </button>
+        </div>
+        <div class="modal-footer prod-modal-footer justify-content-between">
+          <button type="button" class="btn prod-btn-outline"
+                  onclick="cerrarModalPresentaciones()">Cancelar</button>
+          <button type="button" class="btn prod-btn-primary"
+                  onclick="guardarPresentacionesModal()">
+            <i class="bi bi-save me-1"></i> Guardar Presentaciones
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: DETALLE PRODUCTO ═══════ -->
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title"><i class="bi bi-eye me-2 text-info"></i>Detalle Producto</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="prod-label">Nombre</div>
+            <div id="det-nombre" class="fw-semibold"></div>
+          </div>
+          <div class="col-6">
+            <div class="prod-label">Código</div>
+            <div id="det-codigo" class="text-info fw-semibold"></div>
+          </div>
+          <div class="col-6">
+            <div class="prod-label">Categoría</div>
+            <div id="det-categoria"></div>
+          </div>
+          <div class="col-6">
+            <div class="prod-label">Stock Total</div>
+            <div id="det-cantidad" class="text-info fw-bold"></div>
+          </div>
+          <div class="col-12">
+            <div class="prod-label mb-1">Presentaciones</div>
+            <div id="det-presentaciones"></div>
+          </div>
+          <div class="col-12">
+            <div class="prod-label">Descripción</div>
+            <div id="det-descripcion" class="text-muted small"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer prod-modal-footer">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: PRODUCTOS POR CATEGORÍA ═══════ -->
+<div class="modal fade" id="modalProductosCategoria" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title">
+          <i class="bi bi-box-seam me-2 text-info"></i>
+          Productos — <span id="titulo-categoria"></span>
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 prod-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Stock Total</th>
+                <th>Presentaciones</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-categoria"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer prod-modal-footer justify-content-between">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+        <a href="{% url 'gestion_productos' %}" class="btn prod-btn-primary">
+          <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<div id="productos-config"
+     data-gestion-url="{% url 'gestion_productos' %}"
+     data-crear-url="{% url 'crear_producto' %}"
+     data-pres-url="{% url 'presentaciones_guardar' 0 %}"
+     data-csrf-token="{{ csrf_token }}"
+     data-next-path="{{ request.path }}"
+     data-productos='[
+       {% for producto in productos %}
+       {
+         "pk": {{ producto.pk }},
+         "nombre": "{{ producto.nombre|escapejs }}",
+         "codigo": "{{ producto.codigo|escapejs }}",
+         "categoria_pk": {{ producto.categoria.pk }},
+         "categoria_padre_pk": {% if producto.categoria.padre %}{{ producto.categoria.padre.pk }}{% else %}null{% endif %},
+         "categoria_nombre": "{{ producto.categoria.nombre|escapejs }}",
+         "stock_total": {{ producto.stock_total }},
+         "stock_critico": {% if producto.stock_critico %}true{% else %}false{% endif %},
+         "descripcion": "{{ producto.descripcion|default:''|escapejs }}",
+         "presentaciones": [
+           {% for pres in producto.presentaciones.all %}
+           {
+             "id": {{ pres.pk }},
+             "nombre": "{{ pres.nombre|escapejs }}",
+             "unidades": {{ pres.unidades }},
+             "precio": "{{ pres.precio }}",
+             "stock_actual": {% with s=pres.lotes.all %}{{ s|length }}{% endwith %}
+           }{% if not forloop.last %},{% endif %}
+           {% endfor %}
+         ]
+       }{% if not forloop.last %},{% endif %}
+       {% endfor %}
+     ]'
+     class="d-none"></div>
+
+<script src="{% static 'vendor/jquery/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script src="{% static 'js/productos/productos.js' %}"></script>
+
+{% endblock %}

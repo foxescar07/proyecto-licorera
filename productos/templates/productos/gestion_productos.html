@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gestión de Productos — CYS Ltda{% endblock %}
+{% block page_title %}Gestión de Productos{% endblock %}
+{% block nav_proveedores %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/producto/producto.css' %}">
+<link rel="stylesheet" href="{% static 'css/producto/gestion_productos.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid p-0">
+    <!-- Encabezado -->
+
+  <div class="d-flex gap-3 align-items-start gp-header-row">
+
+    <!-- ══ COLUMNA IZQUIERDA: ESTADÍSTICAS ══ -->
+    <div class="gp-columna-izq">
+
+      <div class="stat-box">
+        <div class="stat-label mb-2"><i class="bi bi-box me-2 gp-icon-purple"></i>Productos</div>
+        <div class="stat-value">{{ productos|length }}</div>
+        <div class="stat-sub mt-1">En inventario</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="stat-label"><i class="bi bi-tags-fill me-1 gp-icon-blue"></i>Categorías</span>
+          <span class="tag-info fs-6 px-3 py-1">{{ categorias|length }}</span>
+        </div>
+        <div id="grafico-categorias" class="gp-grafico-categorias"></div>
+      </div>
+
+      <div class="stat-box">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="stat-label"><i class="bi bi-layers-half me-1 gp-icon-cyan"></i>Presentaciones</span>
+          <span id="txt-prom-pres" class="fw-bold gp-icon-cyan">0</span>
+        </div>
+        <div class="stat-sub mt-2">Promedio por producto</div>
+        <div class="bar-track my-2">
+          <div id="bar-prom-pres" class="bar-fill gp-bar-cyan"></div>
+        </div>
+        <div class="d-flex justify-content-between stat-sub mt-1">
+          <span>Min: <strong id="stat-pres-min" class="gp-icon-cyan">0</strong></span>
+          <span>Max: <strong id="stat-pres-max" class="gp-icon-cyan">0</strong></span>
+        </div>
+      </div>
+
+      <div class="stat-box gp-stat-box-warning">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="stat-label"><i class="bi bi-exclamation-triangle-fill me-1 gp-icon-purple"></i>Sin presentación</span>
+          <span class="stat-sub">Total: {{ productos|length }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center py-4">
+          <span class="stat-sub">Productos incompletos</span>
+          <span class="gp-text-purple-bold"><span id="stat-sin-pres">—</span> pds</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-sin-pres" class="bar-fill gp-bar-purple"></div>
+        </div>
+      </div>
+
+    </div>
+
+   <!-- ══ COLUMNA DERECHA: BUSCADOR + LISTA ══ -->
+    <div class="gp-columna-der">
+
+      <div class="search-box">
+        <label class="stat-label mb-2 d-block"><i class="bi bi-filter-left me-1"></i>Filtrar inventario</label>
+        <div class="d-flex">
+          <span class="search-prefix"><i class="bi bi-search"></i></span>
+          <input type="text" id="buscadorProductos" placeholder="Buscar por nombre o código..." oninput="filtrarProductos(this.value)">
+        </div>
+      </div>
+
+      <div class="gp-prod-list-wrap">
+
+        <div class="gp-prod-list-header d-none d-md-grid gp-row-grid">
+  <div class="gp-col gp-col-icono"></div>
+  <div class="gp-col gp-col-nombre">Producto</div>
+  <div class="gp-col gp-col-codigo">Código</div>
+  <div class="gp-col gp-col-pres">Presentaciones</div>
+  <div class="gp-col gp-col-acciones"></div>
+</div>
+
+        <div class="list-group list-group-flush gp-prod-list" id="listaProductos">
+          {% for p in productos %}
+          <div class="list-group-item producto-row gp-row-grid{% if forloop.counter > 5 %} gp-row-extra gp-row-oculta{% endif %}"
+     data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}"
+     data-categoria="{{ p.categoria.nombre|default:''|lower }}">
+
+  <div class="gp-col gp-col-icono">
+    <div class="gp-cat-icon-box" data-cat-icon></div>
+  </div>
+
+  <div class="gp-col gp-col-nombre">
+    <div class="fw-semibold text-truncate">{{ p.nombre }}</div>
+    {% if p.categoria %}
+    <small class="gp-subcategory-label">
+      {% if p.categoria.padre %}<i class="bi bi-arrow-return-right me-1"></i>{{ p.categoria.padre.nombre }} / {{ p.categoria.nombre }}
+      {% else %}{{ p.categoria.nombre }}{% endif %}
+    </small>
+    {% endif %}
+    {% if p.stock_critico %}
+    <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+    {% endif %}
+  </div>
+
+  <div class="gp-col gp-col-codigo">
+    <span class="badge rounded-pill text-bg-secondary font-monospace">{{ p.codigo }}</span>
+  </div>
+
+            <div class="gp-col gp-col-pres">
+              {% for pr in p.presentaciones.all %}
+              <span class="badge rounded-pill gp-badge-pres">{{ pr.nombre }} (x{{ pr.unidades }}) — <span class="precio-fmt">${{ pr.precio|floatformat:0 }}</span></span>
+              {% empty %}
+              <span class="badge rounded-pill text-bg-warning"><i class="bi bi-exclamation me-1"></i>Sin presentaciones</span>
+              {% endfor %}
+            </div>
+
+            <div class="gp-col gp-col-acciones">
+              <div class="dropdown">
+                <button class="gp-dots-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-strategy="fixed">
+  <i class="bi bi-three-dots"></i>
+</button>
+                <ul class="dropdown-menu dropdown-menu-end prod-dropdown-menu">
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ p.pk }}"><i class="bi bi-eye me-2 text-primary"></i>Ver detalle</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalEditar{{ p.pk }}"><i class="bi bi-pencil me-2 text-info"></i>Editar</a></li>
+                  <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPresentaciones{{ p.pk }}"><i class="bi bi-layers me-2 text-success"></i>Presentaciones</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if p.activo %}
+                  <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_desactivar' p.pk %}', '{{ p.nombre|escapejs }}', 'desactivar')"><i class="bi bi-pause-circle me-2 text-info"></i>Desactivar</a></li>
+                  {% else %}
+                  <li><a class="dropdown-item" href="#" onclick="confirmarToggle('{% url 'gestion_producto_activar' p.pk %}', '{{ p.nombre|escapejs }}', 'activar')"><i class="bi bi-play-circle me-2 text-success"></i>Activar</a></li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+          {% empty %}
+          <div class="text-center p-5 rounded-4 gp-empty-state">
+            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+            No hay productos registrados aún.
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if productos|length > 5 %}
+        <div class="gp-ver-mas-wrap">
+          <button type="button" class="gp-ver-mas-btn" id="gpVerMasBtn" data-expandido="false"
+                  onclick="
+                    var btn = this;
+                    var expandido = btn.getAttribute('data-expandido') === 'true';
+                    document.querySelectorAll('.gp-row-extra').forEach(function(row){
+                      row.classList.toggle('gp-row-oculta', expandido);
+                    });
+                    btn.setAttribute('data-expandido', (!expandido).toString());
+                    btn.querySelector('.gp-ver-mas-text').textContent = expandido ? 'Ver {{ productos|length|add:'-5' }} más' : 'Ver menos';
+                    btn.querySelector('.gp-ver-mas-icon').classList.toggle('gp-toggle-icon-rotado', !expandido);
+                  ">
+            <span class="gp-ver-mas-text">Ver {{ productos|length|add:"-5" }} más</span>
+            <i class="bi bi-chevron-down gp-ver-mas-icon"></i>
+          </button>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <div id="noResultados" class="text-center p-5 d-none rounded-4 gp-empty-state">
+        <i class="bi bi-search fs-1 d-block mb-3 opacity-50"></i>
+        No se encontraron productos.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALES POR PRODUCTO ══ -->
+{% for p in productos %}
+
+<!-- Modal Detalle -->
+<div class="modal fade" id="modalDetalle{{ p.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-eye me-2 gp-icon-blue"></i>Detalle del Producto
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <h4 class="fw-bold mb-3">{{ p.nombre }}</h4>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <div class="small mb-1 gp-label-muted">Código</div>
+            <span class="tag-info font-monospace">{{ p.codigo }}</span>
+          </div>
+          <div class="col-6">
+            <div class="small mb-1 gp-label-muted">Categoría</div>
+            <span class="fw-semibold">{{ p.categoria.nombre }}</span>
+          </div>
+          <div class="col-6">
+            <div class="small mb-1 gp-label-muted">Stock Total</div>
+            <span class="fw-bold fs-5 {% if p.stock_critico %}text-danger{% else %}text-success{% endif %}">
+              {{ p.stock_total }} uds
+            </span>
+          </div>
+          <div class="col-6">
+            <div class="small mb-1 gp-label-muted">Costo unit. (último lote)</div>
+            {% with ul=p.presentaciones.first.lotes.last %}
+              {% if ul and ul.costo_unitario %}
+                <span class="fw-bold fs-5 gp-value-blue">${{ ul.costo_unitario|floatformat:0 }}</span>
+              {% else %}
+                <span class="gp-empty-pres">—</span>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="small fw-semibold text-uppercase mb-2 gp-uppercase-label">
+          <i class="bi bi-layers me-1"></i>Presentaciones
+        </div>
+        <div class="rounded-3 overflow-hidden gp-pres-box">
+          {% for pr in p.presentaciones.all %}
+          <div class="px-3 py-2 gp-pres-item">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-semibold">{{ pr.nombre }}</span>
+              <span class="fw-bold precio-fmt gp-value-blue">${{ pr.precio|floatformat:0 }}</span>
+            </div>
+            <!-- Lotes de esta presentación con su costo -->
+            {% for lote in pr.lotes.all %}
+            <div class="d-flex justify-content-between align-items-center gp-lote-line">
+              <span><i class="bi bi-tag me-1"></i>{{ lote.numero_lote }} · {{ lote.stock_actual }} uds</span>
+              <span>
+                {% if lote.costo_unitario %}
+                  Costo: <strong class="gp-lote-costo">${{ lote.costo_unitario|floatformat:0 }}</strong>
+                {% else %}
+                  Sin costo
+                {% endif %}
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+          {% empty %}
+          <div class="px-3 py-2 gp-empty-pres">Sin presentaciones.</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn rounded-pill px-4 gp-btn-outline-blue"
+                data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEditar{{ p.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-pencil-square me-2 gp-icon-blue"></i>Editar Producto
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'gestion_producto_editar' p.pk %}">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold gp-label-muted-sm">Nombre</label>
+              <input type="text" name="nombre" class="form-control prod-input" value="{{ p.nombre }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold gp-label-muted-sm">Código</label>
+              <input type="text" name="codigo" class="form-control prod-input" value="{{ p.codigo }}" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold gp-label-muted-sm">Categoría</label>
+              <div class="dropdown w-100">
+                <button class="btn dropdown-toggle w-100 text-start prod-input" type="button"
+                        id="editProd-cat-btn-{{ p.pk }}" data-bs-toggle="dropdown">
+                  <span id="editProd-cat-label-{{ p.pk }}">
+                    {% if p.categoria.padre %}{{ p.categoria.nombre }}{% else %}{{ p.categoria.nombre }} (Principal){% endif %}
+                  </span>
+                </button>
+                <ul class="dropdown-menu w-100 prod-dropdown-menu gp-dropdown-scroll">
+                  {% for main_cat in categorias %}
+                    <li><h6 class="dropdown-header gp-cat-header">{{ main_cat.nombre }}</h6></li>
+                    <li>
+                      <a class="dropdown-item edit-prod-cat-item gp-cat-item {% if main_cat.pk == p.categoria.pk %}active{% endif %}" href="#"
+                         data-value="{{ main_cat.pk }}" data-target="{{ p.pk }}">
+                        {{ main_cat.nombre }} (Principal)
+                      </a>
+                    </li>
+                    {% for sub_cat in main_cat.subcategorias.all %}
+                    <li>
+                      <a class="dropdown-item edit-prod-cat-item gp-cat-item-sub {% if sub_cat.pk == p.categoria.pk %}active{% endif %}" href="#"
+                         data-value="{{ sub_cat.pk }}" data-target="{{ p.pk }}">
+                        {{ sub_cat.nombre }}
+                      </a>
+                    </li>
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+                <input type="hidden" name="categoria" id="editProd-cat-hidden-{{ p.pk }}"
+                       value="{{ p.categoria.pk }}">
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold gp-label-muted-sm">Descripción</label>
+              <textarea name="descripcion" class="form-control prod-input" rows="2">{{ p.descripcion }}</textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn rounded-pill px-4 gp-btn-outline-blue"
+                  data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4 gp-btn-fill-blue">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Presentaciones -->
+<div class="modal fade" id="modalPresentaciones{{ p.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-layers me-2 gp-icon-cyan"></i>Presentaciones: {{ p.nombre }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'gestion_producto_editar' p.pk %}">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="small fw-semibold text-uppercase mb-3 gp-uppercase-label">Presentaciones Actuales</div>
+          {% for pr in p.presentaciones.all %}
+          <div class="rounded-3 p-3 mb-2 gp-nueva-pres-box">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-4">
+                <label class="form-label small gp-label-muted">Nombre</label>
+                <input type="text" name="pres_nombre_{{ pr.pk }}" class="form-control form-control-sm prod-input"
+                       value="{{ pr.nombre }}" required>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small gp-label-muted">Unidades</label>
+                <input type="number" name="pres_unidades_{{ pr.pk }}" class="form-control form-control-sm prod-input"
+                       value="{{ pr.unidades }}" min="1" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small gp-label-muted">Precio venta ($)</label>
+                <input type="number" name="pres_precio_{{ pr.pk }}" class="form-control form-control-sm prod-input"
+                       value="{{ pr.precio }}" min="0" step="0.01">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small gp-label-muted">
+                  Costo lote
+                  <i class="bi bi-info-circle ms-1 gp-info-icon" title="Último lote registrado"></i>
+                </label>
+                {% with ul=pr.lotes.last %}
+                  <div class="form-control form-control-sm prod-input d-flex align-items-center gp-costo-lote-display">
+                    {% if ul and ul.costo_unitario %}
+                      <span class="gp-value-blue">${{ ul.costo_unitario|floatformat:0 }}</span>
+                      <small class="ms-1 gp-label-muted">({{ ul.numero_lote }})</small>
+                    {% else %}
+                      <span class="gp-empty-pres">Sin costo</span>
+                    {% endif %}
+                  </div>
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="rounded-3 p-3 mb-3 text-center gp-sin-pres-box">
+            Sin presentaciones. Agrega una abajo.
+          </div>
+          {% endfor %}
+
+          <div class="small fw-semibold text-uppercase mt-4 mb-3 gp-uppercase-label">
+            <i class="bi bi-plus-circle me-1"></i>Nueva Presentación
+          </div>
+          <div class="rounded-3 p-3 gp-nueva-pres-box">
+            <div class="row g-2">
+              <div class="col-md-5">
+                <label class="form-label small gp-label-muted">Nombre</label>
+                <input type="text" name="nueva_pres_nombre[]" class="form-control form-control-sm prod-input"
+                       placeholder="Ej: Six-pack">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small gp-label-muted">Unidades</label>
+                <input type="number" name="nueva_pres_unidades[]" class="form-control form-control-sm prod-input"
+                       placeholder="Ej: 6" min="1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small gp-label-muted">Precio venta ($)</label>
+                <input type="number" name="nueva_pres_precio[]" class="form-control form-control-sm prod-input"
+                       placeholder="Ej: 19000" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn rounded-pill px-4 gp-btn-outline-blue"
+                  data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn rounded-pill fw-bold px-4 gp-btn-fill-cyan">Guardar Presentaciones</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- DESPUÉS (con el modal nuevo agregado) -->
+{% endfor %}
+
+<!-- Modal de confirmación (reemplaza confirm() nativo) -->
+<div class="modal fade" id="modalConfirmarAccion" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content prod-modal">
+      <div class="modal-header prod-modal-header">
+        <h6 class="modal-title" id="confirmar-titulo">
+          <i class="bi bi-question-circle me-2 text-info"></i>Confirmar acción
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="mb-0" id="confirmar-mensaje">¿Estás seguro?</p>
+      </div>
+      <div class="modal-footer prod-modal-footer">
+        <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn prod-btn-primary" id="confirmar-btn-aceptar">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="form-eliminar" method="POST" class="d-none">
+  {% csrf_token %}
+</form>
+
+<script src="{% static 'js/productos/gestion_productos.js' %}"></script>
+{% endblock %}

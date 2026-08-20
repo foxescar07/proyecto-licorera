@@ -209,6 +209,129 @@ class ProveedorModelTest(TestCase):
         # Verificar que solo existe 1 proveedor en la BD (no se duplicó)
         self.assertEqual(Proveedor.objects.count(), 1)
 
+    # ✓ SC 2: Validar NIT duplicado
+    def test_nit_duplicado_rechaza_creacion(self):
+        """Verificar que no permite NIT duplicado.
+
+        Escenario: Se intenta registrar un nuevo proveedor con NIT que ya existe
+        en la base de datos.
+
+        Datos de entrada:
+        - Nombre empresa: "Nueva Distribuidora"
+        - NIT: (mismo del proveedor existente)
+        - Email: "nuevo@test.com"
+        - Teléfono: "3109876543"
+
+        Resultado esperado:
+        - El sistema rechaza la creación con error "Este NIT ya está registrado"
+        - No se guarda el nuevo proveedor
+        - La BD mantiene solo 1 proveedor
+        """
+        # Crear primer proveedor con NIT específico
+        nit_existente = "900123456-7"
+        proveedor1 = Proveedor.objects.create(
+            nombre_empresa="Distribuidora Original",
+            nit=nit_existente,
+            email="original@test.com",
+            telefono="3001234567",
+            tipo_proveedor='distribuidor'
+        )
+
+        # Intentar crear segundo proveedor con mismo NIT
+        proveedor2 = Proveedor(
+            nombre_empresa="Nueva Distribuidora",
+            nit=nit_existente,  # NIT duplicado
+            email="nuevo@test.com",
+            telefono="3109876543",
+            tipo_proveedor='distribuidor'
+        )
+
+        # Verificar que ValidationError se lanza
+        with self.assertRaises(Exception):
+            proveedor2.full_clean()
+            proveedor2.save()
+
+        # Verificar que no se guardó
+        self.assertEqual(Proveedor.objects.count(), 2)  # El del setUp + el que creamos
+
+    # ✓ SC 3: Validar email duplicado
+    def test_email_duplicado_rechaza_creacion(self):
+        """Verificar que no permite email duplicado.
+
+        Escenario: Se intenta registrar un nuevo proveedor con email que ya existe
+        en la base de datos.
+
+        Datos de entrada:
+        - Nombre empresa: "Otra Distribuidora"
+        - NIT: "988776655-4"
+        - Email: (mismo del proveedor existente)
+        - Teléfono: "3157896543"
+
+        Resultado esperado:
+        - El sistema rechaza la creación con error "Este email ya está registrado en el sistema"
+        - No se guarda el nuevo proveedor
+        - La BD mantiene solo 1 proveedor
+        """
+        # El setUp ya creó un proveedor con email "ceiba@test.com"
+        email_existente = self.proveedor.email
+
+        # Intentar crear nuevo proveedor con mismo email
+        proveedor_nuevo = Proveedor(
+            nombre_empresa="Otra Distribuidora",
+            nit="988776655-4",
+            email=email_existente,  # Email duplicado
+            telefono="3157896543",
+            tipo_proveedor='distribuidor'
+        )
+
+        # Verificar que ValidationError se lanza
+        with self.assertRaises(Exception):
+            proveedor_nuevo.full_clean()
+            proveedor_nuevo.save()
+
+        # Verificar que no se guardó (debe haber solo el del setUp)
+        self.assertEqual(Proveedor.objects.count(), 1)
+        self.assertTrue(Proveedor.objects.filter(email=email_existente).exists())
+
+    # ✓ SC 4: Validar teléfono duplicado
+    def test_telefono_duplicado_rechaza_creacion(self):
+        """Verificar que no permite teléfono duplicado.
+
+        Escenario: Se intenta registrar un nuevo proveedor con teléfono que ya existe
+        en la base de datos.
+
+        Datos de entrada:
+        - Nombre empresa: "Más Distribuidoras"
+        - NIT: "755443221-9"
+        - Email: "contacto@masdist.com"
+        - Teléfono: (mismo del proveedor existente)
+
+        Resultado esperado:
+        - El sistema rechaza la creación con error "Este teléfono ya está registrado"
+        - No se guarda el nuevo proveedor
+        - La BD mantiene solo 1 proveedor
+        """
+        # El setUp ya creó un proveedor con teléfono "3001234567"
+        telefono_existente = self.proveedor.telefono
+
+        # Intentar crear nuevo proveedor con mismo teléfono
+        proveedor_nuevo = Proveedor(
+            nombre_empresa="Más Distribuidoras",
+            nit="755443221-9",
+            email="contacto@masdist.com",
+            telefono=telefono_existente,  # Teléfono duplicado
+            tipo_proveedor='distribuidor'
+        )
+
+        # Verificar que ValidationError se lanza
+        with self.assertRaises(Exception):
+            proveedor_nuevo.full_clean()
+            proveedor_nuevo.save()
+
+        # Verificar que no se guardó (debe haber solo el del setUp)
+        self.assertEqual(Proveedor.objects.count(), 1)
+        self.assertTrue(Proveedor.objects.filter(telefono=telefono_existente).exists())
+
 
 class ComprasCrudTest(TestCase):
     """Casos de regresión para la HU-002: compras con detalle de producto."""
