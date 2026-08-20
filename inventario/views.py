@@ -4,6 +4,9 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.db.models import F, Q, Sum
+import json
+from productos.models import Producto, PresentacionProducto
 
 from .forms import (
     AgendaInventarioForm,
@@ -78,14 +81,34 @@ def gestion_stock(request):
 
 @login_required
 def lote_list(request):
-    query = request.GET.get('q', '')
-    lotes = Lote.objects.select_related('presentacion', 'registrado_por')
-    if query:
-        lotes = lotes.filter(
-            Q(numero_lote__icontains=query) |
-            Q(presentacion__producto__nombre__icontains=query)
-        )
-    return render(request, 'inventario/lote_list.html', {'lotes': lotes, 'query': query})
+    productos = Producto.objects.select_related('categoria').prefetch_related('presentaciones').all()
+
+    hoy = timezone.now().date()
+    ingresos_hoy = Lote.objects.filter(fecha_registro__date=hoy).aggregate(
+        total=Sum('stock_actual')
+    )['total'] or 0
+
+    ordenes_mes = Lote.objects.filter(
+        fecha_registro__year=hoy.year, fecha_registro__month=hoy.month
+    ).count()
+
+    top_productos = (
+    Producto.objects
+    .annotate(stock_calculado=Sum('presentaciones__lotes__stock_actual'))
+    .order_by('-stock_calculado')[:5]
+)
+    proveedores_labels = json.dumps([p.nombre for p in top_productos])
+    proveedores_data = json.dumps([p.stock_calculado or 0 for p in top_productos])
+
+    context = {
+        'productos': productos,
+        'ingresos_hoy': ingresos_hoy,
+        'ordenes_mes': ordenes_mes,
+        'proveedores_labels': proveedores_labels,
+        'proveedores_data': proveedores_data,
+        'hay_presentaciones': PresentacionProducto.objects.exists(),
+    }
+    return render(request, 'inventario/lote_list.html', context)
 
 
 @login_required
@@ -93,7 +116,6 @@ def lote_detail(request, numero_lote):
     lote = get_object_or_404(Lote, numero_lote=numero_lote)
     movimientos = lote.movimientos.all()
     return render(request, 'inventario/lote_detail.html', {'lote': lote, 'movimientos': movimientos})
-
 
 @login_required
 def lote_create(request):
@@ -104,10 +126,11 @@ def lote_create(request):
             lote.registrado_por = request.user
             lote.save()
             messages.success(request, f'Lote {lote.numero_lote} registrado correctamente.')
-            return redirect('inventario:lote_list')
-    else:
-        form = LoteForm()
-    return render(request, 'inventario/lote_form.html', {'form': form})
+        else:
+            messages.error(request, f'No se pudo registrar el lote: {form.errors.as_text()}')
+        return redirect('inventario:lote_list')
+
+    return redirect('inventario:lote_list')
 
 
 @login_required
