@@ -184,6 +184,10 @@ def movimiento_list(request):
 @login_required
 @transaction.atomic
 def movimiento_create(request):
+    if request.method == 'GET':
+        lotes = Lote.objects.select_related('presentacion__producto').filter(stock_actual__gt=0)
+        return render(request, 'inventario/movimiento_form.html', {'lotes': lotes})
+
     if request.method == 'POST':
         lote_id = request.POST.get('lote_id')
         tipo = request.POST.get('tipo')
@@ -196,22 +200,22 @@ def movimiento_create(request):
             cantidad = int(cantidad_raw)
         except (TypeError, ValueError):
             messages.error(request, 'La cantidad ingresada no es válida.')
-            return redirect('inventario:inventario_home')
+            return redirect('inventario:movimiento_create')
 
         if cantidad <= 0:
             messages.error(request, 'La cantidad debe ser mayor a cero.')
-            return redirect('inventario:inventario_home')
+            return redirect('inventario:movimiento_create')
 
         if tipo == 'entrada':
             lote.stock_actual += cantidad
         elif tipo == 'salida':
             if cantidad > lote.stock_actual:
                 messages.error(request, f'No hay suficiente stock en el lote {lote.numero_lote}.')
-                return redirect('inventario:inventario_home')
+                return redirect('inventario:movimiento_create')
             lote.stock_actual -= cantidad
         else:
             messages.error(request, 'Tipo de movimiento no válido.')
-            return redirect('inventario:inventario_home')
+            return redirect('inventario:movimiento_create')
 
         lote.save()
 
@@ -228,6 +232,7 @@ def movimiento_create(request):
         )
 
         messages.success(request, 'Movimiento registrado correctamente.')
+        return redirect('inventario:lote_detail', numero_lote=lote.numero_lote)
 
     return redirect('inventario:inventario_home')
 
