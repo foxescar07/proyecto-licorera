@@ -14,9 +14,9 @@
   --rojo-glow:     rgba(192,57,43,.2);
   --gris:          #6c757d;
   --gris-claro:    #ADB5BD;
-  --fondo:         #080F1A;
-  --fondo-card:    #0D1B2E;
-  --fondo-card2:   #111f33;
+  --fondo:         #011936;
+  --fondo-card:    #0A2A52;
+  --fondo-card2:   #0A2A52;
   --blanco:        #FFFFFF;
   --texto:         #E8EDF2;
   --texto-muted:   rgba(232,237,242,.45);
@@ -1144,7 +1144,7 @@ html.cys-a11y-contraste {
     filter: contrast(1.25) saturate(1.1);
 }
 html.cys-a11y-contraste body {
-    background: #000 !important;
+    background: #011936 !important;
 }
 
 html.cys-a11y-espaciado body {

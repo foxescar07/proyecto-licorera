@@ -26,8 +26,7 @@
 
 <!-- Header -->
 
-<div class="row g-4">
-
+<div class="row g-4" id="lotes-layout">
   <!-- ── Formulario ── -->
   <div class="col-lg-7">
     <div class="inv-card p-4 h-100">
@@ -55,7 +54,7 @@
           <label class="inv-label">Presentación <span class="text-danger">*</span></label>
 
           <!-- Select real: oculto, sigue siendo el que se envía con el formulario -->
-          <select name="presentacion_lote" id="select-presentacion-lote" class="d-none">
+          <select name="presentacion" id="select-presentacion-lote" class="d-none">
             <option value="">— Selecciona presentación —</option>
             {% for p in productos %}
               {% if p.presentaciones.all %}
@@ -69,31 +68,41 @@
           </select>
 
           <!-- Dropdown visual -->
-          <div class="dropdown">
-            <button class="btn dropdown-toggle w-100 text-start lote-presentacion-btn" type="button"
-                    id="presentacion-lote-btn" data-bs-toggle="dropdown">
-              <span id="presentacion-lote-label">— Selecciona presentación —</span>
-            </button>
-            <ul class="dropdown-menu w-100 lote-presentacion-menu">
-              {% for p in productos %}
-                {% if p.presentaciones.all %}
-                <li>
-                  <h6 class="dropdown-header">
-                    {{ p.nombre }}
-                  </h6>
-                </li>
-                  {% for pr in p.presentaciones.all %}
-                  <li>
-                    <a class="dropdown-item presentacion-lote-item" href="#" data-value="{{ pr.pk }}">
-                      {{ pr.nombre }}
-                    </a>
-                  </li>
-                  {% endfor %}
-                {% endif %}
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
+<div class="dropdown">
+  <button class="btn dropdown-toggle w-100 text-start lote-presentacion-btn" type="button"
+          id="presentacion-lote-btn" data-bs-toggle="dropdown"
+          {% if not hay_presentaciones %}disabled{% endif %}>
+    <span id="presentacion-lote-label">
+      {% if hay_presentaciones %}— Selecciona presentación —{% else %}No hay presentaciones disponibles{% endif %}
+    </span>
+  </button>
+  <ul class="dropdown-menu w-100 lote-presentacion-menu">
+    {% for p in productos %}
+      {% if p.presentaciones.all %}
+      <li>
+        <h6 class="dropdown-header">
+          {{ p.nombre }}
+        </h6>
+      </li>
+        {% for pr in p.presentaciones.all %}
+        <li>
+          <a class="dropdown-item presentacion-lote-item" href="#" data-value="{{ pr.pk }}">
+            {{ pr.nombre }}
+          </a>
+        </li>
+        {% endfor %}
+      {% endif %}
+    {% empty %}
+      <li><span class="dropdown-item disabled">No hay productos registrados.</span></li>
+    {% endfor %}
+  </ul>
+  {% if not hay_presentaciones %}
+    <small class="text-danger mt-1 d-block">
+      <i class="bi bi-exclamation-circle me-1"></i>
+      No hay presentaciones disponibles. Registra una presentación antes de crear un lote.
+    </small>
+  {% endif %}
+</div>
 
        <!-- Nº Lote + Cantidad -->
 <div class="row g-3 mb-3">
@@ -105,9 +114,9 @@
   <div class="col-6">
     <label class="inv-label">Cantidad <span class="text-danger">*</span></label>
     <div class="d-flex lote-cantidad-wrap">
-      <input type="number" name="cantidad_lote" id="input-cantidad-lote"
-             class="form-control inv-input lote-cantidad-input"
-             min="1" placeholder="0" required>
+      <input type="number" name="stock_actual" id="input-cantidad-lote"
+       class="form-control inv-input lote-cantidad-input"
+       min="1" placeholder="0" required>
       <div class="lote-precio-spinners">
         <button type="button" class="lote-spin-btn lote-spin-up" data-target="input-cantidad-lote">
           <i class="bi bi-caret-up-fill"></i>
@@ -160,9 +169,10 @@
   </div>
 </div>
 
-        <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100 lote-btn-crear">
-          <i class="bi bi-plus-circle me-2"></i>Crear Lote
-        </button>
+  <button type="submit" class="btn fw-bold rounded-pill px-4 py-2 w-100 lote-btn-crear"
+        {% if not hay_presentaciones %}disabled{% endif %}>
+  <i class="bi bi-plus-circle me-2"></i>Crear Lote
+  </button>
       </form>
 
     </div>
@@ -221,8 +231,8 @@
 
 {% block extra_js %}
 <div id="lotes-config"
-     data-labels="{{ proveedores_labels|safe }}"
-     data-data="{{ proveedores_data|safe }}"
+     data-labels="{{ proveedores_labels }}"
+     data-data="{{ proveedores_data }}"
      class="d-none"></div>
 <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <script src="{% static 'js/inventario/gestion_lotes.js' %}"></script>
