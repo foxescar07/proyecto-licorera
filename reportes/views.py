@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
-from ventas.models import Venta, DetalleVenta
+from ventas.models import Venta, DetalleVenta, Devolucion
 from productos.models import Producto
 from inventario.models import Inventario, MovimientoInventario
 from .forms import FiltroReporteForm
@@ -56,7 +56,7 @@ XLS_ROJO_OUT      = 'C0392B'   # valores negativos (salidas)
 XLS_FONT = 'Calibri'
 
 # Tipos de reporte válidos (deben coincidir con Reporte.TIPO_REPORTE_CHOICES)
-TIPOS_VALIDOS = {'ventas', 'inventario', 'proveedores', 'resumen_diario', 'analisis'}
+TIPOS_VALIDOS = {'ventas', 'inventario', 'proveedores', 'resumen_diario', 'analisis', 'devoluciones'}
 
 
 # ─────────────────────────────────────────────
@@ -481,6 +481,61 @@ def _pdf_analisis_ventas(ventas_qs, total_ventas, total_productos, total_cliente
     return _build_pdf("Análisis de Ventas", subtitulo, elementos, orientacion='landscape')
 
 
+def _pdf_devoluciones(devoluciones_qs, fecha_inicio, fecha_fin):
+    """
+    Genera el PDF del Reporte de Devoluciones, siguiendo el mismo
+    estilo CYS (KPIs + tabla) que el resto de reportes.
+    """
+    elementos = []
+
+    ESTADO_COLOR = {
+        'pendiente': COLOR_AMARILLO,
+        'aprobada':  COLOR_ACENTO,
+        'aplicada':  COLOR_VERDE,
+    }
+
+    total_dev      = devoluciones_qs.count()
+    total_valor    = sum(d.total_devuelto for d in devoluciones_qs)
+    total_pend     = sum(1 for d in devoluciones_qs if d.estado == 'pendiente')
+
+    elementos.append(_kpi_table([
+        ('Devoluciones', str(total_dev),          '#4DA8DA'),
+        ('Total devuelto', f'${total_valor:,.0f}', '#e74c3c'),
+        ('Pendientes',   str(total_pend),          '#f1c40f'),
+    ]))
+    elementos.append(Spacer(1, 12))
+
+    cabecera = [['#', 'Fecha', 'Cliente', 'Motivo', 'Tipo', 'Estado', 'Total devuelto']]
+    filas = cabecera
+    for i, d in enumerate(devoluciones_qs, 1):
+        estado_color = ESTADO_COLOR.get(d.estado, COLOR_TEXTO)
+        filas.append([
+            str(i),
+            d.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
+            str(d.codigo_venta.codigo_cliente),
+            d.get_motivo_display(),
+            d.get_tipo_devolucion_display(),
+            Paragraph(
+                f'<font color="{estado_color.hexval()}"><b>{d.get_estado_display()}</b></font>',
+                ParagraphStyle('est', fontSize=8),
+            ),
+            f'${float(d.total_devuelto):,.0f}',
+        ])
+
+    if len(filas) == 1:
+        filas.append(['', 'Sin devoluciones en el período seleccionado', '', '', '', '', ''])
+
+    col_w = [1*cm, 3*cm, 4*cm, 3.5*cm, 3*cm, 2.5*cm, 3*cm]
+    t = Table(filas, colWidths=col_w, repeatRows=1)
+    estilo = _estilo_tabla_base(7)
+    estilo.add('ALIGN', (6, 1), (6, -1), 'RIGHT')
+    t.setStyle(estilo)
+    elementos.append(t)
+
+    subtitulo = f"Período: {fecha_inicio or 'Todo'} → {fecha_fin or 'Todo'}  |  Generado: {timezone.now().astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M')}"
+    return _build_pdf("Reporte de Devoluciones", subtitulo, elementos, orientacion='landscape')
+
+
 # ═══════════════════════════════════════════════════════
 #  GENERADORES EXCEL POR TIPO — TEMA "ROJO SUAVE" CYS
 # ═══════════════════════════════════════════════════════
@@ -837,6 +892,49 @@ def _xlsx_analisis_ventas(wb, ventas_qs, total_ventas, total_productos, total_cl
                currency_cols={3}, right_cols={2})
 
 
+def _xlsx_devoluciones(wb, devoluciones_qs, fecha_inicio, fecha_fin):
+    """
+    Genera la hoja Excel del Reporte de Devoluciones, con el mismo
+    tema visual "rojo suave" CYS del resto de reportes.
+    """
+    ws = wb.active
+    ws.title = 'Devoluciones'
+    ws.sheet_view.showGridLines = False
+
+    total_dev   = devoluciones_qs.count()
+    total_valor = sum(d.total_devuelto for d in devoluciones_qs)
+    total_pend  = sum(1 for d in devoluciones_qs if d.estado == 'pendiente')
+
+    subtitulo = f"Período: {fecha_inicio or 'Todo'} → {fecha_fin or 'Todo'}"
+    meta = [('Generado:', timezone.now().astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M'))]
+    fila = _xls_encabezado(ws, "Reporte de Devoluciones", subtitulo, meta, 7)
+    fila = _xls_kpis(ws, fila, [
+        ('Devoluciones', total_dev, XLS_ROJO_MARCA),
+        ('Total devuelto', float(total_valor), XLS_ROJO_OUT),
+        ('Pendientes', total_pend, 'B8860B'),
+    ], 7)
+
+    headers = ['#', 'Fecha', 'Cliente', 'Motivo', 'Tipo', 'Estado', 'Total devuelto']
+    filas = []
+    for i, d in enumerate(devoluciones_qs, 1):
+        filas.append([
+            i,
+            d.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y %H:%M"),
+            str(d.codigo_venta.codigo_cliente),
+            d.get_motivo_display(),
+            d.get_tipo_devolucion_display(),
+            d.get_estado_display(),
+            float(d.total_devuelto),
+        ])
+
+    _xls_tabla(
+        ws, fila, headers, filas,
+        col_widths=[6, 18, 24, 20, 18, 14, 16],
+        currency_cols={6}, right_cols={},
+        color_col={5: {'Pendiente': 'B8860B', 'Aprobada': XLS_ROJO_HEADER, 'Aplicada': XLS_VERDE_OK}},
+    )
+
+
 # ═══════════════════════════════════════════════════════
 #  VISTA PRINCIPAL
 # ═══════════════════════════════════════════════════════
@@ -860,6 +958,16 @@ def index_reportes(request):
         ventas_qs = ventas_qs.filter(fecha__date__gte=fecha_inicio)
     if fecha_fin:
         ventas_qs = ventas_qs.filter(fecha__date__lte=fecha_fin)
+
+    # Devoluciones, filtradas por el mismo rango de fechas que las ventas
+    devoluciones_qs = Devolucion.objects.select_related(
+        'codigo_venta__codigo_cliente', 'documento_usuario'
+    ).all().order_by('-fecha')
+
+    if fecha_inicio:
+        devoluciones_qs = devoluciones_qs.filter(fecha__date__gte=fecha_inicio)
+    if fecha_fin:
+        devoluciones_qs = devoluciones_qs.filter(fecha__date__lte=fecha_fin)
 
     paginator   = Paginator(ventas_qs, per_page)
     page_number = request.GET.get('page', 1)
@@ -950,6 +1058,10 @@ def index_reportes(request):
                 _xlsx_analisis_ventas(wb, ventas_qs, total_v, total_u, total_c, top_h)
                 nombre = f"analisis_ventas_{timezone.now().strftime('%Y%m%d')}.xlsx"
 
+            elif tipo == 'devoluciones':
+                _xlsx_devoluciones(wb, devoluciones_qs, fecha_inicio, fecha_fin)
+                nombre = f"reporte_devoluciones_{timezone.now().strftime('%Y%m%d')}.xlsx"
+
             buffer = BytesIO()
             wb.save(buffer)
             buffer.seek(0)
@@ -1026,6 +1138,10 @@ def index_reportes(request):
                 buffer = _pdf_analisis_ventas(ventas_qs, total_v, total_u, total_c, top_h)
                 nombre = f"analisis_ventas_{timezone.now().strftime('%Y%m%d')}.pdf"
 
+            elif tipo == 'devoluciones':
+                buffer = _pdf_devoluciones(devoluciones_qs, fecha_inicio, fecha_fin)
+                nombre = f"reporte_devoluciones_{timezone.now().strftime('%Y%m%d')}.pdf"
+
             # Registro de trazabilidad (tabla 'reportes' según el MER)
             _registrar_reporte(request, tipo, 'pdf')
 
@@ -1086,6 +1202,18 @@ def index_reportes(request):
         reverse=True
     )[:5]
 
+    # ── Devoluciones: datos para el dashboard de reportes ──
+    devoluciones_todas = devoluciones_qs
+    total_devoluciones      = devoluciones_todas.count()
+    total_valor_devoluciones = sum(d.total_devuelto for d in devoluciones_todas)
+    total_devoluciones_pendientes = sum(1 for d in devoluciones_todas if d.estado == 'pendiente')
+
+    devoluciones_hoy = Devolucion.objects.select_related(
+        'codigo_venta__codigo_cliente'
+    ).filter(fecha__date=hoy).order_by('-fecha')
+    total_devoluciones_hoy = devoluciones_hoy.count()
+    valor_devoluciones_hoy = sum(d.total_devuelto for d in devoluciones_hoy)
+
     ventas_data = []
     for v in ventas_todas:
         for det in v.detalles.all():
@@ -1141,6 +1269,14 @@ def index_reportes(request):
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
         'ultimos_reportes':   ultimos_reportes,
+        # ── Devoluciones ──
+        'devoluciones':                    devoluciones_todas,
+        'total_devoluciones':              total_devoluciones,
+        'total_valor_devoluciones':        total_valor_devoluciones,
+        'total_devoluciones_pendientes':   total_devoluciones_pendientes,
+        'devoluciones_hoy':                devoluciones_hoy,
+        'total_devoluciones_hoy':          total_devoluciones_hoy,
+        'valor_devoluciones_hoy':          valor_devoluciones_hoy,
         'breadcrumb_items': [
             {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
             {'nombre': 'Reportes', 'url': None},
@@ -1202,6 +1338,13 @@ def resumen_diario_ajax(request):
         top_productos.items(), key=lambda x: x[1]['subtotal'], reverse=True
     )[:5]
 
+    # Devoluciones del día seleccionado
+    devoluciones_dia = Devolucion.objects.select_related(
+        'codigo_venta__codigo_cliente'
+    ).filter(fecha__date=fecha_dt).order_by('-fecha')
+    total_devoluciones_dia = devoluciones_dia.count()
+    valor_devoluciones_dia = sum(d.total_devuelto for d in devoluciones_dia)
+
     ventas_data = []
     for v in ventas_dia:
         for det in v.detalles.all():
@@ -1227,6 +1370,15 @@ def resumen_diario_ajax(request):
         'fecha':    s.fecha.astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M'),
     } for s in salidas_dia]
 
+    devoluciones_data = [{
+        'cliente':  str(d.codigo_venta.codigo_cliente),
+        'motivo':   d.get_motivo_display(),
+        'tipo':     d.get_tipo_devolucion_display(),
+        'estado':   d.get_estado_display(),
+        'total':    float(d.total_devuelto),
+        'hora':     d.fecha.astimezone(ZONA_COLOMBIA).strftime('%H:%M'),
+    } for d in devoluciones_dia]
+
     data = {
         'fecha':              fecha_dt.strftime('%Y-%m-%d'),
         'ingresos_dia':       float(ingresos_dia),
@@ -1236,6 +1388,9 @@ def resumen_diario_ajax(request):
         'ventas':             ventas_data,
         'entradas':           entradas_data,
         'salidas':            salidas_data,
+        'total_devoluciones_dia': total_devoluciones_dia,
+        'valor_devoluciones_dia': valor_devoluciones_dia,
+        'devoluciones':           devoluciones_data,
         'top_productos': [
             {'nombre': nombre, 'cantidad': datos['cantidad'], 'subtotal': datos['subtotal']}
             for nombre, datos in top_productos
