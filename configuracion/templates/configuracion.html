@@ -30,31 +30,46 @@
     <div class="row g-3">
       <div class="col-md-4">
         <div class="cfg-knob-card">
-          <div class="cfg-knob-card__info">
-            <div class="cfg-knob-card__label"><i class="bi bi-brightness-high"></i> Brillo</div>
-            <div class="cfg-knob-card__hint">Brillo general de la interfaz</div>
+          <div class="cfg-knob-card__top">
+            <div class="cfg-knob-card__info">
+              <div class="cfg-knob-card__label"><i class="bi bi-brightness-high"></i> Brillo</div>
+              <div class="cfg-knob-card__hint">Brillo general de la interfaz</div>
+            </div>
+            <div class="cfg-knob" id="knobBrillo" data-min="60" data-max="120" data-step="1" data-unit="%" data-default="100"></div>
           </div>
-          <div class="cfg-knob" id="knobBrillo" data-min="60" data-max="120" data-step="1" data-unit="%"></div>
+          <button type="button" class="cfg-knob-card__reset" id="btnResetBrillo" disabled>
+            <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+          </button>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="cfg-knob-card">
-          <div class="cfg-knob-card__info">
-            <div class="cfg-knob-card__label"><i class="bi bi-fonts"></i> Tamaño de letra</div>
-            <div class="cfg-knob-card__hint">Tamaño base del texto</div>
+          <div class="cfg-knob-card__top">
+            <div class="cfg-knob-card__info">
+              <div class="cfg-knob-card__label"><i class="bi bi-fonts"></i> Tamaño de letra</div>
+              <div class="cfg-knob-card__hint">Tamaño base del texto</div>
+            </div>
+            <div class="cfg-knob" id="knobFuente" data-min="12" data-max="20" data-step="1" data-unit="px" data-default="14"></div>
           </div>
-          <div class="cfg-knob" id="knobFuente" data-min="12" data-max="20" data-step="1" data-unit="px"></div>
+          <button type="button" class="cfg-knob-card__reset" id="btnResetFuente" disabled>
+            <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+          </button>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="cfg-knob-card">
-          <div class="cfg-knob-card__info">
-            <div class="cfg-knob-card__label"><i class="bi bi-zoom-in"></i> Aumento</div>
-            <div class="cfg-knob-card__hint">Escala general de la pantalla</div>
+          <div class="cfg-knob-card__top">
+            <div class="cfg-knob-card__info">
+              <div class="cfg-knob-card__label"><i class="bi bi-zoom-in"></i> Aumento</div>
+              <div class="cfg-knob-card__hint">Escala general de la pantalla</div>
+            </div>
+            <div class="cfg-knob" id="knobZoom" data-min="80" data-max="150" data-step="5" data-unit="%" data-default="100"></div>
           </div>
-          <div class="cfg-knob" id="knobZoom" data-min="80" data-max="150" data-step="5" data-unit="%"></div>
+          <button type="button" class="cfg-knob-card__reset" id="btnResetZoom" disabled>
+            <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+          </button>
         </div>
       </div>
     </div>

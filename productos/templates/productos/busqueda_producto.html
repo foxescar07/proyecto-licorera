@@ -1,0 +1,20 @@
+{% load static %}
+{% url 'buscar_producto' as BP_URL %}
+
+<div class="card prod-card mb-4" id="bp-container" data-buscar-url="{{ BP_URL }}">
+  <div class="card-body">
+    <div class="input-group position-relative">
+      <input class="form-control prod-input" id="bp-input" autocomplete="off"
+             placeholder="Buscar producto por nombre o código…">
+      <button class="btn prod-btn-primary" id="bp-btn" onclick="bpBuscarDetalle(document.getElementById('bp-input').value.trim())">
+        <i class="bi bi-search"></i>
+      </button>
+
+      <!-- Dropdown de sugerencias (Bootstrap 5) -->
+      <ul class="dropdown-menu w-100 bp-sugerencias-dropdown" id="bp-sugerencias"></ul>
+    </div>
+    <div id="bp-resultado" class="mt-3"></div>
+  </div>
+</div>
+
+<script src="{% static 'js/productos/busqueda_producto.js' %}"></script>

@@ -51,12 +51,18 @@ let toastPrefTimeout = null;
 
 // ══════════════════════════════════════════
 // PERILLAS (DIAL)
+// btnResetId (opcional): id del botón "Restablecer" asociado a esta perilla.
+// Si se pasa, la perilla se encarga de deshabilitarlo cuando el valor
+// ya está en el default (evita clics inútiles).
 // ══════════════════════════════════════════
-function crearPerilla(container) {
+function crearPerilla(container, btnResetId) {
   const min    = parseFloat(container.dataset.min);
   const max    = parseFloat(container.dataset.max);
   const step   = parseFloat(container.dataset.step) || 1;
   const unidad = container.dataset.unit || '';
+  const valorDefault = container.dataset.default !== undefined
+    ? parseFloat(container.dataset.default)
+    : null;
 
   container.innerHTML = `
     <div class="cfg-knob__dial">
@@ -76,6 +82,7 @@ function crearPerilla(container) {
   const progress = container.querySelector('.cfg-knob__progress');
   const handle   = container.querySelector('.cfg-knob__handle');
   const valorEl  = container.querySelector('.cfg-knob__value');
+  const btnReset = btnResetId ? document.getElementById(btnResetId) : null;
 
   const MIN_ANGLE = -135;
   const MAX_ANGLE = 135;
@@ -88,6 +95,9 @@ function crearPerilla(container) {
     handle.style.transform = `rotate(${angulo}deg)`;
     valorEl.textContent = val;
     container.dataset.value = val;
+    if (btnReset && valorDefault !== null) {
+      btnReset.disabled = (val === valorDefault);
+    }
   }
 
   function anguloDesdeEvento(e) {
@@ -125,7 +135,16 @@ function crearPerilla(container) {
   dial.addEventListener('pointerup', () => arrastrando = false);
   dial.addEventListener('pointercancel', () => arrastrando = false);
 
-  return { pintar };
+  // Botón "Restablecer": vuelve al valor por defecto y dispara el mismo
+  // evento 'cambio' que el arrastre, para no duplicar la lógica de guardado.
+  if (btnReset && valorDefault !== null) {
+    btnReset.addEventListener('click', () => {
+      pintar(valorDefault);
+      container.dispatchEvent(new CustomEvent('cambio', { detail: valorDefault }));
+    });
+  }
+
+  return { pintar, valorDefault };
 }
 
 // ══════════════════════════════════════════
@@ -153,9 +172,9 @@ function aplicarTema(tema) {
 // INIT
 // ══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function () {
-  perillaBrillo = crearPerilla(document.getElementById('knobBrillo'));
-  perillaFuente = crearPerilla(document.getElementById('knobFuente'));
-  perillaZoom   = crearPerilla(document.getElementById('knobZoom'));
+  perillaBrillo = crearPerilla(document.getElementById('knobBrillo'), 'btnResetBrillo');
+  perillaFuente = crearPerilla(document.getElementById('knobFuente'), 'btnResetFuente');
+  perillaZoom   = crearPerilla(document.getElementById('knobZoom'), 'btnResetZoom');
 
   document.getElementById('knobBrillo').addEventListener('cambio', e => {
     cfgActual.brillo = e.detail;
