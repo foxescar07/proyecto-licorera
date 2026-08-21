@@ -11,26 +11,29 @@
   font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
-/* ── Variables ── */
+/* ── Variables ──
+   --azul-borde y --texto-muted YA son nombres globales de base.js
+   (aplicados como estilo inline en <html>), así que ya heredaban del
+   tema por especificidad — se quitaron de aquí para no confundir.
+   El resto de los "-acento" locales SÍ estaban desconectados y ahora
+   son alias de las variables reales del tema. */
 :root {
-  --color-bg: #011936;
-  --color-bg-card: #02224a;
-  --color-bg-hover: #032d60;
-  --color-surface: #031e3e;
-  --color-carmesi: #4DA8DA;
-  --color-mauve: #8FA3B1;
-  --color-menta: #4DA8DA;
-  --color-blanco: #FDFFFC;
+  --color-bg: var(--fondo);
+  --color-bg-card: var(--fondo-card);
+  --color-bg-hover: var(--fondo-card2);
+  --color-surface: var(--fondo-card2);
+  --color-carmesi: var(--azul-claro);
+  --color-mauve: var(--texto-muted);
+  --color-menta: var(--azul-claro);
+  --color-blanco: var(--texto);
 
-  --azul-borde: rgba(239, 248, 226, 0.1);
-  --texto-muted: #8FA3B1;
-  --azul-acento: #4DA8DA;
-  --verde-acento: #4DA8DA;
-  --morado-acento: #4DA8DA;
-  --naranja-acento: #e8a87c;
-  --amarillo-acento: #f0d080;
-  --rojo-acento: #912F40;
-  --dorado-acento: #c99040;
+  --azul-acento: var(--azul-claro);
+  --verde-acento: var(--verde);
+  --morado-acento: #7F77DD;   /* categórico (Análisis), fijo a propósito */
+  --naranja-acento: #e8a87c;  /* categórico, fijo a propósito */
+  --amarillo-acento: #f0d080; /* categórico, fijo a propósito */
+  --rojo-acento: var(--rojo);
+  --dorado-acento: #CF9C48;   /* marca CYS, fijo en todos los módulos */
 }
 
 /* ────────────────────────────────────
@@ -39,12 +42,12 @@
 .cys-modal {
   background-color: var(--color-bg) !important;
   color: var(--color-blanco);
-  border: 1px solid rgba(239, 248, 226, 0.12);
+  border: 1px solid color-mix(in srgb, var(--texto) 12%, transparent);
 }
 
 .cys-modal__header {
   background-color: var(--color-surface);
-  border-bottom: 1px solid rgba(239, 248, 226, 0.1);
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 10%, transparent);
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -55,7 +58,7 @@
   width: 38px;
   height: 38px;
   border-radius: 9px;
-  background: rgba(239, 248, 226, 0.08);
+  background: color-mix(in srgb, var(--texto) 8%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,8 +67,8 @@
 }
 
 .cys-modal__icon--inv {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-modal__icon--prov {
@@ -95,9 +98,9 @@
 }
 
 .cys-modal__close {
-  background: rgba(145, 47, 64, 0.15);
-  border: 1px solid rgba(145, 47, 64, 0.3);
-  color: var(--color-carmesi);
+  background: color-mix(in srgb, var(--rojo) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rojo) 30%, transparent);
+  color: var(--rojo);
   width: 30px;
   height: 30px;
   border-radius: 6px;
@@ -110,12 +113,12 @@
 }
 
 .cys-modal__close:hover {
-  background: rgba(145, 47, 64, 0.3);
+  background: color-mix(in srgb, var(--rojo) 30%, transparent);
 }
 
 .cys-modal__footer {
   background-color: var(--color-surface);
-  border-top: 1px solid rgba(239, 248, 226, 0.1);
+  border-top: 1px solid color-mix(in srgb, var(--texto) 10%, transparent);
   padding: 12px 20px;
 }
 
@@ -150,27 +153,27 @@
 }
 
 .cys-btn-export--excel {
-  background: rgba(46, 204, 113, 0.12);
-  border-color: rgba(46, 204, 113, 0.35);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
+  border-color: color-mix(in srgb, var(--verde) 35%, transparent);
+  color: var(--verde);
 }
 
 .cys-btn-export--excel:hover {
-  background: rgba(46, 204, 113, 0.22);
-  box-shadow: 0 6px 16px rgba(46, 204, 113, 0.25);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 22%, transparent);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--verde) 25%, transparent);
+  color: var(--verde);
 }
 
 .cys-btn-export--pdf {
-  background: rgba(231, 76, 60, 0.12);
-  border-color: rgba(231, 76, 60, 0.35);
-  color: #e74c3c;
+  background: color-mix(in srgb, var(--rojo) 12%, transparent);
+  border-color: color-mix(in srgb, var(--rojo) 35%, transparent);
+  color: var(--rojo);
 }
 
 .cys-btn-export--pdf:hover {
-  background: rgba(231, 76, 60, 0.22);
-  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.25);
-  color: #e74c3c;
+  background: color-mix(in srgb, var(--rojo) 22%, transparent);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--rojo) 25%, transparent);
+  color: var(--rojo);
 }
 
 .cys-btn-export--lg {
@@ -236,7 +239,7 @@
 .cys-empty-box i {
   display: block;
   font-size: 2.2rem;
-  color: rgba(239, 248, 226, 0.2);
+  color: color-mix(in srgb, var(--texto) 20%, transparent);
   margin-bottom: .5rem;
 }
 
@@ -254,47 +257,28 @@
   margin-bottom: .75rem;
 }
 
-/* Íconos blancos (#FDFFFC) por defecto — se usan así en modo
-   "Predeterminado" y "Alto contraste" del panel de accesibilidad.
-   Cuando el usuario activa el modo "Claro" (html.cys-a11y-modo-claro,
-   clase que agrega base.js), estos íconos cambian a azul medio de
-   la paleta CYS (#0A2A52) para que contrasten bien contra el fondo claro. */
-.cys-report-card-icon--inv {
-  background: rgba(77, 168, 218, 0.12);
-  color: #FDFFFC;
-}
-
-.cys-report-card-icon--prov {
-  background: rgba(77, 168, 218, 0.12);
-  color: #FDFFFC;
-}
-
-.cys-report-card-icon--compras {
-  background: rgba(77, 168, 218, 0.12);
-  color: #FDFFFC;
-}
-
-.cys-report-card-icon--diario {
-  background: rgba(77, 168, 218, 0.12);
-  color: #FDFFFC;
-}
-
-.cys-report-card-icon--analisis {
-  background: rgba(77, 168, 218, 0.12);
-  color: #FDFFFC;
-}
-
+/* Antes: blanco fijo (#FDFFFC) + una clase especial que lo volvía azul
+   solo en modo accesibilidad "Claro". Ahora var(--texto) ya se ajusta
+   solo en cualquier tema, así que la clase --modo-claro de abajo ya
+   no hace falta (se deja comentada por si el HTML aún la aplica). */
+.cys-report-card-icon--inv,
+.cys-report-card-icon--prov,
+.cys-report-card-icon--compras,
+.cys-report-card-icon--diario,
+.cys-report-card-icon--analisis,
 .cys-report-card-icon--devoluciones {
-  background: rgba(77, 168, 218, 0.12);
-  color: #FDFFFC;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--texto);
 }
 
 .cys-report-card-icon--proxima {
-  background: rgba(77, 168, 218, 0.1);
-  color: #FDFFFC;
+  background: color-mix(in srgb, var(--azul-claro) 10%, transparent);
+  color: var(--texto);
 }
 
-/* Modo de accesibilidad "Claro": íconos de reportes en azul medio CYS */
+/* Ya no es necesario: var(--texto) se adapta solo en modo Claro.
+   Se deja vacío en vez de eliminarlo por si algo más del HTML depende
+   de que la clase exista. */
 html.cys-a11y-modo-claro .cys-report-card-icon--inv,
 html.cys-a11y-modo-claro .cys-report-card-icon--prov,
 html.cys-a11y-modo-claro .cys-report-card-icon--compras,
@@ -302,7 +286,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--diario,
 html.cys-a11y-modo-claro .cys-report-card-icon--analisis,
 html.cys-a11y-modo-claro .cys-report-card-icon--devoluciones,
 html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
-  color: #0A2A52;
+  color: var(--texto);
 }
 
 .cys-report-card__title {
@@ -317,7 +301,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   margin-bottom: .75rem;
 }
 
-/* Ver reporte → : ahora en el 2do color de la paleta (dorado #CF9C48) */
+/* Ver reporte → : dorado de marca, fijo en todos los módulos */
 .cys-report-card__link-text--inv,
 .cys-report-card__link-text--prov,
 .cys-report-card__link-text--compras,
@@ -348,20 +332,14 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-inv-table thead th {
-  background: rgba(255, 255, 255, 0.02);
-  color: #4DA8DA;
-
+  background: color-mix(in srgb, var(--texto) 2%, transparent);
+  color: var(--azul-claro);
   font-family: 'Plus Jakarta Sans', sans-serif;
-
-
-
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 12px 10px;
-  border-bottom: 2px solid rgba(77, 168, 218, 0.3);
+  border-bottom: 2px solid color-mix(in srgb, var(--azul-claro) 30%, transparent);
   text-align: center;
   vertical-align: middle;
   height: 48px;
@@ -370,10 +348,10 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-inv-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 2%, transparent);
+  color: color-mix(in srgb, var(--texto) 85%, transparent);
   transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.01);
+  background: color-mix(in srgb, var(--texto) 1%, transparent);
   text-align: center;
   vertical-align: middle;
   height: 44px;
@@ -382,16 +360,13 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-inv-table tbody tr:hover td {
-  background: rgba(77, 168, 218, 0.08);
-  color: #fff;
-  border-bottom-color: rgba(77, 168, 218, 0.2);
+  background: color-mix(in srgb, var(--azul-claro) 8%, transparent);
+  color: var(--texto);
+  border-bottom-color: color-mix(in srgb, var(--azul-claro) 20%, transparent);
 }
 
 .cys-inv-table .cys-qty {
-
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--azul-acento);
@@ -428,7 +403,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-td-icon {
-  color: #4DA8DA;
+  color: var(--azul-claro);
   margin-right: 6px;
   font-size: .8rem;
 }
@@ -454,9 +429,9 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 ──────────────────────────────────── */
 
 .cys-modal-kpi-v2 {
-  background: #02224a;
-  border: 1px solid rgba(77, 168, 218, .25);
-  border-top: 3px solid #4DA8DA;
+  background: var(--fondo-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 25%, transparent);
+  border-top: 3px solid var(--azul-claro);
   border-radius: 14px;
   padding: 16px 12px;
   min-height: auto;
@@ -493,7 +468,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-modal-kpi-v2__label {
-  color: #8FA3B1;
+  color: var(--texto-muted);
   font-size: .7rem;
   font-weight: 700;
   letter-spacing: .08em;
@@ -502,8 +477,6 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-modal-kpi-v2__val {
-
-  font-family: 'Plus Jakarta Sans', sans-serif;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
@@ -512,34 +485,34 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-modal-kpi-v2__sub {
   margin-top: 6px;
-  color: #8FA3B1;
+  color: var(--texto-muted);
   font-size: .7rem;
 }
 
 .cys-modal-kpi-v2--azul {
-  border-top-color: #4DA8DA;
+  border-top-color: var(--azul-claro);
 }
 
 .cys-modal-kpi-v2__icon--azul {
-  background: rgba(77, 168, 218, .12);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-modal-kpi-v2__val--azul {
-  color: #4DA8DA;
+  color: var(--azul-claro);
 }
 
 .cys-modal-kpi-v2--verde {
-  border-top-color: #2ecc71;
+  border-top-color: var(--verde);
 }
 
 .cys-modal-kpi-v2__icon--verde {
-  background: rgba(46, 204, 113, .12);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
+  color: var(--verde);
 }
 
 .cys-modal-kpi-v2__val--verde {
-  color: #2ecc71;
+  color: var(--verde);
 }
 
 .cys-modal-kpi-v2--amarillo {
@@ -569,16 +542,16 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-modal-kpi-v2--rojo {
-  border-top-color: #e74c3c;
+  border-top-color: var(--rojo);
 }
 
 .cys-modal-kpi-v2__icon--rojo {
-  background: rgba(231, 76, 60, .14);
-  color: #e74c3c;
+  background: color-mix(in srgb, var(--rojo) 14%, transparent);
+  color: var(--rojo);
 }
 
 .cys-modal-kpi-v2__val--rojo {
-  color: #e74c3c;
+  color: var(--rojo);
 }
 
 .cys-modal-kpi-v2--menta {
@@ -617,7 +590,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #8FA3B1;
+  color: var(--texto-muted);
 }
 
 .cys-modal-table-wrap {
@@ -645,10 +618,10 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-search-box__input {
-  background: #02224a;
-  border: 1px solid rgba(77, 168, 218, .2);
+  background: var(--fondo-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 20%, transparent);
   border-radius: 8px;
-  color: #fff;
+  color: var(--texto);
   padding: 7px 36px 7px 14px;
   font-size: .84rem;
   outline: none;
@@ -656,7 +629,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-search-box__input--dark {
-  background: #011936;
+  background: var(--fondo);
 }
 
 .cys-search-box__icon {
@@ -664,7 +637,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #4DA8DA;
+  color: var(--azul-claro);
   pointer-events: none;
   font-size: .85rem;
 }
@@ -681,7 +654,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-badge--verde {
-  background: rgba(200, 230, 160, .15);
+  background: color-mix(in srgb, var(--verde) 15%, transparent);
   color: var(--verde-acento);
 }
 
@@ -691,8 +664,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-badge--rojo {
-  background: rgba(145, 47, 64, .2);
-  color: #e87a8a;
+  background: color-mix(in srgb, var(--rojo) 20%, transparent);
+  color: var(--rojo);
 }
 
 /* ────────────────────────────────────
@@ -707,16 +680,16 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-stat-mini {
-  background: rgba(239, 248, 226, .06);
+  background: color-mix(in srgb, var(--texto) 6%, transparent);
   border-radius: 10px;
   padding: 12px 10px;
   text-align: center;
-  border: 1px solid rgba(239, 248, 226, .12);
+  border: 1px solid color-mix(in srgb, var(--texto) 12%, transparent);
 }
 
 .cys-stat-mini--verde {
-  background: rgba(200, 230, 160, .08);
-  border-color: rgba(200, 230, 160, .2);
+  background: color-mix(in srgb, var(--verde) 8%, transparent);
+  border-color: color-mix(in srgb, var(--verde) 20%, transparent);
 }
 
 .cys-stat-mini--amarillo {
@@ -725,8 +698,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-stat-mini--rojo {
-  background: rgba(145, 47, 64, .12);
-  border-color: rgba(145, 47, 64, .3);
+  background: color-mix(in srgb, var(--rojo) 12%, transparent);
+  border-color: color-mix(in srgb, var(--rojo) 30%, transparent);
 }
 
 .cys-stat-mini__val {
@@ -745,7 +718,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-stat-mini--rojo .cys-stat-mini__val {
-  color: #e87a8a;
+  color: var(--rojo);
 }
 
 .cys-stat-mini__label {
@@ -795,30 +768,30 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 ──────────────────────────────────── */
 .cys-tag {
   display: inline-block;
-  background: rgba(239, 248, 226, .08);
+  background: color-mix(in srgb, var(--texto) 8%, transparent);
   color: var(--azul-acento);
   border-radius: 6px;
   padding: 2px 10px;
   font-size: .78rem;
   font-weight: 600;
-  border: 1px solid rgba(239, 248, 226, .12);
+  border: 1px solid color-mix(in srgb, var(--texto) 12%, transparent);
 }
 
 .cys-tag--prov {
   display: inline-block;
-  background: rgba(77, 168, 218, 0.08);
-  border: 1px solid rgba(77, 168, 218, 0.25);
+  background: color-mix(in srgb, var(--azul-claro) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 25%, transparent);
   border-radius: 20px;
   padding: 3px 12px;
   font-size: .78rem;
   font-weight: 600;
-  color: #4DA8DA;
+  color: var(--azul-claro);
 }
 
 #tabla-modal-proveedores .prov-row:nth-child(1) .cys-tag--prov {
-  background: rgba(77, 168, 218, .12);
-  border-color: rgba(77, 168, 218, .3);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  border-color: color-mix(in srgb, var(--azul-claro) 30%, transparent);
+  color: var(--azul-claro);
 }
 
 #tabla-modal-proveedores .prov-row:nth-child(2) .cys-tag--prov {
@@ -828,9 +801,9 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 #tabla-modal-proveedores .prov-row:nth-child(3) .cys-tag--prov {
-  background: rgba(46, 204, 113, .12);
-  border-color: rgba(46, 204, 113, .3);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
+  border-color: color-mix(in srgb, var(--verde) 30%, transparent);
+  color: var(--verde);
 }
 
 #tabla-modal-proveedores .prov-row:nth-child(4) .cys-tag--prov {
@@ -840,9 +813,9 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 #tabla-modal-proveedores .prov-row:nth-child(5) .cys-tag--prov {
-  background: rgba(231, 76, 60, .12);
-  border-color: rgba(231, 76, 60, .3);
-  color: #e74c3c;
+  background: color-mix(in srgb, var(--rojo) 12%, transparent);
+  border-color: color-mix(in srgb, var(--rojo) 30%, transparent);
+  color: var(--rojo);
 }
 
 /* ────────────────────────────────────
@@ -866,9 +839,12 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 800;
   flex-shrink: 0;
   color: #fff;
-  background: linear-gradient(135deg, #4DA8DA, #2e6d8f);
+  background: linear-gradient(135deg, var(--azul-claro), #2e6d8f);
 }
 
+/* Gradientes de avatar por fila: paleta decorativa fija a propósito,
+   igual que los íconos de denominación en Ventas — sirven para
+   distinguir proveedores visualmente, no para reflejar el tema */
 #tabla-modal-proveedores .prov-row:nth-child(1) .cys-avatar-initials {
   background: linear-gradient(135deg, #4DA8DA, #2563a8);
 }
@@ -894,11 +870,11 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 ──────────────────────────────────── */
 .cys-modal__kpi-single-wrap {
   padding: 20px;
-  background: #011936;
+  background: var(--fondo);
 }
 
 .cys-modal__kpi-single {
-  background: #02224a;
+  background: var(--fondo-card);
   border: 1px solid rgba(93, 202, 165, 0.2);
   border-radius: 14px;
   padding: 28px;
@@ -932,14 +908,10 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #8FA3B1;
+  color: var(--texto-muted);
 }
 
 .cys-modal__kpi-single-val {
-
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
-
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
@@ -954,8 +926,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #02224a;
-  border: 1px solid rgba(77, 168, 218, .1);
+  background: var(--fondo-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   border-radius: 10px;
   padding: 14px 18px;
   margin-bottom: 4px;
@@ -971,11 +943,11 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: rgba(77, 168, 218, 0.1);
+  background: color-mix(in srgb, var(--azul-claro) 10%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4DA8DA;
+  color: var(--azul-claro);
   font-size: 1rem;
 }
 
@@ -984,7 +956,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #E8EDF2;
+  color: var(--texto);
 }
 
 /* ────────────────────────────────────
@@ -999,8 +971,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-prov-pagination__indicator {
-  background: #4DA8DA;
-  color: #011936;
+  background: var(--azul-claro);
+  color: var(--fondo);
   font-weight: 700;
   width: 36px;
   height: 36px;
@@ -1012,9 +984,9 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-pag-btn {
-  background: #02224a;
-  border: 1px solid rgba(77, 168, 218, .2);
-  color: #4DA8DA;
+  background: var(--fondo-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 20%, transparent);
+  color: var(--azul-claro);
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -1026,7 +998,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-pag-btn:hover {
-  background: rgba(77, 168, 218, .15);
+  background: color-mix(in srgb, var(--azul-claro) 15%, transparent);
 }
 
 /* ────────────────────────────────────
@@ -1039,8 +1011,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-rd-sidebar {
-  background: #02224a;
-  border-right: 1px solid rgba(77, 168, 218, .1);
+  background: var(--fondo-card);
+  border-right: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
@@ -1050,7 +1022,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 .cys-rd-sidebar__title {
   font-size: .85rem;
   font-weight: 700;
-  color: #E8EDF2;
+  color: var(--texto);
   margin-bottom: 4px;
 }
 
@@ -1061,12 +1033,12 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-rd-tabs {
   padding: 16px 24px 0;
-  border-bottom: 1px solid rgba(77, 168, 218, .15);
-  background: #011936;
+  border-bottom: 1px solid color-mix(in srgb, var(--azul-claro) 15%, transparent);
+  background: var(--fondo);
 }
 
 .cys-rd-tab-content {
-  background: #011936;
+  background: var(--fondo);
   flex: 1;
 }
 
@@ -1098,13 +1070,13 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: #8FA3B1;
+  color: var(--texto-muted);
 }
 
 .cys-rd-stat-card {
-  background: #011936;
-  border: 1px solid rgba(77, 168, 218, .1);
-  border-left: 3px solid #4DA8DA;
+  background: var(--fondo);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
+  border-left: 3px solid var(--azul-claro);
   border-radius: 12px;
   padding: 14px 16px;
   display: flex;
@@ -1113,19 +1085,19 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-rd-stat-card--verde {
-  border-left-color: #2ecc71;
+  border-left-color: var(--verde);
 }
 
 .cys-rd-stat-card--azul {
-  border-left-color: #4DA8DA;
+  border-left-color: var(--azul-claro);
 }
 
 .cys-rd-stat-card--amarillo {
-  border-left-color: #2ecc71;
+  border-left-color: var(--verde);
 }
 
 .cys-rd-stat-card--rojo {
-  border-left-color: #4DA8DA;
+  border-left-color: var(--azul-claro);
 }
 
 .cys-rd-stat-card__icon {
@@ -1140,62 +1112,56 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-rd-stat-card__icon--verde {
-  background: rgba(46, 204, 113, 0.15);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 15%, transparent);
+  color: var(--verde);
 }
 
 .cys-rd-stat-card__icon--azul {
-  background: rgba(77, 168, 218, 0.15);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 15%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-rd-stat-card__icon--amarillo {
-  background: rgba(46, 204, 113, .15);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 15%, transparent);
+  color: var(--verde);
 }
 
 .cys-rd-stat-card__icon--rojo {
-  background: rgba(77, 168, 218, .15);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 15%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-rd-stat-card__label {
   font-size: .72rem;
   font-weight: 600;
-  color: #8FA3B1;
+  color: var(--texto-muted);
   text-transform: uppercase;
   letter-spacing: .04em;
   margin-bottom: 2px;
 }
 
 .cys-rd-stat-card__val {
-
   font-family: 'Plus Jakarta Sans', sans-serif;
-
-
-
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
   font-size: 1.55rem;
   font-weight: 800;
   line-height: 1.1;
-  color: #4DA8DA;
+  color: var(--azul-claro);
 }
 
 .cys-rd-stat-card__val--verde {
-  color: #2ecc71;
+  color: var(--verde);
 }
 
 .cys-rd-stat-card__val--azul {
-  color: #4DA8DA;
+  color: var(--azul-claro);
 }
 
 .cys-rd-stat-card__val--amarillo {
-  color: #2ecc71;
+  color: var(--verde);
 }
 
 .cys-rd-stat-card__val--rojo {
-  color: #4DA8DA;
+  color: var(--azul-claro);
 }
 
 /* ────────────────────────────────────
@@ -1208,8 +1174,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-av-sidebar {
-  background: #02224a;
-  border-right: 1px solid rgba(77, 168, 218, .1);
+  background: var(--fondo-card);
+  border-right: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   padding: 20px 0;
   display: flex;
   flex-direction: column;
@@ -1220,7 +1186,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 .cys-av-sidebar__divider {
   width: 60%;
   height: 1px;
-  background: rgba(77, 168, 218, .1);
+  background: color-mix(in srgb, var(--azul-claro) 10%, transparent);
   margin: 8px 0;
 }
 
@@ -1241,28 +1207,28 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-av-kpi-card {
-  background: #02224a;
+  background: var(--fondo-card);
   border-radius: 14px;
   padding: 20px;
   text-align: center;
-  border-top: 3px solid #4DA8DA;
-  border: 1px solid rgba(77, 168, 218, 0.25);
+  border-top: 3px solid var(--azul-claro);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 25%, transparent);
   border-top-width: 3px;
 }
 
 .cys-av-kpi-card--verde {
-  border-color: rgba(46, 204, 113, 0.25);
-  border-top-color: #2ecc71;
+  border-color: color-mix(in srgb, var(--verde) 25%, transparent);
+  border-top-color: var(--verde);
 }
 
 .cys-av-kpi-card--azul {
-  border-color: rgba(77, 168, 218, 0.25);
-  border-top-color: #4DA8DA;
+  border-color: color-mix(in srgb, var(--azul-claro) 25%, transparent);
+  border-top-color: var(--azul-claro);
 }
 
 .cys-av-kpi-card--amarillo {
-  border-color: rgba(46, 204, 113, 0.25);
-  border-top-color: #2ecc71;
+  border-color: color-mix(in srgb, var(--verde) 25%, transparent);
+  border-top-color: var(--verde);
 }
 
 .cys-av-kpi-card__icon {
@@ -1277,18 +1243,18 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-av-kpi-card--verde .cys-av-kpi-card__icon {
-  background: rgba(46, 204, 113, 0.12);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
+  color: var(--verde);
 }
 
 .cys-av-kpi-card--azul .cys-av-kpi-card__icon {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-av-kpi-card--amarillo .cys-av-kpi-card__icon {
-  background: rgba(46, 204, 113, 0.12);
-  color: #2ecc71;
+  background: color-mix(in srgb, var(--verde) 12%, transparent);
+  color: var(--verde);
 }
 
 .cys-av-kpi-card__label {
@@ -1296,30 +1262,26 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #8FA3B1;
+  color: var(--texto-muted);
   margin-bottom: 4px;
 }
 
 .cys-av-kpi-card__val {
-
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
-
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
 }
 
 .cys-av-kpi-card--verde .cys-av-kpi-card__val {
-  color: #2ecc71;
+  color: var(--verde);
 }
 
 .cys-av-kpi-card--azul .cys-av-kpi-card__val {
-  color: #4DA8DA;
+  color: var(--azul-claro);
 }
 
 .cys-av-kpi-card--amarillo .cys-av-kpi-card__val {
-  color: #2ecc71;
+  color: var(--verde);
 }
 
 .cys-av-nav-btn {
@@ -1334,7 +1296,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   padding: 10px 8px;
   border-radius: 10px;
   transition: background .2s;
-  color: #8FA3B1;
+  color: var(--texto-muted);
   font-size: .72rem;
   font-weight: 600;
   text-align: center;
@@ -1342,8 +1304,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-av-nav-btn:hover {
-  background: rgba(77, 168, 218, .08);
-  color: #E8EDF2;
+  background: color-mix(in srgb, var(--azul-claro) 8%, transparent);
+  color: var(--texto);
 }
 
 .cys-av-nav-btn.active {
@@ -1356,8 +1318,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: rgba(77, 168, 218, 0.08);
-  color: #8FA3B1;
+  background: color-mix(in srgb, var(--azul-claro) 8%, transparent);
+  color: var(--texto-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1371,8 +1333,8 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-av-table-card {
-  background: #02224a;
-  border: 1px solid rgba(77, 168, 218, .1);
+  background: var(--fondo-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 16px;
@@ -1384,7 +1346,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-av-table-card__header {
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(77, 168, 218, .1);
+  border-bottom: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1402,11 +1364,11 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-av-table-card__dot--azul {
-  background: #4DA8DA;
+  background: var(--azul-claro);
 }
 
 .cys-av-table-card__star {
-  color: #2ecc71;
+  color: var(--verde);
   font-size: .8rem;
 }
 
@@ -1415,12 +1377,12 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: #8FA3B1;
+  color: var(--texto-muted);
 }
 
 .cys-av-export-card {
-  background: #02224a;
-  border: 1px solid rgba(77, 168, 218, .1);
+  background: var(--fondo-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   border-radius: 14px;
   padding: 28px;
   text-align: center;
@@ -1429,7 +1391,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 .cys-av-export-card__title {
   font-size: 1rem;
   font-weight: 700;
-  color: #E8EDF2;
+  color: var(--texto);
   margin-bottom: 20px;
 }
 
@@ -1449,7 +1411,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   gap: 16px;
   padding: 10px 20px;
   font-size: .78rem;
-  border-bottom: 1px solid rgba(239, 248, 226, .1);
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 10%, transparent);
   background-color: var(--color-surface);
 }
 
@@ -1481,11 +1443,11 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 }
 
 .cys-busqueda-activa__count {
-  color: var(--texto-muted, #8FA3B1);
+  color: var(--texto-muted);
 }
 
 .cys-busqueda-activa__clear {
-  color: var(--texto-muted, #8FA3B1);
+  color: var(--texto-muted);
   font-size: .75rem;
   margin-left: 4px;
   text-decoration: none;
@@ -1495,7 +1457,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
    TABS
 ──────────────────────────────────── */
 .cys-modal .nav-tabs {
-  border-bottom: 1px solid rgba(239, 248, 226, .12);
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 12%, transparent);
   background-color: var(--color-bg);
 }
 
@@ -1512,7 +1474,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 
 .cys-modal .nav-tabs .nav-link:hover {
   color: var(--color-blanco);
-  border-bottom-color: rgba(239, 248, 226, .3);
+  border-bottom-color: color-mix(in srgb, var(--texto) 30%, transparent);
 }
 
 .cys-modal .nav-tabs .nav-link.active {
@@ -1562,9 +1524,6 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-top-width 0.2s ease !important;
 }
 
-/* Se elimina el outline/contorno nativo del navegador (que en algunos
-   sistemas se dibuja en el color de acento del SO y puede verse rojo)
-   y se sustituye por un resplandor dorado consistente con la marca. */
 .cys-card--interactive:focus,
 .cys-card--interactive:focus-visible {
   outline: none !important;
@@ -1584,8 +1543,6 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   flex-direction: column !important;
 }
 
-/* Línea superior de las tarjetas de reporte: ahora en dorado (#CF9C48),
-   2do color de la paleta, en lugar del azul anterior. */
 .cys-card--inv,
 .cys-card--prov,
 .cys-card--compras,
@@ -1599,12 +1556,12 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
 .cys-report-card__stats-grid {
   display: flex;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--texto) 3%, transparent);
   padding: 6px 10px;
   border-radius: 8px;
   margin-top: 14px;
   margin-bottom: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid color-mix(in srgb, var(--texto) 5%, transparent);
 }
 
 .cys-report-card__stat-item {
@@ -1613,7 +1570,7 @@ html.cys-a11y-modo-claro .cys-report-card-icon--proxima {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid color-mix(in srgb, var(--texto) 5%, transparent);
 }
 
 .cys-report-card__stat-item:last-child {
@@ -1710,58 +1667,58 @@ table.dataTable td,
 table.dataTable tbody tr,
 table.dataTable tbody tr td {
   background-color: transparent !important;
-  color: var(--texto, #E8EDF2) !important;
-  border-color: rgba(77, 168, 218, 0.1) !important;
+  color: var(--texto) !important;
+  border-color: color-mix(in srgb, var(--azul-claro) 10%, transparent) !important;
 }
 
 table.dataTable tbody tr:hover td {
-  background-color: rgba(255, 255, 255, 0.04) !important;
+  background-color: color-mix(in srgb, var(--texto) 4%, transparent) !important;
 }
 
 .dt-search input {
-  background-color: var(--fondo-card2, #111f33) !important;
-  border: 1px solid var(--azul-borde, rgba(77, 168, 218, .35)) !important;
-  color: var(--texto, #E8EDF2) !important;
+  background-color: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
   border-radius: 8px !important;
   padding: 4px 10px !important;
   outline: none !important;
 }
 
 .dt-search input:focus {
-  border-color: var(--azul-claro, #4DA8DA) !important;
-  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--azul-claro) 30%, transparent) !important;
 }
 
 .dt-search label {
-  color: var(--texto-muted, #AF8D86) !important;
+  color: var(--texto-muted) !important;
   font-size: 0.85rem !important;
   font-weight: 600 !important;
 }
 
 .dt-paging .pagination .page-link {
-  background-color: var(--fondo-card2, #111f33) !important;
-  border-color: var(--azul-borde, rgba(77, 168, 218, .35)) !important;
-  color: var(--azul-claro, #4DA8DA) !important;
+  background-color: var(--fondo-card2) !important;
+  border-color: var(--azul-borde) !important;
+  color: var(--azul-claro) !important;
   transition: all 0.2s ease;
 }
 
 .dt-paging .pagination .page-item.active .page-link {
-  background-color: var(--azul-claro, #4DA8DA) !important;
-  border-color: var(--azul-claro, #4DA8DA) !important;
-  color: #011936 !important;
+  background-color: var(--azul-claro) !important;
+  border-color: var(--azul-claro) !important;
+  color: var(--fondo) !important;
   font-weight: bold !important;
 }
 
 .dt-paging .pagination .page-link:hover {
-  background-color: var(--azul-claro, #4DA8DA) !important;
-  color: #011936 !important;
-  border-color: var(--azul-claro, #4DA8DA) !important;
+  background-color: var(--azul-claro) !important;
+  color: var(--fondo) !important;
+  border-color: var(--azul-claro) !important;
 }
 
 .dt-paging .pagination .page-item.disabled .page-link {
-  background-color: rgba(255, 255, 255, 0.02) !important;
-  border-color: rgba(255, 255, 255, 0.05) !important;
-  color: rgba(255, 255, 255, 0.2) !important;
+  background-color: color-mix(in srgb, var(--texto) 2%, transparent) !important;
+  border-color: color-mix(in srgb, var(--texto) 5%, transparent) !important;
+  color: color-mix(in srgb, var(--texto) 20%, transparent) !important;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -1770,14 +1727,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-pagination .page-link {
-  background-color: #031e3e !important;
-  color: #4DA8DA !important;
-  border: 1px solid #4DA8DA !important;
+  background-color: var(--fondo-card2) !important;
+  color: var(--azul-claro) !important;
+  border: 1px solid var(--azul-claro) !important;
 }
 
 .cys-pagination .page-item.active .page-link {
-  background-color: #4DA8DA !important;
-  color: #011936 !important;
+  background-color: var(--azul-claro) !important;
+  color: var(--fondo) !important;
 }
 
 /* ────────────────────────────────────
@@ -1795,8 +1752,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .cys-summary-card:hover {
   transform: translateY(-3px);
-  border-color: var(--azul-claro, #4DA8DA) !important;
-  box-shadow: 0 8px 24px rgba(77, 168, 218, 0.12) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--azul-claro) 12%, transparent) !important;
 }
 
 .cys-summary-card__icon {
@@ -1831,9 +1788,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-summary-card__val {
-
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.95rem;
   font-weight: 800;
@@ -1852,20 +1806,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #tabla-modal-stock thead {
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: color-mix(in srgb, var(--texto) 2%, transparent) !important;
 }
 
 #tabla-modal-stock thead th {
-  background: rgba(255, 255, 255, 0.02) !important;
-  color: #4DA8DA !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-
+  background: color-mix(in srgb, var(--texto) 2%, transparent) !important;
+  color: var(--azul-claro) !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
   padding: 14px 8px !important;
-  border-bottom: 2px solid rgba(77, 168, 218, 0.3) !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--azul-claro) 30%, transparent) !important;
   text-align: center !important;
   vertical-align: middle !important;
   height: 48px !important;
@@ -1875,8 +1827,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 #tabla-modal-stock tbody td {
   padding: 12px 8px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 2%, transparent) !important;
+  color: color-mix(in srgb, var(--texto) 85%, transparent) !important;
   text-align: center !important;
   vertical-align: middle !important;
   height: 44px !important;
@@ -1885,9 +1837,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #tabla-modal-stock tbody tr:hover td {
-  background: rgba(77, 168, 218, 0.08) !important;
-  color: #fff !important;
-  border-bottom-color: rgba(77, 168, 218, 0.2) !important;
+  background: color-mix(in srgb, var(--azul-claro) 8%, transparent) !important;
+  color: var(--texto) !important;
+  border-bottom-color: color-mix(in srgb, var(--azul-claro) 20%, transparent) !important;
 }
 
 #tabla-modal-stock th:nth-child(1),
@@ -1920,9 +1872,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #tabla-modal-stock .cys-qty {
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-
-
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-weight: 700 !important;
   font-size: 1.05rem !important;
@@ -1970,7 +1919,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     align-items: center;
     padding: 10px 12px !important;
     border: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--texto) 5%, transparent) !important;
     text-align: right !important;
     height: auto;
   }
@@ -2018,7 +1967,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   .cys-rd-sidebar {
     border-right: none !important;
-    border-bottom: 1px solid rgba(77, 168, 218, .1);
+    border-bottom: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
   }
 
   .cys-av-nav-btn {
@@ -2038,12 +1987,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-summary-card--ventas {
-  border-left: 4px solid #4DA8DA !important;
+  border-left: 4px solid var(--azul-claro) !important;
 }
 
 .cys-summary-card__icon--ventas {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-summary-card--ventas .cys-summary-card__label {
@@ -2051,17 +2000,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-summary-card--ventas .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+  color: var(--azul-claro);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--azul-claro) 25%, transparent);
 }
 
 .cys-summary-card--productos {
-  border-left: 4px solid #4DA8DA !important;
+  border-left: 4px solid var(--azul-claro) !important;
 }
 
 .cys-summary-card__icon--productos {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-summary-card--productos .cys-summary-card__label {
@@ -2069,17 +2018,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-summary-card--productos .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+  color: var(--azul-claro);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--azul-claro) 25%, transparent);
 }
 
 .cys-summary-card--clientes {
-  border-left: 4px solid #4DA8DA !important;
+  border-left: 4px solid var(--azul-claro) !important;
 }
 
 .cys-summary-card__icon--clientes {
-  background: rgba(77, 168, 218, 0.12);
-  color: #4DA8DA;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--azul-claro);
 }
 
 .cys-summary-card--clientes .cys-summary-card__label {
@@ -2087,15 +2036,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-summary-card--clientes .cys-summary-card__val {
-  color: #4DA8DA;
-  text-shadow: 0 0 12px rgba(77, 168, 218, 0.25);
+  color: var(--azul-claro);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--azul-claro) 25%, transparent);
 }
 
 /* ────────────────────────────────────
    HISTORIAL DE VENTAS
 ──────────────────────────────────── */
 
-/* Icono junto al título "Historial de Ventas": 2do color de la paleta (dorado #CF9C48) */
 .cys-card__title-icon {
   color: #CF9C48;
   margin-right: .5rem;
@@ -2106,19 +2054,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-card:has(#reportes-table) {
-  background: #041d3d;
-  border: 1px solid rgba(77, 168, 218, .08);
+  background: var(--fondo-card2);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 8%, transparent);
   border-radius: 16px;
   overflow: hidden;
 }
 
-/* El texto del título "Historial de Ventas" debe permanecer siempre
-   blanco: el fondo de esta tarjeta está fijo en azul oscuro (#041d3d)
-   y no cambia con el modo de accesibilidad "Claro". Si el texto usara
-   var(--blanco) se volvería oscuro en modo claro y quedaría invisible
-   sobre este fondo (el mismo problema que tenían los íconos). */
 .cys-card:has(#reportes-table) .cys-card__title {
-  color: #FDFFFC;
+  color: var(--texto);
 }
 
 .cys-hv-filters {
@@ -2135,7 +2078,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-hv-date-label {
-  color: #7dbce6;
+  color: color-mix(in srgb, var(--azul-claro) 75%, white);
   font-size: .78rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -2153,18 +2096,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   flex: none !important;
   height: 40px !important;
   padding: 0 36px 0 14px;
-  background: #071b3a !important;
-  border: 1px solid #1f4f80 !important;
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
   border-radius: 10px !important;
-  color: #fff !important;
+  color: var(--texto) !important;
   font-size: .88rem;
   color-scheme: dark;
   transition: border-color .2s, box-shadow .2s;
 }
 
 .cys-hv-date-input:focus {
-  border-color: #4DA8DA !important;
-  box-shadow: 0 0 0 3px rgba(77, 168, 218, .18);
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--azul-claro) 18%, transparent);
   outline: none;
 }
 
@@ -2173,7 +2116,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #4DA8DA;
+  color: var(--azul-claro);
   pointer-events: none;
   font-size: .9rem;
 }
@@ -2202,9 +2145,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   white-space: nowrap !important;
   vertical-align: middle !important;
   transition: background .2s, border-color .2s, color .2s !important;
-  border: 1px solid #1f4f80 !important;
-  background: #071b3a !important;
-  color: #4DA8DA !important;
+  border: 1px solid var(--azul-borde) !important;
+  background: var(--fondo-card2) !important;
+  color: var(--azul-claro) !important;
   cursor: pointer !important;
   appearance: none !important;
   -webkit-appearance: none !important;
@@ -2213,19 +2156,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cys-hv-btn-filtrar:hover,
 .cys-hv-btn-limpiar:hover,
 .cys-hv-btn-eliminar:hover {
-  background: rgba(77, 168, 218, .14) !important;
-  color: #7cd4ff !important;
-  border-color: #4DA8DA !important;
+  background: color-mix(in srgb, var(--azul-claro) 14%, transparent) !important;
+  color: color-mix(in srgb, var(--azul-claro) 60%, white) !important;
+  border-color: var(--azul-claro) !important;
 }
 
 .cys-hv-btn-exportar {
-  color: #fff !important;
+  color: var(--texto) !important;
 }
 
 .cys-hv-btn-exportar:hover {
-  background: #0b274d !important;
-  color: #fff !important;
-  border-color: #4DA8DA !important;
+  background: var(--fondo-card) !important;
+  color: var(--texto) !important;
+  border-color: var(--azul-claro) !important;
 }
 
 .cys-hv-btn-exportar::after {
@@ -2233,20 +2176,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .cys-hv-dropdown {
-  background: #071b3a;
-  border: 1px solid rgba(77, 168, 218, .25);
+  background: var(--fondo-card2);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 25%, transparent);
   border-radius: 12px;
   overflow: hidden;
 }
 
 .cys-hv-dropdown-item {
-  color: #fff;
+  color: var(--texto);
   padding: 10px 14px;
 }
 
 .cys-hv-dropdown-item:hover {
-  background: rgba(77, 168, 218, .12);
-  color: #fff;
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  color: var(--texto);
 }
 
 #reportes-table {
@@ -2259,18 +2202,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #reportes-table thead th {
-  background: #0c2b54 !important;
-  color: #4DA8DA !important;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-
-
+  background: var(--fondo-card2) !important;
+  color: var(--azul-claro) !important;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: .92rem;
   text-transform: uppercase;
   letter-spacing: .12em;
   padding: 16px 14px !important;
-  border-bottom: 2px solid #4DA8DA !important;
+  border-bottom: 2px solid var(--azul-claro) !important;
   text-align: center !important;
   vertical-align: middle !important;
   height: 48px !important;
@@ -2279,9 +2219,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 #reportes-table tbody td {
   background: transparent !important;
-  color: #EAF3FA !important;
+  color: var(--texto) !important;
   padding: 14px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, .05);
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 5%, transparent);
   text-align: center !important;
   vertical-align: middle !important;
   height: 44px !important;
@@ -2293,7 +2233,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #reportes-table tbody tr:hover td {
-  background: rgba(77, 168, 218, .05) !important;
+  background: color-mix(in srgb, var(--azul-claro) 5%, transparent) !important;
 }
 
 #reportes-table th:nth-child(1),
@@ -2322,13 +2262,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #8aa6bf;
+  color: var(--texto-muted);
   font-size: 1rem;
 }
 
 .cys-empty-box i {
   font-size: 3rem;
-  color: rgba(77, 168, 218, .25);
+  color: color-mix(in srgb, var(--azul-claro) 25%, transparent);
   margin-bottom: 12px;
 }
 
@@ -2337,7 +2277,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center !important;
   justify-content: space-between !important;
   padding: 20px 24px 24px !important;
-  border-top: 1px solid rgba(255, 255, 255, .05) !important;
+  border-top: 1px solid color-mix(in srgb, var(--texto) 5%, transparent) !important;
   margin-top: 0 !important;
   gap: 16px !important;
   flex-wrap: wrap !important;
@@ -2345,7 +2285,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .cys-hv-table-footer .dt-info,
 .cys-hv-table-footer .dataTables_info {
-  color: #7dbce6 !important;
+  color: color-mix(in srgb, var(--azul-claro) 75%, white) !important;
   font-size: .82rem !important;
   font-weight: 500 !important;
   margin: 0 !important;
@@ -2363,9 +2303,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cys-hv-pagination-wrap .page-link,
 .cys-hv-table-footer .page-link,
 .pagination .page-link {
-  background: #0a2348 !important;
-  border: 1px solid rgba(77, 168, 218, .2) !important;
-  color: #4DA8DA !important;
+  background: var(--fondo-card2) !important;
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 20%, transparent) !important;
+  color: var(--azul-claro) !important;
   min-width: 38px !important;
   height: 38px !important;
   display: flex !important;
@@ -2380,26 +2320,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cys-hv-pagination-wrap .active .page-link,
 .cys-hv-table-footer .active .page-link,
 .pagination .active .page-link {
-  background: #4DA8DA !important;
-  color: #03152d !important;
-  border-color: #4DA8DA !important;
+  background: var(--azul-claro) !important;
+  color: var(--fondo) !important;
+  border-color: var(--azul-claro) !important;
   font-weight: 700 !important;
 }
 
 .cys-hv-pagination-wrap .page-link:hover,
 .cys-hv-table-footer .page-link:hover,
 .pagination .page-link:hover {
-  background: rgba(77, 168, 218, .2) !important;
-  color: #7cd4ff !important;
-  border-color: #4DA8DA !important;
+  background: color-mix(in srgb, var(--azul-claro) 20%, transparent) !important;
+  color: color-mix(in srgb, var(--azul-claro) 60%, white) !important;
+  border-color: var(--azul-claro) !important;
 }
 
 .cys-hv-pagination-wrap .disabled .page-link,
 .cys-hv-table-footer .disabled .page-link,
 .pagination .disabled .page-link {
-  background: rgba(255, 255, 255, .02) !important;
-  border-color: rgba(255, 255, 255, .06) !important;
-  color: rgba(255, 255, 255, .2) !important;
+  background: color-mix(in srgb, var(--texto) 2%, transparent) !important;
+  border-color: color-mix(in srgb, var(--texto) 6%, transparent) !important;
+  color: color-mix(in srgb, var(--texto) 20%, transparent) !important;
 }
 
 .dataTables_wrapper,
@@ -2409,7 +2349,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .dataTables_info,
 .dt-info {
-  color: #7dbce6 !important;
+  color: color-mix(in srgb, var(--azul-claro) 75%, white) !important;
 }
 
 .dataTables_paginate,
@@ -2427,9 +2367,9 @@ table.dataTable {
 
 #filtro-fecha-inicio,
 #filtro-fecha-fin {
-  background-color: #011936 !important;
-  border: 1px solid #4DA8DA !important;
-  color: #FDFFFC !important;
+  background-color: var(--fondo) !important;
+  border: 1px solid var(--azul-claro) !important;
+  color: var(--texto) !important;
   color-scheme: dark !important;
   border-radius: 8px !important;
   padding: 4px 10px !important;
@@ -2440,17 +2380,17 @@ table.dataTable {
 
 #filtro-fecha-inicio:focus,
 #filtro-fecha-fin:focus {
-  border-color: #4DA8DA !important;
-  box-shadow: 0 0 8px rgba(77, 168, 218, 0.3) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--azul-claro) 30%, transparent) !important;
 }
 
 .cys-table-filters-container {
-  background: #02224a !important;
+  background: var(--fondo-card) !important;
   border: none !important;
   padding: 15px 20px;
   border-radius: 12px;
   margin-top: 10px;
-  box-shadow: inset 0 0 10px rgba(77, 168, 218, 0.1);
+  box-shadow: inset 0 0 10px color-mix(in srgb, var(--azul-claro) 10%, transparent);
 }
 
 /* ────────────────────────────────────
@@ -2460,15 +2400,15 @@ table.dataTable {
   border-radius: 50px !important;
   padding: 6px 24px !important;
   font-size: .85rem !important;
-  border-color: rgba(239, 248, 226, 0.2) !important;
-  color: #8FA3B1 !important;
+  border-color: color-mix(in srgb, var(--texto) 20%, transparent) !important;
+  color: var(--texto-muted) !important;
   transition: background .2s, border-color .2s, color .2s !important;
 }
 
 .modal-footer .btn-outline-secondary:hover {
-  background: rgba(239, 248, 226, 0.08) !important;
-  border-color: rgba(239, 248, 226, 0.35) !important;
-  color: #fff !important;
+  background: color-mix(in srgb, var(--texto) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--texto) 35%, transparent) !important;
+  color: var(--texto) !important;
 }
 
 /* ────────────────────────────────────
@@ -2481,20 +2421,20 @@ table.dataTable {
 
 #tabla-modal-proveedores thead th {
   background: transparent;
-  color: #ffffff;
+  color: var(--texto);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: .12em;
   text-align: center;
   padding: 18px 16px;
-  border-bottom: 2px solid rgba(255, 255, 255, .12);
+  border-bottom: 2px solid color-mix(in srgb, var(--texto) 12%, transparent);
 }
 
 #tabla-modal-proveedores tbody td {
   padding: 22px 16px;
   font-size: 15px;
-  color: #EAF2FF;
-  border-bottom: 1px solid rgba(255, 255, 255, .05);
+  color: var(--texto);
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 5%, transparent);
   background: transparent;
   text-align: center;
 }
@@ -2522,19 +2462,19 @@ table.dataTable {
 
 .cys-prov-name-text {
   font-weight: 500;
-  color: #F5F7FA;
+  color: var(--texto);
 }
 
 .cys-prov-company {
-  color: #EAF2FF;
+  color: var(--texto);
 }
 
 .cys-prov-phone {
-  color: #EAF2FF;
+  color: var(--texto);
 }
 
 .cys-prov-email {
-  color: #EAF2FF;
+  color: var(--texto);
 }
 
 /* ── Buscador Historial de Ventas ── */
@@ -2552,29 +2492,29 @@ table.dataTable {
   min-width: 420px;
   height: 40px !important;
   padding: 0 14px 0 40px;
-  background: #071b3a !important;
-  border: 1px solid #1f4f80 !important;
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
   border-radius: 10px !important;
-  color: #fff !important;
+  color: var(--texto) !important;
   font-size: .88rem;
   outline: none;
   transition: border-color .2s, box-shadow .2s;
 }
 
 .cys-hv-search-input::placeholder {
-  color: #7dbce6;
+  color: color-mix(in srgb, var(--azul-claro) 75%, white);
   opacity: .65;
 }
 
 .cys-hv-search-input:focus {
-  border-color: #4DA8DA !important;
-  box-shadow: 0 0 0 3px rgba(77, 168, 218, .18);
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--azul-claro) 18%, transparent);
 }
 
 .cys-hv-search-icon {
   position: absolute;
   left: 14px;
-  color: #4DA8DA;
+  color: var(--azul-claro);
   font-size: .9rem;
   pointer-events: none;
   z-index: 2;
@@ -2618,7 +2558,6 @@ table.dataTable {
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 
-/* Línea blanca que se desliza en bucle mientras haces hover */
 .cys-report-card__chart-toggle::after {
     content: "" !important;
     position: absolute !important;
@@ -2653,7 +2592,7 @@ table.dataTable {
 
 .cys-report-card__chart-toggle.is-active {
     background: #CF9C48 !important;
-    color: #011936 !important;
+    color: var(--fondo) !important;
     transform: translateY(0) scale(1.05) !important;
     box-shadow: 0 4px 14px rgba(207, 156, 72, 0.35) !important;
 }
@@ -2664,7 +2603,7 @@ table.dataTable {
     height: 140px !important;
     margin-top: 12px !important;
     padding-top: 8px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-top: 1px solid color-mix(in srgb, var(--texto) 8%, transparent) !important;
 }
 
 .cys-report-card__chart-wrap.d-none {
@@ -2680,22 +2619,16 @@ table.dataTable {
 .cys-card--interactive {
     position: relative;
 }
-/* Columna "Producto" en la tabla de inventario del modal
-   (el ancho/alineación real ya lo controla
-   #tabla-modal-stock th:nth-child(2) más abajo en este archivo,
-   esta clase solo documenta la intención semántica) */
+
 .cys-col-producto {
   text-align: left;
 }
 
-/* Mensaje "sin datos" dentro de la mini-gráfica de las tarjetas */
 .cys-empty-box--mini {
   padding: 10px 0;
   font-size: .75rem;
 }
 
-/* Barra vertical de acento junto al icono del título "Historial de Ventas"
-   (2do color de la paleta — dorado #CF9C48) */
 .cys-card-title-bar,
 .cys-hv-title-bar,
 .vr.cys-title-accent {
@@ -2704,21 +2637,16 @@ table.dataTable {
 
 /* ============================================================
    FIX RESPONSIVE — Reportes CYS Ltda
-   (bloque agregado — va al final para poder sobreescribir
-   las reglas anteriores en pantallas chicas)
    ============================================================ */
 
-/* ── Tablet: hasta 992px ──────────────────────────────────── */
 @media (max-width: 992px) {
   .cys-av-kpi-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* ── Móvil: hasta 768px ───────────────────────────────────── */
 @media (max-width: 768px) {
 
-  /* Tarjetas de reportes: ícono arriba, texto abajo, centrado */
   .cys-report-card-layout {
     flex-direction: column;
     align-items: center;
@@ -2736,7 +2664,6 @@ table.dataTable {
     width: 100%;
   }
 
-  /* Barra de filtros de Historial de Ventas: todo apilado */
   .cys-hv-filters {
     flex-direction: column;
     align-items: stretch;
@@ -2758,7 +2685,6 @@ table.dataTable {
     max-width: none !important;
   }
 
-  /* KPIs de modales: 2 columnas en vez de 3/4 */
   .cys-modal__stats--4col,
   .cys-modal__stats--3col {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -2773,7 +2699,6 @@ table.dataTable {
     padding: 14px;
   }
 
-  /* Análisis de Ventas: el sidebar de tabs pasa a barra horizontal */
   .cys-av-grid {
     grid-template-columns: 1fr !important;
   }
@@ -2783,7 +2708,7 @@ table.dataTable {
     justify-content: flex-start;
     overflow-x: auto;
     border-right: none;
-    border-bottom: 1px solid rgba(77, 168, 218, .1);
+    border-bottom: 1px solid color-mix(in srgb, var(--azul-claro) 10%, transparent);
     padding: 12px 10px;
     -webkit-overflow-scrolling: touch;
   }
@@ -2809,7 +2734,6 @@ table.dataTable {
     padding: 16px;
   }
 
-  /* Header de lista de proveedores: buscador debajo del título */
   .cys-modal-list-header {
     flex-direction: column;
     align-items: stretch;
@@ -2830,8 +2754,6 @@ table.dataTable {
     margin-top: 8px;
   }
 
-  /* Tabla de Inventario del modal: anular anchos fijos para que
-     funcione el modo "tarjeta" que ya tienen para .cys-inv-table */
   #tabla-modal-stock {
     table-layout: auto !important;
   }
@@ -2852,7 +2774,6 @@ table.dataTable {
   }
 }
 
-/* ── Móvil chico: hasta 480px ─────────────────────────────── */
 @media (max-width: 480px) {
   .cys-modal__stats--4col,
   .cys-modal__stats--3col {
