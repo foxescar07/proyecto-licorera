@@ -3,11 +3,11 @@
    ══════════════════════════════════════════ */
 
 :root {
-  --ayd-azul:       #4DA8DA;
-  --ayd-card:       #0a2240;
-  --ayd-texto:      #e2e8f0;
-  --ayd-muted:      rgba(226, 232, 240, 0.5);
-  --ayd-verde:      #27ae60;
+  --ayd-azul:  var(--azul-claro);
+  --ayd-card:  var(--fondo-card);
+  --ayd-texto: var(--texto);
+  --ayd-muted: var(--texto-muted);
+  --ayd-verde: var(--verde);
 }
 
 .ayd-titulo {
@@ -23,13 +23,13 @@
 /* === CARDS === */
 .ayd-card {
   background: var(--ayd-card);
-  border: 1px solid rgba(77, 168, 218, 0.12);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 12%, transparent);
   border-radius: 12px;
   color: var(--ayd-texto);
 }
 
 .ayd-label {
-  color: rgba(226, 232, 240, 0.55);
+  color: var(--texto-muted);
   font-size: .8rem;
   font-weight: 600;
 }
@@ -41,7 +41,7 @@
 }
 
 .ayd-divider {
-  border-color: rgba(77, 168, 218, 0.12);
+  border-color: color-mix(in srgb, var(--azul-claro) 12%, transparent);
 }
 
 .ayd-empty {
@@ -53,33 +53,33 @@
 /* === BUSCADOR === */
 .ayd-search-box {
   background: var(--ayd-card);
-  border: 1px solid rgba(77, 168, 218, 0.15);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 15%, transparent);
   border-radius: 14px;
   padding: 14px 16px;
 }
 
 .ayd-input {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(77, 168, 218, 0.2) !important;
+  background: color-mix(in srgb, var(--texto) 5%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 20%, transparent) !important;
   border-left: none !important;
   color: var(--ayd-texto) !important;
   border-radius: 0 10px 10px 0 !important;
 }
 
 .ayd-input:focus {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: color-mix(in srgb, var(--texto) 8%, transparent) !important;
   border-color: var(--ayd-azul) !important;
   box-shadow: none !important;
   color: var(--ayd-texto) !important;
 }
 
 .ayd-input::placeholder {
-  color: rgba(226, 232, 240, 0.3);
+  color: color-mix(in srgb, var(--texto) 30%, transparent);
 }
 
 .ayd-search-prefix {
-  background: rgba(77, 168, 218, 0.1);
-  border: 1px solid rgba(77, 168, 218, 0.2);
+  background: color-mix(in srgb, var(--azul-claro) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 20%, transparent);
   border-right: none;
   border-radius: 10px 0 0 10px;
   color: var(--ayd-azul);
@@ -88,27 +88,27 @@
 /* === CATEGORÍAS (chips) === */
 .ayd-cat-chip {
   background: transparent;
-  border: 1px solid rgba(77, 168, 218, .15);
-  color: #c8dce8;
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 15%, transparent);
+  color: color-mix(in srgb, var(--texto) 85%, transparent);
   border-radius: 8px;
   font-size: .88rem;
 }
 
 .ayd-cat-chip:hover {
-  background: rgba(77, 168, 218, .15);
-  border-color: rgba(77, 168, 218, .4);
-  color: #fff;
+  background: color-mix(in srgb, var(--azul-claro) 15%, transparent);
+  border-color: color-mix(in srgb, var(--azul-claro) 40%, transparent);
+  color: var(--texto);
 }
 
 .ayd-cat-chip.active {
-  background: rgba(77, 168, 218, .22);
+  background: color-mix(in srgb, var(--azul-claro) 22%, transparent);
   border-color: var(--ayd-azul);
-  color: #fff;
+  color: var(--texto);
   font-weight: 600;
 }
 
 .ayd-cat-badge {
-  background: rgba(77, 168, 218, .2);
+  background: color-mix(in srgb, var(--azul-claro) 20%, transparent);
   color: var(--ayd-azul);
   font-size: .72rem;
 }
@@ -117,8 +117,8 @@
 .ayd-guia-card {
   display: flex;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(77, 168, 218, 0.12);
+  background: color-mix(in srgb, var(--texto) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 12%, transparent);
   border-radius: 10px;
   padding: 14px 16px;
 }
@@ -128,7 +128,7 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: rgba(77, 168, 218, 0.12);
+  background: color-mix(in srgb, var(--azul-claro) 12%, transparent);
   color: var(--ayd-azul);
   display: flex;
   align-items: center;
@@ -153,7 +153,7 @@
 
 .ayd-guia-contenido {
   font-size: .84rem;
-  color: rgba(226, 232, 240, 0.75);
+  color: color-mix(in srgb, var(--texto) 75%, transparent);
 }
 
 .ayd-guia-contenido p:last-child {
@@ -162,8 +162,8 @@
 
 /* === ACCORDION FAQ === */
 .ayd-acc-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(77, 168, 218, 0.12);
+  background: color-mix(in srgb, var(--texto) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 12%, transparent);
   border-radius: 10px !important;
   overflow: hidden;
   margin-bottom: 10px;
@@ -177,12 +177,16 @@
   box-shadow: none !important;
 }
 
+/* El filtro CSS del chevron queda fijo — aproxima el azul de marca
+   sobre el ícono, pero al ser un filter (no un color var) no puede
+   seguir dinámicamente los cambios de tema. Si el tema cambia a otro
+   color de acento, este ícono se quedará con el tono azul original. */
 .ayd-acc-btn::after {
   filter: invert(63%) sepia(43%) saturate(556%) hue-rotate(163deg) brightness(93%) contrast(91%);
 }
 
 .ayd-acc-cat-tag {
-  background: rgba(77, 168, 218, 0.15);
+  background: color-mix(in srgb, var(--azul-claro) 15%, transparent);
   color: var(--ayd-azul);
   font-size: .68rem;
   font-weight: 700;
@@ -194,7 +198,7 @@
 }
 
 .ayd-acc-body {
-  color: rgba(226, 232, 240, 0.8);
+  color: color-mix(in srgb, var(--texto) 80%, transparent);
   font-size: .87rem;
   background: rgba(0, 0, 0, 0.1);
 }
@@ -206,7 +210,7 @@
 /* === BOTONES === */
 .ayd-btn-primary {
   background: var(--ayd-azul);
-  color: #011936;
+  color: var(--fondo);
   border: none;
   font-weight: 700;
   border-radius: 20px;
@@ -215,39 +219,39 @@
 .ayd-btn-primary:hover {
   background: var(--ayd-azul);
   opacity: .88;
-  color: #011936;
+  color: var(--fondo);
 }
 
 .ayd-btn-outline {
   background: transparent;
-  border: 1px solid rgba(77, 168, 218, 0.35);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 35%, transparent);
   color: var(--ayd-azul);
   border-radius: 20px;
   font-weight: 600;
 }
 
 .ayd-btn-outline:hover {
-  background: rgba(77, 168, 218, 0.1);
+  background: color-mix(in srgb, var(--azul-claro) 10%, transparent);
   color: var(--ayd-azul);
 }
 
 /* === FORMULARIO (widgets renderizados por Django, clase form-control) === */
 .ayd-card .form-control {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(77, 168, 218, 0.2);
+  background: color-mix(in srgb, var(--texto) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 20%, transparent);
   color: var(--ayd-texto);
   border-radius: 8px;
 }
 
 .ayd-card .form-control:focus {
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--texto) 8%, transparent);
   border-color: var(--ayd-azul);
   color: var(--ayd-texto);
-  box-shadow: 0 0 0 0.2rem rgba(77, 168, 218, 0.15);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--azul-claro) 15%, transparent);
 }
 
 .ayd-card .form-control::placeholder {
-  color: rgba(226, 232, 240, 0.3);
+  color: color-mix(in srgb, var(--texto) 30%, transparent);
 }
 
 /* === ITEM oculto por búsqueda/filtro === */

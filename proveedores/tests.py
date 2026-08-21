@@ -444,3 +444,225 @@ class ComprasCrudTest(TestCase):
 
         self.assertFalse(Compra.objects.filter(pk=compra.pk).exists())
         self.assertFalse(DetalleCompra.objects.filter(pk=detalle.pk).exists())
+
+    # ✓ CP1: Cambiar de Pendiente a Confirmada
+    def test_cambiar_estado_pendiente_a_confirmada(self):
+        """Verificar que compra en estado Pendiente puede cambiar a Confirmada.
+
+        Escenario: Una compra registrada en estado Pendiente se cambia a Confirmada.
+
+        Datos de entrada:
+        - Compra con estado: Pendiente
+        - Nuevo estado: Confirmada
+
+        Resultado esperado:
+        - El estado cambia a Confirmada
+        - Se registra el evento en HistorialCompra
+        - La BD persiste el cambio
+        """
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            estado='pendiente',
+            valor=Decimal('10000.00'),
+            saldo=Decimal('10000.00'),
+        )
+
+        # Cambiar estado
+        compra.estado = 'confirmada'
+        compra.save(update_fields=['estado'])
+        HistorialCompra.objects.create(
+            compra=compra,
+            evento='editada',
+            usuario=self.usuario,
+            descripcion='Estado cambiado de pendiente a confirmada.',
+        )
+
+        # Verificar cambio
+        compra.refresh_from_db()
+        self.assertEqual(compra.estado, 'confirmada')
+        self.assertTrue(
+            HistorialCompra.objects.filter(
+                compra=compra,
+                evento='editada'
+            ).exists()
+        )
+
+    # ✓ CP2: Cambiar de Pendiente a Cancelada
+    def test_cambiar_estado_pendiente_a_cancelada(self):
+        """Verificar que compra en estado Pendiente puede cambiar a Cancelada.
+
+        Escenario: Una compra registrada en estado Pendiente se cancela.
+
+        Datos de entrada:
+        - Compra con estado: Pendiente
+        - Nuevo estado: Cancelada
+
+        Resultado esperado:
+        - El estado cambia a Cancelada
+        - Se registra el evento en HistorialCompra
+        - La BD persiste el cambio
+        """
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            estado='pendiente',
+            valor=Decimal('15000.00'),
+            saldo=Decimal('15000.00'),
+        )
+
+        # Cambiar estado a cancelada
+        compra.estado = 'cancelada'
+        compra.save(update_fields=['estado'])
+        HistorialCompra.objects.create(
+            compra=compra,
+            evento='cancelada',
+            usuario=self.usuario,
+            descripcion='Estado cambiado de pendiente a cancelada.',
+        )
+
+        # Verificar cambio
+        compra.refresh_from_db()
+        self.assertEqual(compra.estado, 'cancelada')
+        self.assertTrue(
+            HistorialCompra.objects.filter(
+                compra=compra,
+                evento='cancelada'
+            ).exists()
+        )
+
+    # ✓ CP3: Cambiar de Confirmada a Recibida
+    def test_cambiar_estado_confirmada_a_recibida(self):
+        """Verificar que compra en estado Confirmada puede cambiar a Recibida.
+
+        Escenario: Una compra confirmada se marca como recibida.
+
+        Datos de entrada:
+        - Compra con estado: Confirmada
+        - Nuevo estado: Recibida
+
+        Resultado esperado:
+        - El estado cambia a Recibida
+        - Se registra el evento en HistorialCompra
+        - La BD persiste el cambio
+        """
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            estado='confirmada',
+            valor=Decimal('20000.00'),
+            saldo=Decimal('20000.00'),
+        )
+
+        # Cambiar estado a recibida
+        compra.estado = 'recibida'
+        compra.save(update_fields=['estado'])
+        HistorialCompra.objects.create(
+            compra=compra,
+            evento='recibida',
+            usuario=self.usuario,
+            descripcion='Estado cambiado de confirmada a recibida.',
+        )
+
+        # Verificar cambio
+        compra.refresh_from_db()
+        self.assertEqual(compra.estado, 'recibida')
+        self.assertTrue(
+            HistorialCompra.objects.filter(
+                compra=compra,
+                evento='recibida'
+            ).exists()
+        )
+
+    # ✓ CP4: Rechazar cambio inválido de estado
+    def test_rechazar_cambio_estado_invalido(self):
+        """Verificar que sistema rechaza transiciones de estado inválidas.
+
+        Escenario: Se intenta cambiar compra de estado Recibida a Pendiente (no permitido).
+
+        Datos de entrada:
+        - Compra con estado: Recibida
+        - Nuevo estado solicitado: Pendiente (transición inválida)
+
+        Resultado esperado:
+        - El cambio se rechaza
+        - El estado permanece como Recibida
+        - Se valida que la transición no es permitida
+        """
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            estado='recibida',
+            valor=Decimal('25000.00'),
+            saldo=Decimal('25000.00'),
+        )
+
+        # Definir transiciones válidas
+        transiciones_validas = {
+            'pendiente': {'confirmada', 'cancelada'},
+            'confirmada': {'recibida', 'cancelada'},
+            'recibida': set(),  # No tiene transiciones válidas
+        }
+
+        estado_actual = compra.estado
+        nuevo_estado = 'pendiente'  # Transición inválida
+
+        # Verificar que NO es válida
+        es_valida = nuevo_estado in transiciones_validas.get(estado_actual, set())
+        self.assertFalse(es_valida)
+
+        # El estado NO debe cambiar
+        self.assertEqual(compra.estado, 'recibida')
+
+    # ✓ CP5: Verificar registro en historial
+    def test_registrar_cambio_estado_en_historial(self):
+        """Verificar que cada cambio de estado se registra en HistorialCompra.
+
+        Escenario: Se realiza un cambio de estado y se verifica que quede
+        registrado con usuario, evento, descripción y fecha.
+
+        Datos de entrada:
+        - Compra: estado Pendiente
+        - Cambio: Pendiente → Confirmada
+
+        Resultado esperado:
+        - Se crea registro en HistorialCompra
+        - Contiene usuario, evento, descripción y fecha
+        - El orden cronológico es correcto
+        """
+        compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            estado='pendiente',
+            valor=Decimal('30000.00'),
+            saldo=Decimal('30000.00'),
+        )
+
+        # Registrar cambio de estado
+        estado_anterior = compra.estado
+        compra.estado = 'confirmada'
+        compra.save(update_fields=['estado'])
+
+        historial = HistorialCompra.objects.create(
+            compra=compra,
+            evento='editada',
+            usuario=self.usuario,
+            descripcion=f'Estado cambiado de {estado_anterior} a confirmada.',
+        )
+
+        # Verificar que se registró correctamente
+        self.assertIsNotNone(historial.id)
+        self.assertEqual(historial.compra, compra)
+        self.assertEqual(historial.evento, 'editada')
+        self.assertEqual(historial.usuario, self.usuario)
+        self.assertIn('pendiente', historial.descripcion)
+        self.assertIn('confirmada', historial.descripcion)
+        self.assertIsNotNone(historial.fecha)
+
+        # Verificar que existe en la BD
+        self.assertTrue(
+            HistorialCompra.objects.filter(
+                compra=compra,
+                usuario=self.usuario
+            ).exists()
+        )

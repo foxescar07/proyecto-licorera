@@ -16,7 +16,7 @@ from .models import (
 )
 from .forms import VentaForm, DetalleVentaForm, DevolucionForm
 from productos.models import Producto, Categoria, PresentacionProducto
-from inventario.models import Inventario, Lote
+from inventario.models import Inventario, Lote, MovimientoInventario
 from usuarios.models import Usuario
 
 BILLETES_DENOM = [100000, 50000, 20000, 10000, 5000, 2000]
@@ -518,9 +518,38 @@ def _accion_confirmar_venta(request):
     monto_descuento = (subtotal_venta * descuento_pct) / Decimal('100')
     total_final     = subtotal_venta - monto_descuento
 
-    # Validar que el método de pago sea válido
-    metodos_validos = [m[0] for m in Venta.METODO_PAGO_CHOICES]
-    if metodo_pago not in metodos_validos:
+    pago_efectivo_val  = _to_decimal(request.POST.get('pago_efectivo', '0'))
+    pago_tarjeta_val   = _to_decimal(request.POST.get('pago_tarjeta', '0'))
+    pago_otro_val      = _to_decimal(request.POST.get('pago_otro', '0'))
+    metodo_otro_nombre = (request.POST.get('metodo_otro') or '').strip().lower()
+    metodo_pago_post   = (request.POST.get('metodo_pago') or '').strip().lower()
+
+    metodos_con_monto = []
+    if pago_efectivo_val > 0:
+        metodos_con_monto.append('efectivo')
+    if pago_tarjeta_val > 0:
+        metodos_con_monto.append('transferencia')
+    if pago_otro_val > 0:
+        if 'nequi' in metodo_otro_nombre:
+            metodos_con_monto.append('nequi')
+        elif 'daviplata' in metodo_otro_nombre:
+            metodos_con_monto.append('daviplata')
+        else:
+            metodos_con_monto.append('transferencia')
+
+    if len(metodos_con_monto) > 1:
+        metodo_pago = 'mixto'
+    elif len(metodos_con_monto) == 1:
+        metodo_pago = metodos_con_monto[0]
+    elif metodo_pago_post in [m[0] for m in Venta.METODO_PAGO_CHOICES]:
+        metodo_pago = metodo_pago_post
+    elif 'nequi' in metodo_otro_nombre:
+        metodo_pago = 'nequi'
+    elif 'daviplata' in metodo_otro_nombre:
+        metodo_pago = 'daviplata'
+    elif pago_tarjeta_val > 0:
+        metodo_pago = 'transferencia'
+    else:
         metodo_pago = 'efectivo'
 
     venta = Venta.objects.create(
@@ -554,26 +583,45 @@ def _accion_confirmar_venta(request):
 
         if presentacion:
             lotes_tocados = _descontar_stock_fefo(presentacion, cantidad, vendedor)
+            inv, _ = Inventario.objects.get_or_create(
+                producto=presentacion.producto,
+                presentacion=presentacion,
+                defaults={'stock_actual': presentacion.stock_real}
+            )
+            inv.stock_actual = presentacion.stock_real
+            inv.save()
+
             for lt in lotes_tocados:
-                Inventario.objects.create(
-                    presentacion=presentacion,
+                MovimientoInventario.objects.create(
+                    inventario=inv,
                     lote=lt['lote'],
                     registrado_por=vendedor,
                     tipo='salida',
                     cantidad=lt['cantidad'],
                     motivo='Venta registrada',
+                    stock_resultante=inv.stock_actual,
                 )
         else:
             producto.cantidad_disponible -= cantidad
             producto.save()
-            Inventario.objects.create(
-                presentacion=presentacion or PresentacionProducto.objects.filter(producto=producto).first(),
-                lote=Lote.objects.filter(presentacion__producto=producto).first(),
-                registrado_por=vendedor,
-                tipo='salida',
-                cantidad=cantidad,
-                motivo='Venta registrada',
-            )
+            pres = PresentacionProducto.objects.filter(producto=producto).first()
+            if pres:
+                inv, _ = Inventario.objects.get_or_create(
+                    producto=producto,
+                    presentacion=pres,
+                    defaults={'stock_actual': pres.stock_real}
+                )
+                lote_item = Lote.objects.filter(presentacion=pres).first()
+                if lote_item:
+                    MovimientoInventario.objects.create(
+                        inventario=inv,
+                        lote=lote_item,
+                        registrado_por=vendedor,
+                        tipo='salida',
+                        cantidad=cantidad,
+                        motivo='Venta registrada',
+                        stock_resultante=inv.stock_actual,
+                    )
 
     request.session['pv_carrito'] = []
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
@@ -718,12 +766,13 @@ def eliminar_venta(request, pk):
 
     for det in venta.detalles.select_related('codigo_producto', 'codigo_presentacion').all():
         if det.codigo_presentacion:
-            movimientos_salida = Inventario.objects.filter(
-                presentacion=det.codigo_presentacion,
+            inv = Inventario.objects.filter(presentacion=det.codigo_presentacion).first()
+            movimientos_salida = MovimientoInventario.objects.filter(
+                inventario__presentacion=det.codigo_presentacion,
                 tipo='salida',
                 motivo='Venta registrada',
                 lote__presentacion=det.codigo_presentacion,
-                fecha_actualizada__date=venta.fecha.date(),
+                fecha__date=venta.fecha.date(),
             )
 
             lotes_a_restaurar = {}
@@ -732,18 +781,24 @@ def eliminar_venta(request, pk):
                     lotes_a_restaurar[mov.lote_id] = {'lote': mov.lote, 'cantidad': 0}
                 lotes_a_restaurar[mov.lote_id]['cantidad'] += mov.cantidad
 
+            vendedor_usuario = Usuario.objects.filter(pk=request.session.get('usuario_id')).first()
             for info in lotes_a_restaurar.values():
                 lote = info['lote']
                 lote.stock_actual += info['cantidad']
                 lote.save()
 
-                Inventario.objects.create(
-                    presentacion=det.codigo_presentacion,
-                    lote=lote,
-                    tipo='entrada',
-                    cantidad=info['cantidad'],
-                    motivo='Anulación de venta',
-                )
+                if inv and vendedor_usuario:
+                    inv.stock_actual += info['cantidad']
+                    inv.save()
+                    MovimientoInventario.objects.create(
+                        inventario=inv,
+                        lote=lote,
+                        registrado_por=vendedor_usuario,
+                        tipo='entrada',
+                        cantidad=info['cantidad'],
+                        motivo='Anulación de venta',
+                        stock_resultante=inv.stock_actual,
+                    )
         elif det.codigo_producto:
             det.codigo_producto.cantidad_disponible += det.cantidad
             det.codigo_producto.save()
@@ -776,7 +831,9 @@ def producto_stock_json(request, pk):
 @session_required
 def ventas_del_dia(request):
     hoy    = timezone.localdate()
-    ventas = Venta.objects.filter(fecha__date=hoy).prefetch_related(
+    ventas = Venta.objects.filter(fecha__date=hoy).select_related(
+        'codigo_cliente', 'documento_usuario'
+    ).prefetch_related(
         'detalles__codigo_producto', 'detalles__codigo_presentacion'
     ).order_by('-fecha')
 

@@ -69,7 +69,7 @@ body.offcanvas-open {
 
 /* Scrollbar de las páginas (Izquierda): Más corto */
 ::-webkit-scrollbar-thumb { 
-  background: rgba(77, 168, 218, 0.25); 
+  background: color-mix(in srgb, var(--azul-claro) 25%, transparent); 
   border-radius: 10px;
   border-top: 20px solid transparent;  /* Hace que empiece más abajo */
   border-bottom: 20px solid transparent; /* Hace que termine más arriba */
@@ -85,14 +85,14 @@ body.offcanvas-open {
 
 /* Scrollbar del Aside (Derecha): Aún más corto y sutil */
 #sidebarRight ::-webkit-scrollbar-thumb {
-  background: rgba(232, 237, 242, 0.15); 
+  background: color-mix(in srgb, var(--texto) 15%, transparent); 
   border-top: 35px solid transparent;   /* Bastante más corto para el menú */
   border-bottom: 35px solid transparent;
   background-clip: padding-box;
 }
 
 #sidebarRight ::-webkit-scrollbar-thumb:hover {
-  background: rgba(77, 168, 218, 0.5);
+  background: color-mix(in srgb, var(--azul-claro) 50%, transparent);
   border-top: 35px solid transparent;
   border-bottom: 35px solid transparent;
   background-clip: padding-box;
@@ -100,6 +100,7 @@ body.offcanvas-open {
 
 /* ============================================================
    HEADER — fixed, siempre arriba
+   ★ EL FONDO DE ESTA BARRA LO CONTROLA --azul-oscuro (arriba en :root)
    ============================================================ */
 .cys-header {
   position: fixed;
@@ -161,7 +162,7 @@ body.offcanvas-open {
 .cys-dot {
   width: 9px;
   height: 9px;
-  background: #2ecc71;
+  background: #2ecc71; /* verde de estado — categórico, fijo a propósito */
   border-radius: 50%;
   flex-shrink: 0;
   animation: pulse-dot 1.8s ease infinite;
@@ -198,6 +199,7 @@ body.offcanvas-open {
 
 /* ============================================================
    SUBNAV — fixed justo debajo del header
+   ★ EL FONDO DE "MI PERFIL" LO CONTROLA --azul-medio (arriba en :root)
    ============================================================ */
 .cys-subnav {
   position: fixed;
@@ -422,7 +424,7 @@ body.sidebar-open .cys-main {
   background: var(--fondo-card);
   border-radius: 14px;
   border: 1px solid var(--azul-borde);
-  box-shadow: 0 4px 24px rgba(0,0,0,.3), 0 0 0 1px rgba(77,168,218,.06);
+  box-shadow: 0 4px 24px rgba(0,0,0,.3), 0 0 0 1px color-mix(in srgb, var(--azul-claro) 6%, transparent);
   padding: calc(1.5rem * var(--density-scale, 1));
   transition: var(--trans);
   margin-bottom: 1.5rem;
@@ -451,9 +453,9 @@ body.sidebar-open .cys-main {
   display: inline-block;
   width: 3px;
   height: 18px;
-  background: #CF9C48;
+  background: var(--dorado);
   border-radius: 2px;
-  box-shadow: 0 0 8px #CF9C48;
+  box-shadow: 0 0 8px var(--dorado);
 }
 
 .cys-card__title.mb-0 { margin-bottom: 0 !important; }
@@ -485,7 +487,7 @@ body.sidebar-open .cys-main {
   box-shadow: 0 4px 14px rgba(77,168,218,.4);
 }
 .cys-btn--primary:hover {
-  background: #6dc0e8;
+  background: color-mix(in srgb, var(--azul-claro) 85%, white);
   color: var(--azul-oscuro);
   box-shadow: 0 6px 22px rgba(77,168,218,.6);
   transform: scale(1.04);
@@ -534,7 +536,7 @@ body.sidebar-open .cys-main {
 }
 
 .cys-btn-sm--primary {
-  background: rgba(77,168,218,.15);
+  background: color-mix(in srgb, var(--azul-claro) 15%, transparent);
   border-color: var(--azul-borde);
   color: var(--azul-claro);
 }
@@ -576,12 +578,12 @@ body.sidebar-open .cys-main {
 }
 
 .table tbody tr {
-  border-color: rgba(77,168,218,.1) !important;
+  border-color: color-mix(in srgb, var(--azul-claro) 10%, transparent) !important;
   transition: var(--trans);
 }
 
 .table tbody tr:hover { background: var(--azul-glow) !important; }
-.table td { border-color: rgba(77,168,218,.08) !important; }
+.table td { border-color: color-mix(in srgb, var(--azul-claro) 8%, transparent) !important; }
 
 .table td,
 .table th {
@@ -773,7 +775,7 @@ body.sidebar-open .cys-main {
    TABLA REGISTRAR CÓDIGOS
    ============================================================ */
 .modal #tbody-codigos td {
-  color: #0A2A52 !important;
+  color: var(--fondo-card) !important;
   font-size: .85rem;
 }
 
@@ -883,8 +885,8 @@ body.sidebar-open .cys-main {
    ============================================================ */
 .tooltip .tooltip-inner {
   background-color: #0d2240 !important;
-  color: #4DA8DA !important;
-  border: 1px solid rgba(77, 168, 218, 0.45) !important;
+  color: var(--azul-claro) !important;
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 45%, transparent) !important;
   font-size: .78rem !important;
   font-weight: 600 !important;
   padding: .45rem .8rem !important;
@@ -1076,7 +1078,7 @@ body.sidebar-open .cys-main {
     padding: .5rem 0;
     font-size: .82rem;
     color: var(--texto);
-    border-bottom: 1px solid rgba(77,168,218,.08);
+    border-bottom: 1px solid color-mix(in srgb, var(--azul-claro) 8%, transparent);
 }
 .cys-a11y-switch-row:last-child { border-bottom: none; }
 
