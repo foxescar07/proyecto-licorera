@@ -377,6 +377,7 @@
 
               <div class="mb-3 cys-pagos-box">
                 <div class="cys-pagos-titulo"><i class="bi bi-wallet2 me-1"></i> Método de Pago</div>
+                <input type="hidden" name="metodo_pago" id="inputMetodoPago" value="{{ sticky_metodo|default:'efectivo' }}">
 
                 <div class="row g-2 mb-2">
                   <div class="col-6">
@@ -630,66 +631,7 @@
 <!-- ══ MODALES POR VENTA: DETALLE + CONFIRMAR ELIMINACIÓN ══ -->
 {% for venta in ventas %}
 
-<div class="modal fade" id="modalDetalle{{ venta.pk }}" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content cys-modal-content">
-      <div class="modal-header cys-modal-header">
-        <h5 class="modal-title fw-bold cys-modal-titulo--acento">
-          <i class="bi bi-receipt me-2"></i>Detalle de Venta #{{ venta.pk }}
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="cys-detalle-info-fila">
-          <span class="cys-detalle-info-label">Cliente</span>
-          <span class="cys-detalle-info-valor">{{ venta.codigo_cliente.nombre }}</span>
-        </div>
-        <div class="cys-detalle-info-fila">
-          <span class="cys-detalle-info-label">Fecha</span>
-          <span class="cys-detalle-info-valor">{{ venta.fecha|date:"d/m/Y H:i" }}</span>
-        </div>
-        <div class="cys-detalle-info-fila mb-3">
-          <span class="cys-detalle-info-label">Estado</span>
-          <span class="cys-estado-pagado"><i class="bi bi-check-circle-fill"></i> Pagado</span>
-        </div>
-
-        <div class="cys-modal-seccion-titulo mb-2">Productos</div>
-        {% for det in venta.detalles.all %}
-        <div class="cys-detalle-item">
-          <div>
-            <div class="cys-detalle-item-nombre">
-              {{ det.codigo_producto.nombre }}{% if det.codigo_presentacion %} ({{ det.codigo_presentacion.nombre }}){% endif %}
-            </div>
-            <div class="cys-detalle-item-meta">{{ det.cantidad }} x ${{ det.precio_unitario|pesos }}</div>
-          </div>
-          <div class="cys-detalle-item-total">${{ det.subtotal|pesos }}</div>
-        </div>
-        {% endfor %}
-
-        {% if venta.comprobante_pago %}
-        <div class="cys-modal-seccion-titulo mb-2 mt-3">Comprobante de pago</div>
-        <a href="{{ venta.comprobante_pago.url }}" target="_blank" rel="noopener" class="cys-comprobante-ver-link">
-          <div class="cys-comprobante-input-wrap cys-comprobante-ver-box">
-            <div class="cys-comprobante-icono">
-              <i class="bi bi-file-earmark-check-fill"></i>
-            </div>
-            <div class="cys-comprobante-ver-texto">
-              <div class="cys-comprobante-ver-titulo">Ver comprobante</div>
-              <div class="cys-comprobante-ver-sub">Clic para abrir en una pestaña nueva</div>
-            </div>
-            <i class="bi bi-box-arrow-up-right caja-icono-acento"></i>
-          </div>
-        </a>
-        {% endif %}
-
-        <div class="cys-total-contado-box mt-3">
-          <span class="cys-total-contado-label">Total de la venta</span>
-          <span class="cys-total-contado-valor">${{ venta.total_venta|pesos }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'ventas/modal_detalle_venta.html' %}
 
 <div class="modal fade" id="modalEliminar{{ venta.pk }}" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
