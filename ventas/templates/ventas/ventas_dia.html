@@ -191,7 +191,11 @@
                 data-precio="{{ det.precio_unitario }}"
                 data-total="{{ det.subtotal }}"
                 data-fecha="{{ venta.fecha|date:'c' }}"
-                data-buscar="{{ venta.codigo_cliente.nombre|lower }} {{ det.codigo_producto.nombre|lower }}{% if det.codigo_presentacion %} {{ det.codigo_presentacion.nombre|lower }}{% endif %}">
+                data-buscar="{{ venta.codigo_cliente.nombre|lower }} {{ det.codigo_producto.nombre|lower }}{% if det.codigo_presentacion %} {{ det.codigo_presentacion.nombre|lower }}{% endif %}"
+                data-bs-toggle="modal"
+                data-bs-target="#modalDetalle{{ venta.pk }}"
+                style="cursor: pointer;"
+                title="Haz clic para ver el detalle completo de la transacción">
               <td class="cys-td-num cys-td-centro">{{ forloop.parentloop.counter }}</td>
               <td>
                 <div class="cys-cliente-cell">
@@ -233,6 +237,10 @@
     {% endif %}
 
   </section>
+
+  {% for venta in ventas %}
+    {% include 'ventas/modal_detalle_venta.html' %}
+  {% endfor %}
 
 </div>
 
