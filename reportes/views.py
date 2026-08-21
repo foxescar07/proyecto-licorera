@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from ventas.models import Venta, DetalleVenta, Devolucion
 from productos.models import Producto
 from inventario.models import Inventario, MovimientoInventario
+from proveedores.models import Compra
 from .forms import FiltroReporteForm
 from .models import Reporte
 import json
@@ -56,7 +57,7 @@ XLS_ROJO_OUT      = 'C0392B'   # valores negativos (salidas)
 XLS_FONT = 'Calibri'
 
 # Tipos de reporte válidos (deben coincidir con Reporte.TIPO_REPORTE_CHOICES)
-TIPOS_VALIDOS = {'ventas', 'inventario', 'proveedores', 'resumen_diario', 'analisis', 'devoluciones'}
+TIPOS_VALIDOS = {'ventas', 'inventario', 'proveedores', 'resumen_diario', 'analisis', 'devoluciones', 'compras'}
 
 
 # ─────────────────────────────────────────────
@@ -536,6 +537,66 @@ def _pdf_devoluciones(devoluciones_qs, fecha_inicio, fecha_fin):
     return _build_pdf("Reporte de Devoluciones", subtitulo, elementos, orientacion='landscape')
 
 
+def _pdf_compras(compras_qs, fecha_inicio, fecha_fin):
+    """
+    Genera el PDF del Reporte de Compras (compras a proveedores),
+    con el mismo estilo CYS (KPIs + tabla) que el resto de reportes.
+    """
+    elementos = []
+
+    total_valor  = sum(c.valor for c in compras_qs)
+    total_ordenes = compras_qs.count()
+    total_proveedores = compras_qs.values('proveedor').distinct().count()
+
+    elementos.append(_kpi_table([
+        ('Valor Total', f'${total_valor:,.0f}', '#2ecc71'),
+        ('Órdenes',     str(total_ordenes),      '#4DA8DA'),
+        ('Proveedores', str(total_proveedores),  '#f1c40f'),
+    ]))
+    elementos.append(Spacer(1, 12))
+
+    cabecera = [['#', 'Proveedor', 'Producto', 'Cantidad', 'Valor', 'Fecha']]
+    filas = cabecera
+    contador = 1
+    for c in compras_qs:
+        detalles = c.detalles.all()
+        if detalles:
+            for det in detalles:
+                filas.append([
+                    str(contador),
+                    c.proveedor.nombre_empresa,
+                    det.producto.nombre if det.producto else str(det.presentacion),
+                    str(det.cantidad),
+                    f'${float(det.subtotal):,.0f}',
+                    c.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y"),
+                ])
+                contador += 1
+        else:
+            # Compra sin detalles registrados: se muestra con el valor total de la cabecera
+            filas.append([
+                str(contador),
+                c.proveedor.nombre_empresa,
+                '—',
+                '—',
+                f'${float(c.valor):,.0f}',
+                c.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y"),
+            ])
+            contador += 1
+
+    if len(filas) == 1:
+        filas.append(['', 'Sin compras en el período seleccionado', '', '', '', ''])
+
+    col_w = [1*cm, 5*cm, 5.5*cm, 2.5*cm, 3*cm, 3*cm]
+    t = Table(filas, colWidths=col_w, repeatRows=1)
+    estilo = _estilo_tabla_base(6)
+    estilo.add('ALIGN', (3, 1), (4, -1), 'RIGHT')
+    t.setStyle(estilo)
+    elementos.append(t)
+
+    subtitulo = f"Período: {fecha_inicio or 'Todo'} → {fecha_fin or 'Todo'}  |  Generado: {timezone.now().astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M')}"
+    return _build_pdf("Reporte de Compras", subtitulo, elementos, orientacion='landscape')
+
+
 # ═══════════════════════════════════════════════════════
 #  GENERADORES EXCEL POR TIPO — TEMA "ROJO SUAVE" CYS
 # ═══════════════════════════════════════════════════════
@@ -935,6 +996,60 @@ def _xlsx_devoluciones(wb, devoluciones_qs, fecha_inicio, fecha_fin):
     )
 
 
+def _xlsx_compras(wb, compras_qs, fecha_inicio, fecha_fin):
+    """
+    Genera la hoja Excel del Reporte de Compras, con el mismo
+    tema visual "rojo suave" CYS del resto de reportes.
+    """
+    ws = wb.active
+    ws.title = 'Compras'
+    ws.sheet_view.showGridLines = False
+
+    total_valor       = sum(c.valor for c in compras_qs)
+    total_ordenes      = compras_qs.count()
+    total_proveedores  = compras_qs.values('proveedor').distinct().count()
+
+    subtitulo = f"Período: {fecha_inicio or 'Todo'} → {fecha_fin or 'Todo'}"
+    meta = [('Generado:', timezone.now().astimezone(ZONA_COLOMBIA).strftime('%d/%m/%Y %H:%M'))]
+    fila = _xls_encabezado(ws, "Reporte de Compras", subtitulo, meta, 6)
+    fila = _xls_kpis(ws, fila, [
+        ('Valor Total', float(total_valor), XLS_VERDE_OK),
+        ('Órdenes', total_ordenes, XLS_ROJO_MARCA),
+        ('Proveedores', total_proveedores, 'B8860B'),
+    ], 6)
+
+    headers = ['#', 'Proveedor', 'Producto', 'Cantidad', 'Valor', 'Fecha']
+    filas = []
+    contador = 1
+    for c in compras_qs:
+        detalles = c.detalles.all()
+        if detalles:
+            for det in detalles:
+                filas.append([
+                    contador,
+                    c.proveedor.nombre_empresa,
+                    det.producto.nombre if det.producto else str(det.presentacion),
+                    det.cantidad,
+                    float(det.subtotal),
+                    c.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y"),
+                ])
+                contador += 1
+        else:
+            filas.append([
+                contador,
+                c.proveedor.nombre_empresa,
+                '—',
+                0,
+                float(c.valor),
+                c.fecha.astimezone(ZONA_COLOMBIA).strftime("%d/%m/%Y"),
+            ])
+            contador += 1
+
+    _xls_tabla(ws, fila, headers, filas,
+               col_widths=[6, 28, 30, 12, 15, 14],
+               currency_cols={4}, right_cols={3})
+
+
 # ═══════════════════════════════════════════════════════
 #  VISTA PRINCIPAL
 # ═══════════════════════════════════════════════════════
@@ -968,6 +1083,16 @@ def index_reportes(request):
         devoluciones_qs = devoluciones_qs.filter(fecha__date__gte=fecha_inicio)
     if fecha_fin:
         devoluciones_qs = devoluciones_qs.filter(fecha__date__lte=fecha_fin)
+
+    # Compras a proveedores, filtradas por el mismo rango de fechas
+    compras_qs = Compra.objects.select_related('proveedor').prefetch_related(
+        'detalles__producto', 'detalles__presentacion'
+    ).all().order_by('-fecha')
+
+    if fecha_inicio:
+        compras_qs = compras_qs.filter(fecha__date__gte=fecha_inicio)
+    if fecha_fin:
+        compras_qs = compras_qs.filter(fecha__date__lte=fecha_fin)
 
     paginator   = Paginator(ventas_qs, per_page)
     page_number = request.GET.get('page', 1)
@@ -1062,6 +1187,10 @@ def index_reportes(request):
                 _xlsx_devoluciones(wb, devoluciones_qs, fecha_inicio, fecha_fin)
                 nombre = f"reporte_devoluciones_{timezone.now().strftime('%Y%m%d')}.xlsx"
 
+            elif tipo == 'compras':
+                _xlsx_compras(wb, compras_qs, fecha_inicio, fecha_fin)
+                nombre = f"reporte_compras_{timezone.now().strftime('%Y%m%d')}.xlsx"
+
             buffer = BytesIO()
             wb.save(buffer)
             buffer.seek(0)
@@ -1142,6 +1271,10 @@ def index_reportes(request):
                 buffer = _pdf_devoluciones(devoluciones_qs, fecha_inicio, fecha_fin)
                 nombre = f"reporte_devoluciones_{timezone.now().strftime('%Y%m%d')}.pdf"
 
+            elif tipo == 'compras':
+                buffer = _pdf_compras(compras_qs, fecha_inicio, fecha_fin)
+                nombre = f"reporte_compras_{timezone.now().strftime('%Y%m%d')}.pdf"
+
             # Registro de trazabilidad (tabla 'reportes' según el MER)
             _registrar_reporte(request, tipo, 'pdf')
 
@@ -1203,16 +1336,81 @@ def index_reportes(request):
     )[:5]
 
     # ── Devoluciones: datos para el dashboard de reportes ──
+    # NOTA: los nombres de estas variables coinciden EXACTAMENTE con los que
+    # usa reportes.html: cantidad_devoluciones, total_devoluciones,
+    # tasa_devolucion, devoluciones_aprobadas, devoluciones (lista plana).
     devoluciones_todas = devoluciones_qs
-    total_devoluciones      = devoluciones_todas.count()
-    total_valor_devoluciones = sum(d.total_devuelto for d in devoluciones_todas)
+    cantidad_devoluciones    = devoluciones_todas.count()
+    total_devoluciones       = sum(d.total_devuelto for d in devoluciones_todas)  # $ devuelto (KPI "VALOR DEVUELTO")
+    devoluciones_aprobadas   = sum(1 for d in devoluciones_todas if d.estado in ('aprobada', 'aplicada'))
     total_devoluciones_pendientes = sum(1 for d in devoluciones_todas if d.estado == 'pendiente')
 
-    devoluciones_hoy = Devolucion.objects.select_related(
+    tasa_devolucion = (
+        f"{(float(total_devoluciones) / float(total_ventas) * 100):.1f}%"
+        if total_ventas else "0%"
+    )
+
+    # El template distingue solo "Aprobada" / "En revisión" / (si no) "Rechazada".
+    # Traducimos nuestros 3 estados reales a esas 2 etiquetas visuales:
+    #   pendiente -> "En revisión" | aprobada/aplicada -> "Aprobada"
+    ESTADO_DEV_DISPLAY = {
+        'pendiente': 'En revisión',
+        'aprobada':  'Aprobada',
+        'aplicada':  'Aprobada',
+    }
+
+    devoluciones = []
+    for d in devoluciones_todas:
+        detalles_d = d.detalles.all()
+        producto_nombre = detalles_d[0].presentacion.producto.nombre if detalles_d else '—'
+        devoluciones.append({
+            'fecha':    d.fecha,
+            'cliente':  str(d.codigo_venta.codigo_cliente),
+            'producto': producto_nombre,
+            'motivo':   d.get_motivo_display(),
+            'valor':    float(d.total_devuelto),
+            'estado':   ESTADO_DEV_DISPLAY.get(d.estado, 'En revisión'),
+        })
+
+    devoluciones_hoy_qs = Devolucion.objects.select_related(
         'codigo_venta__codigo_cliente'
     ).filter(fecha__date=hoy).order_by('-fecha')
-    total_devoluciones_hoy = devoluciones_hoy.count()
-    valor_devoluciones_hoy = sum(d.total_devuelto for d in devoluciones_hoy)
+    total_devoluciones_hoy = devoluciones_hoy_qs.count()
+    valor_devoluciones_hoy = sum(d.total_devuelto for d in devoluciones_hoy_qs)
+
+    # ── Compras: datos para el dashboard "Reporte de Compras" ──
+    # NOTA: nombres exactos usados por reportes.html: total_compras,
+    # total_ordenes, compras (lista plana con proveedor/producto/cantidad/valor/fecha).
+    compras_todas = compras_qs
+    total_compras  = sum(c.valor for c in compras_todas)   # KPI "VALOR TOTAL"
+    total_ordenes  = compras_todas.count()                  # KPI "ÓRDENES"
+    total_proveedores_compras = compras_todas.values('proveedor').distinct().count()
+
+    compras_hoy_qs = Compra.objects.select_related('proveedor').filter(fecha__date=hoy).order_by('-fecha')
+    total_ordenes_compras_hoy = compras_hoy_qs.count()
+    valor_compras_hoy = sum(c.valor for c in compras_hoy_qs)
+
+    # Filas de detalle para la tabla del "Reporte de Compras" (#, Proveedor, Producto, Cantidad, Valor, Fecha)
+    compras = []
+    for c in compras_todas:
+        detalles_c = c.detalles.all()
+        if detalles_c:
+            for det in detalles_c:
+                compras.append({
+                    'proveedor': c.proveedor.nombre_empresa,
+                    'producto':  det.producto.nombre if det.producto else str(det.presentacion),
+                    'cantidad':  det.cantidad,
+                    'valor':     float(det.subtotal),
+                    'fecha':     c.fecha,
+                })
+        else:
+            compras.append({
+                'proveedor': c.proveedor.nombre_empresa,
+                'producto':  '—',
+                'cantidad':  0,
+                'valor':     float(c.valor),
+                'fecha':     c.fecha,
+            })
 
     ventas_data = []
     for v in ventas_todas:
@@ -1269,14 +1467,24 @@ def index_reportes(request):
         'top_productos_hoy':  top_productos_hoy,
         'ventas_json':        ventas_json,
         'ultimos_reportes':   ultimos_reportes,
-        # ── Devoluciones ──
-        'devoluciones':                    devoluciones_todas,
-        'total_devoluciones':              total_devoluciones,
-        'total_valor_devoluciones':        total_valor_devoluciones,
+        # ── Devoluciones (nombres EXACTOS usados en reportes.html) ──
+        'devoluciones':                    devoluciones,          # lista plana: fecha/cliente/producto/motivo/valor/estado
+        'cantidad_devoluciones':           cantidad_devoluciones,
+        'total_devoluciones':              total_devoluciones,     # $ valor devuelto
+        'tasa_devolucion':                 tasa_devolucion,
+        'devoluciones_aprobadas':          devoluciones_aprobadas,
         'total_devoluciones_pendientes':   total_devoluciones_pendientes,
-        'devoluciones_hoy':                devoluciones_hoy,
+        'devoluciones_hoy':                devoluciones_hoy_qs,
         'total_devoluciones_hoy':          total_devoluciones_hoy,
         'valor_devoluciones_hoy':          valor_devoluciones_hoy,
+        # ── Compras (nombres EXACTOS usados en reportes.html) ──
+        'compras':                         compras,                # lista plana: proveedor/producto/cantidad/valor/fecha
+        'total_compras':                   total_compras,          # $ valor total
+        'total_ordenes':                   total_ordenes,
+        'total_proveedores_compras':       total_proveedores_compras,
+        'compras_hoy':                     compras_hoy_qs,
+        'total_ordenes_compras_hoy':       total_ordenes_compras_hoy,
+        'valor_compras_hoy':               valor_compras_hoy,
         'breadcrumb_items': [
             {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
             {'nombre': 'Reportes', 'url': None},

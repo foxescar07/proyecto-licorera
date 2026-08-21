@@ -23,6 +23,7 @@ class Reporte(models.Model):
         ('analisis', 'Análisis de Ventas'),
         ('movimientos', 'Movimientos de Inventario'),
         ('devoluciones', 'Reporte de Devoluciones'),
+        ('compras', 'Reporte de Compras'),
     ]
 
     FORMATO_CHOICES = [
