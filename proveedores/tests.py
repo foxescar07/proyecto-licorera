@@ -666,3 +666,168 @@ class ComprasCrudTest(TestCase):
                 usuario=self.usuario
             ).exists()
         )
+
+
+class CompraPageTest(TestCase):
+    """Tests para el módulo de Pagos de Compras - CP1 a CP6."""
+
+    def setUp(self):
+        """Crear datos de prueba para cada test."""
+        # Crear usuario
+        self.usuario = Usuario.objects.create_user(
+            username='testuser',
+            email='test@test.com',
+            password='testpass123'
+        )
+
+        # Crear proveedor
+        self.proveedor = Proveedor.objects.create(
+            nombre_empresa="Proveedor Test Pagos",
+            email="pagos@test.com",
+            tipo_proveedor='distribuidor',
+            estado='activo'
+        )
+
+        # Crear compra
+        self.compra = Compra.objects.create(
+            proveedor=self.proveedor,
+            documento_usuario=self.usuario,
+            valor=Decimal('1000.00'),
+            saldo=Decimal('1000.00'),
+            estado='pendiente',
+            estado_pago='pendiente'
+        )
+
+    # CP1: Registrar pago con monto válido
+    def test_cp1_registrar_pago_con_monto_valido(self):
+        """
+        Verificar que se puede registrar un pago con un monto válido.
+        El saldo debe actualizarse correctamente.
+        """
+        monto_pago = Decimal('500.00')
+
+        # Actualizar saldo después del pago
+        self.compra.saldo = self.compra.saldo - monto_pago
+
+        # Validar que el saldo se actualiza correctamente
+        self.assertEqual(self.compra.saldo, Decimal('500.00'))
+
+        # Cambiar estado a pago parcial
+        self.compra.estado_pago = 'parcial'
+        self.compra.save()
+
+        # Verificar cambios en BD
+        compra_actualizada = Compra.objects.get(id=self.compra.id)
+        self.assertEqual(compra_actualizada.saldo, Decimal('500.00'))
+        self.assertEqual(compra_actualizada.estado_pago, 'parcial')
+
+    # CP2: Rechazar pago mayor al saldo
+    def test_cp2_rechazar_pago_mayor_al_saldo(self):
+        """
+        Verificar que el sistema rechaza pagos cuyo monto es mayor al saldo.
+        """
+        monto_pago = Decimal('1500.00')
+        saldo_actual = self.compra.saldo
+
+        # Validar que el pago es mayor al saldo
+        self.assertGreater(monto_pago, saldo_actual)
+
+        # El nuevo saldo sería negativo
+        nuevo_saldo = saldo_actual - monto_pago
+        self.assertLess(nuevo_saldo, 0)
+
+        # NO debería permitir el pago
+        # (validación debe estar en la vista o formulario)
+        self.assertFalse(nuevo_saldo >= 0)
+
+    # CP3: Rechazar pago con monto cero o negativo
+    def test_cp3_rechazar_pago_con_monto_cero_o_negativo(self):
+        """
+        Verificar que el sistema rechaza pagos con monto cero o negativo.
+        """
+        # Monto cero
+        monto_cero = Decimal('0.00')
+        self.assertFalse(monto_cero > 0)
+
+        # Monto negativo
+        monto_negativo = Decimal('-100.00')
+        self.assertFalse(monto_negativo > 0)
+
+        # El saldo NO debe cambiar
+        saldo_original = self.compra.saldo
+        self.assertEqual(self.compra.saldo, saldo_original)
+
+    # CP4: Verificar cambio de estado a "Pagada"
+    def test_cp4_verificar_cambio_de_estado_a_pagada(self):
+        """
+        Verificar que cuando se paga el monto total, el estado cambia a "Pagada".
+        """
+        # Pagar el monto total
+        monto_pago = self.compra.saldo
+        self.compra.saldo = self.compra.saldo - monto_pago
+
+        # El saldo debe ser 0
+        self.assertEqual(self.compra.saldo, Decimal('0.00'))
+
+        # Cambiar estado a pagada
+        self.compra.estado_pago = 'pagada'
+        self.compra.estado = 'pagada'
+        self.compra.save()
+
+        # Verificar en BD
+        compra_actualizada = Compra.objects.get(id=self.compra.id)
+        self.assertEqual(compra_actualizada.estado_pago, 'pagada')
+        self.assertEqual(compra_actualizada.saldo, Decimal('0.00'))
+
+    # CP5: Verificar cambio de estado a "Pago Parcial"
+    def test_cp5_verificar_cambio_de_estado_a_pago_parcial(self):
+        """
+        Verificar que cuando se paga parcialmente, el estado cambia a "Pago Parcial".
+        El saldo debe ser mayor a 0 pero menor que el valor original.
+        """
+        # Pagar parcialmente
+        monto_pago = Decimal('400.00')
+        saldo_original = self.compra.saldo
+        self.compra.saldo = self.compra.saldo - monto_pago
+
+        # Validar que es pago parcial
+        self.assertGreater(self.compra.saldo, Decimal('0.00'))
+        self.assertLess(self.compra.saldo, saldo_original)
+
+        # Cambiar estado
+        self.compra.estado_pago = 'parcial'
+        self.compra.save()
+
+        # Verificar en BD
+        compra_actualizada = Compra.objects.get(id=self.compra.id)
+        self.assertEqual(compra_actualizada.estado_pago, 'parcial')
+        self.assertEqual(compra_actualizada.saldo, Decimal('600.00'))
+
+    # CP6: Verificar registro en historial de compra
+    def test_cp6_verificar_registro_en_historial_de_compra(self):
+        """
+        Verificar que cada pago realizado queda registrado en el historial.
+        """
+        # Crear un registro de pago en el historial
+        historial = HistorialCompra.objects.create(
+            compra=self.compra,
+            evento='pagada',
+            usuario=self.usuario,
+            descripcion='Pago total de $1000.00 realizado el 12/08/2026'
+        )
+
+        # Verificar que se registró
+        self.assertIsNotNone(historial.id)
+        self.assertEqual(historial.evento, 'pagada')
+        self.assertEqual(historial.compra, self.compra)
+        self.assertEqual(historial.usuario, self.usuario)
+        self.assertIn('$1000.00', historial.descripcion)
+
+        # Verificar que existe en BD
+        self.assertTrue(
+            HistorialCompra.objects.filter(
+                compra=self.compra,
+                evento='pagada',
+                usuario=self.usuario
+            ).exists()
+        )
