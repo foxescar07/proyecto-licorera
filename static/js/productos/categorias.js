@@ -38,9 +38,9 @@ document.querySelectorAll('.cat-btn-confirmar-borrado').forEach(function (btn) {
     const form = btn.closest('form');
     const nombre = form.dataset.nombre;
 
-    // 2. Escribimos el mensaje dinámico en el modal
+        // 2. Escribimos el mensaje dinámico en el modal
     document.getElementById('confirmar-mensaje').textContent =
-      '¿Eliminar definitivamente «' + nombre + '»?';
+      'Si «' + nombre + '» no tiene productos asociados, se eliminará. Si tiene productos, se desactivará en su lugar. ¿Continuar?';
 
     // 3. Preparamos el modal para mostrarse
     const modalEl = document.getElementById('modalConfirmarAccion');

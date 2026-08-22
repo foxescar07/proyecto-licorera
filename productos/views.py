@@ -515,7 +515,9 @@ def categoria_eliminar(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
     if request.method == 'POST':
         if categoria.productos.exists() or categoria.subcategorias.exists():
-            messages.error(request, f'⚠️ No se puede eliminar "{categoria.nombre}": tiene productos o subcategorías asociadas.')
+            categoria.activo = False
+            categoria.save()
+            messages.warning(request, f'⚠️ "{categoria.nombre}" tiene productos o subcategorías asociadas — se desactivó en lugar de eliminarse.')
         else:
             nombre = categoria.nombre
             categoria.delete()
@@ -670,76 +672,5 @@ def gestion_producto_editar(request, pk):
     next_url = request.POST.get('next') or request.GET.get('next')
     if next_url:
         return redirect(next_url)
-    return redirect('gestion_productos')
-
-@login_required
-def gestion_producto_eliminar(request, pk):
-    producto = get_object_or_404(Producto, pk=pk)
-    if request.method == 'POST':
-        nombre = producto.nombre
-        producto.delete()
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'ok': True, 'nombre': nombre})
-    return redirect('gestion_productos')
-
-@login_required
-def gestion_categoria_crear(request):
-    if request.method == 'POST':
-        nombre      = request.POST.get('nombre', '').strip()
-        codigo      = request.POST.get('codigo', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        padre_id    = request.POST.get('padre') or None
-
-        if not nombre or not codigo:
-            messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('gestion_productos')
-
-        if Categoria.objects.filter(codigo=codigo).exists():
-            messages.error(request, f'⚠️ Ya existe una categoría con el código "{codigo}".')
-            return redirect('gestion_productos')
-
-        padre = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
-        Categoria.objects.create(nombre=nombre, codigo=codigo, descripcion=descripcion, padre=padre)
-        tipo = 'Subcategoría' if padre else 'Categoría'
-        messages.success(request, f'✅ {tipo} "{nombre}" creada.')
-
-    return redirect('gestion_productos')
-
-@login_required
-def gestion_categoria_editar(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    if request.method == 'POST':
-        nombre      = request.POST.get('nombre', '').strip()
-        codigo      = request.POST.get('codigo', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        padre_id    = request.POST.get('padre') or None
-
-        if not nombre or not codigo:
-            messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('gestion_productos')
-
-        if Categoria.objects.filter(codigo=codigo).exclude(pk=pk).exists():
-            messages.error(request, f'⚠️ Ya existe otra categoría con el código "{codigo}".')
-            return redirect('gestion_productos')
-
-        categoria.nombre      = nombre
-        categoria.codigo      = codigo
-        categoria.descripcion = descripcion
-        categoria.padre       = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
-        categoria.save()
-        messages.success(request, f'✅ Categoría "{nombre}" actualizada.')
-
-    return redirect('gestion_productos')
-
-@login_required
-def gestion_categoria_eliminar(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    if request.method == 'POST':
-        if categoria.productos.exists() or categoria.subcategorias.exists():
-            messages.error(request, f'⚠️ No se puede eliminar "{categoria.nombre}": tiene productos o subcategorías asociadas.')
-        else:
-            nombre = categoria.nombre
-            categoria.delete()
-            messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
     return redirect('gestion_productos')
 
