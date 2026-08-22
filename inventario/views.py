@@ -219,7 +219,13 @@ def movimiento_create(request):
 
         lote.save()
 
-        inventario = Inventario.objects.filter(presentacion=lote.presentacion).first()
+        inventario, _creado = Inventario.objects.get_or_create(
+    presentacion=lote.presentacion,
+    defaults={
+        'producto': lote.presentacion.producto,
+        'stock_actual': lote.stock_actual,
+    }
+)
 
         MovimientoInventario.objects.create(
             inventario=inventario,
@@ -232,7 +238,7 @@ def movimiento_create(request):
         )
 
         messages.success(request, 'Movimiento registrado correctamente.')
-        return redirect('inventario:lote_detail', numero_lote=lote.numero_lote)
+        return redirect('inventario:gestion_stock')
 
     return redirect('inventario:inventario_home')
 

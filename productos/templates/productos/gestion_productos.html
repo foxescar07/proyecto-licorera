@@ -104,8 +104,11 @@
       {% else %}{{ p.categoria.nombre }}{% endif %}
     </small>
     {% endif %}
-    {% if p.stock_critico %}
+        {% if p.stock_critico %}
     <span class="tag-crit mt-1 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>
+    {% endif %}
+    {% if not p.activo %}
+    <span class="badge rounded-pill text-bg-secondary mt-1 d-inline-block"><i class="bi bi-pause-circle me-1"></i>Inactivo</span>
     {% endif %}
   </div>
 

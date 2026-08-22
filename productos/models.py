@@ -12,7 +12,8 @@ class Categoria(models.Model):
         null=True, blank=True,
         related_name='subcategorias'
     )
-
+    activo      = models.BooleanField(default=True)
+    
     class Meta:
         verbose_name        = "Categoría"
         verbose_name_plural = "Categorías"
