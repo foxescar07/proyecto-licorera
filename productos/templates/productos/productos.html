@@ -104,7 +104,7 @@
           <i class="bi bi-box-seam me-2 prod-icon-green"></i>
           <span id="cat-titulo">Productos por categoría</span>
         </span>
-        <a href="{% url 'gestion_productos' %}" class="btn btn-sm prod-btn-outline prod-btn-gestion px-3"
+        <a href="{% url 'detalle_producto:lista' %}" class="btn btn-sm prod-btn-outline prod-btn-gestion px-3"
           title="Ir a gestión de productos">
           <i class="bi bi-arrow-right-circle me-1"></i> Gestión de productos
         </a>
@@ -343,7 +343,7 @@
       </div>
       <div class="modal-footer prod-modal-footer justify-content-between">
         <button type="button" class="btn prod-btn-outline" data-bs-dismiss="modal">Cerrar</button>
-        <a href="{% url 'gestion_productos' %}" class="btn prod-btn-primary">
+        <a href="{% url 'detalle_producto:lista' %}" class="btn prod-btn-primary">
           <i class="bi bi-arrow-right-circle me-1"></i> Ir a Gestión
         </a>
       </div>
@@ -356,7 +356,7 @@
 {% block extra_js %}
 
 <div id="productos-config"
-     data-gestion-url="{% url 'gestion_productos' %}"
+     data-gestion-url="{% url 'detalle_producto:lista' %}"
      data-crear-url="{% url 'crear_producto' %}"
      data-pres-url="{% url 'presentaciones_guardar' 0 %}"
      data-csrf-token="{{ csrf_token }}"
