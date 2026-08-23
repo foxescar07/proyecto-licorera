@@ -257,10 +257,10 @@
   border-color: color-mix(in srgb, var(--azul-claro) 40%, transparent);
 }
 
-/* BOTÓN NUEVO PROVEEDOR — botón de acción principal, mismo dorado de marca del resto del sistema */
+/* BOTÓN NUEVO PROVEEDOR — azul claro */
 .btn-nuevo-prov {
-  background: #CF9C48;
-  color: #1a1200;
+  background: var(--azul-claro);
+  color: var(--fondo);
   border: none;
   border-radius: 50px;
   padding: 10px 28px;
@@ -271,11 +271,11 @@
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(207, 156, 72, 0.4);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
 }
 .btn-nuevo-prov:hover {
-  background: #b88a3e;
-  box-shadow: 0 6px 16px rgba(207, 156, 72, 0.6);
+  background: color-mix(in srgb, var(--azul-claro) 80%, black);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.5);
   transform: translateY(-2px);
 }
 

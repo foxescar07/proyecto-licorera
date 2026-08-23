@@ -1,9 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import re
+from decimal import Decimal
 from .models import Proveedor, ProveedorCategoria, Compra, DetalleCompra
 from productos.models import Producto, Categoria, PresentacionProducto
 from inventario.models import Lote
+
 
 class ProveedorForm(forms.ModelForm):
     """Formulario para crear y editar proveedores con validaciones."""
@@ -281,3 +283,116 @@ class CompraForm(forms.ModelForm):
                 'placeholder': 'Observaciones adicionales'
             }),
         }
+
+
+class DevolucionProveedorForm(forms.Form):
+    """Formulario para registrar una devolución a proveedor."""
+
+    proveedor = forms.ModelChoiceField(
+        queryset=None,  # Se asigna en __init__
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': True,
+            'id': 'id_devprov_proveedor',
+        }),
+        label='Proveedor',
+    )
+
+    compra = forms.ModelChoiceField(
+        queryset=Compra.objects.none(),
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_devprov_compra',
+        }),
+        label='Compra original (opcional)',
+        help_text='Selecciona la compra a la que pertenece la devolución',
+    )
+
+    motivo = forms.ChoiceField(
+        choices=[
+            ('defectuoso',     'Producto defectuoso'),
+            ('equivocado',     'Producto equivocado'),
+            ('vencido',        'Producto vencido'),
+            ('empaque_danado', 'Empaque dañado'),
+            ('exceso',         'Exceso de pedido'),
+            ('otro',           'Otro motivo'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select', 'required': True}),
+        label='Motivo',
+        initial='otro',
+    )
+
+    tipo_resolucion = forms.ChoiceField(
+        choices=[
+            ('nota_credito', 'Nota crédito'),
+            ('reembolso',    'Reembolso en efectivo'),
+            ('reposicion',   'Reposición de producto'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select', 'required': True}),
+        label='Tipo de resolución',
+        initial='nota_credito',
+    )
+
+    observaciones = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Observaciones adicionales sobre la devolución',
+        }),
+        label='Observaciones',
+    )
+
+    # Campos del detalle (un solo producto por vez vía modal)
+    presentacion = forms.ModelChoiceField(
+        queryset=PresentacionProducto.objects.select_related('producto').all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': True,
+            'id': 'id_devprov_presentacion',
+        }),
+        label='Producto / Presentación',
+    )
+
+    cantidad = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'required': True,
+            'id': 'id_devprov_cantidad',
+        }),
+        label='Cantidad',
+    )
+
+    precio_unitario = forms.DecimalField(
+        min_value=Decimal('0.01'),
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'min': '0.01',
+            'required': True,
+            'id': 'id_devprov_precio',
+        }),
+        label='Precio unitario de compra',
+    )
+
+    def __init__(self, *args, **kwargs):
+        from .models import Proveedor
+        super().__init__(*args, **kwargs)
+        self.fields['proveedor'].queryset = Proveedor.objects.filter(estado='activo').order_by('nombre_empresa')
+
+    def clean_cantidad(self):
+        cant = self.cleaned_data.get('cantidad')
+        if cant is None or cant <= 0:
+            raise ValidationError('La cantidad debe ser mayor a 0')
+        return cant
+
+    def clean_precio_unitario(self):
+        precio = self.cleaned_data.get('precio_unitario')
+        if precio is None or precio <= Decimal('0'):
+            raise ValidationError('El precio debe ser mayor a 0')
+        return precio
+

@@ -64,3 +64,4 @@ class HistorialCompraAdmin(admin.ModelAdmin):
             'fields': ('descripcion',)
         }),
     )
+
