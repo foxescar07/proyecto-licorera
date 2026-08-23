@@ -9,13 +9,9 @@ urlpatterns = [
     path('producto/<int:pk>/',                      views.producto_detalle,       name='producto_detalle'),
     path('registro/',                               views.producto_registro,      name='producto_registro'),
     path('categorias/',                             views.categorias_lista,       name='categorias_lista'),
-    path('gestion/',                                views.gestion_productos,      name='gestion_productos'),
     path('stock-status/',                           views.stock_status,           name='stock_status'),
     
     # Rutas movidas desde inventario para gestión centralizada de productos
-    path('gestion/producto/desactivar/<int:pk>/',   views.gestion_producto_desactivar,    name='gestion_producto_desactivar'),
-    path('gestion/producto/activar/<int:pk>/',      views.gestion_producto_activar,       name='gestion_producto_activar'),
-    path('gestion/producto/editar/<int:pk>/',       views.gestion_producto_editar,        name='gestion_producto_editar'),
     path('gestion/categoria/crear/',                views.categoria_crear,                name='categoria_crear'),
     path('gestion/categoria/eliminar/<int:pk>/',    views.categoria_eliminar,             name='categoria_eliminar'),
     path('gestion/categoria/editar/<int:pk>/',      views.categoria_editar,               name='categoria_editar'),
