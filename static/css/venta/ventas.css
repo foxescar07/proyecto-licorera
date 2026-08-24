@@ -19,33 +19,44 @@
 }
 
 /* ── CONTENEDOR GENERAL ── */
-.cys-page-wrapper {
-  background-color: var(--cys-surface);
+body,
+#cys-layout,
+.cys-main,
+.cys-page-wrapper,
+.cys-pos-wrapper {
+  background-color: #0A2A52 !important;
+  background: #0A2A52 !important;
+  color: #ffffff !important;
   min-height: 100vh;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* ── Alertas de Bootstrap alineadas a la paleta CYS ── */
+.cys-pos-wrapper .alert-danger,
 .cys-page-wrapper .alert-danger {
   background: rgba(207, 156, 72, 0.1) !important;
   border: 1px solid rgba(207, 156, 72, 0.35) !important;
   color: #CF9C48 !important;
 }
+.cys-pos-wrapper .alert-info,
 .cys-page-wrapper .alert-info {
   background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid var(--cys-borde) !important;
-  color: var(--texto, #fff) !important;
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  color: #ffffff !important;
 }
-.cys-page-wrapper .alert-info i { color: var(--cys-acento) !important; }
 
 /* ══════════════════════════════════════
-   BARRA DE ESTADO DE CAJA
+   BARRA DE ESTADO DE CAJA Y TARJETAS
 ══════════════════════════════════════ */
-.cys-estado-caja-bar {
-  background: var(--cys-bg-card);
-  border: 1px solid var(--cys-borde);
+.cys-estado-caja-bar,
+.cys-caja-card {
+  background-color: #0F3B6C !important;
+  background: #0F3B6C !important;
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  border-left: 3px solid #CF9C48 !important;
   border-radius: 12px;
   padding: 1.25rem;
+  color: #ffffff !important;
 }
 
 .cys-icon-circle {
@@ -231,9 +242,9 @@
    INPUTS OSCUROS
 ══════════════════════════════════════ */
 .cys-input-dark {
-  background: var(--cys-surface) !important;
-  border: 1px solid var(--cys-borde) !important;
-  color: var(--texto, #fff) !important;
+  background: #0A2A52 !important;
+  border: 1px solid rgba(77, 168, 218, 0.3) !important;
+  color: #ffffff !important;
   border-radius: 8px !important;
   padding: 8px 12px;
   font-size: 0.85rem;
@@ -313,7 +324,7 @@
 }
 .cys-cat-card-premium:hover {
   border-color: #CF9C48 !important;
-  background: var(--cys-surface, #011936) !important;
+  background: #124785 !important;
   transform: translateY(-3px);
   box-shadow: 0 0 16px rgba(207, 156, 72, 0.4), inset 0 0 8px rgba(207, 156, 72, 0.05) !important;
 }
@@ -343,7 +354,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: var(--cys-surface, #011936) !important;
+  background: #0A2A52 !important;
   border: 1px solid rgba(207, 156, 72, 0.35) !important;
   display: flex;
   align-items: center;
@@ -976,7 +987,7 @@
 .cys-hist-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--fondo, #011936);
+  background: #0A2A52 !important;
 }
 
 .cys-hist-table thead tr {
@@ -1361,42 +1372,46 @@
 
 /* ── Estado de Caja (tarjetas KPI) ── */
 .cys-caja-card {
-  background: var(--cys-bg-card);
-  border: 1px solid var(--cys-borde);
-  border-left: 3px solid var(--cys-acento);
+  background: #0F3B6C !important;
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  border-left: 3px solid #CF9C48 !important;
   border-radius: 12px;
   padding: 1.25rem;
+  color: #ffffff !important;
 }
-.cys-caja-card--abierta  { border-left-color: #CF9C48; }
-.cys-caja-card--cerrada  { border-left-color: var(--cys-rojo); }
-.cys-caja-card--base     { border-left-color: #CF9C48; }
-.cys-caja-card--ventas   { border-left-color: #CF9C48; }
+.cys-caja-card--abierta  { border-left-color: #CF9C48 !important; background: #0F3B6C !important; }
+.cys-caja-card--cerrada  { border-left-color: var(--cys-rojo) !important; background: #0F3B6C !important; }
+.cys-caja-card--base     { border-left-color: #CF9C48 !important; background: #0F3B6C !important; }
+.cys-caja-card--ventas   { border-left-color: #CF9C48 !important; background: #0F3B6C !important; }
 
 .cys-caja-card-icono-box {
   width: 38px; height: 38px;
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
+  background: #0A2A52 !important;
+  border: 1px solid #CF9C48 !important;
 }
-.cys-caja-card-icono-box--verde  { background: rgba(46, 204, 113, 0.12); }
-.cys-caja-card-icono-box--rojo   { background: rgba(207, 156, 72, 0.12); }
-.cys-caja-card-icono-box--acento { background: rgba(255, 255, 255, 0.12); }
+.cys-caja-card-icono-box--verde  { background: #0A2A52 !important; }
+.cys-caja-card-icono-box--rojo   { background: #0A2A52 !important; }
+.cys-caja-card-icono-box--acento { background: #0A2A52 !important; }
 
 .cys-caja-card-icono-box i { font-size: 1rem; }
-.cys-caja-card-icono-box--verde i  { color: var(--cys-verde); }
-.cys-caja-card-icono-box--rojo i   { color: var(--cys-rojo); }
-.cys-caja-card-icono-box--acento i { color: var(--cys-acento); }
-.cys-caja-card-icono-box--verde i.bi-circle-fill { font-size: 0.6rem; }
+.cys-caja-card-icono-box--verde i  { color: #CF9C48 !important; }
+.cys-caja-card-icono-box--rojo i   { color: var(--cys-rojo) !important; }
+.cys-caja-card-icono-box--acento i { color: #CF9C48 !important; }
+.cys-caja-card-icono-box--verde i.bi-circle-fill { font-size: 0.6rem; color: #CF9C48 !important; }
 
-/* Íconos en dorado para las cards Abierta / Base / Ventas (piden combinar con la paleta amarilla) */
+/* Íconos en dorado para las cards Abierta / Base / Ventas */
 .cys-caja-card--abierta .cys-caja-card-icono-box,
 .cys-caja-card--base .cys-caja-card-icono-box,
 .cys-caja-card--ventas .cys-caja-card-icono-box {
-  background: rgba(207, 156, 72, 0.15);
+  background: #0A2A52 !important;
+  border: 1px solid #CF9C48 !important;
 }
 .cys-caja-card--abierta .cys-caja-card-icono-box i,
 .cys-caja-card--base .cys-caja-card-icono-box i,
 .cys-caja-card--ventas .cys-caja-card-icono-box i {
-  color: #CF9C48;
+  color: #CF9C48 !important;
 }
 
 .cys-caja-badge {
@@ -1430,7 +1445,7 @@
   transition: all 0.2s ease;
 }
 .cys-pres-item:hover {
-  background: var(--cys-surface, #011936) !important;
+  background: #124785 !important;
   border-color: #CF9C48 !important;
   box-shadow: 0 0 16px rgba(207, 156, 72, 0.4), inset 0 0 8px rgba(207, 156, 72, 0.05) !important;
 }
@@ -1589,8 +1604,8 @@
    TARJETAS INTERACTIVAS DE DENOMINACIÓN (CONTEO DE CAJA)
 ══════════════════════════════════════ */
 .cys-denom-card {
-  background: var(--cys-surface, #011936);
-  border: 1px solid var(--cys-borde, rgba(255, 255, 255, 0.15));
+  background: #0F3B6C !important;
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
   border-radius: 12px;
   padding: 0.85rem;
   transition: all 0.25s ease;
@@ -1599,14 +1614,14 @@
 }
 
 .cys-denom-card:hover {
-  background: var(--cys-bg-card, #0A2A52) !important;
+  background: #124785 !important;
   border-color: #CF9C48 !important;
   transform: translateY(-2px);
   box-shadow: 0 0 16px rgba(207, 156, 72, 0.4), inset 0 0 8px rgba(207, 156, 72, 0.05) !important;
 }
 
 .cys-denom-card--active {
-  background: var(--cys-bg-card, #0A2A52) !important;
+  background: #124785 !important;
   border-color: #CF9C48 !important;
   box-shadow: 0 0 18px rgba(207, 156, 72, 0.35) !important;
 }
@@ -1681,8 +1696,9 @@
 }
 
 .cys-btn-step {
-  border-color: rgba(255, 255, 255, 0.15);
-  color: var(--texto, #fff);
+  background: #0A2A52 !important;
+  border: 1px solid rgba(77, 168, 218, 0.3) !important;
+  color: #ffffff !important;
   width: 32px;
   display: flex;
   align-items: center;
@@ -1692,9 +1708,9 @@
 }
 
 .cys-btn-step:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: var(--texto, #fff);
+  background: #124785 !important;
+  border-color: #CF9C48 !important;
+  color: #ffffff !important;
 }
 
 .cys-btn-step:active {
@@ -1706,16 +1722,16 @@
   font-weight: 700;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background: #0A2A52 !important;
+  border: 1px solid rgba(77, 168, 218, 0.25) !important;
+  color: #ffffff !important;
   transition: all 0.15s ease;
 }
 
 .cys-chip-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: var(--texto, #fff);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: #124785 !important;
+  color: #CF9C48 !important;
+  border-color: #CF9C48 !important;
   transform: translateY(-1px);
 }
 
