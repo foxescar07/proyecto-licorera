@@ -1545,6 +1545,41 @@ def devoluciones_flujo(request):
             {'nombre': 'Ventas',       'url': reverse('ventas:ventas_lista')},
             {'nombre': 'Devoluciones', 'url': None},
         ],
+        # ── Devoluciones a Proveedor ──────────────────────────────────────
+        'tab_activo':                    request.GET.get('tab', 'cliente'),
     }
+
+    # Inyectar datos de proveedor solo si están disponibles
+    try:
+        from proveedores.models import Proveedor, DevolucionProveedor
+        from proveedores.forms import DevolucionProveedorForm
+        from django.db.models import Sum as DSum
+
+        context['todos_proveedores'] = Proveedor.objects.filter(
+            estado='activo'
+        ).order_by('nombre_empresa')
+
+        devoluciones_prov = DevolucionProveedor.objects.select_related(
+            'proveedor', 'compra', 'documento_usuario'
+        ).order_by('-fecha')[:50]
+        context['devoluciones_proveedor'] = devoluciones_prov
+
+        context['form_proveedor'] = DevolucionProveedorForm()
+
+        # KPIs proveedor
+        context['prov_total']     = DevolucionProveedor.objects.count()
+        context['prov_monto']     = DevolucionProveedor.objects.aggregate(
+            s=DSum('total_devuelto')
+        )['s'] or 0
+        context['prov_pendientes'] = DevolucionProveedor.objects.filter(
+            estado='pendiente'
+        ).count()
+    except Exception:
+        context['todos_proveedores']     = []
+        context['devoluciones_proveedor'] = []
+        context['form_proveedor']        = None
+        context['prov_total']            = 0
+        context['prov_monto']            = 0
+        context['prov_pendientes']       = 0
 
     return render(request, 'ventas/devoluciones.html', context)
