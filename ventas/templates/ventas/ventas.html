@@ -8,7 +8,6 @@
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
-<link rel="stylesheet" href="{% static 'css/venta/ventas_pos.css' %}">
 <link rel="stylesheet" href="{% static 'css/venta/ventas_inline.css' %}">
 {% endblock %}
 
@@ -462,20 +461,57 @@
                   </div>
                 </div>
 
-                <div class="mb-0 mt-3">
-                  <div class="cys-comprobante-titulo">
-                    <i class="bi bi-paperclip"></i> Comprobante de pago (si aplica)
-                  </div>
-                  <label class="cys-comprobante-input-wrap" id="labelComprobante">
-                    <span class="cys-comprobante-icono">
-                      <i class="bi bi-file-earmark-arrow-up"></i>
+                <!-- ── SECCIÓN COMPROBANTE DE PAGO (Cámara / Archivo / Detección Transferencia) ── -->
+                <div class="mb-3 mt-3 p-3 rounded-3 cys-comprobante-box" id="seccionComprobanteWrap" style="background: rgba(10, 42, 82, 0.6); border: 1px solid rgba(77, 168, 218, 0.25);">
+                  
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="cys-comprobante-titulo text-white fw-bold small">
+                      <i class="bi bi-receipt-cutoff me-1 text-warning"></i> Comprobante / Soporte de Pago
+                    </div>
+                    <span class="badge bg-warning bg-opacity-25 text-warning small px-2 py-1 d-none" id="badgeTransferenciaRequerida">
+                      <i class="bi bi-info-circle me-1"></i>Recomendado para Transferencia
                     </span>
-                    <input type="file" id="inputComprobantePago" name="comprobante_pago"
-                           accept="image/*,application/pdf">
-                  </label>
-                  <div class="cys-comprobante-nota" id="comprobanteNombreArchivo">
-                    Formatos permitidos: imagen o PDF
                   </div>
+
+                  <p class="small text-white-50 mb-3" style="font-size: 0.78rem;">
+                    Toma una foto del soporte con la cámara de tu dispositivo o adjunta una imagen/PDF.
+                  </p>
+
+                  <!-- Botones de Acción: Tomar Foto vs Subir Archivo -->
+                  <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-sm w-50 cys-btn-camara text-white border-warning border-opacity-50" id="btnAbrirCamara" style="background: rgba(207, 156, 72, 0.15);">
+                      <i class="bi bi-camera-fill me-1 text-warning"></i> Tomar foto
+                    </button>
+                    <label for="inputComprobantePago" class="btn btn-sm w-50 cys-btn-subir text-white border-info border-opacity-50 mb-0 d-flex align-items-center justify-content-center" style="background: rgba(77, 168, 218, 0.15); cursor: pointer;">
+                      <i class="bi bi-upload me-1 text-info"></i> Subir archivo
+                    </label>
+                  </div>
+
+                  <!-- Input nativo de archivos (oculto visualmente) -->
+                  <input type="file" id="inputComprobantePago" name="comprobante_pago" accept="image/*,application/pdf" class="d-none">
+                  
+                  <!-- Input nativo de cámara móvil (capture="environment") -->
+                  <input type="file" id="inputCamaraFotoNativa" accept="image/*" capture="environment" class="d-none">
+
+                  <!-- Área de Previsualización de la Foto / Comprobante -->
+                  <div id="contenedorVistaPreviaComprobante" class="d-none p-2 rounded-3 text-center position-relative mt-2" style="background: #0F3B6C; border: 1px dashed #CF9C48;">
+                    <button type="button" id="btnQuitarComprobante" class="btn-close btn-close-white position-absolute top-0 end-0 m-2" aria-label="Quitar comprobante" title="Quitar este archivo"></button>
+                    <div id="boxPreviewImagen" class="mb-2 d-none">
+                      <img id="imgComprobantePreview" src="" alt="Vista previa soporte" class="img-fluid rounded-2 shadow-sm" style="max-height: 160px; object-fit: contain;">
+                    </div>
+                    <div id="boxPreviewArchivo" class="py-2 d-none text-info">
+                      <i class="bi bi-file-earmark-pdf fs-2 d-block text-warning mb-1"></i>
+                      <span id="nombreArchivoPDF" class="fw-bold small text-white"></span>
+                    </div>
+                    <div class="small text-warning fw-bold mt-1" id="comprobanteEstadoTexto">
+                      <i class="bi bi-check-circle-fill me-1"></i>Comprobante listo para enviar
+                    </div>
+                  </div>
+
+                  <div class="cys-comprobante-nota small text-white-50 mt-2 text-center" id="comprobanteNombreArchivo" style="font-size: 0.72rem;">
+                    Formatos admitidos: JPG, PNG, WEBP o PDF
+                  </div>
+
                 </div>
               </div>
 
@@ -1227,21 +1263,247 @@
   })();
 
   // ═══════════════════════════════════════════════════════════
-  // COMPROBANTE DE PAGO — mostrar nombre del archivo seleccionado
+  // COMPROBANTE DE PAGO — CÁMARA & SUBIR IMAGEN / PREVISUALIZACIÓN
   // ═══════════════════════════════════════════════════════════
   (function () {
-    const input = document.getElementById('inputComprobantePago');
-    const nota = document.getElementById('comprobanteNombreArchivo');
-    if (!input || !nota) return;
+    const inputArchivo = document.getElementById('inputComprobantePago');
+    const inputCamaraNativa = document.getElementById('inputCamaraFotoNativa');
+    const btnAbrirCamara = document.getElementById('btnAbrirCamara');
+    const btnUsarCamaraNativa = document.getElementById('btnUsarCamaraNativa');
+    const modalCamaraEl = document.getElementById('modalCamaraComprobante');
+    const videoStream = document.getElementById('videoStreamCamara');
+    const canvasSnapshot = document.getElementById('canvasFotoSnapshot');
+    const btnDisparar = document.getElementById('btnDispararFoto');
+    const btnCerrarCamara = document.getElementById('btnCerrarModalCamara');
+    const errorCamara = document.getElementById('errorCamaraMensaje');
+    const spinnerCamara = document.getElementById('spinnerCamaraCargando');
+    const previewContainer = document.getElementById('contenedorVistaPreviaComprobante');
+    const boxImgPreview = document.getElementById('boxPreviewImagen');
+    const imgPreview = document.getElementById('imgComprobantePreview');
+    const boxPdfPreview = document.getElementById('boxPreviewArchivo');
+    const nombrePdfEl = document.getElementById('nombreArchivoPDF');
+    const btnQuitar = document.getElementById('btnQuitarComprobante');
+    const notaTexto = document.getElementById('comprobanteNombreArchivo');
+    const badgeRequerida = document.getElementById('badgeTransferenciaRequerida');
+    const wrapComprobante = document.getElementById('seccionComprobanteWrap');
 
-    input.addEventListener('change', function () {
-      if (input.files && input.files.length > 0) {
-        nota.textContent = input.files[0].name;
+    let streamActivo = null;
+
+    function verificarMetodoPagoResaltarSoporte() {
+      const inputTarjeta = document.querySelector('input[name="pago_tarjeta"]');
+      const inputOtro = document.getElementById('inputPagoOtro');
+      const valTarjeta = parseFloat((inputTarjeta ? inputTarjeta.value : '0').replace(/[^0-9.]/g, '')) || 0;
+      const valOtro = parseFloat((inputOtro ? inputOtro.value : '0').replace(/[^0-9.]/g, '')) || 0;
+
+      if (valTarjeta > 0 || valOtro > 0) {
+        if (badgeRequerida) badgeRequerida.classList.remove('d-none');
+        if (wrapComprobante) {
+          wrapComprobante.style.borderColor = '#CF9C48';
+          wrapComprobante.style.background = 'rgba(207, 156, 72, 0.12)';
+        }
       } else {
-        nota.textContent = 'Formatos permitidos: imagen o PDF';
+        if (badgeRequerida) badgeRequerida.classList.add('d-none');
+        if (wrapComprobante) {
+          wrapComprobante.style.borderColor = 'rgba(77, 168, 218, 0.25)';
+          wrapComprobante.style.background = 'rgba(10, 42, 82, 0.6)';
+        }
       }
+    }
+
+    document.querySelectorAll('.cys-pago-input').forEach(inp => {
+      inp.addEventListener('input', verificarMetodoPagoResaltarSoporte);
+      inp.addEventListener('change', verificarMetodoPagoResaltarSoporte);
     });
+    verificarMetodoPagoResaltarSoporte();
+
+    function mostrarVistaPrevia(file) {
+      if (!file) {
+        if (previewContainer) previewContainer.classList.add('d-none');
+        if (notaTexto) notaTexto.textContent = 'Formatos admitidos: JPG, PNG, WEBP o PDF';
+        return;
+      }
+
+      if (notaTexto) notaTexto.textContent = 'Archivo seleccionado: ' + file.name;
+      if (previewContainer) previewContainer.classList.remove('d-none');
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          if (imgPreview) imgPreview.src = e.target.result;
+          if (boxImgPreview) boxImgPreview.classList.remove('d-none');
+          if (boxPdfPreview) boxPdfPreview.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        if (boxImgPreview) boxImgPreview.classList.add('d-none');
+        if (boxPdfPreview) boxPdfPreview.classList.remove('d-none');
+        if (nombrePdfEl) nombrePdfEl.textContent = file.name;
+      }
+    }
+
+    if (inputArchivo) {
+      inputArchivo.addEventListener('change', function () {
+        if (inputArchivo.files && inputArchivo.files.length > 0) {
+          mostrarVistaPrevia(inputArchivo.files[0]);
+        }
+      });
+    }
+
+    if (inputCamaraNativa) {
+      inputCamaraNativa.addEventListener('change', function () {
+        if (inputCamaraNativa.files && inputCamaraNativa.files.length > 0) {
+          const file = inputCamaraNativa.files[0];
+          asignarArchivoAInputPrincipal(file);
+          mostrarVistaPrevia(file);
+        }
+      });
+    }
+
+    if (btnQuitar) {
+      btnQuitar.addEventListener('click', function () {
+        if (inputArchivo) inputArchivo.value = '';
+        if (inputCamaraNativa) inputCamaraNativa.value = '';
+        mostrarVistaPrevia(null);
+      });
+    }
+
+    function asignarArchivoAInputPrincipal(file) {
+      if (!inputArchivo) return;
+      const container = new DataTransfer();
+      container.items.add(file);
+      inputArchivo.files = container.files;
+    }
+
+    if (btnAbrirCamara) {
+      btnAbrirCamara.addEventListener('click', function () {
+        const esDispositivoMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (esDispositivoMovil && inputCamaraNativa) {
+          inputCamaraNativa.click();
+          return;
+        }
+
+        if (typeof bootstrap !== 'undefined' && modalCamaraEl) {
+          const modalInstance = bootstrap.Modal.getOrCreateInstance(modalCamaraEl);
+          modalInstance.show();
+          iniciarCamaraStream();
+        } else if (inputCamaraNativa) {
+          inputCamaraNativa.click();
+        }
+      });
+    }
+
+    if (btnUsarCamaraNativa && inputCamaraNativa) {
+      btnUsarCamaraNativa.addEventListener('click', function () {
+        detenerCamaraStream();
+        if (typeof bootstrap !== 'undefined' && modalCamaraEl) {
+          const modalInstance = bootstrap.Modal.getInstance(modalCamaraEl);
+          if (modalInstance) modalInstance.hide();
+        }
+        inputCamaraNativa.click();
+      });
+    }
+
+    function iniciarCamaraStream() {
+      if (errorCamara) errorCamara.classList.add('d-none');
+      if (spinnerCamara) spinnerCamara.classList.remove('d-none');
+
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then(function (stream) {
+            streamActivo = stream;
+            if (videoStream) videoStream.srcObject = stream;
+            if (spinnerCamara) spinnerCamara.classList.add('d-none');
+          })
+          .catch(function (err) {
+            console.warn('No se pudo acceder a la cámara webcam:', err);
+            if (spinnerCamara) spinnerCamara.classList.add('d-none');
+            if (errorCamara) errorCamara.classList.remove('d-none');
+          });
+      } else {
+        if (spinnerCamara) spinnerCamara.classList.add('d-none');
+        if (errorCamara) errorCamara.classList.remove('d-none');
+      }
+    }
+
+    function detenerCamaraStream() {
+      if (streamActivo) {
+        streamActivo.getTracks().forEach(track => track.stop());
+        streamActivo = null;
+      }
+      if (videoStream) videoStream.srcObject = null;
+    }
+
+    if (btnCerrarCamara) btnCerrarCamara.addEventListener('click', detenerCamaraStream);
+    if (modalCamaraEl) {
+      modalCamaraEl.addEventListener('hidden.bs.modal', detenerCamaraStream);
+    }
+
+    if (btnDisparar) {
+      btnDisparar.addEventListener('click', function () {
+        if (!videoStream || !streamActivo) return;
+
+        canvasSnapshot.width = videoStream.videoWidth || 640;
+        canvasSnapshot.height = videoStream.videoHeight || 480;
+        const ctx = canvasSnapshot.getContext('2d');
+        ctx.drawImage(videoStream, 0, 0, canvasSnapshot.width, canvasSnapshot.height);
+
+        canvasSnapshot.toBlob(function (blob) {
+          if (!blob) return;
+          const fechaNom = new Date().toISOString().replace(/[:.]/g, '-');
+          const file = new File([blob], `comprobante_camara_${fechaNom}.jpg`, { type: 'image/jpeg' });
+          
+          asignarArchivoAInputPrincipal(file);
+          mostrarVistaPrevia(file);
+
+          detenerCamaraStream();
+          if (typeof bootstrap !== 'undefined' && modalCamaraEl) {
+            const modalInstance = bootstrap.Modal.getInstance(modalCamaraEl);
+            if (modalInstance) modalInstance.hide();
+          }
+        }, 'image/jpeg', 0.9);
+      });
+    }
+
   })();
 </script>
+
+<!-- ── MODAL CÁMARA PARA CAPTURAR COMPROBANTE ── -->
+<div class="modal fade" id="modalCamaraComprobante" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content cys-modal-content" style="background: #0A2A52; border: 1px solid #CF9C48;">
+      <div class="modal-header border-bottom border-secondary border-opacity-25 pb-2">
+        <h5 class="modal-title fw-bold text-white small">
+          <i class="bi bi-camera me-2 text-warning"></i>Tomar foto del comprobante
+        </h5>
+        <button type="button" class="btn-close btn-close-white" id="btnCerrarModalCamara" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-3">
+        
+        <div class="position-relative overflow-hidden rounded-3 mb-3 bg-black" style="min-height: 240px; border: 1px solid rgba(77,168,218,0.3);">
+          <video id="videoStreamCamara" autoplay playsinline style="width: 100%; height: 260px; object-fit: cover;"></video>
+          <canvas id="canvasFotoSnapshot" class="d-none"></canvas>
+          <div id="spinnerCamaraCargando" class="position-absolute top-50 start-50 translate-middle text-warning d-none">
+            <div class="spinner-border spinner-border-sm me-1"></div> Activando cámara...
+          </div>
+        </div>
+
+        <div id="errorCamaraMensaje" class="alert alert-warning small d-none py-2 mb-2">
+          No se detectó cámara web activa. Puedes usar la cámara del celular o seleccionar una foto guardada.
+        </div>
+
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-warning btn-sm text-dark fw-bold px-4" id="btnDispararFoto">
+            <i class="bi bi-camera-fill me-1"></i> Capturar Foto
+          </button>
+          <button type="button" class="btn btn-outline-light btn-sm" id="btnUsarCamaraNativa">
+            <i class="bi bi-phone me-1"></i> Cámara Móvil
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

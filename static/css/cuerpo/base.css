@@ -4,8 +4,8 @@
    TOKENS GLOBALES
    ============================================================ */
 :root {
-  --azul-oscuro:   #011936;
-  --azul-medio:    #0A2A52;
+  --azul-oscuro:   #0A2A52;
+  --azul-medio:    #0F3B6C;
   --azul-claro:    #4DA8DA;
   --azul-borde:    #4da8da59;
   --azul-glow:     #4da8da26;
@@ -14,9 +14,9 @@
   --rojo-glow:     rgba(192,57,43,.2);
   --gris:          #6c757d;
   --gris-claro:    #ADB5BD;
-  --fondo:         #011936;
-  --fondo-card:    #0A2A52;
-  --fondo-card2:   #0A2A52;
+  --fondo:         #0A2A52;
+  --fondo-card:    #0F3B6C;
+  --fondo-card2:   #124785;
   --blanco:        #FFFFFF;
   --texto:         #E8EDF2;
   --texto-muted:   rgba(232,237,242,.45);
@@ -1146,7 +1146,7 @@ html.cys-a11y-contraste {
     filter: contrast(1.25) saturate(1.1);
 }
 html.cys-a11y-contraste body {
-    background: #011936 !important;
+    background: #0A2A52 !important;
 }
 
 html.cys-a11y-espaciado body {
