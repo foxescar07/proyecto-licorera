@@ -31,7 +31,7 @@
           <h5 class="card-title fw-bold mb-4">
   <i class="bi bi-plus-circle me-2 cat-icon-tag"></i> Nueva Categoría
 </h5>
-          <form method="POST" action="{% url 'categoria_crear' %}">
+          <form method="POST" action="{% url 'categorias:crear' %}">
             {% csrf_token %}
             <div class="mb-3">
               <label class="form-label fw-semibold small cat-label-form">
@@ -118,7 +118,7 @@
   title="Editar categoría">
   <i class="bi bi-pencil"></i>
 </button>
-                  <form method="POST" action="{% url 'categoria_eliminar' cat.pk %}" class="d-inline cat-form-eliminar"
+                  <form method="POST" action="{% url 'categorias:eliminar' cat.pk %}" class="d-inline cat-form-eliminar"
       data-nombre="{{ cat.nombre|escapejs }}">
   {% csrf_token %}
   <button type="button" class="btn btn-sm rounded-pill px-3 cat-btn-eliminar cat-btn-confirmar-borrado"
@@ -144,18 +144,18 @@
                   </div>
                   <div class="d-flex gap-2">
                     <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-editar-sub"
-  data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}"
-  title="Editar subcategoría">
-  <i class="bi bi-pencil cat-icon-sm"></i>
-</button>
-                  <form method="POST" action="{% url 'categoria_eliminar' sub.pk %}" class="d-inline cat-form-eliminar"
-      data-nombre="{{ sub.nombre|escapejs }}">
-  {% csrf_token %}
-  <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-eliminar-sub cat-btn-confirmar-borrado"
-          title="Eliminar o desactivar subcategoría">
-    <i class="bi bi-trash cat-icon-sm"></i>
-  </button>
-</form>
+                 data-bs-toggle="modal" data-bs-target="#modalEditarCat{{ sub.pk }}"
+              title="Editar subcategoría">
+              <i class="bi bi-pencil cat-icon-sm"></i>
+                   </button>
+                  <form method="POST" action="{% url 'categorias:editar' cat.pk %}" class="d-inline cat-form-eliminar"
+                data-nombre="{{ sub.nombre|escapejs }}">
+             {% csrf_token %}
+                   <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center cat-btn-eliminar-sub cat-btn-confirmar-borrado"
+              title="Eliminar o desactivar subcategoría">
+              <i class="bi bi-trash cat-icon-sm"></i>
+                  </button>
+               </form>
                   </div>
                 </li>
                 {% endfor %}
@@ -187,7 +187,7 @@
 </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{% url 'categoria_editar' cat.pk %}">
+      <form method="POST" action="{% url 'categorias:editar' cat.pk %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="mb-3">
@@ -270,5 +270,5 @@
 
 {% endblock %}
 {% block extra_js %}
-<script src="{% static 'js/productos/categorias.js' %}"></script>
+<script src="{% static 'js/categorias/categorias.js' %}"></script>
 {% endblock %}
