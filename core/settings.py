@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'configuracion',
     'ayuda',
     'detalle_producto',
+    'categorias',
 
 ]
 
