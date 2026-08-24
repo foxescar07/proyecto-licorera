@@ -6,11 +6,61 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/devoluciones/devoluciones.css' %}">
+<link rel="stylesheet" href="{% static 'css/proveedores/devoluciones_proveedor.css' %}">
 <link rel="stylesheet" href="{% static 'css/datatables.css' %}">
+<style>
+  /* Pestañas superiores personalizadas CYS */
+  .cys-dev-tabs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--dev-line);
+    padding-bottom: 0.75rem;
+  }
+  .cys-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: 1px solid var(--dev-line);
+    background: var(--dev-surface);
+    color: var(--dev-muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .cys-tab-btn:hover {
+    color: #CF9C48;
+    border-color: rgba(207, 156, 72, 0.4);
+    box-shadow: 0 0 12px rgba(207, 156, 72, 0.2);
+  }
+  .cys-tab-btn.active {
+    background: linear-gradient(135deg, rgba(207, 156, 72, 0.18) 0%, rgba(207, 156, 72, 0.05) 100%);
+    border-color: #CF9C48;
+    color: #FFF;
+    box-shadow: 0 0 15px rgba(207, 156, 72, 0.3);
+  }
+  .cys-tab-btn i {
+    font-size: 1.1rem;
+  }
+
+  .prov-dev-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.35rem;
+  }
+  @media (max-width: 1100px) {
+    .prov-dev-layout { grid-template-columns: 1fr; }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="dev-page container-fluid p-0">
+
   {% if messages %}
   <div class="dev-messages" aria-live="polite">
     {% for message in messages %}
@@ -21,6 +71,227 @@
   </div>
   {% endif %}
 
+  <!-- ====== PESTAÑAS DE NAVEGACIÓN ====== -->
+  <div class="cys-dev-tabs" role="tablist">
+    <a href="?tab=cliente" class="cys-tab-btn {% if tab_activo != 'proveedor' %}active{% endif %}">
+      <i class="bi bi-people-fill"></i> Devoluciones de Clientes
+    </a>
+    <a href="?tab=proveedor" class="cys-tab-btn {% if tab_activo == 'proveedor' %}active{% endif %}">
+      <i class="bi bi-truck"></i> Devoluciones a Proveedores
+    </a>
+  </div>
+
+  {% if tab_activo == 'proveedor' %}
+  <!-- ════════════════════════════════════════════════════════════════
+       SECCIÓN: DEVOLUCIONES A PROVEEDORES
+       ════════════════════════════════════════════════════════════════ -->
+
+  <!-- KPIs PROVEEDOR -->
+  <section class="dev-kpis mb-4" aria-label="Resumen devoluciones proveedor">
+    <article class="dev-kpi dev-kpi--cyan">
+      <i class="bi bi-truck"></i>
+      <div>
+        <span>Devoluciones</span>
+        <strong>{{ prov_total|default:0 }}</strong>
+        <small>a proveedores</small>
+      </div>
+    </article>
+
+    <article class="dev-kpi dev-kpi--green">
+      <i class="bi bi-currency-dollar"></i>
+      <div>
+        <span>Total Devuelto</span>
+        <strong>${{ prov_monto|default:0|floatformat:0 }}</strong>
+        <small>monto reclamado</small>
+      </div>
+    </article>
+
+    <article class="dev-kpi dev-kpi--purple">
+      <i class="bi bi-clock-history"></i>
+      <div>
+        <span>Pendientes</span>
+        <strong>{{ prov_pendientes|default:0 }}</strong>
+        <small>por resolver</small>
+      </div>
+    </article>
+
+    <article class="dev-kpi dev-kpi--orange">
+      <i class="bi bi-box-arrow-left"></i>
+      <div>
+        <span>Proveedores</span>
+        <strong>{{ todos_proveedores|length|default:0 }}</strong>
+        <small>activos registrados</small>
+      </div>
+    </article>
+  </section>
+
+  <div class="w-100">
+    <!-- PANEL PRINCIPAL: FORMULARIO Y LISTA DE PROVEEDORES -->
+    <main class="w-100">
+      <section class="dev-card dev-process mb-4">
+        <div class="dev-card__head">
+          <div>
+            <span class="dev-section-label">Registro Proveedor</span>
+            <h2>Nueva Devolución a Proveedor</h2>
+          </div>
+          <span class="badge badge-motivo"><i class="bi bi-arrow-return-left"></i> Proveedores</span>
+        </div>
+
+        <form method="post" action="{% url 'crear_devolucion_proveedor' %}" class="dev-form mt-3" novalidate>
+          {% csrf_token %}
+
+          <div class="dev-form__intro">
+            <i class="bi bi-truck"></i>
+            <div>
+              <h3>Datos del Proveedor y Producto</h3>
+              <p>Registra la mercancía dañada o sobrante devuelta al distribuidor.</p>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <!-- Selector de Proveedor -->
+            <div class="col-md-6">
+              <label class="dev-label" for="id_devprov_proveedor">Proveedor <span class="text-danger">*</span></label>
+              <select name="proveedor" id="id_devprov_proveedor" class="form-select dev-select" required>
+                <option value="">-- Selecciona un proveedor --</option>
+                {% for prov in todos_proveedores %}
+                  <option value="{{ prov.id }}">{{ prov.nombre_empresa }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Presentación del Producto -->
+            <div class="col-md-6">
+              <label class="dev-label" for="id_devprov_presentacion">Producto / Presentación <span class="text-danger">*</span></label>
+              {% if form_proveedor %}
+                {{ form_proveedor.presentacion }}
+              {% else %}
+                <select name="presentacion" id="id_devprov_presentacion" class="form-select dev-select" required>
+                  <option value="">Seleccionar presentación...</option>
+                </select>
+              {% endif %}
+            </div>
+
+            <!-- Cantidad -->
+            <div class="col-md-4">
+              <label class="dev-label" for="id_devprov_cantidad">Cantidad <span class="text-danger">*</span></label>
+              <input type="number" name="cantidad" id="id_devprov_cantidad" class="form-control dev-input-sm w-100" min="1" value="1" required>
+            </div>
+
+            <!-- Precio Unitario -->
+            <div class="col-md-4">
+              <label class="dev-label" for="id_devprov_precio">Precio Unitario ($) <span class="text-danger">*</span></label>
+              <input type="number" step="0.01" name="precio_unitario" id="id_devprov_precio" class="form-control dev-input-sm w-100" placeholder="0.00" required>
+            </div>
+
+            <!-- Motivo -->
+            <div class="col-md-4">
+              <label class="dev-label" for="id_devprov_motivo">Motivo <span class="text-danger">*</span></label>
+              <select name="motivo" id="id_devprov_motivo" class="form-select dev-select" required>
+                <option value="defectuoso">Producto defectuoso</option>
+                <option value="equivocado">Producto equivocado</option>
+                <option value="vencido">Producto vencido</option>
+                <option value="empaque_danado">Empaque dañado</option>
+                <option value="exceso">Exceso de pedido</option>
+                <option value="otro" selected>Otro motivo</option>
+              </select>
+            </div>
+
+            <!-- Tipo Resolución -->
+            <div class="col-md-6">
+              <label class="dev-label" for="id_devprov_resolucion">Solución requerida <span class="text-danger">*</span></label>
+              <select name="tipo_resolucion" id="id_devprov_resolucion" class="form-select dev-select" required>
+                <option value="nota_credito" selected>Nota Crédito</option>
+                <option value="reembolso">Reembolso en efectivo</option>
+                <option value="reposicion">Reposición de producto</option>
+              </select>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="col-md-6">
+              <label class="dev-label" for="id_devprov_obs">Observaciones <span>opcional</span></label>
+              <input type="text" name="observaciones" id="id_devprov_obs" class="form-control dev-textarea" placeholder="Ej: Lote dañado de fábrica..." style="height: 38px;">
+            </div>
+          </div>
+
+          <div class="dev-actions mt-4">
+            <button class="dev-btn dev-btn--primary" type="submit">
+              <i class="bi bi-check2-circle"></i> Registrar Devolución a Proveedor
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- HISTORIAL PROVEEDORES -->
+      <section class="dev-card p-3">
+        <div class="dev-card__head mb-3">
+          <div>
+            <span class="dev-section-label">Historial</span>
+            <h2>Devoluciones Registradas a Proveedores</h2>
+          </div>
+          <span class="badge badge-motivo">{{ devoluciones_proveedor|length }} registros</span>
+        </div>
+
+        <div class="table-responsive dev-table-wrap">
+          <table class="table dev-table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Proveedor</th>
+                <th>Motivo</th>
+                <th>Solución</th>
+                <th class="text-end">Total</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dp in devoluciones_proveedor %}
+              <tr>
+                <td><strong>{{ dp.numero }}</strong></td>
+                <td>{{ dp.proveedor.nombre_empresa }}</td>
+                <td><span class="badge badge-motivo">{{ dp.get_motivo_display }}</span></td>
+                <td>{{ dp.get_tipo_resolucion_display }}</td>
+                <td class="text-end dev-money">${{ dp.total_devuelto|floatformat:0 }}</td>
+                <td class="text-center">
+                  {% if dp.estado == 'pendiente' %}
+                    <span class="badge-estado badge-pendiente"><i class="bi bi-clock-history"></i> Pendiente</span>
+                  {% elif dp.estado == 'aprobada' %}
+                    <span class="badge-estado badge-aprobada"><i class="bi bi-hand-thumbs-up"></i> Aprobada</span>
+                  {% elif dp.estado == 'aplicada' %}
+                    <span class="badge-estado badge-aplicada"><i class="bi bi-check-all"></i> Aplicada</span>
+                  {% else %}
+                    <span class="badge-estado badge-rechazada"><i class="bi bi-x-circle"></i> Rechazada</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  <a href="{% url 'detalle_devolucion_proveedor' dp.id %}" class="dev-table-action" title="Ver detalle">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7">
+                  <div class="dev-empty">
+                    <i class="bi bi-truck"></i>
+                    <strong>No hay devoluciones a proveedores registradas.</strong>
+                    <span>Completa el formulario de arriba para generar la primera solicitud.</span>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  {% else %}
+  <!-- ════════════════════════════════════════════════════════════════
+       SECCIÓN: DEVOLUCIONES DE CLIENTES (EXISTENTE)
+       ════════════════════════════════════════════════════════════════ -->
   <section class="dev-kpis" aria-label="Resumen de devoluciones">
     <article class="dev-kpi dev-kpi--cyan"><i class="bi bi-receipt"></i><div><span>Devoluciones</span><strong>{{ devoluciones|length }}</strong><small>registradas</small></div></article>
     <article class="dev-kpi dev-kpi--green"><i class="bi bi-box-seam"></i><div><span>Productos</span><strong>{{ detalles_con_estado|length|default:0 }}</strong><small>{% if venta %}en venta seleccionada{% else %}por seleccionar{% endif %}</small></div></article>
@@ -32,7 +303,7 @@
     <main>
       <section class="dev-card dev-process">
         <div class="dev-card__head">
-          <div><span class="dev-section-label">Proceso guiado</span><h2>Solicitud de devolución</h2></div>
+          <div><span class="dev-section-label">Proceso guiado</span><h2>Solicitud de devolución cliente</h2></div>
           <button class="dev-policy-link" type="button" data-bs-toggle="modal" data-bs-target="#modalPolitica"><i class="bi bi-shield-check"></i> Ver política</button>
         </div>
 
@@ -120,7 +391,7 @@
           <div class="table-responsive dev-history-table-wrap">
             <table id="tablaDevoluciones" class="table dev-history-table align-middle mb-0">
               <thead><tr><th>Número</th><th>Cliente</th><th>Motivo</th><th>Solución</th><th>Total</th><th>Fecha</th><th></th></tr></thead>
-              <tbody>{% for dev in devoluciones %}<tr><td data-order="{{ dev.pk }}"><strong>{{ dev.numero }}</strong></td><td>{{ dev.venta.cliente.nombre }}</td><td>{{ dev.get_motivo_display }}</td><td>{{ dev.get_tipo_reembolso_display }}</td><td class="dev-money">${{ dev.total_devuelto|floatformat:0 }}</td><td data-order="{{ dev.fecha|date:'Y-m-d H:i:s' }}">{{ dev.fecha|date:'d/m/Y, H:i' }}</td><td><a class="dev-table-action" href="{% url 'ventas:comprobante_devolucion' dev.pk %}" title="Ver comprobante"><i class="bi bi-receipt"></i></a></td></tr>{% endfor %}</tbody>
+              <tbody>{% for dev in devoluciones %}<tr><td data-order="{{ dev.pk }}"><strong>{{ dev.numero }}</strong></td><td>{{ dev.codigo_venta.codigo_cliente.nombre }}</td><td>{{ dev.get_motivo_display }}</td><td>{{ dev.get_tipo_devolucion_display }}</td><td class="dev-money">${{ dev.total_devuelto|floatformat:0 }}</td><td data-order="{{ dev.fecha|date:'Y-m-d H:i:s' }}">{{ dev.fecha|date:'d/m/Y, H:i' }}</td><td><a class="dev-table-action" href="{% url 'ventas:comprobante_devolucion' dev.pk %}" title="Ver comprobante"><i class="bi bi-receipt"></i></a></td></tr>{% endfor %}</tbody>
             </table>
           </div>
         </div>
@@ -128,9 +399,15 @@
       <section class="dev-help"><i class="bi bi-question-circle"></i><div><strong>¿Necesitas ayuda?</strong><p>Consulta la política antes de registrar una devolución.</p><button type="button" data-bs-toggle="modal" data-bs-target="#modalPolitica">Ver política</button></div></section>
     </aside>
   </div>
+  {% endif %}
+
 </div>
 
+<!-- MODAL POLÍTICA CLIENTES -->
 <div class="modal fade" id="modalPolitica" tabindex="-1" aria-labelledby="modalPoliticaTitulo" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content dev-modal"><div class="modal-header"><div><span class="dev-section-label">CYS Ltda</span><h2 id="modalPoliticaTitulo">Política de devoluciones</h2></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body"><div class="dev-policy-item"><i class="bi bi-calendar-check"></i><div><strong>Plazo de 30 días</strong><p>La devolución debe solicitarse dentro de los 30 días posteriores a la compra.</p></div></div><div class="dev-policy-item"><i class="bi bi-box-seam"></i><div><strong>Producto verificable</strong><p>Revisa el estado del producto y registra el motivo real de la devolución.</p></div></div><div class="dev-policy-item"><i class="bi bi-receipt"></i><div><strong>Registro completo</strong><p>La operación queda vinculada a la venta y actualiza el inventario.</p></div></div></div></div></div></div>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/datatables.js' %}" defer></script><script src="{% static 'js/proveedores/devoluciones.js' %}" defer></script>{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/datatables.js' %}" defer></script>
+<script src="{% static 'js/proveedores/devoluciones.js' %}" defer></script>
+{% endblock %}

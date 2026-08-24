@@ -21,4 +21,13 @@ urlpatterns = [
     path('modal/reactivar/<int:id>/', views.reactivar_proveedor, name='reactivar_proveedor_modal'),
     path('modal/sancionar/<int:id>/', views.sancionar_proveedor, name='sancionar_proveedor_modal'),
     path('modal/levantar-sancion/<int:id>/', views.levantar_sancion_proveedor, name='levantar_sancion_proveedor'),
+
+    # Rutas para Devoluciones a Proveedores
+    path('devoluciones/', views.lista_devoluciones_proveedor, name='lista_devoluciones_proveedor'),
+    path('devoluciones/nueva/', views.crear_devolucion_proveedor, name='crear_devolucion_proveedor'),
+    path('devoluciones/<int:id>/', views.detalle_devolucion_proveedor, name='detalle_devolucion_proveedor'),
+    path('devoluciones/<int:id>/aprobar/', views.aprobar_devolucion_proveedor, name='aprobar_devolucion_proveedor'),
+    path('devoluciones/<int:id>/rechazar/', views.rechazar_devolucion_proveedor, name='rechazar_devolucion_proveedor'),
+    path('devoluciones/<int:id>/aplicar/', views.aplicar_devolucion_proveedor, name='aplicar_devolucion_proveedor'),
 ]
+
