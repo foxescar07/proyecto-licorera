@@ -106,10 +106,11 @@ def crear_producto(request):
         messages.error(request, error_msg)
         return redirect('lista_productos')
 
+    messages.success(request, f'✅ Producto "{producto.nombre}" creado correctamente.')
+
     if is_ajax:
         return JsonResponse({'ok': True, 'pk': producto.pk, 'nombre': producto.nombre})
 
-    messages.success(request, f'✅ Producto "{producto.nombre}" creado correctamente.')
     return redirect(next_url)
 
 # ===============================

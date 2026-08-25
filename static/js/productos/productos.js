@@ -168,8 +168,8 @@ function abrirDetalle(pk, nombre, codigo, categoria, stock_total, descripcion) {
 // Crear producto
 function mostrarFeedback(tipo, msg) {
   const fb = document.getElementById('crear-feedback');
+  fb.classList.remove('d-none');
   fb.innerHTML = `<div class="alert ${tipo === 'ok' ? 'alert-success' : 'alert-danger'} py-2 small">${msg}</div>`;
-  fb.style.display = 'block';
 }
 
 async function enviarCrearProducto() {

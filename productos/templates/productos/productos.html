@@ -12,7 +12,14 @@
 
 {% block content %}
 <div class="container-fluid p-0">
-
+    {% if messages %}
+  {% for message in messages %}
+    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show mb-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+{% endif %}
 <!-- ═══════ HEADER: TITULO + NUEVO PRODUCTO ═══════ -->
 <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
 

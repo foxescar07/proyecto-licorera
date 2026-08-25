@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from .forms import (
@@ -44,6 +45,9 @@ def inventario_home(request):
         'hoy': hoy,
         'fecha_filtro': hoy,
         'lotes': Lote.objects.select_related('presentacion__producto').all(),
+        'breadcrumb_items': [
+            {'nombre': 'Inventario', 'url': None},
+        ],
 
     }
     return render(request, 'inventario/inventario_home.html', context)
@@ -65,7 +69,8 @@ def gestion_stock(request):
         'lotes_por_vencer': lotes_por_vencer,
         'lotes_vencidos': lotes_vencidos,
         'breadcrumb_items': [
-            {'nombre': 'Inventario', 'url': None},
+            {'nombre': 'Inventario', 'url': reverse('inventario:inventario_home')},
+            {'nombre': 'Stock & Productos', 'url': None},
         ],
     }
     return render(request, 'inventario/gestion_stock.html', context)

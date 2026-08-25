@@ -83,25 +83,6 @@
 </div>
 
     <div class="col-md-3">
-      <div class="inv-quick-card qc-borde-purpura" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button"
-          >
-        <div class="d-flex justify-content-between align-items-start w-100 mb-2">
-          <div class="rounded-3 p-2 qc-icono-bg-purpura">
-            <i class="bi bi-upc-scan fs-4 qc-icono-color-purpura"></i>
-          </div>
-          <span class="badge rounded-pill qc-badge-purpura">CÓDIGOS</span>
-        </div>
-        <div class="fw-bold mt-1 qc-valor-purpura">{{ sin_codigo|default:"0" }}</div>
-        <div class="fw-semibold mt-1 qc-titulo">Registrar Códigos</div>
-        <div class="text-muted small mt-1 qc-desc">Asignar códigos de barras</div>
-        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-purpura">
-          <span class="qc-footer-texto-purpura">Sin código: {{ sin_codigo|default:"0" }}</span>
-          <i class="bi bi-arrow-right qc-footer-texto-purpura"></i>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
       <div class="inv-quick-card qc-borde-azul" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button"
           >
         <div class="d-flex justify-content-between align-items-start w-100 mb-2">
@@ -904,113 +885,6 @@
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- MODAL REGISTRAR CÓDIGOS -->
-<div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content inv-modal">
-      <div class="modal-header inv-modal-header">
-        <h6 class="modal-title"><i class="bi bi-upc-scan me-2 inv-icon-dorado"></i>Registrar Códigos de Barras</h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row g-3 mb-3">
-          <div class="col-4">
-            <div class="inv-stat-card text-center">
-              <div class="text-muted small">Total Productos</div>
-              <div class="fw-bold fs-4 text-info">{{ productos|length }}</div>
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="inv-stat-card text-center">
-              <div class="text-muted small">Con Código</div>
-              <div class="fw-bold fs-4 text-success">{{ con_codigo }}</div>
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="inv-stat-card text-center">
-              <div class="text-muted small">Sin Código</div>
-              <div class="fw-bold fs-4 text-danger">{{ sin_codigo }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="p-3 mb-3 rounded-3 d-flex align-items-center gap-3 cat-card-bg"
-            >
-          <div class="text-center scan-icono-col">
-            <i class="bi bi-upc-scan fs-2 comparativa-valor-sistema"></i>
-          </div>
-          <div class="flex-grow-1">
-            <div class="inv-label mb-1">Producto seleccionado</div>
-            <div id="scan-producto-nombre" class="fw-semibold scan-nombre-texto">
-              — Haz clic en una fila para seleccionar —
-            </div>
-          </div>
-          <div class="scan-input-col">
-            <input type="text" id="scan-input" class="form-control inv-input scan-input-mono"
-                   placeholder="Escanea o escribe el código…"
-                   disabled>
-          </div>
-          <button type="button" id="scan-guardar" class="btn rounded-pill fw-bold px-4 scan-guardar-btn" disabled
-           >
-            <i class="bi bi-save2 me-1"></i>Guardar
-          </button>
-          <button type="button" id="scan-camara-btn" class="btn rounded-pill px-3 btn-outline-azul" disabled
-           
-            title="Escanear con cámara">
-            <i class="bi bi-camera-fill"></i>
-          </button>
-        </div>
-
-        <div id="scan-camara-panel" class="d-none mb-3 text-center">
-          <video id="scan-video" class="rounded-3 w-100 scan-video" playsinline muted></video>
-          <div id="scan-camara-estado" class="text-muted small mt-2">Apunta la cámara al código de barras…</div>
-        </div>
-        <div class="table-responsive">
-          <table class="table align-middle mb-0 inv-table" id="tabla-codigos">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center">Código registrado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for p in productos %}
-              <tr class="scan-row fila-clickable"
-                  data-pk="{{ p.pk }}"
-                  data-nombre="{{ p.nombre }}"
-                  data-codigo="{{ p.codigo|default:'' }}"
-                  data-url="{% url 'inventario:inventario_detail' p.pk %}"
-                 >
-                <td class="text-muted small">{{ forloop.counter }}</td>
-                <td class="fw-semibold small">{{ p.nombre }}</td>
-                <td class="text-muted small">{{ p.categoria.nombre }}</td>
-                <td class="text-center">
-                  {% if p.codigo %}
-                    <span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>
-                  {% else %}
-                    <span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>
-                  {% endif %}
-                </td>
-                <td class="text-center">
-                  <span class="codigo-display {% if p.codigo %}text-info{% else %}text-muted{% endif %} scan-codigo-texto">
-                    {{ p.codigo|default:"—" }}
-                  </span>
-                </td>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer inv-modal-footer">
-        <button type="button" class="btn rounded-pill px-4 btn-outline-azul"
-         
-          data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
