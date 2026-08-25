@@ -3,11 +3,11 @@
 
 {% block title %}Gestión de Lotes — CYS Ltda{% endblock %}
 {% block page_title %}Gestión de Lotes{% endblock %}
-{% block nav_inventario %}active{% endblock %}
+{% block nav_lotes %}active{% endblock %}
 
   {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/inventario/inventario.css' %}">
-  <link rel="stylesheet" href="{% static 'css/inventario/lotes.css' %}">
+  <link rel="stylesheet" href="{% static 'css/lotes/lotes.css' %}">
 
 {% endblock %}
 
@@ -46,7 +46,7 @@
         </div>
       </div>
 
-      <form method="POST" action="{% url 'inventario:lote_create' %}" id="form-lote">
+      <form method="POST" action="{% url 'lotes:lote_create' %}" id="form-lote">
         {% csrf_token %}
 
         <!-- Presentación -->
@@ -128,8 +128,7 @@
     </div>
   </div>
 </div>
-
-        <hr class="section-divider">
+      <hr class="section-divider">
 
         <div class="mb-3">
   <label class="inv-label">
@@ -235,5 +234,5 @@
      data-data="{{ proveedores_data }}"
      class="d-none"></div>
 <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
-<script src="{% static 'js/inventario/gestion_lotes.js' %}"></script>
+<script src="{% static 'js/lotes/gestion_lotes.js' %}"></script>
 {% endblock %}

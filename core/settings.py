@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'ayuda',
     'detalle_producto',
     'categorias',
+    'lotes'
 
 ]
 
