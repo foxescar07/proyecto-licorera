@@ -24,25 +24,6 @@ $(document).ready(function () {
     dom: 'rt'
   });
 
-  // Tabla registrar códigos
-  if ($.fn.DataTable.isDataTable('#tabla-codigos')) {
-    $('#tabla-codigos').DataTable().destroy();
-  }
-  $('#tabla-codigos').DataTable({
-    paging: false,
-    searching: false,
-    info: false,
-    ordering: true,
-    responsive: true,
-    columnDefs: [
-      { orderable: false, targets: [0] }  // # no ordenable
-    ],
-    language: {
-      emptyTable: "No hay productos registrados."
-    },
-    dom: 'rt'
-  });
-
   // Tabla catálogo lista
   if ($.fn.DataTable.isDataTable('#cat-list table')) {
     $('#cat-list table').DataTable().destroy();

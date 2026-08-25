@@ -216,3 +216,152 @@ window.addEventListener('load', function () {
     box.innerHTML = '<i class="bi ' + regla.icono + '"></i>';
   });
 })();
+$(document).ready(function () {
+  if ($.fn.DataTable.isDataTable('#tabla-codigos')) {
+    $('#tabla-codigos').DataTable().destroy();
+  }
+  $('#tabla-codigos').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [0] }
+    ],
+    language: {
+      emptyTable: "No hay productos registrados."
+    },
+    dom: 'rt'
+  });
+});
+
+// ── REGISTRAR CÓDIGOS ──
+(function () {
+  let filaActiva   = null;
+  const modal      = document.getElementById('modalRegistrarCodigos');
+  const scanInput  = document.getElementById('scan-input');
+  const scanBtn    = document.getElementById('scan-guardar');
+  const scanNombre = document.getElementById('scan-producto-nombre');
+  const camBtn     = document.getElementById('scan-camara-btn');
+  const camPanel   = document.getElementById('scan-camara-panel');
+  const camVideo   = document.getElementById('scan-video');
+  const camEstado  = document.getElementById('scan-camara-estado');
+
+  function resetUI() {
+    filaActiva = null;
+    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
+    scanNombre.textContent = '— Haz clic en una fila para seleccionar —';
+    scanInput.value        = '';
+    scanInput.disabled     = true;
+    scanBtn.disabled       = true;
+    scanBtn.style.opacity  = '0.45';
+    camBtn.disabled        = true;
+    detenerCamara();
+  }
+
+  let html5Scanner = null;
+
+  async function iniciarCamara() {
+    camPanel.classList.remove('d-none');
+    camEstado.textContent = 'Iniciando cámara…';
+
+    if (typeof Html5Qrcode === 'undefined') {
+      camEstado.textContent = 'Error: la librería no cargó. Revisa tu conexión.';
+      return;
+    }
+
+    camVideo.style.display = 'none';
+    let contenedor = document.getElementById('scan-video-html5');
+    if (!contenedor) {
+      contenedor = document.createElement('div');
+      contenedor.id = 'scan-video-html5';
+      camVideo.parentNode.insertBefore(contenedor, camVideo);
+    }
+    contenedor.style.width      = '340px';
+    contenedor.style.maxWidth   = '100%';
+    contenedor.style.height     = '220px';
+    contenedor.style.margin     = '0 auto';
+    contenedor.style.overflow   = 'hidden';
+    contenedor.style.borderRadius = '12px';
+
+    html5Scanner = new Html5Qrcode('scan-video-html5');
+
+    try {
+      await html5Scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (codigoDetectado) => {
+          scanInput.value = codigoDetectado;
+          camEstado.textContent = 'Código detectado: ' + codigoDetectado;
+          detenerCamara();
+        },
+        () => {}
+      );
+      camEstado.textContent = 'Apunta la cámara al código de barras…';
+    } catch (err) {
+      console.error('Error al iniciar cámara:', err);
+      camEstado.textContent = 'No se pudo acceder a la cámara: ' + (err.message || err);
+    }
+  }
+
+  function detenerCamara() {
+    if (html5Scanner) {
+      html5Scanner.stop().then(() => html5Scanner.clear()).catch(() => {});
+      html5Scanner = null;
+    }
+    camPanel.classList.add('d-none');
+  }
+
+  function guardarCodigo(fila, codigo) {
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const fd   = new FormData();
+    fd.append('codigo', codigo);
+    fd.append('csrfmiddlewaretoken', csrf);
+    fetch(fila.dataset.url, { method: 'POST', body: fd })
+      .then(r => {
+        if (r.ok || r.redirected) {
+          fila.dataset.codigo = codigo;
+          fila.querySelector('.codigo-display').textContent = codigo || '—';
+          fila.querySelector('td:nth-child(4)').innerHTML = codigo
+            ? '<span class="badge inv-badge-entrada"><i class="bi bi-check-circle me-1"></i>Registrado</span>'
+            : '<span class="badge inv-badge-salida-tbl"><i class="bi bi-x-circle me-1"></i>Sin código</span>';
+          fila.classList.add('scan-row--saved');
+          setTimeout(() => { fila.classList.remove('scan-row--saved'); resetUI(); }, 1200);
+        }
+      })
+      .catch(() => alert('Error al guardar. Intenta de nuevo.'));
+  }
+
+  document.getElementById('tabla-codigos').addEventListener('click', function (e) {
+    const fila = e.target.closest('.scan-row');
+    if (!fila) return;
+    document.querySelectorAll('.scan-row').forEach(f => f.classList.remove('scan-row--active'));
+    filaActiva = fila;
+    fila.classList.add('scan-row--active');
+    scanNombre.textContent = fila.dataset.nombre;
+    scanInput.value        = fila.dataset.codigo;
+    scanInput.disabled     = false;
+    scanBtn.disabled       = false;
+    scanBtn.style.opacity  = '1';
+    camBtn.disabled        = false;
+    scanInput.focus();
+  });
+
+  camBtn.addEventListener('click', () => {
+    html5Scanner ? detenerCamara() : iniciarCamara();
+  });
+
+  scanBtn.addEventListener('click', () => {
+    if (filaActiva) guardarCodigo(filaActiva, scanInput.value.trim());
+  });
+
+  scanInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && filaActiva) {
+      e.preventDefault();
+      guardarCodigo(filaActiva, scanInput.value.trim());
+    }
+  });
+
+  modal.addEventListener('hidden.bs.modal', resetUI);
+})();

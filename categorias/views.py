@@ -16,7 +16,6 @@ def categorias_lista(request):
         'categorias': categorias,
         'todas_cats': todas_cats,
         'breadcrumb_items': [
-            {'nombre': 'Productos', 'url': reverse('lista_productos')},
             {'nombre': 'Categorías', 'url': None},
         ],
     }

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.db.models import Sum
 import json
-
+from django.urls import reverse
 from inventario.models import Lote, Inventario, MovimientoInventario
 from productos.models import Producto, PresentacionProducto
 from .forms import LoteForm
@@ -39,6 +39,9 @@ def lote_list(request):
         'proveedores_labels': proveedores_labels,
         'proveedores_data': proveedores_data,
         'hay_presentaciones': PresentacionProducto.objects.exists(),
+        'breadcrumb_items': [
+            {'nombre': 'Gestión de Lotes', 'url': None},
+        ],
     }
     return render(request, 'lotes/lote_list.html', context)
 

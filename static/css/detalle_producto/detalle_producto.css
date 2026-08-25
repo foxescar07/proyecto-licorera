@@ -227,3 +227,66 @@
   .gp-col-acciones { justify-self: start; }
   .gp-prod-list-wrap { overflow: hidden; }
 }
+/* ══ Estilos del modal "Registrar Códigos" (extraído de inventario.css) ══ */
+.scan-icono-col { min-width: 48px; }
+.scan-nombre-texto { color: var(--texto); min-height: 1.2rem; }
+.scan-input-col { flex: 0 0 280px; }
+.scan-input-mono { font-family: monospace; font-size: .95rem; }
+.scan-guardar-btn {
+  background: var(--azul-claro);
+  color: var(--fondo);
+  border: none;
+  opacity: 1;
+}
+.scan-video { max-height: 300px; background: #000; object-fit: cover; }
+.fila-clickable { cursor: pointer; }
+.scan-codigo-texto { font-family: monospace; font-size: .82rem; }
+
+.inv-badge-entrada {
+  background: rgba(39, 174, 96, .15);
+  color: var(--verde);
+  border: 1px solid rgba(39, 174, 96, .3);
+}
+.inv-badge-salida-tbl {
+  background: rgba(207, 156, 72, .15);
+  color: var(--rojo);
+  border: 1px solid rgba(207, 156, 72, .3);
+}
+
+.btn-outline-azul,
+button.btn-outline-azul {
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 35%, transparent) !important;
+  color: var(--azul-claro) !important;
+  background: transparent !important;
+}
+.btn-outline-azul:hover,
+button.btn-outline-azul:hover {
+  background: color-mix(in srgb, var(--azul-claro) 10%, transparent) !important;
+  color: var(--azul-claro) !important;
+}
+/* ══ Tarjeta de acceso rápido "Registrar Códigos" (extraído de inventario.css) ══ */
+.inv-quick-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--prod-card);
+  border: 1px solid color-mix(in srgb, var(--azul-claro) 12%, transparent);
+  border-radius: var(--prod-radius);
+  padding: .75rem 1rem;
+  color: var(--prod-texto);
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.inv-quick-card:hover { transform: translateY(-6px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+
+.qc-borde-purpura { border-left: 3px solid #CF9C48; }
+.qc-icono-bg-purpura { background: rgba(207,156,72,.15); }
+.qc-icono-color-purpura { color: #CF9C48; }
+.qc-badge-purpura { background: rgba(207,156,72,.15); color: #CF9C48; font-size: .65rem; }
+.qc-valor-purpura { font-size: 1.5rem; color: var(--prod-texto); line-height: 1; }
+.qc-titulo { font-size: .88rem; }
+.qc-desc { font-size: .72rem; }
+.qc-footer-borde-purpura { border-top: 1px solid rgba(155,93,229,.15); }
+.qc-footer-texto-purpura { font-size: .7rem; color: #CF9C48; }

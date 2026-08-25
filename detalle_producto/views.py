@@ -13,6 +13,8 @@ def detalle_producto_lista(request):
     todas_cats     = Categoria.objects.all()
     productos      = Producto.objects.select_related('categoria').prefetch_related('presentaciones__lotes').all()
     total_criticos = 0
+    con_codigo     = productos.exclude(codigo__isnull=True).exclude(codigo__exact='').count()
+    sin_codigo     = productos.count() - con_codigo
 
     context = {
         'categorias':     categorias,
@@ -20,8 +22,9 @@ def detalle_producto_lista(request):
         'productos':      productos,
         'lotes':          [],
         'total_criticos': total_criticos,
+        'con_codigo':     con_codigo,
+        'sin_codigo':     sin_codigo,
         'breadcrumb_items': [
-            {'nombre': 'Productos', 'url': reverse('lista_productos')},
             {'nombre': 'Detalle de Producto', 'url': None},
         ],
     }
@@ -173,3 +176,12 @@ def detalle_producto_editar(request, pk):
     if next_url:
         return redirect(next_url)
     return redirect('detalle_producto:lista')
+
+@login_required
+def guardar_codigo(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        producto.codigo = request.POST.get('codigo', '').strip()
+        producto.save()
+        return JsonResponse({'ok': True, 'codigo': producto.codigo})
+    return JsonResponse({'ok': False, 'error': 'Método no permitido.'}, status=405)
