@@ -9,13 +9,6 @@ urlpatterns = [
     path('', views.inventario_home, name='inventario_home'),
     path('gestion-stock/', views.gestion_stock, name='gestion_stock'),
 
-    # Lote
-    path('lotes/', views.lote_list, name='lote_list'),
-    path('lotes/crear/', views.lote_create, name='lote_create'),
-    path('lotes/<str:numero_lote>/', views.lote_detail, name='lote_detail'),
-    path('lotes/<str:numero_lote>/editar/', views.lote_update, name='lote_update'),
-    path('lotes/<str:numero_lote>/ajustar-stock/', views.lote_ajustar_stock, name='lote_ajustar_stock'),
-
     # Inventario (stock)
     path('stock/', views.inventario_list, name='inventario_list'),
     path('stock/<int:codigo_inventario>/', views.inventario_detail, name='inventario_detail'),

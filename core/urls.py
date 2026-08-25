@@ -18,6 +18,7 @@ urlpatterns = [
     path('detalle-producto/', include('detalle_producto.urls', namespace='detalle_producto')),
     path('categorias/', include('categorias.urls', namespace='categorias')),
     path('inventario/', include('inventario.urls')),
+    path('lotes/', include('lotes.urls', namespace='lotes')),
 
     # App reportes
     path('reportes/', include('reportes.urls')),

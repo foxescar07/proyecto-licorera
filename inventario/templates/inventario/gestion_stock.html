@@ -212,7 +212,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="{% url 'inventario:lote_ajustar_stock' lote.numero_lote %}">
+      <form method="post" action="{% url 'lotes:lote_ajustar_stock' lote.numero_lote %}">
         {% csrf_token %}
         <div class="modal-body p-4">
           <div class="rounded-3 p-3 mb-3 lote-modal-info-box">
