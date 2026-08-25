@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load pesos %}
+
+{% block title %}Métodos de Pago — CYS Ltda{% endblock %}
+{% block page_title %}Métodos de Pago{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="{% static 'css/venta/ventas.css' %}">
+<link rel="stylesheet" href="{% static 'css/venta/ventas_inline.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4 cys-pos-wrapper">
+
+  <!-- ── BARRA SUPERIOR ── -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h4 class="fw-bold text-white mb-1"><i class="bi bi-wallet2 me-2 text-warning"></i>Gestión de Métodos de Pago</h4>
+      <p class="text-white-50 small mb-0">Registro y desglose de formas de pago asociadas a las transacciones de ventas.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-action-cian">
+        <i class="bi bi-cart3"></i> Ir al Punto de Venta
+      </a>
+      <button onclick="window.print()" class="cys-btn-action-dark">
+        <i class="bi bi-printer"></i> Imprimir
+      </button>
+    </div>
+  </div>
+
+  <!-- ── CARDS DE RESUMEN KPI ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="cys-caja-card cys-caja-card--base p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="cys-caja-card-icono-box cys-caja-card-icono-box--acento">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <span class="cys-caja-badge cys-caja-badge--acento">Total Recibido</span>
+        </div>
+        <div class="cys-caja-titulo cys-caja-titulo--acento">${{ total_monto|pesos }}</div>
+        <div class="cys-caja-sub">Total procesado en pagos</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="cys-caja-card cys-caja-card--abierta p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="cys-caja-card-icono-box cys-caja-card-icono-box--verde">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <span class="cys-caja-badge cys-caja-badge--verde">Efectivo</span>
+        </div>
+        <div class="cys-caja-titulo cys-caja-titulo--verde">${{ total_efectivo|pesos }}</div>
+        <div class="cys-caja-sub">Ingresos recibidos en efectivo</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="cys-caja-card cys-caja-card--ventas p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="cys-caja-card-icono-box cys-caja-card-icono-box--cian">
+            <i class="bi bi-bank2"></i>
+          </div>
+          <span class="cys-caja-badge cys-caja-badge--cian">Digital / Transferencias</span>
+        </div>
+        <div class="cys-caja-titulo cys-caja-titulo--cian">${{ total_digital|pesos }}</div>
+        <div class="cys-caja-sub">Nequi, DaviPlata, Transferencias</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BARRA DE BÚSQUEDA Y FILTROS ── -->
+  <section class="cys-panel p-3 mb-4">
+    <form method="GET" class="row g-2 align-items-center">
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary text-white-50"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" value="{{ q }}" class="form-control cys-input-dark" placeholder="Buscar por referencia, transacción, cliente...">
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <select name="tipo" class="form-select cys-input-dark">
+          <option value="todos" {% if tipo_filtro == 'todos' %}selected{% endif %}>Todos los tipos</option>
+          <option value="efectivo" {% if tipo_filtro == 'efectivo' %}selected{% endif %}>Solo Efectivo</option>
+          <option value="digital" {% if tipo_filtro == 'digital' %}selected{% endif %}>Solo Digital / Transferencia</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <select name="rango" class="form-select cys-input-dark">
+          <option value="todos" {% if rango_filtro == 'todos' %}selected{% endif %}>Todo el historial</option>
+          <option value="hoy" {% if rango_filtro == 'hoy' %}selected{% endif %}>Solo el día de hoy</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn cys-btn-action-cian w-100 btn-sm">
+          <i class="bi bi-filter me-1"></i> Filtrar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ── TABLA DE MÉTODOS DE PAGO ── -->
+  <section class="cys-panel p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="fw-bold text-white"><i class="bi bi-list-task me-2"></i>Registros de Métodos de Pago</div>
+      <span class="badge bg-secondary px-3 py-2">Total registros: {{ metodos_pago.count }}</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="cys-hist-table w-100 align-middle">
+        <thead>
+          <tr>
+            <th class="ps-3"># Código</th>
+            <th>Venta N°</th>
+            <th>Cliente</th>
+            <th>Fecha / Hora</th>
+            <th>Referencia</th>
+            <th>Transacción</th>
+            <th>Efectivo</th>
+            <th class="text-end pe-3">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metodos_pago %}
+          <tr>
+            <td class="ps-3 fw-bold text-warning">#{{ m.codigo_metodo }}</td>
+            <td>
+              {% if m.codigo_venta %}
+              <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-50">
+                Venta #{{ m.codigo_venta.pk }}
+              </span>
+              {% else %}
+              <span class="text-white-50">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if m.codigo_venta and m.codigo_venta.codigo_cliente %}
+                <div class="fw-bold text-white">{{ m.codigo_venta.codigo_cliente.nombre }}</div>
+              {% else %}
+                <span class="text-white-50">Consumidor final</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="cys-hist-fecha">{{ m.fecha|date:"d/m/Y" }}</div>
+              <div class="cys-hist-hora text-white-50">{{ m.fecha|date:"H:i:s" }}</div>
+            </td>
+            <td>
+              <span class="fw-bold text-light">{{ m.referencia|default:"—" }}</span>
+              {% if m.observacion %}
+              <small class="d-block text-white-50" style="font-size:0.75rem;">{{ m.observacion }}</small>
+              {% endif %}
+            </td>
+            <td>
+              {% if m.transaccion %}
+                <span class="badge bg-info bg-opacity-10 text-info">{{ m.transaccion }}</span>
+              {% else %}
+                <span class="text-white-50">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if m.efectivo > 0 %}
+                <span class="text-success fw-bold">${{ m.efectivo|pesos }}</span>
+              {% else %}
+                <span class="text-white-50">$0</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-3 fw-bold text-warning fs-6">
+              ${{ m.valor|pesos }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center p-5 text-white-50">
+              <i class="bi bi-wallet2 d-block fs-1 mb-2 text-warning opacity-50"></i>
+              No hay registros de métodos de pago con los filtros seleccionados.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
