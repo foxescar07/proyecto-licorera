@@ -259,7 +259,7 @@
                       id="conteo-prod-btn" data-bs-toggle="dropdown">
                     <span id="conteo-prod-label">— Seleccionar producto —</span>
                   </button>
-                  <ul class="dropdown-menu w-100 conteo-prod-menu">
+                  <ul class="dropdown-menu w-100 conteo-prod-menu inv-dropdown-scroll">
                     {% for p in productos %}
                     <li>
                       <a class="dropdown-item conteo-prod-item" href="#" data-value="{{ p.pk }}">
@@ -426,7 +426,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'vendor/jquery/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'js/datatables.min.js' %}"></script>
 <script src="{% static 'bodega/js/bodega.js' %}"></script>
 {% endblock %}

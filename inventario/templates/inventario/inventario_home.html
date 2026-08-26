@@ -41,7 +41,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-md-6">
       <div class="inv-quick-card qc-borde-purpura" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" role="button">
         <div class="d-flex justify-content-between align-items-start w-100 mb-2">
@@ -187,7 +187,7 @@
       </div>
     </div>
 
-    <!-- ④ CATÁLOGO -->
+    <!-- ③ CATÁLOGO -->
     <div class="card inv-card mb-4">
       <div class="card-header inv-card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
            data-bs-toggle="collapse" data-bs-target="#catalogoBody" role="button">
@@ -298,7 +298,7 @@
     </div>
   </div>
 
-  <!-- ⑤ ANALÍTICA / ROTACIÓN -->
+  <!-- ④ ANALÍTICA / ROTACIÓN -->
   <div class="card inv-card mb-4 analitica-oculto" id="seccion-analitica">
     <div class="card-header inv-card-header">
       <i class="bi bi-bar-chart-line me-2 inv-icon-dorado"></i>
@@ -401,7 +401,7 @@
                       id="rm-lote-btn" data-bs-toggle="dropdown">
                 <span id="rm-lote-label">— Seleccionar lote —</span>
               </button>
-              <ul class="dropdown-menu w-100 rm-lote-menu">
+              <ul class="dropdown-menu w-100 rm-lote-menu inv-dropdown-scroll">
                 {% for lote in lotes %}
                 <li>
                   <a class="dropdown-item rm-lote-item" href="#" data-value="{{ lote.pk }}">

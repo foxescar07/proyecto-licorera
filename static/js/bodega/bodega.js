@@ -31,7 +31,12 @@ window.addEventListener('load', function () {
   if (!collapseEl) return;
   const KEY = 'cys_agenda_abierta';
 
-  if (sessionStorage.getItem(KEY) === '1') {
+  // Antes solo se agregaba 'show' si estaba guardado como abierto,
+  // pero nunca se quitaba si estaba guardado como cerrado (quedaba
+  // siempre abierto por el "show" que trae el HTML por defecto).
+  if (sessionStorage.getItem(KEY) === '0') {
+    collapseEl.classList.remove('show');
+  } else {
     collapseEl.classList.add('show');
   }
 
