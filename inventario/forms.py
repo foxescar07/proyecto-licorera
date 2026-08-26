@@ -1,7 +1,23 @@
 from django import forms
+from .models import Lote, MovimientoInventario
 
-from .models import AgendaInventario, Hallazgo, Lote, MovimientoInventario
-
+class LoteForm(forms.ModelForm):
+    class Meta:
+        model = Lote
+        fields = [
+            'numero_lote',
+            'presentacion',
+            'stock_actual',
+            'costo_unitario',
+            'fecha_vencimiento'
+        ]
+        widgets = {
+            'numero_lote': forms.TextInput(attrs={'class': 'form-control'}),
+            'presentacion': forms.Select(attrs={'class': 'form-select'}),
+            'stock_actual': forms.NumberInput(attrs={'class': 'form-control'}),
+            'costo_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'fecha_vencimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
 class MovimientoInventarioForm(forms.ModelForm):
     class Meta:
@@ -26,45 +42,3 @@ class MovimientoInventarioForm(forms.ModelForm):
         if cantidad <= 0:
             raise forms.ValidationError('La cantidad debe ser mayor a 0.')
         return cantidad
-
-
-class AgendaInventarioForm(forms.ModelForm):
-    class Meta:
-        model = AgendaInventario
-        fields = [
-            'titulo',
-            'descripcion',
-            'fecha',
-            'tipo',
-            'estado',
-            'responsable',
-        ]
-        widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'fecha': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'tipo': forms.TextInput(attrs={'class': 'form-control'}),
-            'estado': forms.Select(attrs={'class': 'form-select'}),
-            'responsable': forms.Select(attrs={'class': 'form-select'}),
-        }
-
-
-class HallazgoForm(forms.ModelForm):
-    class Meta:
-        model = Hallazgo
-        fields = [
-            'producto',
-            'cantidad_sistema',
-            'cantidad_fisica',
-            'sesion_conteo',
-            'resultado_inventario',
-            'observaciones',
-        ]
-        widgets = {
-            'producto': forms.Select(attrs={'class': 'form-select'}),
-            'cantidad_sistema': forms.NumberInput(attrs={'class': 'form-control'}),
-            'cantidad_fisica': forms.NumberInput(attrs={'class': 'form-control'}),
-            'sesion_conteo': forms.TextInput(attrs={'class': 'form-control'}),
-            'resultado_inventario': forms.TextInput(attrs={'class': 'form-control'}),
-            'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-        }

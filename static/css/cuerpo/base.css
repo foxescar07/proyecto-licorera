@@ -375,14 +375,15 @@ body.offcanvas-open {
 
 /* ============================================================
    SIDEBAR EMPUJA CONTENIDO
+   --sidebar-offset la actualiza aside.js según el modo (290px / 84px)
    ============================================================ */
 body.sidebar-open .cys-header,
 body.sidebar-open .cys-subnav {
-  right: 290px;
+  right: var(--sidebar-offset, 290px);
 }
 
 body.sidebar-open .cys-main {
-  width: calc(100% - 290px);
+  width: calc(100% - var(--sidebar-offset, 290px));
   margin-right: 0;
 }
 

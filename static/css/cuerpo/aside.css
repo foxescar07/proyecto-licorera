@@ -210,28 +210,38 @@
   border-color: rgba(77,168,218,.2);
 }
 
+/* ============================================================
+   AYUDA / CONFIGURACIÓN / CERRAR SESIÓN — más presencia de color,
+   igual en modo expandido y en modo mini (no dependen de .cys-sb-mini)
+   ============================================================ */
 .cys-sb-link--config {
   color: var(--azul-claro);
-  border-color: rgba(77,168,218,.2);
-  background: rgba(77,168,218,.05);
+  border-color: rgba(77,168,218,.35);
+  background: rgba(77,168,218,.10);
   margin-top: .25rem;
 }
+.cys-sb-link--config i {
+  text-shadow: 0 0 10px rgba(77,168,218,.5);
+}
 .cys-sb-link--config:hover {
-  background: rgba(77,168,218,.14);
-  border-color: rgba(77,168,218,.4);
+  background: rgba(77,168,218,.22);
+  border-color: rgba(77,168,218,.55);
   color: var(--azul-claro);
 }
 
 .cys-sb-link--logout {
-  color: #e87070;
-  border-color: rgba(232,112,112,.2);
-  background: rgba(232,112,112,.05);
+  color: #ff8a8a;
+  border-color: rgba(232,112,112,.35);
+  background: rgba(232,112,112,.10);
   margin-top: .25rem;
 }
+.cys-sb-link--logout i {
+  text-shadow: 0 0 10px rgba(232,112,112,.5);
+}
 .cys-sb-link--logout:hover {
-  background: rgba(232,112,112,.14);
-  border-color: rgba(232,112,112,.4);
-  color: #e87070;
+  background: rgba(232,112,112,.22);
+  border-color: rgba(232,112,112,.55);
+  color: #ff8a8a;
 }
 
 /* ============================================================
@@ -427,4 +437,107 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+/* ============================================================
+   HEADER — ACCIONES (botón modo mini + botón cerrar)
+   ============================================================ */
+.cys-sb-header-actions {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.cys-sb-mini-toggle {
+  background: transparent;
+  border: none;
+  color: var(--texto-muted, rgba(255, 255, 255, 0.6));
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.cys-sb-mini-toggle:hover {
+  background-color: rgba(77, 168, 218, 0.15) !important;
+  color: var(--azul-claro) !important;
+}
+
+.cys-sb-mini-toggle:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   FOCO DE TECLADO/CLIC — reemplaza el outline cuadrado por defecto
+   del navegador (que ignora el border-radius y se ve "cortado")
+   por un box-shadow que sigue la forma redondeada del botón.
+   ============================================================ */
+.cys-sb-mini-toggle:focus,
+.cys-sb-close:focus {
+  outline: none;
+}
+
+.cys-sb-mini-toggle:focus-visible,
+.cys-sb-close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(77,168,218,.35);
+}
+
+/* ============================================================
+   MODO MINI — SOLO ÍCONOS
+   ============================================================ */
+.cys-sb-mini {
+  width: 84px !important;
+}
+
+.cys-sb-mini .cys-sb-brand {
+  justify-content: center;
+}
+
+.cys-sb-mini .cys-sb-brand > div {
+  display: none;
+}
+
+.cys-sb-mini .cys-sb-label,
+.cys-sb-mini .cys-sb-user-info,
+.cys-sb-mini .cys-sb-link span,
+.cys-sb-mini .sb-link-flex-grow span,
+.cys-sb-mini .sb-submenu-toggle,
+.cys-sb-mini .cys-sb-submenu,
+.cys-sb-mini .cys-sb-user-drop,
+.cys-sb-mini #cys-sb-resumen-wrap,
+.cys-sb-mini .cys-sb-footer {
+  display: none !important;
+}
+
+.cys-sb-mini .cys-sb-link,
+.cys-sb-mini .cys-sb-user-info-btn {
+  justify-content: center;
+  gap: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.cys-sb-mini .sb-link-flex-grow {
+  justify-content: center !important;
+  padding: calc(.7rem * var(--density-scale, 1)) 0 !important;
+}
+
+.cys-sb-mini .cys-sb-link i,
+.cys-sb-mini .sb-link-flex-grow i {
+  width: auto;
+  font-size: 1.05rem;
+}
+
+.cys-sb-mini .cys-sb-user-row {
+  display: flex;
+  justify-content: center;
+}
+
+.cys-sb-mini .cys-sb-user-info-btn {
+  width: auto;
+  padding: calc(.6rem * var(--density-scale, 1));
 }

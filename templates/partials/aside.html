@@ -17,9 +17,25 @@
         <div class="cys-sb-brand-sub">Distribución</div>
       </div>
     </div>
-    <button class="cys-sb-close" data-bs-dismiss="offcanvas">
-      <i class="bi bi-x-lg"></i>
-    </button>
+
+    <div class="cys-sb-header-actions">
+      <button class="cys-sb-mini-toggle"
+              id="btnMiniSidebar"
+              type="button"
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              data-bs-title="Modo compacto">
+        <i class="bi bi-chevron-double-left"></i>
+      </button>
+
+      <button class="cys-sb-close"
+              data-bs-dismiss="offcanvas"
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              data-bs-title="Cerrar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
   </div>
 
   <!-- BODY -->
@@ -28,7 +44,11 @@
     <!-- USUARIO -->
     <div class="cys-sb-user-wrap" id="userHoverWrapper">
       <div class="cys-sb-user-row">
-        <a href="{% url 'perfil_pagina' %}" class="cys-sb-user-info-btn">
+        <a href="{% url 'perfil_pagina' %}"
+           class="cys-sb-user-info-btn"
+           data-bs-toggle="tooltip"
+           data-bs-placement="right"
+           data-bs-title="Mi perfil">
           <div class="cys-sb-avatar">
             {% if request.user.foto %}
               <img src="{{ request.user.foto.url }}"
@@ -68,7 +88,8 @@
       <nav class="cys-sb-nav">
 
         <a href="{% url 'principal' %}"
-           class="cys-sb-link {% block nav_tablero %}{% endblock %}">
+           class="cys-sb-link {% block nav_tablero %}{% endblock %}"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Tablero">
           <i class="bi bi-grid-1x2-fill"></i>
           <span>Tablero</span>
         </a>
@@ -76,7 +97,8 @@
         <!-- VENTAS -->
         <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'ventas:ventas_lista' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow"
+             data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Ventas">
             <i class="bi bi-receipt"></i>
             <span class="flex-grow-1">Ventas</span>
           </a>
@@ -87,6 +109,9 @@
           </button>
         </div>
         <div class="cys-sb-submenu" id="submenuVentas">
+          <a href="{% url 'ventas:metodos_pago_lista' %}" class="cys-sb-sublink">
+            <i class="bi bi-wallet2"></i> Métodos de Pago
+          </a>
           <a href="{% url 'reportes' %}" class="cys-sb-sublink">
             <i class="bi bi-bar-chart-fill"></i> Reportes
           </a>
@@ -94,26 +119,32 @@
 
         <!-- DEVOLUCIONES -->
         <a href="{% url 'ventas:lista_devoluciones' %}"
-           class="cys-sb-link">
+           class="cys-sb-link"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Devoluciones">
           <i class="bi bi-arrow-return-left"></i>
           <span>Devoluciones</span>
         </a>
 
         <!-- PRODUCTOS -->
-        <a href="{% url 'lista_productos' %}" class="cys-sb-link">
+        <a href="{% url 'lista_productos' %}"
+           class="cys-sb-link"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Productos">
           <i class="bi bi-box-seam-fill"></i>
           <span>Productos</span>
         </a>
 
         <!-- CATEGORÍAS -->
-        <a href="{% url 'categorias:lista' %}" class="cys-sb-link">
+        <a href="{% url 'categorias:lista' %}"
+           class="cys-sb-link"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Categorías">
           <i class="bi bi-tags-fill"></i>
           <span>Categorías</span>
         </a>
 
         <!-- DETALLE DE PRODUCTO -->
         <a href="{% url 'detalle_producto:lista' %}"
-           class="cys-sb-link">
+           class="cys-sb-link"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Detalle de Producto">
           <i class="bi bi-box-seam"></i>
           <span>Detalle de Producto</span>
         </a>
@@ -121,7 +152,8 @@
         <!-- INVENTARIO -->
         <div class="cys-sb-link cys-sb-link--parent sb-link-parent-flex">
           <a href="{% url 'inventario:inventario_home' %}"
-             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow">
+             class="d-flex align-items-center gap-2 flex-grow-1 text-decoration-none sb-link-flex-grow"
+             data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Inventario">
             <i class="bi bi-clipboard-data-fill"></i>
             <span class="flex-grow-1">Inventario</span>
           </a>
@@ -130,7 +162,7 @@
             <i class="bi bi-chevron-down cys-chevron"></i>
           </button>
         </div>
-      
+
         <div class="cys-sb-submenu" id="submenuInventario">
           <a href="{% url 'inventario:movimiento_create' %}" class="cys-sb-sublink {% block nav_salida %}{% endblock %}">
             <i class="bi bi-arrow-left-right"></i> Registrar Movimiento
@@ -139,21 +171,35 @@
             <i class="bi bi-layers"></i> Stock & Productos
           </a>
         </div>
+
+        <!-- BODEGA -->
+        <a href="{% url 'bodega:bodega_home' %}"
+           class="cys-sb-link {% block nav_bodega %}{% endblock %}"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Bodega">
+          <i class="bi bi-building-fill"></i>
+          <span>Bodega</span>
+        </a>
+
         <!-- GESTIÓN DE LOTES -->
-        <a href="{% url 'lotes:lote_list' %}" class="cys-sb-link {% block nav_lotes %}{% endblock %}">
+        <a href="{% url 'lotes:lote_list' %}"
+           class="cys-sb-link {% block nav_lotes %}{% endblock %}"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Gestión de Lotes">
           <i class="bi bi-tag-fill"></i>
           <span>Gestión de Lotes</span>
         </a>
+
         <!-- PROVEEDORES -->
         <a href="{% url 'lista_proveedores' %}"
-           class="cys-sb-link">
+           class="cys-sb-link"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Proveedores">
           <i class="bi bi-box-seam-fill"></i>
           <span>Proveedores</span>
         </a>
 
         <!-- COMPRAS -->
         <a href="{% url 'lista_compras' %}"
-           class="cys-sb-link">
+           class="cys-sb-link"
+           data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Compras">
           <i class="bi bi-cart-check-fill"></i>
           <span>Compras</span>
         </a>
@@ -202,18 +248,24 @@
     </div>
 
     <hr class="cys-sb-divider">
-    
-      <a href="{% url 'ayuda:index' %}" class="cys-sb-link cys-sb-link--config">
-  <i class="bi bi-question-circle-fill"></i>
-  <span>Ayuda</span>
-</a>
 
-    <a href="{% url 'configuracion:index' %}" class="cys-sb-link cys-sb-link--config">
+    <a href="{% url 'ayuda:index' %}"
+       class="cys-sb-link cys-sb-link--config"
+       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Ayuda">
+      <i class="bi bi-question-circle-fill"></i>
+      <span>Ayuda</span>
+    </a>
+
+    <a href="{% url 'configuracion:index' %}"
+       class="cys-sb-link cys-sb-link--config"
+       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Configuración">
       <i class="bi bi-sliders"></i>
       <span>Configuración</span>
     </a>
 
-    <a href="{% url 'cerrar_sesion' %}" class="cys-sb-link cys-sb-link--logout">
+    <a href="{% url 'cerrar_sesion' %}"
+       class="cys-sb-link cys-sb-link--logout"
+       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Cerrar Sesión">
       <i class="bi bi-box-arrow-right"></i>
       <span>Cerrar Sesión</span>
     </a>

@@ -34,4 +34,6 @@ urlpatterns = [
     
     path('ayuda/', include('ayuda.urls')),
 
+    path('bodega/', include('bodega.urls')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

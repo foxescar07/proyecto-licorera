@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bodega — CYS Ltda{% endblock %}
+{% block page_title %}Bodega {% endblock %}
+{% block nav_bodega %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/bodega/bodega.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ① ACCESO RÁPIDO — Módulo Bodega -->
+  <div class="row g-3 mb-4">
+    <!-- Tarjeta Agendar -->
+    <div class="col-md-4">
+      <div class="inv-quick-card qc-borde-teal" data-bs-toggle="modal" data-bs-target="#modalAgendar" role="button">
+        <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+          <div class="rounded-3 p-2 qc-icono-bg-teal">
+            <i class="bi bi-calendar-plus fs-4 qc-icono-color-teal"></i>
+          </div>
+          <span class="badge rounded-pill qc-badge-teal">ACCIÓN</span>
+        </div>
+        <div class="fw-bold mt-1 qc-valor-teal">{{ agendas|length|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Agendar Inventario</div>
+        <div class="text-muted small mt-1 qc-desc">Programar fecha y hora del conteo</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-teal">
+          <span class="qc-footer-texto-teal">Abrir módulo</span>
+          <i class="bi bi-arrow-right qc-footer-texto-teal"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta Conteo -->
+    <div class="col-md-4">
+      <div class="inv-quick-card qc-borde-verde" data-bs-toggle="modal" data-bs-target="#modalConteo" role="button">
+        <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+          <div class="rounded-3 p-2 qc-icono-bg-verde">
+            <i class="bi bi-clipboard2-check fs-4 qc-icono-color-verde"></i>
+          </div>
+          <span class="badge rounded-pill qc-badge-verde">CONTEO</span>
+        </div>
+        <div class="fw-bold mt-1 qc-valor-verde">{{ conteos|length|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Iniciar Conteo</div>
+        <div class="text-muted small mt-1 qc-desc">Ingresar cantidades físicas</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-verde">
+          <span class="qc-footer-texto-verde">Abrir módulo</span>
+          <i class="bi bi-arrow-right qc-footer-texto-verde"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta Comparar -->
+    <div class="col-md-4">
+      <div class="inv-quick-card qc-borde-azul" data-bs-toggle="modal" data-bs-target="#modalComparar" role="button">
+        <div class="d-flex justify-content-between align-items-start w-100 mb-2">
+          <div class="rounded-3 p-2 qc-icono-bg-teal">
+            <i class="bi bi-arrow-left-right fs-4 qc-icono-color-azul"></i>
+          </div>
+          <span class="badge rounded-pill qc-badge-azul">COMPARAR</span>
+        </div>
+        <div class="fw-bold mt-1 qc-valor-azul">{{ discrepancias|length|default:"0" }}</div>
+        <div class="fw-semibold mt-1 qc-titulo">Comparar Inventario</div>
+        <div class="text-muted small mt-1 qc-desc">Ver discrepancias físico vs sistema</div>
+        <div class="mt-2 pt-2 w-100 d-flex align-items-center gap-1 qc-footer-borde-teal">
+          <span class="qc-footer-texto-azul">Abrir módulo</span>
+          <i class="bi bi-arrow-right qc-footer-texto-azul"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="accordionBodega">
+    <!-- ③ INVENTARIOS PROGRAMADOS -->
+    <div class="card inv-card mb-4">
+      <div class="card-header inv-card-header d-flex align-items-center justify-content-between"
+           data-bs-toggle="collapse" data-bs-target="#agendaBody" role="button">
+        <span class="fw-semibold"><i class="bi bi-calendar2-week me-2 inv-icon-dorado"></i>
+          Inventarios Programados
+          {% if agendas %}
+            <span class="badge inv-badge-count ms-2">{{ agendas|length }}</span>
+          {% endif %}
+        </span>
+      </div>
+      <div class="collapse show" id="agendaBody" data-bs-parent="#accordionBodega">
+        <div class="card-body">
+          <div class="d-flex gap-2 mb-3">
+            <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-activo" data-tab="activos">
+              <i class="bi bi-clock me-1"></i>Activos
+            </button>
+            <button class="btn btn-sm rounded-pill fw-semibold agenda-tab-btn agenda-tab-inactivo" data-tab="historial">
+              <i class="bi bi-archive me-1"></i>Historial
+            </button>
+          </div>
+
+          <div class="d-flex flex-column gap-3" id="lista-agendas">
+            {% for agenda in agendas %}
+              {% with estado=agenda.estado %}
+              <div class="agenda-item p-3 rounded-3 agenda-item-card"
+                data-categoria="{% if estado == 'completada' or estado == 'cancelada' %}historial{% else %}activos{% endif %}">
+                <div class="d-flex align-items-start justify-content-between mb-2 gap-2">
+                  <div>
+                    <div class="fw-semibold agenda-titulo-texto">{{ agenda.titulo }}</div>
+                    <div class="text-muted small mt-1">
+                      <i class="bi bi-clock me-1"></i>{{ agenda.fecha_programada|date:"d/m/Y H:i" }}
+                    </div>
+                    {% if agenda.descripcion %}
+                      <div class="text-muted small mt-1">{{ agenda.descripcion }}</div>
+                    {% endif %}
+                  </div>
+                  <span class="badge rounded-pill inv-estado-{{ estado }} flex-shrink-0">
+                    {{ agenda.get_estado_display }}
+                  </span>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap my-3">
+                  {% for val, label in agenda.ESTADO_CHOICES %}
+                    {% if estado == 'completada' or estado == 'cancelada' %}
+                      <span class="badge rounded-pill px-3 py-2
+                        {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %} agenda-stepper-badge"
+                        >{{ label }}</span>
+                    {% else %}
+                      <form class="agenda-form-inline" method="POST" action="{% url 'bodega:agenda_update' agenda.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="estado" value="{{ val }}">
+                        <button type="submit"
+                                class="badge rounded-pill px-3 py-2 border-0
+                                  {% if agenda.estado == val %}inv-estado-{{ val }}{% else %}inv-tracker-inactive{% endif %} agenda-stepper-btn"
+                                {% if agenda.estado == val %}disabled{% endif %}>
+                          {{ label }}
+                        </button>
+                      </form>
+                    {% endif %}
+                    {% if not forloop.last %}
+                      <i class="bi bi-arrow-right text-muted agenda-stepper-badge"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <div class="pt-2 border-top agenda-footer-borde">
+                  {% if estado == 'completada' %}
+                    <small class="text-muted">
+                      {% if agenda.completado_por %}
+                        <i class="bi bi-person-fill me-1 text-info"></i>
+                        Finalizado por <strong class="agenda-responsable-texto">{{ agenda.completado_por.get_full_name|default:agenda.completado_por.username }}</strong>
+                      {% else %}
+                        Inventario finalizado · sin acciones disponibles
+                      {% endif %}
+                    </small>
+                  {% elif estado == 'cancelada' %}
+                    <small class="text-muted">Inventario cancelado · sin acciones disponibles</small>
+                  {% else %}
+                    <small class="text-muted">Haz clic en un estado del stepper para avanzar</small>
+                  {% endif %}
+                </div>
+              </div>
+              {% endwith %}
+            {% empty %}
+              <div class="text-center py-4 text-muted">
+                <i class="bi bi-calendar-x d-block mb-2 fs-3"></i>
+                No hay inventarios programados.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALES -->
+
+<!-- MODAL AGENDAR -->
+<div class="modal fade" id="modalAgendar" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content inv-modal">
+      <div class="modal-header inv-modal-header">
+       <h6 class="modal-title"><i class="bi bi-calendar-plus me-2 inv-icon-dorado"></i>Agendar Inventario</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'bodega:bodega_home' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label inv-label">Título</label>
+            <input type="text" name="titulo" class="form-control inv-input" placeholder="Ej: Inventario mensual Junio" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label inv-label">Fecha y hora</label>
+            <input type="datetime-local" name="fecha_programada" class="form-control inv-input" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label inv-label">Descripción (opcional)</label>
+            <textarea name="descripcion" class="form-control inv-input" rows="3" placeholder="Notas adicionales..."></textarea>
+          </div>
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn rounded-pill px-4 btn-outline-azul" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" name="Agendar" class="btn rounded-pill fw-bold px-4 btn-solido-azul">
+              <i class="bi bi-calendar-check me-2"></i>Agendar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTEO -->
+<div class="modal fade" id="modalConteo" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content inv-modal">
+      <div class="modal-header inv-modal-header">
+      <h6 class="modal-title"><i class="bi bi-clipboard2-check me-2 inv-icon-dorado"></i>Conteo de Inventario</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            {% if sesion %}
+              <div class="text-muted small">Sesión activa desde</div>
+              <div class="fw-bold text-info">{{ sesion.fecha_inicio|date:"d/m/Y H:i" }}</div>
+              {% if sesion.responsable %}
+                <div class="text-muted small mt-1">
+                  <i class="bi bi-person-fill me-1 text-info"></i>
+                  Responsable: <strong>{{ sesion.responsable.get_full_name|default:sesion.responsable.username }}</strong>
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="text-muted small">No hay sesión activa</div>
+            {% endif %}
+          </div>
+          <form method="POST" action="#">
+            {% csrf_token %}
+            <button type="submit" name="iniciar_sesion" class="btn rounded-pill fw-bold px-4 btn-solido-azul">
+              <i class="bi bi-play-fill me-1"></i>
+              {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
+            </button>
+          </form>
+        </div>
+        {% if sesion %}
+          <form method="POST" action="#">
+            {% csrf_token %}
+            <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
+            <div class="row g-3 align-items-end mb-3">
+              <div class="col-md-7">
+                <label class="form-label inv-label">Producto</label>
+                <div class="dropdown w-100">
+                  <button class="btn dropdown-toggle w-100 text-start conteo-prod-btn" type="button"
+                      id="conteo-prod-btn" data-bs-toggle="dropdown">
+                    <span id="conteo-prod-label">— Seleccionar producto —</span>
+                  </button>
+                  <ul class="dropdown-menu w-100 conteo-prod-menu inv-dropdown-scroll">
+                    {% for p in productos %}
+                    <li>
+                      <a class="dropdown-item conteo-prod-item" href="#" data-value="{{ p.pk }}">
+                        {{ p.nombre }}
+                      </a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <input type="hidden" name="producto_id" id="conteo-prod-hidden" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label inv-label">Cantidad física</label>
+                <input type="number" name="cantidad_contada" class="form-control inv-input" min="0" placeholder="0" required>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-info rounded-circle p-2 d-inline-flex align-items-center justify-content-center conteo-guardar-btn">
+                  <i class="bi bi-save"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="d-flex flex-column gap-2 conteo-lista-wrap">
+            {% for c in conteos %}
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 conteo-item-card {% if c.cantidad_contada == c.presentacion.cantidad %}borde-ok{% elif c.cantidad_contada > c.presentacion.cantidad %}borde-sobrante{% else %}borde-faltante{% endif %}">
+              <div class="conteo-item-nombre-col">
+                <div class="fw-semibold small text-truncate texto-principal">{{ c.presentacion.producto.nombre }}</div>
+                <div class="text-muted texto-mini">{{ c.presentacion.nombre }}</div>
+              </div>
+              <div class="d-flex align-items-center gap-2 conteo-item-comparativa">
+                <div class="text-center flex-fill">
+                  <div class="text-muted comparativa-label">SISTEMA</div>
+                  <div class="fw-bold comparativa-valor-sistema">{{ c.presentacion.cantidad }}</div>
+                </div>
+                <i class="bi {% if c.cantidad_contada == c.presentacion.cantidad %}bi-check2 text-success{% elif c.cantidad_contada > c.presentacion.cantidad %}bi-arrow-up texto-sobrante-purpura{% else %}bi-arrow-down text-danger{% endif %}"></i>
+                <div class="text-center flex-fill">
+                  <div class="text-muted comparativa-label">FÍSICO</div>
+                  <div class="fw-bold texto-principal">{{ c.cantidad_contada }}</div>
+                </div>
+              </div>
+              <div class="comparativa-badge-col">
+                <span class="badge badge-comparativa {% if c.cantidad_contada == c.presentacion.cantidad %}inv-estado-ok{% elif c.cantidad_contada > c.presentacion.cantidad %}badge-sobrante-purpura{% else %}inv-estado-faltante{% endif %}">
+                  {% if c.cantidad_contada == c.presentacion.cantidad %}OK{% elif c.cantidad_contada > c.presentacion.cantidad %}Sobrante{% else %}Faltante{% endif %}
+                </span>
+              </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-clipboard-x d-block mb-2 fs-3"></i>
+              Aún no has contado ningún producto.
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-play-circle d-block mb-2 fs-2"></i>
+            Primero inicia una sesión de conteo.
+          </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer inv-modal-footer">
+        <button type="button" class="btn rounded-pill px-4 btn-outline-azul" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPARAR -->
+<div class="modal fade" id="modalComparar" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content inv-modal">
+      <div class="modal-header inv-modal-header">
+        <h6 class="modal-title"><i class="bi bi-arrow-left-right me-2 inv-icon-dorado"></i>Comparar Inventario</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% if not sesion %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-clipboard-x d-block mb-2 fs-3"></i>
+            No hay sesión activa. Primero inicia un conteo.
+          </div>
+        {% elif not discrepancias %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-inbox d-block mb-2 fs-3"></i>
+            No hay productos contados en esta sesión.
+          </div>
+        {% else %}
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="inv-stat-card text-center">
+                <div class="text-muted small">Total Comparados</div>
+                <div class="fw-bold fs-4 text-info">{{ discrepancias|length }}</div>
+                <div class="text-muted texto-mini">productos</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="inv-stat-card text-center">
+                <div class="text-muted small">Con Diferencia</div>
+                <div class="fw-bold fs-4 text-danger">{{ discrepancias|length }}</div>
+                <div class="text-muted texto-mini">revisión necesaria</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="inv-stat-card text-center">
+                <div class="text-muted small">Sesión Activa</div>
+                <div class="fw-bold text-info mt-1">{{ sesion.fecha_inicio|date:"d/m/Y" }}</div>
+                <div class="text-muted texto-mini">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex flex-column gap-2 comparar-lista-wrap">
+            {% for d in discrepancias %}
+            <div class="p-3 rounded-3 d-flex align-items-center gap-3 flex-wrap conteo-item-card {% if d.estado == 'ok' %}borde-ok{% elif d.estado == 'sobrante' %}borde-sobrante{% else %}borde-faltante{% endif %}">
+              <div class="comparar-item-nombre-col">
+                <div class="fw-semibold small text-truncate texto-principal">{{ d.presentacion.producto.nombre }}</div>
+                <div class="text-info comparar-item-codigo">{{ d.presentacion.producto.codigo|default:"s/c" }}</div>
+                <div class="text-muted texto-mini-2">{{ d.presentacion.producto.categoria.nombre }}</div>
+              </div>
+              <div class="d-flex align-items-center gap-2 comparar-item-comparativa">
+                <div class="text-center flex-fill">
+                  <div class="text-muted comparativa-label">SISTEMA</div>
+                  <div class="fw-bold comparativa-valor-sistema">{{ d.en_sistema }}</div>
+                </div>
+                <i class="bi bi-arrow-right text-muted comparar-item-flecha"></i>
+                <div class="text-center flex-fill">
+                  <div class="text-muted comparativa-label">FÍSICO</div>
+                  <div class="fw-bold texto-principal">{{ d.fisico }}</div>
+                </div>
+              </div>
+              <div class="text-center comparar-diferencia-col">
+                <div class="fw-bold comparar-diferencia-valor {% if d.diferencia == 0 %}texto-ok{% elif d.diferencia > 0 %}texto-sobrante{% else %}texto-faltante{% endif %}">
+                  {% if d.diferencia > 0 %}+{% endif %}{{ d.diferencia }}
+                </div>
+                <span class="badge badge-comparativa {% if d.estado == 'ok' %}badge-estado-ok{% elif d.estado == 'sobrante' %}badge-estado-sobrante{% else %}badge-estado-faltante{% endif %}">
+                  {% if d.estado == 'ok' %}OK{% elif d.estado == 'sobrante' %}Sobrante{% else %}Faltante{% endif %}
+                </span>
+              </div>
+              <div class="comparativa-badge-col">
+                {% if d.estado != 'ok' %}
+                  <form method="POST" action="{% url 'bodega:ajustar_stock' d.presentacion.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="nueva_cantidad" value="{{ d.fisico }}">
+                    <button type="submit" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center comparar-ajustar-btn"
+                            onclick="return confirm('¿Ajustar stock de {{ d.presentacion.producto.nombre }}?')" title="Ajustar stock">
+                      <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                  </form>
+                {% else %}
+                  <i class="bi bi-check-circle-fill comparar-check-icono" title="Sin diferencia"></i>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer inv-modal-footer">
+        <button type="button" class="btn rounded-pill px-4 btn-outline-azul" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/bodega/bodega.js' %}"></script>
+{% endblock %}

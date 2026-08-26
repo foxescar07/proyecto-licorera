@@ -601,3 +601,50 @@ class DetalleDevolucion(models.Model):
             raise ValidationError({'cantidad': 'Debe ser mayor a 0'})
         if self.precio_unitario <= 0:
             raise ValidationError({'precio_unitario': 'Debe ser mayor a 0'})
+
+
+# ════════════════════════════════════════
+# MÉTODO DE PAGO (TABLA MER)
+# ════════════════════════════════════════
+
+class MetodoPago(models.Model):
+    """
+    MER: metodo_pago
+    #codigo_metodo | *fecha | *valor | *referencia
+    efectivo | transaccion | observacion | *codigo_venta(FK) / codigo_compra(FK)
+    """
+    codigo_metodo = models.AutoField(primary_key=True, verbose_name='Código método')
+    codigo_venta  = models.ForeignKey(
+        Venta,
+        on_delete=models.CASCADE,
+        related_name='metodos_pago',
+        verbose_name='Venta asociada',
+        null=True, blank=True,
+    )
+    fecha       = models.DateTimeField(default=timezone.now, verbose_name='Fecha')
+    valor       = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        verbose_name='Valor',
+    )
+    referencia  = models.CharField(
+        max_length=100, blank=True, default='',
+        verbose_name='Referencia',
+    )
+    efectivo    = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        verbose_name='Monto en efectivo',
+    )
+    transaccion = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name='Número de transacción',
+    )
+    observacion = models.TextField(blank=True, default='', verbose_name='Observación')
+
+    class Meta:
+        verbose_name        = 'Método de Pago'
+        verbose_name_plural = 'Métodos de Pago'
+        ordering            = ['-fecha']
+
+    def __str__(self):
+        ref_text = f' — Ref: {self.referencia}' if self.referencia else ''
+        return f'Pago #{self.codigo_metodo} | ${self.valor:,.0f}{ref_text}'

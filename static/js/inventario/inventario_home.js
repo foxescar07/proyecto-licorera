@@ -1,11 +1,10 @@
 /**
  * INVENTARIO_HOME.JS — Dashboard Principal de Inventario
- * Funcionalidades: DataTables, escaneo QR, análisis de rotación, dropdown modales
+ * Funcionalidades: DataTables, escaneo de códigos, análisis de rotación, Movimientos, Catálogo
  */
 
-// ── DATATABLE MOVIMIENTOS ──
+// ── DATATABLE MOVIMIENTOS Y CATÁLOGO ──
 $(document).ready(function () {
-  // Tabla movimientos
   if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
     $('#tablaMovimientos').DataTable().destroy();
   }
@@ -24,11 +23,28 @@ $(document).ready(function () {
     dom: 'rt'
   });
 
-  // Tabla catálogo lista
+  if ($.fn.DataTable.isDataTable('#tabla-codigos')) {
+    $('#tabla-codigos').DataTable().destroy();
+  }
+  $('#tabla-codigos').DataTable({
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: true,
+    responsive: true,
+    columnDefs: [
+      { orderable: false, targets: [0] }  // # no ordenable
+    ],
+    language: {
+      emptyTable: "No hay productos registrados."
+    },
+    dom: 'rt'
+  });
+
   if ($.fn.DataTable.isDataTable('#cat-list table')) {
     $('#cat-list table').DataTable().destroy();
   }
-  var tablaCatalogo = $('#cat-list table').DataTable({
+  $('#cat-list table').DataTable({
     paging: false,
     searching: false,
     info: false,
@@ -40,6 +56,7 @@ $(document).ready(function () {
     dom: 'rt'
   });
 });
+
 // Limpiar backdrop huérfano SOLO si no hay modal abriendo
 window.addEventListener('load', function() {
   setTimeout(function() {
@@ -50,6 +67,13 @@ window.addEventListener('load', function() {
       document.body.style.paddingRight = '';
     }
   }, 300);
+});
+
+// Tooltips
+window.addEventListener('load', function () {
+  document.querySelectorAll('.container-fluid [title]').forEach(function (el) {
+    new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover' });
+  });
 });
 
 // ── FORMATO DE PRECIOS (puntos de miles, es-CO) ──
@@ -68,7 +92,7 @@ document.querySelectorAll('.precio-fmt').forEach(function (el) {
 });
 
 // ── EDITAR MOVIMIENTO ──
-document.getElementById('modalEditarMovimiento').addEventListener('show.bs.modal', function (e) {
+document.getElementById('modalEditarMovimiento')?.addEventListener('show.bs.modal', function (e) {
   const btn = e.relatedTarget;
   if (!btn) return;
   document.getElementById('em-producto-nombre').textContent = btn.dataset.nombre;
@@ -93,11 +117,31 @@ document.querySelectorAll('.em-tipo-item').forEach(function(item) {
   });
 });
 
+// Dropdown de Lote (modal Registrar Movimiento)
+document.querySelectorAll('.rm-lote-item').forEach(function (item) {
+  item.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('rm-lote-label').textContent = item.textContent.trim();
+    document.getElementById('rm-lote-hidden').value = item.dataset.value;
+  });
+});
+
+// Dropdown de Tipo (modal Registrar Movimiento)
+document.querySelectorAll('.rm-tipo-item').forEach(function (item) {
+  item.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('rm-tipo-label').textContent = item.textContent.trim();
+    document.getElementById('rm-tipo-hidden').value = item.dataset.value;
+  });
+});
+
 // ── REGISTRAR CÓDIGOS ──
 (function () {
-  let filaActiva   = null;
-  let zxingReader  = null;
+  let filaActiva  = null;
+  let html5Scanner = null;
   const modal      = document.getElementById('modalRegistrarCodigos');
+  if (!modal) return;
+
   const scanInput  = document.getElementById('scan-input');
   const scanBtn    = document.getElementById('scan-guardar');
   const scanNombre = document.getElementById('scan-producto-nombre');
@@ -117,8 +161,6 @@ document.querySelectorAll('.em-tipo-item').forEach(function(item) {
     camBtn.disabled        = true;
     detenerCamara();
   }
-
-  let html5Scanner = null;
 
   async function iniciarCamara() {
     camPanel.classList.remove('d-none');
@@ -224,56 +266,11 @@ document.querySelectorAll('.em-tipo-item').forEach(function(item) {
   modal.addEventListener('hidden.bs.modal', resetUI);
 })();
 
-// ── ACORDEÓN "Inventarios Programados": recuerda si estaba abierto ──
-(function () {
-  const collapseEl = document.getElementById('agendaBody');
-  if (!collapseEl) return;
-  const KEY = 'cys_agenda_abierta';
-
-  if (sessionStorage.getItem(KEY) === '1') {
-    collapseEl.classList.add('show');
-  }
-
-  collapseEl.addEventListener('shown.bs.collapse', () => sessionStorage.setItem(KEY, '1'));
-  collapseEl.addEventListener('hidden.bs.collapse', () => sessionStorage.setItem(KEY, '0'));
-})();
-
-// ── TABS AGENDAS: recuerda el último tab visto (Activos / Historial) ──
-(function () {
-  const TAB_KEY = 'cys_agenda_tab';
-
-  function filtrarAgendas(tab) {
-    document.querySelectorAll('.agenda-item').forEach(item => {
-      item.style.display = (item.dataset.categoria === tab) ? '' : 'none';
-    });
-  }
-
-  document.querySelectorAll('.agenda-tab-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.agenda-tab-btn').forEach(b => {
-        b.classList.remove('agenda-tab-activo');
-        b.classList.add('agenda-tab-inactivo');
-      });
-      this.classList.remove('agenda-tab-inactivo');
-      this.classList.add('agenda-tab-activo');
-      sessionStorage.setItem(TAB_KEY, this.dataset.tab);
-      filtrarAgendas(this.dataset.tab);
-    });
-  });
-
-  // Al cargar la página: restaurar el último tab visto (por defecto "activos")
-  const tabGuardado = sessionStorage.getItem(TAB_KEY) || 'activos';
-  document.querySelectorAll('.agenda-tab-btn').forEach(b => {
-    const esGuardado = b.dataset.tab === tabGuardado;
-    b.classList.toggle('agenda-tab-activo', esGuardado);
-    b.classList.toggle('agenda-tab-inactivo', !esGuardado);
-  });
-  filtrarAgendas(tabGuardado);
-})();
-
 // ── CATÁLOGO ──
 (function () {
-  const buscar  = document.getElementById('cat-buscar');
+  const buscar = document.getElementById('cat-buscar');
+  if (!buscar) return;
+
   let catFiltro = '';
   const grid    = document.getElementById('cat-grid');
   const list    = document.getElementById('cat-list');
@@ -296,11 +293,6 @@ document.querySelectorAll('.em-tipo-item').forEach(function(item) {
 
   buscar.addEventListener('input', filtrar);
 
-  // FIX: antes el selector era '[data-cat]', que también capturaba las
-  // tarjetas de producto (.cat-item) porque ELLAS TAMBIÉN tienen data-cat.
-  // Eso hacía que al hacer clic en una tarjeta se sobreescribiera el label
-  // del dropdown de categorías con el texto completo de la tarjeta.
-  // Ahora apuntamos solo a los items del dropdown (.cat-cat-item).
   document.querySelectorAll('.cat-cat-item').forEach(function(a) {
     a.addEventListener('click', function(e) {
       e.preventDefault();
@@ -418,23 +410,6 @@ const ROTACION_URL = document.getElementById('rotacion-config')?.getAttribute('d
   }
 })();
 
-// ── DROPDOWN CONTEO PRODUCTO ──
-document.querySelectorAll('.conteo-prod-item').forEach(function(item) {
-  item.addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('conteo-prod-label').textContent = this.textContent.trim();
-    document.getElementById('conteo-prod-hidden').value = this.dataset.value;
-  });
-});
-
-window.addEventListener('load', function () {
-  document.querySelectorAll('.container-fluid [title]').forEach(function (el) {
-    new bootstrap.Tooltip(el, {
-      placement: 'top',
-      trigger: 'hover'
-    });
-  });
-});
 // ── SPINNERS CUSTOM (+/-) PARA INPUTS NUMÉRICOS ──
 document.querySelectorAll('.inv-spin-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -450,22 +425,5 @@ document.querySelectorAll('.inv-spin-btn').forEach(function (btn) {
 
     input.value = val;
     input.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-});
-// Dropdown de Lote (modal Registrar Movimiento)
-document.querySelectorAll('.rm-lote-item').forEach(function (item) {
-  item.addEventListener('click', function (e) {
-    e.preventDefault();
-    document.getElementById('rm-lote-label').textContent = item.textContent.trim();
-    document.getElementById('rm-lote-hidden').value = item.dataset.value;
-  });
-});
-
-// Dropdown de Tipo (modal Registrar Movimiento)
-document.querySelectorAll('.rm-tipo-item').forEach(function (item) {
-  item.addEventListener('click', function (e) {
-    e.preventDefault();
-    document.getElementById('rm-tipo-label').textContent = item.textContent.trim();
-    document.getElementById('rm-tipo-hidden').value = item.dataset.value;
   });
 });
