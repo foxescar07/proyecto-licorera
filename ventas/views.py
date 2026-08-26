@@ -6,13 +6,14 @@ from django.db.models import Sum, Q, Min, Max
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from decimal import Decimal, InvalidOperation
+from datetime import datetime, time
 from functools import wraps
 import json
 from django.urls import reverse
 
 from .models import (
     Venta, DetalleVenta, AperturaCaja, CierreCaja,
-    Devolucion, DetalleDevolucion, Cliente,
+    Devolucion, DetalleDevolucion, Cliente, MetodoPago,
 )
 from .forms import VentaForm, DetalleVentaForm, DevolucionForm
 from productos.models import Producto, Categoria, PresentacionProducto
@@ -42,6 +43,15 @@ def session_required(view_func):
 # ════════════════════════════════════════
 # HELPERS GENERALES
 # ════════════════════════════════════════
+
+def _rango_dia(fecha_date=None):
+    """Devuelve una tupla (inicio, fin) aware para filtrar por rango de fecha sin depender de CONVERT_TZ en MySQL."""
+    if fecha_date is None:
+        fecha_date = timezone.localdate()
+    inicio = timezone.make_aware(datetime.combine(fecha_date, time.min))
+    fin = timezone.make_aware(datetime.combine(fecha_date, time.max))
+    return inicio, fin
+
 
 def _descontar_stock_fefo(presentacion, cantidad_a_descontar, vendedor):
     if presentacion.stock_real < cantidad_a_descontar:
@@ -203,11 +213,12 @@ def _agregar_item_carrito(request, producto, presentacion, cantidad):
 def _render_pos(request, sticky=None, error_apertura=None, error_cierre=None):
     sticky     = sticky or {}
     hoy        = timezone.localdate()
+    inicio_hoy, fin_hoy = _rango_dia(hoy)
     usuario_id = request.session.get('usuario_id')
 
     form     = VentaForm()
     clientes = Cliente.objects.all().order_by('nombre')
-    total_dia = int(sum(v.total_venta for v in Venta.objects.filter(fecha__date=hoy)))
+    total_dia = int(sum(v.total_venta for v in Venta.objects.filter(fecha__range=(inicio_hoy, fin_hoy))))
 
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).first()
@@ -274,12 +285,7 @@ def _render_pos(request, sticky=None, error_apertura=None, error_cierre=None):
         )
     )
 
-    if caja_abierta:
-        ventas_qs = ventas_qs.filter(fecha__gte=caja_abierta.creado_en)
-        if ultimo_cierre:
-            ventas_qs = ventas_qs.filter(fecha__lte=ultimo_cierre.creado_en)
-    else:
-        ventas_qs = ventas_qs.none()
+    ventas_qs = ventas_qs.filter(fecha__range=(inicio_hoy, fin_hoy))
 
     q = request.GET.get('q', '').strip()
     if q:
@@ -561,6 +567,42 @@ def _accion_confirmar_venta(request):
         comprobante_pago=comprobante_pago,
     )
 
+    # ── Registrar desglose en la tabla MetodoPago ──
+    if pago_efectivo_val > 0:
+        MetodoPago.objects.create(
+            codigo_venta=venta,
+            valor=pago_efectivo_val,
+            efectivo=pago_efectivo_val,
+            referencia='Efectivo POS',
+            observacion='Pago recibido en efectivo',
+        )
+    if pago_tarjeta_val > 0:
+        MetodoPago.objects.create(
+            codigo_venta=venta,
+            valor=pago_tarjeta_val,
+            efectivo=Decimal('0'),
+            referencia='Transferencia POS',
+            observacion='Pago por transferencia bancaria',
+        )
+    if pago_otro_val > 0:
+        nombre_met = metodo_otro_nombre.capitalize() or 'Otro Método'
+        MetodoPago.objects.create(
+            codigo_venta=venta,
+            valor=pago_otro_val,
+            efectivo=Decimal('0'),
+            referencia=f'{nombre_met} POS',
+            observacion=f'Pago registrado vía {nombre_met}',
+        )
+    if not MetodoPago.objects.filter(codigo_venta=venta).exists():
+        es_efec = (metodo_pago == 'efectivo')
+        MetodoPago.objects.create(
+            codigo_venta=venta,
+            valor=total_final,
+            efectivo=total_final if es_efec else Decimal('0'),
+            referencia=f'{metodo_pago.capitalize()} POS',
+            observacion=f'Pago registrado como {metodo_pago}',
+        )
+
     for item in items_validados:
         producto     = item['producto']
         presentacion = item['presentacion']
@@ -767,12 +809,13 @@ def eliminar_venta(request, pk):
     for det in venta.detalles.select_related('codigo_producto', 'codigo_presentacion').all():
         if det.codigo_presentacion:
             inv = Inventario.objects.filter(presentacion=det.codigo_presentacion).first()
+            inicio_v, fin_v = _rango_dia(venta.fecha.date())
             movimientos_salida = MovimientoInventario.objects.filter(
                 inventario__presentacion=det.codigo_presentacion,
                 tipo='salida',
                 motivo='Venta registrada',
                 lote__presentacion=det.codigo_presentacion,
-                fecha__date=venta.fecha.date(),
+                fecha__range=(inicio_v, fin_v),
             )
 
             lotes_a_restaurar = {}
@@ -831,7 +874,8 @@ def producto_stock_json(request, pk):
 @session_required
 def ventas_del_dia(request):
     hoy    = timezone.localdate()
-    ventas = Venta.objects.filter(fecha__date=hoy).select_related(
+    inicio_hoy, fin_hoy = _rango_dia(hoy)
+    ventas = Venta.objects.filter(fecha__range=(inicio_hoy, fin_hoy)).select_related(
         'codigo_cliente', 'documento_usuario'
     ).prefetch_related(
         'detalles__codigo_producto', 'detalles__codigo_presentacion'
@@ -1583,3 +1627,58 @@ def devoluciones_flujo(request):
         context['prov_pendientes']       = 0
 
     return render(request, 'ventas/devoluciones.html', context)
+
+
+# ════════════════════════════════════════
+# MÓDULO MÉTODOS DE PAGO
+# ════════════════════════════════════════
+
+@session_required
+def metodos_pago_lista(request):
+    hoy = timezone.localdate()
+    inicio_hoy, fin_hoy = _rango_dia(hoy)
+
+    metodos_qs = (
+        MetodoPago.objects
+        .select_related('codigo_venta', 'codigo_venta__codigo_cliente', 'codigo_venta__documento_usuario')
+        .order_by('-fecha')
+    )
+
+    q = request.GET.get('q', '').strip()
+    if q:
+        metodos_qs = metodos_qs.filter(
+            Q(referencia__icontains=q) |
+            Q(transaccion__icontains=q) |
+            Q(observacion__icontains=q) |
+            Q(codigo_venta__codigo_cliente__nombre__icontains=q) |
+            Q(codigo_metodo__icontains=q)
+        ).distinct()
+
+    tipo_filtro = request.GET.get('tipo', 'todos')
+    if tipo_filtro == 'efectivo':
+        metodos_qs = metodos_qs.filter(efectivo__gt=0)
+    elif tipo_filtro == 'digital':
+        metodos_qs = metodos_qs.filter(efectivo=0)
+
+    rango_filtro = request.GET.get('rango', 'todos')
+    if rango_filtro == 'hoy':
+        metodos_qs = metodos_qs.filter(fecha__range=(inicio_hoy, fin_hoy))
+
+    total_monto    = sum(m.valor for m in metodos_qs)
+    total_efectivo = sum(m.efectivo for m in metodos_qs)
+    total_digital  = sum(m.valor - m.efectivo for m in metodos_qs)
+
+    context = {
+        'metodos_pago':   metodos_qs,
+        'total_monto':    total_monto,
+        'total_efectivo': total_efectivo,
+        'total_digital':  total_digital,
+        'q':              q,
+        'tipo_filtro':    tipo_filtro,
+        'rango_filtro':   rango_filtro,
+        'breadcrumb_items': [
+            {'nombre': 'Ventas', 'url': reverse('ventas:ventas_lista')},
+            {'nombre': 'Métodos de Pago', 'url': None},
+        ],
+    }
+    return render(request, 'ventas/metodos_pago.html', context)
