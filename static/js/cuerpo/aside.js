@@ -82,4 +82,67 @@
   sidebar.addEventListener('hide.bs.offcanvas', () => document.body.classList.remove('sidebar-open'));
   if (sidebar.classList.contains('show')) document.body.classList.add('sidebar-open');
 
+  // ══════════════════════════════════════════
+  // MODO MINI (icons-only) + TOOLTIPS
+  // ══════════════════════════════════════════
+  const KEY_MINI = 'cys_sidebar_mini';
+  const ANCHO_FULL = '290px';
+  const ANCHO_MINI = '84px';
+
+  const btnMini = document.getElementById('btnMiniSidebar');
+  const iconMini = btnMini ? btnMini.querySelector('i') : null;
+
+  // Tooltips de TODO lo que tenga data-bs-toggle="tooltip" dentro del aside
+  // (módulos, Ventas/Inventario, avatar, botón de cerrar y botón modo mini).
+  // Quedan siempre activos, sin importar si el aside está expandido o compacto.
+  let sidebarTooltips = [];
+  if (window.bootstrap) {
+    sidebarTooltips = Array.from(sidebar.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      .map(el => new bootstrap.Tooltip(el, {
+        trigger: 'hover',
+        placement: el.getAttribute('data-bs-placement') || 'right',
+        container: 'body' // evita que el overflow del sidebar los recorte
+      }));
+  }
+
+  // Ajusta la variable CSS que usa base.css para el espacio que le deja
+  // al header/subnav/main, según el ancho real del sidebar en este momento.
+  function actualizarOffsetLayout(activo) {
+    document.documentElement.style.setProperty('--sidebar-offset', activo ? ANCHO_MINI : ANCHO_FULL);
+  }
+
+  function aplicarModoMini(activo) {
+    sidebar.classList.toggle('cys-sb-mini', activo);
+
+    // Forzamos el ancho directo por JS (gana sobre cualquier otra regla CSS,
+    // incluida la de #sidebarRight { width: 290px !important } en base.css).
+    if (activo) {
+      sidebar.style.setProperty('width', ANCHO_MINI, 'important');
+    } else {
+      sidebar.style.removeProperty('width');
+    }
+
+    actualizarOffsetLayout(activo);
+
+    if (iconMini) {
+      iconMini.classList.toggle('bi-chevron-double-left', !activo);
+      iconMini.classList.toggle('bi-chevron-double-right', activo);
+    }
+  }
+
+  let miniActivo = cysSidebarCfg.sidebarMini || localStorage.getItem(KEY_MINI) === '1';
+  aplicarModoMini(miniActivo);
+
+  // Si el sidebar ya estaba abierto al cargar la página (sidebarAuto),
+  // aseguramos que el layout tenga el offset correcto desde el inicio.
+  if (sidebar.classList.contains('show')) actualizarOffsetLayout(miniActivo);
+
+  if (btnMini) {
+    btnMini.addEventListener('click', () => {
+      miniActivo = !miniActivo;
+      localStorage.setItem(KEY_MINI, miniActivo ? '1' : '0');
+      aplicarModoMini(miniActivo);
+    });
+  }
+
 })();

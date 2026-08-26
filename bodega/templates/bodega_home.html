@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block title %}Bodega — CYS Ltda{% endblock %}
-{% block page_title %}Bodega y Conteo{% endblock %}
+{% block page_title %}Bodega {% endblock %}
 {% block nav_bodega %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bodega/css/bodega.css' %}">
+<link rel="stylesheet" href="{% static 'css/bodega/bodega.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -426,5 +426,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'bodega/js/bodega.js' %}"></script>
+<script src="{% static 'js/bodega/bodega.js' %}"></script>
 {% endblock %}
