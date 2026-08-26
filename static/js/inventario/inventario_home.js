@@ -1,11 +1,10 @@
 /**
  * INVENTARIO_HOME.JS — Dashboard Principal de Inventario
- * Funcionalidades: DataTables, escaneo QR, análisis de rotación, Movimientos, Catálogo
+ * Funcionalidades: DataTables, escaneo de códigos, análisis de rotación, Movimientos, Catálogo
  */
 
 // ── DATATABLE MOVIMIENTOS Y CATÁLOGO ──
 $(document).ready(function () {
-  // Tabla movimientos
   if ($.fn.DataTable.isDataTable('#tablaMovimientos')) {
     $('#tablaMovimientos').DataTable().destroy();
   }
@@ -24,7 +23,6 @@ $(document).ready(function () {
     dom: 'rt'
   });
 
-  // Tabla registrar códigos
   if ($.fn.DataTable.isDataTable('#tabla-codigos')) {
     $('#tabla-codigos').DataTable().destroy();
   }
@@ -43,11 +41,10 @@ $(document).ready(function () {
     dom: 'rt'
   });
 
-  // Tabla catálogo lista
   if ($.fn.DataTable.isDataTable('#cat-list table')) {
     $('#cat-list table').DataTable().destroy();
   }
-  var tablaCatalogo = $('#cat-list table').DataTable({
+  $('#cat-list table').DataTable({
     paging: false,
     searching: false,
     info: false,
@@ -140,11 +137,11 @@ document.querySelectorAll('.rm-tipo-item').forEach(function (item) {
 
 // ── REGISTRAR CÓDIGOS ──
 (function () {
-  let filaActiva   = null;
-  let zxingReader  = null;
+  let filaActiva  = null;
+  let html5Scanner = null;
   const modal      = document.getElementById('modalRegistrarCodigos');
-  if(!modal) return;
-  
+  if (!modal) return;
+
   const scanInput  = document.getElementById('scan-input');
   const scanBtn    = document.getElementById('scan-guardar');
   const scanNombre = document.getElementById('scan-producto-nombre');
@@ -164,8 +161,6 @@ document.querySelectorAll('.rm-tipo-item').forEach(function (item) {
     camBtn.disabled        = true;
     detenerCamara();
   }
-
-  let html5Scanner = null;
 
   async function iniciarCamara() {
     camPanel.classList.remove('d-none');
@@ -273,8 +268,9 @@ document.querySelectorAll('.rm-tipo-item').forEach(function (item) {
 
 // ── CATÁLOGO ──
 (function () {
-  const buscar  = document.getElementById('cat-buscar');
-  if(!buscar) return;
+  const buscar = document.getElementById('cat-buscar');
+  if (!buscar) return;
+
   let catFiltro = '';
   const grid    = document.getElementById('cat-grid');
   const list    = document.getElementById('cat-list');
