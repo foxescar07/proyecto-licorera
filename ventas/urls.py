@@ -6,6 +6,7 @@ app_name = "ventas"
 urlpatterns = [
     # ── Punto de Venta ──────────────────────────────────────────────────────────
     path("", views.ventas_lista, name="ventas_lista"),
+    path("metodos-pago/", views.metodos_pago_lista, name="metodos_pago_lista"),
     path("eliminar/<int:pk>/", views.eliminar_venta, name="eliminar_venta"),
     path("dia/", views.ventas_del_dia, name="ventas_dia"),
     path(

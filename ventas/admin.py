@@ -1,5 +1,5 @@
 from django.contrib import admin # type: ignore
-from .models import Cliente, Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
+from .models import Cliente, Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion, MetodoPago
 
 
 class DetalleVentaInline(admin.TabularInline):
@@ -42,6 +42,13 @@ class VentaAdmin(admin.ModelAdmin):
     date_hierarchy = 'fecha'
 
 
+@admin.register(MetodoPago)
+class MetodoPagoAdmin(admin.ModelAdmin):
+    list_display = ['codigo_metodo', 'codigo_venta', 'fecha', 'valor', 'referencia', 'efectivo', 'transaccion']
+    search_fields = ['codigo_metodo', 'referencia', 'transaccion']
+    list_filter = ['fecha']
+
+
 @admin.register(AperturaCaja)
 class AperturaCajaAdmin(admin.ModelAdmin):
     list_display = ['fecha', 'documento_usuario', 'monto_base', 'creado_en']
@@ -59,4 +66,4 @@ class DevolucionAdmin(admin.ModelAdmin):
     list_display = ['id', 'codigo_venta', 'documento_usuario', 'fecha', 'total_devuelto']
     list_filter = ['motivo', 'fecha']
     inlines = [DetalleDevolucionInline]
-    raw_id_fields = ['codigo_venta']
+    raw_id_fields = ['codigo_venta']
