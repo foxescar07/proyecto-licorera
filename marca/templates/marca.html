@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo de Marcas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================= SIDEBAR ================= -->
+  <nav class="sidebar">
+    <h1>Módulo de marcas</h1>
+
+    <div class="menu-item active" data-view="acceso" onclick="switchView('acceso', this)">
+      <span class="icon">◎</span>
+      <span>CP1.32.1 – Acceso al registro de marcas</span>
+    </div>
+
+    <div class="menu-item" data-view="registro" onclick="switchView('registro', this)">
+      <span class="icon">◎</span>
+      <span>CP1.32.3 – Registro de una marca</span>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <!-- ---- VISTA 1: ACCESO AL REGISTRO DE MARCAS ---- -->
+    <section id="view-acceso" class="view active">
+      <div class="view-header">
+        <span class="code">CP1.32.1</span>
+        <h2>Acceso al registro de marcas</h2>
+        <p>Listado de marcas registradas. Buscá, filtrá o iniciá un nuevo registro.</p>
+      </div>
+
+      <div class="toolbar">
+        <input class="search" type="text" placeholder="Buscar por nombre de marca, titular o clase...">
+        <button class="btn secondary">Filtrar</button>
+        <button class="btn" onclick="switchView('registro', document.querySelectorAll('.menu-item')[1])">+ Nueva marca</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th>Titular</th>
+            <th>Clase</th>
+            <th>Fecha de solicitud</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tabla-marcas">
+          <tr>
+            <td>Ejemplo S.A.</td>
+            <td>Juan Pérez</td>
+            <td>Clase 35</td>
+            <td>12/03/2026</td>
+            <td><span class="badge ok">Registrada</span></td>
+            <td class="row-actions"><button>Ver</button><button>Editar</button></td>
+          </tr>
+          <tr>
+            <td>NovaTech</td>
+            <td>Nova Group SAS</td>
+            <td>Clase 9</td>
+            <td>02/07/2026</td>
+            <td><span class="badge pending">En trámite</span></td>
+            <td class="row-actions"><button>Ver</button><button>Editar</button></td>
+          </tr>
+          <tr>
+            <td>Café del Sur</td>
+            <td>María Gómez</td>
+            <td>Clase 30</td>
+            <td>25/01/2026</td>
+            <td><span class="badge rejected">Rechazada</span></td>
+            <td class="row-actions"><button>Ver</button><button>Editar</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ---- VISTA 2: REGISTRO DE UNA MARCA ---- -->
+    <section id="view-registro" class="view">
+      <div class="view-header">
+        <span class="code">CP1.32.3</span>
+        <h2>Registro de una marca</h2>
+        <p>Completá los datos para iniciar la solicitud de registro.</p>
+      </div>
+
+      <form id="form-marca" onsubmit="return guardarMarca(event)">
+
+        <fieldset>
+          <legend>Datos de la marca</legend>
+          <div class="grid">
+            <div class="field full">
+              <label for="nombreMarca">Nombre de la marca</label>
+              <input id="nombreMarca" type="text" required placeholder="Ej: Café del Sur">
+            </div>
+            <div class="field">
+              <label for="tipoMarca">Tipo de marca</label>
+              <select id="tipoMarca">
+                <option value="denominativa">Denominativa</option>
+                <option value="figurativa">Figurativa</option>
+                <option value="mixta">Mixta</option>
+                <option value="sonora">Sonora</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="clase">Clase (Niza)</label>
+              <input id="clase" type="text" placeholder="Ej: Clase 30" required>
+            </div>
+            <div class="field full">
+              <label for="descripcion">Descripción de productos/servicios</label>
+              <textarea id="descripcion" placeholder="Describí qué productos o servicios ampara la marca..."></textarea>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Titular</legend>
+          <div class="grid">
+            <div class="field">
+              <label for="titular">Nombre / razón social</label>
+              <input id="titular" type="text" required>
+            </div>
+            <div class="field">
+              <label for="documento">Documento / NIT</label>
+              <input id="documento" type="text" required>
+            </div>
+            <div class="field">
+              <label for="email">Correo electrónico</label>
+              <input id="email" type="email" required>
+            </div>
+            <div class="field">
+              <label for="telefono">Teléfono</label>
+              <input id="telefono" type="tel">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" class="btn secondary" onclick="switchView('acceso', document.querySelectorAll('.menu-item')[0])">Cancelar</button>
+          <button type="submit" class="btn">Guardar registro</button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
