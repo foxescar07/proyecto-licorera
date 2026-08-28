@@ -1,0 +1,58 @@
+﻿<!-- ═══════ MODAL: PRESENTACIONES ═══════ -->
+<div class="modal fade" id="modalPresentacionesProducto" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content prod-modal prod-modal-scroll">
+      <div class="modal-header prod-modal-header sticky-top">
+        <h6 class="modal-title">
+          <i class="bi bi-layers me-2 text-info"></i>
+          Presentaciones — <span id="pres-nombre-producto"></span>
+        </h6>
+        <button type="button" class="btn-close btn-close-white"
+                onclick="cerrarModalPresentaciones()"></button>
+      </div>
+      <form id="form-presentaciones-modal" method="POST" action="">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <p class="text-muted small mb-3">
+            La primera fila es la <strong class="text-info">presentación base</strong>.
+            Al guardar podrás agregar stock desde <strong>Compras</strong>.
+          </p>
+          <!-- Fila base -->
+          <div class="row g-2 align-items-end mb-3 p-2 rounded prod-pres-base">
+            <div class="col-md-3">
+              <label class="form-label prod-label">Presentación</label>
+              <input type="text" name="nombre[]" id="pres-nombre-unidad" value="Unidad"
+                     class="form-control prod-input" placeholder="Ej: Lata, Botella…">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label prod-label">Unidades</label>
+              <input type="number" name="unidades_base[]" id="pres-unidades-unidad" value="1"
+                     class="form-control prod-input" min="1">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label prod-label">Precio (COP)</label>
+              <input type="number" name="precio[]" id="pres-precio-unidad"
+                     class="form-control prod-input" placeholder="Ej: 2500" min="0" required>
+            </div>
+            <div class="col-md-1 text-center">
+              <span class="text-info small">Base</span>
+            </div>
+          </div>
+          <div id="contenedor-presentaciones-modal"></div>
+          <button type="button" class="btn prod-btn-outline w-100 mt-2"
+                  onclick="agregarPresentacionModal()">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
+          </button>
+        </div>
+        <div class="modal-footer prod-modal-footer justify-content-between">
+          <button type="button" class="btn prod-btn-outline"
+                  onclick="cerrarModalPresentaciones()">Cancelar</button>
+          <button type="button" class="btn prod-btn-primary"
+                  onclick="guardarPresentacionesModal()">
+            <i class="bi bi-save me-1"></i> Guardar Presentaciones
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
