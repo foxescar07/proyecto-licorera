@@ -19,6 +19,7 @@ urlpatterns = [
     path('categorias/', include('categorias.urls', namespace='categorias')),
     path('inventario/', include('inventario.urls')),
     path('lotes/', include('lotes.urls', namespace='lotes')),
+    path('presentaciones/', include('presentaciones.urls')),
 
     # App reportes
     path('reportes/', include('reportes.urls')),

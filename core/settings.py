@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'categorias',
     'lotes',
     'bodega',
+    'presentaciones',
 
 ]
 
