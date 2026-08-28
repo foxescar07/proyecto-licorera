@@ -220,17 +220,10 @@ def _render_pos(request, sticky=None, error_apertura=None, error_cierre=None):
     clientes = Cliente.objects.all().order_by('nombre')
     total_dia = int(sum(v.total_venta for v in Venta.objects.filter(fecha__range=(inicio_hoy, fin_hoy))))
 
-    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).first()
-    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).first()
+    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).first()
+    ultimo_cierre = CierreCaja.objects.filter(documento_usuario_id=usuario_id).order_by('-fecha', '-hora', '-id').first()
 
-    cierre_anterior = (
-        CierreCaja.objects
-        .filter(documento_usuario_id=usuario_id)
-        .exclude(fecha=hoy)
-        .order_by('-fecha')
-        .first()
-    )
-    base_esperada = cierre_anterior.monto_base_siguiente if cierre_anterior else None
+    base_esperada = ultimo_cierre.monto_base_siguiente if ultimo_cierre else None
 
     historial_caja = _historial_caja()
 
@@ -411,11 +404,11 @@ def _accion_volver_productos(request):
 def _accion_agregar_carrito(request):
     hoy        = timezone.localdate()
     usuario_id = request.session.get('usuario_id')
-    caja_abierta = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).exists()
+    caja_abierta = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).exists()
 
     if not caja_abierta:
         messages.error(request, 'Debes abrir la caja antes de agregar productos.')
-        raise
+        return redirect('ventas:ventas_lista')
 
     producto_id     = request.POST.get('producto_id')
     presentacion_id = request.POST.get('presentacion_id', '').strip()
@@ -456,7 +449,7 @@ def _accion_vaciar_carrito(request):
 def _accion_confirmar_venta(request):
     hoy        = timezone.localdate()
     usuario_id = request.session.get('usuario_id')
-    caja_abierta = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).exists()
+    caja_abierta = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).exists()
 
     if not caja_abierta:
         messages.error(request, 'Debes abrir la caja antes de registrar una venta.')
@@ -678,8 +671,8 @@ def _accion_confirmar_apertura(request):
     hoy        = timezone.localdate()
     usuario_id = request.session.get('usuario_id')
 
-    if AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).exists():
-        messages.error(request, 'Ya hay una caja abierta hoy.')
+    if AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).exists():
+        messages.error(request, 'Ya hay una caja abierta.')
         return redirect('ventas:ventas_lista')
 
     valores = {}
@@ -696,8 +689,7 @@ def _accion_confirmar_apertura(request):
     cierre_anterior = (
         CierreCaja.objects
         .filter(documento_usuario_id=usuario_id)
-        .exclude(fecha=hoy)
-        .order_by('-fecha')
+        .order_by('-fecha', '-hora', '-id')
         .first()
     )
 
@@ -729,12 +721,9 @@ def _accion_confirmar_cierre(request):
     hoy        = timezone.localdate()
     usuario_id = request.session.get('usuario_id')
 
-    apertura = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).first()
+    apertura = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).first()
     if not apertura:
         messages.error(request, 'No hay caja abierta.')
-        return redirect('ventas:ventas_lista')
-    if hasattr(apertura, 'cierre'):
-        messages.error(request, 'La caja ya fue cerrada hoy.')
         return redirect('ventas:ventas_lista')
 
     valores = {}
@@ -764,6 +753,7 @@ def _accion_confirmar_cierre(request):
         denominaciones=valores,
     )
     request.session.pop('pv_cierre_valores', None)
+    request.session['pv_carrito'] = []
     messages.success(request, f"Caja cerrada. Total contado: ${total:,.0f}.".replace(',', '.'))
     return redirect('ventas:ventas_lista')
 
@@ -963,8 +953,8 @@ def registrar_conteo(request):
         hoy        = timezone.localdate()
         usuario_id = request.session.get('usuario_id')
 
-        if AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).exists():
-            return JsonResponse({'ok': False, 'error': 'Ya hay una caja abierta hoy.'})
+        if AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).exists():
+            return JsonResponse({'ok': False, 'error': 'Ya hay una caja abierta.'})
 
         AperturaCaja.objects.create(
             fecha=hoy,
@@ -991,12 +981,9 @@ def cierre_caja(request):
         hoy        = timezone.localdate()
         usuario_id = request.session.get('usuario_id')
 
-        apertura = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id).first()
+        apertura = AperturaCaja.objects.filter(fecha=hoy, documento_usuario_id=usuario_id, cierre__isnull=True).first()
         if not apertura:
             return JsonResponse({'ok': False, 'error': 'No hay caja abierta.'})
-
-        if hasattr(apertura, 'cierre'):
-            return JsonResponse({'ok': False, 'error': 'La caja ya fue cerrada hoy.'})
 
         total_retirado = max(0, float(total_contado) - float(monto_base_siguiente))
 

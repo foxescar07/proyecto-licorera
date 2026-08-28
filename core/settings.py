@@ -58,7 +58,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap5',
-    'base',
+    'principal',
+    'usuarios',
+    'productos',
+    'detalle_producto',
+    'categorias',
+    'inventario',
+    'lotes',
+    'reportes',
+    'ventas',
+    'proveedores',
+    'configuracion',
+    'ayuda',
+    'bodega',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -134,7 +146,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'base.Usuario'
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 LOGIN_URL = '/usuarios/login/'
 LOGIN_REDIRECT_URL = '/'
