@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'configuracion',
     'ayuda',
     'bodega',
+    'base'
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
