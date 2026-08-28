@@ -82,7 +82,6 @@ class Categoria(models.Model):
     descripcion = models.TextField(db_column='descripcion')
     subcategoria = models.CharField(max_length=100, db_column='subcategoria')
     padre = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, db_column='padre_id', related_name='subcategorias')
-    producto = models.ForeignKey('Producto', on_delete=models.SET_NULL, null=True, blank=True, db_column='codigo_producto', related_name='categorias')
 
     class Meta:
         db_table = 'categoria'
@@ -96,7 +95,6 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=150, db_column='nombre')
     descripcion = models.TextField(db_column='descripcion')
     fecha_vencimiento = models.DateField(db_column='fecha_vencimiento')
-    lote = models.ForeignKey('Lote', on_delete=models.SET_NULL, null=True, blank=True, db_column='codigo_lote', related_name='productos')
     categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True, blank=True, db_column='codigo_categoria', related_name='productos')
 
     class Meta:
@@ -138,8 +136,6 @@ class Marca(models.Model):
     nombre = models.CharField(max_length=100, db_column='nombre')
     descripcion = models.TextField(db_column='descripcion')
     estado = models.CharField(max_length=20, db_column='estado')
-    presentacion = models.ForeignKey('PresentacionProducto', on_delete=models.CASCADE, db_column='codigo_presentacion')
-    producto = models.ForeignKey('Producto', on_delete=models.CASCADE, db_column='codigo_producto')
 
     class Meta:
         db_table = 'marca'
@@ -170,8 +166,6 @@ class Proveedor(models.Model):
     estado = models.CharField(max_length=20, db_column='estado')
     observacion = models.TextField(db_column='observacion')
     fecha_registro = models.DateTimeField(default=timezone.now, db_column='fecha_registro')
-    lote = models.ForeignKey('Lote', on_delete=models.CASCADE, db_column='codigo_lote')
-    marca = models.ForeignKey('Marca', on_delete=models.SET_NULL, null=True, blank=True, db_column='codigo_marca')
 
     class Meta:
         db_table = 'proveedor'
